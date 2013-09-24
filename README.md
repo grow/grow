@@ -6,13 +6,15 @@ There is currently no license for this project. We're still figuring that out. T
 
 # Welcome to Grow!
 
-Grow is almost certainly the best way for teams to build and launch web sites, together. You're reading the documentation for the Python version of Grow (PyGrow), which you can run wherever you like.
+Grow is almost certainly the best way for teams to build and launch web sites, together. You're reading the documentation for the Python version of Grow (PyGrow), which you can run and use to build web sites wherever you like.
 
 ## Two-second terminology
 
 Grow web sites are entirely stored as files, sorted into a particular directory structure. The encapsulation of a Grow web site is called a *pod*. Grow can take a pod and generate an entirely static website (so it can be served by static web servers like Apache, Google Cloud Storage, Amazon S3, GitHub pages, etc.). Or, pods can be deployed to a Grow pod server, where you can take advantage of dynamic serving features.
 
-Pods are dead simple and you can [read more about the structure of a pod](#) if you'd like. However, PyGrow comes with handy utilities that can initialize blank (or themed!) pods for you, so you can learn as you go.
+Pods are dead simple and you can [read more about the structure of a pod](#) if you'd like. Since Grow and Grow.io are backed by Git, pods are best stored as individual Git repositories.
+
+PyGrow comes with handy utilities that can initialize blank (or beautifully-themed!) pods for you, which means you can learn as you go.
 
 ## Command rundown
 
