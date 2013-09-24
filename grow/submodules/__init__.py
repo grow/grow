@@ -11,7 +11,7 @@ def fix_imports():
       os.path.normpath(os.path.join(here, 'google-apputils-python')),
       os.path.normpath(os.path.join(here, 'httplib2', 'python2')),
       os.path.normpath(os.path.join(here, 'pytz')),
-      os.path.normpath(os.path.join(here, 'pyyaml', 'lib2')),
+      os.path.normpath(os.path.join(here, 'pyyaml', 'lib')),
       os.path.normpath(os.path.join(here, 'requests')),
   ]
   sys.path.extend(dirs)
