@@ -33,7 +33,9 @@ grow takedown | Takes down a pod from a static web server or dynamic pod server.
 
 ## Contributing
 
-Since PyGrow must be portable and fully-encapsulated so it can be deployed wherever, this repository uses submodules to include all dependencies that are not part of the Python standard library. Here's how you can pull down PyGrow and its submodules to contribute:
+Since PyGrow must be portable and fully-encapsulated so it can be deployed wherever (such as Google App Engine), this repository uses submodules to include all dependencies that are not part of the Python standard library. In the future, we will make PyGrow available via `pip install` to avoid needing to pull down submodules just for development.
+
+Here's how you can pull down PyGrow and its submodules to contribute:
 
     git clone https://github.com/grow/pygrow.git
     cd pygrow
