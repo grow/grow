@@ -1,6 +1,3 @@
-[submodule "grow/lib/segmentio"]
-	path = grow/lib/segmentio
-	url = https://github.com/segmentio/analytics-python.git
 [submodule "grow/submodules/requests"]
 	path = grow/submodules/requests
 	url = git://github.com/kennethreitz/requests.git
