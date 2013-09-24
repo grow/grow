@@ -1,4 +1,6 @@
 *.py[cod]
+.DS_Store
+growedit
 
 # C extensions
 *.so

@@ -1,0 +1,19 @@
+grow_version: 0.1
+
+flags:
+  public_dir: /public/
+
+domains:
+- example.com
+- example.net
+
+locales:
+  default:
+    regions:
+    - de
+    - fr
+    - it
+    languages:
+    - en
+    - ja
+    - pl

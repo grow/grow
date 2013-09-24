@@ -1,0 +1,22 @@
+  fields:
+
+  - key: title
+    name: Title
+    type: String
+
+  - key: body 
+    name: Title
+    type: String
+
+  - key: published_by
+    name: Published by
+    type: String
+
+  - key: published
+    name: Date published
+    type: DateTime
+
+  - key: tags 
+    name: Tags
+    type: String
+    repeated: True

@@ -1,0 +1,25 @@
+[submodule "grow/lib/segmentio"]
+	path = grow/lib/segmentio
+	url = https://github.com/segmentio/analytics-python.git
+[submodule "grow/submodules/requests"]
+	path = grow/submodules/requests
+	url = git://github.com/kennethreitz/requests.git
+[submodule "grow/submodules/werkzeug"]
+	path = grow/submodules/werkzeug
+	url = git://github.com/mitsuhiko/werkzeug.git
+[submodule "grow/submodules/google-apputils-python"]
+	path = grow/submodules/google-apputils-python
+	url = git://github.com/grow/google-apputils-python.git
+        ignore = dirty
+[submodule "grow/submodules/httplib2"]
+	path = grow/submodules/httplib2
+	url = git://github.com/jcgregorio/httplib2.git
+[submodule "grow/submodules/pytz"]
+	path = grow/submodules/pytz
+	url = git://github.com/newvem/pytz.git
+[submodule "grow/submodules/babel"]
+	path = grow/submodules/babel
+	url = git://github.com/mitsuhiko/babel.git
+[submodule "grow/submodules/dulwich"]
+	path = grow/submodules/dulwich
+	url = git://github.com/jelmer/dulwich.git

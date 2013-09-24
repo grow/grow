@@ -1,0 +1,14 @@
+{% extends "/views/base.html" %}
+
+{% block main %}
+  <h1>Homepage</h1>
+  {{content.title}}
+  <p>Main: {{_(content.description)}}
+  <p>Description: {{content.description}}
+  <h1>{{_('Hello World!')}}</h1>
+  <ul>
+    {% for key, value in grow.items() %}
+      <li>{{key}}: {{value}}
+    {% endfor %}
+  </ul>
+{% endblock %}

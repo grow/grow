@@ -1,0 +1,2 @@
+path: /<grow:ll>/{slug}
+view: /views/base.html
