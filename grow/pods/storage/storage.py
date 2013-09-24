@@ -11,7 +11,6 @@ if not 'SERVER_SOFTWARE' in os.environ:
 import jinja2
 import errno
 import logging
-from grow.lib import lru
 
 
 
@@ -137,7 +136,6 @@ class CloudStorage(BaseStorage):
   def open(filename, *args, **kwargs):
     return cloudstorage.open(filename, *args, **kwargs)
 
-#  @lru.lru_cache(maxsize=300)
   @staticmethod
   def read(filename):
     try:
@@ -147,12 +145,10 @@ class CloudStorage(BaseStorage):
       raise IOError(str(e))
 
   @staticmethod
-  @lru.lru_cache(maxsize=300)
   def modified(filename):
     return cloudstorage.stat(filename).st_ctime
 
   @staticmethod
-  @lru.lru_cache(maxsize=300)
   def stat(filename):
     try:
       return cloudstorage.stat(filename)
