@@ -30,3 +30,12 @@ grow test | Validates and runs tests against a pod.
 grow up | Uploads a pod to a remote pod server.
 grow deploy | Deploys a pod to a static web server or a dynamic pod server.
 grow takedown | Takes down a pod from a static web server or dynamic pod server.
+
+## Contributing
+
+Since PyGrow must be portable and fully-encapsulated so it can be deployed wherever, this repository uses submodules to include all dependencies that are not part of the Python standard library. Here's how you can pull down PyGrow and its submodules to contribute:
+
+    git clone https://github.com/grow/pygrow.git
+    cd pygrow
+    git submodule init
+    git submodule update

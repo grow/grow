@@ -20,3 +20,6 @@
 [submodule "grow/submodules/dulwich"]
 	path = grow/submodules/dulwich
 	url = git://github.com/jelmer/dulwich.git
+[submodule "grow/submodules/pyyaml"]
+	path = grow/submodules/pyyaml
+	url = git://github.com/yaml/pyyaml.git
