@@ -23,3 +23,6 @@
 [submodule "grow/submodules/pyyaml"]
 	path = grow/submodules/pyyaml
 	url = git://github.com/yaml/pyyaml.git
+[submodule "grow/submodules/google-protorpc"]
+	path = grow/submodules/google-protorpc
+	url = git://github.com/jeremydw/google-protorpc

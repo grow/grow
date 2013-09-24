@@ -9,6 +9,7 @@ def fix_imports():
       os.path.normpath(os.path.join(here, 'babel')),
       os.path.normpath(os.path.join(here, 'dulwich')),
       os.path.normpath(os.path.join(here, 'google-apputils-python')),
+      os.path.normpath(os.path.join(here, 'google-protorpc', 'python')),
       os.path.normpath(os.path.join(here, 'httplib2', 'python2')),
       os.path.normpath(os.path.join(here, 'pytz')),
       os.path.normpath(os.path.join(here, 'pyyaml', 'lib')),
