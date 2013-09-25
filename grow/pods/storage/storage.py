@@ -75,7 +75,9 @@ def normalize_path(filename):
 class FileStorage(BaseStorage):
 
   @staticmethod
-  def open(filename, mode='r'):
+  def open(filename, mode=None):
+    if mode is None:
+      mode = 'r'
     filename = normalize_path(filename)
     return open(filename, mode=mode)
 

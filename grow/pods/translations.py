@@ -18,7 +18,7 @@ class Translations(object):
 
   def __init__(self, pod=None):
     self.pod = pod
-    self.root = os.path.join(self.pod.root, 'translations')
+    self.root = '/translations'
 
   def get_translation(self, locale):
     return Translation(pod=self.pod, locale=locale)
@@ -40,15 +40,22 @@ class Translations(object):
     return message
 
   def extract(self):
-    pot_filename = os.path.join(self.root, 'messages.pot')
+    catalog_obj = catalog.Catalog()
+    path = os.path.join(self.root, 'messages.pot')
+    template = self.pod.open_file(path, mode='w')
     extracted = []
-    for pod_path in self.pod.list_dir('/'):
+    pod_files = self.pod.list_dir('/')
+    for pod_path in pod_files:
       if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
-        path = self.pod.root + pod_path
-#        file_obj = self.pod.storage.open(path)
-#        messages = extract.extract('python', file_obj)
-#        print messages
-
+        fp = self.pod.open_file(pod_path)
+        messages = extract.extract('python', fp)
+        for message in messages:
+          lineno, string, comments, context = message
+          catalog_obj.add(string, None, [(pod_path, lineno)], auto_comments=comments, context=context)
+    pofile.write_po(template, catalog_obj, width=80, no_location=True, omit_header=True, sort_output=True, sort_by_file=True)
+    logging.info('Extracted {} messages from {} files to: {}'.format(len(extracted), len(pod_files), template))
+    template.close()
+    return catalog_obj
 
 
 class Translation(object):
@@ -56,7 +63,7 @@ class Translation(object):
   def __init__(self, pod, locale):
     self.pod = pod
     self.locale = locale
-    self.path = os.path.join(self.pod.root, 'translations', locale)
+    self.path = os.path.join('/translations', locale)
 
     try:
       translations = gettext.translation(

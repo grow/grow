@@ -45,6 +45,10 @@ class Pod(object):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     return self.storage.listdir(path)
 
+  def open_file(self, pod_path, mode=None):
+    path = os.path.join(self.root, pod_path.lstrip('/'))
+    return self.storage.open(path, mode=mode)
+
   def read_file(self, pod_path):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     return self.storage.read(path)

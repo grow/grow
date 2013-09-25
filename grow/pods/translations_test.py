@@ -6,8 +6,7 @@ import unittest
 class TranslationsTest(unittest.TestCase):
 
   def setUp(self):
-    self.pod = pods.Pod('grow/pods/testdata/pod/',
-                        storage=storage.FileStorage)
+    self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_list_locales(self):
     self.assertListEqual(
@@ -15,20 +14,23 @@ class TranslationsTest(unittest.TestCase):
         self.pod.translations.list_locales())
 
   def test_extract(self):
-    self.pod.translations.extract()
+    catalog = self.pod.translations.extract()
+    self.assertEqual(2, len(catalog))
+    expected = [
+        'Hello World!',
+        'Hello World 2!',
+    ]
+    for string in expected:
+      self.assertTrue(catalog.get(string))
 
   def test_recompile_mo_files(self):
     self.pod.translations.recompile_mo_files()
-
-#  def test_get_catalog(self):
-#    self.assertEqual({}, self.pod.translations.get_catalog())
 
 
 class TranslationTest(unittest.TestCase):
 
   def setUp(self):
-    self.pod = pods.Pod('grow/pods/testdata/pod/',
-                        storage=storage.FileStorage)
+    self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_to_message(self):
     translation = self.pod.translations.get_translation('de')

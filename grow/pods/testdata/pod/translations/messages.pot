@@ -1,4 +1,6 @@
-#: source/templates/home.html:4
+msgid "Hello World 2!"
+msgstr ""
+
 msgid "Hello World!"
 msgstr ""
 
