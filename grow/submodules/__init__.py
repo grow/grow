@@ -23,4 +23,4 @@ def fix_imports():
       os.path.normpath(os.path.join(here, 'werkzeug')),
       os.path.normpath(os.path.join(here, 'webob')),
   ]
-  sys.path.extend(dirs)
+  sys.path[1:1] = dirs

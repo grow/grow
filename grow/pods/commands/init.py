@@ -32,19 +32,23 @@ class MemoryObjectStore(object_store.MemoryObjectStore):
   def add_pack(self):
     content = cStringIO.StringIO()
 
+    def abort():
+      pass
+
     def store():
       temp_file = cStringIO.StringIO(content.getvalue())
       pack_data = pack.PackData.from_file(temp_file, content.tell())
       for obj in pack.PackInflater.for_pack_data(pack_data):
         self.add_object(obj)
 
-    return content, store
+    return content, store, abort
 
 
 class MemoryRepo(repo.MemoryRepo):
 
   def __init__(self):
-    repo.BaseRepo.__init__(self, MemoryObjectStore(), repo.DictRefsContainer({}))
+    repo.BaseRepo.__init__(self, MemoryObjectStore(),
+                           repo.DictRefsContainer({}))
     self._named_files = {}
     self.bare = True
 
