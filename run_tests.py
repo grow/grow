@@ -21,6 +21,9 @@ COLOR_G = '\033[0;32m'  # Green.
 COLOR_R = '\033[0;31m'  # Red.
 COLOR_NONE = '\033[0;m'  # Reset to terminal's foreground color.
 
+from grow import submodules
+submodules.fix_imports()
+
 
 def main():
   success = True
