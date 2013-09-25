@@ -27,6 +27,11 @@ class Pod(object):
     self.translations = translations.Translations(pod=self)
     self.tests = tests.Tests(pod=self)
 
+  def __repr__(self):
+    if self.changeset is not None:
+      return '<Pod: {}@{}>'.format(self.root, self.changeset)
+    return '<Pod: {}>'.format(self.root)
+
   @property
   @utils.memoize
   def yaml(self):

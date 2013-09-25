@@ -43,10 +43,12 @@ class Blueprint(object):
     paths = self.pod.list_dir(self.pod_path)
     docs = []
     for path in paths:
-      slug , _ = os.path.splitext(os.path.basename(path))
-      if slug.startswith('_'):
+      slug, ext = os.path.splitext(os.path.basename(path))
+      if slug.startswith('_') or ext != '.yaml':
         continue
-      docs.append(Document(slug, pod=self.pod, blueprint=self))
+      doc = Document(slug, pod=self.pod, blueprint=self)
+      position = len(docs) if doc.order is None else doc.order
+      docs.insert(position, doc)
     return docs
 
   def list_servable_documents(self):
@@ -54,7 +56,7 @@ class Blueprint(object):
     for doc in self.list_documents():
       if not doc.has_url() or not doc.get_view():
         continue
-      docs.insert(doc.order, doc)
+      docs.append(doc)
     return docs
 
   def search(self):
@@ -115,7 +117,7 @@ class Document(object):
 
   @property
   def order(self):
-    return self.yaml.get('order', 0)
+    return self.yaml.get('order')
 
   @property
   def title(self):

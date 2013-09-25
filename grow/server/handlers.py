@@ -99,7 +99,7 @@ class PodHandler(BaseHandler):
       self.response.out.write('No matching route found.')
       return
 
-    logging.info('Matched URL to pod: %s', controller.pod)
+    logging.debug('Matched URL to pod: %s', controller.pod)
     self.respond_with_controller(controller)
 
 
