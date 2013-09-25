@@ -60,7 +60,7 @@ class PageController(base.BaseController):
         'content': self.document,
         'll': self.ll,
         'nav': lambda blueprint: tags.nav(blueprint=blueprint, pod=self.pod),
-        'entries': lambda blueprint: tags.entries(blueprint=blueprint, pod=self.pod),
+        'entries': lambda **kwargs: tags.entries(pod=self.pod, **kwargs),
         'route': self.route_params,
     }
     return template.render({'grow': context})

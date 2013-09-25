@@ -40,7 +40,12 @@ class Blueprint(object):
   def get_path_format(self):
     return self.yaml.get('path')
 
-  def list_documents(self, order_by='order', reverse=False):
+  def list_documents(self, order_by=None, reverse=None):
+    if order_by is None:
+      order_by = 'order'
+    if reverse is None:
+      reverse = False
+
     paths = self.pod.list_dir(self.pod_path)
     docs = utils.SortedCollection(key=operator.attrgetter(order_by))
     for path in paths:
