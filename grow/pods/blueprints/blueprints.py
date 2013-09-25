@@ -1,3 +1,4 @@
+import operator
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -39,17 +40,16 @@ class Blueprint(object):
   def get_path_format(self):
     return self.yaml.get('path')
 
-  def list_documents(self):
+  def list_documents(self, order_by='order', reverse=False):
     paths = self.pod.list_dir(self.pod_path)
-    docs = []
+    docs = utils.SortedCollection(key=operator.attrgetter(order_by))
     for path in paths:
       slug, ext = os.path.splitext(os.path.basename(path))
       if slug.startswith('_') or ext != '.yaml':
         continue
       doc = Document(slug, pod=self.pod, blueprint=self)
-      position = len(docs) if doc.order is None else doc.order
-      docs.insert(position, doc)
-    return docs
+      docs.insert(doc)
+    return reversed(docs) if reverse else docs
 
   def list_servable_documents(self):
     docs = []
@@ -59,8 +59,8 @@ class Blueprint(object):
       docs.append(doc)
     return docs
 
-  def search(self):
-    return self.list_documents()
+  def search(self, order_by='order'):
+    return self.list_documents(order_by=order_by)
 
   def to_message(self):
     message = messages.BlueprintMessage()

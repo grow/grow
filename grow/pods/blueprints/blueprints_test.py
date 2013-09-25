@@ -19,12 +19,13 @@ class BlueprintsTest(unittest.TestCase):
   def test_list_documents(self):
     blueprint = blueprints.Blueprint.get('pages', pod=self.pod)
     documents = blueprint.list_documents()
-    expected = [
-        '/content/pages/about.yaml',
-        '/content/pages/home.yaml',
-        '/content/pages/contact.yaml',
-    ]
-    self.assertItemsEqual(expected, [doc.pod_path for doc in documents])
+    expected = ['home', 'about', 'contact',]
+    self.assertListEqual(expected, [doc.slug for doc in documents])
+
+    blueprint = blueprints.Blueprint.get('posts', pod=self.pod)
+    documents = blueprint.list_documents(order_by='published', reverse=True)
+    expected = ['newer', 'older', 'oldest']
+    self.assertListEqual(expected, [doc.slug for doc in documents])
 
   def test_search(self):
     blueprint = blueprints.Blueprint.get('pages', pod=self.pod)
