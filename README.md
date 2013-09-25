@@ -2,8 +2,6 @@
 
 Hello! Grow is still under development and is not quite ready for use. Stay tuned by subscribing to the newsletter on [our website](http://grow.io) or by watching this repository for updates!
 
-There is currently no license for this project. We're still figuring that out. This repository will be updated with a permissive license when more of the engineering work on Grow is completed.
-
 # Welcome to Grow!
 
 Grow is almost certainly the best way for teams to build and launch web sites, together. You're reading the documentation for the Python version of Grow (PyGrow), which you can run and use to build web sites wherever you like.
@@ -37,7 +35,13 @@ Since PyGrow must be portable and fully-encapsulated so it can be deployed where
 
 Here's how you can pull down PyGrow and its submodules to contribute:
 
+    # Download Grow and submodules.
     git clone https://github.com/grow/pygrow.git
     cd pygrow
     git submodule init
     git submodule update
+
+    # Initialize a new pod named "testpod" using the "focus" theme.
+    cd ..
+    ./pygrow/grow/cli.py init focus testpod
+    ./pygrow/grow/cli.py run testpod 
