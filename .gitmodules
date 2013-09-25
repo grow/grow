@@ -41,3 +41,6 @@
 [submodule "grow/submodules/paste"]
 	path = grow/submodules/paste
 	url = git://github.com/jeremydw/paste
+[submodule "grow/submodules/python-gflags"]
+	path = grow/submodules/python-gflags
+	url = git://github.com/jeremydw/python-gflags
