@@ -32,3 +32,6 @@
 [submodule "grow/submodules/markupsafe"]
 	path = grow/submodules/markupsafe
 	url = git://github.com/mitsuhiko/markupsafe
+[submodule "grow/submodules/webapp-improved"]
+	path = grow/submodules/webapp-improved
+	url = git://github.com/moraes/webapp-improved
