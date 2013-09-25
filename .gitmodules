@@ -44,3 +44,6 @@
 [submodule "grow/submodules/python-gflags"]
 	path = grow/submodules/python-gflags
 	url = git://github.com/jeremydw/python-gflags
+[submodule "grow/submodules/google-api-python-client"]
+	path = grow/submodules/google-api-python-client
+	url = git://github.com/musicmetric/google-api-python-client
