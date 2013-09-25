@@ -20,14 +20,14 @@ PyGrow's command line utility lets you do things like initialize pods, download 
 
 Command | Description
 --- | ---
-grow dump | Dumps a pod to a static files for a completely static web site.
+grow dump | Generates static files from a pod and dumps them to a local destination.
 grow get | Gets a pod from a remote pod server.
-grow init | Initializes a blank (or themed) pod.
+grow init | Initializes a blank (or themed!) pod.
 grow run | Starts a local pod server.
-grow test | Validates and runs tests against a pod.
+grow test | Validates and runs tests for a pod.
 grow up | Uploads a pod to a remote pod server.
-grow deploy | Deploys a pod to a static web server or a dynamic pod server.
-grow takedown | Takes down a pod from a static web server or dynamic pod server.
+grow deploy | Deploys a pod to a remote destination.
+grow takedown | Takes down a pod from a remote destination.
 
 ## Contributing
 
