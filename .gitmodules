@@ -38,3 +38,6 @@
 [submodule "grow/submodules/webob"]
 	path = grow/submodules/webob
 	url = git://github.com/Pylons/webob
+[submodule "grow/submodules/paste"]
+	path = grow/submodules/paste
+	url = git://github.com/jeremydw/paste
