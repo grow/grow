@@ -24,8 +24,6 @@ COLOR_NONE = '\033[0;m'  # Reset to terminal's foreground color.
 from grow import submodules
 submodules.fix_imports()
 
-print sys.path
-
 
 def main():
   success = True
