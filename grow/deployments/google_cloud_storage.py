@@ -36,7 +36,7 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
     bucket_key.set_contents_from_file(fp, headers=headers, replace=True, rewind=True, policy='public-read')
     fp.close()
 
-  def dump(self, pod):
+  def deploy(self, pod):
     start = time.time()
     logging.info('Connecting to GCS...')
     # TODO(jeremydw): Read manifest and takedown old content here.

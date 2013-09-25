@@ -44,6 +44,8 @@ class Translations(object):
     path = os.path.join(self.root, 'messages.pot')
     template = self.pod.open_file(path, mode='w')
     extracted = []
+
+    # Extracts messages from views.
     pod_files = self.pod.list_dir('/')
     for pod_path in pod_files:
       if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
@@ -52,6 +54,10 @@ class Translations(object):
         for message in messages:
           lineno, string, comments, context = message
           catalog_obj.add(string, None, [(pod_path, lineno)], auto_comments=comments, context=context)
+
+    # TODO(jeremydw): Extract messages from content.
+
+    # Writes to PO template.
     pofile.write_po(template, catalog_obj, width=80, no_location=True, omit_header=True, sort_output=True, sort_by_file=True)
     logging.info('Extracted {} messages from {} files to: {}'.format(len(extracted), len(pod_files), template))
     template.close()
@@ -94,7 +100,7 @@ class Translation(object):
     locale = self.locale
     po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
     mo_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.mo')
-    po_file = self.pod.storage.open(po_filename, 'r')
+    po_file = self.pod.open_file(po_filename)
     try:
       catalog = pofile.read_po(po_file, locale)
     finally:
@@ -117,15 +123,13 @@ class Translation(object):
     try:
       for message, errors in catalog.check():
         for error in errors:
-          logging.error(
-              'Error: {}:{}: {}'.format(
-                  po_filename, message.lineno, error))
+          logging.error('Error: {}:{}: {}'.format(po_filename, message.lineno, error))
     except IOError:
       logging.info('Skipped catalog check.')
 
     logging.info('Compiling catalog {} to {}'.format(po_filename, mo_filename))
 
-    mo_file = self.pod.storage.open(mo_filename, 'w')
+    mo_file = self.pod.open_file(mo_filename, 'w')
     try:
       mofile.write_mo(mo_file, catalog, use_fuzzy=use_fuzzy)
     finally:

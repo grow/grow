@@ -14,11 +14,13 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
 def main(argv):
+  appcommands.AddCmd('deploy', commands.DeployCmd)
   appcommands.AddCmd('dump', commands.DumpCmd)
   appcommands.AddCmd('get', commands.GetCmd)
   appcommands.AddCmd('init', commands.InitCmd)
   appcommands.AddCmd('run', commands.RunCmd)
   appcommands.AddCmd('up', commands.UpCmd)
+  appcommands.AddCmd('test', commands.TestCmd)
 
 
 if __name__ == '__main__':
