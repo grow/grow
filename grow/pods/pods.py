@@ -1,3 +1,4 @@
+import logging
 import mimetypes
 import os
 from grow.common import utils
@@ -63,6 +64,8 @@ class Pod(object):
     return output
 
   def dump(self, suffix='index.html', out_dir=None):
+    if out_dir is not None:
+      logging.info('Dumping to {}...'.format(out_dir))
     output = self.export()
     clean_output = {}
     if suffix:
@@ -75,7 +78,7 @@ class Pod(object):
           if isinstance(content, unicode):
             content = content.encode('utf-8')
           self.storage.write(out_path, content)
-          print 'Dumping: {}'.format(out_path)
+          logging.info('Dumping: {}'.format(path))
     else:
       clean_output = output
     return clean_output

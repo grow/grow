@@ -2,11 +2,12 @@
 
 import base64
 import gflags as flags
+import logging
 import os
 from google.apputils import appcommands
+from grow import deployments
 from grow.client import client
 from grow.pods import commands as pod_commands
-#from grow.deployment import google_cloud_storage
 from grow.pods import pods
 from grow.pods import storage
 from grow.server import handlers
@@ -26,7 +27,7 @@ class UpCmd(appcommands.Cmd):
     host = FLAGS.host
     pod = pods.Pod(argv[1], storage=storage.FileStorage)
 
-    # THIS IS TERRIBLE PLEASE THANKS!
+    # TODO(jeremydw): Fix this.
     if host is not None and 'localhost' in host:
       service = client.get_service(host=FLAGS.host)
       for pod_path in pod.list_files_in_pod():
@@ -66,13 +67,27 @@ class RunCmd(appcommands.Cmd):
 
 class DumpCmd(appcommands.Cmd):
 
+  flags.DEFINE_string('destination', None,
+                      'Destination to dump to.')
+
+  flags.DEFINE_string('bucket', None,
+                      'Google Cloud Storage or Amazon S3 bucket.')
+
   def Run(self, argv):
-    if len(argv) != 3:
-      raise Exception('Usage: grow dump <pod root> <out directory>')
-    root = os.path.abspath(os.path.join(os.getcwd(), argv[-2]))
-    out_dir = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+    root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.dump(out_dir=out_dir)
+
+    if FLAGS.destination is None:
+      raise appcommands.AppCommandsError('Must specify: --destination.')
+
+    if FLAGS.destination == 'gcs':
+      deployment = deployments.GoogleCloudStorageDeployment(bucket=FLAGS.bucket)
+    else:
+      out_dir = os.path.abspath(os.path.join(os.getcwd(), FLAGS.destination))
+      deployment = deployments.FileSystemDeployment(out_dir=out_dir)
+
+    deployment.dump(pod)
+    return
 
 
 class InitCmd(appcommands.Cmd):

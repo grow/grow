@@ -4,7 +4,7 @@ class BaseDeployment(object):
     """Uploads a pod but does not deploy it."""
     raise NotImplementedError
 
-  def deploy_static_pod(self, pod):
+  def dump(self, pod):
     """Deploys a static version of the pod."""
     raise NotImplementedError
 
@@ -12,8 +12,8 @@ class BaseDeployment(object):
     """Deploys a pod, making it serve live traffic."""
     raise NotImplementedError
 
-  def takedown_static_pod(self, pod):
+  def takedown_pod(self, pod):
     raise NotImplementedError
 
-  def takedown_pod(self, pod):
+  def get_manifest(self):
     raise NotImplementedError

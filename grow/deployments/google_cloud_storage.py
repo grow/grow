@@ -2,8 +2,10 @@ from boto.s3 import key
 from grow.deployments import base
 import boto
 import cStringIO
+import logging
 import mimetypes
 import threading
+import time
 
 
 class GoogleCloudStorageDeployment(base.BaseDeployment):
@@ -14,25 +16,44 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
     self.access_key = access_key
     self.secret = secret
 
-  def deploy_static_pod(self, pod):
+  def get_url(self):
+    return 'http://{}/'.format(self.bucket)
+
+  def _upload(self, bucket, path, contents):
+    if isinstance(contents, unicode):
+      contents = contents.encode('utf-8')
+    logging.info('Uploading {}...'.format(path))
+    bucket_key = key.Key(bucket)
+    fp = cStringIO.StringIO()
+    fp.write(contents)
+    bucket_key.key = path.lstrip('/')
+    mimetype = mimetypes.guess_type(path)[0]
+    # TODO(jeremydw): Better headers.
+    headers = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': mimetype,
+    }
+    bucket_key.set_contents_from_file(fp, headers=headers, replace=True, rewind=True, policy='public-read')
+    fp.close()
+
+  def dump(self, pod):
+    start = time.time()
+    logging.info('Connecting to GCS...')
+    # TODO(jeremydw): Read manifest and takedown old content here.
     connection = boto.connect_gs(self.access_key, self.secret, is_secure=False)
     bucket = connection.get_bucket(self.bucket)
+    logging.info('Connected! Configuring bucket: {}'.format(self.bucket))
     bucket.set_acl('public-read')
     bucket.configure_versioning(False)
     bucket.configure_website(main_page_suffix='index.html', error_key='404.html')
-
-    paths_to_contents = self.pod.dump()
+    paths_to_contents = pod.dump()
+    # TODO(jeremydw): Thread pool.
+    threads = []
     for path, contents in paths_to_contents.iteritems():
-      if isinstance(contents, unicode):
-        contents = contents.encode('utf-8')
-      bucket_key = key.Key(bucket)
-      fp = cStringIO.StringIO()
-      fp.write(contents)
-      bucket_key.key = path.lstrip('/')
-      mimetype = mimetypes.guess_type(path)[0]
-      headers = {
-          'Cache-Control': 'no-cache',
-          'Content-Type': mimetype,
-      }
-      bucket_key.set_contents_from_file(fp, headers=headers, replace=True, rewind=True, policy='public-read')
-      fp.close()
+      thread = threading.Thread(target=self._upload, args=(bucket, path, contents))
+      threads.append(thread)
+      thread.start()
+    for thread in threads:
+      thread.join()
+    logging.info('Done in {}s!'.format(time.time() - start))
+    logging.info('Deployed to: {}'.format(self.get_url()))

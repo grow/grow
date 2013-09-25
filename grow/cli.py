@@ -9,6 +9,9 @@ submodules.fix_imports()
 from google.apputils import appcommands
 from grow import commands
 
+import logging
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+
 
 def main(argv):
   appcommands.AddCmd('dump', commands.DumpCmd)
