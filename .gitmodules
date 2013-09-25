@@ -35,3 +35,6 @@
 [submodule "grow/submodules/webapp-improved"]
 	path = grow/submodules/webapp-improved
 	url = git://github.com/moraes/webapp-improved
+[submodule "grow/submodules/webob"]
+	path = grow/submodules/webob
+	url = git://github.com/Pylons/webob
