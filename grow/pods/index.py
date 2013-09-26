@@ -81,7 +81,7 @@ class Index(object):
       thread.start()
     for path in diffs.deletes:
       logging.info('Deleting file: {}'.format(path))
-      thread = threading.Thread(target=delete_func, args=(path))
+      thread = threading.Thread(target=delete_func, args=(path,))
       threads.append(thread)
       thread.start()
     for path in diffs.nochanges:

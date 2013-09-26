@@ -50,3 +50,6 @@
 [submodule "grow/submodules/dnspython"]
 	path = grow/submodules/dnspython
 	url = https://github.com/rthalley/dnspython
+[submodule "grow/submodules/Python-Markdown"]
+	path = grow/submodules/Python-Markdown
+	url = git://github.com/waylan/Python-Markdown

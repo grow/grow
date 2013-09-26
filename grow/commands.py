@@ -66,6 +66,7 @@ class RunCmd(appcommands.Cmd):
     print 'Serving pod with root: {}'.format(root)
 
     httpserver.serve(main_lib.application)
+    print 'abc'
 
 
 class DeployCmd(appcommands.Cmd):

@@ -6,6 +6,7 @@ def fix_imports():
   here = os.path.dirname(__file__)
   dirs = [
       os.path.normpath(os.path.join(here, '..', '..')),
+      os.path.normpath(os.path.join(here, 'Python-Markdown')),
       os.path.normpath(os.path.join(here, 'babel')),
       os.path.normpath(os.path.join(here, 'dulwich')),
       os.path.normpath(os.path.join(here, 'dnspython')),
