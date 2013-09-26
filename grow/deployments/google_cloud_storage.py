@@ -22,7 +22,7 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
   def get_url(self):
     return 'http://{}/'.format(self.bucket)
 
-  def _write_file(self, path, content, bucket=None):
+  def _write_file(self, path, content, bucket=None, policy='public-read'):
     if isinstance(content, unicode):
       content = content.encode('utf-8')
     bucket_key = key.Key(bucket)
@@ -35,7 +35,7 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
         'Cache-Control': 'no-cache',
         'Content-Type': mimetype,
     }
-    bucket_key.set_contents_from_file(fp, headers=headers, replace=True, rewind=True, policy='public-read')
+    bucket_key.set_contents_from_file(fp, headers=headers, replace=True, rewind=True, policy=policy)
     fp.close()
 
   def _delete_file(self, path, bucket=None):
@@ -48,6 +48,7 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
     index_key.key = index.Index.BASENAME
     try:
       index_key.get_contents_as_string()
+      logging.info('Loaded index from GCS.')
       return index.Index.from_yaml(index_key)
     except boto.exception.GSResponseError, e:
       logging.info('No index found, assuming deploying new pod.')
@@ -63,13 +64,14 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
     connection = boto.connect_gs(self.access_key, self.secret, is_secure=False)
     bucket = connection.get_bucket(self.bucket)
 
+    logging.info('Connected! Configuring bucket: {}'.format(self.bucket))
+
     deployed_index = self.get_deployed_index(bucket)
     paths_to_content = pod.dump()
     canary_index = index.Index()
     canary_index.update(paths_to_content)
     diffs = canary_index.diff(deployed_index)
 
-    logging.info('Connected! Configuring bucket: {}'.format(self.bucket))
     bucket.set_acl('public-read')
     bucket.configure_versioning(False)
     bucket.configure_website(main_page_suffix='index.html', error_key='404.html')
@@ -80,7 +82,7 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
         delete_func=lambda *args: self._delete_file(*args, bucket=bucket),
     )
 
-    self._write_file(index.Index.BASENAME, canary_index.to_yaml(), bucket=bucket)
+    self._write_file(index.Index.BASENAME, canary_index.to_yaml(), bucket=bucket, policy='private')
     logging.info('Wrote index: /{}'.format(index.Index.BASENAME))
 
     logging.info('Done in {}s!'.format(time.time() - start))
