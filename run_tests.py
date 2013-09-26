@@ -22,7 +22,7 @@ COLOR_R = '\033[0;31m'  # Red.
 COLOR_NONE = '\033[0;m'  # Reset to terminal's foreground color.
 
 from grow import submodules
-submodules.fix_imports()
+submodule_dirs = submodules.fix_imports()
 
 
 def main():
@@ -56,8 +56,9 @@ def main():
     sys.stdout.write('Testing %s\r' % basename)
     sys.stdout.flush()
     env = os.environ.copy()
-    env['PYTHONPATH'] = ':'.join([tests_dir, root_dir, appengine_dir,
-                                  env.get('PYTHONPATH', '')])
+    fixed_env = [tests_dir, root_dir, appengine_dir, env.get('PYTHONPATH', '')]
+    fixed_env.extend(submodule_dirs)
+    env['PYTHONPATH'] = ':'.join(fixed_env)
     process = subprocess.Popen([sys.executable, filename], env=env,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE,

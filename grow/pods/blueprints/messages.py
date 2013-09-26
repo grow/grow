@@ -2,6 +2,16 @@ from protorpc import messages
 from protorpc import message_types
 
 
+class Format(messages.Enum):
+  HTML = 1
+  MARKDOWN = 2
+
+extensions_to_formats = {
+    '.md': Format.MARKDOWN,
+    '.yaml': Format.HTML,
+}
+
+
 class Type(messages.Enum):
   STRING = 1
   TEXT = 2

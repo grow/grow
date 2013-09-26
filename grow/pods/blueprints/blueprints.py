@@ -1,3 +1,4 @@
+import markdown
 import operator
 from datetime import date
 from datetime import datetime
@@ -34,6 +35,9 @@ class Blueprint(object):
     path = os.path.join(self.pod_path, '_blueprint.yaml')
     return utils.parse_yaml(self.pod.read_file(path))[0]
 
+  def get_document(self, basename):
+    return Document(basename, pod=self.pod, blueprint=self)
+
   def get_view(self):
     return self.yaml.get('view')
 
@@ -49,10 +53,11 @@ class Blueprint(object):
     paths = self.pod.list_dir(self.pod_path)
     docs = utils.SortedCollection(key=operator.attrgetter(order_by))
     for path in paths:
-      slug, ext = os.path.splitext(os.path.basename(path))
-      if slug.startswith('_') or ext != '.yaml':
+      basename = os.path.basename(path)
+      slug, ext = os.path.splitext(basename)
+      if slug.startswith('_') or ext not in messages.extensions_to_formats:
         continue
-      doc = Document(slug, pod=self.pod, blueprint=self)
+      doc = self.get_document(basename)
       docs.insert(doc)
     return reversed(docs) if reverse else docs
 
@@ -74,11 +79,13 @@ class Blueprint(object):
 
 class Document(object):
 
-  def __init__(self, slug, pod, blueprint=None):
-    self.slug = slug
+  def __init__(self, basename, pod, blueprint=None, body_format=None):
+    self.basename = basename
+    self.slug, self.ext = os.path.splitext(basename)
     self.pod = pod
     self.blueprint = blueprint
-    self.pod_path = os.path.join(blueprint.pod_path, '{}.yaml'.format(slug))
+    self.format = messages.extensions_to_formats[self.ext]
+    self.pod_path = os.path.join(blueprint.pod_path, basename)
     self._parsed_yaml = None
 
   def __repr__(self):
@@ -118,7 +125,10 @@ class Document(object):
   def body(self):
     val = self.parsed_yaml[1]
     if val:
-      return val.decode('utf-8')
+      val = val.decode('utf-8')
+      if self.format == messages.Format.MARKDOWN:
+        val = markdown.markdown(val)
+    return val
 
   @property
   def order(self):
