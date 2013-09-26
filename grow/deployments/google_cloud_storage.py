@@ -2,6 +2,7 @@ from boto.s3 import key
 from grow.deployments import base
 import boto
 import cStringIO
+import dns.resolver
 import logging
 import mimetypes
 import threading
@@ -10,6 +11,8 @@ import time
 
 class GoogleCloudStorageDeployment(base.BaseDeployment):
   """Deploys a pod to a static Google Cloud Storage bucket for web serving."""
+
+  CNAME = 'c.storage.googleapis.com'
 
   def __init__(self, bucket, access_key=None, secret=None):
     self.bucket = bucket
@@ -37,6 +40,7 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
     fp.close()
 
   def deploy(self, pod):
+    self.test_domain_cname_is_gcs()
     start = time.time()
     logging.info('Connecting to GCS...')
     # TODO(jeremydw): Read manifest and takedown old content here.
@@ -57,3 +61,26 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
       thread.join()
     logging.info('Done in {}s!'.format(time.time() - start))
     logging.info('Deployed to: {}'.format(self.get_url()))
+
+  def test(self):
+    pass
+    self.test_bucket_cname()
+
+  def test_domain_cname_is_gcs(self):
+    dns_resolver = dns.resolver.Resolver()
+    dns_resolver.nameservers = ['8.8.8.8']  # Use Google's DNS.
+    try:
+      content = str(dns_resolver.query(self.bucket, 'CNAME')[0])
+      is_mapped_to_gcs = content.startswith(GoogleCloudStorageDeployment.CNAME)
+      if is_mapped_to_gcs:
+        logging.info('Verified CNAME mapping for {} -> {}'.format(self.bucket, content))
+      else:
+        logging.warning(
+            'CNAME mapping for {} is not GCS! Found {}, expected {}'.format(
+                self.bucket, content, GoogleCloudStorageDeployment.CNAME))
+    except:
+      content = None
+      is_mapped_to_gcs = False
+      message = "Can't verify CNAME for {} is mapped to {}"
+      logging.error(message.format(self.bucket, GoogleCloudStorageDeployment.CNAME))
+    return is_mapped_to_gcs

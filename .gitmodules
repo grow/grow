@@ -47,3 +47,6 @@
 [submodule "grow/submodules/google-api-python-client"]
 	path = grow/submodules/google-api-python-client
 	url = git://github.com/musicmetric/google-api-python-client
+[submodule "grow/submodules/dnspython"]
+	path = grow/submodules/dnspython
+	url = https://github.com/rthalley/dnspython

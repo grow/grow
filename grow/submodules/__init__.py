@@ -8,6 +8,7 @@ def fix_imports():
       os.path.normpath(os.path.join(here, '..', '..')),
       os.path.normpath(os.path.join(here, 'babel')),
       os.path.normpath(os.path.join(here, 'dulwich')),
+      os.path.normpath(os.path.join(here, 'dnspython')),
       os.path.normpath(os.path.join(here, 'google-api-python-client')),
       os.path.normpath(os.path.join(here, 'google-apputils-python')),
       os.path.normpath(os.path.join(here, 'google-protorpc', 'python')),
