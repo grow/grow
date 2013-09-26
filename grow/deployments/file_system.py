@@ -9,24 +9,27 @@ class FileSystemDeployment(base.BaseDeployment):
   def __init__(self, out_dir):
     self.out_dir = out_dir
 
-  def deploy(self, pod):
-    logging.info('Deploying to: {}'.format(self.out_dir))
+  def get_deployed_index(self, pod):
     try:
       path = os.path.join(self.out_dir, index.Index.BASENAME)
       yaml_string = pod.storage.read(path)
-      current_index = index.Index.from_yaml(yaml_string)
+      return index.Index.from_yaml(yaml_string)
     except IOError, e:
       if e.errno != 2:
         raise
       logging.info('No index found, assuming deploying new pod.')
-      current_index = index.Index()
+      return index.Index()
 
+  def deploy(self, pod):
+    logging.info('Deploying to: {}'.format(self.out_dir))
+
+    deployed_index = self.get_deployed_index(pod)
     paths_to_content = pod.dump()
     canary_index = index.Index()
     canary_index.update(paths_to_content)
     index_path = os.path.join(self.out_dir, index.Index.BASENAME)
 
-    diffs = canary_index.diff(current_index)
+    diffs = canary_index.diff(deployed_index)
     for path in diffs.adds:
       logging.info('Writing new file: {}'.format(path))
       self._write_file(pod, path, paths_to_content[path])

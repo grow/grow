@@ -1,5 +1,7 @@
 import collections
 import hashlib
+import logging
+import threading
 import yaml
 
 
@@ -60,3 +62,29 @@ class Index(object):
   @classmethod
   def from_yaml(cls, yaml_string):
     return cls(yaml.load(yaml_string))
+
+  @classmethod
+  def apply_diffs(cls, diffs, paths_to_content, write_func, delete_func):
+    # TODO(jeremydw): Thread pool.
+    threads = []
+    for path in diffs.adds:
+      logging.info('Writing new file: {}'.format(path))
+      content = paths_to_content[path]
+      thread = threading.Thread(target=write_func, args=(path, content))
+      threads.append(thread)
+      thread.start()
+    for path in diffs.edits:
+      logging.info('Writing changed file: {}'.format(path))
+      content = paths_to_content[path]
+      thread = threading.Thread(target=write_func, args=(path, content))
+      threads.append(thread)
+      thread.start()
+    for path in diffs.deletes:
+      logging.info('Deleting file: {}'.format(path))
+      thread = threading.Thread(target=delete_func, args=(path))
+      threads.append(thread)
+      thread.start()
+    for path in diffs.nochanges:
+      logging.info('Skipping unchanged file: {}'.format(path))
+    for thread in threads:
+      thread.join()
