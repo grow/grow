@@ -2,6 +2,7 @@ import logging
 import mimetypes
 import os
 from grow.common import utils
+from grow.pods import index
 from grow.pods import locales
 from grow.pods import messages
 from grow.pods import routes
@@ -75,6 +76,7 @@ class Pod(object):
   def dump(self, suffix='index.html', out_dir=None):
     if out_dir is not None:
       logging.info('Dumping to {}...'.format(out_dir))
+
     output = self.export()
     clean_output = {}
     if suffix:
@@ -82,6 +84,7 @@ class Pod(object):
         if suffix and path.endswith('/') or '.' not in os.path.basename(path):
           path = path.rstrip('/') + '/' + suffix
         clean_output[path] = content
+
         if out_dir is not None:
           out_path = os.path.join(out_dir, path.lstrip('/'))
           if isinstance(content, unicode):

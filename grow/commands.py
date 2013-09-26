@@ -71,11 +71,13 @@ class RunCmd(appcommands.Cmd):
 class DeployCmd(appcommands.Cmd):
   """Deploys a pod to a remote destination."""
 
-  flags.DEFINE_string('destination', None,
-                      'Destination to deploy to.')
+  flags.DEFINE_enum('destination', None, ['gcs', 'local'],
+                    'Destination to deploy to.')
 
   flags.DEFINE_string('bucket', None,
                       'Google Cloud Storage or Amazon S3 bucket.')
+
+  flags.DEFINE_string('out_dir', None, 'Directory to write to.')
 
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
@@ -88,8 +90,8 @@ class DeployCmd(appcommands.Cmd):
       if FLAGS.bucket is None:
         raise appcommands.AppCommandsError('Must specify: --bucket.')
       deployment = deployments.GoogleCloudStorageDeployment(bucket=FLAGS.bucket)
-    else:
-      out_dir = os.path.abspath(os.path.join(os.getcwd(), FLAGS.destination))
+    elif FLAGS.destination == 'local':
+      out_dir = os.path.abspath(os.path.join(os.getcwd(), FLAGS.out_dir))
       deployment = deployments.FileSystemDeployment(out_dir=out_dir)
 
     deployment.deploy(pod)

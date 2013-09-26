@@ -3,7 +3,8 @@ try:
 except:
   cloudstorage = None
 
-# TODO(jeremydw): This is crap.
+# TODO(jeremydw): There's a bunch of ugly stuff in this file and 
+# it should be fixed.
 import os
 if not 'SERVER_SOFTWARE' in os.environ:
   cloudstorage = None
@@ -99,7 +100,6 @@ class FileStorage(BaseStorage):
   @staticmethod
   def listdir(dirpath):
     dirpath = normalize_path(dirpath)
-#    return os.listdir(dirpath)
     paths = []
     for root, dirs, files in os.walk(dirpath):
       if '.git' in root:
@@ -128,6 +128,11 @@ class FileStorage(BaseStorage):
   @staticmethod
   def exists(filename):
     return os.path.exists(filename)
+
+  @staticmethod
+  def delete(filename):
+    filename = normalize_path(filename)
+    return os.remove(filename)
 
 
 class CloudStorage(BaseStorage):
