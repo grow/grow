@@ -2,11 +2,16 @@
 
 import appengine_config
 import webapp2
+#from protorpc.webapp import service_handlers
+from protorpc.wsgi import service
 from grow.server import handlers
+from grow.server import services
 
+#services_app = service.service_mappings([
+#    ('/_api/pods.*', services.PodService),
+#])
 
-routes = (
+main_app = webapp2.WSGIApplication([
     ('/_grow/.*', handlers.ConsoleHandler),
     ('/.*', handlers.PodHandler),
-)
-application = webapp2.WSGIApplication(routes)
+])

@@ -65,8 +65,18 @@ class RunCmd(appcommands.Cmd):
     handlers.set_single_pod_root(root)
     print 'Serving pod with root: {}'.format(root)
 
-    httpserver.serve(main_lib.application)
-    print 'abc'
+    httpserver.serve(main_lib.main_app)
+
+#    import threading
+#    threads = []
+#    for thread in threads:
+#      thread = threading.Thread(target=httpserver.serve, args=(main_lib.main_app,))
+#      thread.start()
+##      thread = threading.Thread(target=httpserver.serve, main_lib.services_app, port=8081)
+##      thread.start()
+#
+#    for thread in threads:
+#      thread.join()
 
 
 class DeployCmd(appcommands.Cmd):

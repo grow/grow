@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+import logging
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+
 import os
 import sys
 sys.path.extend([os.path.join(os.path.dirname(__file__), '..')])
@@ -8,9 +11,6 @@ submodules.fix_imports()
 
 from google.apputils import appcommands
 from grow import commands
-
-import logging
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
 def main(argv):
