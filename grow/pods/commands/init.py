@@ -1,4 +1,6 @@
 import cStringIO
+import logging
+import os
 from dulwich import repo
 from dulwich import object_store
 from dulwich import client
@@ -9,22 +11,23 @@ REPO_URL = 'https://github.com/grow/grow-templates.git'
 
 
 def init(pod, branch_name, repo_url=REPO_URL):
+    branch_name = 'HEAD'  # TODO: fix this.
     git_client = client.HttpGitClient(repo_url)
+    logging.info('Grabbing pod theme {} from {}...'.format(branch_name, repo_url))
     temp_repo = MemoryRepo()
     temp_repo.clone(git_client)
-    branch_name = 'HEAD'
     tree = temp_repo[branch_name].tree
     try:
       local_repo = repo.Repo.init(pod.root, mkdir=True)
     except OSError as e:
       if 'File exists' in str(e):
-        print '{} already exists. Delete the directory before proceeding.'.format(pod.root)
+        logging.info('{} already exists. Delete the directory before proceeding.'.format(pod.root))
         return
     index_file = local_repo.index_path()
-    index.build_index_from_tree(local_repo.path, index_file,
-                                temp_repo.object_store, tree)
-    print 'Template {} is ready to go in {}.'.format(branch_name, pod.root)
-    print 'To start Grow, use: grow run {}'.format(pod.root)
+    index.build_index_from_tree(local_repo.path, index_file, temp_repo.object_store, tree)
+    logging.info('Pod with theme {} is ready to go in: {}'.format(branch_name, pod.root))
+    unnecessary_git_dir = os.path.join(pod.root, '.git')
+    pod.storage.delete_dir(unnecessary_git_dir)
 
 
 class MemoryObjectStore(object_store.MemoryObjectStore):

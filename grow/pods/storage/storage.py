@@ -12,6 +12,7 @@ if not 'SERVER_SOFTWARE' in os.environ:
 import jinja2
 import errno
 import logging
+import shutil
 
 
 
@@ -54,6 +55,10 @@ class BaseStorage(object):
 
   @staticmethod
   def listdir(dirpath):
+    raise NotImplementedError
+
+  @staticmethod
+  def delete_dir(dirpath):
     raise NotImplementedError
 
   @staticmethod
@@ -133,6 +138,11 @@ class FileStorage(BaseStorage):
   def delete(filename):
     filename = normalize_path(filename)
     return os.remove(filename)
+
+  @staticmethod
+  def delete_dir(dirpath):
+    dirpath = normalize_path(dirpath)
+    shutil.rmtree(dirpath)
 
 
 class CloudStorage(BaseStorage):

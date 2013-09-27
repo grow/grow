@@ -37,11 +37,32 @@ Here's how you can pull down PyGrow and its submodules to contribute:
 
     # Download Grow and submodules.
     git clone https://github.com/grow/pygrow.git
-    cd pygrow
-    git submodule init
-    git submodule update
+    cd pygrow && git submodule init && git submodule update && cd ..
 
-    # Initialize a new pod named "testpod" using the "focus" theme.
-    cd ..
+    # Initialises a new pod named "testpod".
+    # Downloads the "focus" theme from the grow-templates repo.
     ./pygrow/grow/cli.py init focus testpod
+
+    # Start Grow, using the pod you just initialized!
     ./pygrow/grow/cli.py run testpod 
+
+Now that you've got Grow *and* a sample pod on your machine, it's time to start building your site by editing your pod! Pods contain everything you need to build your site: HTML, CSS, JavaScript, images, content, etc. Just edit the files in the "testpod" directory to give it a try.
+
+To add a new page, simply duplicate a file in the `/content/pages/` directory. To add a new post, duplicate a file in `/content/posts/`. You can create a new blueprint (think of blueprints as content types) simply by creating a new directory and corresponding `_blueprint.yaml` file.
+
+## Pod structure
+
+Folder | Description
+--- | ---
+/content/ | Holds all blueprints and content documents.
+/content/<blueprint>/ | Holds all content documents defined by a blueprint.
+/content/<blueprint>/_blueprint.yaml | The blueprint for documents in this directory.
+/views/ | Holds all views (Jinja2 templates). Each content document can have its own view, or use one defined by a blueprint.
+/public/ | Holds all static/media files such as CSS, JavaScript, images.
+/pod.yaml | Pod definition file.
+
+## Template tags
+
+{{grow.content}} | A reference to the page's content document.
+{{grow.nav(blueprint='<blueprint>')}} | Returns a list of content documents from a specific blueprint.
+{{grow.entries(blueprint='<blueprint>', [order_by='<field>',] [reverse=True])}} | Similar to {{grow.nav}}, returns a list of content documents.
