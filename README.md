@@ -55,14 +55,29 @@ To add a new page, simply duplicate a file in the `/content/pages/` directory. T
 Folder | Description
 --- | ---
 /content/ | Holds all blueprints and content documents.
-/content/<blueprint>/ | Holds all content documents defined by a blueprint.
-/content/<blueprint>/_blueprint.yaml | The blueprint for documents in this directory.
+/content/&lt;blueprint&gt;/ | Holds all content documents defined by a blueprint.
+/content/&lt;blueprint&gt;/_blueprint.yaml | The blueprint for documents in this directory.
 /views/ | Holds all views (Jinja2 templates). Each content document can have its own view, or use one defined by a blueprint.
 /public/ | Holds all static/media files such as CSS, JavaScript, images.
-/pod.yaml | Pod definition file.
+/pod.yaml | Pod definition file
+/tests.yaml | Tests you can write to verify parts of your site.
+
+## Deployment
+
+Unlike other static site generators, Grow comes with deployment built in. Currently, you can deploy your site to another directory on your machine, or to Google Cloud Storage. Upon deployment, Grow maintains an index – so it knows which files to add, modify, and remove.
+
+If you're deploying to Google Cloud Storage, Grow will autoconfigure your GCS bucket for web site serving, and it will check whether your CNAME is setup correctly. Your GCS bucket name should match your domain name. To create a Google Cloud Storage bucket, visit the [Google Cloud Console](https://cloud.google.com/console). You'll also have to verify your domain name before you can create a bucket.
+
+    # Deploy to Google Cloud Storage.
+    grow deploy --destination=gcs --bucket<bucket> <pod>
+    
+    # Deploy to a directory.
+    grow deploy --destination=local --out_dir=<directory> <pod>
 
 ## Template tags
 
+Tag | Description
+--- | ---
 {{grow.content}} | A reference to the page's content document.
-{{grow.nav(blueprint='<blueprint>')}} | Returns a list of content documents from a specific blueprint.
-{{grow.entries(blueprint='<blueprint>', [order_by='<field>',] [reverse=True])}} | Similar to {{grow.nav}}, returns a list of content documents.
+{{grow.nav(blueprint='&lt;blueprint&gt;')}} | Returns a list of content documents from a specific blueprint.
+{{grow.entries(blueprint='&lt;blueprint&gt;', [order_by='&lt;field&gt;',] [reverse=True])}} | Similar to {{grow.nav}}, returns a list of content documents.
