@@ -74,6 +74,7 @@ class Blueprint(object):
 
   def to_message(self):
     message = messages.BlueprintMessage()
+    message.nickname = self.nickname
     return message
 
 
