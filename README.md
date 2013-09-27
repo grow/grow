@@ -79,5 +79,7 @@ If you're deploying to Google Cloud Storage, Grow will autoconfigure your GCS bu
 Tag | Description
 --- | ---
 {{grow.content}} | A reference to the page's content document.
+{{grow.content.title}} | The "title" field of the page's content document.
+{{grow.content.body}} | The body (beneath the YAML Front Matter) of the page's content document.
 {{grow.nav(blueprint='&lt;blueprint&gt;')}} | Returns a list of content documents from a specific blueprint.
 {{grow.entries(blueprint='&lt;blueprint&gt;', [order_by='&lt;field&gt;',] [reverse=True])}} | Similar to {{grow.nav}}, returns a list of content documents.
