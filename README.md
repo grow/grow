@@ -68,6 +68,8 @@ Unlike other static site generators, Grow comes with deployment built in. Curren
 
 If you're deploying to Google Cloud Storage, Grow will autoconfigure your GCS bucket for web site serving, and it will check whether your CNAME is setup correctly. Your GCS bucket name should match your domain name. To create a Google Cloud Storage bucket, visit the [Google Cloud Console](https://cloud.google.com/console). You'll also have to verify your domain name before you can create a bucket.
 
+Grow uses Boto to connect to Google Cloud Storage. Specify values for *gs_access_key_id* and *gs_secret_access_key* in your `~/.boto` file so Grow knows which Google Cloud Storage project to use.
+
     # Deploy to Google Cloud Storage.
     grow deploy --destination=gcs --bucket<bucket> <pod>
     
