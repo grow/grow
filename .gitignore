@@ -1,6 +1,7 @@
 *.py[cod]
 .DS_Store
 growedit
+endpoints
 
 # C extensions
 *.so

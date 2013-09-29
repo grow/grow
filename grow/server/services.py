@@ -16,7 +16,32 @@ class PodService(remote.Service):
     message.blueprints = [blueprint.to_message() for blueprint in results]
     return message
 
+  @remote.method(
+      messages.SearchDocumentsRequest,
+      messages.SearchDocumentsResponse)
+  def search_documents(self, request):
+    pod = get_pod_from_request(request)
+    blueprint = pod.get_blueprint(request.blueprint.nickname)
+    docs = blueprint.search()
+    message = messages.SearchDocumentsResponse()
+    message.documents = [doc.to_message() for doc in docs]
+    return message
+
+  @remote.method(
+      messages.GetDocumentRequest,
+      messages.GetDocumentResponse)
+  def get_document(self, request):
+    pod = get_pod_from_request(request)
+    document = get_document_from_request(pod, request)
+    message = messages.GetDocumentResponse()
+    message.document = document.to_message()
+    return message
+
 
 def get_pod_from_request(request):
   root = os.path.normpath(os.environ['grow:single_pod_root'])
   return pods.Pod(root)
+
+
+def get_document_from_request(pod, request):
+  return pod.get_document(request.document.pod_path)

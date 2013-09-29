@@ -36,7 +36,7 @@ class BaseHandler(webapp2.RequestHandler):
 class ConsoleHandler(BaseHandler):
 
   def get(self):
-    pod = pods.Pod('grow/grow/growedit', storage=storage.FileStorage)
+    pod = pods.Pod('grow/growedit', storage=storage.FileStorage)
     controller = pod.match(self.request.path)
     self.respond_with_controller(controller)
 

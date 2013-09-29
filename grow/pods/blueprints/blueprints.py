@@ -27,6 +27,7 @@ class Blueprint(object):
 
   @classmethod
   def get(cls, nickname, pod):
+    # Instead of nickname, use full pod path.
     return cls(nickname, pod)
 
   @property
@@ -91,6 +92,14 @@ class Document(object):
 
   def __repr__(self):
     return '<Document: {}>'.format(self.pod_path)
+
+  @classmethod
+  def get(cls, pod_path, pod):
+    blueprint_path = os.path.dirname(pod_path)
+    nickname = os.path.basename(blueprint_path)
+    blueprint = Blueprint.get(nickname, pod)
+    document_basename = os.path.basename(pod_path)
+    return blueprint.get_document(document_basename)
 
   @property
   def parsed_yaml(self):

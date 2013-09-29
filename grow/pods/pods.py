@@ -61,6 +61,12 @@ class Pod(object):
   def list_blueprints(self):
     return blueprints.Blueprint.list(self)
 
+  def get_document(self, document_path):
+    return blueprints.Document.get(document_path, self)
+
+  def get_blueprint(self, nickname):
+    return blueprints.Blueprint.get(nickname, self)
+
   def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme='http'):
     return self.routes.match(path, domain, script_name, subdomain, url_scheme)
 

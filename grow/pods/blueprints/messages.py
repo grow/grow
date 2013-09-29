@@ -53,6 +53,7 @@ class UserMessage(messages.Message):
 
 class DocumentMessage(messages.Message):
   slug = messages.StringField(1)
+  pod_path = messages.StringField(11)
   body = messages.StringField(2)
   path = messages.StringField(3)
   order = messages.IntegerField(4)
