@@ -5,13 +5,10 @@ import gflags as flags
 import os
 from google.apputils import appcommands
 from grow import deployments
-from grow.client import client
+from grow.server import manager
 from grow.pods import commands as pod_commands
 from grow.pods import pods
 from grow.pods import storage
-from grow.server import handlers
-from grow.server import main as main_lib
-from paste import httpserver
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string('changeset', None, 'Changeset name.')
@@ -61,9 +58,8 @@ class RunCmd(appcommands.Cmd):
     if len(argv) != 2:
       raise Exception('Must specify pod directory.')
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
-    handlers.set_single_pod_root(root)
     print 'Serving pod with root: {}'.format(root)
-    httpserver.serve(main_lib.services_app)
+    manager.start_server(root)
 
 
 class DeployCmd(appcommands.Cmd):
