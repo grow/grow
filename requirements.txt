@@ -8,7 +8,6 @@ google-api-python-client
 google-apputils
 jinja2
 polib
-protorpc
 pyyaml
 requests
 webapp2
