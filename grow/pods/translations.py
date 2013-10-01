@@ -24,8 +24,12 @@ class Translations(object):
     return Translation(pod=self.pod, locale=locale)
 
   def list_locales(self):
-    for _, dirs, _ in os.walk(self.root):
-      return dirs
+    locales = set()
+    for path in self.pod.list_dir(self.root):
+      parts = path.split('/')
+      if len(parts) > 2:
+        locales.add(parts[1])
+    return list(locales)
 
   def recompile_mo_files(self):
     for locale in self.list_locales():
@@ -38,6 +42,10 @@ class Translations(object):
   def to_message(self):
     message = messages.TranslationsMessage()
     return message
+
+  def get_catalog(self, locale=None):
+    fp = self.pod.open_file(os.path.join(self.root, 'messages.pot'))
+    return pofile.read_po(fp)
 
   def extract(self):
     catalog_obj = catalog.Catalog()

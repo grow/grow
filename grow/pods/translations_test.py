@@ -26,16 +26,20 @@ class TranslationsTest(unittest.TestCase):
   def test_recompile_mo_files(self):
     self.pod.translations.recompile_mo_files()
 
+  def test_get_catalog(self):
+    catalog = self.pod.translations.get_catalog()
+    for message in catalog:
+      message
+
 
 class TranslationTest(unittest.TestCase):
 
   def setUp(self):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
-  def test_to_message(self):
-    translation = self.pod.translations.get_translation('de')
-    translation.to_message()
-
+#  def test_to_message(self):
+#    translation = self.pod.translations.get_translation('de')
+#    translation.to_message()
 
 
 if __name__ == '__main__':

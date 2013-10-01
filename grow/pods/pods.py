@@ -2,7 +2,6 @@ import logging
 import mimetypes
 import os
 from grow.common import utils
-from grow.pods import index
 from grow.pods import locales
 from grow.pods import messages
 from grow.pods import routes

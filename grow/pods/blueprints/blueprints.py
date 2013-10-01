@@ -73,9 +73,14 @@ class Blueprint(object):
   def search(self, order_by='order'):
     return self.list_documents(order_by=order_by)
 
+  @property
+  def num_documents(self):
+    return len(self.list_documents())
+
   def to_message(self):
     message = messages.BlueprintMessage()
     message.nickname = self.nickname
+    message.num_documents = self.num_documents
     return message
 
 

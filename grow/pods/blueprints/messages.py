@@ -39,11 +39,13 @@ class FieldMessage(messages.Message):
   description = messages.StringField(3)
   type = messages.EnumField(Type, 4)
   repeated = messages.BooleanField(5)
+  value = messages.StringField(6)
 
 
 class BlueprintMessage(messages.Message):
   nickname = messages.StringField(1)
-  fields = messages.MessageField(FieldMessage, 2, repeated=True)
+  num_documents = messages.IntegerField(2)
+#  fields = messages.MessageField(FieldMessage, 2, repeated=True)
 
 
 class UserMessage(messages.Message):
