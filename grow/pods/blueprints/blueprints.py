@@ -1,6 +1,3 @@
-import sys
-print sys.path
-
 import markdown
 import operator
 from datetime import date
