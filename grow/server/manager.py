@@ -13,19 +13,20 @@ _servers = {}
 _config_path = '{}/.grow/servers.yaml'.format(os.environ['HOME'])
 
 
+def _start(root, port):
+  root = os.path.abspath(os.path.normpath(root))
+  handlers.set_single_pod_root(root)
+  httpserver.serve(main_lib.services_app)
+
+
 def start(root, port=None, use_subprocess=False):
   if root in _servers:
     logging.error('Server already started for pod: {}'.format(root))
     return
-  root = os.path.abspath(os.path.normpath(root))
-  handlers.set_single_pod_root(root)
   if not use_subprocess:
     httpserver.serve(main_lib.services_app)
     return
-  process = multiprocessing.Process(
-      target=httpserver.serve,
-      args=(main_lib.services_app,),
-      kwargs={'port': port})
+  process = multiprocessing.Process(target=_start, args=(root, port))
   process.start()
   _servers[root] = process
   return process

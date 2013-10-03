@@ -47,7 +47,8 @@ class Routes(object):
     extra_routes = self.pod.yaml.get('routes', [])
     for route in extra_routes:
       if route['kind'] == 'static':
-        controller = controllers.StaticController(path_format=route['path'], source_format=route['source'], pod=self.pod)
+        controller = controllers.StaticController(
+            path_format=route['path'], source_format=route['source'], pod=self.pod)
         rules.append(routing.Rule(route['path'], endpoint=controller))
 
     # Auto-generated from flags.

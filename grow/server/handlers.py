@@ -14,7 +14,7 @@ class BaseHandler(webapp2.RequestHandler):
 
   def respond_with_controller(self, controller):
     # TODO(jeremydw): Handle custom errors.
-    if not controller:
+    if controller is None:
       return self.abort(404)
 
     # Update response headers with headers from controller.
@@ -36,7 +36,7 @@ class BaseHandler(webapp2.RequestHandler):
 class ConsoleHandler(BaseHandler):
 
   def get(self):
-    pod = pods.Pod('grow/growedit', storage=storage.FileStorage)
+    pod = pods.Pod('pygrow/grow/growedit', storage=storage.FileStorage)
     controller = pod.match(self.request.path)
     self.respond_with_controller(controller)
 
@@ -86,7 +86,8 @@ class PodHandler(BaseHandler):
     except routes.Errors.NotFound as e:
       controller = podgroup.match_error(self.request.path, domain=domain, status=404)
       self.response.set_status(404)
-      self.response.out.write(controller.render())
+      if controller is not None:
+        self.response.out.write(controller.render())
       return
     except routes.Errors.Redirect as e:
       self.response.set_status(301)

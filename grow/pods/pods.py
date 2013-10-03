@@ -51,6 +51,8 @@ class Pod(object):
 
   def read_file(self, pod_path):
     path = os.path.join(self.root, pod_path.lstrip('/'))
+    print 'aaa'
+    print path
     return self.storage.read(path)
 
   def write_file(self, pod_path, content):
