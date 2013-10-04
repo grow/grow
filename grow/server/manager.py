@@ -34,10 +34,13 @@ def start(root, port=None, use_subprocess=False):
 
 def stop(root):
   process = _servers.pop(root, None)
-  if not process:
+  if process is None:
     return
-  process.terminate()
-  logging.info('Stopped server for pod: {}'.format(root))
+  try:
+    process.terminate()
+    logging.info('Stopped server for pod: {}'.format(root))
+  except AttributeError:
+    logging.info('Server already stopped for pod: {}'.format(root))
 
 
 @atexit.register
@@ -73,14 +76,21 @@ class PodServer(object):
 
   def stop(self):
     self.server_status = 'off'
-    self._process.terminate()
-    logging.info('Stopped server for pod: {}'.format(self.root))
+    try:
+      self._process.terminate()
+      logging.info('Stopped server for pod: {}'.format(self.root))
+    except AttributeError:
+      logging.info('Server already stopped.')
 
   def set_root(self, root):
     self.root = root
 
   def set_port(self, port):
     self.port = port
+
+  @property
+  def is_started(self):
+    return self.server_status == 'on'
 
   @classmethod
   def load(cls):
