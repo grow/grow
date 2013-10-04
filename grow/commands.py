@@ -59,7 +59,7 @@ class RunCmd(appcommands.Cmd):
       raise Exception('Must specify pod directory.')
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     print 'Serving pod with root: {}'.format(root)
-    manager.start_server(root)
+    manager.start(root)
 
 
 class DeployCmd(appcommands.Cmd):

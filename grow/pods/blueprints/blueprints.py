@@ -174,6 +174,14 @@ class Document(object):
   def categories(self):
     return self.yaml.get('categories')
 
+  def fields(self):
+    return self.yaml
+
+  def __getattr__(self, name):
+    if name in self.yaml:
+      return self.yaml[name]
+    return object.__getattribute__(self, name)
+
   def to_message(self):
     message = messages.DocumentMessage()
     message.order = self.order

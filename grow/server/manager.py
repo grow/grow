@@ -24,7 +24,7 @@ def start(root, port=None, use_subprocess=False):
     logging.error('Server already started for pod: {}'.format(root))
     return
   if not use_subprocess:
-    httpserver.serve(main_lib.services_app)
+    _start(root, port)
     return
   process = multiprocessing.Process(target=_start, args=(root, port))
   process.start()
