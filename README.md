@@ -76,6 +76,25 @@ Grow uses Boto to connect to Google Cloud Storage. Specify values for *gs_access
     # Deploy to a directory.
     grow deploy --destination=local --out_dir=<directory> <pod>
 
+### Access keys for Google Cloud Storage and Amazon S3
+
+You will need to place access keys for GCS and Amazon in a file `.boto` in your home directory. Below is a sample.
+
+After creating this file, you must `chmod 600 ~/.boto` to prevent unauthorized access.
+
+    [Credentials]
+
+    # GCS access keys.
+    # Located from: https://code.google.com/apis/console/b/0/?noredirect
+    # Choose "Google Cloud Storage" on the left, then choose "Interoperable Access".
+    gs_access_key_id = <gs access key>
+    gs_secret_access_key = <gs secret access key>
+
+    # AWS access keys.
+    # Located from: https://console.aws.amazon.com/iam/home?#security_credential
+    aws_access_key_id = <aws access key>
+    aws_secret_access_key = <aws secret access key>
+
 ## Template tags
 
 Tag | Description
