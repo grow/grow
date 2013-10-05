@@ -95,11 +95,15 @@ class PodServer(object):
   @classmethod
   def load(cls):
     servers = []
-    fp = open(_config_path)
-    for server in yaml.load(fp)['servers']:
-      servers.append(cls(
-          server['root'],
-          port=server.get('port'),
-          revision_status=server.get('revision_status')
-      ))
+    try:
+      fp = open(_config_path)
+      for server in yaml.load(fp)['servers']:
+        servers.append(cls(
+            server['root'],
+            port=server.get('port'),
+            revision_status=server.get('revision_status')
+        ))
+    except IOError:
+      # .grow/servers.yaml does not exist.
+      pass
     return servers

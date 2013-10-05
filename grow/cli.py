@@ -5,7 +5,7 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 import os
 import sys
-sys.path.extend([os.path.join(os.path.dirname(__file__), '..')])
+sys.path.extend([os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')])
 from grow import submodules
 submodules.fix_imports()
 
