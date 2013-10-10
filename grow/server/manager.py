@@ -16,7 +16,7 @@ _config_path = '{}/.grow/servers.yaml'.format(os.environ['HOME'])
 def _start(root, port):
   root = os.path.abspath(os.path.normpath(root))
   handlers.set_single_pod_root(root)
-  httpserver.serve(main_lib.services_app)
+  httpserver.serve(main_lib.services_app, port=port)
 
 
 def start(root, port=None, use_subprocess=False):

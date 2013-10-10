@@ -1,2 +1,14 @@
 path: /<grow:ll>/{slug}
 view: /views/base.html
+
+fields:
+
+- key: title
+  name: Title
+  kind: Text
+  translated: true
+
+- key: title
+  name: Title
+  kind: Text
+  translated: true

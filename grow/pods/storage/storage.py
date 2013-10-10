@@ -3,7 +3,7 @@ try:
 except:
   cloudstorage = None
 
-# TODO(jeremydw): There's a bunch of ugly stuff in this file and 
+# TODO(jeremydw): There's a bunch of ugly stuff in this file and
 # it should be fixed.
 import os
 if not 'SERVER_SOFTWARE' in os.environ:
@@ -75,6 +75,7 @@ class BaseStorage(object):
 def normalize_path(filename):
   if filename.startswith('/_grow'):
     filename = filename[1:]
+    filename = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'growedit'))
   return filename
 
 

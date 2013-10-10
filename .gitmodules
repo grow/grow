@@ -56,3 +56,6 @@
 [submodule "grow/growedit"]
 	path = grow/growedit
 	url = https://github.com/grow/growedit
+[submodule "grow/submodules/boto"]
+	path = grow/submodules/boto
+	url = https://github.com/boto/boto.git
