@@ -1,6 +1,6 @@
 # Grow is in development!
 
-Hello! Grow is still under development and is not quite ready for use. Stay tuned by subscribing to the newsletter on [our website](http://grow.io) or by watching this repository for updates!
+Hello! Grow is still under development and is NOT QUITE READY FOR USE. Stay tuned by subscribing to the newsletter on [our website](http://grow.io) or by watching this repository for updates!
 
 # Welcome to Grow!
 
