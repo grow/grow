@@ -29,7 +29,7 @@ class StaticController(base.BaseController):
 
   def get_http_headers(self):
     headers = super(StaticController, self).get_http_headers()
-    if blobstore and self.storage.is_cloud_storage:
+    if blobstore and self.pod.storage.is_cloud_storage:
       path = self.get_pod_path().lstrip('/')
       path = '/gs' + os.path.join(self.pod.root, path)
       headers['X-AppEngine-BlobKey'] = blobstore.create_gs_key(path)
