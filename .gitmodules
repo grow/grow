@@ -53,9 +53,6 @@
 [submodule "grow/submodules/Python-Markdown"]
 	path = grow/submodules/Python-Markdown
 	url = git://github.com/waylan/Python-Markdown
-[submodule "grow/growedit"]
-	path = grow/growedit
-	url = https://github.com/grow/growedit
 [submodule "grow/submodules/boto"]
 	path = grow/submodules/boto
 	url = https://github.com/boto/boto.git
