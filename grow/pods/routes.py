@@ -38,7 +38,7 @@ class Routes(object):
 
     # Content documents.
     for blueprint in self.pod.list_blueprints():
-      for doc in blueprint.list_servable_documents():
+      for doc in blueprint.list_servable_documents(include_hidden=True):
         controller = controllers.PageController(view=doc.get_view(), document=doc, pod=self.pod)
         rule = routing.Rule(doc.get_serving_path(), endpoint=controller)
         rules.append(rule)
@@ -50,6 +50,10 @@ class Routes(object):
         controller = controllers.StaticController(
             path_format=route['path'], source_format=route['source'], pod=self.pod)
         rules.append(routing.Rule(route['path'], endpoint=controller))
+      elif route['kind'] == 'page':
+        controller = controllers.PageController(
+            view=route['view'], path=route['path'], pod=self.pod)
+        rules.append(routing.Rule(route['path'], endpoint=controller))
 
     # Auto-generated from flags.
     if 'public_dir' in self.pod.flags:
@@ -59,7 +63,7 @@ class Routes(object):
 
     return routing.Map(rules, converters=Routes.converters)
 
-  def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme='http'):
+  def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme=None):
     """Matches a controller from the pod.
 
     Returns:
@@ -68,6 +72,11 @@ class Routes(object):
       routing.RequestRedirect: When the controller is a redirect.
       routing.NotFound: When no controller is found.
     """
+    if url_scheme is None:
+      url_scheme = 'http'
+    if domain is None:  # Needed for generating static files.
+      domain = 'localhost'
+    """
     if domain and not self.domains:
       message = 'A domain was specified but routes are not bound to a domain.'
       raise errors.RouteNotFoundError(message)
@@ -75,10 +84,9 @@ class Routes(object):
     if domain and self.domains and domain not in self.domains:
       message = 'Routes not bound to domain "{}".'.format(domain)
       raise errors.RouteNotFoundError(message)
+    """
 
-    domain = 'localhost' if domain is None else domain
     urls = self.routing_map.bind(domain, script_name, subdomain, url_scheme)
-
     controller, route_params = urls.match(path)
     controller.set_route_params(route_params)
     return controller

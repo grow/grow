@@ -11,9 +11,10 @@ class PageController(base.BaseController):
     LL = 'en'
     CC = None
 
-  def __init__(self, view=None, document=None, pod=None):
+  def __init__(self, view=None, document=None, path=None, pod=None):
     self.view = view
     self.document = document
+    self.path = path
     self.pod = pod
     self.route_params = {}
 
@@ -48,6 +49,8 @@ class PageController(base.BaseController):
     self._template_env.install_gettext_translations(gettext_translations)
 
   def list_concrete_paths(self):
+    if self.path:
+      return [self.path]
     if not self.document:
       raise
     return [self.document.get_serving_path()]

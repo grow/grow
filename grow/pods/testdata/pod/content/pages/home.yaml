@@ -1,6 +1,6 @@
 ---
-path: /
-title: Home page
-order: 0
+$path: /
+$title: Home page
+$order: 0
 ---
 Home page.

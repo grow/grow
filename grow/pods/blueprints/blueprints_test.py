@@ -24,7 +24,7 @@ class BlueprintsTest(unittest.TestCase):
     self.assertListEqual(expected, [doc.slug for doc in documents])
 
     blueprint = blueprints.Blueprint.get('posts', pod=self.pod)
-    documents = blueprint.list_documents(order_by='published', reverse=True)
+    documents = blueprint.list_documents(order_by='$published', reverse=True)
     expected = ['newest', 'newer', 'older', 'oldest']
     self.assertListEqual(expected, [doc.slug for doc in documents])
 

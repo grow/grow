@@ -66,8 +66,10 @@ class Pod(object):
   def get_blueprint(self, nickname):
     return blueprints.Blueprint.get(nickname, self)
 
-  def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme='http'):
-    return self.routes.match(path, domain, script_name, subdomain, url_scheme)
+  def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme=None):
+    if url_scheme is None:
+      url_scheme = 'http'
+    return self.routes.match(path, domain=domain, script_name=script_name, subdomain=subdomain, url_scheme=url_scheme)
 
   def export(self):
     if self.tests.exists:

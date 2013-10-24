@@ -7,6 +7,7 @@ import dns.resolver
 import logging
 import mimetypes
 import time
+import os
 
 
 class GoogleCloudStorageDeployment(base.BaseDeployment):
@@ -25,11 +26,17 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
   def _write_file(self, path, content, bucket=None, policy='public-read'):
     if isinstance(content, unicode):
       content = content.encode('utf-8')
+    path = path.lstrip('/')
     bucket_key = key.Key(bucket)
     fp = cStringIO.StringIO()
     fp.write(content)
-    bucket_key.key = path.lstrip('/')
+    bucket_key.key = path
     mimetype = mimetypes.guess_type(path)[0]
+    print path
+    if path == 'rss/index.html':
+      mimetype = 'application/xml'
+#    elif mimetype is None:
+#      mimetype = 'text/html'
     # TODO(jeremydw): Better headers.
     headers = {
         'Cache-Control': 'no-cache',

@@ -45,7 +45,7 @@ class Blueprint(object):
   def get_path_format(self):
     return self.yaml.get('path')
 
-  def list_documents(self, order_by=None, reverse=None):
+  def list_documents(self, order_by=None, reverse=None, include_hidden=False):
     if order_by is None:
       order_by = 'order'
     if reverse is None:
@@ -59,18 +59,22 @@ class Blueprint(object):
       if slug.startswith('_') or ext not in messages.extensions_to_formats:
         continue
       doc = self.get_document(basename)
+      if not include_hidden and doc.is_hidden:
+        continue
       docs.insert(doc)
     return reversed(docs) if reverse else docs
 
-  def list_servable_documents(self):
+  def list_servable_documents(self, include_hidden=False):
     docs = []
-    for doc in self.list_documents():
+    for doc in self.list_documents(include_hidden=include_hidden):
+      if self.yaml.get('draft'):
+        continue
       if not doc.has_url() or not doc.get_view():
         continue
       docs.append(doc)
     return docs
 
-  def search(self, order_by='order'):
+  def search(self, order_by='$order'):
     return self.list_documents(order_by=order_by)
 
   @property
@@ -117,14 +121,34 @@ class Document(object):
   def yaml(self):
     return self.parsed_yaml[0]
 
+  @property
+  def url(self):
+    return self.get_serving_path()
+
+  @property
+  def is_hidden(self):
+    return bool(self.yaml.get('$hidden'))
+
+  @property
+  def order(self):
+    return self.yaml.get('$order')
+
+  @property
+  def title(self):
+    return self.yaml.get('$title')
+
+  @property
+  def published(self):
+    return self.yaml.get('$published')
+
   def has_url(self):
     return True
 
   def get_view(self):
-    return self.yaml.get('view', self.blueprint.get_view())
+    return self.yaml.get('$view', self.blueprint.get_view())
 
   def get_path_format(self):
-    return self.yaml.get('path', self.blueprint.get_path_format())
+    return self.yaml.get('$path', self.blueprint.get_path_format())
 
   def get_serving_path(self):
     path_format = (self.get_path_format()
@@ -145,42 +169,30 @@ class Document(object):
         val = markdown.markdown(val)
     return val
 
-  @property
-  def order(self):
-    return self.yaml.get('order')
-
-  @property
-  def title(self):
-    return self.yaml.get('title')
-
-  @property
-  @utils.memoize
-  def published(self):
-    return self.yaml.get('published')
-
-  @property
-  def published_by(self):
-    return self.yaml.get('published_by')
-
-  @property
-  def title_nav(self):
-    return self.yaml.get('title_nav', self.title)
-
-  @property
-  def subtitle(self):
-    return self.yaml.get('subtitle')
-
-  @property
-  def categories(self):
-    return self.yaml.get('categories')
-
   def fields(self):
     return self.yaml
+
+  def __eq__(self, other):
+    return isinstance(self, Document) and isinstance(other, Document) and self.pod_path == other.pod_path
 
   def __getattr__(self, name):
     if name in self.yaml:
       return self.yaml[name]
+#    if '${}'.format(name) in self.yaml:
+#      return self.yaml['${}'.format(name)]
     return object.__getattribute__(self, name)
+
+  def get_next(self):
+    docs = self.blueprint.list_servable_documents()
+    for i, doc in enumerate(docs):
+      if doc == self:
+        return docs[i + 1]
+
+  def get_prev(self):
+    docs = self.blueprint.list_servable_documents()
+    for i, doc in enumerate(docs):
+      if doc == self:
+        return docs[i - 1]
 
   def to_message(self):
     message = messages.DocumentMessage()
@@ -188,6 +200,7 @@ class Document(object):
     message.slug = self.slug
     message.body = self.body
     message.path = self.get_serving_path()
+    """
     message.title = self.title
     message.title_nav = self.title_nav
     message.subtitle = self.subtitle
@@ -202,4 +215,10 @@ class Document(object):
       message.published_by = messages.UserMessage()
       message.published_by.name = self.published_by.get('name')
       message.published_by.email = self.published_by.get('email')
+      """
     return message
+
+
+
+class Index(object):
+  pass

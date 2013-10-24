@@ -28,10 +28,10 @@ class Podgroup(object):
     for pod in self.pods:
       return pod.routes.match_error(path, domain=domain, status=status)
 
-  def match(self, path, domain=None):
+  def match(self, path, domain=None, url_scheme=None):
     for pod in self.pods:
       try:
-        return pod.match(path, domain=domain)
+        return pod.match(path, domain=domain, url_scheme=url_scheme)
       except errors.RouteNotFoundError:
         pass
 

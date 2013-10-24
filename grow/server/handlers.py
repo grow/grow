@@ -46,24 +46,24 @@ class PodHandler(BaseHandler):
   def get(self):
     host = os.environ.get('HTTP_HOST', '')
     changeset = utils.get_changeset(host)
+    domain = self.request.host
+    url_scheme = self.request.scheme
 
     # If on growspace.
     if (host in config.GROWSPACE_DOMAINS
         or os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')):
       pod = pods.Pod('growspace/console', storage=storage.FileStorage)
-      controller = pod.match(self.request.path)
+      controller = pod.match(self.request.path, domain=domain, url_scheme=url_scheme)
       self.respond_with_controller(controller)
       return
 
     # If on a staging domain.
     elif changeset:
-      domain = None
       podgroup = podgroups.Podgroup(config.PODS_DIR)
       podgroup.load_pods_by_id([changeset])
 
     # If in single-pod mode.
     elif 'grow:single_pod_root' in os.environ:
-      domain = None
       root = os.path.dirname(os.environ['grow:single_pod_root'])
       podgroup = podgroups.Podgroup(root)
       pod_name = os.path.basename(os.path.normpath(os.environ['grow:single_pod_root']))
@@ -82,7 +82,7 @@ class PodHandler(BaseHandler):
 
     # Route issues a redirect.
     try:
-      controller = podgroup.match(self.request.path, domain=domain)
+      controller = podgroup.match(self.request.path, domain=domain, url_scheme=url_scheme)
     except routes.Errors.NotFound as e:
       controller = podgroup.match_error(self.request.path, domain=domain, status=404)
       self.response.set_status(404)
