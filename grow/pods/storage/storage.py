@@ -1,6 +1,7 @@
 try:
-  from grow.lib import cloudstorage
-except:
+  import cloudstorage
+except ImportError:
+  # Not running in GAE runtime.
   cloudstorage = None
 
 # TODO(jeremydw): There's a bunch of ugly stuff in this file and

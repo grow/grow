@@ -17,12 +17,12 @@ def init(pod, branch_name, repo_url=REPO_URL):
     temp_repo = MemoryRepo()
     temp_repo.clone(git_client)
     tree = temp_repo[branch_name].tree
-    try:
-      local_repo = repo.Repo.init(pod.root, mkdir=True)
-    except OSError as e:
-      if 'File exists' in str(e):
-        logging.info('{} already exists. Delete the directory before proceeding.'.format(pod.root))
-        return
+#    try:
+    local_repo = repo.Repo.init(pod.root, mkdir=True)
+#    except OSError as e:
+#      if 'File exists' in str(e):
+#        logging.info('{} already exists. Delete the directory before proceeding.'.format(pod.root))
+#        return
     index_file = local_repo.index_path()
     index.build_index_from_tree(local_repo.path, index_file, temp_repo.object_store, tree)
     logging.info('Pod with theme {} is ready to go in: {}'.format(branch_name, pod.root))

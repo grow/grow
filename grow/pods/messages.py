@@ -31,6 +31,7 @@ class RoutesMessage(messages.Message):
 
 class FileMessage(messages.Message):
   pod_path = messages.StringField(1)
+  content = messages.StringField(2)
 
 
 class PodMessage(messages.Message):
@@ -43,3 +44,8 @@ class PodMessage(messages.Message):
 class FileTransferMessage(messages.Message):
   pod_path = messages.StringField(1)
   content_b64 = messages.StringField(2)
+
+
+class FileSearchMessage(messages.Message):
+  prefix = messages.StringField(1)
+  depth = messages.StringField(2)

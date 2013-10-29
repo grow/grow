@@ -7,6 +7,7 @@ def fix_imports():
   dirs = [
       os.path.normpath(os.path.join(here, '..', '..')),
       os.path.normpath(os.path.join(here, 'Python-Markdown')),
+      os.path.normpath(os.path.join(here, 'appengine-gcs-client', 'python', 'src')),
       os.path.normpath(os.path.join(here, 'babel')),
       os.path.normpath(os.path.join(here, 'boto')),
       os.path.normpath(os.path.join(here, 'dulwich')),

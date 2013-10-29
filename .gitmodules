@@ -56,3 +56,6 @@
 [submodule "grow/submodules/boto"]
 	path = grow/submodules/boto
 	url = https://github.com/boto/boto.git
+[submodule "grow/submodules/appengine-gcs-client"]
+	path = grow/submodules/appengine-gcs-client
+	url = https://github.com/jeremydw/appengine-gcs-client.git

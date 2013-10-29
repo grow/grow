@@ -15,6 +15,18 @@ def memoize(f):
   return memodict(f)
 
 
+def parse_markdown(content):
+  content = content.strip()
+  parts = re.split('---\n', content)
+  if len(parts) == 1:
+    return None, content
+  parts.pop(0)
+  front_matter, body = parts
+  parsed_yaml = yaml.load(front_matter)
+  body = str(body)
+  return parsed_yaml, body
+
+
 def parse_yaml(content):
   content = content.strip()
   parts = re.split('---\n', content)

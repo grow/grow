@@ -3,12 +3,12 @@ from protorpc import message_types
 
 
 class Format(messages.Enum):
-  HTML = 1
+  YAML = 1
   MARKDOWN = 2
 
 extensions_to_formats = {
     '.md': Format.MARKDOWN,
-    '.yaml': Format.HTML,
+    '.yaml': Format.YAML,
 }
 
 
@@ -43,7 +43,7 @@ class FieldMessage(messages.Message):
 
 
 class BlueprintMessage(messages.Message):
-  nickname = messages.StringField(1)
+  doc_path = messages.StringField(1)  # posts
   num_documents = messages.IntegerField(2)
 #  fields = messages.MessageField(FieldMessage, 2, repeated=True)
 
@@ -53,15 +53,17 @@ class UserMessage(messages.Message):
   email = messages.StringField(2)
 
 
+class BuiltInFieldsMessage(messages.Message):
+  path = messages.StringField(1)
+  view = messages.StringField(2)
+  order = messages.IntegerField(3)
+  title = messages.StringField(4)
+
+
 class DocumentMessage(messages.Message):
-  slug = messages.StringField(1)
-  pod_path = messages.StringField(11)
-  body = messages.StringField(2)
-  path = messages.StringField(3)
-  order = messages.IntegerField(4)
-  title = messages.StringField(5)
-  title_nav = messages.StringField(6)
-  subtitle = messages.StringField(7)
-  published = message_types.DateTimeField(8)
-  published_by = messages.MessageField(UserMessage, 9)
-  categories = messages.StringField(10, repeated=True)
+  doc_path = messages.StringField(1)  # posts/slug.md
+  builtins = messages.MessageField(BuiltInFieldsMessage, 2)
+  fields = messages.StringField(3)
+  body = messages.StringField(4)
+  content = messages.StringField(5)
+  html = messages.StringField(6)

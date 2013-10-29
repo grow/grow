@@ -1,0 +1,170 @@
+from grow.common import utils
+from grow.pods.blueprints import messages
+import json
+import markdown
+import os
+
+
+class Document(object):
+
+  def __init__(self, doc_path, pod, blueprint=None, body_format=None):
+    self.doc_path = doc_path
+    self.pod_path = '/content/{}'.format(doc_path)
+    self.slug, self.ext = os.path.splitext(doc_path)
+
+    self.pod = pod
+    self.blueprint = blueprint
+
+    self.format = messages.extensions_to_formats.get(self.ext)
+    if self.format == messages.Format.MARKDOWN:
+      self.doc_storage = MarkdownDocumentStorage(self.pod_path, self.pod)
+    elif self.format == messages.Format.YAML:
+      self.doc_storage = YamlDocumentStorage(self.pod_path, self.pod)
+    else:
+      raise NotImplementedError(self.pod_path)
+
+    self.fields = self.doc_storage.fields
+
+  def __repr__(self):
+    return '<Document: {}>'.format(self.pod_path)
+
+  @property
+  def url(self):
+    return self.get_serving_path()
+
+  @property
+  def is_hidden(self):
+    return bool(self.fields.get('$hidden'))
+
+  @property
+  def order(self):
+    return self.fields.get('$order')
+
+  @property
+  def title(self):
+    return self.fields.get('$title')
+
+  @property
+  def published(self):
+    return self.fields.get('$published')
+
+  def has_url(self):
+    return True
+
+  def get_view(self):
+    return self.fields.get('$view', self.blueprint.get_view())
+
+  def get_path_format(self):
+    return self.fields.get('$path', self.blueprint.get_path_format())
+
+  def get_serving_path(self):
+    path_format = (self.get_path_format()
+        .replace('<grow:slug>', '{slug}')
+        .replace('<grow:published_year>', '{published_year}'))
+    return path_format.format(**{
+        'slug': self.slug,
+        'published_year': self.published.year if self.published else None,
+    })
+
+  @property
+  @utils.memoize
+  def body(self):
+    return self.doc_storage.body
+
+  def __eq__(self, other):
+    return (isinstance(self, Document)
+            and isinstance(other, Document)
+            and self.pod_path == other.pod_path)
+
+#  def __getattr__(self, name):
+#    if name in self.fields:
+#      return self.fields[name]
+##    if '${}'.format(name) in self.yaml:
+##      return self.yaml['${}'.format(name)]
+#    return object.__getattribute__(self, name)
+
+  def get_next(self):
+    docs = self.blueprint.list_servable_documents()
+    for i, doc in enumerate(docs):
+      if doc == self:
+        return docs[i + 1]
+
+  def get_prev(self):
+    docs = self.blueprint.list_servable_documents()
+    for i, doc in enumerate(docs):
+      if doc == self:
+        return docs[i - 1]
+
+  def to_message(self):
+    message = messages.DocumentMessage()
+    message.body = self.body
+    message.content = self.doc_storage.content
+    message.fields = json.dumps(self.fields)
+    message.html = self.doc_storage.html
+    return message
+
+  def create_from_message(self, message):
+    self.update_from_message(message)
+
+  def update_from_message(self, message):
+    if message.content is not None:
+      if isinstance(message.content, unicode):
+        content = message.content.encode('utf-8')
+      else:
+        content = message.content
+      self.doc_storage.write(content)
+      return
+
+
+class BaseDocumentStorage(object):
+
+  def __init__(self, pod_path, pod):
+    self.pod_path = pod_path
+    self.pod = pod
+    self.content = None
+    self.fields = {}
+    self.builtins = None
+    self.body = None
+    try:
+      self.load()
+    except IOError:  # Document doesn't exist.
+      pass
+
+  def load(self):
+    raise NotImplementedError
+
+  def write(self, content):
+    self.pod.write_file(self.pod_path, content)
+
+  @property
+  def html(self):
+    return self.body
+
+
+class YamlDocumentStorage(BaseDocumentStorage):
+
+  def load(self):
+    path = self.pod_path
+    content = self.pod.read_file(path)
+    fields, body = utils.parse_yaml(content)
+    self.content = content
+    self.fields = fields
+    self.body = body
+
+
+class MarkdownDocumentStorage(BaseDocumentStorage):
+
+  def load(self):
+    path = self.pod_path
+    content = self.pod.read_file(path)
+    fields, body = utils.parse_markdown(content)
+    self.content = content
+    self.fields = fields
+    self.body = body
+
+  @property
+  def html(self):
+    val = self.body
+    if val is not None:
+      val = markdown.markdown(val.decode('utf-8'))
+    return val

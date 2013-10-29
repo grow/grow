@@ -2,6 +2,7 @@ import logging
 import mimetypes
 import os
 from grow.common import utils
+from grow.pods import files
 from grow.pods import locales
 from grow.pods import messages
 from grow.pods import routes
@@ -60,11 +61,14 @@ class Pod(object):
   def list_blueprints(self):
     return blueprints.Blueprint.list(self)
 
-  def get_document(self, document_path):
-    return blueprints.Document.get(document_path, self)
+  def get_file(self, pod_path):
+    return files.File(pod_path, self)
 
-  def get_blueprint(self, nickname):
-    return blueprints.Blueprint.get(nickname, self)
+  def get_document(self, doc_path):
+    return blueprints.Blueprint.get_document(doc_path, self)
+
+  def get_blueprint(self, doc_path):
+    return blueprints.Blueprint.get(doc_path, self)
 
   def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme=None):
     if url_scheme is None:
