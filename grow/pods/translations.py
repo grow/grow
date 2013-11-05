@@ -41,6 +41,11 @@ class Translations(object):
 
   def to_message(self):
     message = messages.TranslationsMessage()
+    message.catalogs = []
+    for locale in self.list_locales():
+      message_ = messages.TranslationCatalogMessage()
+      message_.locale = locale
+      message.catalogs.append(message_)
     return message
 
   def get_catalog(self, locale=None):
@@ -57,11 +62,20 @@ class Translations(object):
     pod_files = self.pod.list_dir('/')
     for pod_path in pod_files:
       if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
-        fp = self.pod.open_file(pod_path)
-        messages = extract.extract('python', fp)
-        for message in messages:
-          lineno, string, comments, context = message
-          catalog_obj.add(string, None, [(pod_path, lineno)], auto_comments=comments, context=context)
+        content = self.pod.read_file(pod_path)
+        import cStringIO
+        fp = cStringIO.StringIO()
+        fp.write(content)
+        fp.seek(0)
+        import tokenize
+        try:
+          messages = extract.extract('python', fp)
+          for message in messages:
+            lineno, string, comments, context = message
+            catalog_obj.add(string, None, [(pod_path, lineno)], auto_comments=comments, context=context)
+        except tokenize.TokenError:
+          print 'Problem extracting: {}'.format(pod_path)
+          raise
 
     # TODO(jeremydw): Extract messages from content.
 
@@ -88,7 +102,7 @@ class Translation(object):
     self._gettext_translations = translations
 
   def to_message(self):
-    message = messages.TranslationMessage()
+    message = messages.TranslationCatalogMessage()
     message.locale = self.locale
     message.messages = []
     for msgid, msgstr in self.get_catalog().iteritems():

@@ -153,6 +153,8 @@ class CloudStorage(BaseStorage):
 
   @staticmethod
   def open(filename, *args, **kwargs):
+    if 'mode' in kwargs and kwargs['mode'] is None:
+      kwargs['mode'] = 'r'
     return cloudstorage.open(filename, *args, **kwargs)
 
   @staticmethod
@@ -226,7 +228,7 @@ class CloudStorageLoader(jinja2.BaseLoader):
     self.path = path
 
   def get_source(self, environment, template):
-    path = os.path.join(self.path, template)
+    path = os.path.join(self.path, template.lstrip('/'))
     try:
       source = CloudStorage.read(path)
     except cloudstorage.NotFoundError:

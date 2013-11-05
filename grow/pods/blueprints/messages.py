@@ -43,8 +43,9 @@ class FieldMessage(messages.Message):
 
 
 class BlueprintMessage(messages.Message):
-  doc_path = messages.StringField(1)  # posts
+  collection_path = messages.StringField(1)  # posts
   num_documents = messages.IntegerField(2)
+  title = messages.StringField(3)
 #  fields = messages.MessageField(FieldMessage, 2, repeated=True)
 
 
@@ -62,8 +63,10 @@ class BuiltInFieldsMessage(messages.Message):
 
 class DocumentMessage(messages.Message):
   doc_path = messages.StringField(1)  # posts/slug.md
-  builtins = messages.MessageField(BuiltInFieldsMessage, 2)
-  fields = messages.StringField(3)
-  body = messages.StringField(4)
-  content = messages.StringField(5)
-  html = messages.StringField(6)
+  basename = messages.StringField(2)
+  collection_path = messages.StringField(3)
+  builtins = messages.MessageField(BuiltInFieldsMessage, 4)
+  fields = messages.StringField(5)
+  body = messages.StringField(6)
+  content = messages.StringField(7)
+  html = messages.StringField(8)

@@ -7,10 +7,11 @@ import os
 
 class Blueprint(object):
 
-  def __init__(self, doc_path, pod):
-    self.doc_path = doc_path.lstrip('/')
+  def __init__(self, collection_path, pod):
     self.pod = pod
-    self.pod_path = '/content/{}'.format(self.doc_path)
+    self.collection_path = collection_path.lstrip('/')
+    self.pod_path = '/content/{}'.format(self.collection_path)
+    self._blueprint_path = os.path.join(self.pod_path, '_blueprint.yaml')
 
   @classmethod
   def list(cls, pod):
@@ -18,13 +19,15 @@ class Blueprint(object):
     # TODO: replace with depth
     basenames = set()
     for path in paths:
-      basenames.add(path.split('/')[0])
+      parts = path.split('/')
+      if len(parts) >= 2:  # Disallow files in root-level /content/ dir.
+        basenames.add(parts[0])
     return [cls(os.path.splitext(basename)[0], pod)
             for basename in basenames]
 
   @classmethod
-  def get(cls, doc_path, pod):
-    return cls(doc_path, pod)
+  def get(cls, collection_path, pod):
+    return cls(collection_path, pod)
 
   @classmethod
   def get_document(cls, doc_path, pod):
@@ -35,8 +38,14 @@ class Blueprint(object):
   @property
   @utils.memoize
   def yaml(self):
-    path = os.path.join(self.pod_path, '_blueprint.yaml')
-    return utils.parse_yaml(self.pod.read_file(path))[0]
+    return utils.parse_yaml(self.pod.read_file(self._blueprint_path))[0]
+
+  @property
+  def title(self):
+    return self.yaml.get('title')
+
+  def exists(self):
+    return self.pod.file_exists(self._blueprint_path)
 
   def get_view(self):
     return self.yaml.get('view')
@@ -45,19 +54,24 @@ class Blueprint(object):
     return self.yaml.get('path')
 
   def list_documents(self, order_by=None, reverse=None, include_hidden=False):
+    if not self.exists():
+      return []
     if order_by is None:
       order_by = 'order'
     if reverse is None:
       reverse = False
 
-    paths = self.pod.list_dir(os.path.dirname(self.pod_path))
+    paths = self.pod.list_dir(self.pod_path)
     docs = utils.SortedCollection(key=operator.attrgetter(order_by))
     for path in paths:
-      doc_path = path.replace('/content/', '')
-      slug, ext = os.path.splitext(doc_path)
-      if slug.startswith('_') or ext not in messages.extensions_to_formats:
+      full_path = os.path.join(self.pod_path, path.strip('/'))
+      doc_path = full_path.replace('/content/', '')
+      slug, ext = os.path.splitext(os.path.basename(doc_path))
+      if (slug.startswith('_')
+          or ext not in messages.extensions_to_formats
+          or not doc_path):
         continue
-      doc = Blueprint.get_document(doc_path, pod=self.pod)
+      doc = documents.Document(doc_path, pod=self.pod, blueprint=self)
       if not include_hidden and doc.is_hidden:
         continue
       docs.insert(doc)
@@ -82,6 +96,7 @@ class Blueprint(object):
 
   def to_message(self):
     message = messages.BlueprintMessage()
-    message.doc_path = self.doc_path
+    message.title = self.title
+    message.collection_path = self.collection_path
     message.num_documents = self.num_documents
     return message

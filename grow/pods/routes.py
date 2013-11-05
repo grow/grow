@@ -108,4 +108,8 @@ class Routes(object):
     if self.domains:
       message.domains = self.domains
     message.routes = []
+    for path in self.list_concrete_paths():
+      route_message = messages.RouteMessage()
+      route_message.path = path
+      message.routes.append(route_message)
     return message

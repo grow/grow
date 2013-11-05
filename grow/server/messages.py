@@ -10,9 +10,19 @@ class OwnerMessage(messages.Message):
 class ProjectMessage(messages.Message):
   owner = messages.MessageField(OwnerMessage, 1)
   nickname = messages.StringField(2)
+  root = messages.StringField(3)
 
 
 ###
+
+
+class CreateCollectionRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+#  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+
+
+class CreateCollectionResponse(messages.Message):
+  document = messages.MessageField(blueprint_messages.DocumentMessage, 1)
 
 
 class CreateDocumentRequest(messages.Message):
@@ -34,7 +44,7 @@ class UpdateDocumentResponse(messages.Message):
 
 
 class GetDocumentRequest(messages.Message):
-  pod = messages.MessageField(pod_messages.PodMessage, 1)
+  project = messages.MessageField(ProjectMessage, 1)
   document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
 
 
@@ -42,9 +52,17 @@ class GetDocumentResponse(messages.Message):
   document = messages.MessageField(blueprint_messages.DocumentMessage, 1)
 
 
+class DeleteDocumentRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+
+
+class DeleteDocumentResponse(messages.Message):
+  pass
+
+
 class ListBlueprintsRequest(messages.Message):
-  pod = messages.MessageField(pod_messages.PodMessage, 1)
-  project = messages.MessageField(ProjectMessage, 2)
+  project = messages.MessageField(ProjectMessage, 1)
 
 
 class ListBlueprintsResponse(messages.Message):
@@ -52,7 +70,7 @@ class ListBlueprintsResponse(messages.Message):
 
 
 class SearchDocumentsRequest(messages.Message):
-  pod = messages.MessageField(pod_messages.PodMessage, 1)
+  project = messages.MessageField(ProjectMessage, 1)
   blueprint = messages.MessageField(blueprint_messages.BlueprintMessage, 2)
 
 
@@ -87,7 +105,8 @@ class InitResponse(messages.Message):
 
 
 class GetFileRequest(messages.Message):
-  file = messages.MessageField(pod_messages.FileMessage, 1)
+  project = messages.MessageField(ProjectMessage, 1)
+  file = messages.MessageField(pod_messages.FileMessage, 2)
 
 
 class GetFileResponse(messages.Message):
@@ -95,7 +114,8 @@ class GetFileResponse(messages.Message):
 
 
 class UpdateFileRequest(messages.Message):
-  file = messages.MessageField(pod_messages.FileMessage, 1)
+  project = messages.MessageField(ProjectMessage, 1)
+  file = messages.MessageField(pod_messages.FileMessage, 2)
 
 
 class UpdateFileResponse(messages.Message):
@@ -103,8 +123,70 @@ class UpdateFileResponse(messages.Message):
 
 
 class ListFilesRequest(messages.Message):
-  file_search = messages.MessageField(pod_messages.FileSearchMessage, 1)
+  project = messages.MessageField(ProjectMessage, 1)
+  file_search = messages.MessageField(pod_messages.FileSearchMessage, 2)
 
 
 class ListFilesResponse(messages.Message):
   files = messages.MessageField(pod_messages.FileMessage, 1, repeated=True)
+
+
+class GetRoutesRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+
+
+class GetRoutesResponse(messages.Message):
+  routes = messages.MessageField(pod_messages.RoutesMessage, 1)
+
+
+class GetLocalesRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+
+
+class GetLocalesResponse(messages.Message):
+  locales = messages.MessageField(pod_messages.LocalesMessage, 1)
+
+
+class GetTranslationCatalogRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+  catalog = messages.MessageField(pod_messages.TranslationCatalogMessage, 2)
+
+
+class GetTranslationCatalogResponse(messages.Message):
+  catalog = messages.MessageField(pod_messages.TranslationCatalogMessage, 1)
+
+
+class ExtractTranslationsRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+
+
+class ExtractTranslationsResponse(messages.Message):
+  translations = messages.MessageField(pod_messages.TranslationsMessage, 1)
+
+
+###
+
+
+class UploadUrlMessage(messages.Message):
+  pod = messages.MessageField(pod_messages.PodMessage, 1)
+  pod_path = messages.StringField(2)
+
+
+class SignedUploadUrlMessage(messages.Message):
+  url = messages.StringField(1)
+  policy = messages.StringField(2)
+  signature = messages.StringField(3)
+  google_access_id = messages.StringField(4)
+  bucket = messages.StringField(5)
+  pod_path = messages.StringField(6)
+  filename = messages.StringField(7)
+  access_token = messages.StringField(8)
+
+
+class GetFileUploadUrlRequest(messages.Message):
+  upload_urls = messages.MessageField(UploadUrlMessage, 1, repeated=True)
+
+
+class GetFileUploadUrlResponse(messages.Message):
+  signed_upload_urls = messages.MessageField(SignedUploadUrlMessage, 1,
+                                             repeated=True)
