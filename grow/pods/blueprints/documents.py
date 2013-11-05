@@ -9,8 +9,9 @@ class Document(object):
 
   def __init__(self, doc_path, pod, blueprint=None, body_format=None):
     self.doc_path = doc_path
-    self.pod_path = '/content/{}'.format(doc_path)
-    self.slug, self.ext = os.path.splitext(doc_path)
+    self.pod_path = '/content/{}'.format(doc_path.lstrip('/'))
+    self.basename = os.path.basename(doc_path)
+    self.slug, self.ext = os.path.splitext(self.basename)
 
     self.pod = pod
     self.blueprint = blueprint
@@ -48,6 +49,12 @@ class Document(object):
   def published(self):
     return self.fields.get('$published')
 
+  def delete(self):
+    self.pod.delete_file(self.pod_path)
+
+  def has_blueprint(self):
+    return self.blueprint.exists()
+
   def has_url(self):
     return True
 
@@ -69,7 +76,14 @@ class Document(object):
   @property
   @utils.memoize
   def body(self):
-    return self.doc_storage.body
+    content = self.doc_storage.body
+    return content.decode('utf-8')
+
+  @property
+  @utils.memoize
+  def content(self):
+    content = self.doc_storage.content
+    return content.decode('utf-8')
 
   def __eq__(self, other):
     return (isinstance(self, Document)
@@ -97,9 +111,14 @@ class Document(object):
 
   def to_message(self):
     message = messages.DocumentMessage()
+    message.builtins = messages.BuiltInFieldsMessage()
+    message.builtins.title = self.title
+    message.basename = self.basename
+    message.doc_path = self.doc_path
+    message.collection_path = self.blueprint.collection_path
     message.body = self.body
-    message.content = self.doc_storage.content
-    message.fields = json.dumps(self.fields)
+    message.content = self.content
+    message.fields = json.dumps(self.fields, cls=utils.JsonEncoder)
     message.html = self.doc_storage.html
     return message
 
@@ -113,7 +132,8 @@ class Document(object):
       else:
         content = message.content
       self.doc_storage.write(content)
-      return
+    elif message.body is not None:
+      pass
 
 
 class BaseDocumentStorage(object):
@@ -140,6 +160,9 @@ class BaseDocumentStorage(object):
   def html(self):
     return self.body
 
+  def save(self):
+    pass
+
 
 class YamlDocumentStorage(BaseDocumentStorage):
 
@@ -148,7 +171,7 @@ class YamlDocumentStorage(BaseDocumentStorage):
     content = self.pod.read_file(path)
     fields, body = utils.parse_yaml(content)
     self.content = content
-    self.fields = fields
+    self.fields = fields or {}
     self.body = body
 
 
@@ -159,7 +182,7 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     content = self.pod.read_file(path)
     fields, body = utils.parse_markdown(content)
     self.content = content
-    self.fields = fields
+    self.fields = fields or {}
     self.body = body
 
   @property

@@ -5,12 +5,14 @@ import gflags as flags
 import os
 from google.apputils import appcommands
 from grow import deployments
+from grow.client import client
 from grow.server import manager
 from grow.pods import commands as pod_commands
 from grow.pods import pods
 from grow.pods import storage
 
 FLAGS = flags.FLAGS
+flags.DEFINE_string('project', None, 'Project ID (owner/name).')
 flags.DEFINE_string('changeset', None, 'Changeset name.')
 flags.DEFINE_string('host', None, 'Grow server hostname (e.g. example.com).')
 
@@ -19,35 +21,45 @@ flags.DEFINE_string('host', None, 'Grow server hostname (e.g. example.com).')
 class UpCmd(appcommands.Cmd):
   """Uploads a pod to a remote pod server."""
 
-  def Run(self, argv):
-    raise NotImplementedError()
+  SKIP_PATTERNS = (
+      '.DS_Store',
+  )
 
-#    changeset = FLAGS.changeset
-#    host = FLAGS.host
-#    pod = pods.Pod(argv[1], storage=storage.FileStorage)
-#
-#    # TODO(jeremydw): Fix this.
-#    if host is not None and 'localhost' in host:
-#      service = client.get_service(host=FLAGS.host)
-#      for pod_path in pod.list_files_in_pod():
-#        path = pod.get_abspath(pod_path)
-#        content = open(path).read()
-#        content = base64.b64encode(content)
-#        req = service.pods().writefile(body={
-#           'pod': {'changeset': changeset},
-#           'file_transfer': {
-#             'pod_path': pod_path,
-#             'content_b64': content,
-#           },
-#        })
-#        req.execute()
-#        print 'Uploaded: {}'.format(pod_path)
+  def Run(self, argv):
+    changeset = FLAGS.changeset
+    owner, nickname = FLAGS.project.split('/')
+    host = FLAGS.host
+    pod = pods.Pod(argv[1], storage=storage.FileStorage)
+
+    # Uploading to GrowEdit on dev appserver.
+    if True or (host is not None and 'localhost' in host):
+      service = client.Client(host=FLAGS.host)
+      for pod_path in pod.list_dir('/'):
+        if os.path.basename(pod_path) in UpCmd.SKIP_PATTERNS:
+          continue
+        path = os.path.join(pod.root, pod_path)
+        content = open(path).read()
+        if isinstance(content, unicode):
+          content = content.encode('utf-8')
+        content = base64.b64encode(content)
+        resp = service.rpc('pods.update_file', {
+           'project': {
+             'owner': {'nickname': owner},
+             'nickname': nickname,
+           },
+           'file': {
+             'pod_path': pod_path,
+             'content_b64': content,
+           }
+        })
+        print 'Uploaded: {}'.format(pod_path)
 #      req = service.pods().finalizeStagedFiles(body={
 #        'pod': {'changeset': changeset}
 #      })
 #      req.execute()
-#      print 'Upload finalized.'
-#    else:
+      print 'Upload finalized.'
+    else:
+      raise NotImplementedError()
 #      google_cloud_storage.upload_to_gcs(pod, changeset, host=host)
 
 

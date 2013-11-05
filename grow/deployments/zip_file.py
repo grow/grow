@@ -18,9 +18,10 @@ class ZipFileDeployment(base.BaseDeployment):
     fp = pod.storage.open(self.filename, 'w')
     zip_file = zipfile.ZipFile(fp, mode='w')
 
-#    paths_to_content = pod.dump().iteritems()
-    paths_to_content = {'/foo.html': 'bar'}
+    paths_to_content = pod.dump()
     for path, content in paths_to_content.iteritems():
+      if isinstance(content, unicode):
+        content = content.encode('utf-8')
       zip_file.writestr(path, content)
 
     zip_file.close()

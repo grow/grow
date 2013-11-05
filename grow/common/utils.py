@@ -1,6 +1,8 @@
 from bisect import bisect_left, bisect_right
 import re
 import yaml
+import json
+import time
 
 
 def memoize(f):
@@ -17,14 +19,13 @@ def memoize(f):
 
 def parse_markdown(content):
   content = content.strip()
-  parts = re.split('---\n', content)
-  if len(parts) == 1:
+  match = re.match(r'^\s*---(.*)---\s*(.*)', content, re.DOTALL)
+  if not match:
     return None, content
-  parts.pop(0)
-  front_matter, body = parts
-  parsed_yaml = yaml.load(front_matter)
-  body = str(body)
-  return parsed_yaml, body
+  front_matter, body = match.groups()
+  if front_matter:
+    front_matter = yaml.load(front_matter)
+  return front_matter, body
 
 
 def parse_yaml(content):
@@ -37,6 +38,14 @@ def parse_yaml(content):
   parsed_yaml = yaml.load(front_matter)
   body = str(body)
   return parsed_yaml, body
+
+
+class JsonEncoder(json.JSONEncoder):
+
+  def default(self, obj):
+    if hasattr(obj, 'timetuple'):
+      return time.mktime(obj.timetuple())
+    raise TypeError(repr(obj) + ' is not JSON serializable.')
 
 
 class SortedCollection(object):

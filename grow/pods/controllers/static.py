@@ -8,8 +8,12 @@ try:
 except ImportError:
   blobstore = None
 
+mimetypes.add_type('application/font-woff', '.woff')
+
 
 class StaticController(base.BaseController):
+
+  KIND = 'Static file'
 
   def __init__(self, path_format, source_format=None, pod=None):
     self.path_format = path_format.replace('<grow:', '{').replace('>', '}')

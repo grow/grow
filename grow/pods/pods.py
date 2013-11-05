@@ -21,6 +21,7 @@ class Pod(object):
   def __init__(self, root, changeset=None, storage=storage.auto):
     self.storage = storage
     self.root = root if self.storage.is_cloud_storage else os.path.abspath(root)
+    self.out_dir = os.path.join(self.root, 'out')
     self.changeset = changeset
 
     self.routes = routes.Routes(pod=self)
@@ -58,6 +59,14 @@ class Pod(object):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     self.storage.write(path, content)
 
+  def file_exists(self, pod_path):
+    path = os.path.join(self.root, pod_path.lstrip('/'))
+    return self.storage.exists(path)
+
+  def delete_file(self, pod_path):
+    path = os.path.join(self.root, pod_path.lstrip('/'))
+    return self.storage.delete(path)
+
   def list_blueprints(self):
     return blueprints.Blueprint.list(self)
 
@@ -67,8 +76,11 @@ class Pod(object):
   def get_document(self, doc_path):
     return blueprints.Blueprint.get_document(doc_path, self)
 
-  def get_blueprint(self, doc_path):
-    return blueprints.Blueprint.get(doc_path, self)
+  def get_blueprint(self, collection_path):
+    return blueprints.Blueprint.get(collection_path, self)
+
+  def get_translation_catalog(self, locale):
+    return self.translations.get_translation(locale)
 
   def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme=None):
     if url_scheme is None:
@@ -80,8 +92,12 @@ class Pod(object):
       self.tests.run()
     output = {}
     for path in self.routes.list_concrete_paths():
-      controller = self.match(path)
-      output[path] = controller.render()
+      try:
+        controller = self.match(path)
+        output[path] = controller.render()
+      except:
+        logging.error('Error rendering: {}'.format(path))
+        raise
     return output
 
   def dump(self, suffix='index.html', out_dir=None):

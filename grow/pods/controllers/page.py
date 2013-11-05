@@ -7,6 +7,8 @@ from grow.pods.controllers import tags
 
 class PageController(base.BaseController):
 
+  KIND = 'Page'
+
   class Defaults(object):
     LL = 'en'
     CC = None

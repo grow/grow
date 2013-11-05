@@ -1,6 +1,10 @@
+import datetime
+import json
+import base64
 import os
 import httplib
 from protorpc import remote
+from grow.common import config
 from grow.server import messages
 from grow.pods import files
 from grow.pods import pods
@@ -31,6 +35,12 @@ class PodService(remote.Service):
     return pod.get_file(request.file.pod_path)
 
   @remote.method(
+      messages.CreateCollectionRequest,
+      messages.CreateCollectionResponse)
+  def create_collection(self, request):
+    pass
+
+  @remote.method(
       messages.CreateDocumentRequest,
       messages.CreateDocumentResponse)
   def create_document(self, request):
@@ -56,7 +66,7 @@ class PodService(remote.Service):
       messages.SearchDocumentsResponse)
   def search_documents(self, request):
     pod = self.get_pod_from_request(request)
-    blueprint = pod.get_blueprint(request.blueprint.doc_path)
+    blueprint = pod.get_blueprint(request.blueprint.collection_path)
     docs = blueprint.search_documents()
     message = messages.SearchDocumentsResponse()
     message.documents = [doc.to_message() for doc in docs]
@@ -84,6 +94,16 @@ class PodService(remote.Service):
     return message
 
   @remote.method(
+      messages.DeleteDocumentRequest,
+      messages.DeleteDocumentResponse)
+  def delete_document(self, request):
+    pod = self.get_pod_from_request(request)
+    document = self.get_document_from_request(pod, request)
+    document.delete()
+    message = messages.DeleteDocumentResponse()
+    return message
+
+  @remote.method(
       messages.CreateDownloadUrlRequest,
       messages.CreateDownloadUrlResponse)
   def create_download_url(self, request):
@@ -94,7 +114,7 @@ class PodService(remote.Service):
       messages.CreateExportUrlResponse)
   def create_export_url(self, request):
     pod = self.get_pod_from_request(request)
-    deployment = deployments.ZipFileDeployment('/edit.grow.io/zips/')
+    deployment = deployments.ZipFileDeployment(pod.out_dir)
     filename = deployment.deploy(pod)
     message = messages.CreateExportUrlResponse()
     message.url = '/_grow/download/{}'.format(filename)
@@ -126,13 +146,45 @@ class PodService(remote.Service):
   def update_file(self, request):
     pod = self.get_pod_from_request(request)
     pod_file = self.get_file_from_request(pod, request)
-    pod_file.update_content(request.file.content)
+    if request.file.content_b64:
+      content = request.file.content_b64
+    else:
+      content = request.file.content
+    pod_file.update_content(content)
     message = messages.UpdateFileResponse()
-    message.file = pod_file.to_message()
+#    message.file = pod_file.to_message()
     return message
 
   def delete_file(self, request):
     pass
+
+  @remote.method(
+      messages.GetLocalesRequest,
+      messages.GetLocalesResponse)
+  def get_locales(self, request):
+    pod = self.get_pod_from_request(request)
+    message = messages.GetLocalesResponse()
+    message.locales = pod.locales.to_message()
+    return message
+
+  @remote.method(
+      messages.GetTranslationCatalogRequest,
+      messages.GetTranslationCatalogResponse)
+  def get_translation_catalog(self, request):
+    pod = self.get_pod_from_request(request)
+    catalog = pod.get_translation_catalog(request.catalog.locale)
+    message = messages.GetTranslationCatalogResponse()
+    message.catalog = catalog.to_message()
+    return message
+
+  @remote.method(
+      messages.ExtractTranslationsRequest,
+      messages.ExtractTranslationsResponse)
+  def extract_translations(self, request):
+    pod = self.get_pod_from_request(request)
+    pod.translations.extract()
+    message = messages.ExtractTranslationsResponse()
+    return message
 
   @remote.method(
       messages.ListFilesRequest,
@@ -142,4 +194,49 @@ class PodService(remote.Service):
     pod_files = files.File.list(pod, prefix='/')
     message = messages.ListFilesResponse()
     message.files = [pod_file.to_message() for pod_file in pod_files]
+    return message
+
+  @remote.method(
+      messages.GetRoutesRequest,
+      messages.GetRoutesResponse)
+  def get_routes(self, request):
+    pod = self.get_pod_from_request(request)
+    message = messages.GetRoutesResponse()
+    message.routes = pod.routes.to_message()
+    return message
+
+  @remote.method(
+      messages.GetFileUploadUrlRequest,
+      messages.GetFileUploadUrlResponse)
+  def get_file_upload_url(self, request):
+    signed_upload_urls = []
+    google_access_id = config.get_google_access_id()
+#    access_token, _ = app_identity.get_access_token(SCOPE)
+    for upload_url_message in request.upload_urls:
+      filename = 'pods/{}{}'.format(
+          upload_url_message.pod.changeset,
+          upload_url_message.pod_path)
+      expires = '%sZ' % (datetime.datetime.utcnow()
+                         + datetime.timedelta(hours=1)).isoformat()[:19]
+      policy = base64.b64encode(json.dumps({
+          'expiration': expires,
+          'conditions': [
+              ['eq', '$bucket', config.BUCKET],
+              ['eq', '$key', filename],
+#              ['eq', '$x-goog-meta-owner', 'jeremydw@gmail.com'],
+          ],
+      }))
+      signature = base64.b64encode(config.sign_blob(policy))
+      signed_upload_url_message = messages.SignedUploadUrlMessage()
+      signed_upload_url_message.url = config.GCS_API_URL
+      signed_upload_url_message.bucket = config.BUCKET
+      signed_upload_url_message.policy = policy
+      signed_upload_url_message.signature = signature
+      signed_upload_url_message.google_access_id = google_access_id
+      signed_upload_url_message.filename = filename
+      signed_upload_url_message.pod_path = upload_url_message.pod_path
+#      signed_upload_url_message.access_token = access_token
+      signed_upload_urls.append(signed_upload_url_message)
+    message = messages.GetUploadUrlResponse()
+    message.signed_upload_urls = signed_upload_urls
     return message

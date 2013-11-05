@@ -1,6 +1,7 @@
 from apiclient import discovery
 from apiclient import errors
 import httplib2
+import json
 import requests
 
 HOST = ''
@@ -22,6 +23,24 @@ def get_service(host=None):
   service = discovery.build(api, version, http=http_service,
                             discoveryServiceUrl=url)
   return service
+
+
+class Client(object):
+
+  def __init__(self, host=None):
+    self.host = host
+
+  def rpc(self, path, body=None):
+    if body is None:
+      body = {}
+    headers = {
+        'Content-Type': 'application/json',
+    }
+    url = 'http://{}/_api/{}'.format(self.host, path)
+    resp = requests.post(url, data=json.dumps(body), headers=headers)
+    if not (resp.status_code >= 200 and resp.status_code < 205):
+      raise Exception(resp.text)
+    return resp
 
 
 def upload_to_gcs(signed_url, file_path, content):
