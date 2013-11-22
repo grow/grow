@@ -5,9 +5,22 @@ import markdown
 import os
 
 
+class Error(Exception):
+  pass
+
+
+class BadFormatError(Error, ValueError):
+  pass
+
+
+class DocumentExistsError(Error, ValueError):
+  pass
+
+
 class Document(object):
 
   def __init__(self, doc_path, pod, blueprint=None, body_format=None):
+    utils.validate_name(doc_path)
     self.doc_path = doc_path
     self.pod_path = '/content/{}'.format(doc_path.lstrip('/'))
     self.basename = os.path.basename(doc_path)
@@ -22,7 +35,9 @@ class Document(object):
     elif self.format == messages.Format.YAML:
       self.doc_storage = YamlDocumentStorage(self.pod_path, self.pod)
     else:
-      raise NotImplementedError(self.pod_path)
+      formats = messages.extensions_to_formats.keys()
+      text = 'Basename "{}" does not have a valid extension. Valid formats are: {}'
+      raise BadFormatError(text.format(self.basename, ', '.join(formats)))
 
     self.fields = self.doc_storage.fields
 
@@ -52,6 +67,9 @@ class Document(object):
   def delete(self):
     self.pod.delete_file(self.pod_path)
 
+  def exists(self):
+    return self.pod.file_exists(self.pod_path)
+
   def has_blueprint(self):
     return self.blueprint.exists()
 
@@ -70,7 +88,7 @@ class Document(object):
         .replace('<grow:published_year>', '{published_year}'))
     return path_format.format(**{
         'slug': self.slug,
-        'published_year': self.published.year if self.published else None,
+#        'published_year': self.published.year if self.published else None,
     })
 
   @property
@@ -80,34 +98,64 @@ class Document(object):
     return content.decode('utf-8')
 
   @property
-  @utils.memoize
   def content(self):
     content = self.doc_storage.content
     return content.decode('utf-8')
+
+  @property
+  def html(self):
+    return self.doc_storage.html
 
   def __eq__(self, other):
     return (isinstance(self, Document)
             and isinstance(other, Document)
             and self.pod_path == other.pod_path)
 
-#  def __getattr__(self, name):
-#    if name in self.fields:
-#      return self.fields[name]
-##    if '${}'.format(name) in self.yaml:
-##      return self.yaml['${}'.format(name)]
-#    return object.__getattribute__(self, name)
+  def __getattr__(self, name):
+    if name in self.fields:
+      return self.fields[name]
+#    if '${}'.format(name) in self.yaml:
+#      return self.yaml['${}'.format(name)]
+    return object.__getattribute__(self, name)
 
   def get_next(self):
     docs = self.blueprint.list_servable_documents()
     for i, doc in enumerate(docs):
       if doc == self:
+        n = i + 1
+        if n == len(docs):
+          return None
         return docs[i + 1]
 
   def get_prev(self):
     docs = self.blueprint.list_servable_documents()
     for i, doc in enumerate(docs):
       if doc == self:
+        n = i - 1
+        if n < 0:
+          return None
         return docs[i - 1]
+
+  def create_from_message(self, message):
+    if self.exists():
+      raise DocumentExistsError('{} already exists.'.format(self))
+    self.update_from_message(message)
+
+  def update_from_message(self, message):
+    if message.content is not None:
+      if isinstance(message.content, unicode):
+        content = message.content.encode('utf-8')
+      else:
+        content = message.content
+      self.doc_storage.write(content)
+    elif message.fields is not None:
+      content = '---\n{}\n---\n{}\n'.format(message.fields, message.body or '')
+      self.doc_storage.write(content)
+      self.doc_storage.fields = json.loads(message.fields)
+      self.doc_storage.body = message.body or ''
+      self.fields = self.doc_storage.fields
+    else:
+      raise NotImplementedError()
 
   def to_message(self):
     message = messages.DocumentMessage()
@@ -120,20 +168,23 @@ class Document(object):
     message.content = self.content
     message.fields = json.dumps(self.fields, cls=utils.JsonEncoder)
     message.html = self.doc_storage.html
+    message.serving_path = self.get_serving_path()
     return message
 
-  def create_from_message(self, message):
-    self.update_from_message(message)
-
-  def update_from_message(self, message):
-    if message.content is not None:
-      if isinstance(message.content, unicode):
-        content = message.content.encode('utf-8')
-      else:
-        content = message.content
-      self.doc_storage.write(content)
-    elif message.body is not None:
-      pass
+#    return
+#    if message.content is not None:
+#      self.pod.storage.write_file(self.pod_path, message.content)
+#    elif message.fields is not None and message.body is not None:
+#      fields = '{}'
+#      content = '---\n{}---\n{}'.format(fields, message.body)
+#      self.pod.storage.write_file(self.pod_path, content)
+#    elif message.fields is not None and message.body is None:
+#      fields = '{}'
+#      self.pod.storage.write_file(self.pod_path, content)
+#    elif message.fields is None and message.body is not None:
+#      self.pod.storage.write_file(self.pod_path, message.body)
+#    else:
+#      self.pod.storage.write_file(self.pod_path, '')
 
 
 class BaseDocumentStorage(object):
@@ -153,15 +204,13 @@ class BaseDocumentStorage(object):
   def load(self):
     raise NotImplementedError
 
-  def write(self, content):
-    self.pod.write_file(self.pod_path, content)
-
   @property
   def html(self):
     return self.body
 
-  def save(self):
-    pass
+  def write(self, content):
+    self.content = content
+    self.pod.write_file(self.pod_path, content)
 
 
 class YamlDocumentStorage(BaseDocumentStorage):
@@ -169,7 +218,7 @@ class YamlDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, body = utils.parse_yaml(content)
+    fields, body = utils.parse_yaml(content, path=path)
     self.content = content
     self.fields = fields or {}
     self.body = body
@@ -180,7 +229,7 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, body = utils.parse_markdown(content)
+    fields, body = utils.parse_markdown(content, path=path)
     self.content = content
     self.fields = fields or {}
     self.body = body
@@ -191,3 +240,16 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     if val is not None:
       val = markdown.markdown(val.decode('utf-8'))
     return val
+
+
+#class EmbeddedDocument(object):
+#
+#  def __init__(self, document):
+#    self.document = document
+#
+#  def __getattr__(self, name):
+#    if name in self.document.fields:
+#      return self.document.fields[name]
+##    if '${}'.format(name) in self.yaml:
+##      return self.yaml['${}'.format(name)]
+#    return self.document.__getattribute__(self.document, name)

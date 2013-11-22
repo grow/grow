@@ -10,7 +10,7 @@
         ignore = dirty
 [submodule "grow/submodules/httplib2"]
 	path = grow/submodules/httplib2
-	url = git://github.com/jcgregorio/httplib2.git
+	url = git://github.com/jeremydw/httplib2.git
 [submodule "grow/submodules/pytz"]
 	path = grow/submodules/pytz
 	url = git://github.com/newvem/pytz.git

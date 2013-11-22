@@ -18,11 +18,20 @@ class ProjectMessage(messages.Message):
 
 class CreateCollectionRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-#  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+  collection = messages.MessageField(blueprint_messages.CollectionMessage, 2)
 
 
 class CreateCollectionResponse(messages.Message):
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 1)
+  collection = messages.MessageField(blueprint_messages.CollectionMessage, 1)
+
+
+class DeleteCollectionRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+  collection = messages.MessageField(blueprint_messages.CollectionMessage, 2)
+
+
+class DeleteCollectionResponse(messages.Message):
+  pass
 
 
 class CreateDocumentRequest(messages.Message):
@@ -129,6 +138,25 @@ class ListFilesRequest(messages.Message):
 
 class ListFilesResponse(messages.Message):
   files = messages.MessageField(pod_messages.FileMessage, 1, repeated=True)
+
+
+class DeleteFileRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+  file = messages.MessageField(pod_messages.FileMessage, 2)
+
+
+class DeleteFileResponse(messages.Message):
+  pass
+
+
+class MoveFileRequest(messages.Message):
+  project = messages.MessageField(ProjectMessage, 1)
+  source_file = messages.MessageField(pod_messages.FileMessage, 2)
+  destination_file = messages.MessageField(pod_messages.FileMessage, 3)
+
+
+class MoveFileResponse(messages.Message):
+  file = messages.MessageField(pod_messages.FileMessage, 2)
 
 
 class GetRoutesRequest(messages.Message):

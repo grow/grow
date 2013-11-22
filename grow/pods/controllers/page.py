@@ -1,8 +1,10 @@
+import logging
 import mimetypes
 import jinja2
 from grow.common import utils
 from grow.pods.controllers import base
 from grow.pods.controllers import tags
+from grow.pods import errors
 
 
 class PageController(base.BaseController):
@@ -21,7 +23,9 @@ class PageController(base.BaseController):
     self.route_params = {}
 
   def __repr__(self):
-    return '<PageController: view={}, document={}>'.format(self.view, self.document.pod_path)
+    if not self.document:
+      return '<Page(view=\'{}\')>'.format(self.view)
+    return '<Page(view=\'{}\', document=\'{}\')>'.format(self.view, self.document.pod_path)
 
   @property
   def mimetype(self):
@@ -63,9 +67,14 @@ class PageController(base.BaseController):
     context = {
         'cc': self.cc,
         'content': self.document,
+        'entries': lambda *args, **kwargs: tags.entries(*args, _pod=self.pod, **kwargs),
         'll': self.ll,
-        'nav': lambda blueprint: tags.nav(blueprint=blueprint, pod=self.pod),
-        'entries': lambda **kwargs: tags.entries(pod=self.pod, **kwargs),
-        'route': self.route_params,
+        'params': self.route_params,
+        'pod': self.pod,
     }
-    return template.render({'grow': context})
+    try:
+      return template.render({'g': context})
+    except Exception as e:
+      text = 'Error building {}: {}'
+      logging.exception(e)
+      raise errors.BuildError(text.format(self, e))

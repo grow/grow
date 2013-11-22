@@ -20,3 +20,15 @@ class PodNotFoundError(Error):
 
 class TestFailedError(Error, AssertionError):
   pass
+
+
+class BuildError(Error):
+  pass
+
+
+class BadNameError(Error, ValueError):
+  pass
+
+
+class BadYamlError(Error, ValueError):
+  pass

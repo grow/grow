@@ -1,13 +1,39 @@
 from grow.common import utils
 from grow.pods.blueprints import documents
 from grow.pods.blueprints import messages
+import json
 import operator
 import os
+
+
+class Error(Exception):
+  pass
+
+
+class BlueprintExistsError(Error):
+  pass
+
+
+class CollectionNotEmptyError(Error):
+  pass
+
+
+class BadBlueprintNameError(Error, ValueError):
+  pass
+
+
+class CollectionDoesNotExistError(Error, ValueError):
+  pass
+
+
+class BadFieldsError(Error, ValueError):
+  pass
 
 
 class Blueprint(object):
 
   def __init__(self, collection_path, pod):
+    utils.validate_name(collection_path)
     self.pod = pod
     self.collection_path = collection_path.lstrip('/')
     self.pod_path = '/content/{}'.format(self.collection_path)
@@ -24,6 +50,15 @@ class Blueprint(object):
         basenames.add(parts[0])
     return [cls(os.path.splitext(basename)[0], pod)
             for basename in basenames]
+
+  def exists(self):
+    return self.pod.file_exists(self._blueprint_path)
+
+  def create_from_message(self, message):
+    if self.exists():
+      raise BlueprintExistsError('Blueprint "{}" already exists.'.format(self.collection_path))
+    self.update_from_message(message)
+    return self
 
   @classmethod
   def get(cls, collection_path, pod):
@@ -44,8 +79,18 @@ class Blueprint(object):
   def title(self):
     return self.yaml.get('title')
 
-  def exists(self):
-    return self.pod.file_exists(self._blueprint_path)
+  def delete(self):
+    if len(self.list_documents(include_hidden=True)):
+      text = 'Collections that are not empty cannot be deleted.'
+      raise CollectionNotEmptyError(text)
+    self.pod.delete_file(self._blueprint_path)
+
+  def update_from_message(self, message):
+    if not message.fields:
+      raise BadFieldsError('Fields are required to create a collection.')
+    fields = json.loads(message.fields)
+    fields = utils.dump_yaml(fields)
+    self.pod.write_file(self._blueprint_path, fields)
 
   def get_view(self):
     return self.yaml.get('view')
@@ -55,7 +100,7 @@ class Blueprint(object):
 
   def list_documents(self, order_by=None, reverse=None, include_hidden=False):
     if not self.exists():
-      return []
+      raise CollectionDoesNotExistError('Collection "{}" does not exist.'.format(self.collection_path))
     if order_by is None:
       order_by = 'order'
     if reverse is None:
@@ -90,13 +135,8 @@ class Blueprint(object):
   def search_documents(self, order_by='order'):
     return self.list_documents(order_by=order_by)
 
-  @property
-  def num_documents(self):
-    return len(self.list_documents())
-
   def to_message(self):
     message = messages.BlueprintMessage()
     message.title = self.title
     message.collection_path = self.collection_path
-    message.num_documents = self.num_documents
     return message

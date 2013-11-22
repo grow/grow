@@ -1,5 +1,4 @@
 import mimetypes
-import os
 import re
 from grow.pods.controllers import base
 
@@ -9,6 +8,8 @@ except ImportError:
   blobstore = None
 
 mimetypes.add_type('application/font-woff', '.woff')
+mimetypes.add_type('image/svg+xml', '.svg')
+mimetypes.add_type('text/css', '.css')
 
 
 class StaticController(base.BaseController):
@@ -32,11 +33,14 @@ class StaticController(base.BaseController):
     return mimetypes.guess_type(self.get_pod_path())[0]
 
   def get_http_headers(self):
+    path = self.pod.abs_path(self.get_pod_path())
     headers = super(StaticController, self).get_http_headers()
     if blobstore and self.pod.storage.is_cloud_storage:
-      path = self.get_pod_path().lstrip('/')
-      path = '/gs' + os.path.join(self.pod.root, path)
-      headers['X-AppEngine-BlobKey'] = blobstore.create_gs_key(path)
+      blob_key = blobstore.create_gs_key('/gs' + path)
+      headers['X-AppEngine-BlobKey'] = blob_key
+    modified = str(self.pod.storage.modified(path))
+    headers['Last-Modified'] = modified.split('.')[0]
+    headers['Cache-Control'] = 'max-age'
     return headers
 
   def list_concrete_paths(self):

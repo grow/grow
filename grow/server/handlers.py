@@ -5,6 +5,8 @@ from grow.pods import storage
 from grow.server import pod_serving
 from grow.server import podgroups
 from grow.server import utils
+from webob import exc
+import jinja2
 import logging
 import os
 import webapp2
@@ -12,10 +14,28 @@ import webapp2
 
 class BaseHandler(webapp2.RequestHandler):
 
+  def handle_exception(self, exception, debug):
+    logging.exception(exception)
+    root = os.path.join(os.path.dirname(__file__), 'templates')
+    loader = storage.FileStorage.JinjaLoader(root)
+    env = jinja2.Environment(loader=loader, autoescape=True, trim_blocks=True,
+                             extensions=['jinja2.ext.i18n'])
+    template = env.get_template('error.html')
+    html = template.render({
+      'error': {
+          'title': str(exception)
+      }
+    })
+    if isinstance(exception, webapp2.HTTPException):
+      self.response.set_status(exception.code)
+    else:
+      self.response.set_status(500)
+    self.response.write(html)
+
   def respond_with_controller(self, controller):
     # TODO(jeremydw): Handle custom errors.
     if controller is None:
-      return self.abort(404)
+      raise exc.HTTPNotFound('No matching controller found.')
 
     # Update response headers with headers from controller.
     headers = controller.get_http_headers()
@@ -25,12 +45,7 @@ class BaseHandler(webapp2.RequestHandler):
     # file is going to be served from a different source, return now.
     if 'X-AppEngine-BlobKey' in self.response.headers:
       return
-
-    try:
-      return self.response.out.write(controller.render())
-    except IOError as e:
-      self.response.set_status(404)
-      self.response.out.write('IOError: {}'.format(e))
+    return self.response.out.write(controller.render())
 
 
 class ConsoleHandler(BaseHandler):

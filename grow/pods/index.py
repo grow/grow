@@ -5,6 +5,14 @@ import threading
 import yaml
 
 
+class Error(Exception):
+  pass
+
+
+class CorruptIndexError(Error):
+  pass
+
+
 class Index(object):
   BASENAME = '.growindex'
   Diff = collections.namedtuple('Diff', ['adds', 'edits', 'deletes', 'nochanges'])
@@ -61,7 +69,10 @@ class Index(object):
 
   @classmethod
   def from_yaml(cls, yaml_string):
-    return cls(yaml.load(yaml_string))
+    try:
+      return cls(yaml.load(yaml_string))
+    except yaml.scanner.ScannerError as e:
+      raise CorruptIndexError(str(e))
 
   @classmethod
   def apply_diffs(cls, diffs, paths_to_content, write_func, delete_func):

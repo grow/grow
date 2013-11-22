@@ -45,6 +45,8 @@ class FileSystemDeployment(base.BaseDeployment):
     pod.storage.write(index_path, canary_index.to_yaml())
     logging.info('Wrote index: {}'.format(index_path))
 
+    return diffs
+
   def _delete_file(self, pod, path):
     out_path = os.path.join(self.out_dir, path.lstrip('/'))
     pod.storage.delete(out_path)

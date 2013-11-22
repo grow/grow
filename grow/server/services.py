@@ -1,18 +1,22 @@
 import datetime
 import json
 import base64
+import logging
 import os
 import httplib
 from protorpc import remote
 from grow.common import config
 from grow.server import messages
+from grow.pods.blueprints import blueprints
+from grow.pods.blueprints import documents
 from grow.pods import files
 from grow.pods import pods
 from grow.pods import commands
-from grow import deployments
 
 
 class ServiceException(remote.ApplicationError):
+  http_status = httplib.BAD_REQUEST
+
   def __init__(self, message=None):
     super(ServiceException, self).__init__(
         message, httplib.responses[self.http_status])
@@ -29,7 +33,10 @@ class PodService(remote.Service):
     return pods.Pod(root)
 
   def get_document_from_request(self, pod, request):
-    return pod.get_document(request.document.doc_path)
+    try:
+      return pod.get_document(request.document.doc_path)
+    except documents.Error as e:
+      raise ServiceException(str(e))
 
   def get_file_from_request(self, pod, request):
     return pod.get_file(request.file.pod_path)
@@ -38,15 +45,41 @@ class PodService(remote.Service):
       messages.CreateCollectionRequest,
       messages.CreateCollectionResponse)
   def create_collection(self, request):
-    pass
+    pod = self.get_pod_from_request(request)
+    try:
+      collection = pod.get_blueprint(request.collection.collection_path)
+      collection.create_from_message(request.collection)
+    except blueprints.Error as e:
+      logging.exception(e)
+      raise ServiceException(str(e))
+    message = messages.CreateCollectionResponse()
+    message.collection = collection.to_message()
+    return message
+
+  @remote.method(
+      messages.DeleteCollectionRequest,
+      messages.DeleteCollectionResponse)
+  def delete_collection(self, request):
+    pod = self.get_pod_from_request(request)
+    try:
+      collection = pod.get_blueprint(request.collection.collection_path)
+      collection.delete()
+      message = messages.DeleteCollectionResponse()
+      return message
+    except Exception as e:
+      raise ServiceException(str(e))
 
   @remote.method(
       messages.CreateDocumentRequest,
       messages.CreateDocumentResponse)
   def create_document(self, request):
     pod = self.get_pod_from_request(request)
-    document = pod.get_document(request.document.doc_path)
-    document.create_from_message(request.document)
+    try:
+      document = pod.get_document(request.document.doc_path)
+      document.create_from_message(request.document)
+    except Exception as e:
+      logging.exception(e)
+      raise ServiceException(str(e))
     message = messages.CreateDocumentResponse()
     message.document = document.to_message()
     return message
@@ -56,18 +89,28 @@ class PodService(remote.Service):
       messages.ListBlueprintsResponse)
   def list_blueprints(self, request):
     pod = self.get_pod_from_request(request)
-    results = pod.list_blueprints()
-    message = messages.ListBlueprintsResponse()
-    message.blueprints = [blueprint.to_message() for blueprint in results]
-    return message
+    try:
+      results = pod.list_blueprints()
+      message = messages.ListBlueprintsResponse()
+      message.blueprints = [blueprint.to_message() for blueprint in results]
+      return message
+    except Exception as e:
+      logging.exception(e)
+      raise ServiceException(str(e))
 
   @remote.method(
       messages.SearchDocumentsRequest,
       messages.SearchDocumentsResponse)
   def search_documents(self, request):
     pod = self.get_pod_from_request(request)
-    blueprint = pod.get_blueprint(request.blueprint.collection_path)
-    docs = blueprint.search_documents()
+    try:
+      blueprint = pod.get_blueprint(request.blueprint.collection_path)
+      docs = blueprint.search_documents()
+    except blueprints.CollectionDoesNotExistError as e:
+      raise NotFoundException(str(e))
+    except Exception as e:
+      logging.exception(e)
+      raise ServiceException(str(e))
     message = messages.SearchDocumentsResponse()
     message.documents = [doc.to_message() for doc in docs]
     return message
@@ -78,6 +121,8 @@ class PodService(remote.Service):
   def get_document(self, request):
     pod = self.get_pod_from_request(request)
     document = self.get_document_from_request(pod, request)
+    if not document.exists():
+      raise NotFoundException('{} does not exist.'.format(document))
     message = messages.GetDocumentResponse()
     message.document = document.to_message()
     return message
@@ -87,8 +132,12 @@ class PodService(remote.Service):
       messages.UpdateDocumentResponse)
   def update_document(self, request):
     pod = self.get_pod_from_request(request)
-    document = pod.get_document(request.document.doc_path)
-    document.update_from_message(request.document)
+    try:
+      document = pod.get_document(request.document.doc_path)
+      document.update_from_message(request.document)
+    except Exception as e:
+      logging.exception(e)
+      raise ServiceException(str(e))
     message = messages.UpdateDocumentResponse()
     message.document = document.to_message()
     return message
@@ -101,23 +150,6 @@ class PodService(remote.Service):
     document = self.get_document_from_request(pod, request)
     document.delete()
     message = messages.DeleteDocumentResponse()
-    return message
-
-  @remote.method(
-      messages.CreateDownloadUrlRequest,
-      messages.CreateDownloadUrlResponse)
-  def create_download_url(self, request):
-    pass
-
-  @remote.method(
-      messages.CreateExportUrlRequest,
-      messages.CreateExportUrlResponse)
-  def create_export_url(self, request):
-    pod = self.get_pod_from_request(request)
-    deployment = deployments.ZipFileDeployment(pod.out_dir)
-    filename = deployment.deploy(pod)
-    message = messages.CreateExportUrlResponse()
-    message.url = '/_grow/download/{}'.format(filename)
     return message
 
   @remote.method(
@@ -152,11 +184,29 @@ class PodService(remote.Service):
       content = request.file.content
     pod_file.update_content(content)
     message = messages.UpdateFileResponse()
-#    message.file = pod_file.to_message()
+    message.file = pod_file.to_message()
     return message
 
+  @remote.method(
+      messages.MoveFileRequest,
+      messages.MoveFileResponse)
+  def move_file(self, request):
+    pod = self.get_pod_from_request(request)
+    pod_file = pod.get_file(request.source_file.pod_path)
+    pod_file.move_to(request.destination_file.pod_path)
+    message = messages.MoveFileResponse()
+    message.file = pod_file.to_message()
+    return message
+
+  @remote.method(
+      messages.DeleteFileRequest,
+      messages.DeleteFileResponse)
   def delete_file(self, request):
-    pass
+    pod = self.get_pod_from_request(request)
+    pod_file = self.get_file_from_request(pod, request)
+    pod_file.delete()
+    message = messages.DeleteFileResponse()
+    return message
 
   @remote.method(
       messages.GetLocalesRequest,
@@ -202,7 +252,11 @@ class PodService(remote.Service):
   def get_routes(self, request):
     pod = self.get_pod_from_request(request)
     message = messages.GetRoutesResponse()
-    message.routes = pod.routes.to_message()
+    try:
+      message.routes = pod.routes.to_message()
+    except Exception as e:
+      logging.exception(e)
+      raise ServiceException(str(e))
     return message
 
   @remote.method(

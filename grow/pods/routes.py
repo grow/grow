@@ -61,7 +61,8 @@ class Routes(object):
       controller = controllers.StaticController(path_format=path, source_format=path, pod=self.pod)
       rules.append(routing.Rule(path, endpoint=controller))
 
-    return routing.Map(rules, converters=Routes.converters)
+    routing_map = routing.Map(rules, converters=Routes.converters)
+    return routing_map
 
   def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme=None):
     """Matches a controller from the pod.

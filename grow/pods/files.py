@@ -1,7 +1,7 @@
+from grow.common import utils
 from grow.pods import messages
 import mimetypes
 import os
-import urllib
 
 mimetypes.add_type('text/plain', '.md')
 mimetypes.add_type('text/plain', '.yaml')
@@ -24,6 +24,7 @@ class FileDoesNotExistError(Error):
 class File(object):
 
   def __init__(self, pod_path, pod):
+    utils.validate_name(pod_path)
     self.pod_path = pod_path
     self.pod = pod
 
@@ -35,6 +36,12 @@ class File(object):
   def list(cls, pod, prefix='/'):
     paths = sorted(pod.list_dir(prefix))
     return [File(path, pod) for path in paths]
+
+  def delete(self):
+    return self.pod.delete_file(self.pod_path)
+
+  def move_to(self, dest_pod_path):
+    self.pod.move_file_to(self.pod_path, dest_pod_path)
 
   def get_content(self):
     try:
@@ -60,16 +67,8 @@ class File(object):
       headers['X-AppEngine-BlobKey'] = blobstore.create_gs_key(path)
     return headers
 
-  def get_content_url(self):
-    # TODO(jeremydw): This may change depending on the pod's storage system.
-    params = {
-        'pod_path': self.pod_path,
-    }
-    return '/_grow/file?{}'.format(urllib.urlencode(params))
-
   def to_message(self):
     message = messages.FileMessage()
     message.pod_path = self.pod_path
-    message.content_url = self.get_content_url()
     message.mimetype = self.mimetype
     return message

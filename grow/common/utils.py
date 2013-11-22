@@ -1,8 +1,18 @@
 from bisect import bisect_left, bisect_right
-import re
-import yaml
+from grow.pods import errors
+import logging
 import json
+import re
 import time
+import yaml
+
+
+def validate_name(name):
+  # TODO: better validation.
+  if ('//' in name
+      or '..' in name
+      or ' ' in name):
+    raise errors.BadNameError('Name must be lowercase and only contain letters, numbers, backslashes, and dashes. Found: "{}"'.format(name))
 
 
 def memoize(f):
@@ -17,27 +27,49 @@ def memoize(f):
   return memodict(f)
 
 
-def parse_markdown(content):
-  content = content.strip()
-  match = re.match(r'^\s*---(.*)---\s*(.*)', content, re.DOTALL)
-  if not match:
-    return None, content
-  front_matter, body = match.groups()
-  if front_matter:
-    front_matter = yaml.load(front_matter)
-  return front_matter, body
+def parse_markdown(content, path=None):
+  # TODO: better parsing
+  try:
+    content = content.strip()
+    match = re.match(r'^\s*---(.*)---\s*(.*)', content, re.DOTALL)
+    if not match:
+      return None, content
+    front_matter, body = match.groups()
+    if front_matter:
+      front_matter = yaml.load(front_matter)
+    return front_matter, body
+  except Exception as e:
+    if path:
+      text = 'Problem parsing YAML file "{}": {}'.format(path, str(e))
+    else:
+      text = 'Problem parsing YAML file: {}'.format(str(e))
+    logging.exception(e)
+    raise errors.BadYamlError(text)
 
 
-def parse_yaml(content):
-  content = content.strip()
-  parts = re.split('---\n', content)
-  if len(parts) == 1:
-    return yaml.load(content), None
-  parts.pop(0)
-  front_matter, body = parts
-  parsed_yaml = yaml.load(front_matter)
-  body = str(body)
-  return parsed_yaml, body
+def parse_yaml(content, path=None):
+  try:
+    content = content.strip()
+    parts = re.split('---\n', content)
+    if len(parts) == 1:
+      return yaml.load(content), None
+    print parts
+    parts.pop(0)
+    front_matter, body = parts
+    parsed_yaml = yaml.load(front_matter)
+    body = str(body)
+    return parsed_yaml, body
+  except Exception as e:
+    if path:
+      text = 'Problem parsing YAML file "{}": {}'.format(path, str(e))
+    else:
+      text = 'Problem parsing YAML file: {}'.format(str(e))
+    logging.exception(e)
+    raise errors.BadYamlError(text)
+
+
+def dump_yaml(obj):
+  return yaml.safe_dump(obj, allow_unicode=True, width=800, default_flow_style=False)
 
 
 class JsonEncoder(json.JSONEncoder):

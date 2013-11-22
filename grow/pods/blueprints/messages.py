@@ -46,7 +46,11 @@ class BlueprintMessage(messages.Message):
   collection_path = messages.StringField(1)  # posts
   num_documents = messages.IntegerField(2)
   title = messages.StringField(3)
+  fields = messages.StringField(4)  # JSON fields
 #  fields = messages.MessageField(FieldMessage, 2, repeated=True)
+
+
+CollectionMessage = BlueprintMessage
 
 
 class UserMessage(messages.Message):
@@ -66,7 +70,8 @@ class DocumentMessage(messages.Message):
   basename = messages.StringField(2)
   collection_path = messages.StringField(3)
   builtins = messages.MessageField(BuiltInFieldsMessage, 4)
-  fields = messages.StringField(5)
+  fields = messages.StringField(5)  # JSON fields
   body = messages.StringField(6)
   content = messages.StringField(7)
   html = messages.StringField(8)
+  serving_path = messages.StringField(9)
