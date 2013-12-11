@@ -2,9 +2,16 @@ from bisect import bisect_left, bisect_right
 from grow.pods import errors
 import logging
 import json
+import mimetypes
 import re
 import time
 import yaml
+
+
+def apply_heaers(headers, path):
+  mimetype = mimetypes.guess_type(path)[0]
+  if mimetype:
+    headers['Content-Type'] = mimetype
 
 
 def validate_name(name):

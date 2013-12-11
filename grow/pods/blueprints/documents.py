@@ -64,6 +64,10 @@ class Document(object):
   def published(self):
     return self.fields.get('$published')
 
+  @property
+  def category(self):
+    return self.fields.get('$category')
+
   def delete(self):
     self.pod.delete_file(self.pod_path)
 
@@ -238,7 +242,10 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
   def html(self):
     val = self.body
     if val is not None:
-      val = markdown.markdown(val.decode('utf-8'))
+      extensions = [
+        'toc',
+      ]
+      val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
     return val
 
 

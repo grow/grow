@@ -2,9 +2,10 @@ import logging
 import mimetypes
 import jinja2
 from grow.common import utils
+from grow.pods import errors
 from grow.pods.controllers import base
 from grow.pods.controllers import tags
-from grow.pods import errors
+from grow.pods.controllers.tags import markdown_filter
 
 
 class PageController(base.BaseController):
@@ -45,9 +46,11 @@ class PageController(base.BaseController):
   @utils.memoize
   def _template_env(self):
     _template_loader = self.pod.storage.JinjaLoader(self.pod.root)
-    return jinja2.Environment(
+    env = jinja2.Environment(
         loader=_template_loader, autoescape=True, trim_blocks=True,
         extensions=['jinja2.ext.i18n'])
+    env.filters['markdown'] = markdown_filter.markdown_filter
+    return env
 
   def _install_translations(self, ll):
     translation = self.pod.translations.get_translation(ll)
@@ -66,8 +69,11 @@ class PageController(base.BaseController):
     template = self._template_env.get_template(self.view.lstrip('/'))
     context = {
         'cc': self.cc,
-        'content': self.document,
+        'content': self.document,  # TODO: Remove.
+        'doc': self.document,
         'entries': lambda *args, **kwargs: tags.entries(*args, _pod=self.pod, **kwargs),
+        'categories': lambda *args, **kwargs: tags.categories(*args, _pod=self.pod, **kwargs),
+        'is_active': lambda doc: tags.is_active(doc, self.document),
         'll': self.ll,
         'params': self.route_params,
         'pod': self.pod,

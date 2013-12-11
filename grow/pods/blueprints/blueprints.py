@@ -75,6 +75,9 @@ class Blueprint(object):
   def yaml(self):
     return utils.parse_yaml(self.pod.read_file(self._blueprint_path))[0]
 
+  def list_categories(self):
+    return self.yaml.get('categories')
+
   @property
   def title(self):
     return self.yaml.get('title')
