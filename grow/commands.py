@@ -72,7 +72,7 @@ class RunCmd(appcommands.Cmd):
     if len(argv) != 2:
       raise Exception('Must specify pod directory.')
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
-    sdk_utils.check_version()
+    sdk_utils.check_version(quiet=True)
     logging.info('Serving pod with root: {}'.format(root))
     manager.start(root)
 
