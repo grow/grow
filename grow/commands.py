@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+import logging
 import base64
 import gflags as flags
 import os
 from google.apputils import appcommands
 from grow import deployments
 from grow.client import client
+from grow.common import sdk_utils
 from grow.server import manager
 from grow.pods import commands as pod_commands
 from grow.pods import pods
@@ -70,7 +72,8 @@ class RunCmd(appcommands.Cmd):
     if len(argv) != 2:
       raise Exception('Must specify pod directory.')
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
-    print 'Serving pod with root: {}'.format(root)
+    sdk_utils.check_version()
+    logging.info('Serving pod with root: {}'.format(root))
     manager.start(root)
 
 
