@@ -1,0 +1,5 @@
+project: grow/growapp.org
+grow_version: 0.0.11
+
+flags:
+  static_dir: /public/
