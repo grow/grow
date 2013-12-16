@@ -34,19 +34,13 @@ ul {
 }
 
 .banner {
-  background: #fdecac;
-  color: #000;
-  border-bottom: 1px solid #f2ba79;
   box-sizing: border-box;
-  font-size: 11px;
-  margin-top: 0;
-  padding: 5px;
+  border-radius: 0;
   position: fixed;
-  left: 0;
+  padding: 5px 10px;
+  line-height: inherit;
   right: 0;
   top: 0;
-  height: 25px;
-  text-align: center;
   z-index: 200;
 }
 
@@ -82,7 +76,6 @@ main .wrap {
 }
 
 header {
-  margin-top: 25px;
   background: linear-gradient(rgba(255,255,255,0.3),rgba(255,255,255,0));
   border-bottom: 1px solid #ddd;
   background-color: #e8ebef;
@@ -121,7 +114,7 @@ main {
   background: #fff;
   padding: 0 0 30px 0;
   position: relative;
-  margin: 100px 0 150px;
+  margin: 75px 0 150px;
   z-index: 101;
 }
 

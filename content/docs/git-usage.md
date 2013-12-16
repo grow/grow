@@ -1,6 +1,6 @@
 ---
 $title: Git usage
-$category: Reference
+$category: Workflow
 ---
 # Git + Grow = ♡
 
@@ -21,7 +21,8 @@ The following branches contain __pod files__:
 - `master` – The master branch is "sacred" and pod files committed here should be production-ready. Every release candidate must be commited to master.
 - `dev` – For incremental development. Typical site development should take place in the dev branch.
 - `feature/<name>` – For major site changes, such as redesigns. When features are complete, they should be integrated into the dev branch.
-- `hotfix/<name>` – For hot fixes made to the production site. Hot fixes branch from master, and must merge back into both master and dev.
+- `hotfix/<name>` – For hotfixes made to the production site. Hotfixes branch from master, and must merge back into both master and dev.
+- `translation/<name>` – Strictly for translation work. Just like hotfixes, translations branch from master, and must merge back into both master and dev.
 
 The "build" branch contains __generated files__, not pod files:
 

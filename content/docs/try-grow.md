@@ -15,7 +15,7 @@ This *Try Grow* tutorial will walk you through the basics of using the Grow Site
 
 ## 0. Download
 
-Before you begin, you'll have to download the Grow SDK. Don't worry, the Grow SDK is light, fully encapsulated, and portable. To install the Grow command (`grow`) to your computer, download the file below, open *Grow SDK.app*, and confirm the symlink installation.
+Before you begin, you'll have to download the Grow SDK. Don't worry, the Grow SDK is __light, fully encapsulated, and portable__. To install the Grow command (`grow`) to your computer, download the file below, open *Grow SDK.app*, and confirm the symlink installation.
 
 <div class="well">
   <p><a class="btn btn-lg btn-primary" href="https://github.com/grow/macgrow/releases">Download the Grow SDK (Mac)</a>
@@ -30,7 +30,7 @@ Now that you've got Grow on your computer, you're ready to start building your f
 
 In Grow, sites are organized into directories called __pods__. So, each site is stored in one __pod__.
 
-Open up a terminal prompt. Run the following command, which initializes a basic pod for you in a directory it creates named `hello-grow`.
+Open up a command prompt. Run the following command, which initializes a basic pod for you in a directory it creates named `hello-grow`.
 
     grow init hello-grow https://github.com/growthemes/try-grow.git
 

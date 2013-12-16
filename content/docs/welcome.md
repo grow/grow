@@ -10,6 +10,6 @@ You've reached the developer's guide for the Grow open source project. This guid
 
 ## Learn Grow in under an hour
 
-Grow is simple yet powerful. Our goal is to keep Grow simple so that you can learn about all its capabilities in an hour or less. After going through this guide, you'll be able to use Grow to build a website, manage and structure your content, internationalize your web site, and deploy it to the web.
+Grow is simple yet powerful. Our goal is to keep Grow simple so that you can learn about all its capabilities within an hour or less. After going through this guide, you'll be able to use Grow to build a website, manage and structure your content, localize your web site, and deploy it to the public web.
 
 <a class="btn btn-xl btn-primary" href="/docs/how-it-works/">Next: How it works</a>

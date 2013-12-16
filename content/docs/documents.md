@@ -13,16 +13,16 @@ The __document path__ of a content document is its path relative to the pod's "/
 
 ## Anatomy of a content document
 
-- __Front matter__ – A YAML document prepended to a Markdown body. Front matter contains fields. Field names prefixed with a dollar sign ($) are ones which are built-in to Grow. Front matter is encapsulated by three dashes (`--`). From views, fields can be accessed using `{{g.doc.<field name>}}` where <field name> is the name of the field. The dollar sign prefix should be omitted from field names accessed using template variables.
+- __Front matter__ – A YAML document prepended to a Markdown body. Front matter contains fields. Field names prefixed with a dollar sign ($) are ones which are built-in to Grow. Front matter is encapsulated by three dashes (`---`). From views, fields can be accessed using `{{g.doc.<field name>}}` where <field name> is the name of the field. The dollar sign prefix should be omitted from field names accessed using template variables.
 
 - __Markdown body__ – A body of a Markdown-formatted document. From views, the Markdown body processed into HTML can be accessed using `{{g.doc.html}}`.
 
 ###
 
-    --
+    ---
     $title: Hello, Grow!
     $category: Get Started
-    --
+    ---
     # Welcome to Grow!
 
     This is a [Markdown](http://daringfireball.net/projects/markdown/) document.
@@ -79,11 +79,11 @@ Documents can also specify their own fields if a specific document has more cont
 
 `/content/people/john.md`
 
-    --
+    ---
     $title: John
 
     name: John Smith
     age: 25
     color: rgb(0, 0, 128)
-    --
+    ---
     This is the bio for John. It's Markdown-formatted, but it's so short that doesn't really matter.

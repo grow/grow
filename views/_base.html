@@ -4,9 +4,6 @@
 <link rel="icon" href="/public/images/growicon.png">
 <link rel="stylesheet" href="/public/css/main.css">
 <body>
-  <div class="banner">
-    You are viewing a pre-release. Stay tuned for information on availability.
-  </div>
   <header>
     <div class="wrap">
       <h1>
@@ -43,7 +40,7 @@
 
         <div class="row callouts">
           {% for callout in g.doc.callouts %}
-          <div class="col-md-3">
+          <div class="col-sm-3">
             <h3>{{callout.title}}</h3>
             {{callout.description}}
           </div>
@@ -57,7 +54,7 @@
           <h2>{{g.doc.managed.heading}}</h2>
           <div class="subtitle">{{g.doc.managed.subtitle}}</div>
 
-          <div class="col-md-4">
+          <div class="col-sm-4">
             <cite>{{g.doc.managed.col1.heading}}</cite>
             <div class="window">
               <div class="title">
@@ -68,7 +65,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-sm-4">
             <cite>{{g.doc.managed.col2.heading}}</cite>
             <div class="window">
               <div class="title">
@@ -79,7 +76,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-sm-4">
             <cite>{{g.doc.managed.col3.heading}}</cite>
 
             <div class="window">
@@ -122,7 +119,7 @@
         <div class="row wrap windows">
           <h2>{{g.doc.startup.heading}}</h2>
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-sm-6">
               <div class="window">
                 <div class="title">Using the Grow SDK</div>
                 <div class="body">
@@ -130,7 +127,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
               <div class="window">
                 <div class="title">Using Grow in the Cloud</div>
                 <div class="body">
@@ -156,3 +153,7 @@
       <p><cite>Except as otherwise noted, this site is licensed under the Creative Commons Attribution 3.0 License.</cite>
     </div>
   </footer>
+  <div class="banner label label-danger">
+    Grow is under development.<br>
+    You're viewing a pre-release.
+  </div>

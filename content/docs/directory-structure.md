@@ -30,12 +30,4 @@ Your pod specification determines everything about your site: its content, the s
     |    └──  /posts.html
     └──  /podspec.yaml
 
-## Content collections
-
-### Blueprints
-
-### Content documents
-
-## Views
-
-## Translations
+## Anatomy of a pod

@@ -9,6 +9,8 @@ $order: 2
 
 By design, Grow is neither cloud nor local. The initial version of Grow acts as a static site generator, meaning you use Grow on your local machine (or a hosted version) to develop a site and author its content. Once you're satisfied with your site, you __build__ it with Grow, then __launch__ the generated fileset to a publicly-accessible hosting service.
 
+<img src="/public/images/infographics/grow-server-components.png" class="img-responsive img-thumbnail">
+
 ## Static is the new dynamic
 
 Here's how it works. Grow is a self-contained, independent application that accepts a directory of files as its input (these directories are known as __pods__), and produces site builds as its output. Grow can deploy the site builds to a number of different [launch destinations](/docs/deployment/).
