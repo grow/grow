@@ -56,8 +56,8 @@ class Routes(object):
         rules.append(routing.Rule(route['path'], endpoint=controller))
 
     # Auto-generated from flags.
-    if 'public_dir' in self.pod.flags:
-      path = self.pod.flags['public_dir'] + '<grow:filename>'
+    if 'static_dir' in self.pod.flags:
+      path = self.pod.flags['static_dir'] + '<grow:filename>'
       controller = controllers.StaticController(path_format=path, source_format=path, pod=self.pod)
       rules.append(routing.Rule(path, endpoint=controller))
 

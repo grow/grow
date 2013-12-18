@@ -40,15 +40,15 @@ class Pod(object):
     return '<Pod: {}>'.format(self.root)
 
   def exists(self):
-    return self.file_exists('/pod.yaml')
+    return self.file_exists('/podspec.yaml')
 
   @property
   @utils.memoize
   def yaml(self):
     try:
-      return utils.parse_yaml(self.read_file('/pod.yaml'))[0]
+      return utils.parse_yaml(self.read_file('/podspec.yaml'))[0]
     except IOError:
-      raise Error('Pod does not exist or malformed pod.yaml.')
+      raise Error('Pod does not exist or malformed podspec.yaml.')
 
   @property
   def flags(self):

@@ -71,9 +71,10 @@ class PageController(base.BaseController):
         'cc': self.cc,
         'content': self.document,  # TODO: Remove.
         'doc': self.document,
-        'entries': lambda *args, **kwargs: tags.entries(*args, _pod=self.pod, **kwargs),
+        'docs': lambda *args, **kwargs: tags.docs(*args, _pod=self.pod, **kwargs),
         'categories': lambda *args, **kwargs: tags.categories(*args, _pod=self.pod, **kwargs),
         'is_active': lambda doc: tags.is_active(doc, self.document),
+        'static': lambda path: tags.static(path, _pod=self.pod),
         'll': self.ll,
         'params': self.route_params,
         'pod': self.pod,

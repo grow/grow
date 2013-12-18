@@ -38,7 +38,7 @@ def parse_markdown(content, path=None):
   # TODO: better parsing
   try:
     content = content.strip()
-    match = re.match(r'^\s*---(.*)---\s*(.*)', content, re.DOTALL)
+    match = re.match(r'(?:^---)(.*)(?:\n---)\s*(.*)', content, re.DOTALL)
     if not match:
       return None, content
     front_matter, body = match.groups()
