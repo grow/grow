@@ -31,6 +31,21 @@ class UtilsTestCase(unittest.TestCase):
     self.assertEqual(None, fields)
     self.assertEqual('# Bam', content)
 
+    localized_content = (
+        '---\n'
+        'locale: foo\n'
+        '---\n'
+        '# Foo\n'
+        '---\n'
+        'locale: bar\n'
+        '---\n'
+        '# Bar\n'
+        '---\n'
+        'locale: qaz\n'
+        '---\n'
+        '# Qaz\n'
+    )
+
 
 if __name__ == '__main__':
   unittest.main()

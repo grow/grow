@@ -102,8 +102,10 @@ class GoogleCloudStorageDeployment(BaseGoogleCloudStorageDeployment):
 
     deployed_index = self.get_deployed_index(bucket)
     paths_to_content = pod.dump()
+
     canary_index = index.Index()
     canary_index.update(paths_to_content)
+
     diffs = canary_index.diff(deployed_index)
 
     if not dry_run:

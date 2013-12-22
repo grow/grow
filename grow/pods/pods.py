@@ -51,6 +51,10 @@ class Pod(object):
       raise Error('Pod does not exist or malformed podspec.yaml.')
 
   @property
+  def error_routes(self):
+    return self.yaml.get('error_routes')
+
+  @property
   def flags(self):
     return self.yaml.get('flags', {})
 
@@ -131,6 +135,11 @@ class Pod(object):
     for path in self.routes.list_concrete_paths():
       controller = self.match(path)
       output[path] = controller.render()
+
+    error_controller = self.routes.match_error('/404.html')
+    if error_controller:
+      output['/404.html'] = error_controller.render()
+
     return output
 
   def dump(self, suffix='index.html', out_dir=None):

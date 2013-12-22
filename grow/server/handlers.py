@@ -100,9 +100,9 @@ class PodHandler(BaseHandler):
       controller = podgroup.match(self.request.path, domain=domain, url_scheme=url_scheme)
     except routes.Errors.NotFound as e:
       controller = podgroup.match_error(self.request.path, domain=domain, status=404)
-      self.response.set_status(404)
       if controller is not None:
-        self.response.out.write(controller.render())
+        self.response.set_status(500)  # TODO: This is wrong.
+        self.response.write(controller.render())
       return
     except routes.Errors.Redirect as e:
       self.response.set_status(301)

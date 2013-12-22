@@ -19,8 +19,10 @@ class BlueprintsTest(unittest.TestCase):
 
   def test_list_documents(self):
     blueprint = blueprints.Blueprint.get('pages', pod=self.pod)
+    documents = blueprint.list_documents(locale='fr')
     documents = blueprint.list_documents()
     expected = ['home', 'about', 'contact',]
+#    self.fail(documents)
     self.assertListEqual(expected, [doc.slug for doc in documents])
 
     blueprint = blueprints.Blueprint.get('posts', pod=self.pod)

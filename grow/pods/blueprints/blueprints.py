@@ -5,6 +5,8 @@ import json
 import operator
 import os
 
+_NONE = '__no-locale'
+
 
 class Error(Exception):
   pass
@@ -27,6 +29,10 @@ class CollectionDoesNotExistError(Error, ValueError):
 
 
 class BadFieldsError(Error, ValueError):
+  pass
+
+
+class NoLocalesError(Error):
   pass
 
 
@@ -101,16 +107,18 @@ class Blueprint(object):
   def get_path_format(self):
     return self.yaml.get('path')
 
-  def list_documents(self, order_by=None, reverse=None, include_hidden=False):
+  def list_documents(self, order_by=None, reverse=None, include_hidden=False,
+      locale=None):
     if not self.exists():
-      raise CollectionDoesNotExistError('Collection "{}" does not exist.'.format(self.collection_path))
+      text = 'Collection "{}" does not exist.'
+      raise CollectionDoesNotExistError(text.format(self.collection_path))
     if order_by is None:
       order_by = 'order'
     if reverse is None:
       reverse = False
 
     paths = self.pod.list_dir(self.pod_path)
-    docs = utils.SortedCollection(key=operator.attrgetter(order_by))
+    sorted_docs = utils.SortedCollection(key=operator.attrgetter(order_by))
     for path in paths:
       full_path = os.path.join(self.pod_path, path.strip('/'))
       doc_path = full_path.replace('/content/', '')
@@ -122,8 +130,18 @@ class Blueprint(object):
       doc = documents.Document(doc_path, pod=self.pod, blueprint=self)
       if not include_hidden and doc.is_hidden:
         continue
-      docs.insert(doc)
-    return reversed(docs) if reverse else docs
+      if locale is None:
+        sorted_docs.insert(doc)
+      if locale is not None:
+        for each_locale in doc.list_locales():
+          if each_locale != locale:
+            continue
+          doc = documents.Document(doc_path, locale=each_locale, pod=self.pod,
+                                   blueprint=self)
+          if not include_hidden and doc.is_hidden:
+            continue
+          sorted_docs.insert(doc)
+    return reversed(sorted_docs) if reverse else sorted_docs
 
   def list_servable_documents(self, include_hidden=False):
     docs = []
@@ -134,6 +152,18 @@ class Blueprint(object):
         continue
       docs.append(doc)
     return docs
+
+  @property
+  def localization(self):
+    return self.yaml['localization']
+
+  def list_locales(self):
+    if 'localization' in self.yaml:
+      try:
+        return self.localization['locales']
+      except KeyError:
+        raise NoLocalesError('{} has no locales.')
+    return []
 
   def search_documents(self, order_by='order'):
     return self.list_documents(order_by=order_by)

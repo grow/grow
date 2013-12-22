@@ -19,8 +19,9 @@ class DocumentExistsError(Error, ValueError):
 
 class Document(object):
 
-  def __init__(self, doc_path, pod, blueprint=None, body_format=None):
+  def __init__(self, doc_path, pod, locale=None, blueprint=None, body_format=None):
     utils.validate_name(doc_path)
+    self.locale = locale
     self.doc_path = doc_path
     self.pod_path = '/content/{}'.format(doc_path.lstrip('/'))
     self.basename = os.path.basename(doc_path)
@@ -42,7 +43,10 @@ class Document(object):
     self.fields = self.doc_storage.fields
 
   def __repr__(self):
-    return '<Document: {}>'.format(self.pod_path)
+    if self.locale:
+      return "<Document(path='{}', locale='{}')>".format(self.pod_path, self.locale)
+    return "<Document(path='{}')>".format(self.pod_path)
+
 
   @property
   def url(self):
@@ -84,16 +88,30 @@ class Document(object):
     return self.fields.get('$view', self.blueprint.get_view())
 
   def get_path_format(self):
-    return self.fields.get('$path', self.blueprint.get_path_format())
+    val = None
+    if self.locale:
+      if '$localization' in self.fields and self.fields['$localization']['path']:
+        val = self.fields['$localization']['path']
+      else:
+        val = self.blueprint.localization['path']
+    if val is None:
+      return self.fields.get('$path', self.blueprint.get_path_format())
+    return val
 
   def get_serving_path(self):
     path_format = (self.get_path_format()
+        .replace('<grow:locale>', '{locale}')
         .replace('<grow:slug>', '{slug}')
         .replace('<grow:published_year>', '{published_year}'))
     return path_format.format(**{
         'slug': self.slug,
 #        'published_year': self.published.year if self.published else None,
     })
+
+  def list_locales(self):
+    if '$localization' in self.fields:
+      return self.fields['$localization']['locales']
+    return self.blueprint.list_locales()
 
   @property
   @utils.memoize

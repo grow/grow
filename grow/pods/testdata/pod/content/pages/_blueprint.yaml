@@ -1,5 +1,12 @@
-path: /<grow:ll>/{slug}
+path: /{slug}
 view: /views/base.html
+
+localization:
+  path: /{locale}/{slug}/
+  locales:
+  - de
+  - fr
+  - it
 
 fields:
 
