@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-import appengine_config
+from grow import submodules
+submodules.fix_imports()
+
 import webapp2
 from protorpc.wsgi import service
 from grow.server import handlers

@@ -28,6 +28,19 @@ class File(object):
     self.pod_path = pod_path
     self.pod = pod
 
+  @classmethod
+  def create(cls, pod_path, content, pod):
+    file_obj = cls(pod_path, pod)
+    file_obj.update_content(content)
+    return file_obj
+
+  @classmethod
+  def get(cls, pod_path, pod):
+    file_obj = cls(pod_path, pod)
+    file_obj.get_content()
+#      raise FileDoesNotExistError('"{}" does not exist.'.format(pod_path))
+    return file_obj
+
   @property
   def mimetype(self):
     return mimetypes.guess_type(self.pod_path)[0]

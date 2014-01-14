@@ -21,7 +21,9 @@ def get_latest_version():
   try:
     version = urllib.urlopen(version_manifest).read()
     return version.strip()
-  except urllib.error.URLError as e:
+#  except urllib.errors.URLError as e:
+  except Exception as e:
+    logging.exception('Could not check for updates.')
     raise LatestVersionCheckError(str(e))
 
 

@@ -177,12 +177,13 @@ class PodService(remote.Service):
       messages.UpdateFileResponse)
   def update_file(self, request):
     pod = self.get_pod_from_request(request)
-    pod_file = self.get_file_from_request(pod, request)
-    if request.file.content_b64:
-      content = request.file.content_b64
-    else:
-      content = request.file.content
-    pod_file.update_content(content)
+    content = (request.file.content_b64
+               if request.file.content_b64 else request.file.content)
+    try:
+      pod_file = self.get_file_from_request(pod, request)
+      pod_file.update_content(content)
+    except files.FileDoesNotExistError:
+      pod_file = pod.create_file(request.file.pod_path, content)
     message = messages.UpdateFileResponse()
     message.file = pod_file.to_message()
     return message

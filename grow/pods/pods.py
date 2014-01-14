@@ -99,7 +99,10 @@ class Pod(object):
     return blueprints.Blueprint.list(self)
 
   def get_file(self, pod_path):
-    return files.File(pod_path, self)
+    return files.File.get(pod_path, self)
+
+  def create_file(self, pod_path, content):
+    return files.File.create(pod_path, content, self)
 
   def get_document(self, doc_path):
     return blueprints.Blueprint.get_document(doc_path, self)
