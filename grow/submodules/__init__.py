@@ -19,6 +19,7 @@ def fix_imports():
       os.path.normpath(os.path.join(here, 'jinja2')),
       os.path.normpath(os.path.join(here, 'markupsafe')),
       os.path.normpath(os.path.join(here, 'paste')),
+      os.path.normpath(os.path.join(here, 'premailer')),
       os.path.normpath(os.path.join(here, 'python-gflags')),
       os.path.normpath(os.path.join(here, 'pytz')),
       os.path.normpath(os.path.join(here, 'pyyaml', 'lib')),

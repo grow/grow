@@ -13,9 +13,17 @@ class CorruptIndexError(Error):
   pass
 
 
+class Diff(object):
+
+  def __init__(self, adds, edits, deletes, nochanges):
+    self.adds = adds
+    self.edits = edits
+    self.deletes = deletes
+    self.nochanges = nochanges
+
+
 class Index(object):
   BASENAME = '.growindex'
-  Diff = collections.namedtuple('Diff', ['adds', 'edits', 'deletes', 'nochanges'])
 
   def __init__(self, paths_to_shas=None):
     if paths_to_shas is None:
@@ -47,7 +55,7 @@ class Index(object):
 
   def diff(self, theirs):
     """Shows a diff of what will happen after applying yours to theirs."""
-    diff = Index.Diff(adds=[], edits=[], deletes=[], nochanges=[])
+    diff = Diff(adds=[], edits=[], deletes=[], nochanges=[])
 
     for path, sha in self.iteritems():
       if path in theirs:
