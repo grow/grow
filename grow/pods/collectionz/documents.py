@@ -1,4 +1,5 @@
 from grow.common import utils
+from grow.pods import urls
 from grow.pods.collectionz import messages
 import json
 import markdown
@@ -52,7 +53,8 @@ class Document(object):
 
   @property
   def url(self):
-    return self.get_serving_path()
+    path = self.get_serving_path()
+    return urls.Url(path=path) if path else None
 
   @property
   def is_hidden(self):

@@ -108,7 +108,7 @@ class Pod(object):
     return files.File.create(pod_path, content, self)
 
   def get_doc(self, pod_path):
-    collection_path, _ = os.pawth.split(pod_path)
+    collection_path, _ = os.path.split(pod_path)
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path)
 

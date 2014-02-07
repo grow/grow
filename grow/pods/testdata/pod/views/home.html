@@ -1,10 +1,17 @@
 {% extends "/views/base.html" %}
 
 {% block main %}
-  <h1>Homepage</h1>
-  {{g.doc.title}}
-  <p>Main: {{_(g.doc.description)}}
-  <p>Description: {{g.doc.description}}
-  <h1>{{_('Hello World!')}}</h1>
-  <h1>{{_('Hello World 2!')}}</h1>
+  <header>
+    <h1>Homepage</h1>
+    {{g.doc.title}}
+    <h1>{{_('Hello World!')}}</h1>
+    <h1>{{_('Hello World 2!')}}</h1>
+    {{g.doc.html|safe}}
+  </header>
+    {% for post in g.docs('posts') %}
+      <article>
+        <h2><a href="{{post.url.path}}">{{post.title}}</a></h2>
+        {{post.html|safe}}
+      </article>
+    {% endfor %}
 {% endblock %}

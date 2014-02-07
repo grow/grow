@@ -37,8 +37,8 @@ class CollectionsTest(unittest.TestCase):
 
   def test_format(self):
     collection = self.pod.get_collection('posts')
-    doc = collection.get_doc('newer.yaml')
-    self.assertEqual(doc.format, messages.Format.YAML)
+    doc = collection.get_doc('newer.md')
+    self.assertEqual(doc.format, messages.Format.MARKDOWN)
 
     doc = collection.get_doc('newest.md')
     self.assertEqual(doc.format, messages.Format.MARKDOWN)

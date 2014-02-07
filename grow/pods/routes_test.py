@@ -29,7 +29,12 @@ class RoutesTest(unittest.TestCase):
         '/it/about/',
         '/it/contact/',
         '/it/home/',
+        '/post/newer/',
+        '/post/newest/',
+        '/post/older/',
+        '/post/oldest/',
         '/public/file.txt',
+        '/public/main.css',
         '/public/main.min.js',
     ]
     result = self.pod.routes.list_concrete_paths()

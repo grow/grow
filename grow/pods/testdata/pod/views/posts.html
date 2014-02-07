@@ -1,0 +1,6 @@
+{% extends "/views/base.html" %}
+
+{% block main %}
+  <h1>{{g.doc.title}}</h1>
+  {{g.doc.html|safe}}
+{% endblock %}
