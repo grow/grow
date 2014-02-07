@@ -9,6 +9,7 @@ Grow differentiates itself by being:
 - entirely file-based and backed by Git (so it works with your favorite tools),
 - designed for true structured content management,
 - designed with web performance and security in mind,
+- designed for developers, designers, content writers, and translators to work together,
 - fully international with built-in localization support.
 
 Using Grow, you can:
