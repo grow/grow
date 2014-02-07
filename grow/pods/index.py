@@ -1,4 +1,3 @@
-import collections
 import hashlib
 import logging
 import threading
@@ -20,6 +19,13 @@ class Diff(object):
     self.edits = edits
     self.deletes = deletes
     self.nochanges = nochanges
+
+  def __eq__(self, other):
+    return (
+        self.adds == other.adds
+        and self.edits == other.edits
+        and self.deletes == other.deletes
+        and self.nochanges == other.nochanges)
 
 
 class Index(object):

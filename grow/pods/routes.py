@@ -37,9 +37,12 @@ class Routes(object):
     rules = []
 
     # Content documents.
-    for blueprint in self.pod.list_blueprints():
-      for doc in blueprint.list_servable_documents(include_hidden=True):
-        controller = controllers.PageController(view=doc.get_view(), document=doc, pod=self.pod)
+    for collection in self.pod.list_collections():
+      for doc in collection.list_servable_documents(include_hidden=True):
+        controller = controllers.PageController(
+            view=doc.get_view(),
+            document=doc,
+            _pod=self.pod)
         rule = routing.Rule(doc.get_serving_path(), endpoint=controller)
         rules.append(rule)
 
@@ -52,7 +55,7 @@ class Routes(object):
         rules.append(routing.Rule(route['path'], endpoint=controller))
       elif route['kind'] == 'page':
         controller = controllers.PageController(
-            view=route['view'], path=route['path'], pod=self.pod)
+            view=route['view'], path=route['path'], _pod=self.pod)
         rules.append(routing.Rule(route['path'], endpoint=controller))
 
     # Auto-generated from flags.
@@ -77,19 +80,11 @@ class Routes(object):
       url_scheme = 'http'
     if domain is None:  # Needed for generating static files.
       domain = 'localhost'
-    """
-    if domain and not self.domains:
-      message = 'A domain was specified but routes are not bound to a domain.'
-      raise errors.RouteNotFoundError(message)
-
-    if domain and self.domains and domain not in self.domains:
-      message = 'Routes not bound to domain "{}".'.format(domain)
-      raise errors.RouteNotFoundError(message)
-    """
-
     urls = self.routing_map.bind(domain, script_name, subdomain, url_scheme)
     controller, route_params = urls.match(path)
     controller.set_route_params(route_params)
+#    controller.validate_route_params(route_params)
+    # validate route_params here, raise NotFound if params are invalid
     return controller
 
   def match_error(self, path, domain=None, status=404):

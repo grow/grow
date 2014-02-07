@@ -1,8 +1,9 @@
-from grow.pods import errors
 from grow.pods import pods
-from grow.pods import routes
 from grow.pods import storage
+import os
 import unittest
+
+TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata', 'pod')
 
 
 class PodTest(unittest.TestCase):
@@ -11,21 +12,27 @@ class PodTest(unittest.TestCase):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_list_dir(self):
+    os.listdir(os.path.join(TESTDATA_DIR, 'content'))
     self.pod.list_dir('/content')
 
   def test_read_file(self):
-    self.pod.read_file('/pod.yaml')
+    content = self.pod.read_file('/README.md')
+    path = os.path.join(TESTDATA_DIR, 'README.md')
+    expected_content = open(path).read()
+    self.assertEqual(expected_content, content)
 
   def test_write_file(self):
-    self.pod.write_file('/dummy.yaml', 'foo')
+    path = '/dummy.yaml'
+    self.pod.write_file(path, 'foo')
+    content = self.pod.read_file(path)
+    self.assertEqual('foo', content)
 
-  def test_list_blueprints(self):
-    self.pod.list_blueprints()
+    self.pod.write_file(path, 'bar')
+    content = self.pod.read_file(path)
+    self.assertEqual('bar', content)
 
-  def test_match(self):
-    controller = self.pod.match('/')
-    controller = self.pod.match('/en/about')
-    self.assertRaises(routes.Errors.NotFound, self.pod.match, '/dummy')
+  def test_list_collections(self):
+    self.pod.list_collections()
 
   def test_export(self):
     self.pod.export()

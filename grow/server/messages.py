@@ -1,6 +1,6 @@
 from protorpc import messages
 from grow.pods import messages as pod_messages
-from grow.pods.blueprints import messages as blueprint_messages
+from grow.pods.collectionz import messages as collection_messages
 
 
 class OwnerMessage(messages.Message):
@@ -18,16 +18,16 @@ class ProjectMessage(messages.Message):
 
 class CreateCollectionRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  collection = messages.MessageField(blueprint_messages.CollectionMessage, 2)
+  collection = messages.MessageField(collection_messages.CollectionMessage, 2)
 
 
 class CreateCollectionResponse(messages.Message):
-  collection = messages.MessageField(blueprint_messages.CollectionMessage, 1)
+  collection = messages.MessageField(collection_messages.CollectionMessage, 1)
 
 
 class DeleteCollectionRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  collection = messages.MessageField(blueprint_messages.CollectionMessage, 2)
+  collection = messages.MessageField(collection_messages.CollectionMessage, 2)
 
 
 class DeleteCollectionResponse(messages.Message):
@@ -36,60 +36,60 @@ class DeleteCollectionResponse(messages.Message):
 
 class CreateDocumentRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+  document = messages.MessageField(collection_messages.DocumentMessage, 2)
 
 
 class CreateDocumentResponse(messages.Message):
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 1)
+  document = messages.MessageField(collection_messages.DocumentMessage, 1)
 
 
 class UpdateDocumentRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+  document = messages.MessageField(collection_messages.DocumentMessage, 2)
 
 
 class UpdateDocumentResponse(messages.Message):
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 1)
+  document = messages.MessageField(collection_messages.DocumentMessage, 1)
 
 
 class GetDocumentRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+  document = messages.MessageField(collection_messages.DocumentMessage, 2)
 
 
 class GetDocumentResponse(messages.Message):
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 1)
+  document = messages.MessageField(collection_messages.DocumentMessage, 1)
 
 
 class DeleteDocumentRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+  document = messages.MessageField(collection_messages.DocumentMessage, 2)
 
 
 class DeleteDocumentResponse(messages.Message):
   pass
 
 
-class ListBlueprintsRequest(messages.Message):
+class ListCollectionsRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
 
 
-class ListBlueprintsResponse(messages.Message):
-  blueprints = messages.MessageField(blueprint_messages.BlueprintMessage, 1, repeated=True)
+class ListCollectionsResponse(messages.Message):
+  collections = messages.MessageField(collection_messages.CollectionMessage, 1, repeated=True)
 
 
 class SearchDocumentsRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  blueprint = messages.MessageField(blueprint_messages.BlueprintMessage, 2)
+  collection = messages.MessageField(collection_messages.CollectionMessage, 2)
 
 
 class SearchDocumentsResponse(messages.Message):
-  documents = messages.MessageField(blueprint_messages.DocumentMessage, 1, repeated=True)
+  documents = messages.MessageField(collection_messages.DocumentMessage, 1, repeated=True)
 
 
 class CreateExportUrlRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+  document = messages.MessageField(collection_messages.DocumentMessage, 2)
 
 
 class CreateExportUrlResponse(messages.Message):
@@ -98,7 +98,7 @@ class CreateExportUrlResponse(messages.Message):
 
 class CreateDownloadUrlRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  document = messages.MessageField(blueprint_messages.DocumentMessage, 2)
+  document = messages.MessageField(collection_messages.DocumentMessage, 2)
 
 
 class CreateDownloadUrlResponse(messages.Message):

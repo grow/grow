@@ -1,4 +1,3 @@
-import os
 from grow.common import utils
 
 
@@ -26,7 +25,8 @@ class Tests(object):
 
   def run(self):
     for test in self.yaml['tests']:
-      controller = self.pod.match(test['path'])
+      routes = self.pod.get_routes()
+      controller = routes.match(test['path'])
       html = controller.render()
       if 'assertInHtml' not in test:
         continue

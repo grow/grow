@@ -14,14 +14,14 @@ class PageController(base.BaseController):
 
   class Defaults(object):
     LL = 'en'
+    LOCALE = None
     CC = None
 
-  def __init__(self, view=None, document=None, path=None, pod=None):
+  def __init__(self, view=None, document=None, path=None, _pod=None):
     self.view = view
     self.document = document
     self.path = path
-    self.pod = pod
-    self.route_params = {}
+    super(PageController, self).__init__(_pod=_pod)
 
   def __repr__(self):
     if not self.document:
@@ -33,13 +33,15 @@ class PageController(base.BaseController):
     return mimetypes.guess_type(self.view)[0]
 
   @property
+  def locale(self):
+    return self.document.locale
+
+  @property
   def ll(self):
-    # TODO: Validate languages.
     return self.route_params.get('ll', PageController.Defaults.LL)
 
   @property
   def cc(self):
-    # TODO: Validate regions.
     return self.route_params.get('cc', PageController.Defaults.CC)
 
   @property

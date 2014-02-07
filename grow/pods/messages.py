@@ -1,5 +1,5 @@
 from protorpc import messages
-from grow.pods.blueprints import messages as blueprint_messages
+from grow.pods.collectionz import messages as collection_messages
 
 
 class LocaleGroupMessage(messages.Message):
@@ -47,7 +47,7 @@ class FileMessage(messages.Message):
 
 class PodMessage(messages.Message):
   changeset = messages.StringField(1)
-  blueprints = messages.MessageField(blueprint_messages.BlueprintMessage, 2, repeated=True)
+  collections = messages.MessageField(collection_messages.CollectionMessage, 2, repeated=True)
   files = messages.MessageField(FileMessage, 3, repeated=True)
   routes = messages.MessageField(RoutesMessage, 4)
 

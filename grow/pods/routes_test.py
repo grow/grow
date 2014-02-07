@@ -1,6 +1,6 @@
 from grow.pods import pods
 from grow.pods import storage
-from grow.pods import routes
+from grow.pods import routes as routes_lib
 import unittest
 
 
@@ -10,14 +10,25 @@ class RoutesTest(unittest.TestCase):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_match(self):
-    self.pod.routes.match('/', domain='example.com')
-    self.assertRaises(routes.Errors.NotFound, self.pod.routes.match, '/dummy')
+    routes = self.pod.get_routes()
+    routes.match('/')
+    routes.match('/de/about/')
+    self.assertRaises(routes_lib.Errors.NotFound, routes.match, '/dummy/')
 
   def test_list_concrete_paths(self):
     expected = [
         '/',
-        '/<grow:ll>/about',
-        '/contact',
+        '/about/',
+        '/contact-us/',
+        '/de/about/',
+        '/de/contact/',
+        '/de/home/',
+        '/fr/about/',
+        '/fr/contact/',
+        '/fr/home/',
+        '/it/about/',
+        '/it/contact/',
+        '/it/home/',
         '/public/file.txt',
         '/public/main.min.js',
     ]

@@ -1,5 +1,5 @@
 from grow.common import utils
-from grow.pods.blueprints import messages
+from grow.pods.collectionz import messages
 import json
 import markdown
 import os
@@ -13,22 +13,25 @@ class BadFormatError(Error, ValueError):
   pass
 
 
+class DocumentDoesNotExistError(Error, ValueError):
+  pass
+
+
 class DocumentExistsError(Error, ValueError):
   pass
 
 
 class Document(object):
 
-  def __init__(self, doc_path, pod, locale=None, blueprint=None, body_format=None):
-    utils.validate_name(doc_path)
+  def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
+    utils.validate_name(pod_path)
     self.locale = locale
-    self.doc_path = doc_path
-    self.pod_path = '/content/{}'.format(doc_path.lstrip('/'))
-    self.basename = os.path.basename(doc_path)
+    self.pod_path = pod_path
+    self.basename = os.path.basename(pod_path)
     self.slug, self.ext = os.path.splitext(self.basename)
 
-    self.pod = pod
-    self.blueprint = blueprint
+    self.pod = _pod
+    self.collection = _collection
 
     self.format = messages.extensions_to_formats.get(self.ext)
     if self.format == messages.Format.MARKDOWN:
@@ -44,9 +47,8 @@ class Document(object):
 
   def __repr__(self):
     if self.locale:
-      return "<Document(path='{}', locale='{}')>".format(self.pod_path, self.locale)
-    return "<Document(path='{}')>".format(self.pod_path)
-
+      return "<Document({}, locale='{}')>".format(self.pod_path, self.locale)
+    return "<Document({})>".format(self.pod_path)
 
   @property
   def url(self):
@@ -78,14 +80,14 @@ class Document(object):
   def exists(self):
     return self.pod.file_exists(self.pod_path)
 
-  def has_blueprint(self):
-    return self.blueprint.exists()
+  def has_collection(self):
+    return self.collection.exists()
 
   def has_url(self):
     return True
 
   def get_view(self):
-    return self.fields.get('$view', self.blueprint.get_view())
+    return self.fields.get('$view', self.collection.get_view())
 
   def get_path_format(self):
     val = None
@@ -93,10 +95,22 @@ class Document(object):
       if '$localization' in self.fields and self.fields['$localization']['path']:
         val = self.fields['$localization']['path']
       else:
-        val = self.blueprint.localization['path']
+        val = self.collection.localization['path']
     if val is None:
-      return self.fields.get('$path', self.blueprint.get_path_format())
+      return self.fields.get('$path', self.collection.get_path_format())
     return val
+
+  def get_routing_path(self):
+    path_format = (self.get_path_format()
+        .replace('<grow:locale>', '{locale}')
+        .replace('<grow:slug>', '{slug}'))
+    return path_format.format(**{
+        'locale': '<grow:locale>',
+        'slug': '<grow:slug>',
+    })
+
+  def validate_route_params(self, route_params):
+    pass
 
   def get_serving_path(self):
     path_format = (self.get_path_format()
@@ -104,14 +118,14 @@ class Document(object):
         .replace('<grow:slug>', '{slug}')
         .replace('<grow:published_year>', '{published_year}'))
     return path_format.format(**{
+        'locale': self.locale,
         'slug': self.slug,
-#        'published_year': self.published.year if self.published else None,
     })
 
   def list_locales(self):
     if '$localization' in self.fields:
       return self.fields['$localization']['locales']
-    return self.blueprint.list_locales()
+    return self.collection.list_locales()
 
   @property
   @utils.memoize
@@ -141,7 +155,7 @@ class Document(object):
     return object.__getattribute__(self, name)
 
   def get_next(self):
-    docs = self.blueprint.list_servable_documents()
+    docs = self.collection.list_servable_documents()
     for i, doc in enumerate(docs):
       if doc == self:
         n = i + 1
@@ -150,7 +164,7 @@ class Document(object):
         return docs[i + 1]
 
   def get_prev(self):
-    docs = self.blueprint.list_servable_documents()
+    docs = self.collection.list_servable_documents()
     for i, doc in enumerate(docs):
       if doc == self:
         n = i - 1
@@ -185,7 +199,7 @@ class Document(object):
     message.builtins.title = self.title
     message.basename = self.basename
     message.doc_path = self.doc_path
-    message.collection_path = self.blueprint.collection_path
+    message.collection_path = self.collection.collection_path
     message.body = self.body
     message.content = self.content
     message.fields = json.dumps(self.fields, cls=utils.JsonEncoder)

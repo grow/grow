@@ -24,7 +24,6 @@ def fix_imports():
       os.path.normpath(os.path.join(here, 'pytz')),
       os.path.normpath(os.path.join(here, 'pyyaml', 'lib')),
       os.path.normpath(os.path.join(here, 'requests')),
-#      os.path.normpath(os.path.join(here, 'webapp-improved')),
       os.path.normpath(os.path.join(here, 'werkzeug')),
       os.path.normpath(os.path.join(here, 'webob')),
   ]

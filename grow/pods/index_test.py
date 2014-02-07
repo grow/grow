@@ -24,7 +24,7 @@ class IndexTest(unittest.TestCase):
       '/foo/file.txt': 'test',
       '/bar/new.txt': 'test',
     })
-    expected = index.Index.Diff(
+    expected = index.Diff(
         adds=['/file.txt'],
         edits=['/file2.txt'],
         deletes=['/bar/new.txt'],

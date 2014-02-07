@@ -1,18 +1,14 @@
 from grow.common import utils
-from grow.pods.blueprints import documents
-from grow.pods.blueprints import messages
+from grow.pods.collectionz import documents
+from grow.pods.collectionz import messages
 import json
 import operator
 import os
 
-_NONE = '__no-locale'
+_all = '__no-locale'
 
 
 class Error(Exception):
-  pass
-
-
-class BlueprintExistsError(Error):
   pass
 
 
@@ -20,11 +16,15 @@ class CollectionNotEmptyError(Error):
   pass
 
 
-class BadBlueprintNameError(Error, ValueError):
+class BadCollectionNameError(Error, ValueError):
   pass
 
 
 class CollectionDoesNotExistError(Error, ValueError):
+  pass
+
+
+class CollectionExistsError(Error):
   pass
 
 
@@ -36,45 +36,51 @@ class NoLocalesError(Error):
   pass
 
 
-class Blueprint(object):
+class Collection(object):
 
-  def __init__(self, collection_path, pod):
-    utils.validate_name(collection_path)
-    self.pod = pod
-    self.collection_path = collection_path.lstrip('/')
-    self.pod_path = '/content/{}'.format(self.collection_path)
+  def __init__(self, pod_path, _pod):
+    utils.validate_name(pod_path)
+    self.pod = _pod
+    self.collection_path = pod_path.lstrip('/content')
+    self.pod_path = pod_path
     self._blueprint_path = os.path.join(self.pod_path, '_blueprint.yaml')
+
+  def __repr__(self):
+    return '<Collection "{}">'.format(self.collection_path)
 
   @classmethod
   def list(cls, pod):
     paths = pod.list_dir('/content/')
     # TODO: replace with depth
-    basenames = set()
+    clean_paths = set()
     for path in paths:
       parts = path.split('/')
       if len(parts) >= 2:  # Disallow files in root-level /content/ dir.
-        basenames.add(parts[0])
-    return [cls(os.path.splitext(basename)[0], pod)
-            for basename in basenames]
+        clean_paths.add(os.path.join('/content', parts[0]))
+    return [cls(pod_path, _pod=pod) for pod_path in clean_paths]
 
   def exists(self):
     return self.pod.file_exists(self._blueprint_path)
 
   def create_from_message(self, message):
     if self.exists():
-      raise BlueprintExistsError('Blueprint "{}" already exists.'.format(self.collection_path))
+      raise CollectionExistsError('{} already exists.'.format(self))
     self.update_from_message(message)
     return self
 
   @classmethod
-  def get(cls, collection_path, pod):
-    return cls(collection_path, pod)
+  def get(cls, collection_path, _pod):
+    collection = cls(collection_path, _pod)
+    if not collection.exists():
+      raise CollectionDoesNotExistError('{} does not exist.'.format(collection))
+    return collection
 
-  @classmethod
-  def get_document(cls, doc_path, pod):
-    blueprint_doc_path = os.path.dirname(doc_path)
-    blueprint = cls.get(blueprint_doc_path, pod)
-    return documents.Document(doc_path, pod=pod, blueprint=blueprint)
+  def get_doc(self, doc_path, locale=None):
+    pod_path = os.path.join(self.pod_path, doc_path.lstrip('/'))
+    doc = documents.Document(pod_path, locale=locale, _pod=self.pod, _collection=self)
+    if not doc.exists():
+      raise documents.DocumentDoesNotExistError('{} does not exist.'.format(doc))
+    return doc
 
   @property
   @utils.memoize
@@ -107,11 +113,7 @@ class Blueprint(object):
   def get_path_format(self):
     return self.yaml.get('path')
 
-  def list_documents(self, order_by=None, reverse=None, include_hidden=False,
-      locale=None):
-    if not self.exists():
-      text = 'Collection "{}" does not exist.'
-      raise CollectionDoesNotExistError(text.format(self.collection_path))
+  def list_documents(self, order_by=None, reverse=None, include_hidden=False, locale=_all):
     if order_by is None:
       order_by = 'order'
     if reverse is None:
@@ -120,27 +122,29 @@ class Blueprint(object):
     paths = self.pod.list_dir(self.pod_path)
     sorted_docs = utils.SortedCollection(key=operator.attrgetter(order_by))
     for path in paths:
-      full_path = os.path.join(self.pod_path, path.strip('/'))
-      doc_path = full_path.replace('/content/', '')
+      doc_path = path.replace('/content/', '')
       slug, ext = os.path.splitext(os.path.basename(doc_path))
       if (slug.startswith('_')
           or ext not in messages.extensions_to_formats
           or not doc_path):
         continue
-      doc = documents.Document(doc_path, pod=self.pod, blueprint=self)
+      doc = self.get_doc(doc_path)
       if not include_hidden and doc.is_hidden:
         continue
-      if locale is None:
+
+      if locale in [_all, None]:
         sorted_docs.insert(doc)
-      if locale is not None:
-        for each_locale in doc.list_locales():
-          if each_locale != locale:
-            continue
-          doc = documents.Document(doc_path, locale=each_locale, pod=self.pod,
-                                   blueprint=self)
+
+      if locale is None:
+        continue
+
+      for each_locale in doc.list_locales():
+        if each_locale == locale or locale == _all:
+          doc = self.get_doc(doc_path, locale=each_locale)
           if not include_hidden and doc.is_hidden:
             continue
           sorted_docs.insert(doc)
+
     return reversed(sorted_docs) if reverse else sorted_docs
 
   def list_servable_documents(self, include_hidden=False):
@@ -169,7 +173,7 @@ class Blueprint(object):
     return self.list_documents(order_by=order_by)
 
   def to_message(self):
-    message = messages.BlueprintMessage()
+    message = messages.CollectionMessage()
     message.title = self.title
     message.collection_path = self.collection_path
     return message

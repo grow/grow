@@ -9,7 +9,7 @@ from grow.pods import routes
 from grow.pods import storage
 from grow.pods import tests
 from grow.pods import translations
-from grow.pods.blueprints import blueprints
+from grow.pods.collectionz import collectionz
 
 
 class Error(Exception):
@@ -62,6 +62,9 @@ class Pod(object):
   def title(self):
     return self.yaml.get('title')
 
+  def get_routes(self):
+    return self.routes
+
   def abs_path(self, pod_path):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     return os.path.join(self.root, path)
@@ -95,8 +98,8 @@ class Pod(object):
     destination_path = os.path.join(self.root, destination_pod_path.lstrip('/'))
     return self.storage.move_to(source_path, destination_path)
 
-  def list_blueprints(self):
-    return blueprints.Blueprint.list(self)
+  def list_collections(self):
+    return collectionz.Collection.list(self)
 
   def get_file(self, pod_path):
     return files.File.get(pod_path, self)
@@ -104,11 +107,14 @@ class Pod(object):
   def create_file(self, pod_path, content):
     return files.File.create(pod_path, content, self)
 
-  def get_document(self, doc_path):
-    return blueprints.Blueprint.get_document(doc_path, self)
+  def get_doc(self, pod_path):
+    collection_path, _ = os.pawth.split(pod_path)
+    collection = self.get_collection(collection_path)
+    return collection.get_doc(pod_path)
 
-  def get_blueprint(self, collection_path):
-    return blueprints.Blueprint.get(collection_path, self)
+  def get_collection(self, collection_path):
+    pod_path = os.path.join('/content', collection_path)
+    return collectionz.Collection.get(pod_path, _pod=self)
 
   def get_translation_catalog(self, locale):
     return self.translations.get_translation(locale)
@@ -126,17 +132,13 @@ class Pod(object):
       other.write_file(path, content)
     # TODO: Handle same-storage copying more elegantly.
 
-  def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme=None):
-    if url_scheme is None:
-      url_scheme = 'http'
-    return self.routes.match(path, domain=domain, script_name=script_name, subdomain=subdomain, url_scheme=url_scheme)
-
   def export(self):
     if self.tests.exists:
       self.tests.run()
     output = {}
+    routes = self.get_routes()
     for path in self.routes.list_concrete_paths():
-      controller = self.match(path)
+      controller = routes.match(path)
       output[path] = controller.render()
 
     error_controller = self.routes.match_error('/404.html')
@@ -168,7 +170,7 @@ class Pod(object):
 
   def to_message(self):
     message = messages.PodMessage()
-    message.blueprints = [blueprint.to_message() for blueprint in self.list_blueprints()]
+    message.collections = [collection.to_message() for collection in self.list_collections()]
     message.changeset = self.changeset
     message.routes = self.routes.to_message()
     return message

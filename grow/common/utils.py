@@ -60,7 +60,6 @@ def parse_yaml(content, path=None):
     parts = re.split('---\n', content)
     if len(parts) == 1:
       return yaml.load(content), None
-    print parts
     parts.pop(0)
     front_matter, body = parts
     parsed_yaml = yaml.load(front_matter)

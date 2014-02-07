@@ -1,5 +1,4 @@
 from protorpc import messages
-from protorpc import message_types
 
 
 class Format(messages.Enum):
@@ -42,15 +41,12 @@ class FieldMessage(messages.Message):
   value = messages.StringField(6)
 
 
-class BlueprintMessage(messages.Message):
+class CollectionMessage(messages.Message):
   collection_path = messages.StringField(1)  # posts
   num_documents = messages.IntegerField(2)
   title = messages.StringField(3)
   fields = messages.StringField(4)  # JSON fields
 #  fields = messages.MessageField(FieldMessage, 2, repeated=True)
-
-
-CollectionMessage = BlueprintMessage
 
 
 class UserMessage(messages.Message):

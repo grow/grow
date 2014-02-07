@@ -1,4 +1,4 @@
-path: /{slug}
+path: /{slug}/
 view: /views/base.html
 
 localization:

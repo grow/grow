@@ -10,26 +10,30 @@ class PageTest(unittest.TestCase):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_ll(self):
-  	controller = self.pod.match('/')
-  	self.assertEqual(page.PageController.Defaults.LL, controller.ll)
-  	controller = self.pod.match('/ja/about')
-  	self.assertEqual('ja', controller.ll)
+    routes = self.pod.get_routes()
+    controller = routes.match('/')
+    self.assertEqual(page.PageController.Defaults.LL, controller.ll)
+    controller = routes.match('/de/about/')
+    self.assertEqual('de', controller.locale)
 
   def test_mimetype(self):
-  	controller = self.pod.match('/')
-  	self.assertEqual('text/html', controller.mimetype)
-  	controller = self.pod.match('/ja/about')
-  	self.assertEqual('text/html', controller.mimetype)
+    routes = self.pod.get_routes()
+    controller = routes.match('/')
+    self.assertEqual('text/html', controller.mimetype)
+    controller = routes.match('/de/about/')
+    self.assertEqual('text/html', controller.mimetype)
 
   def test_render(self):
-  	controller = self.pod.match('/')
-  	controller.render()
-  	controller = self.pod.match('/ja/about')
-  	controller.render()
+    routes = self.pod.get_routes()
+    controller = routes.match('/')
+    controller.render()
+    controller = routes.match('/de/about/')
+    controller.render()
 
   def test_list_concrete_paths(self):
-  	controller = self.pod.match('/')
-  	self.assertEqual(['/'], controller.list_concrete_paths())
+    routes = self.pod.get_routes()
+    controller = routes.match('/')
+    self.assertEqual(['/'], controller.list_concrete_paths())
 
 
 if __name__ == '__main__':
