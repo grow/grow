@@ -1,9 +1,9 @@
 language: python
 python:
   - 2.7
-#install: "pip install -r requirements.txt --use-mirrors"
 before_install:
   - git submodule update --init --recursive
+  - pip install -r requirements.txt --use-mirrors
   - cd grow/submodules/babel
   - python setup.py import_cldr
   - cd ../../../
