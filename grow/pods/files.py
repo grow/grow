@@ -1,3 +1,27 @@
+"""An interface to manage files contained within a pod.
+
+The File class should not be accessed directly. Instead, file objects should be
+retrieved using the methods "create_file" or "get_file" from the Pod class.
+
+  pod = pods.Pod('/home/growler/my-site/')
+
+You can create a new file.
+
+  pod.create_file('/README.md')
+
+You can retrieve an existing file.
+
+  pod.get_file('/README.md')
+
+You can delete a file.
+
+  file = pod.get_file('/README.md')
+  file.delete()
+
+When using the File class, you must always use the file's "pod path" -- that is, the
+file's absolute path within the pod, excluding the pod's root directory.
+"""
+
 from grow.common import utils
 from grow.pods import messages
 import mimetypes
@@ -14,6 +38,10 @@ except ImportError:
 
 
 class Error(Exception):
+  pass
+
+
+class FileExistsError(Error):
   pass
 
 
@@ -38,7 +66,6 @@ class File(object):
   def get(cls, pod_path, pod):
     file_obj = cls(pod_path, pod)
     file_obj.get_content()
-#      raise FileDoesNotExistError('"{}" does not exist.'.format(pod_path))
     return file_obj
 
   @property
@@ -70,6 +97,7 @@ class File(object):
     self.pod.write_file(self.pod_path, content)
 
   def get_http_headers(self):
+    """Returns the HTTP headers used to serve this file."""
     headers = {}
     if self.mimetype:
       headers['Content-Type'] = self.mimetype

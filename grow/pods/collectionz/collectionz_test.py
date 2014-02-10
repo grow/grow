@@ -11,7 +11,7 @@ class CollectionsTest(unittest.TestCase):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_get(self):
-    self.pod.get_collection('pages')
+    self.pod.get_collection('/content/pages/')
 
   def test_list(self):
     collectionz.Collection.list(self.pod)
@@ -30,6 +30,12 @@ class CollectionsTest(unittest.TestCase):
     documents = collection.list_documents(order_by='$published', reverse=True)
     expected = ['newest', 'newer', 'older', 'oldest']
     self.assertListEqual(expected, [doc.slug for doc in documents])
+
+  def test_list_locales(self):
+    collection = self.pod.get_collection('pages')
+    locales = collection.list_locales()
+    expected = ['de', 'fr', 'it']
+    self.assertListEqual(expected, locales)
 
   def test_list_servable_documents(self):
     collection = self.pod.get_collection('pages')

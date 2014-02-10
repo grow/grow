@@ -1,3 +1,31 @@
+"""A pod encapsulates all files used to build a web site.
+
+Pods are the main interface to everything in a web site. Specifically, pods are
+used to do the following sorts of tasks:
+
+  - manage content (collections, blueprints, and documents)
+  - manage pod files (any of the files contained in the pod)
+  - list routes
+  - building and deployment
+  - listing and running tests
+
+Pods are accessed using their root directory.
+
+  pod = pods.Pod('/home/growler/my-site/')
+
+You can get a content collection from the pod.
+
+  collection = pod.get_collection('/content/pages/')
+
+You can get a content document from the pod.
+
+  document = pod.get_doc('/content/pages/index.md')
+
+You can get a static file from the pod.
+
+  file = pod.get_file('/podspec.yaml')
+"""
+
 import logging
 import os
 import re
@@ -105,14 +133,23 @@ class Pod(object):
     return files.File.get(pod_path, self)
 
   def create_file(self, pod_path, content):
+    """Creates a file inside the pod."""
     return files.File.create(pod_path, content, self)
 
   def get_doc(self, pod_path):
+    """Returns a document, given the document's pod path."""
     collection_path, _ = os.path.split(pod_path)
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path)
 
   def get_collection(self, collection_path):
+    """Returns a collection.
+
+    Args:
+      collection_path: The collection's path relative to the /content/ directory.
+    Returns:
+      Collection.
+    """
     pod_path = os.path.join('/content', collection_path)
     return collectionz.Collection.get(pod_path, _pod=self)
 
@@ -120,8 +157,9 @@ class Pod(object):
     return self.translations.get_translation(locale)
 
   def duplicate_to(self, other, exclude=None):
+    """Duplicates this pod to another pod."""
     if not isinstance(other, self.__class__):
-      raise ValueError('{} is not a Pod.'.format(other))
+      raise ValueError('{} is not a pod.'.format(other))
     source_paths = self.list_dir('/')
     for path in source_paths:
       if exclude:
@@ -133,15 +171,14 @@ class Pod(object):
     # TODO: Handle same-storage copying more elegantly.
 
   def export(self):
-    if self.tests.exists:
-      self.tests.run()
+    """Builds the pod, returning a mapping of paths to content."""
     output = {}
     routes = self.get_routes()
-    for path in self.routes.list_concrete_paths():
+    for path in routes.list_concrete_paths():
       controller = routes.match(path)
       output[path] = controller.render()
 
-    error_controller = self.routes.match_error('/404.html')
+    error_controller = routes.match_error('/404.html')
     if error_controller:
       output['/404.html'] = error_controller.render()
 
@@ -176,6 +213,7 @@ class Pod(object):
     return message
 
   def delete(self):
+    """Deletes the pod by deleting all of its files."""
     pod_paths = self.list_dir('/')
     for path in pod_paths:
       self.delete_file(path)

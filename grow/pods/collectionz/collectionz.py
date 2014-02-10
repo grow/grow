@@ -1,3 +1,5 @@
+"""Collections contain content documents and blueprints."""
+
 from grow.common import utils
 from grow.pods.collectionz import documents
 from grow.pods.collectionz import messages
@@ -114,6 +116,7 @@ class Collection(object):
     return self.yaml.get('path')
 
   def list_documents(self, order_by=None, reverse=None, include_hidden=False, locale=_all):
+    # TODO(jeremydw): Rename method to "search".
     if order_by is None:
       order_by = 'order'
     if reverse is None:
