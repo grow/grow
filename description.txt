@@ -1,0 +1,13 @@
+Grow is a modern, social, rapid, collaborative CMS and static site generator that helps teams build high-quality web sites. Grow's mission is to bring joy to building and launching web sites. This is the SDK. Thanks for checking it out.
+
+The best place to learn more about the project is http://growsdk.org.
+
+Here are some of the key features:
+
+- portable: Sites are file-based and backed by Git, so they work with your favorite tools. The SDK runs on your machine and in the cloud.
+- content-friendly: Content files are managed separately from presentation. Architect your content structure, and write documents in Markdown and YAML.
+- fully international: Internationalization features come built-in.
+- flexible: The system is designed around launches. Launch on-demand, schedule launches, and have your whole team review them.
+- security-minded: Run "pre-launch" checks against your sites that automatically detect commoon web security issues.
+
+To learn about contributing and to see the source code: http://github.com/grow/pygrow.

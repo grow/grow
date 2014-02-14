@@ -3,3 +3,12 @@ $title: About
 $order: 1
 ---
 About page.
+
+FOo bar
+
+---
+$locale: af
+---
+Informasie bladsy.
+
+Foo bar

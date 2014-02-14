@@ -13,14 +13,17 @@ from google.apputils import appcommands
 from grow import commands
 
 
-def main(argv):
+def add_commands():
   appcommands.AddCmd('deploy', commands.DeployCmd)
   appcommands.AddCmd('dump', commands.DumpCmd)
-  appcommands.AddCmd('get', commands.GetCmd)
   appcommands.AddCmd('init', commands.InitCmd)
   appcommands.AddCmd('run', commands.RunCmd)
   appcommands.AddCmd('up', commands.UpCmd)
   appcommands.AddCmd('test', commands.TestCmd)
+
+
+def main(argv):
+  add_commands()
 
 
 if __name__ == '__main__':

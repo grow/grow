@@ -5,7 +5,6 @@ from grow.common import utils
 from grow.pods import errors
 from grow.pods.controllers import base
 from grow.pods.controllers import tags
-from grow.pods.controllers.tags import markdown_filter
 
 
 class PageController(base.BaseController):
@@ -51,7 +50,7 @@ class PageController(base.BaseController):
     env = jinja2.Environment(
         loader=_template_loader, autoescape=True, trim_blocks=True,
         extensions=['jinja2.ext.i18n'])
-    env.filters['markdown'] = markdown_filter.markdown_filter
+    env.filters['markdown'] = tags.markdown_filter
     return env
 
   def _install_translations(self, ll):

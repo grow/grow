@@ -200,7 +200,7 @@ class Document(object):
     message.builtins = messages.BuiltInFieldsMessage()
     message.builtins.title = self.title
     message.basename = self.basename
-    message.doc_path = self.doc_path
+    message.pod_path = self.pod_path
     message.collection_path = self.collection.collection_path
     message.body = self.body
     message.content = self.content

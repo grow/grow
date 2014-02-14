@@ -28,7 +28,6 @@ class UpCmd(appcommands.Cmd):
   )
 
   def Run(self, argv):
-    changeset = FLAGS.changeset
     owner, nickname = FLAGS.project.split('/')
     host = FLAGS.host
     pod = pods.Pod(argv[1], storage=storage.FileStorage)
@@ -44,7 +43,7 @@ class UpCmd(appcommands.Cmd):
         if isinstance(content, unicode):
           content = content.encode('utf-8')
         content = base64.b64encode(content)
-        resp = service.rpc('pods.update_file', {
+        service.rpc('pods.update_file', {
            'project': {
              'owner': {'nickname': owner},
              'nickname': nickname,
@@ -123,23 +122,13 @@ class DumpCmd(appcommands.Cmd):
 class InitCmd(appcommands.Cmd):
   """Initializes a blank pod (or one with a theme) for local development."""
 
-  flags.DEFINE_string('repo_url', pod_commands.REPO_URL,
-                      'URL to repo containing Grow templates.')
-
   def Run(self, argv):
     if len(argv) != 3:
-      raise Exception('Usage: grow init <branch> <pod root>')
+      raise Exception('Usage: grow init <repo> <pod root>')
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
-    branch_name = argv[-2]
+    repo_url = argv[-2]
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod_commands.init(pod, branch_name)
-
-
-class GetCmd(appcommands.Cmd):
-  """Gets a pod from a remote pod server."""
-
-  def Run(self):
-    raise NotImplementedError()
+    pod_commands.init(pod, repo_url)
 
 
 class TestCmd(appcommands.Cmd):

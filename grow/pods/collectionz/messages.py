@@ -71,3 +71,4 @@ class DocumentMessage(messages.Message):
   content = messages.StringField(7)
   html = messages.StringField(8)
   serving_path = messages.StringField(9)
+  pod_path = messages.StringField(10)
