@@ -34,3 +34,8 @@ def is_active(active_doc, this_doc):
 
 def markdown_filter(value):
   return markdown.markdown(value.decode('utf-8'))
+
+
+def static(path, _pod=None):
+  # TODO(jeremydw): Implement this.
+  return path
