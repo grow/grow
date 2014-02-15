@@ -25,7 +25,7 @@
 	url = git://github.com/yaml/pyyaml.git
 [submodule "grow/submodules/protorpc-standalone"]
 	path = grow/submodules/protorpc-standalone
-        url = git://github.com/jeremydw/protorpc-standalone
+	url = git://github.com/jeremydw/protorpc-standalone
 [submodule "grow/submodules/jinja2"]
 	path = grow/submodules/jinja2
 	url = https://github.com/mitsuhiko/jinja2
