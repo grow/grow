@@ -25,6 +25,7 @@ setup(
         'bin/grow',
     ],
     install_requires=[
+        'Markdown',
         'Paste',
         'WebOb',
         'babel',
