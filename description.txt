@@ -1,3 +1,5 @@
+*This is an alpha pre-release made for distribution testing. Grow is not quite ready to use yet, stay tuned to our web site for updates!*
+
 Grow is a modern, social, rapid, collaborative CMS and static site generator that helps teams build high-quality web sites. Grow's mission is to bring joy to building and launching web sites. This is the SDK. Thanks for checking it out.
 
 The best place to learn more about the project is http://growsdk.org.

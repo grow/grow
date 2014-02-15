@@ -17,7 +17,7 @@ def get_this_version():
 
 def get_latest_version():
   logging.info('Checking for updates to the Grow SDK...')
-  version_manifest = 'https://raw.github.com/grow/pygrow/master/VERSION'
+  version_manifest = 'https://raw.github.com/grow/pygrow/master/grow/VERSION'
   try:
     version = urllib.urlopen(version_manifest).read()
     return version.strip()

@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
-from grow import submodules
-submodules.fix_imports()
+try:
+  from grow import submodules
+  submodules.fix_imports()
+except ImportError:
+  pass
 
 import webapp2
 from protorpc.wsgi import service

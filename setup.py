@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='grow',
-    version=open('VERSION').read().strip(),
+    version=open('grow/VERSION').read().strip(),
     description=(
           'Develop everywhere and deploy anywhere: a static site generator/CMS'
           ' that helps teams build high-quality web sites.'
@@ -12,16 +12,36 @@ setup(
     long_description=open('description.txt').read().strip(),
     url='http://growsdk.org',
     license='MIT',
+    hidden=True,
     author='Grow SDK Authors',
     author_email='hello@grow.io',
     include_package_data=True,
     packages=find_packages(
         exclude=[
             'grow/submodules',
-        ]
+        ],
     ),
     scripts=[
         'bin/grow',
+    ],
+    install_requires=[
+        'Paste',
+        'WebOb',
+        'babel',
+        'boto',
+        'certifi',
+        'dnspython',
+        'dulwich',
+        'ez_setup',
+        'google-api-python-client',
+        'google-apputils',
+        'jinja2',
+        'polib',
+        'protorpc-standalone',
+        'pyyaml',
+        'requests',
+        'webapp2',
+        'werkzeug',
     ],
     keywords=[
         'grow',
@@ -32,7 +52,7 @@ setup(
         'content management'
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 2 - Pre-Alpha',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

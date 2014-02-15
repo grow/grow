@@ -1,3 +1,4 @@
+Markdown
 Paste
 WebOb
 babel
@@ -8,6 +9,7 @@ google-api-python-client
 google-apputils
 jinja2
 polib
+protorpc-standalone
 pyyaml
 requests
 webapp2
