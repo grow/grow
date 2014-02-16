@@ -27,13 +27,20 @@ All deployments follow this process, and the BaseDeployment class takes
 care of most of the hard work and business logic. So if you're adding a new
 deployment, you'll just have to implement the following methods:
 
-  __init__(self, *args, **kwargs)
-    You may override the __init__ method to take arguments needed by your
-    deployment. For example, if deploying to a cloud storage provider, you
-    may init the deployment with access keys.
-
   delete_file(self, path)
     Deletes a file at the destination, given the file's pod path.
+
+  get_destination_address(self):
+    Returns the address of the destination (used to show the user where
+    the pod has been deployed to).
+
+  read_file(self, path)
+    Reads a file at the destination, returning the file's content.
+
+  write_file(self, path, content)
+    Writes a file at the destination, given the file's pod path and its content.
+
+The following methods are optional to implement:
 
   postlaunch(self)
     Performs any post-launch tasks.
@@ -41,11 +48,11 @@ deployment, you'll just have to implement the following methods:
   prelaunch(self)
     Performs any pre-launch configuration/tasks.
 
-  read_file(self, path)
-    Reads a file at the destination, returning the file's content.
+  set_params(self, **kwargs)
+    Sets any parameters required by the other subclassed methods.
 
-  write_file(self, path, content)
-    Writes a file at the destination, given the file's pod path and its content.
+  write_index_at_destination(self, new_index):
+    Writes the index of the newly-built pod to the destination.
 
 Once you've written a new deployment, add it to this directory's __init__.py.
 
