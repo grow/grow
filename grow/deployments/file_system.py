@@ -1,58 +1,26 @@
-import logging
-import os
 from grow.deployments import base
-from grow.pods import index
+import os
 
 
 class FileSystemDeployment(base.BaseDeployment):
 
-  def set_params(self, out_dir):
-    self.out_dir = os.path.expanduser(out_dir)
+  def get_destination_address(self):
+    return self.out_dir
 
-  def get_deployed_index(self, pod):
-    try:
-      path = os.path.join(self.out_dir, index.Index.BASENAME)
-      yaml_string = pod.storage.read(path)
-      return index.Index.from_yaml(yaml_string)
-    except IOError, e:
-      if e.errno != 2:
-        raise
-      logging.info('No index found, assuming deploying new pod.')
-      return index.Index()
+  def set_params(self, storage, out_dir):
+    self.out_dir = out_dir
+    self.storage = storage
 
-  def deploy(self, pod):
-    logging.info('Deploying to: {}'.format(self.out_dir))
+  def read_file(self, path):
+    path = os.path.join(self.out_dir, path.lstrip('/'))
+    return self.storage.read(path)
 
-    deployed_index = self.get_deployed_index(pod)
-    paths_to_content = pod.dump()
-    canary_index = index.Index()
-    canary_index.update(paths_to_content)
-    index_path = os.path.join(self.out_dir, index.Index.BASENAME)
-
-    diffs = canary_index.diff(deployed_index)
-    for path in diffs.adds:
-      logging.info('Writing new file: {}'.format(path))
-      self._write_file(pod, path, paths_to_content[path])
-    for path in diffs.edits:
-      logging.info('Writing changed file: {}'.format(path))
-      self._write_file(pod, path, paths_to_content[path])
-    for path in diffs.deletes:
-      logging.info('Deleting file: {}'.format(path))
-      self._delete_file(pod, path)
-    for path in diffs.nochanges:
-      logging.info('Skipping unchanged file: {}'.format(path))
-
-    pod.storage.write(index_path, canary_index.to_yaml())
-    logging.info('Wrote index: {}'.format(index_path))
-
-    return diffs
-
-  def _delete_file(self, pod, path):
+  def delete_file(self, path):
     out_path = os.path.join(self.out_dir, path.lstrip('/'))
-    pod.storage.delete(out_path)
+    self.storage.delete(out_path)
 
-  def _write_file(self, pod, path, content):
-    out_path = os.path.join(self.out_dir, path.lstrip('/'))
+  def write_file(self, path, content):
     if isinstance(content, unicode):
       content = content.encode('utf-8')
-    pod.storage.write(out_path, content)
+    out_path = os.path.join(self.out_dir, path.lstrip('/'))
+    self.storage.write(out_path, content)

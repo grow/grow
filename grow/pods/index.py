@@ -36,13 +36,13 @@ class Diff(object):
         and self.nochanges == other.nochanges)
 
   def log_pretty(self):
-    logging.info(utils.colorize('{green}Adding files: (%s){/green}' % len(self.adds)))
+    logging.info(utils.colorize('\n{green}Adding files: (%s){/green}' % len(self.adds)))
     [logging.info('  {}'.format(add)) for add in self.adds]
     logging.info(utils.colorize('{yellow}Editing files: (%s){/yellow}'% len(self.edits)))
     [logging.info('  {}'.format(edit)) for edit in self.edits]
     logging.info(utils.colorize('{red}Deleting files: (%s){/red}' % len(self.deletes)))
     [logging.info('  {}'.format(delete)) for delete in self.deletes]
-    logging.info(utils.colorize('{white}Unchanged files: (%s){/red}' % len(self.nochanges)))
+    logging.info(utils.colorize('{white}Unchanged files: (%s){/red}\n' % len(self.nochanges)))
 
 
 class Index(object):

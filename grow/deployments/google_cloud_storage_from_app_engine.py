@@ -1,8 +1,8 @@
+# TODO(jeremydw): This is currently broken.
+# TODO(jeremydw): Rename to: "GoogleCloudStorageCopierDeployment"
+
 import datetime
 import os
-import hashlib
-from boto.s3 import key
-from grow.deployments import base
 from grow.common import config
 from grow.pods import index
 from grow.deployments import google_cloud_storage
@@ -15,14 +15,10 @@ import mimetypes
 class GoogleStorageFromAppEngineDeployment(
     google_cloud_storage.BaseGoogleCloudStorageDeployment):
 
-  def __init__(self, bucket_name, source_keys, dest_keys):
+  def set_params(self, bucket_name, source_keys, dest_keys):
     self.bucket_name = bucket_name
     self.source_keys = source_keys
     self.dest_keys = dest_keys
-
-  @classmethod
-  def is_capable(cls):
-    return 'APPENGINE_RUNTIME' in os.environ
 
   def deploy(self, pod, dry_run=False):
     source_connection = boto.connect_gs(self.source_keys[0], self.source_keys[1])

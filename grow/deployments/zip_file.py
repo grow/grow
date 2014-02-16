@@ -7,16 +7,27 @@ from grow.deployments import base
 
 class ZipFileDeployment(base.BaseDeployment):
 
-  def __init__(self, out_dir, basename=None):
-    self.out_dir = os.path.expanduser(out_dir)
-    if basename is None:
-      basename = datetime.datetime.now().strftime('%Y-%m-%d.%H%M%S') + '.zip'
-    self.filename = os.path.join(self.out_dir, basename)
+  def get_destination_address(self):
+    return self.filename
 
-  def deploy(self, pod):
+  def set_params(self, storage, out_dir, out_file=None):
+    self.storage = storage
+    if out_dir and out_file is None:
+      basename = datetime.datetime.now().strftime('%Y-%m-%d.%H%M%S') + '.zip'
+      self.filename = os.path.join(out_dir, basename)
+    else:
+      self.filename = os.path.expanduser(out_file)
+
+  def prelaunch(self):
+    dirname = os.path.dirname(self.filename)
+    if not os.path.exists(dirname):
+      os.makedirs(dirname)
     logging.info('Creating zip file to: {}'.format(self.filename))
 
-    fp = pod.storage.open(self.filename, 'w')
+  def deploy(self, pod):
+    self.prelaunch()
+
+    fp = self.storage.open(self.filename, 'w')
     zip_file = zipfile.ZipFile(fp, mode='w')
 
     paths_to_content = pod.dump()
@@ -30,9 +41,9 @@ class ZipFileDeployment(base.BaseDeployment):
     return self.filename
 
   def snapshot(self, pod):
-    logging.info('Creating zip file to: {}'.format(self.filename))
+    self.prelaunch()
 
-    fp = pod.storage.open(self.filename, 'w')
+    fp = self.storage.open(self.filename, 'w')
     zip_file = zipfile.ZipFile(fp, mode='w')
 
     for path in pod.list_dir('/'):

@@ -27,13 +27,16 @@ class DeployCmd(appcommands.Cmd):
       'confirm', True, 'Whether to skip the deployment confirmation.')
 
   flags.DEFINE_enum(
-      'destination', None, ['gcs', 'local', 's3'], 'Destination to deploy to.')
+      'destination', None, ['gcs', 'local', 's3', 'zip'], 'Destination to deploy to.')
 
   flags.DEFINE_string(
       'bucket', None, 'Google Cloud Storage or Amazon S3 bucket.')
 
   flags.DEFINE_string(
       'out_dir', None, 'Directory to write to.')
+
+  flags.DEFINE_string(
+      'out_file', None, 'File name of zip file to use.')
 
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
@@ -57,9 +60,17 @@ class DeployCmd(appcommands.Cmd):
     elif FLAGS.destination == 'local':
       if FLAGS.out_dir is None:
         raise appcommands.AppCommandsError('Must specify: --out_dir.')
-      out_dir = os.path.abspath(os.path.join(os.getcwd(), FLAGS.out_dir))
+      out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir))
       deployment = deployments.FileSystemDeployment(confirm=FLAGS.confirm)
-      deployment.set_params(out_dir=out_dir)
+      deployment.set_params(storage=storage.FileStorage, out_dir=out_dir)
+
+    elif FLAGS.destination == 'zip':
+      if FLAGS.out_dir is None and FLAGS.out_file is None:
+        raise appcommands.AppCommandsError('Must specify either: --out_dir or --out_file.')
+      out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir)) if FLAGS.out_dir else None
+      out_file = os.path.abspath(os.path.expanduser(FLAGS.out_file)) if FLAGS.out_file else None
+      deployment = deployments.ZipFileDeployment(confirm=FLAGS.confirm)
+      deployment.set_params(storage=storage.FileStorage, out_dir=out_dir, out_file=out_file)
 
     deployment.deploy(pod)
 

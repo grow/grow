@@ -54,7 +54,10 @@ you must modify the DeployCmd class in pygrow/grow/commands.py.
 """
 
 import logging
+import time
+import unittest
 from grow.pods import index
+from grow.common import utils
 
 
 class Error(Exception):
@@ -65,35 +68,85 @@ class NotFoundError(Error, IOError):
   pass
 
 
+class DeploymentTestCase(unittest.TestCase):
+  deployment = None
+
+
 class BaseDeployment(object):
 
+  test_case_class = DeploymentTestCase
+
   def __init__(self, *args, **kwargs):
+    self.dry_run = kwargs.get('dry_run', False)
     self.confirm = kwargs.get('confirm', False)
 
-  def get_index_at_destination(self):
-    path = index.Index.BASENAME
-    try:
-      content = self.read_file(path)
-      logging.info('Loaded index destination.')
-      return index.Index.from_yaml(content)
-    except NotFoundError:
-      logging.info('No index found at destination, assuming new deployment.')
-      return index.Index()
-
   def read_file(self, path):
+    """Returns a file-like object."""
     raise NotImplementedError
 
   def write_file(self, path, content):
     raise NotImplementedError
 
-  def deploy(self, pod, dry_run=False):
-    raise NotImplementedError
-
-  def postlaunch(self):
-    raise NotImplementedError
-
-  def prelaunch(self):
+  def get_destination_address(self):
     raise NotImplementedError
 
   def set_params(self, **kwargs):
     pass
+
+  def run_tests(self):
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(self.test_case_class)
+    for test_case in suite:
+      test_case.deployment = self
+    unittest.TextTestRunner().run(suite)
+
+  def write_index_at_destination(self, new_index):
+    self.write_file(index.Index.BASENAME, new_index.to_yaml())
+
+  def get_index_at_destination(self):
+    path = index.Index.BASENAME
+    try:
+      content = self.read_file(path)
+      logging.info('Loaded index at destination.')
+      return index.Index.from_yaml(content)
+    except IOError:
+      logging.info('No index found at destination, assuming new deployment.')
+      return index.Index()
+
+  def postlaunch(self):
+    logging.info('Deployed to: {}'.format(self.get_destination_address()))
+    logging.info('Done in {}s!'.format(time.time() - self.start_time))
+
+  def prelaunch(self):
+    self.run_tests()
+
+  def deploy(self, pod):
+    logging.info('Deploying to: {}'.format(self.get_destination_address()))
+    self.prelaunch()
+
+    deployed_index = self.get_index_at_destination()
+    paths_to_content = pod.dump()
+    new_index = index.Index()
+    new_index.update(paths_to_content)
+    diffs = new_index.diff(deployed_index)
+    if not diffs:
+      text = utils.colorize('{white}Diff is empty, nothing to launch, aborted.{/white}')
+      logging.info(text)
+      return
+
+    if self.dry_run:
+      return
+
+    if self.confirm:
+      diffs.log_pretty()
+      if not utils.interactive_confirm('Proceed with launch?'):
+        logging.info('Launch aborted.')
+        return
+
+    self.start_time = time.time()
+    index.Index.apply_diffs(diffs, paths_to_content, write_func=self.write_file,
+                            delete_func=self.delete_file)
+    self.write_index_at_destination(new_index)
+    logging.info('Wrote index: /{}'.format(index.Index.BASENAME))
+
+    self.postlaunch()
+    return diffs

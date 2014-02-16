@@ -54,7 +54,6 @@ class Pod(object):
   def __init__(self, root, changeset=None, storage=storage.auto):
     self.storage = storage
     self.root = root if self.storage.is_cloud_storage else os.path.abspath(root)
-    self.out_dir = os.path.join(self.root, 'out')
     self.changeset = changeset
 
     self.routes = routes.Routes(pod=self)
