@@ -31,11 +31,8 @@ class Podgroup(object):
 
   def match(self, path, domain=None, url_scheme=None):
     for pod in self.pods:
-      try:
-        routes = pod.get_routes()
-        return routes.match(path, domain=domain, url_scheme=url_scheme)
-      except errors.RouteNotFoundError:
-        pass
+      routes = pod.get_routes()
+      return routes.match(path, domain=domain, url_scheme=url_scheme)
 
   def get_loaded_pods(self):
     return self.pods

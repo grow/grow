@@ -4,6 +4,7 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 from grow.server import handlers
 from grow.server import main as main_lib
 from paste import httpserver
+from paste import translogger
 import atexit
 import multiprocessing
 import os
@@ -13,20 +14,25 @@ _servers = {}
 _config_path = '{}/.grow/servers.yaml'.format(os.environ['HOME'])
 
 
-def _start(root, port):
+def _start(root, host=None, port=None, use_simple_log_format=True):
+  logging.info('Serving pod with root: {}'.format(root))
+  logger_format = ('[%(time)s] "%(REQUEST_METHOD)s %(REQUEST_URI)s" %(status)s'
+                   if use_simple_log_format else None)
   root = os.path.abspath(os.path.normpath(root))
-  handlers.set_single_pod_root(root)
-  httpserver.serve(main_lib.services_app, port=port)
+  handlers.set_pod_root(root)
+  app = main_lib.application
+  app = translogger.TransLogger(app, format=logger_format)
+  httpserver.serve(app, host=host, port=port)
 
 
-def start(root, port=None, use_subprocess=False):
+def start(root, host=None, port=None, use_subprocess=False):
   if root in _servers:
     logging.error('Server already started for pod: {}'.format(root))
     return
   if not use_subprocess:
-    _start(root, port)
+    _start(root, host=host, port=port)
     return
-  process = multiprocessing.Process(target=_start, args=(root, port))
+  process = multiprocessing.Process(target=_start, args=(root, host, port))
   process.start()
   _servers[root] = process
   return process
@@ -57,7 +63,6 @@ def write_config(config):
   fp = open(_config_path, 'w')
   fp.write(content)
   fp.close()
-
 
 
 class PodServer(object):

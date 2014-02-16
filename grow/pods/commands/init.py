@@ -7,8 +7,14 @@ from dulwich import client
 from dulwich import pack
 from dulwich import index
 
+THEME_REPO_URL = 'https://github.com/growthemes/{}.git'
 
-def init(pod, repo_url):
+
+def init(pod, theme_url):
+    if '//' not in theme_url or ':' not in theme_url:
+      repo_url = THEME_REPO_URL.format(theme_url)
+    else:
+      repo_url = theme_url
     git_client = client.HttpGitClient(repo_url)
     logging.info('Initializing with {}...'.format(repo_url))
     temp_repo = MemoryRepo()

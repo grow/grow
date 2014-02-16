@@ -34,7 +34,7 @@ def check_version(quiet=False):
     if theirs > yours:
       logging.info('---')
       logging.info('Your version: {}, latest version: {}'.format(yours, theirs))
-      logging.info('A newer version of the SDK is available. Please update now: http://growapp.org')
+      logging.info('A newer version of the SDK is available. Please update now: http://growsdk.org')
       logging.info('---')
     else:
       logging.info('Your Grow SDK is the latest version: {}'.format(yours))

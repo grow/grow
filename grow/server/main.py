@@ -11,13 +11,15 @@ from protorpc.wsgi import service
 from grow.server import handlers
 from grow.server import services
 
+
 podserver_app = webapp2.WSGIApplication([
-    ('/_grow.*', handlers.ConsoleHandler),
     ('/.*', handlers.PodHandler),
 ])
-
-services_app = service.service_mappings([
+routes = [
     ('/_api/pods.*', services.PodService),
-], registry_path='/_api/protorpc', append_wsgi_apps=[podserver_app])
-
-application = services_app
+]
+application = service.service_mappings(
+    routes,
+    service_prefix='/_api',
+    registry_path='/_api/protorpc',
+    append_wsgi_apps=[podserver_app])

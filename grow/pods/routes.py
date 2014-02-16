@@ -4,15 +4,18 @@ werkzeug routing:
   http://werkzeug.pocoo.org/docs/routing/#werkzeug.routing.Map
 """
 
+import webob
 from grow.common import utils
 from grow.pods import controllers
 from grow.pods import messages
 from werkzeug import routing
-from werkzeug import exceptions
+
+
+class Error(Exception):
+  pass
 
 
 class Errors(object):
-  NotFound = exceptions.NotFound
   Redirect = routing.RequestRedirect
 
 
@@ -79,12 +82,16 @@ class Routes(object):
       url_scheme = 'http'
     if domain is None:  # Needed for generating static files.
       domain = 'localhost'
+
     urls = self.routing_map.bind(domain, script_name, subdomain, url_scheme)
-    controller, route_params = urls.match(path)
-    controller.set_route_params(route_params)
-#    controller.validate_route_params(route_params)
-    # validate route_params here, raise NotFound if params are invalid
-    return controller
+    try:
+      controller, route_params = urls.match(path)
+      controller.set_route_params(route_params)
+      # validate route_params here, raise NotFound if params are invalid
+  #    controller.validate_route_params(route_params)
+      return controller
+    except routing.NotFound:
+      raise webob.exc.HTTPNotFound()
 
   def match_error(self, path, domain=None, status=404):
     if status == 404 and self.pod.error_routes:

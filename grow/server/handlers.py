@@ -1,126 +1,54 @@
-from grow.common import config
-from grow.pods import pods
-from grow.pods import routes
 from grow.pods import storage
-from grow.server import pod_serving
 from grow.server import podgroups
-from grow.server import utils
-from webob import exc
 import jinja2
 import logging
 import os
 import webapp2
+import webob
+
+_root = os.path.join(os.path.dirname(__file__), 'templates')
+_loader = storage.FileStorage.JinjaLoader(_root)
+_env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True,
+                          extensions=['jinja2.ext.i18n'])
+
+
+def set_pod_root(root):
+  if root is None and 'grow:pod_root' in os.environ:
+    del os.environ['grow:pod_root']
+  if root is not None:
+    os.environ['grow:pod_root'] = root
 
 
 class BaseHandler(webapp2.RequestHandler):
 
   def handle_exception(self, exception, debug):
-    logging.exception(exception)
-    root = os.path.join(os.path.dirname(__file__), 'templates')
-    loader = storage.FileStorage.JinjaLoader(root)
-    env = jinja2.Environment(loader=loader, autoescape=True, trim_blocks=True,
-                             extensions=['jinja2.ext.i18n'])
-    template = env.get_template('error.html')
-    html = template.render({
-      'error': {
-          'title': str(exception)
-      }
-    })
-    if isinstance(exception, webapp2.HTTPException):
+    template = _env.get_template('error.html')
+    html = template.render({'error': {'title': str(exception)}})
+    if isinstance(exception, webob.exc.HTTPException):
       self.response.set_status(exception.code)
     else:
       self.response.set_status(500)
+      logging.exception(exception)
     self.response.write(html)
 
   def respond_with_controller(self, controller):
-    # TODO(jeremydw): Handle custom errors.
-    if controller is None:
-      raise exc.HTTPNotFound('No matching controller found.')
-
-    # Update response headers with headers from controller.
     headers = controller.get_http_headers()
     self.response.headers.update(headers)
-
-    # If a special token is in the response header indicating that the
-    # file is going to be served from a different source, return now.
     if 'X-AppEngine-BlobKey' in self.response.headers:
       return
     return self.response.out.write(controller.render())
 
 
-class ConsoleHandler(BaseHandler):
-
-  def get(self):
-    pod = pods.Pod('pygrow/grow/growedit', storage=storage.FileStorage)
-    controller = pod.match(self.request.path)
-    self.respond_with_controller(controller)
-
-
 class PodHandler(BaseHandler):
 
   def get(self):
-    host = os.environ.get('HTTP_HOST', '')
-    changeset = utils.get_changeset(host)
+    if 'grow:pod_root' not in os.environ:
+      raise Exception('Environment variable "grow:pod_root" missing.')
     domain = self.request.host
     url_scheme = self.request.scheme
-
-    # If on growspace.
-    if (host in config.GROWSPACE_DOMAINS
-        or os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')):
-      pod = pods.Pod('growspace/console', storage=storage.FileStorage)
-      controller = pod.match(self.request.path, domain=domain, url_scheme=url_scheme)
-      self.respond_with_controller(controller)
-      return
-
-    # If on a staging domain.
-    elif changeset:
-      podgroup = podgroups.Podgroup(config.PODS_DIR)
-      podgroup.load_pods_by_id([changeset])
-
-    # If in single-pod mode.
-    elif 'grow:single_pod_root' in os.environ:
-      root = os.path.dirname(os.environ['grow:single_pod_root'])
-      podgroup = podgroups.Podgroup(root)
-      pod_name = os.path.basename(os.path.normpath(os.environ['grow:single_pod_root']))
-      podgroup.load_pods_by_id([pod_name])
-
-    # Get the routing map from the "launched pods" podgroup.
-    else:
-      domain = os.environ.get('SERVER_NAME')
-      try:
-        podgroup = pod_serving.get_live_podgroup()
-      # No routes ever deployed.
-      except pod_serving.LiveRoutingMapNotFound:
-        self.response.set_status(404)
-        self.response.out.write('No routing map found.')
-        return
-
-    # Route issues a redirect.
-    try:
-      controller = podgroup.match(self.request.path, domain=domain, url_scheme=url_scheme)
-    except routes.Errors.NotFound as e:
-      controller = podgroup.match_error(self.request.path, domain=domain, status=404)
-      if controller is not None:
-        self.response.set_status(500)  # TODO: This is wrong.
-        self.response.write(controller.render())
-      return
-    except routes.Errors.Redirect as e:
-      self.response.set_status(301)
-      self.response.headers['Location'] = e.new_url
-      return
-
-    # Resource just doesn't exist.
-    if not controller:
-      self.response.set_status(404)
-      self.response.out.write('No matching route found.')
-      return
-
-    logging.debug('Matched URL to pod: %s', controller.pod)
+    root = os.path.dirname(os.environ['grow:pod_root'])
+    podgroup = podgroups.Podgroup(root)
+    pod_name = os.path.basename(os.path.normpath(os.environ['grow:pod_root']))
+    podgroup.load_pods_by_id([pod_name])
+    controller = podgroup.match(self.request.path, domain=domain, url_scheme=url_scheme)
     self.respond_with_controller(controller)
-
-
-def set_single_pod_root(root):
-  if root is None and 'grow:single_pod_root' in os.environ:
-    del os.environ['grow:single_pod_root']
-  if root is not None:
-    os.environ['grow:single_pod_root'] = root
