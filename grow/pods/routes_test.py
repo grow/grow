@@ -1,7 +1,7 @@
 from grow.pods import pods
 from grow.pods import storage
-import webob
 import unittest
+import webob.exc
 
 
 class RoutesTest(unittest.TestCase):
