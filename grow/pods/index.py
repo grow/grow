@@ -2,6 +2,7 @@ import hashlib
 import logging
 import threading
 import yaml
+from grow.common import utils
 
 
 class Error(Exception):
@@ -20,12 +21,28 @@ class Diff(object):
     self.deletes = deletes
     self.nochanges = nochanges
 
+  def __nonzero__(self):
+    return not (
+        self.nochanges
+        and not self.adds
+        and not self.edits
+        and not self.deletes)
+
   def __eq__(self, other):
     return (
         self.adds == other.adds
         and self.edits == other.edits
         and self.deletes == other.deletes
         and self.nochanges == other.nochanges)
+
+  def log_pretty(self):
+    logging.info(utils.colorize('{green}Adding files: (%s){/green}' % len(self.adds)))
+    [logging.info('  {}'.format(add)) for add in self.adds]
+    logging.info(utils.colorize('{yellow}Editing files: (%s){/yellow}'% len(self.edits)))
+    [logging.info('  {}'.format(edit)) for edit in self.edits]
+    logging.info(utils.colorize('{red}Deleting files: (%s){/red}' % len(self.deletes)))
+    [logging.info('  {}'.format(delete)) for delete in self.deletes]
+    logging.info(utils.colorize('{white}Unchanged files: (%s){/red}' % len(self.nochanges)))
 
 
 class Index(object):

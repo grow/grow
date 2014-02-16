@@ -24,7 +24,7 @@ class DeployCmd(appcommands.Cmd):
   """Deploys a pod to a destination."""
 
   flags.DEFINE_boolean(
-      'force', False, 'Whether to skip the deployment confirmation.')
+      'confirm', True, 'Whether to skip the deployment confirmation.')
 
   flags.DEFINE_enum(
       'destination', None, ['gcs', 'local', 's3'], 'Destination to deploy to.')
@@ -45,18 +45,21 @@ class DeployCmd(appcommands.Cmd):
     elif FLAGS.destination == 'gcs':
       if FLAGS.bucket is None:
         raise appcommands.AppCommandsError('Must specify: --bucket.')
-      deployment = deployments.GoogleCloudStorageDeployment(bucket=FLAGS.bucket)
+      deployment = deployments.GoogleCloudStorageDeployment(confirm=FLAGS.confirm)
+      deployment.set_params(bucket=FLAGS.bucket)
 
     elif FLAGS.destination == 's3':
       if FLAGS.bucket is None:
         raise appcommands.AppCommandsError('Must specify: --bucket.')
-      deployment = deployments.AmazonS3Deployment(bucket=FLAGS.bucket)
+      deployment = deployments.AmazonS3Deployment(confirm=FLAGS.confirm)
+      deployment.set_params(bucket=FLAGS.bucket)
 
     elif FLAGS.destination == 'local':
       if FLAGS.out_dir is None:
         raise appcommands.AppCommandsError('Must specify: --out_dir.')
       out_dir = os.path.abspath(os.path.join(os.getcwd(), FLAGS.out_dir))
-      deployment = deployments.FileSystemDeployment(out_dir=out_dir)
+      deployment = deployments.FileSystemDeployment(confirm=FLAGS.confirm)
+      deployment.set_params(out_dir=out_dir)
 
     deployment.deploy(pod)
 

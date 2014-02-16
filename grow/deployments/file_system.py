@@ -6,7 +6,7 @@ from grow.pods import index
 
 class FileSystemDeployment(base.BaseDeployment):
 
-  def __init__(self, out_dir):
+  def set_params(self, out_dir):
     self.out_dir = os.path.expanduser(out_dir)
 
   def get_deployed_index(self, pod):

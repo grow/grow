@@ -13,8 +13,8 @@ class AmazonS3Deployment(base.BaseDeployment):
 
   CNAME = 'c.storage.googleapis.com'
 
-  def __init__(self, bucket, access_key=None, secret=None):
-    self.bucket = bucket
+  def set_params(self, bucket, access_key=None, secret=None):
+    self.bucket_name = bucket
     self.access_key = access_key
     self.secret = secret
 

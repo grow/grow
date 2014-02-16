@@ -1,6 +1,7 @@
 from boto.s3 import key
 from grow.deployments import base
 from grow.pods import index
+from grow.common import utils
 import boto
 import cStringIO
 import dns.resolver
@@ -62,7 +63,7 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
 class GoogleCloudStorageDeployment(BaseGoogleCloudStorageDeployment):
   """Deploys a pod to a static Google Cloud Storage bucket for web serving."""
 
-  def __init__(self, bucket, access_key=None, secret=None):
+  def set_params(self, bucket, access_key=None, secret=None):
     self.bucket_name = bucket
     self.access_key = access_key
     self.secret = secret
@@ -112,6 +113,18 @@ class GoogleCloudStorageDeployment(BaseGoogleCloudStorageDeployment):
       bucket.set_acl('public-read')
       bucket.configure_versioning(False)
       bucket.configure_website(main_page_suffix='index.html', error_key='404.html')
+
+      if not diffs:
+        logging.info('Nothing to launch, aborted.')
+        return
+
+      if self.confirm:
+        print
+        diffs.log_pretty()
+        print
+        choice = utils.interactive_confirm('Proceed with launch?')
+        if not choice:
+          return
 
       index.Index.apply_diffs(
           diffs, paths_to_content,

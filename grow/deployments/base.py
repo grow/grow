@@ -68,7 +68,7 @@ class NotFoundError(Error, IOError):
 class BaseDeployment(object):
 
   def __init__(self, *args, **kwargs):
-    pass
+    self.confirm = kwargs.get('confirm', False)
 
   def get_index_at_destination(self):
     path = index.Index.BASENAME
@@ -94,3 +94,6 @@ class BaseDeployment(object):
 
   def prelaunch(self):
     raise NotImplementedError
+
+  def set_params(self, **kwargs):
+    pass

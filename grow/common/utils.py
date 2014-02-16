@@ -8,6 +8,27 @@ import time
 import yaml
 
 
+def interactive_confirm(message, default=False):
+  message = '{} [y/N]: '.format(message)
+  choice = raw_input(message).lower()
+  if choice == 'y':
+    return True
+  return False
+
+
+def colorize(text):
+  return text.format(**{
+    'red': '\033[0;31m',
+    '/red': '\033[0;m',
+    'green': '\033[0;32m',
+    '/green': '\033[0;m',
+    'yellow': '\033[0;33m',
+    '/yellow': '\033[0;m',
+    'white': '\033[0;37m',
+    '/white': '\033[0;m',
+  })
+
+
 def apply_heaers(headers, path):
   mimetype = mimetypes.guess_type(path)[0]
   if mimetype:
