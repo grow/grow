@@ -37,7 +37,6 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
     self.write_file(
         index.Index.BASENAME,
         new_index.to_yaml(),
-        bucket=self.bucket,
         policy='private')
 
   def read_file(self, path):
