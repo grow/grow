@@ -37,7 +37,7 @@ Here's how you can pull down the Grow SDK and its submodules to contribute:
     # Download Grow and submodules.
     git clone https://github.com/grow/pygrow.git
     cd pygrow && git submodule init && git submodule update && cd ..
-    cd pygrow/submodules/babel && python setup.py import_cldr && cd ../../../
+    cd pygrow/grow/submodules/babel && python setup.py import_cldr && cd ../../../..
     
 To run Grow's unit tests, run from the project's root directory:
 
@@ -45,7 +45,7 @@ To run Grow's unit tests, run from the project's root directory:
     
 The Grow SDK also includes service tests, which test the pod server RPC system:
 
-    python run_service_tests.py
+    ./run_service_tests.sh
     
 ## License
 
