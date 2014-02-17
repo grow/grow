@@ -26,9 +26,29 @@ Visit the Grow SDK's website at http://growsdk.org where you can learn all about
 
 The Grow SDK is still under development and is *not quite ready for use*. If you're interested in learning more about the project, please visit the SDK's public website at http://growsdk.org where you can subscribe to our newsletter and be notified when the . You can also watch this repository for updates.
 
+## Usage
+
+Full documentation is available at http://growsdk.org, but this four-step process covers the basic workflow.
+
+(1) Install Grow. (Coming soon: a downloadable Mac application for those without `pip`.)
+
+    pip install grow
+
+(2) Initialize a new pod using the "cards" theme.
+
+    grow init cards ~/example.com/
+
+(3) Run a small web server for on-demand editing and previewing.
+
+    grow run ~/example.com/
+
+(4) Deploy your site to the public web.
+
+    grow deploy ~/example.com/
+
 ## Contributing
 
-The Grow SDK is portable by design, and it encapsulates all of its own dependencies so that the SDK can run anywhere (including restricted environments such as Google App Engine). This repository uses Git submodules to include all dependencies that are not part of the Python standard library. (In the future, we will make PyGrow available via `pip install` to avoid needing to pull down submodules just for development.)
+The Grow SDK is portable by design, and it encapsulates all of its own dependencies so that the SDK can run anywhere (including restricted environments such as Google App Engine).
 
 ### Running tests
 
