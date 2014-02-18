@@ -19,9 +19,11 @@ locales:
     - pl
 
 deployments:
+
   prod:
     destination: gcs
     bucket: prod.test.growsdk.org
+
   staging:
     destination: gcs
     bucket: staging.test.growsdk.org

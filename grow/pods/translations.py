@@ -2,15 +2,20 @@ import logging
 import os
 from grow.pods import messages
 from grow.pods.storage import gettext_storage as gettext
+from datetime import datetime
+import babel
 from babel.messages import catalog
 from babel.messages import extract
 from babel.messages import mofile
 from babel.messages import pofile
+from babel import util
 
 
 _TRANSLATABLE_EXTENSIONS = (
   '.html',
 )
+
+BABEL_CONFIG = os.path.join(os.path.dirname(__file__), 'data', 'babel.cfg')
 
 
 
@@ -32,7 +37,8 @@ class Translations(object):
     return list(locales)
 
   def recompile_mo_files(self):
-    for locale in self.list_locales():
+    locales = self.list_locales()
+    for locale in locales:
       translation = Translation(pod=self.pod, locale=locale)
       translation.recompile_mo()
 
@@ -52,9 +58,46 @@ class Translations(object):
     fp = self.pod.open_file(os.path.join(self.root, 'messages.pot'))
     return pofile.read_po(fp)
 
+  def init_catalogs(self, locales):
+    input_path = os.path.join(self.root, 'messages.pot')
+    for locale in locales:
+      output_path = os.path.join(self.root, locale, 'LC_MESSAGES', 'messages.po')
+      logging.info('creating catalog %r based on %r', output_path, input_path)
+      infile = self.pod.open_file(input_path)
+      try:
+        babel_catalog = pofile.read_po(infile, locale=locale)
+      finally:
+        infile.close()
+
+      babel_locale = babel.Locale.parse(locale)
+      babel_catalog.locale = babel_locale
+      babel_catalog.revision_date = datetime.now(util.LOCALTZ)
+      babel_catalog.fuzzy = False
+
+      # TODO(jeremydw): Optimize.
+      # Creates directory if it doesn't exist.
+      path = os.path.join(output_path)
+      if not self.pod.file_exists(path):
+        self.pod.create_file(path, None)
+
+      outfile = self.pod.open_file(output_path, mode='w')
+      try:
+        pofile.write_po(outfile, babel_catalog, width=80)
+      finally:
+        outfile.close()
+
+  def update_catalogs(self):
+    pass
+
   def extract(self):
     catalog_obj = catalog.Catalog()
+
+    # TODO(jeremydw): Optimize.
+    # Creates directory if it doesn't exist.
     path = os.path.join(self.root, 'messages.pot')
+    if not self.pod.file_exists(path):
+      self.pod.create_file(path, None)
+
     template = self.pod.open_file(path, mode='w')
     extracted = []
 
@@ -72,16 +115,19 @@ class Translations(object):
           messages = extract.extract('python', fp)
           for message in messages:
             lineno, string, comments, context = message
-            catalog_obj.add(string, None, [(pod_path, lineno)], auto_comments=comments, context=context)
+            added_message = catalog_obj.add(
+                string, None, [(pod_path, lineno)], auto_comments=comments,
+                context=context)
+            extracted.append(added_message)
         except tokenize.TokenError:
           print 'Problem extracting: {}'.format(pod_path)
           raise
 
-    # TODO(jeremydw): Extract messages from content.
-
     # Writes to PO template.
-    pofile.write_po(template, catalog_obj, width=80, no_location=True, omit_header=True, sort_output=True, sort_by_file=True)
-    logging.info('Extracted {} messages from {} files to: {}'.format(len(extracted), len(pod_files), template))
+    pofile.write_po(template, catalog_obj, width=80, no_location=True,
+                    omit_header=True, sort_output=True, sort_by_file=True)
+    text = 'Extracted {} messages from {} files to: {}'
+    logging.info(text.format(len(extracted), len(pod_files), path))
     template.close()
     return catalog_obj
 
@@ -91,13 +137,15 @@ class Translation(object):
   def __init__(self, pod, locale):
     self.pod = pod
     self.locale = locale
-    self.path = os.path.join('/translations', locale)
-
+    self.path = os.path.join('translations', locale)
     try:
+      path = os.path.join(self.pod.root, 'translations', locale)
       translations = gettext.translation(
-          'messages', os.path.dirname(self.path), languages=[self.locale],
+          'messages', os.path.dirname(path), [self.locale],
           storage=self.pod.storage)
     except IOError:
+      # TODO(jeremydw): If translation mode is strict, raise an error here if
+      # no translation file is found.
       translations = gettext.NullTranslations()
     self._gettext_translations = translations
 
@@ -129,15 +177,11 @@ class Translation(object):
       po_file.close()
 
     num_translated = 0
+    num_total = 0
     for message in list(catalog)[1:]:
       if message.string:
         num_translated += 1
-      percentage = 0
-      if len(catalog):
-        percentage = num_translated * 100 // len(catalog)
-      logging.info(
-          '{} of {} messages ({}%) translated in {} so far.'.format(
-              num_translated, len(catalog), percentage, po_filename))
+      num_total += 1
 
     if catalog.fuzzy and not use_fuzzy:
       logging.info('Catalog {} is marked as fuzzy, skipping.'.format(po_filename))
@@ -149,7 +193,8 @@ class Translation(object):
     except IOError:
       logging.info('Skipped catalog check.')
 
-    logging.info('Compiling catalog {} to {}'.format(po_filename, mo_filename))
+    text = 'Compiling {}/{} translated strings to {}'
+    logging.info(text.format(num_translated, num_total, mo_filename))
 
     mo_file = self.pod.open_file(mo_filename, 'w')
     try:

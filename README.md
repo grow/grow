@@ -26,7 +26,7 @@ Visit the Grow SDK's website at http://growsdk.org where you can learn all about
 
 The Grow SDK is still under development and is *not quite ready for use*. If you're interested in learning more about the project, please visit the SDK's public website at http://growsdk.org where you can subscribe to our newsletter and be notified when the . You can also watch this repository for updates.
 
-## Usage
+## Quick start usage
 
 Full documentation is available at http://growsdk.org, but this four-step process covers the basic workflow.
 
@@ -38,13 +38,15 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
     grow init cards ~/example.com/
 
-(3) Run a small web server for on-demand editing and previewing.
+(3) Run a small web server for live editing and previewing.
 
     grow run ~/example.com/
 
 (4) Deploy your site to the public web.
 
     grow deploy ~/example.com/
+
+See a full list of commands using: `grow help`.
 
 ## Contributing
 

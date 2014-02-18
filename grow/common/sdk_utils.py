@@ -1,6 +1,7 @@
 import logging
 import urllib
 from grow.common import config
+from grow.common import utils
 
 
 class Error(Exception):
@@ -21,9 +22,9 @@ def get_latest_version():
   try:
     version = urllib.urlopen(version_manifest).read()
     return version.strip()
-#  except urllib.errors.URLError as e:
   except Exception as e:
-    logging.exception('Could not check for updates.')
+    text = 'Could not check for updates to the SDK. Are you online?'
+    logging.error(utils.colorize('{red}%s{/red}' % text))
     raise LatestVersionCheckError(str(e))
 
 

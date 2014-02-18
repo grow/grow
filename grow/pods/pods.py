@@ -30,6 +30,7 @@ import logging
 import os
 import re
 from grow.common import utils
+from grow.deployments import deployments
 from grow.pods import files
 from grow.pods import locales
 from grow.pods import messages
@@ -91,6 +92,9 @@ class Pod(object):
 
   def get_routes(self):
     return self.routes
+
+  def get_translations(self):
+    return self.translations
 
   def abs_path(self, pod_path):
     path = os.path.join(self.root, pod_path.lstrip('/'))
@@ -217,3 +221,27 @@ class Pod(object):
     for path in pod_paths:
       self.delete_file(path)
     return pod_paths
+
+  def get_deployment(self, nickname, *args, **kwargs):
+    """Returns a pod-specific deployment."""
+    if 'deployments' not in self.yaml:
+      raise ValueError('No pod-specific deployments configured.')
+    deployment_configs = self.yaml['deployments']
+    if nickname not in deployment_configs:
+      text = 'No deployment named {}. Valid deployments: {}.'
+      raise ValueError(text.format(nickname, ', '.join(deployment_configs.keys())))
+    deployment_params = deployment_configs[nickname]
+    kind = deployment_params.pop('destination')
+    deployment = deployments.Deployment.get(kind, *args, **kwargs)
+    try:
+      deployment.set_params(**deployment_params)
+    except TypeError as e:
+      raise ValueError('Invalid deployment params: {}'.format(str(e)))
+    return deployment
+
+  def list_locales(self):
+    return self.yaml.get('localization', {}).get('locales', None)
+
+  def preprocess(self):
+    translations_obj = self.get_translations()
+    translations_obj.recompile_mo_files()
