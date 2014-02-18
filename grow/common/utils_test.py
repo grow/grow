@@ -4,6 +4,22 @@ import utils
 
 class UtilsTestCase(unittest.TestCase):
 
+  def test_walk(self):
+    data = {
+      'foo': 'bar',
+      'bam': {
+        'foo': 'bar2',
+        'foo2': ['bar3', 'bar4'],
+      }
+    }
+
+    actual = []
+    callback = lambda item, _: actual.append(item)
+    utils.walk(data, callback)
+
+    expected = ['bar', 'bar2', 'bar3', 'bar4']
+    self.assertItemsEqual(expected, actual)
+
   def test_parse_markdown(self):
     content = (
         '---\n'

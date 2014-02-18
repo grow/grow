@@ -1,14 +1,16 @@
-import logging
-import os
-from grow.pods import messages
-from grow.pods.storage import gettext_storage as gettext
-from datetime import datetime
-import babel
+from babel import util
 from babel.messages import catalog
 from babel.messages import extract
 from babel.messages import mofile
 from babel.messages import pofile
-from babel import util
+from datetime import datetime
+from grow.common import utils
+from grow.pods import messages
+from grow.pods.storage import gettext_storage as gettext
+import babel
+import logging
+import os
+import tokenize
 
 
 _TRANSLATABLE_EXTENSIONS = (
@@ -92,25 +94,20 @@ class Translations(object):
   def extract(self):
     catalog_obj = catalog.Catalog()
 
-    # TODO(jeremydw): Optimize.
-    # Creates directory if it doesn't exist.
-    path = os.path.join(self.root, 'messages.pot')
-    if not self.pod.file_exists(path):
-      self.pod.create_file(path, None)
+    # Create directory if it doesn't exist. TODO(jeremydw): Optimize this.
+    template_path = os.path.join(self.root, 'messages.pot')
+    if not self.pod.file_exists(template_path):
+      self.pod.create_file(template_path, None)
 
-    template = self.pod.open_file(path, mode='w')
+    template = self.pod.open_file(template_path, mode='w')
     extracted = []
 
-    # Extracts messages from views.
-    pod_files = self.pod.list_dir('/')
-    for pod_path in pod_files:
+    # Extract messages from views.
+    pod_files = self.pod.list_dir('/views/')
+    for path in pod_files:
+      pod_path = os.path.join('/views', path)
       if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
-        content = self.pod.read_file(pod_path)
-        import cStringIO
-        fp = cStringIO.StringIO()
-        fp.write(content)
-        fp.seek(0)
-        import tokenize
+        fp = self.pod.open_file(pod_path)
         try:
           messages = extract.extract('python', fp)
           for message in messages:
@@ -120,14 +117,32 @@ class Translations(object):
                 context=context)
             extracted.append(added_message)
         except tokenize.TokenError:
-          print 'Problem extracting: {}'.format(pod_path)
+          logging.error('Problem extracting: {}'.format(pod_path))
           raise
 
-    # Writes to PO template.
+    # Extract messages from content files.
+    def callback(doc, node, key):
+      # TODO(jeremydw): Replace with better check to determine if field is
+      # translatable.
+      if not isinstance(node, basestring):
+        return
+      if not key.startswith('$') or key == '$title':
+        comments = []
+        context = None
+        added_message = catalog_obj.add(
+            node, None, [(doc.pod_path, 0)], auto_comments=comments,
+            context=context)
+        extracted.append(added_message)
+
+    for collection in self.pod.list_collections():
+      for doc in collection.list_documents(include_hidden=True):
+        utils.walk(doc.fields, lambda *args: callback(doc, *args))
+
+    # Write to PO template.
     pofile.write_po(template, catalog_obj, width=80, no_location=True,
                     omit_header=True, sort_output=True, sort_by_file=True)
     text = 'Extracted {} messages from {} files to: {}'
-    logging.info(text.format(len(extracted), len(pod_files), path))
+    logging.info(text.format(len(extracted), len(pod_files), template_path))
     template.close()
     return catalog_obj
 

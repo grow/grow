@@ -115,8 +115,11 @@ class Collection(object):
   def get_path_format(self):
     return self.yaml.get('path')
 
+  def list_docs(self, order_by=None, reverse=None):
+    # TODO(jeremydw): Implement this, and search, and kill list_documents.
+    pass
+
   def list_documents(self, order_by=None, reverse=None, include_hidden=False, locale=_all):
-    # TODO(jeremydw): Rename method to "search".
     if order_by is None:
       order_by = 'order'
     if reverse is None:

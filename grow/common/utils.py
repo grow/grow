@@ -16,6 +16,15 @@ def interactive_confirm(message, default=False):
   return False
 
 
+def walk(node, callback):
+  for key in node:
+    item = node[key] if isinstance(node, dict) else key
+    if isinstance(item, (list, set, dict)):
+      walk(item, callback)
+    else:
+      callback(item, key)
+
+
 def colorize(text):
   return text.format(**{
     'red': '\033[0;31m',
