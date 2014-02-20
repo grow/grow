@@ -32,7 +32,14 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
 (1) Install Grow. (Coming soon: a downloadable Mac application for those without `pip`.)
 
+    # Install Grow system-wide.
     pip install grow
+    
+    # Install Grow for a single user (recommended).
+    pip install --user grow
+    
+    # Add local pip installations to your PATH. (Put this in ~/.bashrc).
+    export PATH=$HOME/.local/bin:$PATH
 
 (2) Initialize a new pod using the "cards" theme.
 
