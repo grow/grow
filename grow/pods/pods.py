@@ -26,6 +26,7 @@ You can get a static file from the pod.
   file = pod.get_file('/podspec.yaml')
 """
 
+import copy
 import logging
 import os
 import re
@@ -34,11 +35,13 @@ from grow.deployments import deployments
 from grow.pods import files
 from grow.pods import locales
 from grow.pods import messages
+from grow.pods import podspec
 from grow.pods import routes
 from grow.pods import storage
 from grow.pods import tests
 from grow.pods import translations
 from grow.pods.collectionz import collectionz
+from grow.pods.preprocessors import preprocessors
 
 
 class Error(Exception):
@@ -61,6 +64,7 @@ class Pod(object):
     self.locales = locales.Locales(pod=self)
     self.translations = translations.Translations(pod=self)
     self.tests = tests.Tests(pod=self)
+    self.podspec = podspec.Podspec(pod=self)
 
   def __repr__(self):
     if self.changeset is not None:
@@ -139,11 +143,11 @@ class Pod(object):
     """Creates a file inside the pod."""
     return files.File.create(pod_path, content, self)
 
-  def get_doc(self, pod_path):
+  def get_doc(self, pod_path, locale=None):
     """Returns a document, given the document's pod path."""
     collection_path, _ = os.path.split(pod_path)
     collection = self.get_collection(collection_path)
-    return collection.get_doc(pod_path)
+    return collection.get_doc(pod_path, locale=locale)
 
   def get_collection(self, collection_path):
     """Returns a collection.
@@ -242,6 +246,22 @@ class Pod(object):
   def list_locales(self):
     return self.yaml.get('localization', {}).get('locales', None)
 
+  def list_preprocessors(self):
+    results = []
+    preprocessor_config = copy.deepcopy(self.yaml.get('preprocessors', []))
+    for params in preprocessor_config:
+      kind = params.pop('kind')
+      preprocessor = preprocessors.Preprocessor.get(kind, pod=self)
+      preprocessor.set_params(**params)
+      results.append(preprocessor)
+    return results
+
   def preprocess(self):
+    # Preprocess translations.
     translations_obj = self.get_translations()
     translations_obj.recompile_mo_files()
+    for preprocessor in self.list_preprocessors():
+      preprocessor.run()
+
+  def get_podspec(self):
+    return self.podspec

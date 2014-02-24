@@ -77,8 +77,7 @@ class Collection(object):
       raise CollectionDoesNotExistError('{} does not exist.'.format(collection))
     return collection
 
-  def get_doc(self, doc_path, locale=None):
-    pod_path = os.path.join(self.pod_path, doc_path.lstrip('/'))
+  def get_doc(self, pod_path, locale=None):
     doc = documents.Document(pod_path, locale=locale, _pod=self.pod, _collection=self)
     if not doc.exists():
       raise documents.DocumentDoesNotExistError('{} does not exist.'.format(doc))
@@ -119,6 +118,23 @@ class Collection(object):
     # TODO(jeremydw): Implement this, and search, and kill list_documents.
     pass
 
+  def search_docs(self, order_by=None, locale=None):
+    order_by = 'order' if order_by is None else order_by
+    sorted_docs = utils.SortedCollection(key=operator.attrgetter(order_by))
+    for path in self.pod.list_dir(self.pod_path):
+      pod_path = os.path.join(self.pod_path, path.lstrip('/'))
+      slug, ext = os.path.splitext(os.path.basename(pod_path))
+      if slug.startswith('_') or ext not in messages.extensions_to_formats:
+        continue
+      doc = self.get_doc(pod_path)
+      if locale is None:
+        sorted_docs.insert(doc)
+        continue
+      for each_locale in doc.list_locales():
+        if each_locale == locale:
+          sorted_docs.insert(self.get_doc(pod_path, locale=locale))
+    return sorted_docs
+
   def list_documents(self, order_by=None, reverse=None, include_hidden=False, locale=_all):
     if order_by is None:
       order_by = 'order'
@@ -128,13 +144,13 @@ class Collection(object):
     paths = self.pod.list_dir(self.pod_path)
     sorted_docs = utils.SortedCollection(key=operator.attrgetter(order_by))
     for path in paths:
-      doc_path = path.replace('/content/', '')
-      slug, ext = os.path.splitext(os.path.basename(doc_path))
+      pod_path = os.path.join(self.pod_path, path.lstrip('/'))
+      slug, ext = os.path.splitext(os.path.basename(pod_path))
       if (slug.startswith('_')
           or ext not in messages.extensions_to_formats
-          or not doc_path):
+          or not pod_path):
         continue
-      doc = self.get_doc(doc_path)
+      doc = self.get_doc(pod_path)
       if not include_hidden and doc.is_hidden:
         continue
 
@@ -146,7 +162,7 @@ class Collection(object):
 
       for each_locale in doc.list_locales():
         if each_locale == locale or locale == _all:
-          doc = self.get_doc(doc_path, locale=each_locale)
+          doc = self.get_doc(pod_path, locale=each_locale)
           if not include_hidden and doc.is_hidden:
             continue
           sorted_docs.insert(doc)
@@ -169,6 +185,8 @@ class Collection(object):
 
   def list_locales(self):
     if 'localization' in self.yaml:
+      if self.yaml['localization'].get('use_podspec_locales'):
+        return self.pod.list_locales()
       try:
         return self.localization['locales']
       except KeyError:

@@ -74,19 +74,25 @@ class PageController(base.BaseController):
     ll = self.locale
     self._install_translations(ll)
     template = self._template_env.get_template(self.view.lstrip('/'))
+    context = {}
     context = {
         'categories': lambda *args, **kwargs: tags.categories(*args, _pod=self.pod, **kwargs),
+        'docs': lambda *args, **kwargs: tags.docs(*args, _pod=self.pod, **kwargs),
+        'get_doc': lambda *args, **kwargs: tags.get_doc(*args, _pod=self.pod, **kwargs),
+        'static': lambda path: tags.static(path, _pod=self.pod),
+        'breadcrumb': lambda *args, **kwargs: tags.breadcrumb(*args, _pod=self.pod, **kwargs),
+        'nav': lambda *args, **kwargs: tags.nav(*args, _pod=self.pod, **kwargs),
         'cc': self.cc,
         'doc': self.document,
-        'docs': lambda *args, **kwargs: tags.docs(*args, _pod=self.pod, **kwargs),
-        'is_active': lambda doc: tags.is_active(doc, self.document),
         'll': self.ll,
         'params': self.route_params,
         'pod': self.pod,
-        'static': lambda path: tags.static(path, _pod=self.pod),
     }
     try:
-      return template.render({'g': context})
+      return template.render({
+          'g': context,
+          'doc': self.document,
+      })
     except Exception as e:
       text = 'Error building {}: {}'
       logging.exception(e)

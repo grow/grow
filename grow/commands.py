@@ -95,6 +95,14 @@ class DumpCmd(appcommands.Cmd):
 class ExtractCmd(appcommands.Cmd):
   """Extracts a pod's translations into messages files."""
 
+  def __init__(self, name, flag_values, command_aliases=None):
+    flags.DEFINE_boolean(
+        'init', False,
+        'Whether to init catalogs (wipes out existing translations) or '
+        'update them (merges new strings into existing catalogs).',
+        flag_values=flag_values)
+    super(ExtractCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
+
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     pod = pods.Pod(root, storage=storage.FileStorage)
@@ -105,7 +113,10 @@ class ExtractCmd(appcommands.Cmd):
       logging.info('No pod-specific locales defined, '
                    'skipped generating locale-specific catalogs.')
     else:
-      translations.init_catalogs(locales)
+      if FLAGS.init:
+        translations.init_catalogs(locales)
+      else:
+        translations.update_catalogs(locales)
 
 
 class InitCmd(appcommands.Cmd):
@@ -151,8 +162,7 @@ class RunCmd(appcommands.Cmd):
     if not FLAGS.skip_sdk_update_check:
       sdk_utils.check_version(quiet=True)
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.preprocess()
-    manager.start(root, host=FLAGS.host, port=FLAGS.port)
+    manager.start(pod, host=FLAGS.host, port=FLAGS.port)
 
 
 class TestCmd(appcommands.Cmd):

@@ -152,6 +152,8 @@ class BaseDeployment(object):
     self.start_time = time.time()
     index.Index.apply_diffs(diffs, paths_to_content, write_func=self.write_file,
                             delete_func=self.delete_file)
+    # TODO(jeremydw): Index should only be updated if the diff was entirely
+    # successfully applied.
     self.write_index_at_destination(new_index)
     logging.info('Wrote index: /{}'.format(index.Index.BASENAME))
 

@@ -2,6 +2,7 @@ from grow.common import utils
 from grow.pods import urls
 from grow.pods.collectionz import messages
 import json
+import logging
 import markdown
 import os
 
@@ -22,6 +23,12 @@ class DocumentExistsError(Error, ValueError):
   pass
 
 
+class DummyDict(object):
+
+  def __getattr__(self, name):
+    return ''
+
+
 class Document(object):
 
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
@@ -29,7 +36,7 @@ class Document(object):
     self.locale = locale
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
-    self.slug, self.ext = os.path.splitext(self.basename)
+    self._slug_clean, self.ext = os.path.splitext(self.basename)
 
     self.pod = _pod
     self.collection = _collection
@@ -57,6 +64,12 @@ class Document(object):
     return urls.Url(path=path) if path else None
 
   @property
+  def slug(self):
+    if self.parent:
+      return '/{}/{}/'.format(self.parent.slug, self._slug_clean)
+    return self._slug_clean
+
+  @property
   def is_hidden(self):
     return bool(self.fields.get('$hidden'))
 
@@ -67,6 +80,11 @@ class Document(object):
   @property
   def title(self):
     return self.fields.get('$title')
+
+  def titles(self, title_name=None):
+    if title_name is None:
+      return self.title
+    return self.fields.get('$titles', {}).get(title_name, self.title)
 
   @property
   def published(self):
@@ -102,30 +120,39 @@ class Document(object):
       return self.fields.get('$path', self.collection.get_path_format())
     return val
 
-  def get_routing_path(self):
-    path_format = (self.get_path_format()
-        .replace('<grow:locale>', '{locale}')
-        .replace('<grow:slug>', '{slug}'))
-    return path_format.format(**{
-        'locale': '<grow:locale>',
-        'slug': '<grow:slug>',
-    })
-
   def validate_route_params(self, route_params):
     pass
+
+  @property
+  @utils.memoize
+  def parent(self):
+    if '$parent' not in self.fields:
+      return None
+    parent_pod_path = self.fields['$parent']
+    return self.collection.get_doc(parent_pod_path, locale=self.locale)
 
   def get_serving_path(self):
     path_format = (self.get_path_format()
         .replace('<grow:locale>', '{locale}')
+        .replace('<grow:locale>', '{locale}')
         .replace('<grow:slug>', '{slug}')
         .replace('<grow:published_year>', '{published_year}'))
-    return path_format.format(**{
-        'locale': self.locale,
-        'slug': self.slug,
-    })
+    try:
+      return path_format.format(**{
+          'parent': self.parent if self.parent else DummyDict(),
+          'locale': self.locale,
+          'podspec': self.pod.get_podspec(),
+          'self': self,
+          'slug': self.slug,
+      }).replace('//', '/')
+    except KeyError:
+      logging.error('Error with path format: {}'.format(path_format))
+      raise
 
   def list_locales(self):
     if '$localization' in self.fields:
+      if self.fields['$localization'].get('use_podspec_locales'):
+        return self.pod.list_locales()
       return self.fields['$localization']['locales']
     return self.collection.list_locales()
 
@@ -152,8 +179,6 @@ class Document(object):
   def __getattr__(self, name):
     if name in self.fields:
       return self.fields[name]
-#    if '${}'.format(name) in self.yaml:
-#      return self.yaml['${}'.format(name)]
     return object.__getattribute__(self, name)
 
   def get_next(self):
@@ -208,21 +233,6 @@ class Document(object):
     message.html = self.doc_storage.html
     message.serving_path = self.get_serving_path()
     return message
-
-#    return
-#    if message.content is not None:
-#      self.pod.storage.write_file(self.pod_path, message.content)
-#    elif message.fields is not None and message.body is not None:
-#      fields = '{}'
-#      content = '---\n{}---\n{}'.format(fields, message.body)
-#      self.pod.storage.write_file(self.pod_path, content)
-#    elif message.fields is not None and message.body is None:
-#      fields = '{}'
-#      self.pod.storage.write_file(self.pod_path, content)
-#    elif message.fields is None and message.body is not None:
-#      self.pod.storage.write_file(self.pod_path, message.body)
-#    else:
-#      self.pod.storage.write_file(self.pod_path, '')
 
 
 class BaseDocumentStorage(object):
@@ -281,16 +291,3 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
       ]
       val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
     return val
-
-
-#class EmbeddedDocument(object):
-#
-#  def __init__(self, document):
-#    self.document = document
-#
-#  def __getattr__(self, name):
-#    if name in self.document.fields:
-#      return self.document.fields[name]
-##    if '${}'.format(name) in self.yaml:
-##      return self.yaml['${}'.format(name)]
-#    return self.document.__getattribute__(self.document, name)

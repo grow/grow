@@ -34,10 +34,10 @@ class AmazonS3Deployment(base.BaseDeployment):
         raise
       raise IOError('File not found: {}'.format(path))
 
-  def delete_file(self, path, bucket=None):
-    bucket_key = key.Key(bucket)
+  def delete_file(self, path):
+    bucket_key = key.Key(self.bucket)
     bucket_key.key = path.lstrip('/')
-    bucket.delete_key(bucket_key)
+    self.bucket.delete_key(bucket_key)
 
   def write_file(self, path, content, policy='public-read'):
     if isinstance(content, unicode):

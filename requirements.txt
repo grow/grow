@@ -10,8 +10,10 @@ ez_setup
 google-api-python-client
 google-apputils
 jinja2
+libsass
 polib
 protorpc-standalone
+python-gflags
 pyyaml
 requests
 webapp2

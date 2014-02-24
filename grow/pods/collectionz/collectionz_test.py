@@ -43,10 +43,10 @@ class CollectionsTest(unittest.TestCase):
 
   def test_format(self):
     collection = self.pod.get_collection('posts')
-    doc = collection.get_doc('newer.md')
+    doc = collection.get_doc('/content/posts/newer.md')
     self.assertEqual(doc.format, messages.Format.MARKDOWN)
 
-    doc = collection.get_doc('newest.md')
+    doc = collection.get_doc('/content/posts/newest.md')
     self.assertEqual(doc.format, messages.Format.MARKDOWN)
     self.assertEqual('# Markdown', doc.body)
     self.assertEqual('<h1 id="markdown">Markdown</h1>', doc.html)

@@ -1,6 +1,7 @@
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
+from grow.pods.preprocessors.file_watchers import file_watchers
 from grow.server import handlers
 from grow.server import main as main_lib
 from paste import httpserver
@@ -8,34 +9,83 @@ from paste import translogger
 import atexit
 import multiprocessing
 import os
+import sys
+import threading
 import yaml
 
 _servers = {}
 _config_path = '{}/.grow/servers.yaml'.format(os.environ['HOME'])
 
 
-def _start(root, host=None, port=None, use_simple_log_format=True):
+def _loop_watching_for_changes(pod, file_watchers_to_preprocessors, quit_event):
+  while not quit_event.is_set():
+    for file_watcher, preprocessors in file_watchers_to_preprocessors.iteritems():
+      if file_watcher.has_changes():
+        [preprocessor.run() for preprocessor in preprocessors]
+    quit_event.wait(timeout=1.5)
+
+
+def _start(pod, host=None, port=None, use_simple_log_format=True):
+  root = pod.root
+  preprocessors = pod.list_preprocessors()
+
+  # Map directory names to preprocessors.
+  dirs_to_preprocessors = {}
+  for preprocessor in preprocessors:
+    for watched_dir in preprocessor.list_watched_dirs():
+      if watched_dir not in dirs_to_preprocessors:
+        dirs_to_preprocessors[watched_dir] = []
+      dirs_to_preprocessors[watched_dir].append(preprocessor)
+
+  # Run all preprocessors for the pod.
+  [preprocessor.run() for preprocessor in preprocessors]
+
+  # Create file watchers for each preprocessor.
+  file_watchers_to_preprocessors = {}
+  for dirname, preprocessors in dirs_to_preprocessors.iteritems():
+    dirname = os.path.join(pod.root, dirname.lstrip('/'))
+    change_watcher = file_watchers.get_file_watcher([dirname])
+    change_watcher.start()
+    file_watchers_to_preprocessors[change_watcher] = preprocessors
+
+  # Start a thread where preprocessors can run if there are changes.
+  quit_event = threading.Event()
+  change_watcher_thread = threading.Thread(
+      target=_loop_watching_for_changes,
+      args=(pod, file_watchers_to_preprocessors, quit_event))
+  change_watcher_thread.start()
+
+  root = os.path.abspath(os.path.normpath(root))
   logging.info('Serving pod with root: {}'.format(root))
   logger_format = ('[%(time)s] "%(REQUEST_METHOD)s %(REQUEST_URI)s" %(status)s'
                    if use_simple_log_format else None)
-  root = os.path.abspath(os.path.normpath(root))
+
+  # Start the actual server.
   handlers.set_pod_root(root)
   app = main_lib.application
   app = translogger.TransLogger(app, format=logger_format)
   httpserver.serve(app, host=host, port=port)
 
+  # Clean up once serve exits.
+  quit_event.set()
+  change_watcher_thread.join()
+  sys.exit()
 
-def start(root, host=None, port=None, use_subprocess=False):
+
+def start(pod, host=None, port=None, use_subprocess=False):
+  root = pod.root
   if root in _servers:
     logging.error('Server already started for pod: {}'.format(root))
     return
+
   if not use_subprocess:
-    _start(root, host=host, port=port)
+    _start(pod, host=host, port=port)
     return
-  process = multiprocessing.Process(target=_start, args=(root, host, port))
-  process.start()
-  _servers[root] = process
-  return process
+
+  server_process = multiprocessing.Process(target=_start, args=(root, host, port))
+  server_process.start()
+  _servers[root] = server_process
+  return server_process
 
 
 def stop(root):

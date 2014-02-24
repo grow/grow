@@ -34,6 +34,10 @@ class BaseStorage(object):
   def copy_to(path, target_path):
     raise NotImplementedError
 
+  @staticmethod
+  def move_to(path, target_path):
+    raise NotImplementedError
+
   @classmethod
   def write(cls, path, content):
     file_obj = cls.open(path, mode='w')

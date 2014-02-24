@@ -80,7 +80,12 @@ class FileStorage(base_storage.BaseStorage):
 
   @staticmethod
   def copy_to(paths, target_paths):
+    # TODO(jeremydw): Rename to bulk_copy_to.
     for i, path in enumerate(paths):
       target_path = target_paths[i]
       shutil.copyfile(path, target_path)
       shutil.copystat(path, target_path)
+
+  @staticmethod
+  def move_to(path, target_path):
+    os.rename(path, target_path)

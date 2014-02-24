@@ -64,7 +64,7 @@ class Translations(object):
     input_path = os.path.join(self.root, 'messages.pot')
     for locale in locales:
       output_path = os.path.join(self.root, locale, 'LC_MESSAGES', 'messages.po')
-      logging.info('creating catalog %r based on %r', output_path, input_path)
+      logging.info('Creating catalog %r based on %r', output_path, input_path)
       infile = self.pod.open_file(input_path)
       try:
         babel_catalog = pofile.read_po(infile, locale=locale)
@@ -88,8 +88,10 @@ class Translations(object):
       finally:
         outfile.close()
 
-  def update_catalogs(self):
-    pass
+  def update_catalogs(self, locales):
+    for locale in locales:
+      translation = self.get_translation(locale)
+      translation.update_catalog()
 
   def extract(self):
     catalog_obj = catalog.Catalog()
@@ -180,6 +182,41 @@ class Translation(object):
 
   def get_catalog(self):
     return self._gettext_translations._catalog
+
+  def update_catalog(self, use_fuzzy=False, ignore_obsolete=True, include_previous=True, width=80):
+    locale = self.locale
+    domain = 'messages'
+    po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
+    pot_filename = os.path.join('translations', 'messages.pot')
+    template = pofile.read_po(self.pod.open_file(pot_filename))
+
+    if not self.pod.file_exists(po_filename):
+      raise Exception('Existing message catalog not found.')
+
+    logging.info('Updating catalog {} using {}'.format(po_filename, pot_filename))
+    infile = self.pod.open_file(po_filename, 'U')
+    try:
+      catalog = pofile.read_po(infile, locale=locale, domain=domain)
+    finally:
+      infile.close()
+
+    catalog.update(template, use_fuzzy)
+
+    temp_filename = po_filename + '.tmp'
+    if not self.pod.file_exists(temp_filename):
+      self.pod.create_file(temp_filename, None)
+
+    temp_file = self.pod.open_file(temp_filename, 'w')
+    try:
+      try:
+        pofile.write_po(temp_file, catalog, ignore_obsolete=ignore_obsolete, include_previous=include_previous, width=width)
+      finally:
+        temp_file.close()
+    except:
+      self.pod.delete_file(temp_filename)
+      raise
+
+    self.pod.move_file_to(temp_filename, po_filename)
 
   def recompile_mo(self, use_fuzzy=False):
     locale = self.locale

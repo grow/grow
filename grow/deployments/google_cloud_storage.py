@@ -50,10 +50,10 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
         raise
       raise IOError('File not found: {}'.format(path))
 
-  def delete_file(self, path, bucket=None):
-    bucket_key = key.Key(bucket)
+  def delete_file(self, path):
+    bucket_key = key.Key(self.bucket)
     bucket_key.key = path.lstrip('/')
-    bucket.delete_key(bucket_key)
+    self.bucket.delete_key(bucket_key)
 
   def set_params(self, bucket, access_key=None, secret=None):
     self.bucket_name = bucket
