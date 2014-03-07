@@ -49,7 +49,7 @@ class CollectionsTest(unittest.TestCase):
     doc = collection.get_doc('/content/posts/newest.md')
     self.assertEqual(doc.format, messages.Format.MARKDOWN)
     self.assertEqual('# Markdown', doc.body)
-    self.assertEqual('<h1 id="markdown">Markdown</h1>', doc.html)
+    self.assertEqual('<h1 id="markdown">Markdown</h1>', doc.html())
 
 
 if __name__ == '__main__':

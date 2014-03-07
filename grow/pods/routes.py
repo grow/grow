@@ -37,6 +37,8 @@ class Routes(object):
   @utils.memoize
   def routing_map(self):
     rules = []
+    podspec = self.pod.get_podspec()
+    podspec_config = podspec.get_config()
 
     # Content documents.
     for collection in self.pod.list_collections():
@@ -63,8 +65,18 @@ class Routes(object):
     # Auto-generated from flags.
     if 'static_dir' in self.pod.flags:
       path = self.pod.flags['static_dir'] + '<grow:filename>'
-      controller = controllers.StaticController(path_format=path, source_format=path, pod=self.pod)
+      controller = controllers.StaticController(
+          path_format=path, source_format=path, pod=self.pod)
       rules.append(routing.Rule(path, endpoint=controller))
+
+    if 'static_dirs' in podspec_config:
+      for config in podspec_config['static_dirs']:
+        static_dir = config['static_dir'] + '<grow:filename>'
+        serve_at = config['serve_at'] + '<grow:filename>'
+        controller = controllers.StaticController(path_format=serve_at,
+                                                  source_format=static_dir,
+                                                  pod=self.pod)
+        rules.append(routing.Rule(serve_at, endpoint=controller))
 
     routing_map = routing.Map(rules, converters=Routes.converters)
     return routing_map

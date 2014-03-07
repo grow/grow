@@ -181,7 +181,7 @@ class Collection(object):
 
   @property
   def localization(self):
-    return self.yaml['localization']
+    return self.yaml.get('localization')
 
   def list_locales(self):
     if 'localization' in self.yaml:

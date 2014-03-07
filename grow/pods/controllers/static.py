@@ -17,6 +17,8 @@ class StaticController(base.BaseController):
   KIND = 'Static file'
 
   def __init__(self, path_format, source_format=None, pod=None):
+    # path_format: "serve_at"
+    # source_format: "static_dir"
     self.path_format = path_format.replace('<grow:', '{').replace('>', '}')
     self.source_format = source_format.replace('<grow:', '{').replace('>', '}')
     self.pod = pod

@@ -61,32 +61,9 @@ class Translations(object):
     return pofile.read_po(fp)
 
   def init_catalogs(self, locales):
-    input_path = os.path.join(self.root, 'messages.pot')
     for locale in locales:
-      output_path = os.path.join(self.root, locale, 'LC_MESSAGES', 'messages.po')
-      logging.info('Creating catalog %r based on %r', output_path, input_path)
-      infile = self.pod.open_file(input_path)
-      try:
-        babel_catalog = pofile.read_po(infile, locale=locale)
-      finally:
-        infile.close()
-
-      babel_locale = babel.Locale.parse(locale)
-      babel_catalog.locale = babel_locale
-      babel_catalog.revision_date = datetime.now(util.LOCALTZ)
-      babel_catalog.fuzzy = False
-
-      # TODO(jeremydw): Optimize.
-      # Creates directory if it doesn't exist.
-      path = os.path.join(output_path)
-      if not self.pod.file_exists(path):
-        self.pod.create_file(path, None)
-
-      outfile = self.pod.open_file(output_path, mode='w')
-      try:
-        pofile.write_po(outfile, babel_catalog, width=80)
-      finally:
-        outfile.close()
+      translation = self.get_translation(locale)
+      translation.init_catalog()
 
   def update_catalogs(self, locales):
     for locale in locales:
@@ -183,15 +160,46 @@ class Translation(object):
   def get_catalog(self):
     return self._gettext_translations._catalog
 
-  def update_catalog(self, use_fuzzy=False, ignore_obsolete=True, include_previous=True, width=80):
+  def init_catalog(self):
+    locale = self.locale
+    input_path = os.path.join('translations', 'messages.pot')
+    output_path = os.path.join('translations', locale, 'LC_MESSAGES', 'messages.po')
+    logging.info('Creating catalog %r based on %r', output_path, input_path)
+    infile = self.pod.open_file(input_path)
+    try:
+      babel_catalog = pofile.read_po(infile, locale=locale)
+    finally:
+      infile.close()
+
+    babel_locale = babel.Locale.parse(locale)
+    babel_catalog.locale = babel_locale
+    babel_catalog.revision_date = datetime.now(util.LOCALTZ)
+    babel_catalog.fuzzy = False
+
+    # TODO(jeremydw): Optimize.
+    # Creates directory if it doesn't exist.
+    path = os.path.join(output_path)
+    if not self.pod.file_exists(path):
+      self.pod.create_file(path, None)
+
+    outfile = self.pod.open_file(output_path, mode='w')
+    try:
+      pofile.write_po(outfile, babel_catalog, width=80)
+    finally:
+      outfile.close()
+
+  def update_catalog(self, use_fuzzy=False, ignore_obsolete=True, include_previous=True,
+                     width=80):
     locale = self.locale
     domain = 'messages'
     po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
     pot_filename = os.path.join('translations', 'messages.pot')
     template = pofile.read_po(self.pod.open_file(pot_filename))
 
+    # Create a catalog if it doesn't exist.
     if not self.pod.file_exists(po_filename):
-      raise Exception('Existing message catalog not found.')
+      self.init_catalog()
+      return
 
     logging.info('Updating catalog {} using {}'.format(po_filename, pot_filename))
     infile = self.pod.open_file(po_filename, 'U')
@@ -209,7 +217,8 @@ class Translation(object):
     temp_file = self.pod.open_file(temp_filename, 'w')
     try:
       try:
-        pofile.write_po(temp_file, catalog, ignore_obsolete=ignore_obsolete, include_previous=include_previous, width=width)
+        pofile.write_po(temp_file, catalog, ignore_obsolete=ignore_obsolete,
+                        include_previous=include_previous, width=width)
       finally:
         temp_file.close()
     except:

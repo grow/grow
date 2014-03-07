@@ -1,5 +1,10 @@
 from grow.common import utils
 
+# TODO(jeremydw): This is just a proof of concept. We probably shouldn't invent our
+# own testing system, but rather leverage some other existing one. It might be a
+# "happy medium" to store test configurations in a pod's /tests.yaml file, but
+# use a third party test runner.
+
 
 class Error(Exception):
   pass

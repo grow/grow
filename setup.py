@@ -6,8 +6,8 @@ setup(
     name='grow',
     version=open('grow/VERSION').read().strip(),
     description=(
-          'Develop everywhere and deploy anywhere: a static site generator/CMS'
-          ' that helps teams build high-quality web sites.'
+          'Develop everywhere and deploy anywhere: a declarative '
+          'static site generator/CMS for building high-quality web sites.'
     ),
     long_description=open('description.txt').read().strip(),
     url='http://growsdk.org',
@@ -23,26 +23,7 @@ setup(
     scripts=[
         'bin/grow',
     ],
-    install_requires=[
-        'Markdown',
-        'Paste',
-        'WebOb',
-        'babel',
-        'boto',
-        'certifi',
-        'dnspython',
-        'dulwich',
-        'ez_setup',
-        'google-api-python-client',
-        'google-apputils',
-        'jinja2',
-        'polib',
-        'protorpc-standalone',
-        'pyyaml',
-        'requests',
-        'webapp2',
-        'werkzeug',
-    ],
+    install_requires=open('requirements.txt').read().split('\n'),
     keywords=[
         'grow',
         'cms',

@@ -27,6 +27,7 @@ You can get a static file from the pod.
 """
 
 import copy
+import jinja2
 import logging
 import os
 import re
@@ -41,6 +42,7 @@ from grow.pods import storage
 from grow.pods import tests
 from grow.pods import translations
 from grow.pods.collectionz import collectionz
+from grow.pods.controllers import tags
 from grow.pods.preprocessors import preprocessors
 
 
@@ -265,3 +267,11 @@ class Pod(object):
 
   def get_podspec(self):
     return self.podspec
+
+  def get_template_env(self):
+    _template_loader = self.storage.JinjaLoader(self.root)
+    env = jinja2.Environment(
+        loader=_template_loader, autoescape=True, trim_blocks=True,
+        extensions=['jinja2.ext.i18n'])
+    env.filters['markdown'] = tags.markdown_filter
+    return env

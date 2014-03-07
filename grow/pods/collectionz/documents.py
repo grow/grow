@@ -1,6 +1,8 @@
+from grow.common import markdown_extensions
 from grow.common import utils
 from grow.pods import urls
 from grow.pods.collectionz import messages
+import jinja2
 import json
 import logging
 import markdown
@@ -33,7 +35,7 @@ class Document(object):
 
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
     utils.validate_name(pod_path)
-    self.locale = locale
+    self.locale = locale or _pod.podspec.default_locale
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self._slug_clean, self.ext = os.path.splitext(self.basename)
@@ -58,6 +60,12 @@ class Document(object):
       return "<Document({}, locale='{}')>".format(self.pod_path, self.locale)
     return "<Document({})>".format(self.pod_path)
 
+  def __cmp__(self, other):
+    return self.pod_path == other.pod_path and self.pod == other.pod
+
+  def __ne__(self, other):
+    return self.pod_path != other.pod_path or self.pod != other.pod
+
   @property
   def url(self):
     path = self.get_serving_path()
@@ -65,6 +73,8 @@ class Document(object):
 
   @property
   def slug(self):
+    if '$slug' in self.fields:
+      return self.fields['$slug']
     if self.parent:
       return '/{}/{}/'.format(self.parent.slug, self._slug_clean)
     return self._slug_clean
@@ -114,7 +124,7 @@ class Document(object):
     if self.locale:
       if '$localization' in self.fields and self.fields['$localization']['path']:
         val = self.fields['$localization']['path']
-      else:
+      elif self.collection.localization:
         val = self.collection.localization['path']
     if val is None:
       return self.fields.get('$path', self.collection.get_path_format())
@@ -139,10 +149,11 @@ class Document(object):
         .replace('<grow:published_year>', '{published_year}'))
     try:
       return path_format.format(**{
+          'doc': self,
           'parent': self.parent if self.parent else DummyDict(),
           'locale': self.locale,
           'podspec': self.pod.get_podspec(),
-          'self': self,
+          'base': os.path.splitext(os.path.basename(self.pod_path))[0],
           'slug': self.slug,
       }).replace('//', '/')
     except KeyError:
@@ -167,9 +178,8 @@ class Document(object):
     content = self.doc_storage.content
     return content.decode('utf-8')
 
-  @property
-  def html(self):
-    return self.doc_storage.html
+  def html(self, params=None):
+    return self.doc_storage.html(self, params)
 
   def __eq__(self, other):
     return (isinstance(self, Document)
@@ -181,8 +191,10 @@ class Document(object):
       return self.fields[name]
     return object.__getattribute__(self, name)
 
-  def get_next(self):
-    docs = self.collection.list_servable_documents()
+  def next(self, docs=None):
+    # TODO(jeremydw): Verify items is a list of docs.
+    if docs is None:
+      docs = self.collection.search_docs()
     for i, doc in enumerate(docs):
       if doc == self:
         n = i + 1
@@ -190,8 +202,10 @@ class Document(object):
           return None
         return docs[i + 1]
 
-  def get_prev(self):
-    docs = self.collection.list_servable_documents()
+  def prev(self, docs=None):
+    # TODO(jeremydw): Verify items is a list of docs.
+    if docs is None:
+      docs = self.collection.search_docs()
     for i, doc in enumerate(docs):
       if doc == self:
         n = i - 1
@@ -230,7 +244,6 @@ class Document(object):
     message.body = self.body
     message.content = self.content
     message.fields = json.dumps(self.fields, cls=utils.JsonEncoder)
-    message.html = self.doc_storage.html
     message.serving_path = self.get_serving_path()
     return message
 
@@ -252,8 +265,7 @@ class BaseDocumentStorage(object):
   def load(self):
     raise NotImplementedError
 
-  @property
-  def html(self):
+  def html(self, doc, params=None):
     return self.body
 
   def write(self, content):
@@ -282,12 +294,20 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     self.fields = fields or {}
     self.body = body
 
-  @property
-  def html(self):
+  def html(self, doc, params=None):
     val = self.body
     if val is not None:
       extensions = [
         'toc',
+        'tables',
+        markdown_extensions.IncludeExtension(doc.pod),
+        markdown_extensions.UrlExtension(doc.pod),
       ]
       val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
+      if params is None:
+        params = {}
+      if params:
+        params['doc'] = doc
+        template = jinja2.Template(val)
+        val = template.render(params)
     return val

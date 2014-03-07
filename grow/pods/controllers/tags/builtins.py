@@ -29,10 +29,6 @@ def docs(collection, locale=None, order_by=None, _pod=None):
   return collection.search_docs(locale=locale, order_by=order_by)
 
 
-def is_active(active_doc, this_doc):
-  return this_doc == active_doc
-
-
 def markdown_filter(value):
   return markdown.markdown(value.decode('utf-8'))
 
@@ -74,3 +70,8 @@ def nav(collection=None, locale=None, _pod=None):
 
 def breadcrumb(doc, _pod=None):
   pass
+
+
+def url(pod_path, _pod):
+  doc = _pod.get_doc(pod_path)
+  return doc.url

@@ -11,6 +11,8 @@ SUFFIX_PATTERN = re.compile('[.](' + '|'.join(map(re.escape, SUFFIXES)) + ')$')
 
 class SassPreprocessor(base.BasePreprocessor):
 
+  KIND = 'sass'
+
   def set_params(self, sass_dir, out_dir, suffix='.min.css', output_style=None):
     self.suffix = suffix
     self.sass_dir = sass_dir

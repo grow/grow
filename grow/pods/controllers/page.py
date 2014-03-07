@@ -47,12 +47,7 @@ class PageController(base.BaseController):
   @property
   @utils.memoize
   def _template_env(self):
-    _template_loader = self.pod.storage.JinjaLoader(self.pod.root)
-    env = jinja2.Environment(
-        loader=_template_loader, autoescape=True, trim_blocks=True,
-        extensions=['jinja2.ext.i18n'])
-    env.filters['markdown'] = tags.markdown_filter
-    return env
+    return self.pod.get_template_env()
 
   def _install_translations(self, ll):
     if ll is None:
@@ -78,20 +73,21 @@ class PageController(base.BaseController):
     context = {
         'categories': lambda *args, **kwargs: tags.categories(*args, _pod=self.pod, **kwargs),
         'docs': lambda *args, **kwargs: tags.docs(*args, _pod=self.pod, **kwargs),
-        'get_doc': lambda *args, **kwargs: tags.get_doc(*args, _pod=self.pod, **kwargs),
+        'doc': lambda *args, **kwargs: tags.get_doc(*args, _pod=self.pod, **kwargs),
         'static': lambda path: tags.static(path, _pod=self.pod),
         'breadcrumb': lambda *args, **kwargs: tags.breadcrumb(*args, _pod=self.pod, **kwargs),
         'nav': lambda *args, **kwargs: tags.nav(*args, _pod=self.pod, **kwargs),
         'cc': self.cc,
-        'doc': self.document,
         'll': self.ll,
         'params': self.route_params,
         'pod': self.pod,
+        'url': lambda pod_path: tags.url(pod_path, _pod=self.pod),
     }
     try:
       return template.render({
           'g': context,
           'doc': self.document,
+          'podspec': self.pod.get_podspec().get_config(),
       })
     except Exception as e:
       text = 'Error building {}: {}'
