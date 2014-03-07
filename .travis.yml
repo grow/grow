@@ -3,8 +3,8 @@ python:
   - 2.7
 before_install:
 #  - git submodule update --init --recursive
-  - pip install -r requirements.txt --use-mirrors
+  - pip install -r requirements.txt
 #  - cd grow/submodules/babel
 #  - python setup.py import_cldr
-  - cd ../../../
+#  - cd ../../../
 script: python run_tests.py
