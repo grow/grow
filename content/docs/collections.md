@@ -1,11 +1,13 @@
 ---
-$title: Content collections
+$title: Collections
 $category: Reference
+$order: 3
 ---
-
 # Content collections
 
-All content in Grow is stored as flat files in your pod's __/content/__ directory. Content is grouped into __collections__, and collections contain a single __blueprint__ and __documents__. Blueprints describe the structure of all documents in the collection.
+[TOC]
+
+All content in Grow is stored as flat files in your pod's __/content/__ directory. Content is grouped into __collections__, and each collection contains a single __blueprint__ and many __documents__. Blueprints describe the structure of all documents in the collection.
 
 Grow makes it easy to separate content from presentation, but ultimately leaves the choice up to you. Content documents can be associated with URLs and with views (so they represent pages in your site), or not. Content documents without URLs are simply used internally, and can be referenced by other content documents.
 
@@ -27,6 +29,8 @@ Every content collection must have a blueprint. Blueprints define how content is
     categories:
     - Teachers
     - Students
+
+<img src="/public/images/infographics/grow-blueprint.png" class="img-responsive img-thumbnail">
 
 ### path
 
@@ -85,8 +89,10 @@ The following fields are built-in, and you do not need to specify them in a blue
 - $draft – checkbox
 - $hidden – checkbox
 - $order – number
+- $slug – text
 - $tags – text (multiple)
 - $title – text
+- $localization – yaml
 
 ### categories
 

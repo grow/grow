@@ -1,35 +1,23 @@
 ---
 $title: Translations
 $category: Reference
+$order: 7
 ---
 # Translations
 
+[TOC]
+
 ## Translatable items
 
-Items deemed "translatable" are ones which contain text which can be extracted by Grow into message catalogs for translation. Message catalogs can be used to generate translated content.
+Items that are "translatable" are ones which contain text which can be extracted by Grow into message catalogs for translation. Message catalogs can be used to generate translated content.
 
-Grow takes a __"what you tag is what you translate"__ approach: only things that you deem translatable will be extracted for translation, and then subsequently translated upon request.
-
-### Content documents
-
-Fields marked with `translatable: yes` in a collection's blueprint are translatable.
-
-`/content/pages/_blueprint.yaml`
-    
-    path: /pages/{language}/{slug}
-    view: /views/pages.html
-
-    fields:
-    - callout:
-        title: Callouts
-        type: text
-        translatable: yes
+Grow takes a __what you tag is what you translate__ approach: only things that you deem translatable will be extracted for translation, and then subsequently translated upon request.
 
 ### Views
 
 UI strings (and other text) in views are translatable. UI strings must be tagged with a template function that indicates the text is translatable. This template function has been aliased to `{{_(<text>)}}`.
 
-`/views/pages.html`
+    <!-- /views/pages.html -->
 
     <!DOCTYPE html>
     <meta charset="utf-8">
@@ -38,12 +26,53 @@ UI strings (and other text) in views are translatable. UI strings must be tagged
 
     <ul>
       {% for callout in g.doc.callouts %}
-        <li>{{callout.title}} – {{callout.description}}
+        <li>{{_(callout.title)}} – {{_(callout.description)}}
       {% endfor %}
     </ul>
+
+Sicne Grow translations are opt-in instead of opt-out, it's possible to show translated text from a content document right next to untranslated text.
+
+    {{doc.title()}}      <!-- Untranslated -->
+    {{_(doc.title())}}   <!-- Translated -->
+
+### Content documents
+
+Field names postfixed with an `@` symbol are translatable. Note that you can omit the `@` when referring to the field in a template.
+
+    # /content/pages/foo.md (YAML front matter)
+
+    ---
+    $title@: Hello World!
+
+    sections:
+    - title@: Section A        # Extracted for translation.
+      content@: A's content.
+    - title@: Section B        # Extracted for translation.
+      content@: B's content.
+    - title: Section C         # Not extracted for translation.
+      content: C's content.
+    ---
+
+    # /views/pages.html (sample usage in a view)
+
+    {% for section in doc.sections %}
+      <li>{{_(doc.title)}}     <!-- Translated. -->
+      <li>{{doc.content}}      <!-- Not translated. -->
+    {% endfor %}
 
 ## Extracting translations
 
 To extract translations into a message catalog, tag all translatable items as explained above, and then use the `grow extract` command. Messages will be extracted to a file `/translations/messages.pot`. The message catalog (__messages.pot__) contains all of your pod's extracted messages.
 
-Note that message extraction does not include the Markdown body of a content document – translated Markdown bodies are stored within the content documents themselves.
+This file can then be used to create translation catalogs manually using a PO file editor, or integrated with a translation provider such as Google Translator Toolkit.
+
+    $ grow extract ~/codelab/
+    Extracted 128 messages from 3 files to: /translations/messages.pot
+    Creating catalog 'translations/de/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+    Creating catalog 'translations/fr/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+    Creating catalog 'translations/it/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+    Creating catalog 'translations/ja/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+
+## Compiling translations
+
+Grow automatically recompiles translations upon server start and deployment. Translations must be recompiled before they're visible on your site.

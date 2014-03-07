@@ -1,6 +1,7 @@
 ---
 $title: Building and launching
 $category: Workflow
+$order: 0
 ---
 # Building your site
 

@@ -1,67 +1,75 @@
 ---
 $path: /
-$view: /views/_base.html
+$view: /views/index.html
+$title: Home
 
-tagline: The best way for teams to build and launch web sites, together.
-subtitle: A new open source system for modern, rapid, collaborative web site management and production.
-heading: Why you'll love Grow. 
-cta:
-  title: Try the Grow SDK
-  url: /docs/try-grow/
-subcta: |
-  Interested in Grow in the cloud? <a href="http://grow.io">Check out Grow.io</a>.
-callouts:
-- title: Your content, unlocked.
-  description: Everything is a file. No databases. Backed by Git. Grow is fast and you can use your favorite tools.
-- title: No installation, no maintenance.
-  description: |
-    Focus on what matters: just design and build your sites. Grow runs as a standalone application.
-- title: Fully îñtérñåtîøñål.
-  description: Reach global visitors with out-of-the-box translation tools. Localization comes included.
-- title: Stress-free launches.
-  description: Conduct launch review, never miss a file, and always be on time with push-button deployment.
-managed:
-  heading: Content, design, and collaboration.
-  subtitle: |
-    Create fully-editable web sites that your whole team can collaborate on: for developers, designers, translators, and writers.
-  col1:
-    heading: Architect your content.
-    title: /content/pages/home.md
-    body: |
-      ---
-      $title: Hello, Grow!
-      tagline: Content, design, and collaboration.
-      features:
-      - Neither cloud, nor local.
-      - Fully international.
-      - Collaborative editing.
-      ---
-      # Welcome to Grow!
-  col2:
-    heading: Apply a design.
-    title: /views/home.html
-    body: |
-      <title>{{g.doc.title}}</title>
-      <h1>{{g.doc.tagline}}</h1>
-      <ul>
-        {% for feature in g.doc.features %}
-          <li>{{feature}}
-        {% endfor %}
-      </ul>
-      <main>
-        {{g.doc.html|safe}}
-      </main>
-  col3:
-    heading: Unleash it for collaboration.
-    title: /views/home.html
-    body: |
-      Title
-      Features
-startup:
-  heading: Get up and running in seconds.
-  instructions: |
-    $ pip install grow
-    $ grow init mysite https://github.com/growthemes/hello-grow.git
-    $ grow run mysite
-    # PodServer started -> http://127.0.0.1:8080
+hero:
+
+  title: The declarative, file-based CMS for building high-quality web sites.
+  content: The Grow SDK is a free and open source system for modern, rapid, collaborative web site management and production. With Grow, everyone (from individual developers to large creative agencies) can save time on architecture and maintenance, and make time for awesome and creative front end web development.
+  disclaimer: Thanks for checking out Grow! We're still experimental and in heavy development, including the documentation. We may make backwards incompatible changes, so try it out at your own risk.
+
+sections:
+
+  - title: Configuration, not code.
+    image: /static/images/config.svg
+    content: Control your site's URLs, localization rules, content hierarchy, structure and behavior all with configuration, not with code. You won't have to program your site's serving logic again and again, so your site-building process stays rapid and nimble. Modifications to to your architecture are always just a config change away.
+
+  - title: Develop everywhere, deploy anywhere.
+    image: /static/images/deploy.svg
+    content: Grow web sites are entirely file-based and are backed by Git, with no databases for you to maintain. Development can happen on your local machine or in the cloud. Grow can build and deploy to a variety of destinations – or it can export static files for you to integrate with your custom web server.
+
+  - title: Fully îñtérñåtîøñål.
+    image: /static/images/i18n.svg
+    content: Localization comes included so your web sites can reach a global audience. You can configure localized URL formats, easily specify what content is translated and what isn't, and integrate with translation providers to translate your projects.
+
+  - title: No installation or maintenance.
+    image: /static/images/zen.svg
+    content: |
+        You can focus on what matters – your web sites – when you use the Grow SDK. Your projects are stored and managed entirely separate from the SDK, so you'll never have to maintain a software installation or deal with upgrades. Grow tests and verifies your sites every time you deploy them, and warns you when it discovers issues in your code related to web security.
+
+banner:
+  title: A swiss-army knife of dev tools for your web sites.
+  panels:
+    - title: "Works with..."
+      things:
+      - title: Markdown
+        key: markdown
+        link: http://en.wikipedia.org/wiki/Markdown
+      - title: Jinja2 templates
+        key: jinja
+        link: http://jinja.pocoo.org/
+      - title: SASS
+        key: sass
+        link: http://sass-lang.com/
+      - title: Closure JavaScript Compiler
+        key: closure
+        link: https://developers.google.com/closure/compiler/
+      - title: gettext message catalogs
+        key: gettext
+        link: http://en.wikipedia.org/wiki/Gettext
+      - title: Git
+        key: git
+        link: http://git-scm.com
+    - title: "Deploys to..."
+      things:
+      - title: Google Cloud Storage
+        key: gcs
+        link: https://cloud.google.com/products/cloud-storage/
+      - title: Google App Engine
+        key: gae
+        link: https://cloud.google.com/products/app-engine/
+      - title: Amazon S3
+        key: s3
+        link: http://aws.amazon.com/s3/
+      - title: GitHub Pages
+        key: github
+        link: http://pages.github.com/
+      - title: Dropbox
+        key: dropbox
+        link: https://www.dropbox.com
+      - title: Your own custom web server
+        key: custom
+
 ---
+# Hello World

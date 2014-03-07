@@ -1,2 +1,3 @@
+title: Pages
 path: /{slug}/
-view: /views/pages.html
+view: /views/base.html

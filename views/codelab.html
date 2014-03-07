@@ -1,0 +1,34 @@
+{% extends "/views/base.html" %}
+
+{% block main %}
+  <div class="wrap main">
+    <ul class="codelab">
+      {% for item in g.docs('codelab') %}
+      <li
+      {% if doc == item %}class="active"{% endif %}
+      ><a href="{{item.url.path}}" title="{{item.title}}">{{item.slug}}</a>
+      {% endfor %}
+    </ul>
+
+    <h1>{{doc.title}}</h1>
+    {{doc.html()|safe}}
+
+    <div class="toolbar">
+      {% set prev_doc = doc.prev() %}
+      {% if prev_doc %}
+        <a href="{{prev_doc.url.path}}" class="button">
+          <i class="fa fa-arrow-left"></i>
+          Back
+        </a>
+      {% endif %}
+      {% set next_doc = doc.next() %}
+      {% if next_doc %}
+        <a href="{{next_doc.url.path}}" class="button">
+          <i class="fa fa-arrow-right"></i>
+          Next: {{next_doc.title}}
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+{% endblock %}

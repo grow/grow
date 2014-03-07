@@ -1,0 +1,458 @@
+@import url(//fonts.googleapis.com/css?family=Roboto:300,500,500italic,600,700,700italic,800|Source+Code+Pro|Dosis:300,400);
+@import 'font-awesome/font-awesome.scss';
+@import 'prettify/prettify.sass';
+@import '_utils.sass';
+
+$break-small: 700px;
+
+@mixin button() {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
+  color: #333;
+  cursor: pointer;
+  display: inline-block;
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+@mixin button-hover() {
+  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.1), 0px 2px 10px 0px rgba(0, 0, 0, 0.1);
+}
+
+@mixin frosted-background() {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+@mixin inverted-background() {
+  background-color: #362d6c;
+  background-image: linear-gradient(45deg, #362d6c 0%,#0c5593 100%);
+  color: #fff;
+}
+
+body {
+  color: #444;
+  font-family: 'Roboto', arial, sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  background: rgb(238, 238, 238);
+  margin: 0;
+}
+
+a {
+  color: #097be8;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code {
+  font-family: Monaco, Menlo, Consolas, 'Courier New', monospace;
+}
+
+p code,
+table code {
+  background: rgba(0, 0, 0, .15);
+  border-radius: 3px;
+  font-size: .9em;
+}
+
+h1,
+h2,
+h3 {
+  clear: both;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+p {
+  line-height: 1.5em;
+  margin: 1.75em 0;
+}
+
+.wrap.main {
+  padding: 50px 15px;
+}
+
+.wrap {
+  margin: 0 auto;
+  max-width: 900px;
+  padding: 15px;
+}
+
+.flex {
+  display: flex;
+}
+
+.panel {
+  display: flex;
+  margin: 30px 0;
+  @media screen and (max-width: $break-small) {
+    display: block;
+  }
+}
+
+.panel.text summary {
+  padding-right: 20px;
+}
+
+.panel.text summary:last-child {
+  padding-left: 20px;
+  padding-right: 0;
+}
+
+.panel.callouts summary {
+  padding: 0 50px 0 0;
+}
+
+.panel.callouts .image {
+  display: block;
+  margin-bottom: 20px;
+  min-height: 50px;
+}
+
+.image img {
+  height: 100px;
+  width: 100px;
+}
+
+.panel summary,
+.panel nav.side,
+.panel section {
+  -webkit-box-flex: 1;
+  flex: 1;
+}
+
+.panel section {
+  margin: 1em 0 2em;
+}
+
+.panel section > h1 {
+  margin-top: 0;
+}
+
+table {
+  margin: 40px 0;
+}
+
+table,
+table tr td,
+table tr th {
+  @include frosted-background();
+  border-collapse: collapse;
+  border: 1px solid #dedede;
+}
+
+table tr td,
+table tr th {
+  padding: 9px;
+}
+
+table tr th {
+  background: #efefef;
+  font-weight: 300;
+  text-align: left;
+}
+
+.panel nav.side {
+  @include frosted-background();
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 13px;
+  margin-right: 50px;
+  max-width: 230px;
+  padding: 20px;
+}
+
+.panel nav.side ul li a {
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.panel nav.side ul li.active a {
+  color: inherit;
+}
+
+.panel nav.side ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel nav.side h3 {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.panel.intro img {
+  margin-right: 50px;
+  max-width: 100%;
+  @media screen and (max-width: $break-small) {
+    display: none;
+  }
+}
+
+.toolbar {
+  margin: 40px 0 20px;
+}
+
+.toolbar .button {
+  margin-right: 5px;
+}
+
+.button {
+  @include button();
+  text-transform: uppercase;
+}
+
+.button.button-primary {
+  background: #097be8;
+  color: #fff;
+}
+
+.button i {
+  margin: 0 7px 0 0;
+}
+
+.button:hover {
+  @include button-hover();
+}
+
+.banner {
+  @include inverted-background();
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.banner h2 {
+  text-align: center;
+}
+
+section h2 {
+  border-bottom: 1px solid rgba(0, 0, 0, .15);
+  padding-bottom: 5px;
+}
+
+.disclaimer {
+  font-size: 11px;
+}
+
+header {
+  background: #fff;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+header i {
+  font-size: 11px;
+  color: rgb(214, 26, 127);
+  text-transform: uppercase;
+  margin-left: 6px;
+  display: inline-block;
+}
+
+header .logo {
+  color: inherit;
+  font-family: 'Dosis', 'Helvetica Neue', arial, sans-serif;
+  font-size: 25px;
+  font-weight: 300;
+  line-height: 40px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+header .logo img {
+  float: left;
+  margin: 4px 9px 0 0;
+  height: 35px;
+  width: 35px;
+}
+
+footer {
+  background: #fff;
+}
+
+footer p {
+  margin: 1.25em 0;
+}
+
+footer a {
+  color: inherit;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+nav.navbar,
+nav.navbar ul,
+nav.navbar ul li {
+  display: flex;
+}
+
+nav.navbar {
+  float: right;
+}
+
+nav.navbar ul,
+nav.navbar ul li {
+  margin: 0;
+  padding: 0;
+}
+
+nav.navbar ul li a {
+  color: #000;
+  display: inline-block;
+  font-weight: 500;
+  list-style: none;
+  padding: 10px 15px;
+  text-decoration: none;
+  transition: box-shadow 0.3s, background 0.3s;
+}
+
+nav.navbar ul li a:hover {
+  @include button-hover();
+}
+
+nav.side h3 {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+nav.side h3:first-child {
+  margin-top: 0;
+}
+
+pre.prettyprint {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 200;
+}
+
+div.toc:before {
+  content: 'In this document';
+}
+
+div.toc {
+  @include frosted-background();
+  border-radius: 5px;
+  box-sizing: border-box;
+  float: right;
+  font-size: 13px;
+  margin: 0 0 30px 30px;
+  padding: 20px;
+  width: 230px;
+}
+
+div.toc ul {
+  list-style: none;
+}
+
+div.toc ul a {
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+div.toc > ul > li > a {
+  display: none;
+}
+
+div.toc > ul {
+  margin-bottom: 0;
+}
+
+div.toc > ul,
+div.toc > ul > li > ul {
+  padding: 0;
+}
+
+div.toc > ul li ul ul {
+  padding-left: 15px;
+}
+
+footer .flex {
+  @media screen and (max-width: $break-small) {
+    display: block;
+  }
+}
+
+.col {
+  -webkit-box-flex: 1;
+  flex: 1;
+}
+
+footer .col:last-child {
+  text-align: right;
+  @media screen and (max-width: $break-small) {
+    text-align: left;
+  }
+}
+
+footer i {
+  margin-top: 4px;
+}
+
+.banner ul {
+  list-style: none;
+  margin: 0 auto;
+  max-width: 275px;
+  padding: 0;
+}
+
+.banner ul li {
+  display: inline-block;
+  height: 60px;
+  padding: 10px;
+  width: 60px;
+}
+
+.banner ul li img {
+  box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
+  border-radius: 5px;
+  height: 100%;
+  width: 100%;
+}
+
+.banner ul li img:hover {
+  @include button-hover();
+}
+
+ul.codelab {
+  @include frosted-background();
+  border-radius: 7px;
+  list-style: none;
+  margin: 0 0 40px;
+  padding: 0;
+}
+
+ul.codelab li {
+  display: inline-block;
+}
+
+ul.codelab li a {
+  color: inherit;
+  display: inline-block;
+  padding: 10px 15px;
+}
+
+ul.codelab li:first-child a {
+  border-top-left-radius: 7px;
+  border-bottom-left-radius: 7px;
+}
+
+ul.codelab li:last-child a {
+  border-top-right-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+
+ul.codelab li a:hover {
+  @include button-hover();
+  text-decoration: none;
+}
+
+ul.codelab li.active a {
+  @include inverted-background();
+}

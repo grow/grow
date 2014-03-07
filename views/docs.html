@@ -1,24 +1,22 @@
-{% extends "/views/_base.html" %}
+{% extends "/views/base.html" %}
 
 {% block main %}
   <div class="wrap">
-    <div class="row">
-      <div class="col-md-3">
-        <nav>
-          {% for category, docs in g.categories(g.content.blueprint) %}
-            <h3>{{category}}</h3>
-            <ul class="nav nav-stacked">
-              {% for doc in docs %}
-              <li{% if g.content == doc %} class="active"{% endif %}>
-                <a href="{{doc.url}}">{{doc.title}}</a>
-              {% endfor %}
-            </ul>
-          {% endfor %}
-        </nav>
-      </div>
-      <div class="col-md-9">
-        {{g.content.html|safe}}
-      </div>
+    <div class="panel">
+      <nav class="side">
+        {% for category, docs in g.categories(doc.collection) %}
+          <h3>{{category}}</h3>
+          <ul class="nav nav-stacked">
+            {% for item in docs %}
+            <li{% if doc == item %} class="active"{% endif %}>
+              <a href="{{item.url.path}}">{{item.titles('nav')}}</a>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </nav>
+      <section>
+        {{doc.html()|safe}}
+      </section>
     </div>
   </div>
 {% endblock %}

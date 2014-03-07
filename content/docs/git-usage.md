@@ -1,8 +1,11 @@
 ---
 $title: Git usage
 $category: Workflow
+$hidden: true
 ---
 # Git + Grow = ♡
+
+[TOC]
 
 Grow pods are backed by Git to bring joy to content management and launch workflow. Yes, thanks to Git and a branching model that integrates with Grow's SDK, Grow attempts to make everything from massive redesigns to quick hotfixes joyful and predictable. You'll be able to stop guessing about the state of your web site, and take control back of your workflow.
 
@@ -28,13 +31,15 @@ The "build" branch contains __generated files__, not pod files:
 
 - `build` – When commits are made to the master branch, the Grow SDK can build a static version of the site using the state from master, and commit it to the "build" branch. Build branches should only be generated using the "grow build" command, and should never be edited manually.
 
+This branching model is based on [@nvie's Git branchind model](http://nvie.com/posts/a-successful-git-branching-model/).
+
 ## Launches and tags
 
 When the state of the build branch is ready to become a real launch, both the build branch, and the master branch used to *make* the build branch, are tagged with the same version number.
 
 In the below example, the branches are tagged for the 12th launch. The `<name>` component is optional, and can be used to help you identify the launch.
 
-- `launch-12-build-<name>` 
+- `launch-12-build-<name>`
 - `launch-12-master-<name>`
 
 Therefore, the tagged build branch should represent **exactly** what's on the production server, and the tagged master branch represents **exactly** what was used to make the build branch.

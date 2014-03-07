@@ -1,5 +1,23 @@
-project: grow/growapp.org
-grow_version: 0.0.11
+grow_version: 0.0.2
+project_id: grow/growsdk.org
+title: Grow SDK
 
 flags:
-  static_dir: /public/
+  static_dir: /static/
+
+localization:
+  default_locale: en
+
+static_files:
+  - from: /static/
+    to: /static/
+
+preprocessors:
+  - kind: sass
+    sass_dir: /source/sass/
+    out_dir: /static/css/
+
+deployments:
+  preview:
+    destination: gcs
+    bucket: preview.growsdk.org

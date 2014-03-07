@@ -1,8 +1,11 @@
 ---
 $title: Content localization
 $category: Reference
+$order: 5
 ---
 # Content localization
+
+[TOC]
 
 Grow lets you localize content by creating and managing fully localized variations of your content. A single content document can hold multiple localized versions of itself. The easiest way to explain how this works is to look at the below examples.
 
@@ -58,7 +61,7 @@ You can control this behavior by modifying the `fallback` key under the `localiz
       - fr
       - it
 
-When the blueprint is changed to the above example, without changing the content document, the following pages are built: 
+When the blueprint is changed to the above example, without changing the content document, the following pages are built:
 
 - /welcome/
 - /de/wilkommen/

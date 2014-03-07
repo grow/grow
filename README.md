@@ -1,5 +1,16 @@
 growsdk.org
 ===========
 
-The Grow SDK's documentation and open source project page. This is a Grow
-pod that can be built using Grow to generate the growsdk.org web site.
+The Grow SDK's documentation and open source project page.
+
+    # Install the Grow SDK.
+    pip install grow
+
+    # Clone the repo.
+    git clone git@github.com:grow/growsdk.org.git
+
+    # Run the preview server.
+    grow run growsdk.org
+
+    # Deploy.
+    grow deploy growsdk.org
