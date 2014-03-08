@@ -62,9 +62,10 @@ See a full list of commands using: `grow help`.
 We recommend using `virtualenv` to work on Grow in order to keep your system-wide installation separate from your working copy.
 
     virtualenv --no-site-packages <dir>           # Creates a new virtualenv in <dir>.
+    cd <dir>
+    source bin/activate                           # Activates the virtualenv.
     git clone git@github.com:grow/pygrow.git      # Clones this repo.
     ...
-    source bin/activate                           # Activates the virtualenv.
     cd pygrow
     pip install -r requirements.txt
     ...
