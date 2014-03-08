@@ -32,13 +32,13 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
 (1) Install Grow. (Coming soon: a downloadable Mac application for those without `pip`.)
 
-    # Install Grow system-wide.
-    pip install grow
-    
-    # Install Grow for a single user (recommended).
+    # Install Grow in Python's site-packages directory.
+    sudo pip install grow
+
+    # Or install Grow for a single user (recommended).
     pip install --user grow
-    
-    # Add local pip installations to your PATH. (Put this in ~/.bashrc).
+
+    # Add --user pip installations to your PATH. (Put this in ~/.bashrc).
     export PATH=$HOME/.local/bin:$PATH
 
 (2) Initialize a new pod using the "cards" theme.
@@ -57,25 +57,30 @@ See a full list of commands using: `grow help`.
 
 ## Contributing
 
-The Grow SDK is portable by design, and it encapsulates all of its own dependencies so that the SDK can run anywhere (including restricted environments such as Google App Engine).
+### Getting the code
+
+We recommend using `virtualenv` to work on Grow in order to keep your system-wide installation separate from your working copy.
+
+    virtualenv --no-site-packages <dir>           # Creates a new virtualenv in <dir>.
+    git clone git@github.com:grow/pygrow.git      # Clones this repo.
+    ...
+    source bin/activate                           # Activates the virtualenv.
+    cd pygrow
+    pip install -r requirements.txt
+    ...
+    ./bin/grow                                    # Runs the Grow command line program.
 
 ### Running tests
 
-Here's how you can pull down the Grow SDK and its submodules to contribute:
-
-    # Download Grow and submodules.
-    git clone https://github.com/grow/pygrow.git
-    cd pygrow && git submodule init && git submodule update && cd ..
-    cd pygrow/grow/submodules/babel && python setup.py import_cldr && cd ../../../..
-    
 To run Grow's unit tests, run from the project's root directory:
 
     python run_tests.py
-    
+
 The Grow SDK also includes service tests, which test the pod server RPC system:
 
+    ./bin/grow run grow/pods/testdata/pod/        # Start a dev server.
     ./run_service_tests.sh
-    
+
 ## License
 
 The Grow SDK is released under the MIT License and it is lovingly developed by the [Grow SDK Project Authors](https://github.com/grow/pygrow/blob/master/LICENSE). Our mission is to bring joy to building and launching high-quality web sites.
