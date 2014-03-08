@@ -61,6 +61,7 @@ See a full list of commands using: `grow help`.
 
 We recommend using `virtualenv` to work on Grow in order to keep your system-wide installation separate from your working copy.
 
+    sudo pip install virtualenv                   # Install virtualenv if you don't have it.
     virtualenv --no-site-packages <dir>           # Creates a new virtualenv in <dir>.
     cd <dir>
     source bin/activate                           # Activates the virtualenv.

@@ -7,14 +7,14 @@ import os
 import sys
 sys.path.extend([os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')])
 
-try:
-  from grow import submodules
-  submodules.fix_imports()
-except ImportError:
-  pass
-
 from google.apputils import appcommands
+from grow.common import sdk_utils
 from grow import commands
+
+# This hackiness provides useful information at the top of the "grow help" command.
+_text = 'The Grow SDK: a declarative, file-based CMS for building-high quality web sites.'
+__doc__ = """{}\n
+VERSION: {} ({})""".format(_text, sdk_utils.get_this_version(), os.path.abspath(__file__))
 
 
 def main(argv):
