@@ -2,8 +2,8 @@ language: python
 python:
   - 2.7
 before_install:
-#  - git submodule update --init --recursive
   - pip install -r requirements.txt
+  - python /home/travis/virtualenv/python2.7/build/babel/setup.py import_cldr
 #  - cd grow/submodules/babel
 #  - python setup.py import_cldr
 #  - cd ../../../
