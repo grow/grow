@@ -1,4 +1,4 @@
-from boto.s3 import key
+from boto.gs import key
 from grow.deployments import base
 from grow.pods import index
 import boto
