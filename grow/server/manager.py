@@ -72,6 +72,10 @@ def _start(pod, host=None, port=None, use_simple_log_format=True):
   host = 'localhost' if host is None else host
   httpd = simple_server.make_server(host, int(port), app)
   try:
+    logging.info('---')
+    logging.info(utils.colorize('{yellow}The Grow SDK is experimental.{/yellow} Expect backwards incompatibility until v0.1.0.'))
+    logging.info('Thank you for testing and contributing! Visit http://growsdk.org for resources.')
+    logging.info('---')
     logging.info('Serving pod {} at http://{}:{}'.format(root, host, port))
     text = '{green}READY!{/green} Press Ctrl+C to shut down.'
     logging.info(utils.colorize(text))
