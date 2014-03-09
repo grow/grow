@@ -15,7 +15,7 @@ Grow makes it easy to separate content from presentation, but ultimately leaves 
 
 Every content collection must have a blueprint. Blueprints define how content is structured, displayed, and served. Blueprints are stored as YAML files in your pod's *content* directory.  For example, a blueprint for a collection "people" would be `/content/people/_blueprint.yaml`
 
-    path: /people/{slug}
+    path: /people/{slug}/
     view: /views/people.html
 
     fields:
@@ -29,8 +29,6 @@ Every content collection must have a blueprint. Blueprints define how content is
     categories:
     - Teachers
     - Students
-
-<img src="/public/images/infographics/grow-blueprint.png" class="img-responsive img-thumbnail">
 
 ### path
 
