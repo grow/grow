@@ -93,10 +93,9 @@ class Document(object):
   def title(self):
     return self.fields.get('$title')
 
-  def titles(self, title_name=None):
-    if title_name is None:
-      return self.title
-    return self.fields.get('$titles', {}).get(title_name, self.title)
+  @property
+  def titles(self):
+    return self.fields.get('$titles')
 
   @property
   def published(self):
@@ -180,8 +179,10 @@ class Document(object):
     content = self.doc_storage.content
     return content.decode('utf-8')
 
-  def html(self, params=None):
-    return self.doc_storage.html(self, params)
+  @property
+  def html(self):
+    # TODO(jeremydw): Add ability to render HTML.
+    return self.doc_storage.html(self, params=None)
 
   def __eq__(self, other):
     return (isinstance(self, Document)

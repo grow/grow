@@ -6,12 +6,12 @@
     {{doc.title}}
     <h1>{{_('Hello World!')}}</h1>
     <h1>{{_('Hello World 2!')}}</h1>
-    {{doc.html()|safe}}
+    {{doc.html|safe}}
   </header>
     {% for post in g.docs('posts') %}
       <article>
         <h2><a href="{{post.url.path}}">{{post.title}}</a></h2>
-        {{post.html()|safe}}
+        {{post.html|safe}}
       </article>
     {% endfor %}
 {% endblock %}
