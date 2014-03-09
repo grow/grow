@@ -8,6 +8,11 @@
     <h1>{{_('Hello World 2!')}}</h1>
     {{doc.html|safe}}
   </header>
+  <nav>
+    {% for page in g.docs('pages') %}
+      <li><a href="{{page.url.path}}">{{page.titles('nav')}}</a>
+    {% endfor %}
+  </nav>
     {% for post in g.docs('posts') %}
       <article>
         <h2><a href="{{post.url.path}}">{{post.title}}</a></h2>

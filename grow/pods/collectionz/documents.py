@@ -93,9 +93,10 @@ class Document(object):
   def title(self):
     return self.fields.get('$title')
 
-  @property
-  def titles(self):
-    return self.fields.get('$titles')
+  def titles(self, title_name=None):
+    if title_name is None:
+      return self.title
+    return self.fields.get('$titles', {}).get(title_name, self.title)
 
   @property
   def published(self):

@@ -1,6 +1,9 @@
 msgid "About"
 msgstr ""
 
+msgid "About us"
+msgstr ""
+
 msgid "Contact"
 msgstr ""
 
