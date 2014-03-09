@@ -26,7 +26,7 @@ sections:
   - title: No installation or maintenance.
     image: /static/images/zen.svg
     content: |
-        You can focus on what matters – your web sites – when you use the Grow SDK. Your projects are stored and managed entirely separate from the SDK, so you'll never have to maintain a software installation or deal with upgrades. Grow tests and verifies your sites every time you deploy them, and warns you when it discovers issues in your code related to web security.
+        You can focus on what matters – your web sites – when you use the Grow SDK. Your projects are stored and managed entirely separate from the SDK, so you'll never have to maintain a deployed installation or deal with upgrades. Grow tests and verifies your sites every time you deploy them, and warns you when it discovers issues in your code related to web security.
 
 banner:
   title: A swiss-army knife of dev tools for your web sites.

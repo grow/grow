@@ -43,7 +43,9 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
 
 ### project*
 
-A unique identifier for this pod, formatted by `<owner's nickname>/<pod's nickname>`. Pod servers may implement features such as access control and workflow based on the project ID. Two different pods on the same server cannot have the same project ID.
+A unique identifier for this pod, formatted by `<owner's nickname>/<pod's nickname>`. The project ID is primarily used to identify your pod at a launch destination. Destinations may implement features such as access control or deploy hooks using the project ID. Two different pods on the same server cannot have the same project ID.
+
+If you deploy a pod, subsequent deployments will use the pod's project ID to store a deployment history. If you change your project ID after deployment, unexpected things will happen.
 
     project: john/example
 

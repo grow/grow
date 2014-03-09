@@ -95,12 +95,15 @@ Documents have a few built-in properties that cannot be overwritten by configs.
 
 The basename (minus extension) of the document's file.
 
-    # In document /content/pages.foo.md
+    # In document /content/pages/foo.md
     {{doc.base}} -> foo
 
 ### collection
 
 A reference to the document's collection.
+
+    # In document /content/pages/foo.md
+    {{doc.collection}} -> <Collection (/content/pages/)>
 
 ### url
 
@@ -110,7 +113,7 @@ The document's URL object.
 
 ## Built-in fields
 
-Built-in fields carry meaning that affect various aspects of building your site.
+Built-in fields carry special meaning that affect various aspects of building your site.
 
 ### category
 - $category (string)
@@ -124,11 +127,31 @@ Built-in fields carry meaning that affect various aspects of building your site.
 - $titles – A mapping of title names to values.
 - $view (string)
 
+#### $hidden
+
+Whether to hide the document when querying for documents with the `g.docs` tag. Note that even if a document is marked hidden, it will still be rendered and served at its URL.
+
+    # Document will not show up in g.docs() results.
+    $hidden: true
+
+#### $path
+
+The serving path to make the document available at. By default, individual documents inherit the path specified by their blueprint. However, it can be overriden by specifying `$path` at the document-level.
+
+    # In document /content/pages/foo.md
+
+    # Makes the document available at /foo/bar/.
+    $view: /foo/bar/
+
+    # Makes the document available at /foo/.
+    $view: /{base}/
+
 #### $view
 
-The view to use when rendering the page for this document. Typically, documents will use the view specified by the collection's blueprint. However, individual content documents can override the collection's view.
+The view to use when rendering the page for this document. By default, individual documents inherit the view specified by their blueprint. However, it can be overriden by specifying it at the document-level.
 
-    /views/pages.html
+    # Renders the document with the template at /views/pages.html
+    $view: /views/pages.html
 
 <!--
 
