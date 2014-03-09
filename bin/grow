@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -7,6 +7,7 @@ import os
 import sys
 sys.path.extend([os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')])
 
+import multiprocessing
 from google.apputils import appcommands
 from grow.common import sdk_utils
 from grow import commands
@@ -22,4 +23,5 @@ def main(argv):
 
 
 if __name__ == '__main__':
+  multiprocessing.freeze_support()
   appcommands.Run()

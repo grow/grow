@@ -148,10 +148,10 @@ class RunCmd(appcommands.Cmd):
 
   def __init__(self, name, flag_values, command_aliases=None):
     flags.DEFINE_string(
-        'host', '0.0.0.0', 'IP address or hostname to bind the server to.',
+        'host', 'localhost', 'IP address or hostname to bind the server to.',
         flag_values=flag_values)
     flags.DEFINE_integer(
-        'port', None, 'Port to start the server on.',
+        'port', '8080', 'Port to start the server on.',
         flag_values=flag_values)
     super(RunCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
 

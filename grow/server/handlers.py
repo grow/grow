@@ -1,3 +1,4 @@
+from grow.common import utils
 from grow.pods import storage
 from grow.server import podgroups
 import jinja2
@@ -6,7 +7,7 @@ import os
 import webapp2
 import webob
 
-_root = os.path.join(os.path.dirname(__file__), 'templates')
+_root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
 _env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True,
                           extensions=['jinja2.ext.i18n'])

@@ -7,6 +7,8 @@ import json
 import logging
 import markdown
 import os
+from markdown.extensions import tables
+from markdown.extensions import toc
 
 
 class Error(Exception):
@@ -298,8 +300,8 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     val = self.body
     if val is not None:
       extensions = [
-        'toc',
-        'tables',
+        tables.TableExtension(),
+        toc.TocExtension(),
         markdown_extensions.IncludeExtension(doc.pod),
         markdown_extensions.UrlExtension(doc.pod),
       ]

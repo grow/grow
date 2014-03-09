@@ -1,6 +1,5 @@
 GoogleAppEngineCloudStorageClient
 Markdown
-Paste
 WebOb
 babel
 boto

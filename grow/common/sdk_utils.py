@@ -38,7 +38,7 @@ def check_version(quiet=False):
       logging.info('A newer version of the SDK is available. Please update now: http://growsdk.org')
       logging.info('---')
     else:
-      logging.info('Your Grow SDK is the latest version: {}'.format(yours))
+      logging.info('You have the latest version: {}'.format(yours))
   except LatestVersionCheckError:
     if not quiet:
       raise

@@ -1,11 +1,20 @@
 from bisect import bisect_left, bisect_right
 from grow.pods import errors
-import logging
 import json
+import logging
 import mimetypes
+import os
 import re
+import sys
 import time
 import yaml
+
+
+def get_grow_dir():
+  try:
+    return os.path.join(sys._MEIPASS)
+  except AttributeError:
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def interactive_confirm(message, default=False):

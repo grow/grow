@@ -66,7 +66,6 @@ class Pod(object):
     self.locales = locales.Locales(pod=self)
     self.translations = translations.Translations(pod=self)
     self.tests = tests.Tests(pod=self)
-    self.podspec = podspec.Podspec(pod=self)
 
   def __repr__(self):
     if self.changeset is not None:
@@ -83,6 +82,11 @@ class Pod(object):
       return utils.parse_yaml(self.read_file('/podspec.yaml'))[0]
     except IOError:
       raise Error('Pod does not exist or malformed podspec.yaml.')
+
+  @property
+  @utils.memoize
+  def podspec(self):
+    return podspec.Podspec(pod=self)
 
   @property
   def error_routes(self):

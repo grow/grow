@@ -4,8 +4,8 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 from grow.pods.preprocessors.file_watchers import file_watchers
 from grow.server import handlers
 from grow.server import main as main_lib
-from paste import httpserver
-from paste import translogger
+from grow.common import utils
+from wsgiref import simple_server
 import atexit
 import multiprocessing
 import os
@@ -55,16 +55,30 @@ def _start(pod, host=None, port=None, use_simple_log_format=True):
       args=(pod, file_watchers_to_preprocessors, quit_event))
   change_watcher_thread.start()
 
+  # Compile translations.
+  # TODO(jeremydw): Move to TranslationPreprocessor.
+  translations_obj = pod.get_translations()
+  translations_obj.recompile_mo_files()
+
   root = os.path.abspath(os.path.normpath(root))
-  logging.info('Serving pod with root: {}'.format(root))
   logger_format = ('[%(time)s] "%(REQUEST_METHOD)s %(REQUEST_URI)s" %(status)s'
                    if use_simple_log_format else None)
 
   # Start the actual server.
   handlers.set_pod_root(root)
   app = main_lib.application
-  app = translogger.TransLogger(app, format=logger_format)
-  httpserver.serve(app, host=host, port=port)
+
+  port = 8080 if port is None else port
+  host = 'localhost' if host is None else host
+  httpd = simple_server.make_server(host, int(port), app)
+  try:
+    logging.info('Serving pod {} at http://{}:{}'.format(root, host, port))
+    text = '{green}READY!{/green} Press Ctrl+C to shut down.'
+    logging.info(utils.colorize(text))
+    httpd.serve_forever()
+  except KeyboardInterrupt:
+    logging.info('Shutting down...')
+    httpd.server_close()
 
   # Clean up once serve exits.
   quit_event.set()
