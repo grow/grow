@@ -62,6 +62,25 @@ Returns the next document from a list of documents. If no list is provided, the 
 
 `prev(<document list>)`
 
+### titles
+
+A function that returns a title, given a title name. Allows for cascading titles. Useful for giving the document a different title in different contexts (for example, a breadcrumb or a side menu).
+
+    {{doc.titles('nav')}}
+
+    # This sample YAML front matter...
+
+    $title: Example Hello World Document
+    $titles:
+      nav: Hello World
+      breadcrumb: Hello World Document
+
+    # ...produces the following results.
+
+    {{doc.titles('nav')}}          -> Hello
+    {{doc.titles('breadcrumb')}}   -> Hello World Document
+    {{doc.titles('unknown')}}      -> Example Hello World Document
+
 ## Properties
 
 Documents have a few built-in properties that cannot be overwritten by configs.
@@ -91,29 +110,6 @@ Returns the document's body (for `.md` documents, the Markdown body) rendered as
 Returns the document's canonical title.
 
     {{doc.title}}
-
-### titles
-
-Returns a mapping of title names to titles. Useful for giving the document a different title in different contexts (for example, a breadcrumb or a side menu).
-
-    {{doc.titles.nav}}
-
-    # This sample YAML front matter...
-
-    $title: Example Hello World Document
-    $titles:
-      nav: Hello World
-      breadcrumb: Hello World Document
-
-    # ...produces the following results.
-
-    {{doc.titles.nav}}          -> Hello
-    {{doc.titles.breadcrumb}}   -> Hello World Document
-
-    # Or, implement cascading titles.
-
-    {{doc.titles.get('nav', doc.title}}      -> Hello
-    {{doc.titles.get('unknown', doc.title}}  -> Example Hello World Document
 
 ### url
 
