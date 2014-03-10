@@ -126,7 +126,8 @@ class Index(object):
       thread = threading.Thread(target=delete_func, args=(path,))
       threads.append(thread)
       thread.start()
-    for path in diffs.nochanges:
-      logging.info('Skipping unchanged file: {}'.format(path))
+    # Unchanged files are quiet.
+    # for path in diffs.nochanges:
+    #  logging.info('Skipping unchanged file: {}'.format(path))
     for thread in threads:
       thread.join()

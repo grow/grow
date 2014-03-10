@@ -60,21 +60,29 @@ class DeployCmd(appcommands.Cmd):
         raise appcommands.AppCommandsError('Must specify: --out_dir.')
       out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir))
       deployment = deployments.FileSystemDeployment(confirm=FLAGS.confirm)
-      deployment.set_params(storage=storage.FileStorage, out_dir=out_dir)
+      deployment.set_params(out_dir=out_dir)
     elif FLAGS.destination == 'zip':
       if FLAGS.out_dir is None and FLAGS.out_file is None:
         raise appcommands.AppCommandsError('Must specify either: --out_dir or --out_file.')
       out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir)) if FLAGS.out_dir else None
       out_file = os.path.abspath(os.path.expanduser(FLAGS.out_file)) if FLAGS.out_file else None
       deployment = deployments.ZipFileDeployment(confirm=FLAGS.confirm)
-      deployment.set_params(storage=storage.FileStorage, out_dir=out_dir, out_file=out_file)
+      deployment.set_params(out_dir=out_dir, out_file=out_file)
     return deployment
 
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     pod = pods.Pod(root, storage=storage.FileStorage)
     pod.preprocess()
-    deployment_name = argv[-2] if len(argv) == 3 else None
+
+    # Figure out if we're using the default deployment.
+    if len(argv) == 2 and not FLAGS.destination:
+      deployment_name = 'default'  # grow deploy .
+    elif len(argv) == 3:
+      deployment_name = argv[-2]   # grow deploy <name> .
+    else:
+      deployment_name = None       # grow deploy --destination=<kind> .
+
     if deployment_name:
       deployment = pod.get_deployment(deployment_name, confirm=FLAGS.confirm)
     else:

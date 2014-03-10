@@ -83,6 +83,9 @@ class BaseDeployment(object):
 
   test_case_class = DeploymentTestCase
 
+  # TODO(jeremydw): Args to set_params and init should be switched.
+  # init should have the params which make deployment objects fully-capable.
+  # set_params should set optional params like dry_run and confirm.
   def __init__(self, *args, **kwargs):
     self.dry_run = kwargs.get('dry_run', False)
     self.confirm = kwargs.get('confirm', False)

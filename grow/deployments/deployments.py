@@ -15,4 +15,6 @@ class Deployment(object):
       return GoogleCloudStorageDeployment(*args, **kwargs)
     elif kind == 's3':
       return AmazonS3Deployment(*args, **kwargs)
+    elif kind == 'local':
+      return FileSystemDeployment(*args, **kwargs)
     raise ValueError('No configuration exists for "{}".'.format(kind))

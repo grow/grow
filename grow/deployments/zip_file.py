@@ -3,6 +3,7 @@ import logging
 import os
 import zipfile
 from grow.deployments import base
+from grow.pods.storage import storage as storage_lib
 
 
 class ZipFileDeployment(base.BaseDeployment):
@@ -10,8 +11,8 @@ class ZipFileDeployment(base.BaseDeployment):
   def get_destination_address(self):
     return self.filename
 
-  def set_params(self, storage, out_dir, out_file=None):
-    self.storage = storage
+  def set_params(self, out_dir, out_file=None, storage=storage_lib.FileStorage):
+    self.storage = storage_lib
     if out_dir and out_file is None:
       basename = datetime.datetime.now().strftime('%Y-%m-%d.%H%M%S') + '.zip'
       self.filename = os.path.join(out_dir, basename)
