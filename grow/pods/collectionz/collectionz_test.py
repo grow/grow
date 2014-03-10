@@ -28,7 +28,7 @@ class CollectionsTest(unittest.TestCase):
 
     collection = self.pod.get_collection('posts')
     documents = collection.list_documents(order_by='$published', reverse=True)
-    expected = ['newest', 'newer', 'older', 'oldest']
+    expected = ['newest-custom-slug', 'newer', 'older', 'oldest']
     self.assertListEqual(expected, [doc.slug for doc in documents])
 
   def test_list_locales(self):

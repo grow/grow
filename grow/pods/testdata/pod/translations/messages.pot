@@ -4,7 +4,13 @@ msgstr ""
 msgid "About us"
 msgstr ""
 
+msgid "Bar"
+msgstr ""
+
 msgid "Contact"
+msgstr ""
+
+msgid "Foo"
 msgstr ""
 
 msgid "Goodnight Moon!"

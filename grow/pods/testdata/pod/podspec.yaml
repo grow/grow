@@ -7,16 +7,11 @@ domains:
 - example.com
 - example.net
 
-locales:
-  default:
-    regions:
-    - de
-    - fr
-    - it
-    languages:
-    - en
-    - ja
-    - pl
+localization:
+  locales:
+  - de
+  - fr
+  - it
 
 deployments:
 

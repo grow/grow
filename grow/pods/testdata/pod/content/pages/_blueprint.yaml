@@ -1,8 +1,8 @@
-path: /{slug}/
+path: /{base}/
 view: /views/base.html
 
 localization:
-  path: /{locale}/{slug}/
+  path: /{locale}/{base}/
   locales:
   - de
   - fr
