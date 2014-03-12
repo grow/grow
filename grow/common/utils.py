@@ -31,7 +31,7 @@ def walk(node, callback):
     if isinstance(item, (list, set, dict)):
       walk(item, callback)
     else:
-      callback(item, key)
+      callback(item, key, node)
 
 
 def colorize(text):

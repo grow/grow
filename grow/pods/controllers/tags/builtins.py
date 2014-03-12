@@ -72,6 +72,6 @@ def breadcrumb(doc, _pod=None):
   pass
 
 
-def url(pod_path, _pod):
-  doc = _pod.get_doc(pod_path)
+def url(pod_path, locale=None, _pod=None):
+  doc = _pod.get_doc(pod_path, locale=locale)
   return doc.url

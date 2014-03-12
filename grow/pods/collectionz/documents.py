@@ -8,6 +8,7 @@ import json
 import logging
 import markdown
 import os
+import copy
 from markdown.extensions import tables
 from markdown.extensions import toc
 
@@ -49,15 +50,18 @@ class Document(object):
 
     self.format = messages.extensions_to_formats.get(self.ext)
     if self.format == messages.Format.MARKDOWN:
-      self.doc_storage = MarkdownDocumentStorage(self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
+      self.doc_storage = MarkdownDocumentStorage(
+          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
     elif self.format == messages.Format.YAML:
-      self.doc_storage = YamlDocumentStorage(self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
+      self.doc_storage = YamlDocumentStorage(
+          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
     else:
       formats = messages.extensions_to_formats.keys()
       text = 'Basename "{}" does not have a valid extension. Valid formats are: {}'
       raise BadFormatError(text.format(self.basename, ', '.join(formats)))
 
     self.fields = self.doc_storage.fields
+    self.tagged_fields = self.doc_storage.tagged_fields
 
   def __repr__(self):
     if self.locale:
@@ -73,8 +77,6 @@ class Document(object):
   def __getattr__(self, name):
     if name in self.fields:
       return self.fields[name]
-    if '{}@'.format(name) in self.fields:
-      return self.fields['{}@'.format(name)]
     return object.__getattribute__(self, name)
 
   @property
@@ -98,20 +100,15 @@ class Document(object):
   def order(self):
     return self.fields.get('$order')
 
-  def _get_tagged_field(self, name):
-    if name in self.fields:
-      return self.fields[name]
-    return self.fields.get('{}@'.format(name))
-
   @property
   def title(self):
-    return self._get_tagged_field('$title')
+    return self.fields.get('$title')
 
   def titles(self, title_name=None):
     if title_name is None:
       return self.title
     titles = self.fields.get('$titles', {})
-    return titles.get(title_name, titles.get('{}@'.format(title_name), self.title))
+    return titles.get(title_name, self.title)
 
   @property
   def published(self):
@@ -266,6 +263,8 @@ class Document(object):
     return message
 
 
+# TODO(jeremydw): This needs a lot of cleanup. :)
+
 class BaseDocumentStorage(object):
 
   def __init__(self, pod_path, pod, locale=None, default_locale=None):
@@ -276,6 +275,7 @@ class BaseDocumentStorage(object):
     self.pod = pod
     self.content = None
     self.fields = {}
+    self.tagged_fields = {}
     self.builtins = None
     self.body = None
     try:
@@ -302,7 +302,10 @@ class YamlDocumentStorage(BaseDocumentStorage):
     fields, body = utils.parse_yaml(content, path=path)
     self.content = content
     self.fields = fields or {}
+    self.tagged_fields = {}
     self.body = body
+    self.tagged_fields = copy.deepcopy(fields)
+    fields = untag_fields(fields)
 
 
 class MarkdownDocumentStorage(BaseDocumentStorage):
@@ -310,10 +313,13 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, body = utils.parse_markdown(content, path=path, locale=self.locale, default_locale=self.default_locale)
+    fields, body = utils.parse_markdown(
+        content, path=path, locale=self.locale, default_locale=self.default_locale)
     self.content = content
     self.fields = fields or {}
     self.body = body
+    self.tagged_fields = copy.deepcopy(fields)
+    fields = untag_fields(fields)
 
   def html(self, doc, params=None):
     val = self.body
@@ -332,3 +338,13 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
         template = jinja2.Template(val)
         val = template.render(params)
     return val
+
+
+def untag_fields(fields):
+  def callback(item, key, node):
+    if not isinstance(key, basestring):
+      return
+    if key.endswith('@'):
+      node[key[0:(len(key) - 1)]] = node.pop(key)
+  utils.walk(fields, callback)
+  return fields

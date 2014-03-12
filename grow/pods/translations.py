@@ -100,24 +100,24 @@ class Translations(object):
           raise
 
     # Extract messages from content files.
-    def callback(doc, node, key):
+    def callback(doc, item, key, unused_node):
       # Verify that the fields we're extracting are fields for a document that's
       # in the default locale. If not, skip the document.
-      _handle_field(doc.pod_path, node, key)
+      _handle_field(doc.pod_path, item, key, unused_node)
 
-    def _handle_field(path, node, key):
-      if not isinstance(node, basestring):
+    def _handle_field(path, item, key, unused_node):
+      if not isinstance(item, basestring):
         return
       if key.endswith('@'):
         comments = []
         context = None
         added_message = catalog_obj.add(
-            node, None, [(path, 0)], auto_comments=comments, context=context)
+            item, None, [(path, 0)], auto_comments=comments, context=context)
         extracted.append(added_message)
 
     for collection in self.pod.list_collections():
       for doc in collection.list_documents(include_hidden=True):
-        utils.walk(doc.fields, lambda *args: callback(doc, *args))
+        utils.walk(doc.tagged_fields, lambda *args: callback(doc, *args))
 
     # Extract messages from podspec.
     config = self.pod.get_podspec().get_config()

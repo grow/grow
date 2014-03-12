@@ -81,7 +81,7 @@ class PageController(base.BaseController):
         'll': self.ll,
         'params': self.route_params,
         'pod': self.pod,
-        'url': lambda pod_path: tags.url(pod_path, _pod=self.pod),
+        'url': lambda *args, **kwargs: tags.url(*args, _pod=self.pod, **kwargs),
     }
     try:
       return template.render({
