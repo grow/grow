@@ -26,6 +26,8 @@ def interactive_confirm(message, default=False):
 
 
 def walk(node, callback):
+  if node is None:
+    return
   for key in node:
     item = node[key] if isinstance(node, dict) else key
     if isinstance(item, (list, set, dict)):
