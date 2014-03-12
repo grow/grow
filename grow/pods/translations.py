@@ -295,8 +295,12 @@ class Translation(object):
     # Get strings to translate.
     # TODO(jeremydw): Use actual string, not the msgid. Currently we assume
     # the msgid is the source string.
+    logging.info('WARNING! Machine translation is experimental.')
     messages_to_translate = [message for message in catalog if not message.string]
     strings_to_translate = [message.id for message in messages_to_translate]
+    if not strings_to_translate:
+      logging.info('No untranslated strings, aborting.')
+      return
 
     machine_translator = goslate.Goslate()
     results = machine_translator.translate(strings_to_translate, locale)
