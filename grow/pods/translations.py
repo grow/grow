@@ -11,6 +11,7 @@ import babel
 import logging
 import os
 import tokenize
+import goslate
 
 
 _TRANSLATABLE_EXTENSIONS = (
@@ -274,3 +275,43 @@ class Translation(object):
       mofile.write_mo(mo_file, catalog, use_fuzzy=use_fuzzy)
     finally:
       mo_file.close()
+
+  def machine_translate(self):
+    locale = str(self.locale)
+    domain = 'messages'
+    po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
+
+    # Create a catalog if it doesn't exist.
+    if not self.pod.file_exists(po_filename):
+      self.init_catalog()
+      return
+
+    infile = self.pod.open_file(po_filename, 'U')
+    try:
+      catalog = pofile.read_po(infile, locale=locale, domain=domain)
+    finally:
+      infile.close()
+
+    # Get strings to translate.
+    # TODO(jeremydw): Use actual string, not the msgid. Currently we assume
+    # the msgid is the source string.
+    messages_to_translate = [message for message in catalog if not message.string]
+    strings_to_translate = [message.id for message in messages_to_translate]
+
+    machine_translator = goslate.Goslate()
+    results = machine_translator.translate(strings_to_translate, locale)
+
+    for i, string in enumerate(results):
+      message = messages_to_translate[i]
+      message.string = string
+      if isinstance(string, unicode):
+        string = string.encode('utf-8')
+      logging.info('[{}] {}'.format(message.id, string))
+
+    output_path = os.path.join('translations', locale, 'LC_MESSAGES', 'messages.po')
+    outfile = self.pod.open_file(output_path, mode='w')
+    logging.info('Machine translated: {}'.format(output_path))
+    try:
+      pofile.write_po(outfile, catalog, width=80)
+    finally:
+      outfile.close()

@@ -180,6 +180,23 @@ class TestCmd(appcommands.Cmd):
     raise NotImplementedError()
 
 
+class MachineTranslateCmd(appcommands.Cmd):
+  """Translates a message catalog using machine translation."""
+
+  def __init__(self, name, flag_values, command_aliases=None):
+    flags.DEFINE_string('locale', False, 'Which locale to translate.',
+                        flag_values=flag_values)
+    super(MachineTranslateCmd, self).__init__(
+        name, flag_values, command_aliases=command_aliases)
+
+  def Run(self, argv):
+    root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+    pod = pods.Pod(root, storage=storage.FileStorage)
+    translations = pod.get_translations()
+    translation = translations.get_translation(FLAGS.locale)
+    translation.machine_translate()
+
+
 class UpCmd(appcommands.Cmd):
   """Uploads a pod to a pod server."""
 
@@ -237,6 +254,7 @@ def add_commands():
   appcommands.AddCmd('deploy', DeployCmd)
   appcommands.AddCmd('dump', DumpCmd)
   appcommands.AddCmd('extract', ExtractCmd)
+  appcommands.AddCmd('machine_translate', MachineTranslateCmd)
   appcommands.AddCmd('init', InitCmd)
   appcommands.AddCmd('run', RunCmd)
   appcommands.AddCmd('routes', RoutesCmd)
