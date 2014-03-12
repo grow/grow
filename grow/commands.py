@@ -192,8 +192,12 @@ class MachineTranslateCmd(appcommands.Cmd):
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     pod = pods.Pod(root, storage=storage.FileStorage)
+    if not FLAGS.locale:
+      raise appcommands.AppCommandsError('Must specify: --locale.')
     translations = pod.get_translations()
+    translations.extract()
     translation = translations.get_translation(FLAGS.locale)
+    translation.update_catalog()
     translation.machine_translate()
 
 
