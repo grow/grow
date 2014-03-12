@@ -88,9 +88,10 @@ class Translations(object):
       if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
         fp = self.pod.open_file(pod_path)
         try:
-          messages = extract.extract('python', fp)
+          messages = extract.extract('jinja2', fp)
           for message in messages:
             lineno, string, comments, context = message
+            logging.info('[{}:{}] {}'.format(pod_path, lineno, string))
             added_message = catalog_obj.add(
                 string, None, [(pod_path, lineno)], auto_comments=comments,
                 context=context)
@@ -113,6 +114,8 @@ class Translations(object):
         context = None
         added_message = catalog_obj.add(
             item, None, [(path, 0)], auto_comments=comments, context=context)
+        if added_message not in extracted:
+          logging.info('[{}] {}'.format(path, item))
         extracted.append(added_message)
 
     for collection in self.pod.list_collections():

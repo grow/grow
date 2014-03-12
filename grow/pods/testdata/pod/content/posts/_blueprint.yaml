@@ -1,5 +1,6 @@
-path: /post/{slug}/
+path: /post/{base}/
 view: /views/posts.html
+
 fields:
 
 - key: title

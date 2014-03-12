@@ -134,6 +134,7 @@ def dump_yaml(obj):
 
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+import translitcodec
 
 
 def slugify(text, delim=u'-'):

@@ -34,7 +34,7 @@ class RoutesTest(unittest.TestCase):
         '/it/home/',
         '/it/intro/',
         '/post/newer/',
-        '/post/newest-custom-slug/',
+        '/post/newest/',
         '/post/older/',
         '/post/oldest/',
         '/public/file.txt',

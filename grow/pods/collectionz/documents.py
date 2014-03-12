@@ -43,7 +43,7 @@ class Document(object):
     self.locale = locale or _pod.podspec.default_locale
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
-    self._slug_clean, self.ext = os.path.splitext(self.basename)
+    self.base, self.ext = os.path.splitext(self.basename)
 
     self.pod = _pod
     self.collection = _collection
@@ -89,8 +89,8 @@ class Document(object):
     if '$slug' in self.fields:
       return self.fields['$slug']
     if self.parent:
-      return '/{}/{}/'.format(self.parent.slug, self._slug_clean)
-    return self._slug_clean
+      return '/{}/{}/'.format(self.parent.slug, utils.slugify(self.title))
+    return utils.slugify(self.title)
 
   @property
   def is_hidden(self):
