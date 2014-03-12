@@ -1,7 +1,7 @@
 ---
-$title: About 
+$title@: About 
 $titles:
-  nav: About us
+  nav@: About us
 $order: 1
 ---
 About page.

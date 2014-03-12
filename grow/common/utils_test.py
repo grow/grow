@@ -44,6 +44,7 @@ class UtilsTestCase(unittest.TestCase):
         '# Bam'
     )
     fields, content = utils.parse_markdown(content)
+    print fields, content
     self.assertEqual(None, fields)
     self.assertEqual('# Bam', content)
 

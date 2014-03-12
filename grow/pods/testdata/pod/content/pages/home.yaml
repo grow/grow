@@ -1,7 +1,7 @@
 ---
 $path: /
 $view: /views/home.html
-$title: Home page
+$title@: Home page
 $order: 0
 ---
 Home page.

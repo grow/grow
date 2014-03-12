@@ -42,6 +42,7 @@ class RoutesTest(unittest.TestCase):
         '/public/main.min.js',
     ]
     result = self.pod.routes.list_concrete_paths()
+    print result
     self.assertItemsEqual(expected, result)
 
 

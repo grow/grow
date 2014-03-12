@@ -1,6 +1,7 @@
 """Collections contain content documents and blueprints."""
 
 from grow.common import utils
+from grow.pods import locales
 from grow.pods.collectionz import documents
 from grow.pods.collectionz import messages
 import json
@@ -45,6 +46,7 @@ class Collection(object):
     self.pod = _pod
     self.collection_path = pod_path.lstrip('/content')
     self.pod_path = pod_path
+    self._default_locale = _pod.podspec.default_locale
     self._blueprint_path = os.path.join(self.pod_path, '_blueprint.yaml')
 
   def __repr__(self):
@@ -114,6 +116,8 @@ class Collection(object):
   def get_path_format(self):
     return self.yaml.get('path')
 
+  # TODO(jeremydw): Consolidate list_docs, search_docs, and list_documents!
+
   def list_docs(self, order_by=None, reverse=None):
     # TODO(jeremydw): Implement this, and search, and kill list_documents.
     pass
@@ -161,6 +165,8 @@ class Collection(object):
         continue
 
       for each_locale in doc.list_locales():
+        if each_locale == self._default_locale:
+          continue
         if each_locale == locale or locale == _all:
           doc = self.get_doc(pod_path, locale=each_locale)
           if not include_hidden and doc.is_hidden:
@@ -188,8 +194,13 @@ class Collection(object):
       if self.yaml['localization'].get('use_podspec_locales'):
         return self.pod.list_locales()
       try:
-        return self.localization['locales']
+        return locales.Locale.parse_codes(self.localization['locales'])
       except KeyError:
+        # Locales inherited from podspec.
+        podspec = self.pod.get_podspec()
+        config = podspec.get_config()
+        if 'localization' in config and 'locales' in config['localization']:
+          return locales.Locale.parse_codes(config['localization']['locales'])
         raise NoLocalesError('{} has no locales.')
     return []
 

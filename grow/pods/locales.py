@@ -1,3 +1,4 @@
+import babel
 from grow.pods import errors
 from grow.pods import messages
 
@@ -39,3 +40,10 @@ class Locales(object):
       group_message.languages = self.get_languages(group_name)
       message.groups.append(group_message)
     return message
+
+
+class Locale(babel.Locale):
+
+  @classmethod
+  def parse_codes(cls, codes):
+    return [cls.parse(code) for code in codes]

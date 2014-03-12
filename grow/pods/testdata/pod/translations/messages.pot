@@ -25,6 +25,9 @@ msgstr ""
 msgid "Home page"
 msgstr ""
 
+msgid "Introduction"
+msgstr ""
+
 msgid "Newest!"
 msgstr ""
 

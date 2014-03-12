@@ -250,7 +250,8 @@ class Pod(object):
     return deployment
 
   def list_locales(self):
-    return self.yaml.get('localization', {}).get('locales', None)
+    codes = self.yaml.get('localization', {}).get('locales', [])
+    return locales.Locale.parse_codes(codes)
 
   def list_preprocessors(self):
     results = []

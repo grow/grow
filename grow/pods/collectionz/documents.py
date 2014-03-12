@@ -1,6 +1,7 @@
 from grow.common import markdown_extensions
 from grow.common import utils
 from grow.pods import urls
+from grow.pods import locales
 from grow.pods.collectionz import messages
 import jinja2
 import json
@@ -37,6 +38,7 @@ class Document(object):
 
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
     utils.validate_name(pod_path)
+    self._default_locale = _pod.podspec.default_locale
     self.locale = locale or _pod.podspec.default_locale
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
@@ -47,9 +49,9 @@ class Document(object):
 
     self.format = messages.extensions_to_formats.get(self.ext)
     if self.format == messages.Format.MARKDOWN:
-      self.doc_storage = MarkdownDocumentStorage(self.pod_path, self.pod)
+      self.doc_storage = MarkdownDocumentStorage(self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
     elif self.format == messages.Format.YAML:
-      self.doc_storage = YamlDocumentStorage(self.pod_path, self.pod)
+      self.doc_storage = YamlDocumentStorage(self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
     else:
       formats = messages.extensions_to_formats.keys()
       text = 'Basename "{}" does not have a valid extension. Valid formats are: {}'
@@ -67,6 +69,13 @@ class Document(object):
 
   def __ne__(self, other):
     return self.pod_path != other.pod_path or self.pod != other.pod
+
+  def __getattr__(self, name):
+    if name in self.fields:
+      return self.fields[name]
+    if '{}@'.format(name) in self.fields:
+      return self.fields['{}@'.format(name)]
+    return object.__getattribute__(self, name)
 
   @property
   def url(self):
@@ -89,14 +98,20 @@ class Document(object):
   def order(self):
     return self.fields.get('$order')
 
+  def _get_tagged_field(self, name):
+    if name in self.fields:
+      return self.fields[name]
+    return self.fields.get('{}@'.format(name))
+
   @property
   def title(self):
-    return self.fields.get('$title')
+    return self._get_tagged_field('$title')
 
   def titles(self, title_name=None):
     if title_name is None:
       return self.title
-    return self.fields.get('$titles', {}).get(title_name, self.title)
+    titles = self.fields.get('$titles', {})
+    return titles.get(title_name, titles.get('{}@'.format(title_name), self.title))
 
   @property
   def published(self):
@@ -123,8 +138,8 @@ class Document(object):
 
   def get_path_format(self):
     val = None
-    if self.locale:
-      if '$localization' in self.fields and self.fields['$localization']['path']:
+    if self.locale and self._default_locale and self.locale != self._default_locale:
+      if '$localization' in self.fields and 'path' in self.fields['$localization']:
         val = self.fields['$localization']['path']
       elif self.collection.localization:
         val = self.collection.localization['path']
@@ -153,7 +168,7 @@ class Document(object):
       return path_format.format(**{
           'doc': self,
           'parent': self.parent if self.parent else DummyDict(),
-          'locale': self.locale,
+          'locale': str(self.locale),
           'podspec': self.pod.get_podspec(),
           'base': os.path.splitext(os.path.basename(self.pod_path))[0],
           'slug': self.slug,
@@ -162,12 +177,16 @@ class Document(object):
       logging.error('Error with path format: {}'.format(path_format))
       raise
 
+  @property
+  def locales(self):
+    return self.list_locales()
+
   def list_locales(self):
     if '$localization' in self.fields:
-      if self.fields['$localization'].get('use_podspec_locales'):
-        return self.pod.list_locales()
-      return self.fields['$localization']['locales']
-    return self.collection.list_locales()
+      if 'locales' in self.fields['$localization']:
+        codes = self.fields['$localization']['locales']
+    codes = self.collection.list_locales()
+    return locales.Locale.parse_codes(codes)
 
   @property
   @utils.memoize
@@ -189,11 +208,6 @@ class Document(object):
     return (isinstance(self, Document)
             and isinstance(other, Document)
             and self.pod_path == other.pod_path)
-
-  def __getattr__(self, name):
-    if name in self.fields:
-      return self.fields[name]
-    return object.__getattribute__(self, name)
 
   def next(self, docs=None):
     # TODO(jeremydw): Verify items is a list of docs.
@@ -254,7 +268,10 @@ class Document(object):
 
 class BaseDocumentStorage(object):
 
-  def __init__(self, pod_path, pod):
+  def __init__(self, pod_path, pod, locale=None, default_locale=None):
+    # TODO(jeremydw): Only accept Locale objects, not strings.
+    self.default_locale = default_locale
+    self.locale = str(locale) if isinstance(locale, basestring) else locale
     self.pod_path = pod_path
     self.pod = pod
     self.content = None
@@ -293,7 +310,7 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, body = utils.parse_markdown(content, path=path)
+    fields, body = utils.parse_markdown(content, path=path, locale=self.locale, default_locale=self.default_locale)
     self.content = content
     self.fields = fields or {}
     self.body = body

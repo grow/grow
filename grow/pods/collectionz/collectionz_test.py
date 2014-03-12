@@ -1,6 +1,7 @@
 from grow.pods import pods
 from grow.pods.collectionz import collectionz
 from grow.pods.collectionz import messages
+from grow.pods import locales
 from grow.pods import storage
 import unittest
 
@@ -33,9 +34,9 @@ class CollectionsTest(unittest.TestCase):
 
   def test_list_locales(self):
     collection = self.pod.get_collection('pages')
-    locales = collection.list_locales()
-    expected = ['de', 'fr', 'it']
-    self.assertListEqual(expected, locales)
+    found_locales = collection.list_locales()
+    expected = locales.Locale.parse_codes(['de', 'en', 'fr', 'it'])
+    self.assertListEqual(expected, found_locales)
 
   def test_list_servable_documents(self):
     collection = self.pod.get_collection('pages')

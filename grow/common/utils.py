@@ -73,24 +73,40 @@ def memoize(f):
   return memodict(f)
 
 
-def parse_markdown(content, path=None):
-  # TODO: better parsing
-  try:
-    content = content.strip()
-    match = re.match(r'(?:^---)(.*)(?:\n---)\s*(.*)', content, re.DOTALL)
-    if not match:
-      return None, content
-    front_matter, body = match.groups()
-    if front_matter:
-      front_matter = yaml.load(front_matter)
-    return front_matter, body
-  except Exception as e:
-    if path:
-      text = 'Problem parsing YAML file "{}": {}'.format(path, str(e))
-    else:
-      text = 'Problem parsing YAML file: {}'.format(str(e))
-    logging.exception(e)
-    raise errors.BadYamlError(text)
+def every_two(l):
+  return zip(l[::2], l[1::2])
+
+
+def parse_markdown(content, path=None, locale=None, default_locale=None):
+  # TODO: better parsing + only accept Locale objects.
+  locale = str(locale) if locale is not None else locale
+  default_locale = str(default_locale) if default_locale is not None else default_locale
+  locales_to_contents = {}
+
+  parts = re.split('(?:^|[\n])---', content, re.DOTALL)
+  if len(parts) <= 1:
+    return None, content
+
+  parts = parts[1:]   # Strip off empty group.
+  for fields, content in every_two(parts):
+    fields = yaml.load(fields)
+    doc_locale = fields.get('$locale', default_locale)
+    locales_to_contents[doc_locale] = (fields, content)
+
+  # TODO(jeremydw): Allow user to control cascading behavior, but for now,
+  # combine all fields between localized document and default document. The
+  # localized fields take precedence.
+  if default_locale in locales_to_contents:
+    fields, content = locales_to_contents[default_locale]
+  else:
+    fields, content = (None, None)
+  if locale in locales_to_contents:
+    localized_fields, localized_content = locales_to_contents[locale]
+    if not fields:
+      fields = {}
+    fields.update(localized_fields)
+    content = localized_content
+  return fields, (content.strip() if content else None)
 
 
 def parse_yaml(content, path=None):
@@ -115,6 +131,18 @@ def parse_yaml(content, path=None):
 
 def dump_yaml(obj):
   return yaml.safe_dump(obj, allow_unicode=True, width=800, default_flow_style=False)
+
+
+_slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+
+
+def slugify(text, delim=u'-'):
+  result = []
+  for word in _slug_re.split(text.lower()):
+    word = word.encode('translit/long')
+    if word:
+      result.append(word)
+  return unicode(delim.join(result))
 
 
 class JsonEncoder(json.JSONEncoder):

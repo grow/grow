@@ -1,3 +1,4 @@
+from grow.pods import locales
 from grow.pods import pods
 from grow.pods import storage
 from grow.pods.controllers import page
@@ -11,10 +12,12 @@ class PageTest(unittest.TestCase):
 
   def test_ll(self):
     routes = self.pod.get_routes()
+    print routes.to_message()
     controller = routes.match('/')
     self.assertEqual(page.PageController.Defaults.LL, controller.ll)
     controller = routes.match('/de/about/')
-    self.assertEqual('de', controller.locale)
+    de_locale = locales.Locale.parse('de')
+    self.assertEqual(de_locale, controller.locale)
 
   def test_mimetype(self):
     routes = self.pod.get_routes()

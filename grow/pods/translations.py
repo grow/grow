@@ -101,21 +101,29 @@ class Translations(object):
 
     # Extract messages from content files.
     def callback(doc, node, key):
-      # TODO(jeremydw): Replace with better check to determine if field is
-      # translatable.
+      # Verify that the fields we're extracting are fields for a document that's
+      # in the default locale. If not, skip the document.
+      _handle_field(doc.pod_path, node, key)
+
+    def _handle_field(path, node, key):
       if not isinstance(node, basestring):
         return
-      if not key.startswith('$') or key == '$title':
+      if key.endswith('@'):
         comments = []
         context = None
         added_message = catalog_obj.add(
-            node, None, [(doc.pod_path, 0)], auto_comments=comments,
-            context=context)
+            node, None, [(path, 0)], auto_comments=comments, context=context)
         extracted.append(added_message)
 
     for collection in self.pod.list_collections():
       for doc in collection.list_documents(include_hidden=True):
         utils.walk(doc.fields, lambda *args: callback(doc, *args))
+
+    # Extract messages from podspec.
+    config = self.pod.get_podspec().get_config()
+    utils.walk(config, lambda *args: _handle_field('/podspec.yaml', *args))
+
+    # TODO(jeremydw): Extract messages from blueprints.
 
     # Write to PO template.
     pofile.write_po(template, catalog_obj, width=80, no_location=True,
@@ -130,12 +138,13 @@ class Translation(object):
 
   def __init__(self, pod, locale):
     self.pod = pod
+    locale_code = str(locale)
     self.locale = locale
-    self.path = os.path.join('translations', locale)
+    self.path = os.path.join('translations', locale_code)
     try:
-      path = os.path.join(self.pod.root, 'translations', locale)
+      path = os.path.join(self.pod.root, 'translations', locale_code)
       translations = gettext.translation(
-          'messages', os.path.dirname(path), [self.locale],
+          'messages', os.path.dirname(path), [locale_code],
           storage=self.pod.storage)
     except IOError:
       # TODO(jeremydw): If translation mode is strict, raise an error here if
@@ -161,7 +170,7 @@ class Translation(object):
     return self._gettext_translations._catalog
 
   def init_catalog(self):
-    locale = self.locale
+    locale = str(self.locale)
     input_path = os.path.join('translations', 'messages.pot')
     output_path = os.path.join('translations', locale, 'LC_MESSAGES', 'messages.po')
     logging.info('Creating catalog %r based on %r', output_path, input_path)
@@ -190,7 +199,7 @@ class Translation(object):
 
   def update_catalog(self, use_fuzzy=False, ignore_obsolete=True, include_previous=True,
                      width=80):
-    locale = self.locale
+    locale = str(self.locale)
     domain = 'messages'
     po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
     pot_filename = os.path.join('translations', 'messages.pot')
@@ -228,7 +237,7 @@ class Translation(object):
     self.pod.move_file_to(temp_filename, po_filename)
 
   def recompile_mo(self, use_fuzzy=False):
-    locale = self.locale
+    locale = str(self.locale)
     po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
     mo_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.mo')
     po_file = self.pod.open_file(po_filename)

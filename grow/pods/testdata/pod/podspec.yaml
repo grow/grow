@@ -8,8 +8,10 @@ domains:
 - example.net
 
 localization:
+  default_locale: en
   locales:
   - de
+  - en
   - fr
   - it
 

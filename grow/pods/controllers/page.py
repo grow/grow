@@ -87,7 +87,7 @@ class PageController(base.BaseController):
       return template.render({
           'g': context,
           'doc': self.document,
-          'podspec': self.pod.get_podspec().get_config(),
+          'podspec': self.pod.get_podspec(),
       })
     except Exception as e:
       text = 'Error building {}: {}'

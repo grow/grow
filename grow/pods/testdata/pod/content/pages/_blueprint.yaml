@@ -3,19 +3,13 @@ view: /views/base.html
 
 localization:
   path: /{locale}/{base}/
-  locales:
-  - de
-  - fr
-  - it
 
 fields:
 
 - key: title
   name: Title
   kind: Text
-  translated: true
 
 - key: title
   name: Title
   kind: Text
-  translated: true
