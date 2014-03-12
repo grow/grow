@@ -10,6 +10,7 @@ dulwich
 ez_setup
 google-api-python-client
 google-apputils
+goslate
 httplib2
 jinja2
 libsass
