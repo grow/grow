@@ -43,6 +43,9 @@ class Translations(object):
     locales = self.list_locales()
     for locale in locales:
       translation = Translation(pod=self.pod, locale=locale)
+      if not translation.po_exists():
+        logging.info('Catalog for {} does not exist, skipping compilation.'.format(translation))
+        continue
       translation.recompile_mo()
 
   def get_gettext_tanslations(self, locale):
@@ -156,6 +159,9 @@ class Translation(object):
       translations = gettext.NullTranslations()
     self._gettext_translations = translations
 
+  def __repr__(self):
+    return '<Translations: {}>'.format(self.path)
+
   def to_message(self):
     message = messages.TranslationCatalogMessage()
     message.locale = self.locale
@@ -239,6 +245,10 @@ class Translation(object):
       raise
 
     self.pod.move_file_to(temp_filename, po_filename)
+
+  def po_exists(self):
+    path = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
+    return self.pod.file_exists(path)
 
   def recompile_mo(self, use_fuzzy=False):
     locale = str(self.locale)

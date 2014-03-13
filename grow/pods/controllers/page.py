@@ -34,7 +34,8 @@ class PageController(base.BaseController):
 
   @property
   def locale(self):
-    return self.document.locale
+    if self.document:
+      return self.document.locale
 
   @property
   def ll(self):

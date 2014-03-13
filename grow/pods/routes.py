@@ -108,7 +108,7 @@ class Routes(object):
   def match_error(self, path, domain=None, status=404):
     if status == 404 and self.pod.error_routes:
       view = self.pod.error_routes.get('default')
-      return controllers.PageController(view=view, pod=self.pod)
+      return controllers.PageController(view=view, _pod=self.pod)
 
   def list_concrete_paths(self):
     path_formats = []

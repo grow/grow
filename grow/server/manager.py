@@ -70,7 +70,15 @@ def _start(pod, host=None, port=None, use_simple_log_format=True):
 
   port = 8080 if port is None else port
   host = 'localhost' if host is None else host
-  httpd = simple_server.make_server(host, int(port), app)
+
+  try:
+    httpd = simple_server.make_server(host, int(port), app)
+  except:
+    logging.exception('Failed to start server.')
+    quit_event.set()
+    change_watcher_thread.join()
+    sys.exit()
+
   try:
     logging.info('---')
     logging.info(utils.colorize('{yellow}The Grow SDK is experimental.{/yellow} Expect backwards incompatibility until v0.1.0.'))

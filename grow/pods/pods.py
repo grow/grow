@@ -55,6 +55,9 @@ class BuildError(Error):
 
 
 
+# TODO(jeremydw): A handful of the properties of "pod" should be moved to the
+# "podspec" class.
+
 class Pod(object):
 
   def __init__(self, root, changeset=None, storage=storage.auto):
@@ -191,9 +194,9 @@ class Pod(object):
       controller = routes.match(path)
       output[path] = controller.render()
 
-#    error_controller = routes.match_error('/404.html')
-#    if error_controller:
-#      output['/404.html'] = error_controller.render()
+    error_controller = routes.match_error('/404.html')
+    if error_controller:
+      output['/404.html'] = error_controller.render()
 
     return output
 
