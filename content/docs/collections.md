@@ -18,6 +18,13 @@ Every content collection must have a blueprint. Blueprints define how content is
     path: /people/{slug}/
     view: /views/people.html
 
+    localization:
+      path: /{locale}/people/{slug}/
+      locales:
+      - de
+      - fr
+      - it
+
     fields:
     - name:
         title: Name
@@ -34,19 +41,46 @@ Every content collection must have a blueprint. Blueprints define how content is
 
 Specifies the URL path format for content in this collection. If `path` is omitted, content in this collection will not be generated into pages. If `path` is specified, `view` is a required field.
 
-#### Converters
-
-- {language}
-- {locale}
-- {region}
-- {slug}
-- {title}
+  - {base}
+  - {language}
+  - {locale}
+  - {region}
+  - {slug}
+  - {title}
 
 ### view
 
 Specifies which template should be used to render content in this collection. If `view` is specified, `path` is a required field.
 
+    # Documents in this collection will use the following template.
+    view: /views/pages.html
+
+### localization
+
+Localization configuration for content in this collection.
+
+#### path
+
+Specifies a URL path format for localized content. By specifying both `path` and `localization:path`, you can use different formats for the URL paths for "root" and localized content.
+
+    path: /{locale}/people/{slug}/
+
+#### locales
+
+Specifies a list of locales that documents in this collection are available in. Each document's *path* will be expanded using *locales* to derive the URLs that the document is available at.
+
+    locales:
+    - de
+    - fr
+    - it
+
+### categories
+
+The `categories` key contains a list of categories that documents inside the collection can fall into. A collection's categories can be used in conjunction with the `g.categories` template function to iterate over the documents in the collection, grouped by category.
+
 ### fields
+
+<div class="badge badge-not-implemented">Not implemented</div>
 
 Specifies the content structure for documents in this collection. Fields are used to validate the structure of content documents and to provide users with a form for content entry.
 
@@ -91,7 +125,3 @@ The following fields are built-in, and you do not need to specify them in a blue
 - $tags – text (multiple)
 - $title – text
 - $localization – yaml
-
-### categories
-
-The `categories` key contains a list of categories that documents inside the collection can fall into. A collection's categories can be used in conjunction with the `g.categories` template function to iterate over the documents in the collection, grouped by category.

@@ -1474,6 +1474,10 @@ p {
     .panel {
       display: block; } }
 
+.toolbar small {
+  display: inline-block;
+  margin: 10px 0; }
+
 .panel.text summary {
   padding-right: 20px; }
 
@@ -1544,11 +1548,12 @@ table tr th {
   font-size: 14px;
   font-weight: 500; }
 
-.panel.intro img {
+.panel .hero {
+  height: 350px;
   margin-right: 50px;
-  max-width: 100%; }
+  width: 350px; }
   @media screen and (max-width: 700px) {
-    .panel.intro img {
+    .panel .hero {
       display: none; } }
 
 .toolbar {
@@ -1664,6 +1669,7 @@ nav.side h3:first-child {
   margin-top: 0; }
 
 pre.prettyprint {
+  box-sizing: border-box;
   margin-left: 0;
   margin-right: 0;
   width: 100%;
@@ -1771,3 +1777,49 @@ ul.codelab li.active a {
   background-color: #362d6c;
   background-image: linear-gradient(45deg, #362d6c 0%, #0c5593 100%);
   color: #fff; }
+
+.badge {
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 5px;
+  padding: 4px 9px; }
+
+.badge-not-implemented {
+  background: #675288;
+  color: #fff; }
+
+.badge-docs-incomplete {
+  background: #4598cc;
+  color: #fff; }
+
+.screencast {
+  margin: 40px auto;
+  max-width: 855px; }
+
+.screencast iframe {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+  border: 0;
+  background: #000;
+  border-radius: 0 0 8px 8px;
+  height: 420px;
+  width: 100%; }
+
+.screencast .title {
+  display: block;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  background: #f7f7f7;
+  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+  background: -moz-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f7f7f7), color-stop(7%, #cfcfcf), color-stop(100%, #aaaaaa));
+  background: -webkit-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+  background: -o-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+  background: -ms-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+  background: linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
+  border-bottom: 1px solid #555; }

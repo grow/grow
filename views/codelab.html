@@ -6,7 +6,7 @@
       {% for item in g.docs('codelab') %}
       <li
       {% if doc == item %}class="active"{% endif %}
-      ><a href="{{item.url.path}}" title="{{item.title}}">{{item.slug}}</a>
+      ><a href="{{item.url.path}}" title="{{item.title}}">{{item.base}}</a>
       {% endfor %}
     </ul>
 

@@ -11,11 +11,14 @@ An actual directory of samples is coming soon. In the meantime, you can view the
 
 You can also use the `grow init <theme> <dir>` command to clone any of the below themes to your system.
 
-- [blank](https://github.com/growthemes/blank)
-- [blog](https://github.com/growthemes/blog)
-- [codelab](https://github.com/growthemes/codelab)
-- [i18n](https://github.com/growthemes/i18n)
-- [landing](https://github.com/growthemes/blog)
+__* indicates not implemented__
+
+- [blank](https://github.com/growthemes/blank) *
+- [blog](https://github.com/growthemes/blog) *
+- [cards](https://github.com/growthemes/cards)
+- [codelab](https://github.com/growthemes/codelab) *
+- [i18n](https://github.com/growthemes/i18n) *
+- [landing](https://github.com/growthemes/blog) *
 
 ## Samples
 

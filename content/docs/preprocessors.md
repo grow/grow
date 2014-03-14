@@ -11,6 +11,8 @@ Preprocessors let you take source files in your pod and run programs on them to 
 
 ## Closure Compiler
 
+<div class="badge badge-not-implemented">Not implemented</div>
+
 The [Closure Compiler](https://developers.google.com/closure/compiler/) preprocessor optimizes and compiles JavaScript files. Use Closure Compiler to make your site's JavaScript more efficient and to check your code. The Closure Compiler preprocessor watches your pod's JavaScript files for changes and compiles them on the fly.
 
     - kind: closure-compiler

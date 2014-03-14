@@ -18,11 +18,12 @@ There are several built-in global variables available to templates. Because thes
 
 ### doc
 
-The current content document associated with the current page that's being rendered. See the [full documentation for the Document API]([url('/content/docs/documents.md')]).
+The current content document associated with the current page that's being rendered. See the [full documentation for the document API]([url('/content/docs/documents.md')]).
 
     {{doc.category}}      # Document's category
-    {{doc.title()}}       # Document's default title.
-    {{doc.html()|safe}}   # Document's rendered Markdown body.
+    {{doc.title}}         # Document's canonical title.
+    {{doc.titles('nav'}}  # Document's "nav" title.
+    {{doc.html|safe}}     # Document's rendered Markdown body.
     {{doc.foo}}           # Value of the "foo" custom field from the YAML front matter.
 
 ### podspec
@@ -39,6 +40,8 @@ All built-in functions are prefixed with the `g` namespace.
 ### g.breadcrumb
 
 `g.breadcrumb(<doc>)`
+
+<div class="badge badge-not-implemented">Not implemented</div>
 
 Returns a list of ancestor documents, in order from oldest to youngest, to produce a breadcrumb for the given document.
 
@@ -66,16 +69,20 @@ Lists content documents within a collection and groups them by their *$category*
 
 ### g.doc
 
-`g.doc(<document path>)`
+`g.doc(<document path>, locale=<locale>)`
 
 Gets a single content document, given its pod path.
 
     {% set foo = g.doc('/content/pages/index.md') %}
     {{foo}}
 
+
+    # Returns the fr version of a document.
+    {{g.doc('/content/pages/index.md', locale='fr'}}
+
 ### g.docs
 
-`g.docs(<collection>, order_by=<field name>)`
+`g.docs(<collection>, order_by=<field name>, locale=<locale>)`
 
 Searches content documents within a collection.
 
@@ -87,7 +94,9 @@ Searches content documents within a collection.
 
 ### g.nav
 
-Nav
+<div class="badge badge-not-implemented">Not implemented</div>
+
+Returns an object which can be used to create navigation.
 
 ### g.static
 

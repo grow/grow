@@ -31,15 +31,12 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
       required: yes
 
     localization:
-      root_path: /{locale}/
-      languages:
+      default_locale: en
+      locales:
+      - de
       - en
       - fr
-      - ja
-      regions:
-      - ca
-      - jp
-      - us
+      - it
 
 ### project*
 
@@ -97,7 +94,7 @@ If you do not wish to use Grow's content management or templating features, you 
 
 ### error_routes
 
-Grow can build error pages for various error codes. The error page renders a view, which can leverage the template variable `g.error` to gain additional information about the error. To specify a generic error page, use "default". When a pod is built and deployed to a storage provider such as Amazon S3 or Google Cloud Storage, the storage provider will be configured to use these error pages.
+Grow can build error pages for various error codes. The error page renders a view, which can leverage the template variable `{{error}}` to gain additional information about the error. To specify a generic error page, use "default". When a pod is built and deployed to a storage provider such as Amazon S3 or Google Cloud Storage, the storage provider will be configured to use these error pages.
 
     default: /views/errors/default.html
     not_found: /views/errors/404.html
@@ -108,6 +105,8 @@ Grow can build error pages for various error codes. The error page renders a vie
     im_a_teapot: /views/errors/418.html
 
 ### content_security_policy
+
+<div class="badge badge-not-implemented">Not implemented</div>
 
 Allows you to enforce a pod-wide [content security policy](http://www.html5rocks.com/en/tutorials/security/content-security-policy/).
 
@@ -122,23 +121,22 @@ Whether the content security policy is required on all HTML pages. If `yes`, HTM
 
 The default localization configuration for all content in the pod.
 
-#### languages
+#### default_locale
 
-Specify a list of languages that your site can be translated into. Strings will be extracted from content and views and made available for translation into these languages. In order to generate translated pages, the `path` field of a blueprint must contain a `{language}` token.
+Sets the global, default locale to use for content when a locale is not explicitly. This allows you to set a global, default locale for the content throughout your site. For example, if you wanted to serve English content at *http://example.com/site/* and localized content at *http://example.com/{locale}/site/*, you would set *default_locale* to `en`.
 
-    languages:
+It also allows you to use a non-English language as the source language for content (for example, when translating *from* Chinese *to* English).
+
+    default_locale: en
+
+#### locales
+
+A list of locales that your site is available in. Language codes will be derived from the locales in this list and separate translation catalogs will be created for each language. The `{locale}` converter can be used in `path` configs (such as in `podspec.yaml` or in a blueprint).
+
+    locales:
     - en
-    - fr
-    - ja
-
-#### regions
-
-Content can be regionalized (that is, certain content can be made available for specific regions only – and content can change depending on the region). In order to generate regionalized pages, the `path` field of a blueprint must contain a `{region}` token.
-
-    regions:
-    - ca
-    - jp
-    - us
+    - de
+    - it
 
 ### preprocessors
 

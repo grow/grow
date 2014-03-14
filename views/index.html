@@ -4,7 +4,9 @@
 
   <div class="wrap">
     <div class="panel intro">
-      <img src="{{g.static('/static/images/grow.svg')}}">
+      <div class="hero">
+        <img src="{{g.static('/static/images/grow.svg')}}">
+      </div>
       <summary>
         <h1>{{doc.hero.title}}</h1>
         {{doc.hero.content}}
@@ -21,6 +23,10 @@
         </div>
         <div class="disclaimer">{{doc.hero.disclaimer}}</div>
       </summary>
+    </div>
+    <div class="screencast">
+      <div class="title">Quick start – create and deploy in seconds</div>
+      <iframe src="https://showterm.herokuapp.com/0a96a7954525cb35fd6ef#fast"></iframe>
     </div>
 
     {% macro callout(sections) %}

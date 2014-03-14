@@ -37,7 +37,7 @@ Sicne Grow translations are opt-in instead of opt-out, it's possible to show tra
 
 ### Content documents
 
-Field names postfixed with an `@` symbol are translatable. Note that you can omit the `@` when referring to the field in a template.
+Field names postfixed with an `@` symbol are translatable. Note that you should omit the `@` when referring to the field in a template. The @ is simply used to tag the field for translation in the YAML front matter.
 
     # /content/pages/foo.md (YAML front matter)
 

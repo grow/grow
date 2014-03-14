@@ -1,4 +1,4 @@
-grow_version: 0.0.25
+grow_version: 0.0.25.4
 project_id: grow/growsdk.org
 title: Grow SDK
 
@@ -7,6 +7,9 @@ flags:
 
 localization:
   default_locale: en
+
+error_routes:
+  default: /views/errors/default.html
 
 static_files:
   - from: /static/
@@ -18,6 +21,6 @@ preprocessors:
     out_dir: /static/css/
 
 deployments:
-  preview:
+  default:
     destination: gcs
     bucket: preview.growsdk.org
