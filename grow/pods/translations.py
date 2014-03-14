@@ -119,6 +119,8 @@ class Translations(object):
         added_message = catalog_obj.add(
             item, None, [(path, 0)], auto_comments=comments, context=context)
         if added_message not in extracted:
+          if isinstance(item, unicode):
+            item = item.encode('utf-8')
           logging.info('[{}] {}'.format(path, item))
         extracted.append(added_message)
 
@@ -320,7 +322,9 @@ class Translation(object):
       message.string = string
       if isinstance(string, unicode):
         string = string.encode('utf-8')
-      logging.info('[{}] {}'.format(message.id, string))
+      source = message.id
+      source = source.encode('utf-8') if isinstance(source, unicode) else source
+      logging.info('[{}] {}'.format(source, string))
 
     output_path = os.path.join('translations', locale, 'LC_MESSAGES', 'messages.po')
     outfile = self.pod.open_file(output_path, mode='w')

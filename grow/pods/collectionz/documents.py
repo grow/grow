@@ -156,16 +156,29 @@ class Document(object):
     return self.collection.get_doc(parent_pod_path, locale=self.locale)
 
   def get_serving_path(self):
+    # Get root path.
+    locale = str(self.locale)
+    config = self.pod.get_podspec().get_config()
+    root_path = config.get('flags', {}).get('root_path', '')
+    if locale == self._default_locale:
+      root_path = config.get('localization', {}).get('root_path', root_path)
+
     path_format = (self.get_path_format()
         .replace('<grow:locale>', '{locale}')
         .replace('<grow:locale>', '{locale}')
         .replace('<grow:slug>', '{slug}')
         .replace('<grow:published_year>', '{published_year}'))
+
+    # Prevent double slashes when combining root path and path format.
+    if path_format.startswith('/') and root_path.endswith('/'):
+      root_path = root_path[0:len(root_path)-1]
+    path_format = root_path + path_format
+
     try:
       return path_format.format(**{
           'doc': self,
           'parent': self.parent if self.parent else DummyDict(),
-          'locale': str(self.locale),
+          'locale': locale,
           'podspec': self.pod.get_podspec(),
           'base': os.path.splitext(os.path.basename(self.pod_path))[0],
           'slug': self.slug,

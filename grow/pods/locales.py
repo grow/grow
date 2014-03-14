@@ -1,4 +1,5 @@
 import babel
+import re
 from grow.pods import errors
 from grow.pods import messages
 
@@ -44,6 +45,16 @@ class Locales(object):
 
 class Locale(babel.Locale):
 
+  RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
+
   @classmethod
   def parse_codes(cls, codes):
     return [cls.parse(code) for code in codes]
+
+  @property
+  def is_rtl(self):
+    return Locale.RTL_REGEX.match(self.language)
+
+  @property
+  def direction(self):
+    return 'rtl' if self.is_rtl else 'ltr'
