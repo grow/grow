@@ -1,10 +1,11 @@
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
+from grow.common import utils
+from grow.pods.preprocessors import translation as translation_preprocessor
 from grow.pods.preprocessors.file_watchers import file_watchers
 from grow.server import handlers
 from grow.server import main as main_lib
-from grow.common import utils
 from wsgiref import simple_server
 import atexit
 import multiprocessing
@@ -29,49 +30,46 @@ def _start(pod, host=None, port=None, use_simple_log_format=True):
   root = pod.root
   preprocessors = pod.list_preprocessors()
 
-  # Map directory names to preprocessors.
-  dirs_to_preprocessors = {}
-  for preprocessor in preprocessors:
-    for watched_dir in preprocessor.list_watched_dirs():
-      if watched_dir not in dirs_to_preprocessors:
-        dirs_to_preprocessors[watched_dir] = []
-      dirs_to_preprocessors[watched_dir].append(preprocessor)
-
-  # Run all preprocessors for the pod.
-  [preprocessor.run() for preprocessor in preprocessors]
-
-  # Create file watchers for each preprocessor.
-  file_watchers_to_preprocessors = {}
-  for dirname, preprocessors in dirs_to_preprocessors.iteritems():
-    dirname = os.path.join(pod.root, dirname.lstrip('/'))
-    change_watcher = file_watchers.get_file_watcher([dirname])
-    change_watcher.start()
-    file_watchers_to_preprocessors[change_watcher] = preprocessors
-
-  # Start a thread where preprocessors can run if there are changes.
-  quit_event = threading.Event()
-  change_watcher_thread = threading.Thread(
-      target=_loop_watching_for_changes,
-      args=(pod, file_watchers_to_preprocessors, quit_event))
-  change_watcher_thread.start()
-
-  # Compile translations.
-  # TODO(jeremydw): Move to TranslationPreprocessor.
-  translations_obj = pod.get_translations()
-  translations_obj.recompile_mo_files()
-
-  root = os.path.abspath(os.path.normpath(root))
-  logger_format = ('[%(time)s] "%(REQUEST_METHOD)s %(REQUEST_URI)s" %(status)s'
-                   if use_simple_log_format else None)
-
-  # Start the actual server.
-  handlers.set_pod_root(root)
-  app = main_lib.application
-
-  port = 8080 if port is None else port
-  host = 'localhost' if host is None else host
+  # Add the translation preprocessor as a builtin.
+  preprocessors.insert(0, translation_preprocessor.TranslationPreprocessor(pod=pod))
 
   try:
+    # TODO(jeremydw): Custom server logs.
+    # logger_format = ('[%(time)s] "%(REQUEST_METHOD)s %(REQUEST_URI)s" %(status)s'
+    #                 if use_simple_log_format else None)
+
+    # Map directory names to preprocessors.
+    dirs_to_preprocessors = {}
+    for preprocessor in preprocessors:
+      for watched_dir in preprocessor.list_watched_dirs():
+        if watched_dir not in dirs_to_preprocessors:
+          dirs_to_preprocessors[watched_dir] = []
+        dirs_to_preprocessors[watched_dir].append(preprocessor)
+
+    # Run all preprocessors for the pod.
+    [preprocessor.first_run() for preprocessor in preprocessors]
+
+    # Create file watchers for each preprocessor.
+    file_watchers_to_preprocessors = {}
+    for dirname, preprocessors in dirs_to_preprocessors.iteritems():
+      dirname = os.path.join(pod.root, dirname.lstrip('/'))
+      change_watcher = file_watchers.get_file_watcher([dirname])
+      change_watcher.start()
+      file_watchers_to_preprocessors[change_watcher] = preprocessors
+
+    # Start a thread where preprocessors can run if there are changes.
+    quit_event = threading.Event()
+    change_watcher_thread = threading.Thread(
+        target=_loop_watching_for_changes,
+        args=(pod, file_watchers_to_preprocessors, quit_event))
+    change_watcher_thread.start()
+
+    # Create the development server.
+    root = os.path.abspath(os.path.normpath(root))
+    handlers.set_pod_root(root)
+    app = main_lib.application
+    port = 8080 if port is None else port
+    host = 'localhost' if host is None else host
     httpd = simple_server.make_server(host, int(port), app)
   except:
     logging.exception('Failed to start server.')

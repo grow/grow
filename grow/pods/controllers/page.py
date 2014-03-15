@@ -56,6 +56,7 @@ class PageController(base.BaseController):
     else:
       translation = self.pod.translations.get_translation(ll)
       gettext_translations = translation.get_gettext_translations()
+    self._template_env.uninstall_gettext_translations(None)
     self._template_env.install_gettext_translations(gettext_translations, newstyle=True)
 
   def list_concrete_paths(self):

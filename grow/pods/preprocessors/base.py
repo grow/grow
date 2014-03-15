@@ -6,6 +6,9 @@ class BasePreprocessor(object):
   def set_params(self, **kwargs):
     pass
 
+  def first_run(self):
+    self.run()
+
   def run(self):
     raise NotImplementedError
 
