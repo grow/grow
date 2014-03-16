@@ -195,9 +195,8 @@ class MachineTranslateCmd(appcommands.Cmd):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if not FLAGS.locale:
       raise appcommands.AppCommandsError('Must specify: --locale.')
-    text = (
-        '---\n{red}WARNING!{/red} Machine translation is experimental.'
-        ' You may run into problems with placeholders.\n---')
+    text = ('---\n{red}WARNING!{/red} Use machine translation with caution.'
+            ' It is not intended for use in production.\n---')
     logging.info(utils.colorize(text))
     translations = pod.get_translations()
     translations.extract()

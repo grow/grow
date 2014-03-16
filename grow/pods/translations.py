@@ -10,6 +10,7 @@ from grow.pods.storage import gettext_storage as gettext
 import babel
 import logging
 import os
+import re
 import tokenize
 import goslate
 
@@ -312,11 +313,33 @@ class Translation(object):
       logging.info('No untranslated strings for {}, skipping.'.format(locale))
       return
 
+    # Convert Python-format named placeholders to numerical placeholders compatible
+    # with Google Translate. Ex: %(name)s => (O).
+    placeholders = []  # Lists a mapping of (#) placeholders to %(name)s placeholders.
+    for n, string in enumerate(strings_to_translate):
+      match = re.search('(%\([^\)]*\)\w)', string)
+      if not match:
+        placeholders.append(None)
+        continue
+      for i, group in enumerate(match.groups()):
+        num_placeholder = '({})'.format(i)
+        nums_to_names = {}
+        nums_to_names[num_placeholder] = group
+        replaced_string = string.replace(group, num_placeholder)
+        placeholders.append(nums_to_names)
+        strings_to_translate[n] = replaced_string
+
     machine_translator = goslate.Goslate()
     results = machine_translator.translate(strings_to_translate, locale)
 
     for i, string in enumerate(results):
       message = messages_to_translate[i]
+
+      # Replace numerical placeholders with named placeholders.
+      if placeholders[i]:
+        for num_placeholder, name_placeholder in placeholders[i].iteritems():
+          string = string.replace(num_placeholder, name_placeholder)
+
       message.string = string
       if isinstance(string, unicode):
         string = string.encode('utf-8')
