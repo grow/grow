@@ -66,10 +66,17 @@ def install():
 
   remote = urllib2.urlopen(RELEASE_URL)
   try:
-    hai('Downloading from {}...'.format(RELEASE_URL))
+    hai('Downloading from {}'.format(RELEASE_URL))
     local, temp_path = tempfile.mkstemp()
     local = os.fdopen(local, 'w')
-    local.write(remote.read())
+    while True:
+      content = remote.read(1048576)  # 1MB.
+      if not content:
+        sys.stdout.write(' done!\n')
+        break
+      local.write(content)
+      sys.stdout.write('.')
+      sys.stdout.flush()
     remote.close()
     local.close()
     fp = open(temp_path, 'rb')
