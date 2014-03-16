@@ -5,22 +5,17 @@
 
 import datetime
 import os
+import platform
 import re
 import sys
 import tempfile
 import urllib2
 import zipfile
 
-
 VERSION = '0.0.25.4'
 RELEASE_URL = (
     'https://github.com/grow/macgrow/releases/download/{version}/'
     'Grow-SDK-{version}.zip'.format(version=VERSION))
-
-try:
-  import MacOS
-except ImportError:
-  sys.exit('This installer is currently only for Mac OS X. Use "pip install grow" to install on Unix/Linux.')
 
 
 def colorize(text):
@@ -47,7 +42,7 @@ def orly(text):
   return resp.lower() == 'y'
 
 
-def main():
+def install():
   bin_path = '{}/bin/grow'.format(os.getenv('HOME'))
   profile_path = '{}/.bash_profile'.format(os.getenv('HOME'))
   alias_cmd = 'alias grow="{}"'.format(bin_path)
@@ -98,4 +93,7 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
+  if platform.system() != 'Darwin':
+    print 'This installer is currently only for Mac OS X. Use "pip install grow" to install on Unix/Linux.'
+    sys.exit(-1)
+  install()

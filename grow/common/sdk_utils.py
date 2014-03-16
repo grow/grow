@@ -40,6 +40,8 @@ def check_version(quiet=False):
         logging.info('Quick update by pasting the following command:')
         command = '  python -c "$(curl -fsSL https://raw.github.com/grow/pygrow/master/install.py)"'
         logging.info(utils.colorize('{yellow}%s{/yellow}' % command))
+      else:
+        logging.info('Update using: pip install --upgrade grow')
       logging.info('---')
     else:
       logging.info('You have the latest version: {}'.format(yours))
