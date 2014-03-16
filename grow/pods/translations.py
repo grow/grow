@@ -85,17 +85,19 @@ class Translations(object):
     template = self.pod.open_file(template_path, mode='w')
     extracted = []
 
+    logging.info('Updating translation template: {}'.format(template_path))
+
     # Extract messages from views.
     pod_files = self.pod.list_dir('/views/')
     for path in pod_files:
       pod_path = os.path.join('/views', path)
       if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
+        logging.info('Extracting from view: {}'.format(pod_path))
         fp = self.pod.open_file(pod_path)
         try:
           messages = extract.extract('jinja2', fp)
           for message in messages:
             lineno, string, comments, context = message
-            logging.info('[{}:{}] {}'.format(pod_path, lineno, string))
             added_message = catalog_obj.add(
                 string, None, [(pod_path, lineno)], auto_comments=comments,
                 context=context)
@@ -119,26 +121,23 @@ class Translations(object):
         added_message = catalog_obj.add(
             item, None, [(path, 0)], auto_comments=comments, context=context)
         if added_message not in extracted:
-          if isinstance(item, unicode):
-            item = item.encode('utf-8')
-          logging.info('[{}] {}'.format(path, item))
-        extracted.append(added_message)
+          extracted.append(added_message)
 
     for collection in self.pod.list_collections():
+      logging.info('Extracting from collection: {}'.format(collection.pod_path))
       for doc in collection.list_documents(include_hidden=True):
         utils.walk(doc.tagged_fields, lambda *args: callback(doc, *args))
 
     # Extract messages from podspec.
     config = self.pod.get_podspec().get_config()
-    utils.walk(config, lambda *args: _handle_field('/podspec.yaml', *args))
-
-    # TODO(jeremydw): Extract messages from blueprints.
+    podspec_path = '/podspec.yaml'
+    logging.info('Extracting from podspec: {}'.format(podspec_path))
+    utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
 
     # Write to PO template.
+    logging.info('Writing {} messages to translation template.'.format(len(catalog_obj)))
     pofile.write_po(template, catalog_obj, width=80, no_location=True,
                     omit_header=True, sort_output=True, sort_by_file=True)
-    text = 'Extracted {} messages from {} files to: {}'
-    logging.info(text.format(len(extracted), len(pod_files), template_path))
     template.close()
     return catalog_obj
 
@@ -307,11 +306,10 @@ class Translation(object):
     # Get strings to translate.
     # TODO(jeremydw): Use actual string, not the msgid. Currently we assume
     # the msgid is the source string.
-    logging.info('WARNING! Machine translation is experimental.')
     messages_to_translate = [message for message in catalog if not message.string]
     strings_to_translate = [message.id for message in messages_to_translate]
     if not strings_to_translate:
-      logging.info('No untranslated strings, aborting.')
+      logging.info('No untranslated strings for {}, skipping.'.format(locale))
       return
 
     machine_translator = goslate.Goslate()
@@ -324,11 +322,11 @@ class Translation(object):
         string = string.encode('utf-8')
       source = message.id
       source = source.encode('utf-8') if isinstance(source, unicode) else source
-      logging.info('[{}] {}'.format(source, string))
 
     output_path = os.path.join('translations', locale, 'LC_MESSAGES', 'messages.po')
     outfile = self.pod.open_file(output_path, mode='w')
-    logging.info('Machine translated: {}'.format(output_path))
+    text = 'Machine translated {} strings: {}'
+    logging.info(text.format(len(strings_to_translate), output_path))
     try:
       pofile.write_po(outfile, catalog, width=80)
     finally:

@@ -8,6 +8,7 @@ from google.apputils import appcommands
 from grow.deployments import deployments
 from grow.client import client
 from grow.common import sdk_utils
+from grow.common import utils
 from grow.server import manager
 from grow.pods import commands as pod_commands
 from grow.pods import pods
@@ -184,8 +185,8 @@ class MachineTranslateCmd(appcommands.Cmd):
   """Translates a message catalog using machine translation."""
 
   def __init__(self, name, flag_values, command_aliases=None):
-    flags.DEFINE_string('locale', False, 'Which locale to translate.',
-                        flag_values=flag_values)
+    flags.DEFINE_multistring('locale', [], 'Which locale to translate.',
+                             flag_values=flag_values)
     super(MachineTranslateCmd, self).__init__(
         name, flag_values, command_aliases=command_aliases)
 
@@ -194,11 +195,16 @@ class MachineTranslateCmd(appcommands.Cmd):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if not FLAGS.locale:
       raise appcommands.AppCommandsError('Must specify: --locale.')
+    text = (
+        '---\n{red}WARNING!{/red} Machine translation is experimental.'
+        ' You may run into problems with placeholders.\n---')
+    logging.info(utils.colorize(text))
     translations = pod.get_translations()
     translations.extract()
-    translation = translations.get_translation(FLAGS.locale)
-    translation.update_catalog()
-    translation.machine_translate()
+    for locale in FLAGS.locale:
+      translation = translations.get_translation(locale)
+      translation.update_catalog()
+      translation.machine_translate()
 
 
 class UpCmd(appcommands.Cmd):

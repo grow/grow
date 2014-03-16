@@ -78,11 +78,12 @@ def _start(pod, host=None, port=None, use_simple_log_format=True):
     sys.exit()
 
   try:
+    root_path = pod.get_root_path()
     logging.info('---')
     logging.info(utils.colorize('{yellow}The Grow SDK is experimental.{/yellow} Expect backwards incompatibility until v0.1.0.'))
     logging.info('Thank you for testing and contributing! Visit http://growsdk.org for resources.')
     logging.info('---')
-    logging.info('Serving pod {} at http://{}:{}'.format(root, host, port))
+    logging.info('Serving pod {} at http://{}:{}{}'.format(root, host, port, root_path))
     text = '{green}READY!{/green} Press Ctrl+C to shut down.'
     logging.info(utils.colorize(text))
     httpd.serve_forever()

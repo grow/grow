@@ -38,6 +38,8 @@ def walk(node, callback):
 
 def colorize(text):
   return text.format(**{
+    'blue': '\033[0;34m',
+    '/blue': '\033[0;m',
     'red': '\033[0;31m',
     '/red': '\033[0;m',
     'green': '\033[0;32m',

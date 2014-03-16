@@ -283,3 +283,11 @@ class Pod(object):
         extensions=['jinja2.ext.i18n'])
     env.filters['markdown'] = tags.markdown_filter
     return env
+
+  def get_root_path(self, locale=None):
+    path_format = self.yaml.get('flags', {}).get('root_path', None)
+    if locale is None:
+      locale = self.yaml.get('localization', {}).get('default_locale', '')
+    if not path_format:
+      return '/'
+    return path_format.format(**{'locale': locale})
