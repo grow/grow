@@ -34,8 +34,12 @@ def check_version(quiet=False):
     yours = config.VERSION
     if theirs > yours:
       logging.info('---')
-      logging.info('Your version: {}, latest version: {}'.format(yours, theirs))
-      logging.info('A newer version of the SDK is available. Please update now: http://growsdk.org')
+      logging.info(utils.colorize('{green}Your version: %s,{/green} {yellow}latest version: %s{/yellow}' % (yours, theirs)))
+      logging.info('A newer version of the SDK is available, so please update yours. See http://growsdk.org.')
+      if utils.is_packaged_app():
+        logging.info('Quick update by pasting the following command:')
+        command = '  python -c "$(curl -fsSL https://raw.github.com/grow/pygrow/master/install.py)"'
+        logging.info(utils.colorize('{yellow}%s{/yellow}' % command))
       logging.info('---')
     else:
       logging.info('You have the latest version: {}'.format(yours))

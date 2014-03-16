@@ -10,11 +10,18 @@ import time
 import yaml
 
 
-def get_grow_dir():
+def is_packaged_app():
   try:
-    return os.path.join(sys._MEIPASS)
+    sys._MEIPASS
+    return True
   except AttributeError:
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    return False
+
+
+def get_grow_dir():
+  if is_packaged_app():
+    return os.path.join(sys._MEIPASS)
+  return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def interactive_confirm(message, default=False):
