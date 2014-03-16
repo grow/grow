@@ -67,7 +67,7 @@ def main():
   result = orly('Continue? [y/N]: ')
   if not result:
     hai('Aborted installation.')
-    sys.exit()
+    sys.exit(-1)
 
   remote = urllib2.urlopen(RELEASE_URL)
   try:
