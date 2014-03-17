@@ -39,15 +39,15 @@ Full documentation is available at http://growsdk.org, but this four-step proces
     # Add --user pip installations to your PATH. (Put this in ~/.bashrc).
     export PATH=$HOME/.local/bin:$PATH
 
-(2) Initialize a new pod using the "cards" theme.
+(2) Initialize a new pod using the "codelab" theme.
 
     grow init codelab ~/example.com/
 
-(3) Run a small web server for live editing and previewing.
+(3) Run a live development web server for live editing and previewing.
 
     grow run ~/example.com/
 
-(4) Deploy your site to the public web.
+(4) Deploy your site to the default destination.
 
     grow deploy ~/example.com/
 
