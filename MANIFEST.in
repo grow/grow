@@ -1,3 +1,2 @@
 include * 
 recursive-include grow *
-prune grow/submodules
