@@ -1,7 +1,7 @@
 # -*- mode: python -*-
 
 a = Analysis(['bin/grow'],
-             pathex=['.', '/Library/Python/2.7/site-packages/'],
+             pathex=['.', '../grow', '/Library/Python/2.7/site-packages/'],
              hiddenimports=[
                 'babel.numbers',
                 'babel.plural',

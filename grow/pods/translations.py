@@ -96,7 +96,7 @@ class Translations(object):
         logging.info('Extracting from view: {}'.format(pod_path))
         fp = self.pod.open_file(pod_path)
         try:
-          messages = extract.extract('jinja2', fp)
+          messages = extract.extract('jinja2.ext.babel_extract', fp)
           for message in messages:
             lineno, string, comments, context = message
             added_message = catalog_obj.add(
