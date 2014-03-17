@@ -2,7 +2,12 @@
 
 a = Analysis(['bin/grow'],
              pathex=['.', '/Library/Python/2.7/site-packages/'],
-             hiddenimports=['markdown', 'markdown.extensions'],
+             hiddenimports=[
+                'babel.numbers',
+                'babel.plural',
+                'markdown', 
+                'markdown.extensions',
+             ],
              hookspath=None,
              runtime_hooks=None)
 
