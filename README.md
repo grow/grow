@@ -16,7 +16,7 @@ Visit the Grow SDK's website at http://growsdk.org where you can learn all about
 
 ## Experimental!
 
-The Grow SDK is still under development and is *considered experimental*. We may make backwards-incompatible changes to the API and design until v0.1.0. Please consult the documentation at growsdk.org, give it a try, and provide feedback.
+The Grow SDK is still under development and is *considered experimental*. We may make backwards-incompatible changes to the API and design until v0.1.0. Please consult the documentation at http://growsdk.org, [join the mailing list](https://groups.google.com/forum/#!forum/growsdk), give it a try, and provide feedback.
 
 ## Quick start usage
 
@@ -52,6 +52,12 @@ Full documentation is available at http://growsdk.org, but this four-step proces
     grow deploy ~/example.com/
 
 ## Contributing
+
+We welcome pull requests, themes, bug fixes, feature suggestions, cake, and any other sort of feedback.
+
+### Issues and roadmap
+
+We use GitHub to track issues. Feel free to [https://github.com/grow/pygrow/issues](browse issues) and look for any issues pertaining to the features you'd like to work on and claim them. If the feature warrants discussion, conduct a discussion with the project authors in the GitHub issue or on the mailing list.
 
 ### Getting the code
 
