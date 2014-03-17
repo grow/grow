@@ -66,7 +66,8 @@ To extract translations into a message catalog, tag all translatable items as ex
 
 This file can then be used to create translation catalogs manually using a PO file editor, or integrated with a translation provider such as Google Translator Toolkit.
 
-    $ grow extract ~/codelab/
+    $ grow extract ~/my-codelab/
+
     Extracted 128 messages from 3 files to: /translations/messages.pot
     Creating catalog 'translations/de/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
     Creating catalog 'translations/fr/LC_MESSAGES/messages.po' based on 'translations/messages.pot'

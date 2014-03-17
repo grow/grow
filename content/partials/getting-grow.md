@@ -21,4 +21,4 @@ On Linux/Unix, you can install the Grow SDK with [pip](http://pypi.python.org/py
     # If you have Grow already, upgrade it.
     pip install --upgrade [--user] grow
 
-The source code for all Grow SDK distributions is [open source](https://github.com/grow). You can learn more about the latest release from the [releases page](https://github.com/grow/macgrow/releases).
+The source code for all Grow SDK distributions is [open source](https://github.com/grow). You can learn more about the latest release from the [releases page](https://github.com/grow/pygrow/releases).
