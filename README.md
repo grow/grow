@@ -1,4 +1,4 @@
-# Grow SDK [![Build Status](https://travis-ci.org/grow/pygrow.png?branch=master)](https://travis-ci.org/grow/pygrow)
+# Grow SDK: the declarative, file-based CMS for building high-quality web sites. [![Build Status](https://travis-ci.org/grow/pygrow.png?branch=master)](https://travis-ci.org/grow/pygrow)
 
 Welcome to the Grow SDK! Grow is almost certainly the best way for teams to build and launch web sites. It's a file-based static site generator and content management system.
 
@@ -7,43 +7,41 @@ Grow works great for all kinds of content-heavy web sites – fom small personal
 Grow differentiates itself by being:
 
 - entirely file-based and backed by Git (so it works with your favorite tools),
+- the best and easiest way to develop content-heavy localized websites,
 - designed for true structured content management,
 - designed with web performance and security in mind,
-- designed for developers, designers, content writers, and translators to work together,
-- fully international with built-in localization support.
-
-Using Grow, you can:
-
-- develop everywhere (cloud or local, in a browser or on your machine),
-- deploy anywhere (Google Cloud Storage, S3, Dropbox, GitHub pages, App Engine, your custom server, etc.),
-- launch web sites on demand or at a specific time,
-- manage multiple sites (instead of just one),
-- collaborate with people, teams, and organizations (via roles, review processes, and project organization).
+- designed for developers, designers, content writers, and translators to work together.
 
 Visit the Grow SDK's website at http://growsdk.org where you can learn all about using the Grow SDK to build and launch your own web sites.
 
-## In development
+## Experimental!
 
-The Grow SDK is still under development and is *not quite ready for use*. If you're interested in learning more about the project, please visit the SDK's public website at http://growsdk.org where you can subscribe to our newsletter and be notified when the . You can also watch this repository for updates.
+The Grow SDK is still under development and is *considered experimental*. We may make backwards-incompatible changes to the API and design until v0.1.0. Please consult the documentation at growsdk.org, give it a try, and provide feedback.
 
 ## Quick start usage
 
-Full documentation is available at http://growsdk.org, but this four-step process covers the basic workflow.
+Full documentation is available at http://growsdk.org, but this four-step process covers the basic workflow. See a full list of commands using: `grow help`.
 
-(1) Install Grow. (Coming soon: a downloadable Mac application for those without `pip`.)
+(1) Install Grow.
 
-    # Install Grow in Python's site-packages directory.
-    sudo pip install grow
+    # For Mac OS X, paste this command into Terminal. You will be prompted to continue.
 
-    # Or install Grow for a single user (recommended).
+    python -c "$(curl -fsSL https://raw.github.com/grow/pygrow/master/install.py)" && source ~/.bash_profile
+
+    # For Linux/Unix, use pip.
+
+    # Installs Grow for a single user (recommended, see below for alternative).
     pip install --user grow
+
+    # Or, installs Grow in Python's site-packages directory.
+    sudo pip install grow
 
     # Add --user pip installations to your PATH. (Put this in ~/.bashrc).
     export PATH=$HOME/.local/bin:$PATH
 
 (2) Initialize a new pod using the "cards" theme.
 
-    grow init cards ~/example.com/
+    grow init codelab ~/example.com/
 
 (3) Run a small web server for live editing and previewing.
 
@@ -52,8 +50,6 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 (4) Deploy your site to the public web.
 
     grow deploy ~/example.com/
-
-See a full list of commands using: `grow help`.
 
 ## Contributing
 
