@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
 import logging
-import base64
 import gflags as flags
 import os
 from google.apputils import appcommands
 from grow.deployments import deployments
-from grow.client import client
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.server import manager
@@ -14,11 +12,22 @@ from grow.pods import commands as pod_commands
 from grow.pods import pods
 from grow.pods import storage
 
+
 FLAGS = flags.FLAGS
 
 flags.DEFINE_boolean(
     'skip_sdk_update_check', False, 'Whether to skip the check for SDK updates.')
 
+
+
+class BuildCmd(appcommands.Cmd):
+  """Generates static files and dumps them to a local destination."""
+
+  def Run(self, argv):
+    root = os.path.abspath(os.path.join(os.getcwd(), argv[-2]))
+    out_dir = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+    pod = pods.Pod(root, storage=storage.FileStorage)
+    pod.dump(out_dir=out_dir)
 
 
 class DeployCmd(appcommands.Cmd):
@@ -91,16 +100,6 @@ class DeployCmd(appcommands.Cmd):
     deployment.deploy(pod)
 
 
-class DumpCmd(appcommands.Cmd):
-  """Generates static files and dumps them to a local destination."""
-
-  def Run(self, argv):
-    root = os.path.abspath(os.path.join(os.getcwd(), argv[-2]))
-    out_dir = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
-    pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.dump(out_dir=out_dir)
-
-
 class ExtractCmd(appcommands.Cmd):
   """Extracts a pod's translations into messages files."""
 
@@ -162,6 +161,9 @@ class RunCmd(appcommands.Cmd):
     flags.DEFINE_integer(
         'port', '8080', 'Port to start the server on.',
         flag_values=flag_values)
+    flags.DEFINE_boolean(
+        'open', False,
+        'Whether to open a web browser when starting the server.')
     super(RunCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
 
   def Run(self, argv):
@@ -171,7 +173,7 @@ class RunCmd(appcommands.Cmd):
     if not FLAGS.skip_sdk_update_check:
       sdk_utils.check_version(quiet=True)
     pod = pods.Pod(root, storage=storage.FileStorage)
-    manager.start(pod, host=FLAGS.host, port=FLAGS.port)
+    manager.start(pod, host=FLAGS.host, port=FLAGS.port, open_browser=FLAGS.open)
 
 
 class TestCmd(appcommands.Cmd):
@@ -206,66 +208,66 @@ class MachineTranslateCmd(appcommands.Cmd):
       translation.machine_translate()
 
 
-class UpCmd(appcommands.Cmd):
-  """Uploads a pod to a pod server."""
-
-  SKIP_PATTERNS = (
-      '.DS_Store',
-  )
-
-  def __init__(self, name, flag_values, command_aliases=None):
-    flags.DEFINE_string(
-        'host', 'beta.grow.io', 'Pod server hostname (ex: beta.grow.io.).',
-        flag_values=flag_values)
-    flags.DEFINE_string(
-        'project', None, 'Project ID (ex: foo/bar).',
-        flag_values=flag_values)
-    super(UpCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
-
-  def Run(self, argv):
-    owner, nickname = FLAGS.project.split('/')
-    host = FLAGS.host
-    pod = pods.Pod(argv[1], storage=storage.FileStorage)
-
-    # Uploading to GrowEdit on dev appserver.
-    if True or (host is not None and 'localhost' in host):
-      service = client.Client(host=FLAGS.host)
-      for pod_path in pod.list_dir('/'):
-        if os.path.basename(pod_path) in UpCmd.SKIP_PATTERNS:
-          continue
-        path = os.path.join(pod.root, pod_path)
-        content = open(path).read()
-        if isinstance(content, unicode):
-          content = content.encode('utf-8')
-        content = base64.b64encode(content)
-        service.rpc('pods.update_file', {
-           'project': {
-             'owner': {'nickname': owner},
-             'nickname': nickname,
-           },
-           'file': {
-             'pod_path': pod_path,
-             'content_b64': content,
-           }
-        })
-        print 'Uploaded: {}'.format(pod_path)
-#      req = service.pods().finalizeStagedFiles(body={
-#        'pod': {'changeset': changeset}
-#      })
-#      req.execute()
-      print 'Upload finalized.'
-    else:
-      raise NotImplementedError()
-#      google_cloud_storage.upload_to_gcs(pod, changeset, host=host)
+#class UpCmd(appcommands.Cmd):
+#  """Uploads a pod to a pod server."""
+#
+#  SKIP_PATTERNS = (
+#      '.DS_Store',
+#  )
+#
+#  def __init__(self, name, flag_values, command_aliases=None):
+#    flags.DEFINE_string(
+#        'host', 'beta.grow.io', 'Pod server hostname (ex: beta.grow.io.).',
+#        flag_values=flag_values)
+#    flags.DEFINE_string(
+#        'project', None, 'Project ID (ex: foo/bar).',
+#        flag_values=flag_values)
+#    super(UpCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
+#
+#  def Run(self, argv):
+#    owner, nickname = FLAGS.project.split('/')
+#    host = FLAGS.host
+#    pod = pods.Pod(argv[1], storage=storage.FileStorage)
+#
+#    # Uploading to GrowEdit on dev appserver.
+#    if True or (host is not None and 'localhost' in host):
+#      service = client.Client(host=FLAGS.host)
+#      for pod_path in pod.list_dir('/'):
+#        if os.path.basename(pod_path) in UpCmd.SKIP_PATTERNS:
+#          continue
+#        path = os.path.join(pod.root, pod_path)
+#        content = open(path).read()
+#        if isinstance(content, unicode):
+#          content = content.encode('utf-8')
+#        content = base64.b64encode(content)
+#        service.rpc('pods.update_file', {
+#           'project': {
+#             'owner': {'nickname': owner},
+#             'nickname': nickname,
+#           },
+#           'file': {
+#             'pod_path': pod_path,
+#             'content_b64': content,
+#           }
+#        })
+#        print 'Uploaded: {}'.format(pod_path)
+##      req = service.pods().finalizeStagedFiles(body={
+##        'pod': {'changeset': changeset}
+##      })
+##      req.execute()
+#      print 'Upload finalized.'
+#    else:
+#      raise NotImplementedError()
+##      google_cloud_storage.upload_to_gcs(pod, changeset, host=host)
 
 
 def add_commands():
+  appcommands.AddCmd('build', BuildCmd)
   appcommands.AddCmd('deploy', DeployCmd)
-  appcommands.AddCmd('dump', DumpCmd)
   appcommands.AddCmd('extract', ExtractCmd)
   appcommands.AddCmd('machine_translate', MachineTranslateCmd)
   appcommands.AddCmd('init', InitCmd)
   appcommands.AddCmd('run', RunCmd)
   appcommands.AddCmd('routes', RoutesCmd)
-  appcommands.AddCmd('up', UpCmd)
+#  appcommands.AddCmd('up', UpCmd)
   appcommands.AddCmd('test', TestCmd)

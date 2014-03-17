@@ -13,6 +13,7 @@ import os
 import sys
 import threading
 import yaml
+import webbrowser
 
 _servers = {}
 _config_path = '{}/.grow/servers.yaml'.format(os.environ['HOME'])
@@ -26,7 +27,7 @@ def _loop_watching_for_changes(pod, file_watchers_to_preprocessors, quit_event):
     quit_event.wait(timeout=1.5)
 
 
-def _start(pod, host=None, port=None, use_simple_log_format=True):
+def _start(pod, host=None, port=None, open_browser=False):
   root = pod.root
   preprocessors = pod.list_preprocessors()
 
@@ -79,14 +80,27 @@ def _start(pod, host=None, port=None, use_simple_log_format=True):
 
   try:
     root_path = pod.get_root_path()
+    url = 'http://{}:{}{}'.format(host, port, root_path)
     logging.info('---')
     logging.info(utils.colorize('{blue}The Grow SDK is experimental.{/blue} Expect backwards incompatibility until v0.1.0.'))
     logging.info('Thank you for testing and contributing! Visit http://growsdk.org for resources.')
     logging.info('---')
-    logging.info('Serving pod {} => http://{}:{}{}'.format(root, host, port, root_path))
-    text = '{green}READY!{/green} Press Ctrl+C to shut down.'
+    logging.info('Serving pod {} => {}'.format(root, url))
+    text = '{green}READY!{/green} Press Ctrl+C to shut down. Tip: Use --open to open a browser automatically.'
     logging.info(utils.colorize(text))
+
+    def start_browser(server_ready_event):
+      server_ready_event.wait()
+      if open_browser:
+        webbrowser.open(url)
+
+    server_ready_event = threading.Event()
+    browser_thread = threading.Thread(target=start_browser, args=(server_ready_event,))
+    browser_thread.start()
+    server_ready_event.set()
     httpd.serve_forever()
+    browser_thread.join()
+
   except KeyboardInterrupt:
     logging.info('Shutting down...')
     httpd.server_close()
@@ -97,17 +111,17 @@ def _start(pod, host=None, port=None, use_simple_log_format=True):
   sys.exit()
 
 
-def start(pod, host=None, port=None, use_subprocess=False):
+def start(pod, host=None, port=None, open_browser=False, use_subprocess=False):
   root = pod.root
   if root in _servers:
     logging.error('Server already started for pod: {}'.format(root))
     return
 
   if not use_subprocess:
-    _start(pod, host=host, port=port)
+    _start(pod, host=host, port=port, open_browser=open_browser)
     return
 
-  server_process = multiprocessing.Process(target=_start, args=(root, host, port))
+  server_process = multiprocessing.Process(target=_start, args=(root, host, port, open_browser))
   server_process.start()
   _servers[root] = server_process
   return server_process

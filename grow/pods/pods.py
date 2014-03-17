@@ -54,7 +54,6 @@ class BuildError(Error):
   pass
 
 
-
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
 
