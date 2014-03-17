@@ -1,8 +1,8 @@
-# Grow SDK: the declarative, file-based CMS for building high-quality web sites. [![Build Status](https://travis-ci.org/grow/pygrow.png?branch=master)](https://travis-ci.org/grow/pygrow)
+# Grow SDK [![Build Status](https://travis-ci.org/grow/pygrow.png?branch=master)](https://travis-ci.org/grow/pygrow)
 
-Welcome to the Grow SDK! Grow is almost certainly the best way for teams to build and launch web sites. It's a file-based static site generator and content management system.
+Welcome to the Grow SDK, the declarative file-based CMS and static site generator for building high-quality web sites.
 
-Grow works great for all kinds of content-heavy web sites – fom small personal blogs, to highly-interactive marketing campaigns, to informational web sites for a large organization.
+Grow is almost certainly the best way for teams to build and launch web sites. It works great for all kinds of content-heavy web sites – fom small personal blogs, to highly-interactive marketing campaigns, to informational web sites for a large organization.
 
 Grow differentiates itself by being:
 
