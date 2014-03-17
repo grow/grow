@@ -7,7 +7,7 @@ hero:
 
   title: The declarative, file-based CMS for building high-quality web sites.
   content: The Grow SDK is a free and open source system for modern, rapid, collaborative web site management and production. With Grow, everyone (from individual developers to large creative agencies) can save time on architecture and maintenance, and make time for awesome and creative front end web development.
-  disclaimer: Thanks for checking out Grow! We're still experimental and in heavy development, including the documentation. We may make backwards incompatible changes, so try it out at your own risk.
+  disclaimer: Thanks for checking out Grow! We're still *experimental* and in heavy development, including the documentation. We may make backwards incompatible changes, so try it out at your own risk.
 
 sections:
 
@@ -15,13 +15,13 @@ sections:
     image: /static/images/config.svg
     content: Control your site's URLs, localization rules, content hierarchy, structure and behavior all with configuration, not with code. You won't have to program your site's serving logic again and again, so your site-building process stays rapid and nimble. Modifications to to your architecture are always just a config change away.
 
+  - title: The absolute easiest way to manage îñtérñåtîøñål web sites.
+    image: /static/images/i18n.svg
+    content: Localization comes included so you can reach a global audience. You can configure localized URL formats, easily specify what content is translated and what isn't, localize your content and its fields, and integrate with translation providers to translate your projects.
+
   - title: Develop everywhere, deploy anywhere.
     image: /static/images/deploy.svg
     content: Grow web sites are entirely file-based and are backed by Git, with no databases for you to maintain. Development can happen on your local machine or in the cloud. Grow can build and deploy to a variety of destinations – or it can export static files for you to integrate with your custom web server.
-
-  - title: Fully îñtérñåtîøñål.
-    image: /static/images/i18n.svg
-    content: Localization comes included so your web sites can reach a global audience. You can configure localized URL formats, easily specify what content is translated and what isn't, and integrate with translation providers to translate your projects.
 
   - title: No installation or maintenance.
     image: /static/images/zen.svg

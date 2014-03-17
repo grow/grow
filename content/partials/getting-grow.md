@@ -1,27 +1,16 @@
-There are two ways to install the Grow SDK. If you're unsure, stick with the Mac app. Regardless of how you get Grow, you run it using the command line command `grow`. The source code for all Grow SDK distributions is [open source](https://github.com/grow).
+There are two ways to install the Grow SDK, depending on the platform you're using. Regardless of how you get Grow, you run it using the command line command `grow`.
 
-### Mac OS X app
+### Mac OS X (packaged app)
 
-You can download the Grow SDK as an OS X application. The entire SDK is packaged into the app, which is just a Unix executable.
+*To install the Grow SDK on Mac OS X, paste the following command into Terminal.* This command downloads the SDK, which is packaged into an application, and sets up an alias. Before anything is done, you will be prompted to continue.
 
-<a href="https://github.com/grow/macgrow/releases" class="button button-primary"><i class="fa fa-download"></i>Download Grow SDK for Mac</a>
+<pre style="font-size: 13pt; font-family: monospace; word-wrap: break-word">
+python -c "$(curl -fsSL https://raw.github.com/grow/pygrow/master/install.py)" && source ~/.bash_profile
+</pre>
 
-See usage below. You __must start the app using Terminal__, and not by double clicking.
+### Linux/Unix (Python egg)
 
-    # Shows help for the Grow SDK executable.
-    ./grow
-
-You can install an alias in order to use `grow` anywhere.
-
-    # Modify "<path>" below, then add the below line to ~/.bash_profile.
-    alias grow='<path to grow>/grow'
-
-    # After editing ~/.bash_profile, run...
-    source ~/.bash_profile
-
-### Python egg
-
-Alternatively, the Grow SDK is a Python program, so you can run it practically anywhere you can run Python. You can install Grow with [pip](http://pypi.python.org/pypi/pip).
+On Linux/Unix, you can install the Grow SDK with [pip](http://pypi.python.org/pypi/pip).
 
     # Installs Grow in Python's site-packages directory.
     sudo pip install grow
@@ -31,3 +20,5 @@ Alternatively, the Grow SDK is a Python program, so you can run it practically a
 
     # If you have Grow already, upgrade it.
     pip install --upgrade [--user] grow
+
+The source code for all Grow SDK distributions is [open source](https://github.com/grow). You can learn more about the latest release from the [releases page](https://github.com/grow/macgrow/releases).

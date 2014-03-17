@@ -13,8 +13,10 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
 
 ## podspec.yaml
 
-    project: john/example
+    project: <project owner>/<project nickname>
     grow_version: 0.0.1
+    title: Project title.
+    description: Project description.
 
     flags:
       root_path: /
@@ -31,12 +33,23 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
       required: yes
 
     localization:
+      root_path: /{locale}/
       default_locale: en
       locales:
       - de
       - en
       - fr
       - it
+
+    preprocessors:
+    - kind: sass
+      sass_dir: /source/sass/
+      out_dir: /static/css/
+
+    deployments:
+      default:
+        destination: local
+        out_dir: grow-codelab-build/
 
 ### project*
 
@@ -120,6 +133,12 @@ Whether the content security policy is required on all HTML pages. If `yes`, HTM
 ### localization
 
 The default localization configuration for all content in the pod.
+
+#### root_path
+
+The root path to use for localized pages. Automatically prepended to the URL paths of all localized pages.
+
+    root_path: /{locale}/
 
 #### default_locale
 

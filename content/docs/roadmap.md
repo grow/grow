@@ -12,7 +12,7 @@ Have a question or want to see something added to the roadmap? [File an issue on
 This list is a rough document intended to provide a quick look at the current state and future of the Grow SDK.
 
 Task | Status
---- | ---
+ --- | ---
 Google Cloud Storage deployment | Done
 Local deployment | Done
 Amazon S3 deployment | Done
