@@ -1,4 +1,4 @@
-grow_version: 0.0.26
+grow_version: 0.0.27
 project_id: grow/growsdk.org
 title: Grow SDK
 
@@ -24,3 +24,7 @@ deployments:
   default:
     destination: gcs
     bucket: preview.growsdk.org
+  scp:
+    destination: scp
+    host: localhost
+    root_dir: /Users/jeremydw/foobar2/

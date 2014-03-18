@@ -73,9 +73,39 @@ Once you've configured a deployment in `podspec.yaml`, you can use the `grow dep
 
 ### Google Cloud Storage
 
+Authenticates using keys in `$HOME/.boto` (see example below).
+
+    # [Credentials]
+    # gs_access_key_id = ...
+    # gs_secret_access_key = ...
+
+    - destination: gcs
+      bucket: mybucket.example.com
+
 ### Amazon S3
 
+Authenticates using keys in `$HOME/.boto` (see example below).
+
+    # [Credentials]
+    # aws_access_key_id = ...
+    # aws_secret_access_key  = ...
+
+    - destination: s3
+      bucket: mybucket.example.com
+
 ### Local
+
+    - destination: local
+      bucket: mybucket.example.com
+      out_dir: /home/username/example.com/
+
+### SCP
+
+Autenticates using the system's host keys. The `root_dir` option uses syntax from the standard `scp` command. Values can be either absolute or relative.
+
+    - destination: scp
+      host: example.com
+      root_dir: /home/username/domains/example.com/public_html/
 
 ### Zip file (not implemented)
 
