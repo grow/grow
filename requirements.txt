@@ -15,6 +15,7 @@ httplib2
 jinja2
 libsass
 markupsafe
+paramiko
 polib
 premailer
 protorpc-standalone

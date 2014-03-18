@@ -106,8 +106,22 @@ class Index(object):
       raise CorruptIndexError(str(e))
 
   @classmethod
-  def apply_diffs(cls, diffs, paths_to_content, write_func, delete_func):
-    # TODO(jeremydw): Thread pool.
+  def apply_diffs(cls, diffs, paths_to_content, write_func, delete_func, threaded=True):
+    if not threaded:
+      for path in diffs.adds:
+        logging.info('Writing new file: {}'.format(path))
+        content = paths_to_content[path]
+        write_func(path, content)
+      for path in diffs.edits:
+        logging.info('Writing changed file: {}'.format(path))
+        content = paths_to_content[path]
+        write_func(path, content)
+      for path in diffs.deletes:
+        logging.info('Deleting file: {}'.format(path))
+        delete_func(path)
+      return
+
+    # TODO(jeremydw): Thread pool for the threaded operation.
     threads = []
     for path in diffs.adds:
       logging.info('Writing new file: {}'.format(path))
@@ -126,8 +140,5 @@ class Index(object):
       thread = threading.Thread(target=delete_func, args=(path,))
       threads.append(thread)
       thread.start()
-    # Unchanged files are quiet.
-    # for path in diffs.nochanges:
-    #  logging.info('Skipping unchanged file: {}'.format(path))
     for thread in threads:
       thread.join()

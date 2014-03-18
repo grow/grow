@@ -89,6 +89,7 @@ class BaseDeployment(object):
   def __init__(self, *args, **kwargs):
     self.dry_run = kwargs.get('dry_run', False)
     self.confirm = kwargs.get('confirm', False)
+    self.threaded = True
 
   def read_file(self, path):
     """Returns a file-like object."""
@@ -110,12 +111,16 @@ class BaseDeployment(object):
     unittest.TextTestRunner().run(suite)
 
   def write_index_at_destination(self, new_index):
-    self.write_file(index.Index.BASENAME, new_index.to_yaml())
+    path = self.get_index_path()
+    self.write_file(path, new_index.to_yaml())
+    logging.info('Wrote index: {}'.format(path))
+
+  def get_index_path(self):
+    return '/{}'.format(index.Index.BASENAME)
 
   def get_index_at_destination(self):
-    path = index.Index.BASENAME
     try:
-      content = self.read_file(path)
+      content = self.read_file(self.get_index_path())
       logging.info('Loaded index at destination.')
       return index.Index.from_yaml(content)
     except IOError:
@@ -123,42 +128,43 @@ class BaseDeployment(object):
       return index.Index()
 
   def postlaunch(self):
-    logging.info('Deployed to: {}'.format(self.get_destination_address()))
-    logging.info('Done in {}s!'.format(time.time() - self.start_time))
+    if hasattr(self, 'start_time'):
+      logging.info('Deployed to: {}'.format(self.get_destination_address()))
+      logging.info('Done in {}s!'.format(time.time() - self.start_time))
 
   def prelaunch(self):
     self.run_tests()
 
   def deploy(self, pod):
-    logging.info('Deploying to: {}'.format(self.get_destination_address()))
+    destination_address = self.get_destination_address()
+    logging.info('Deploying to: {}'.format(destination_address))
     self.prelaunch()
 
-    deployed_index = self.get_index_at_destination()
-    paths_to_content = pod.dump()
-    new_index = index.Index()
-    new_index.update(paths_to_content)
-    diffs = new_index.diff(deployed_index)
-    if not diffs:
-      text = utils.colorize('{white}Diff is empty, nothing to launch, aborted.{/white}')
-      logging.info(text)
-      return
-
-    if self.dry_run:
-      return
-
-    if self.confirm:
-      diffs.log_pretty()
-      if not utils.interactive_confirm('Proceed with launch?'):
-        logging.info('Launch aborted.')
+    try:
+      deployed_index = self.get_index_at_destination()
+      paths_to_content = pod.dump()
+      new_index = index.Index()
+      new_index.update(paths_to_content)
+      diffs = new_index.diff(deployed_index)
+      if not diffs:
+        text = utils.colorize('{white}Diff is empty, nothing to launch, aborted.{/white}')
+        logging.info(text)
         return
+      if self.dry_run:
+        return
+      if self.confirm:
+        diffs.log_pretty()
+        logging.info('About to launch => {}'.format(destination_address))
+        if not utils.interactive_confirm('Proceed with launch?'):
+          logging.info('Launch aborted.')
+          return
 
-    self.start_time = time.time()
-    index.Index.apply_diffs(diffs, paths_to_content, write_func=self.write_file,
-                            delete_func=self.delete_file)
-    # TODO(jeremydw): Index should only be updated if the diff was entirely
-    # successfully applied.
-    self.write_index_at_destination(new_index)
-    logging.info('Wrote index: /{}'.format(index.Index.BASENAME))
-
-    self.postlaunch()
+      self.start_time = time.time()
+      index.Index.apply_diffs(diffs, paths_to_content, write_func=self.write_file,
+                              delete_func=self.delete_file, threaded=self.threaded)
+      # TODO(jeremydw): Index should only be updated if the diff was entirely
+      # successfully applied.
+      self.write_index_at_destination(new_index)
+    finally:
+      self.postlaunch()
     return diffs
