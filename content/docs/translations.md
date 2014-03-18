@@ -15,7 +15,7 @@ Grow takes a __what you tag is what you translate__ approach: only things that y
 
 ### Views
 
-UI strings (and other text) in views are translatable. UI strings must be tagged with a template function that indicates the text is translatable. This template function has been aliased to `{{_(<text>)}}`.
+UI strings (and other text) in views are translatable. UI strings must be tagged with a template function that indicates the text is translatable. This template function, `gettext`, has been aliased to `{{_(<text>)}}`.
 
     <!-- /views/pages.html -->
 
@@ -29,6 +29,9 @@ UI strings (and other text) in views are translatable. UI strings must be tagged
         <li>{{_(callout.title)}} – {{_(callout.description)}}
       {% endfor %}
     </ul>
+
+    <!-- Using Python-format placeholders. -->
+    <p>{{_('Posted: %(date)s', date='12/25/86')}}
 
 Sicne Grow translations are opt-in instead of opt-out, it's possible to show translated text from a content document right next to untranslated text.
 

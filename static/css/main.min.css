@@ -1823,3 +1823,23 @@ ul.codelab li.active a {
   background: -ms-linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
   background: linear-gradient(top, #f7f7f7 0%, #cfcfcf 7%, #aaaaaa 100%);
   border-bottom: 1px solid #555; }
+
+.video-wrap {
+  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.1), 0px 2px 10px 0px rgba(0, 0, 0, 0.1);
+  margin: 30px auto;
+  max-height: 675px;
+  max-width: 888px; }
+
+.video {
+  height: 0;
+  padding-bottom: 56.25%;
+  /* 16:9 */
+  padding-top: 25px;
+  position: relative; }
+
+.video iframe {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%; }
