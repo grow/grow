@@ -24,7 +24,3 @@ deployments:
   default:
     destination: gcs
     bucket: preview.growsdk.org
-  scp:
-    destination: scp
-    host: localhost
-    root_dir: /Users/jeremydw/foobar2/
