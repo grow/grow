@@ -12,7 +12,7 @@ import tempfile
 import urllib2
 import zipfile
 
-VERSION = '0.0.26'
+VERSION = '0.0.27'
 RELEASE_URL = (
     'https://github.com/grow/pygrow/releases/download/{version}/'
     'Grow-SDK-Mac-{version}.zip'.format(version=VERSION))
