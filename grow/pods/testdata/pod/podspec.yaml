@@ -17,10 +17,16 @@ localization:
 
 deployments:
 
-  prod:
+  gcs:
     destination: gcs
-    bucket: prod.test.growsdk.org
-
-  staging:
+    bucket: gcs.example.com
+  s3:
     destination: gcs
-    bucket: staging.test.growsdk.org
+    bucket: s3.example.com
+  local:
+    destination: local
+    out_dir: dist/
+  scp:
+    destination: scp
+    host: localhost
+    root_dir: dist/

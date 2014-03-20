@@ -6,12 +6,7 @@ import paramiko
 
 class ScpDeployment(base.BaseDeployment):
 
-  def get_destination_address(self):
-    return '{}:{}'.format(self.host, self.root_dir)
-
-  def set_params(self, host, root_dir, port=22):
-    # TODO(jeremydw): Behavior of set_params and __init__
-    # really needs to be switched...
+  def __init__(self, host, root_dir='', port=22):
     self.ssh = paramiko.SSHClient()
     self.host = host
     self.port = port
@@ -21,14 +16,15 @@ class ScpDeployment(base.BaseDeployment):
     # this deployment is not parallelized (for now).
     self.threaded = False
 
-  def prelaunch(self):
-    super(ScpDeployment, self).prelaunch()
+  def get_destination_address(self):
+    return '{}:{}'.format(self.host, self.root_dir)
+
+  def prelaunch(self, dry_run=False):
     self.ssh.load_system_host_keys()
     self.ssh.connect(self.host, port=self.port)
     self.sftp = self.ssh.open_sftp()
 
-  def postlaunch(self):
-    super(ScpDeployment, self).postlaunch()
+  def postlaunch(self, dry_run=False):
     self.sftp.close()
     self.ssh.close()
 
