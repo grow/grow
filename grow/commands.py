@@ -130,13 +130,19 @@ class ExtractCmd(appcommands.Cmd):
 class InitCmd(appcommands.Cmd):
   """Initializes a pod using a theme, ready for development."""
 
+  def __init__(self, name, flag_values, command_aliases=None):
+    flags.DEFINE_boolean(
+        'force', False,
+        'Whether to overwrite any existsing files and directories in the pod.')
+    super(InitCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
+
   def Run(self, argv):
     if len(argv) != 3:
       raise Exception('Usage: grow init <repo> <pod root>')
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     theme_url = argv[-2]
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod_commands.init(pod, theme_url)
+    pod_commands.init(pod, theme_url, force=FLAGS.force)
 
 
 class RoutesCmd(appcommands.Cmd):
