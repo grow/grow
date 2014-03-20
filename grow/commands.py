@@ -168,8 +168,10 @@ class RunCmd(appcommands.Cmd):
 
   def Run(self, argv):
     if len(argv) != 2:
-      raise Exception('Must specify pod directory.')
-    root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+      # Default to using the current directory as the root for the pod.
+      root = os.path.abspath(os.getcwd())
+    else:
+      root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     if not FLAGS.skip_sdk_update_check:
       sdk_utils.check_version(quiet=True)
     pod = pods.Pod(root, storage=storage.FileStorage)
