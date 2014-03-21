@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-try:
-  from grow import submodules
-  submodules.fix_imports()
-except ImportError:
-  pass
+import os
+import sys
+
+# Allows "import grow" and "from grow import <name>".
+sys.path.extend([os.path.join(os.path.dirname(__file__), '..', '..')])
 
 import webapp2
 from protorpc.wsgi import service

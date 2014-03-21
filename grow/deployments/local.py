@@ -3,14 +3,14 @@ from grow.pods.storage import storage as storage_lib
 import os
 
 
-class FileSystemDeployment(base.BaseDeployment):
+class LocalDeployment(base.BaseDeployment):
+
+  def __init__(self, out_dir, storage=storage_lib.FileStorage):
+    self.out_dir = os.path.expanduser(out_dir)
+    self.storage = storage
 
   def get_destination_address(self):
     return self.out_dir
-
-  def set_params(self, out_dir, storage=storage_lib.FileStorage):
-    self.out_dir = os.path.expanduser(out_dir)
-    self.storage = storage
 
   def read_file(self, path):
     path = os.path.join(self.out_dir, path.lstrip('/'))

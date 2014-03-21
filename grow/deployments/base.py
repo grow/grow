@@ -42,14 +42,14 @@ deployment, you'll just have to implement the following methods:
 
 The following methods are optional to implement:
 
-  postlaunch(self)
+  __init__(self, **kwargs)
+    Sets any parameters required by the other subclassed methods.
+
+  postlaunch(self, dry_run)
     Performs any post-launch tasks.
 
-  prelaunch(self)
+  prelaunch(self, dry_run)
     Performs any pre-launch configuration/tasks.
-
-  set_params(self, **kwargs)
-    Sets any parameters required by the other subclassed methods.
 
   write_index_at_destination(self, new_index):
     Writes the index of the newly-built pod to the destination.
@@ -81,15 +81,8 @@ class DeploymentTestCase(unittest.TestCase):
 
 class BaseDeployment(object):
 
+  threaded = True
   test_case_class = DeploymentTestCase
-
-  # TODO(jeremydw): Args to set_params and init should be switched.
-  # init should have the params which make deployment objects fully-capable.
-  # set_params should set optional params like dry_run and confirm.
-  def __init__(self, *args, **kwargs):
-    self.dry_run = kwargs.get('dry_run', False)
-    self.confirm = kwargs.get('confirm', False)
-    self.threaded = True
 
   def read_file(self, path):
     """Returns a file-like object."""
@@ -100,9 +93,6 @@ class BaseDeployment(object):
 
   def get_destination_address(self):
     raise NotImplementedError
-
-  def set_params(self, **kwargs):
-    pass
 
   def run_tests(self):
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(self.test_case_class)
@@ -127,18 +117,17 @@ class BaseDeployment(object):
       logging.info('No index found at destination, assuming new deployment.')
       return index.Index()
 
-  def postlaunch(self):
-    if hasattr(self, 'start_time'):
-      logging.info('Deployed to: {}'.format(self.get_destination_address()))
-      logging.info('Done in {}s!'.format(time.time() - self.start_time))
+  def postlaunch(self, dry_run=False):
+    pass
 
-  def prelaunch(self):
-    self.run_tests()
+  def prelaunch(self, dry_run=False):
+    pass
 
-  def deploy(self, pod):
+  def deploy(self, pod, dry_run=False, confirm=False):
     destination_address = self.get_destination_address()
     logging.info('Deploying to: {}'.format(destination_address))
-    self.prelaunch()
+    self._prelaunch()
+    self.prelaunch(dry_run=dry_run)
 
     try:
       deployed_index = self.get_index_at_destination()
@@ -150,9 +139,9 @@ class BaseDeployment(object):
         text = utils.colorize('{white}Diff is empty, nothing to launch, aborted.{/white}')
         logging.info(text)
         return
-      if self.dry_run:
+      if dry_run:
         return
-      if self.confirm:
+      if confirm:
         diffs.log_pretty()
         logging.info('About to launch => {}'.format(destination_address))
         if not utils.interactive_confirm('Proceed with launch?'):
@@ -167,4 +156,13 @@ class BaseDeployment(object):
       self.write_index_at_destination(new_index)
     finally:
       self.postlaunch()
+      self._postlaunch()
     return diffs
+
+  def _prelaunch(self):
+    self.run_tests()
+
+  def _postlaunch(self):
+    if hasattr(self, 'start_time'):
+      logging.info('Deployed to: {}'.format(self.get_destination_address()))
+      logging.info('Done in {}s!'.format(time.time() - self.start_time))

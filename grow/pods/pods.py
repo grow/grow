@@ -234,7 +234,14 @@ class Pod(object):
       self.delete_file(path)
     return pod_paths
 
-  def get_deployment(self, nickname, *args, **kwargs):
+  def list_deployments(self):
+    deployment_configs = self.yaml['deployments']
+    results = []
+    for name in deployment_configs.keys():
+      results.append(self.get_deployment(name))
+    return results
+
+  def get_deployment(self, nickname):
     """Returns a pod-specific deployment."""
     if 'deployments' not in self.yaml:
       raise ValueError('No pod-specific deployments configured.')
@@ -244,11 +251,11 @@ class Pod(object):
       raise ValueError(text.format(nickname, ', '.join(deployment_configs.keys())))
     deployment_params = deployment_configs[nickname]
     kind = deployment_params.pop('destination')
-    deployment = deployments.Deployment.get(kind, *args, **kwargs)
     try:
-      deployment.set_params(**deployment_params)
-    except TypeError as e:
-      raise ValueError('Invalid deployment params: {}'.format(str(e)))
+      deployment = deployments.Deployment.get(kind, **deployment_params)
+    except TypeError:
+      logging.exception('Invalid deployment parameters.')
+      raise
     return deployment
 
   def list_locales(self):

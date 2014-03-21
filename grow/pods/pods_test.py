@@ -43,6 +43,9 @@ class PodTest(unittest.TestCase):
   def test_to_message(self):
     self.pod.to_message()
 
+  def test_list_deployments(self):
+    self.pod.list_deployments()
+
 
 if __name__ == '__main__':
   unittest.main()

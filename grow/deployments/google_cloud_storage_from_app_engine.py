@@ -15,7 +15,7 @@ import mimetypes
 class GoogleStorageFromAppEngineDeployment(
     google_cloud_storage.BaseGoogleCloudStorageDeployment):
 
-  def set_params(self, bucket_name, source_keys, dest_keys):
+  def __init__(self, bucket_name, source_keys, dest_keys):
     self.bucket_name = bucket_name
     self.source_keys = source_keys
     self.dest_keys = dest_keys

@@ -35,7 +35,7 @@ class DeployCmd(appcommands.Cmd):
 
   def __init__(self, name, flag_values, command_aliases=None):
     flags.DEFINE_boolean(
-        'confirm', True, 'Whether to skip the deployment confirmation.',
+        'confirm', True, 'Whether to confirm prior to deployment.',
         flag_values=flag_values)
     flags.DEFINE_enum(
         'destination', None, ['gcs', 'local', 's3', 'zip'],
@@ -58,26 +58,22 @@ class DeployCmd(appcommands.Cmd):
     elif FLAGS.destination == 'gcs':
       if FLAGS.bucket is None:
         raise appcommands.AppCommandsError('Must specify: --bucket.')
-      deployment = deployments.GoogleCloudStorageDeployment(confirm=FLAGS.confirm)
-      deployment.set_params(bucket=FLAGS.bucket)
+      deployment = deployments.GoogleCloudStorageDeployment(bucket=FLAGS.bucket)
     elif FLAGS.destination == 's3':
       if FLAGS.bucket is None:
         raise appcommands.AppCommandsError('Must specify: --bucket.')
-      deployment = deployments.AmazonS3Deployment(confirm=FLAGS.confirm)
-      deployment.set_params(bucket=FLAGS.bucket)
+      deployment = deployments.AmazonS3Deployment(bucket=FLAGS.bucket)
     elif FLAGS.destination == 'local':
       if FLAGS.out_dir is None:
         raise appcommands.AppCommandsError('Must specify: --out_dir.')
       out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir))
-      deployment = deployments.FileSystemDeployment(confirm=FLAGS.confirm)
-      deployment.set_params(out_dir=out_dir)
+      deployment = deployments.LocalDeployment(out_dir=out_dir)
     elif FLAGS.destination == 'zip':
       if FLAGS.out_dir is None and FLAGS.out_file is None:
         raise appcommands.AppCommandsError('Must specify either: --out_dir or --out_file.')
       out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir)) if FLAGS.out_dir else None
       out_file = os.path.abspath(os.path.expanduser(FLAGS.out_file)) if FLAGS.out_file else None
-      deployment = deployments.ZipFileDeployment(confirm=FLAGS.confirm)
-      deployment.set_params(out_dir=out_dir, out_file=out_file)
+      deployment = deployments.ZipFileDeployment(out_dir=out_dir, out_file=out_file)
     return deployment
 
   def Run(self, argv):
@@ -94,10 +90,10 @@ class DeployCmd(appcommands.Cmd):
       deployment_name = None       # grow deploy --destination=<kind> .
 
     if deployment_name:
-      deployment = pod.get_deployment(deployment_name, confirm=FLAGS.confirm)
+      deployment = pod.get_deployment(deployment_name)
     else:
       deployment = self._get_deployment_from_command_line()
-    deployment.deploy(pod)
+    deployment.deploy(pod, confirm=FLAGS.confirm)
 
 
 class ExtractCmd(appcommands.Cmd):

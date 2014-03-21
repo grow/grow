@@ -8,6 +8,7 @@ import logging
 import mimetypes
 
 
+
 class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
 
   def test_domain_cname_is_gcs(self):
@@ -26,9 +27,15 @@ class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
       self.fail(text.format(self.deployment.bucket_name, content, CNAME))
 
 
+
 class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
 
   test_case_class = BaseGoogleCloudStorageDeploymentTestCase
+
+  def __init__(self, bucket, access_key=None, secret=None):
+    self.bucket_name = bucket
+    self.access_key = access_key
+    self.secret = secret
 
   def get_destination_address(self):
     return 'http://{}/'.format(self.bucket_name)
@@ -55,22 +62,18 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
     bucket_key.key = path.lstrip('/')
     self.bucket.delete_key(bucket_key)
 
-  def set_params(self, bucket, access_key=None, secret=None):
-    self.bucket_name = bucket
-    self.access_key = access_key
-    self.secret = secret
-
-  def prelaunch(self):
-    super(BaseGoogleCloudStorageDeployment, self).prelaunch()
+  def prelaunch(self, dry_run=False):
     logging.info('Connecting to GCS...')
     connection = boto.connect_gs(self.access_key, self.secret, is_secure=False)
     self.bucket = connection.get_bucket(self.bucket_name)
-    logging.info('Connected! Configuring bucket: {}'.format(self.bucket_name))
-    if self.dry_run:
+    logging.info('Connected!')
+    if dry_run:
       return
+    logging.info('Configuring bucket: {}'.format(self.bucket_name))
     self.bucket.set_acl('public-read')
     self.bucket.configure_versioning(False)
     self.bucket.configure_website(main_page_suffix='index.html', error_key='404.html')
+
 
 
 class GoogleCloudStorageDeployment(BaseGoogleCloudStorageDeployment):
