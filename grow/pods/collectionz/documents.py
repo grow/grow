@@ -186,7 +186,7 @@ class Document(object):
       match = re.search(re_dates, path_format)
       if match:
         formatted_date = self.dates(match.group('date_name'))
-        formatted_date = formatted_date.strftime(match.group('date_format'))
+        formatted_date = formatted_date.strftime(match.group('date_format') or '%Y-%m-%d')
         path_format = path_format[:match.start()] + formatted_date + path_format[match.end():]
       else:
         # Does not match expected format, let the normal format attempt it.
