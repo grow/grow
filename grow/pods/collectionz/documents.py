@@ -9,6 +9,7 @@ import logging
 import markdown
 import os
 import copy
+import re
 from markdown.extensions import tables
 from markdown.extensions import toc
 
@@ -168,7 +169,6 @@ class Document(object):
     root_path = config.get('flags', {}).get('root_path', '')
     if locale == self._default_locale:
       root_path = config.get('localization', {}).get('root_path', root_path)
-
     path_format = (self.get_path_format()
         .replace('<grow:locale>', '{locale}')
         .replace('<grow:locale>', '{locale}')
@@ -179,6 +179,18 @@ class Document(object):
     if path_format.startswith('/') and root_path.endswith('/'):
       root_path = root_path[0:len(root_path)-1]
     path_format = root_path + path_format
+
+    # Handle the special formatting of dates in the url.
+    while '{dates.' in path_format:
+      re_dates = r'({dates\.(?P<date_name>\w+)(\|(?P<date_format>[a-zA-Z0-9_%-]+))?})'
+      match = re.search(re_dates, path_format)
+      if match:
+        formatted_date = self.dates(match.group('date_name'))
+        formatted_date = formatted_date.strftime(match.group('date_format'))
+        path_format = path_format[:match.start()] + formatted_date + path_format[match.end():]
+      else:
+        # Does not match expected format, let the normal format attempt it.
+        break;
 
     try:
       return path_format.format(**{
