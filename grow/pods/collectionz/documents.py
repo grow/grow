@@ -111,12 +111,18 @@ class Document(object):
     return titles.get(title_name, self.title)
 
   @property
-  def published(self):
-    return self.fields.get('$published')
-
-  @property
   def category(self):
     return self.fields.get('$category')
+
+  @property
+  def date(self):
+    return self.fields.get('$date')
+
+  def dates(self, date_name=None):
+    if date_name is None:
+      return self.date
+    dates = self.fields.get('$dates', {})
+    return dates.get(date_name, self.date)
 
   def delete(self):
     self.pod.delete_file(self.pod_path)
