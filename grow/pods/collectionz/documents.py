@@ -171,7 +171,6 @@ class Document(object):
       root_path = config.get('localization', {}).get('root_path', root_path)
     path_format = (self.get_path_format()
         .replace('<grow:locale>', '{locale}')
-        .replace('<grow:locale>', '{locale}')
         .replace('<grow:slug>', '{slug}')
         .replace('<grow:published_year>', '{published_year}'))
 

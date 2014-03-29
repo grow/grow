@@ -1,7 +1,12 @@
-import logging
-import urllib
 from grow.common import config
 from grow.common import utils
+import logging
+import requests
+from requests.packages.urllib3 import connectionpool
+
+# Hide requests logging.
+connectionpool.log.setLevel(logging.WARNING)
+RELEASES_API = 'https://api.github.com/repos/grow/pygrow/releases'
 
 
 class Error(Exception):
@@ -18,10 +23,9 @@ def get_this_version():
 
 def get_latest_version():
   logging.info('Checking for updates to the Grow SDK...')
-  version_manifest = 'https://raw.github.com/grow/pygrow/master/grow/VERSION'
   try:
-    version = urllib.urlopen(version_manifest).read()
-    return version.strip()
+    releases = requests.get(RELEASES_API).json()
+    return releases[0]['tag_name']
   except Exception as e:
     text = 'Could not check for updates to the SDK. Are you online?'
     logging.error(utils.colorize('{red}%s{/red}' % text))
