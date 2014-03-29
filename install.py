@@ -4,18 +4,18 @@
 """Standalone Grow SDK installer. Downloads Grow SDK and sets up command aliases."""
 
 import datetime
+import json
 import os
 import platform
 import re
 import sys
 import tempfile
+import urllib
 import urllib2
 import zipfile
 
-VERSION = '0.0.27'
-RELEASE_URL = (
-    'https://github.com/grow/pygrow/releases/download/{version}/'
-    'Grow-SDK-Mac-{version}.zip'.format(version=VERSION))
+DOWNLOAD_URL_FORMAT = 'https://github.com/grow/pygrow/releases/download/{version}/{name}'
+RELEASES_API = 'https://api.github.com/repos/grow/pygrow/releases'
 
 
 def colorize(text):
@@ -43,12 +43,17 @@ def orly(text):
 
 
 def install():
+  release = json.loads(urllib.urlopen(RELEASES_API).read())[0]
+  asset = release['assets'][0]
+  version = release['tag_name']
+  download_url = DOWNLOAD_URL_FORMAT.format(version=version, name=asset['name'])
+
   bin_path = '{}/bin/grow'.format(os.getenv('HOME'))
   profile_path = '{}/.bash_profile'.format(os.getenv('HOME'))
   alias_cmd = 'alias grow="{}"'.format(bin_path)
   alias_comment = '# Added by Grow SDK Installer ({})'.format(datetime.datetime.now())
 
-  hai('{yellow}Welcome to the installer for Grow SDK v%s{/yellow}' % VERSION)
+  hai('{yellow}Welcome to the installer for Grow SDK v%s{/yellow}' % version)
   hai('{blue}==>{/blue} {green}This script will install:{/green} %s' % bin_path)
 
   has_alias = False
@@ -64,9 +69,9 @@ def install():
     hai('Aborted installation.')
     sys.exit(-1)
 
-  remote = urllib2.urlopen(RELEASE_URL)
+  remote = urllib2.urlopen(download_url)
   try:
-    hai('Downloading from {}'.format(RELEASE_URL))
+    hai('Downloading from {}'.format(download_url))
     local, temp_path = tempfile.mkstemp()
     local = os.fdopen(local, 'w')
     while True:
