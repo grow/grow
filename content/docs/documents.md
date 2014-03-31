@@ -14,19 +14,36 @@ Documents optionally have a `path` property which allows the document to be expo
 
 ## Anatomy
 
+### File types
+
+Aside from the *_blueprint.yaml* folder, files in a content collection's directory are treated as a content documents. Grow accepts content documents in the following formats, indicated by their file extensions:
+
+  - Markdown (.md)
+  - YAML (.yaml)
+
 ### Document path
 
 The __document path__ of a content document is its path relative to the pod's `/content/` directory. For example, a document whose [pod path](#) is `/content/pages/welcome.md` would have a document path of __pages/welcome.md__.
 
 ### Front matter
 
-A YAML document prepended to a Markdown body. Front matter contains fields. Field names prefixed with a dollar sign ($) are ones which are built-in to Grow. Front matter is encapsulated by three dashes (`---`). From views, fields can be accessed using `{{doc.<field name>}}` where <field name> is the name of the field. The dollar sign prefix should be omitted from field names accessed using template variables.
+YAML front matter is YAML metadata that is prepended to a document's body.
+
+Front matter contains fields. Field names prefixed with a dollar sign ($) are ones which are built-in to Grow. Front matter is encapsulated by three dashes (`---`). From views, fields can be accessed using `{{doc.<field name>}}` where <field name> is the name of the field. The dollar sign prefix should be omitted from field names accessed using template variables.
+
+As long as a blueprint specifies a document's `view` and its `path`, including YAML front matter in a content document is optional.
+
+### Body
+
+A document's body is the stuff that comes after its YAML front matter. For Markdown-formatted documents, Grow provides a shortcut for accessing rendered HTML using `{{doc.html}}` (see the `html` API function below). The unprocessed body contents can be accessed with `{{doc.body}}`.
+
+## Example documents
 
 ### Markdown body
 
-A body of a Markdown-formatted document. From views, the Markdown body processed into HTML can be accessed using `{{doc.html}}` (see the `html` API function below).
+Markdown-formatted documents can optionall have YAML front matter, delimited using `---`.
 
-###
+    # /content/pages/foo.md
 
     ---
     $title: Hello, Grow!
@@ -39,6 +56,18 @@ A body of a Markdown-formatted document. From views, the Markdown body processed
     - I can use...
     - ... Markdown syntax...
     - ... to write my content.
+
+### YAML body
+
+YAML-formatted documents never use a separate YAML front matter. `{{doc.html}}` and `{{doc.body}}` are both `None` for YAML-formatted content documents.
+
+    # /content/pages/bar.yaml
+
+    $title: Hello, Grow!
+    $category: Get Started
+
+    key1: value1
+    key2: value2
 
 ## Functions
 

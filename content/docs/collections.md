@@ -42,11 +42,10 @@ Every content collection must have a blueprint. Blueprints define how content is
 Specifies the URL path format for content in this collection. If `path` is omitted, content in this collection will not be generated into pages. If `path` is specified, `view` is a required field.
 
   - {base}
-  - {language}
+  - {date}
   - {locale}
-  - {region}
+  - {parent}
   - {slug}
-  - {title}
 
 ### view
 

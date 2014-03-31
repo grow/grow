@@ -1,5 +1,5 @@
 grow_version: 0.0.27
-project_id: grow/growsdk.org
+project: grow/growsdk.org
 title: Grow SDK
 
 flags:
