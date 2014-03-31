@@ -89,9 +89,7 @@ class Document(object):
   def slug(self):
     if '$slug' in self.fields:
       return self.fields['$slug']
-    if self.parent:
-      return '/{}/{}/'.format(self.parent.slug, utils.slugify(self.title))
-    return utils.slugify(self.title)
+    return utils.slugify(self.title) if self.title is not None else None
 
   @property
   def is_hidden(self):
@@ -231,8 +229,10 @@ class Document(object):
   @property
   @utils.memoize
   def body(self):
-    content = self.doc_storage.body
-    return content.decode('utf-8')
+    body = self.doc_storage.body
+    if body is None:
+      return body
+    return body.decode('utf-8')
 
   @property
   def content(self):
@@ -342,11 +342,11 @@ class YamlDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, body = utils.parse_yaml(content, path=path)
+    fields, _ = utils.parse_yaml(content, path=path)
     self.content = content
     self.fields = fields or {}
     self.tagged_fields = {}
-    self.body = body
+    self.body = None
     self.tagged_fields = copy.deepcopy(fields)
     fields = untag_fields(fields)
 
