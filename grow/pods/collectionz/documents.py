@@ -136,7 +136,8 @@ class Document(object):
     return True
 
   def get_view(self):
-    return self.fields.get('$view', self.collection.get_view())
+    view_format = self.fields.get('$view', self.collection.get_view())
+    return self._format_path(view_format) if view_format is not None else None
 
   def get_path_format(self):
     val = None
@@ -202,18 +203,20 @@ class Document(object):
         break;
 
     try:
-      return path_format.format(**{
-          'doc': self,
-          'parent': self.parent if self.parent else DummyDict(),
-          'locale': locale,
-          'podspec': self.pod.get_podspec(),
-          'base': os.path.splitext(os.path.basename(self.pod_path))[0],
-          'slug': self.slug,
-          'date': self.date,
-      }).replace('//', '/')
+      return self._format_path(path_format)
     except KeyError:
       logging.error('Error with path format: {}'.format(path_format))
       raise
+
+  def _format_path(self, path_format):
+    return path_format.format(**{
+        'base': os.path.splitext(os.path.basename(self.pod_path))[0],
+        'date': self.date,
+        'locale': str(self.locale),
+        'parent': self.parent if self.parent else DummyDict(),
+        'podspec': self.pod.get_podspec(),
+        'slug': self.slug,
+    }).replace('//', '/')
 
   @property
   def locales(self):

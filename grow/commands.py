@@ -5,6 +5,7 @@ import gflags as flags
 import os
 from google.apputils import appcommands
 from grow.deployments import deployments
+from grow.common import launchpad
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.server import manager
@@ -206,57 +207,20 @@ class MachineTranslateCmd(appcommands.Cmd):
       translation.machine_translate()
 
 
-#class UpCmd(appcommands.Cmd):
-#  """Uploads a pod to a pod server."""
-#
-#  SKIP_PATTERNS = (
-#      '.DS_Store',
-#  )
-#
-#  def __init__(self, name, flag_values, command_aliases=None):
-#    flags.DEFINE_string(
-#        'host', 'beta.grow.io', 'Pod server hostname (ex: beta.grow.io.).',
-#        flag_values=flag_values)
-#    flags.DEFINE_string(
-#        'project', None, 'Project ID (ex: foo/bar).',
-#        flag_values=flag_values)
-#    super(UpCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
-#
-#  def Run(self, argv):
-#    owner, nickname = FLAGS.project.split('/')
-#    host = FLAGS.host
-#    pod = pods.Pod(argv[1], storage=storage.FileStorage)
-#
-#    # Uploading to GrowEdit on dev appserver.
-#    if True or (host is not None and 'localhost' in host):
-#      service = client.Client(host=FLAGS.host)
-#      for pod_path in pod.list_dir('/'):
-#        if os.path.basename(pod_path) in UpCmd.SKIP_PATTERNS:
-#          continue
-#        path = os.path.join(pod.root, pod_path)
-#        content = open(path).read()
-#        if isinstance(content, unicode):
-#          content = content.encode('utf-8')
-#        content = base64.b64encode(content)
-#        service.rpc('pods.update_file', {
-#           'project': {
-#             'owner': {'nickname': owner},
-#             'nickname': nickname,
-#           },
-#           'file': {
-#             'pod_path': pod_path,
-#             'content_b64': content,
-#           }
-#        })
-#        print 'Uploaded: {}'.format(pod_path)
-##      req = service.pods().finalizeStagedFiles(body={
-##        'pod': {'changeset': changeset}
-##      })
-##      req.execute()
-#      print 'Upload finalized.'
-#    else:
-#      raise NotImplementedError()
-##      google_cloud_storage.upload_to_gcs(pod, changeset, host=host)
+class UpCmd(appcommands.Cmd):
+  """Uploads a pod to a launchpad server."""
+
+  def __init__(self, name, flag_values, command_aliases=None):
+    flags.DEFINE_string(
+        'host', 'grow-prod.appspot.com', 'Launchpad hostname.',
+        flag_values=flag_values)
+    super(UpCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
+
+  def Run(self, argv):
+    root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+    pod = pods.Pod(root, storage=storage.FileStorage)
+    session = launchpad.Launchpad(FLAGS.host)
+    session.create_fileset(pod)
 
 
 def add_commands():
@@ -267,5 +231,5 @@ def add_commands():
   appcommands.AddCmd('init', InitCmd)
   appcommands.AddCmd('run', RunCmd)
   appcommands.AddCmd('routes', RoutesCmd)
-#  appcommands.AddCmd('up', UpCmd)
+  appcommands.AddCmd('up', UpCmd)
   appcommands.AddCmd('test', TestCmd)
