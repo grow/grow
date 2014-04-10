@@ -6,7 +6,7 @@ from grow.pods import storage
 import unittest
 
 
-class CollectionsTest(unittest.TestCase):
+class CollectionsTestCase(unittest.TestCase):
 
   def setUp(self):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)

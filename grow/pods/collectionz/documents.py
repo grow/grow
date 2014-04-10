@@ -9,6 +9,7 @@ import logging
 import markdown
 import os
 import copy
+import re
 from markdown.extensions import tables
 from markdown.extensions import toc
 
@@ -88,9 +89,7 @@ class Document(object):
   def slug(self):
     if '$slug' in self.fields:
       return self.fields['$slug']
-    if self.parent:
-      return '/{}/{}/'.format(self.parent.slug, utils.slugify(self.title))
-    return utils.slugify(self.title)
+    return utils.slugify(self.title) if self.title is not None else None
 
   @property
   def is_hidden(self):
@@ -111,12 +110,18 @@ class Document(object):
     return titles.get(title_name, self.title)
 
   @property
-  def published(self):
-    return self.fields.get('$published')
-
-  @property
   def category(self):
     return self.fields.get('$category')
+
+  @property
+  def date(self):
+    return self.fields.get('$date')
+
+  def dates(self, date_name=None):
+    if date_name is None:
+      return self.date
+    dates = self.fields.get('$dates', {})
+    return dates.get(date_name, self.date)
 
   def delete(self):
     self.pod.delete_file(self.pod_path)
@@ -162,9 +167,7 @@ class Document(object):
     root_path = config.get('flags', {}).get('root_path', '')
     if locale == self._default_locale:
       root_path = config.get('localization', {}).get('root_path', root_path)
-
     path_format = (self.get_path_format()
-        .replace('<grow:locale>', '{locale}')
         .replace('<grow:locale>', '{locale}')
         .replace('<grow:slug>', '{slug}')
         .replace('<grow:published_year>', '{published_year}'))
@@ -174,6 +177,30 @@ class Document(object):
       root_path = root_path[0:len(root_path)-1]
     path_format = root_path + path_format
 
+    # Handle default date formatting in the url.
+    while '{date|' in path_format:
+      re_date = r'({date\|(?P<date_format>[a-zA-Z0-9_%-]+)})'
+      match = re.search(re_date, path_format)
+      if match:
+        formatted_date = self.date
+        formatted_date = formatted_date.strftime(match.group('date_format'))
+        path_format = path_format[:match.start()] + formatted_date + path_format[match.end():]
+      else:
+        # Does not match expected format, let the normal format attempt it.
+        break;
+
+    # Handle the special formatting of dates in the url.
+    while '{dates.' in path_format:
+      re_dates = r'({dates\.(?P<date_name>\w+)(\|(?P<date_format>[a-zA-Z0-9_%-]+))?})'
+      match = re.search(re_dates, path_format)
+      if match:
+        formatted_date = self.dates(match.group('date_name'))
+        formatted_date = formatted_date.strftime(match.group('date_format') or '%Y-%m-%d')
+        path_format = path_format[:match.start()] + formatted_date + path_format[match.end():]
+      else:
+        # Does not match expected format, let the normal format attempt it.
+        break;
+
     try:
       return path_format.format(**{
           'doc': self,
@@ -182,6 +209,7 @@ class Document(object):
           'podspec': self.pod.get_podspec(),
           'base': os.path.splitext(os.path.basename(self.pod_path))[0],
           'slug': self.slug,
+          'date': self.date,
       }).replace('//', '/')
     except KeyError:
       logging.error('Error with path format: {}'.format(path_format))
@@ -201,8 +229,10 @@ class Document(object):
   @property
   @utils.memoize
   def body(self):
-    content = self.doc_storage.body
-    return content.decode('utf-8')
+    body = self.doc_storage.body
+    if body is None:
+      return body
+    return body.decode('utf-8')
 
   @property
   def content(self):
@@ -312,11 +342,11 @@ class YamlDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, body = utils.parse_yaml(content, path=path)
+    fields, _ = utils.parse_yaml(content, path=path)
     self.content = content
     self.fields = fields or {}
     self.tagged_fields = {}
-    self.body = body
+    self.body = None
     self.tagged_fields = copy.deepcopy(fields)
     fields = untag_fields(fields)
 

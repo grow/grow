@@ -1,6 +1,7 @@
 from grow.common import utils
 from grow.pods import storage
 from grow.server import podgroups
+from werkzeug import routing
 import jinja2
 import logging
 import os
@@ -51,5 +52,8 @@ class PodHandler(BaseHandler):
     podgroup = podgroups.Podgroup(root)
     pod_name = os.path.basename(os.path.normpath(os.environ['grow:pod_root']))
     podgroup.load_pods_by_id([pod_name])
-    controller = podgroup.match(self.request.path, domain=domain, url_scheme=url_scheme)
-    self.respond_with_controller(controller)
+    try:
+      controller = podgroup.match(self.request.path, domain=domain, url_scheme=url_scheme)
+      self.respond_with_controller(controller)
+    except routing.RequestRedirect as e:
+      self.redirect(e.new_url)

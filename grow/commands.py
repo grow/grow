@@ -175,7 +175,7 @@ class RunCmd(appcommands.Cmd):
     else:
       root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     if not FLAGS.skip_sdk_update_check:
-      sdk_utils.check_version(quiet=True)
+      sdk_utils.check_version(auto_update_prompt=True)
     pod = pods.Pod(root, storage=storage.FileStorage)
     manager.start(pod, host=FLAGS.host, port=FLAGS.port, open_browser=FLAGS.open)
 
