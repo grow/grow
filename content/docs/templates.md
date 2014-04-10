@@ -106,7 +106,7 @@ Returns the URL object for a static file from the pod's static directory. `<file
 
 It is a best practice to refer to static files using the `g.static` tag rather than referring to their URLs directly. This allows Grow to automatically implement efficient cache headers and cache-busting techniques for incremental static file deployments.
 
-    <img src="{{g.static('/static/example.png')}}.path">
+    <img src="{{g.static('/static/example.png').path}}">
 
 ### g.url
 
