@@ -22,7 +22,7 @@ The current content document associated with the current page that's being rende
 
     {{doc.category}}      # Document's category
     {{doc.title}}         # Document's canonical title.
-    {{doc.titles('nav'}}  # Document's "nav" title.
+    {{doc.titles('nav')}} # Document's "nav" title.
     {{doc.html|safe}}     # Document's rendered Markdown body.
     {{doc.foo}}           # Value of the "foo" custom field from the YAML front matter.
 
