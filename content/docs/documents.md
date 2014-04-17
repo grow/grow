@@ -41,7 +41,7 @@ A document's body is the stuff that comes after its YAML front matter. For Markd
 
 ### Markdown body
 
-Markdown-formatted documents can optionall have YAML front matter, delimited using `---`.
+Markdown-formatted documents can have optional YAML front matter, which is delimited using `---`.
 
     # /content/pages/foo.md
 
