@@ -1,12 +1,12 @@
 from grow.common import utils
 from grow.pods import storage
 from grow.server import podgroups
-from werkzeug import routing
 import jinja2
 import logging
 import os
 import webapp2
 import webob
+import werkzeug
 
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
@@ -55,5 +55,5 @@ class PodHandler(BaseHandler):
     try:
       controller = podgroup.match(self.request.path, domain=domain, url_scheme=url_scheme)
       self.respond_with_controller(controller)
-    except routing.RequestRedirect as e:
+    except werkzeug.routing.RequestRedirect as e:
       self.redirect(e.new_url)

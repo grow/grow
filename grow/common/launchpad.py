@@ -3,6 +3,7 @@ import json
 import md5
 import mimetypes
 import requests
+import threading
 
 
 class Launchpad(object):
@@ -27,13 +28,13 @@ class Launchpad(object):
     project_id = config['project']
     owner, project = project_id.split('/')
     fileset = {
-        'name': 'master',
+        'name': 'translate-i18n',
         'project': {
             'nickname': project,
             'owner': {'nickname': owner}
         },
     }
-    paths_to_contents = pod.dump()
+    paths_to_contents = pod.export()
 
     for path, content in paths_to_contents.iteritems():
       if isinstance(content, unicode):
@@ -45,12 +46,20 @@ class Launchpad(object):
     resp = self.rpc('filesets.sign_requests', sign_requests_request)
     print 'Retrieved signed requests.'
 
+    # TODO(jeremydw): Thread pool.
     # retrieve signed requests.
     # upload files via signed requests.
+    threads = []
     for req in resp['signed_requests']:
-      file_path = req['file_path']
+      file_path = req['path']
+      thread = threading.Thread(
+          target=self.gcs_session.execute_signed_upload,
+          args=(req, paths_to_contents[file_path]))
+      threads.append(thread)
       print 'Uploading {}'.format(file_path)
-      self.gcs_session.execute_signed_upload(req, paths_to_contents[file_path])
+      thread.start()
+    for thread in threads:
+      thread.join()
 
 
 class GoogleStorageSigningSession(object):
@@ -58,17 +67,20 @@ class GoogleStorageSigningSession(object):
   @staticmethod
   def create_unsigned_request(verb, path, content=None):
     req = {
-      'file_path': path,
+      'path': path,
       'verb': verb,
     }
     if verb == 'PUT':
-      mimetype = mimetypes.guess_type(path)[0]
+      if path.endswith('/'):
+        mimetype = 'text/html'
+      else:
+        mimetype = mimetypes.guess_type(path)[0]
+        mimetype = mimetype or 'application/octet-stream'
       md5_digest = base64.b64encode(md5.new(content).digest())
       req['headers'] = {}
       req['headers']['content_length'] = str(len(content))
       req['headers']['content_md5'] = md5_digest
-      if mimetype:
-        req['headers']['content_type'] = mimetype
+      req['headers']['content_type'] = mimetype
     return req
 
   def create_sign_requests_request(self, fileset, paths_to_contents):

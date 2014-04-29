@@ -7,6 +7,7 @@ a = Analysis(['bin/grow'],
                 'babel.plural',
                 'markdown', 
                 'markdown.extensions',
+                'werkzeug',
              ],
              hookspath=None,
              runtime_hooks=None)
