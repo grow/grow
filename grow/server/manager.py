@@ -16,7 +16,7 @@ import yaml
 import webbrowser
 
 _servers = {}
-_config_path = '{}/.grow/servers.yaml'.format(os.environ['HOME'])
+_config_path = '{}/.grow/servers.yaml'.format(os.getenv('HOME', ''))
 
 
 def _loop_watching_for_changes(pod, file_watchers_to_preprocessors, quit_event):
