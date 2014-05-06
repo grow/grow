@@ -24,11 +24,17 @@ flags.DEFINE_boolean(
 class BuildCmd(appcommands.Cmd):
   """Generates static files and dumps them to a local destination."""
 
+  def __init__(self, name, flag_values, command_aliases=None):
+    flags.DEFINE_boolean(
+        'dot_grow_dir', True, 'Whether to include the .grow dir in the build.',
+        flag_values=flag_values)
+    super(BuildCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
+
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-2]))
     out_dir = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.dump(out_dir=out_dir)
+    pod.dump(out_dir=out_dir, include_dot_grow_dir=FLAGS.dot_grow_dir)
 
 
 class DeployCmd(appcommands.Cmd):

@@ -1,6 +1,7 @@
 import collections
 import os
 from protorpc import messages
+from protorpc import protojson
 
 
 class FileCountMessage(messages.Message):
@@ -40,8 +41,14 @@ class Stats(object):
 
   def to_message(self):
     message = StatsMessage()
+
     message.num_collections = len(self.pod.list_collections())
+    message.num_files_per_type = self.get_num_files_per_type()
+
     message.locales = [str(locale) for locale in self.pod.list_locales()]
     message.langs = self.pod.get_translations().list_locales()
-    message.num_files_per_type = self.get_num_files_per_type()
+    message.num_messages = len(self.pod.get_translations().get_catalog())
     return message
+
+  def serialize(self):
+    return protojson.encode_message(self.to_message())

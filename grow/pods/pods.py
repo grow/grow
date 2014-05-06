@@ -34,6 +34,7 @@ import re
 from grow.common import utils
 from grow.deployments import deployments
 from grow.pods import files
+from grow.pods import index
 from grow.pods import locales
 from grow.pods import messages
 from grow.pods import podspec
@@ -44,6 +45,7 @@ from grow.pods import translations
 from grow.pods.collectionz import collectionz
 from grow.pods.controllers import tags
 from grow.pods.preprocessors import preprocessors
+from grow.stats import stats
 
 
 class Error(Exception):
@@ -185,7 +187,7 @@ class Pod(object):
       other.write_file(path, content)
     # TODO: Handle same-storage copying more elegantly.
 
-  def export(self):
+  def export(self, include_dot_grow_dir=False):
     """Builds the pod, returning a mapping of paths to content."""
     output = {}
     routes = self.get_routes()
@@ -197,13 +199,20 @@ class Pod(object):
     if error_controller:
       output['/404.html'] = error_controller.render()
 
+    if include_dot_grow_dir:
+      index_obj = index.Index()
+      index_obj.update(output)
+      stats_obj = stats.Stats(self, paths_to_contents=output)
+      output['/.grow/index.yaml'] = index_obj.to_yaml()
+      output['/.grow/stats.json'] = stats_obj.serialize()
+
     return output
 
-  def dump(self, suffix='index.html', out_dir=None):
+  def dump(self, suffix='index.html', out_dir=None, include_dot_grow_dir=False):
     if out_dir is not None:
       logging.info('Dumping to {}...'.format(out_dir))
 
-    output = self.export()
+    output = self.export(include_dot_grow_dir=include_dot_grow_dir)
     clean_output = {}
     if suffix:
       for path, content in output.iteritems():

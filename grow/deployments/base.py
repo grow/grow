@@ -132,6 +132,7 @@ class BaseDeployment(object):
     try:
       deployed_index = self.get_index_at_destination()
       paths_to_content = pod.dump()
+      # TODO(jeremydw): Give index an API more like stats.
       new_index = index.Index()
       new_index.update(paths_to_content)
       diffs = new_index.diff(deployed_index)
