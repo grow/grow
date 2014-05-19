@@ -5,8 +5,6 @@ import cStringIO
 import dns.resolver
 import logging
 import mimetypes
-import multiprocessing
-import threading
 
 
 class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
