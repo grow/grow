@@ -8,7 +8,7 @@ closure==20140110
 dnspython
 dulwich
 ez_setup
-google-api-python-client
+gcloud
 google-apputils
 goslate
 httplib2

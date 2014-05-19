@@ -1,25 +1,12 @@
 from grow.deployments import base
 from grow.pods import index
-import boto
+from gcloud import storage
 import cStringIO
 import dns.resolver
 import logging
 import mimetypes
 import multiprocessing
 import threading
-from gslib.third_party.oauth2_plugin import oauth2_plugin
-from gslib.third_party.oauth2_plugin import oauth2_client
-
-try:
-  oauth2_client.token_exchange_lock = multiprocessing.Manager().Lock()
-except:
-  oauth2_client.token_exchange_lock = threading.Lock()
-
-
-# URI scheme for Google Cloud Storage.
-GOOGLE_STORAGE = 'gs'
-# URI scheme for accessing local files.
-LOCAL_FILE = 'file'
 
 
 class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
@@ -45,10 +32,11 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
 
   test_case_class = BaseGoogleCloudStorageDeploymentTestCase
 
-  def __init__(self, bucket, project_id=None):
+  def __init__(self, bucket, project_id=None, email=None, key_path=None):
     self.bucket_name = bucket
-    self.bucket_uri = boto.storage_uri(bucket, GOOGLE_STORAGE)
     self.project_id = project_id
+    self.connection = storage.get_connection(project_id, email, key_path)
+    self.bucket = self.connection.get_bucket(bucket)
 
   def get_destination_address(self):
     return 'http://{}/'.format(self.bucket_name)
@@ -60,30 +48,24 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
         policy='private')
 
   def read_file(self, path):
-    path = path.lstrip('/')
-    file_uri = boto.storage_uri(self.bucket_name + '/' + path, GOOGLE_STORAGE)
-    object_contents = cStringIO.StringIO()
+    file_key = self.bucket.get_key(path)
 
-    try:
-      file_uri.get_key().get_file(object_contents)
-      return object_contents
-    except boto.exception.GSResponseError, e:
-      if e.status != 404:
-        raise
+    if not file_key:
       raise IOError('File not found: {}'.format(path))
 
+    return file_key.get_contents_as_string()
+
   def delete_file(self, path):
-    file_uri = boto.storage_uri(self.bucket_name + '/' + path, GOOGLE_STORAGE)
-    file_uri.delete()
+    self.bucket.delete_key(path)
 
   def prelaunch(self, dry_run=False):
     if dry_run:
       return
     logging.info('Configuring bucket: {}'.format(self.bucket_name))
-    # print dir(self.bucket_uri)
-    self.bucket_uri.set_acl('public-read')
-    self.bucket_uri.configure_versioning(False)
-    self.bucket_uri.set_website_config(main_page_suffix='index.html', error_key='404.html')
+    # acl = self.bucket.get_default_object_acl()
+    # acl.all().grant_read().revoke_write()
+    # acl.save()
+    # self.bucket.configure_website(main_page_suffix='index.html', not_found_page='404.html')
 
 
 
@@ -93,18 +75,10 @@ class GoogleCloudStorageDeployment(BaseGoogleCloudStorageDeployment):
   def write_file(self, path, content, policy='public-read'):
     if isinstance(content, unicode):
       content = content.encode('utf-8')
-    path = path.lstrip('/')
-    file_uri = boto.storage_uri(self.bucket_name + '/' + path, GOOGLE_STORAGE)
-    fp = cStringIO.StringIO()
-    fp.write(content)
+
     mimetype = mimetypes.guess_type(path)[0]
     if path == 'rss/index.html':
       mimetype = 'application/xml'
-    # TODO(jeremydw): Better headers.
-    headers = {
-        'Cache-Control': 'no-cache',
-        'Content-Type': mimetype,
-    }
-    fp.seek(0)
-    file_uri.new_key().set_contents_from_file(fp, headers=headers, replace=True, policy=policy)
-    fp.close()
+
+    file_key = self.bucket.new_key(path)
+    file_key.set_contents_from_string(content, content_type=mimetype)
