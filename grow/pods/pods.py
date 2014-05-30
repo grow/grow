@@ -34,7 +34,6 @@ import re
 from grow.common import utils
 from grow.deployments import deployments
 from grow.pods import files
-from grow.pods import index
 from grow.pods import locales
 from grow.pods import messages
 from grow.pods import podspec
@@ -45,7 +44,8 @@ from grow.pods import translations
 from grow.pods.collectionz import collectionz
 from grow.pods.controllers import tags
 from grow.pods.preprocessors import preprocessors
-from grow.stats import stats
+from grow.deployments.indexes import indexes
+from grow.deployments.stats import stats
 
 
 class Error(Exception):
@@ -200,7 +200,7 @@ class Pod(object):
       output['/404.html'] = error_controller.render()
 
     if include_dot_grow_dir:
-      index_obj = index.Index()
+      index_obj = indexes.Index()
       index_obj.update(output)
       stats_obj = stats.Stats(self, paths_to_contents=output)
       output['/.grow/index.yaml'] = index_obj.to_yaml()

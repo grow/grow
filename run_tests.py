@@ -55,7 +55,10 @@ def main():
     env = os.environ.copy()
     fixed_env = [tests_dir, root_dir, appengine_dir, env.get('PYTHONPATH', '')]
     env['PYTHONPATH'] = ':'.join(fixed_env)
-    process = subprocess.Popen([sys.executable, filename], env=env,
+
+    package_name = basename.replace('.py', '').replace('/', '.')
+    process = subprocess.Popen([sys.executable, '-m', package_name],
+                               env=env,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE,
                                stdin=subprocess.PIPE)
