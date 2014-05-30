@@ -121,17 +121,19 @@ class BaseDeployment(object):
 
   def write_index_at_destination(self, new_index):
     path = self.get_index_path()
-    self.write_file(path, new_index.to_yaml())
+    content = new_index.to_string()
+    self.write_file(path, content)
     logging.info('Wrote index: {}'.format(path))
 
   def get_index_path(self):
-    return '/{}'.format(indexes.Index.BASENAME)
+    return '/.grow/index.proto.json'
 
   def get_index_at_destination(self):
     try:
       content = self.read_file(self.get_index_path())
-      logging.info('Loaded index at destination.')
-      return indexes.Index.from_yaml(content)
+      index = indexes.Index.from_string(content)
+      logging.info('Last deployed {} by {}'.format(index.modified, index.modified_by))
+      return index
     except IOError:
       logging.info('No index found at destination, assuming new deployment.')
       return indexes.Index()
@@ -142,7 +144,7 @@ class BaseDeployment(object):
   def prelaunch(self, dry_run=False):
     pass
 
-  def deploy(self, pod, dry_run=False, confirm=False):
+  def deploy(self, paths_to_contents, dry_run=False, confirm=False):
     destination_address = self.get_destination_address()
     logging.info('Deploying to: {}'.format(destination_address))
     self._prelaunch()
@@ -150,37 +152,39 @@ class BaseDeployment(object):
 
     try:
       deployed_index = self.get_index_at_destination()
-      paths_to_content = pod.dump()
-      # TODO(jeremydw): Give index an API more like stats.
+
       new_index = indexes.Index()
-      new_index.update(paths_to_content)
-      diffs = new_index.diff(deployed_index)
-      if not diffs:
+      new_index.update(paths_to_contents)
+
+      diff = new_index.create_diff(deployed_index)
+      if indexes.Diff.is_empty(diff):
         text = utils.colorize('{white}Diff is empty, nothing to launch, aborted.{/white}')
         logging.info(text)
         return
       if dry_run:
         return
       if confirm:
-        diffs.log_pretty()
+        indexes.Diff.pretty_print(diff)
         logging.info('About to launch => {}'.format(destination_address))
         if not utils.interactive_confirm('Proceed with launch?'):
           logging.info('Launch aborted.')
           return
 
       self.start_time = time.time()
-      indexes.Index.apply_diffs(diffs, paths_to_content, write_func=self.write_file,
-                                delete_func=self.delete_file, threaded=self.threaded)
+      indexes.Index.apply_diff(
+          diff, paths_to_contents, write_func=self.write_file,
+          delete_func=self.delete_file, threaded=self.threaded)
       # TODO(jeremydw): Index should only be updated if the diff was entirely
       # successfully applied.
       self.write_index_at_destination(new_index)
     finally:
       self.postlaunch()
       self._postlaunch()
-    return diffs
+
+    return diff
 
   def _prelaunch(self):
-    self.run_tests()
+    self.test()
 
   def _postlaunch(self):
     if hasattr(self, 'start_time'):

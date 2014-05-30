@@ -49,16 +49,15 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
 
   def write_index_at_destination(self, new_index):
     self.write_file(
-        index.Index.BASENAME,
-        new_index.to_yaml(),
+        self.get_index_path(),
+        new_index.to_string(),
         policy='private')
 
   def read_file(self, path):
     file_key = key.Key(self.bucket)
     file_key.key = path
     try:
-      file_key.get_contents_as_string()
-      return file_key
+      return file_key.get_contents_as_string()
     except boto.exception.GSResponseError, e:
       if e.status != 404:
         raise

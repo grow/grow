@@ -1,4 +1,5 @@
 from . import indexes
+from . import messages
 from grow.pods import pods
 from grow.pods import storage
 import unittest
@@ -24,13 +25,13 @@ class IndexTest(unittest.TestCase):
       '/foo/file.txt': 'test',
       '/bar/new.txt': 'test',
     })
-    expected = indexes.Diff(
-        adds=['/file.txt'],
-        edits=['/file2.txt'],
-        deletes=['/bar/new.txt'],
-        nochanges=['/foo/file.txt'],
+    expected = messages.DiffMessage(
+        adds=[messages.FileMessage(path='/file.txt')],
+        edits=[messages.FileMessage(path='/file2.txt')],
+        deletes=[messages.FileMessage(path='/bar/new.txt')],
+        nochanges=[messages.FileMessage(path='/foo/file.txt')],
     )
-    self.assertEqual(expected, my_index.diff(their_index))
+    self.assertEqual(expected, my_index.create_diff(their_index))
 
 
 if __name__ == '__main__':

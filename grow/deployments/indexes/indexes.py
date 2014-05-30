@@ -1,9 +1,10 @@
 from . import messages
+import datetime
 import hashlib
 import logging
 import threading
-import yaml
-from grow.common import utils
+import texttable
+from protorpc import protojson
 
 
 class Error(Exception):
@@ -16,47 +17,39 @@ class CorruptIndexError(Error):
 
 class Diff(object):
 
-  def __init__(self, adds, edits, deletes, nochanges):
-    self.adds = adds
-    self.edits = edits
-    self.deletes = deletes
-    self.nochanges = nochanges
+  @classmethod
+  def is_empty(cls, diff):
+    return not diff.adds and not diff.deletes and not diff.edits
 
-  def __nonzero__(self):
-    return not (
-        self.nochanges
-        and not self.adds
-        and not self.edits
-        and not self.deletes)
-
-  def __eq__(self, other):
-    return (
-        self.adds == other.adds
-        and self.edits == other.edits
-        and self.deletes == other.deletes
-        and self.nochanges == other.nochanges)
-
-  def log_pretty(self):
-    logging.info(utils.colorize('\n{green}Adding files: (%s){/green}' % len(self.adds)))
-    [logging.info('  {}'.format(add)) for add in self.adds]
-    logging.info(utils.colorize('{yellow}Editing files: (%s){/yellow}'% len(self.edits)))
-    [logging.info('  {}'.format(edit)) for edit in self.edits]
-    logging.info(utils.colorize('{red}Deleting files: (%s){/red}' % len(self.deletes)))
-    [logging.info('  {}'.format(delete)) for delete in self.deletes]
-    logging.info(utils.colorize('{white}Unchanged files: (%s){/red}\n' % len(self.nochanges)))
-
-  def to_message(self):
-    message = messages.DiffMessage()
-    return message
+  @classmethod
+  def pretty_print(cls, diff):
+    table = texttable.Texttable(max_width=0)
+    table.set_deco(texttable.Texttable.HEADER)
+    rows = []
+    rows.append(['Action', 'Path', 'Last modified'])
+    for add in diff.adds:
+      label = texttable.get_color_string(texttable.bcolors.GREEN, 'Add')
+      path = texttable.get_color_string(texttable.bcolors.WHITE, add.path)
+      rows.append([label, path, add.modified])
+    for edit in diff.edits:
+      label = texttable.get_color_string(texttable.bcolors.PURPLE, 'Edit')
+      path = texttable.get_color_string(texttable.bcolors.WHITE, edit.path)
+      rows.append([label, path, edit.modified])
+    for delete in diff.deletes:
+      label = texttable.get_color_string(texttable.bcolors.RED, 'Delete')
+      path = texttable.get_color_string(texttable.bcolors.WHITE, delete.path)
+      rows.append([label, path, delete.modified])
+    table.add_rows(rows)
+    logging.info('\n' + table.draw() + '\n')
 
 
 class Index(object):
-  BASENAME = '.growindex'
+  paths_to_shas = None
+  modified_by = None
+  modified = None
 
-  def __init__(self, paths_to_shas=None):
-    if paths_to_shas is None:
-      paths_to_shas = {}
-    self.paths_to_shas = paths_to_shas
+  def __init__(self):
+    self.paths_to_shas = {}
 
   def __contains__(self, key):
     return key in self.paths_to_shas
@@ -81,69 +74,98 @@ class Index(object):
       self.paths_to_shas[pod_path] = m.hexdigest()
     return self.paths_to_shas
 
-  def diff(self, theirs):
-    """Shows a diff of what will happen after applying yours to theirs."""
-    diff = Diff(adds=[], edits=[], deletes=[], nochanges=[])
+  def create_diff(self, theirs):
+    diff = messages.DiffMessage()
 
     for path, sha in self.iteritems():
       if path in theirs:
         if self[path] == theirs[path]:
-          diff.nochanges.append(path)
+          file_message = messages.FileMessage()
+          file_message.path = path
+          file_message.modified = theirs.modified
+          file_message.modified_by = theirs.modified_by
+          diff.nochanges.append(file_message)
         else:
-          diff.edits.append(path)
+          file_message = messages.FileMessage()
+          file_message.path = path
+          file_message.modified = theirs.modified
+          file_message.modified_by = theirs.modified_by
+          diff.edits.append(file_message)
         del theirs[path]
       else:
-        diff.adds.append(path)
+        file_message = messages.FileMessage()
+        file_message.path = path
+        diff.adds.append(file_message)
 
     for path, sha in theirs.iteritems():
-      diff.deletes.append(path)
+      file_message = messages.FileMessage()
+      file_message.path = path
+      file_message.modified = theirs.modified
+      file_message.modified_by = theirs.modified_by
+      diff.deletes.append(file_message)
 
     return diff
 
-  def to_yaml(self):
-    return yaml.dump(self.paths_to_shas, default_flow_style=False)
-
   @classmethod
-  def from_yaml(cls, yaml_string):
-    try:
-      return cls(yaml.load(yaml_string))
-    except yaml.scanner.ScannerError as e:
-      raise CorruptIndexError(str(e))
-
-  @classmethod
-  def apply_diffs(cls, diffs, paths_to_content, write_func, delete_func, threaded=True):
+  def apply_diff(cls, diff, paths_to_content, write_func, delete_func, threaded=True):
     if not threaded:
-      for path in diffs.adds:
-        logging.info('Writing new file: {}'.format(path))
-        content = paths_to_content[path]
-        write_func(path, content)
-      for path in diffs.edits:
-        logging.info('Writing changed file: {}'.format(path))
-        content = paths_to_content[path]
-        write_func(path, content)
-      for path in diffs.deletes:
-        logging.info('Deleting file: {}'.format(path))
-        delete_func(path)
+      for file_message in diff.adds:
+        logging.info('Writing new file: {}'.format(file_message.path))
+        content = file_message.paths_to_content[file_message.path]
+        write_func(file_message.path, content)
+      for file_message in diff.edits:
+        logging.info('Writing changed file: {}'.format(file_message.path))
+        content = file_message.paths_to_content[file_message.path]
+        write_func(file_message.path, content)
+      for file_message in diff.deletes:
+        logging.info('Deleting file: {}'.format(file_message.path))
+        delete_func(file_message.path)
       return
 
     # TODO(jeremydw): Thread pool for the threaded operation.
     threads = []
-    for path in diffs.adds:
-      logging.info('Writing new file: {}'.format(path))
-      content = paths_to_content[path]
-      thread = threading.Thread(target=write_func, args=(path, content))
+    for file_message in diff.adds:
+      logging.info('Writing new file: {}'.format(file_message.path))
+      content = paths_to_content[file_message.path]
+      thread = threading.Thread(target=write_func, args=(file_message.path, content))
       threads.append(thread)
       thread.start()
-    for path in diffs.edits:
-      logging.info('Writing changed file: {}'.format(path))
-      content = paths_to_content[path]
-      thread = threading.Thread(target=write_func, args=(path, content))
+    for file_message in diff.edits:
+      logging.info('Writing changed file: {}'.format(file_message.path))
+      content = paths_to_content[file_message.path]
+      thread = threading.Thread(target=write_func, args=(file_message.path, content))
       threads.append(thread)
       thread.start()
-    for path in diffs.deletes:
-      logging.info('Deleting file: {}'.format(path))
-      thread = threading.Thread(target=delete_func, args=(path,))
+    for file_message in diff.deletes:
+      logging.info('Deleting file: {}'.format(file_message.path))
+      thread = threading.Thread(target=delete_func, args=(file_message.path,))
       threads.append(thread)
       thread.start()
     for thread in threads:
       thread.join()
+
+  def to_message(self):
+    message = messages.IndexMessage()
+    message.files = []
+    message.modified = datetime.datetime.now()
+    for path, sha in self.paths_to_shas.iteritems():
+      file_message = messages.FileMessage(path=path, sha=sha)
+      message.files.append(file_message)
+    return message
+
+  def to_string(self):
+    return protojson.encode_message(self.to_message())
+
+  @classmethod
+  def from_message(cls, message):
+    index = cls()
+    index.modified = message.modified
+    index.modified_by = message.modified_by
+    for file_message in message.files:
+      index.paths_to_shas[file_message.path] = file_message.sha
+    return index
+
+  @classmethod
+  def from_string(cls, content):
+    index_message = protojson.decode_message(messages.IndexMessage, content)
+    return cls.from_message(index_message)

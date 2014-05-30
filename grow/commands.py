@@ -107,7 +107,8 @@ class DeployCmd(appcommands.Cmd):
     if FLAGS.test:
       deployment.test()
     else:
-      deployment.deploy(pod, confirm=FLAGS.confirm)
+      paths_to_contents = pod.dump()
+      deployment.deploy(paths_to_contents, confirm=FLAGS.confirm)
 
 
 class ExtractCmd(appcommands.Cmd):

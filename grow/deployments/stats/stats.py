@@ -33,8 +33,5 @@ class Stats(object):
     message.num_messages = len(self.pod.get_translations().get_catalog())
     return message
 
-  def serialize(self):
+  def to_string(self):
     return protojson.encode_message(self.to_message())
-
-  def diff(self, other):
-    pass

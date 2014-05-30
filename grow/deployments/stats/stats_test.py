@@ -15,7 +15,7 @@ class StatsTest(unittest.TestCase):
   def test_to_message(self):
     stat = stats.Stats(self.pod)
     stat.to_message()
-    stat.serialize()
+    stat.to_string()
 
 
 if __name__ == '__main__':

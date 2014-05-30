@@ -23,6 +23,7 @@ python-gflags
 pytz
 pyyaml
 requests
+texttable
 translitcodec
 webapp2
 werkzeug
