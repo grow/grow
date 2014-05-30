@@ -42,6 +42,9 @@ class DeployCmd(appcommands.Cmd):
 
   def __init__(self, name, flag_values, command_aliases=None):
     flags.DEFINE_boolean(
+        'test', False, 'Whether to only run the deployment tests.',
+        flag_values=flag_values)
+    flags.DEFINE_boolean(
         'confirm', True, 'Whether to confirm prior to deployment.',
         flag_values=flag_values)
     flags.DEFINE_enum(
@@ -100,7 +103,11 @@ class DeployCmd(appcommands.Cmd):
       deployment = pod.get_deployment(deployment_name)
     else:
       deployment = self._get_deployment_from_command_line()
-    deployment.deploy(pod, confirm=FLAGS.confirm)
+
+    if FLAGS.test:
+      deployment.test()
+    else:
+      deployment.deploy(pod, confirm=FLAGS.confirm)
 
 
 class ExtractCmd(appcommands.Cmd):

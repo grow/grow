@@ -1,5 +1,6 @@
 from boto.gs import key
 from grow.deployments import base
+from grow.deployments import messages
 from grow.pods import index
 import boto
 import cStringIO
@@ -12,6 +13,9 @@ import mimetypes
 class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
 
   def test_domain_cname_is_gcs(self):
+    message = messages.TestResultMessage()
+    message.name = 'Verify domain name is mapped to GCS.'
+
     CNAME = 'c.storage.googleapis.com'
     dns_resolver = dns.resolver.Resolver()
     dns_resolver.nameservers = ['8.8.8.8']  # Use Google's DNS.
@@ -20,11 +24,15 @@ class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
       content = str(dns_resolver.query(self.deployment.bucket_name, 'CNAME')[0])
     except:
       text = "Can't verify CNAME for {} is mapped to {}"
-      self.fail(text.format(self.deployment.bucket_name, CNAME))
+      message.passed = False
+      message.result = text.format(self.deployment.bucket_name, CNAME)
 
     if not content.startswith(CNAME):
       text = 'CNAME mapping for {} is not GCS! Found {}, expected {}'
-      self.fail(text.format(self.deployment.bucket_name, content, CNAME))
+      message.passed = False
+      message.result = text.format(self.deployment.bucket_name, content, CNAME)
+
+    return message
 
 
 

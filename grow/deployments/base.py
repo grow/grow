@@ -62,9 +62,10 @@ you must modify the DeployCmd class in pygrow/grow/commands.py.
 
 import logging
 import time
-import unittest
+import inspect
 from grow.pods import index
 from grow.common import utils
+from grow.deployments import messages
 
 
 class Error(Exception):
@@ -75,8 +76,15 @@ class NotFoundError(Error, IOError):
   pass
 
 
-class DeploymentTestCase(unittest.TestCase):
-  deployment = None
+class DeploymentTestCase(object):
+
+  def __init__(self, deployment):
+    self.deployment = deployment
+
+  def __iter__(self):
+    for name, func in inspect.getmembers(self, predicate=inspect.ismethod):
+      if name.startswith('test_'):
+        yield func
 
 
 class BaseDeployment(object):
@@ -94,11 +102,22 @@ class BaseDeployment(object):
   def get_destination_address(self):
     raise NotImplementedError
 
-  def run_tests(self):
-    suite = unittest.defaultTestLoader.loadTestsFromTestCase(self.test_case_class)
-    for test_case in suite:
-      test_case.deployment = self
-    unittest.TextTestRunner().run(suite)
+  def test(self):
+    results = messages.TestResultsMessage(test_results=[])
+    failures = []
+    test_case = self.test_case_class(self)
+    for func in test_case:
+      result_message = func()
+      results.test_results.append(result_message)
+      if not result_message.passed:
+        failures.append(result_message)
+    if failures:
+      raise Exception('{} tests failed.'.format(len(failures)))
+
+    for message in results.test_results:
+      print message.passed, message.name, message.result
+
+    logging.info('Tests passed.')
 
   def write_index_at_destination(self, new_index):
     path = self.get_index_path()

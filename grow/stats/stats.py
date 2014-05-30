@@ -52,3 +52,6 @@ class Stats(object):
 
   def serialize(self):
     return protojson.encode_message(self.to_message())
+
+  def diff(self, other):
+    pass
