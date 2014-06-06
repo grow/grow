@@ -9,11 +9,30 @@ class DeploymentKind(messages.Enum):
   FILE_SYSTEM = 5
 
 
+class Result(messages.Enum):
+  PASS = 1
+  FAIL = 2
+  WARNING = 3
+
+
 class TestResultMessage(messages.Message):
-  passed = messages.BooleanField(1, default=True)
-  name = messages.StringField(2)
-  result = messages.StringField(3)
+  result = messages.EnumField(Result, 1, default=Result.PASS)
+  title = messages.StringField(2)
+  text = messages.StringField(3)
 
 
 class TestResultsMessage(messages.Message):
   test_results = messages.MessageField(TestResultMessage, 1, repeated=True)
+
+
+###
+
+
+class ZipConfig(messages.Message):
+  pass
+
+
+#class DestinationConfig(messages.Message):
+#  google_storage = messages.MessageField(GoogleStorageConfig, 1)
+#  scp = messages.MessageField(ScpConfig, 2)
+#  zip = messages.MessageField(ZipConfig, 3)

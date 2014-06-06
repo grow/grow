@@ -187,7 +187,7 @@ class Pod(object):
       other.write_file(path, content)
     # TODO: Handle same-storage copying more elegantly.
 
-  def export(self, include_dot_grow_dir=False):
+  def export(self):
     """Builds the pod, returning a mapping of paths to content."""
     output = {}
     routes = self.get_routes()
@@ -199,20 +199,21 @@ class Pod(object):
     if error_controller:
       output['/404.html'] = error_controller.render()
 
-    if include_dot_grow_dir:
-      index_obj = indexes.Index()
-      index_obj.update(output)
-      stats_obj = stats.Stats(self, paths_to_contents=output)
-      output['/.grow/index.yaml'] = index_obj.to_yaml()
-      output['/.grow/stats.json'] = stats_obj.serialize()
-
     return output
 
   def dump(self, suffix='index.html', out_dir=None, include_dot_grow_dir=False):
+
     if out_dir is not None:
       logging.info('Dumping to {}...'.format(out_dir))
 
-    output = self.export(include_dot_grow_dir=include_dot_grow_dir)
+    output = self.export()
+
+    if include_dot_grow_dir:
+      index_message = indexes.Index.create(output)
+      stats_obj = stats.Stats(self, paths_to_contents=output)
+      output['/.grow/index.json'] = indexes.Index.to_string(index_message)
+      output['/.grow/stats.json'] = stats_obj.to_string()
+
     clean_output = {}
     if suffix:
       for path, content in output.iteritems():
@@ -244,9 +245,9 @@ class Pod(object):
     return pod_paths
 
   def list_deployments(self):
-    deployment_configs = self.yaml['deployments']
+    destination_configs = self.yaml['deployments']
     results = []
-    for name in deployment_configs.keys():
+    for name in destination_configs.keys():
       results.append(self.get_deployment(name))
     return results
 
@@ -254,14 +255,15 @@ class Pod(object):
     """Returns a pod-specific deployment."""
     if 'deployments' not in self.yaml:
       raise ValueError('No pod-specific deployments configured.')
-    deployment_configs = self.yaml['deployments']
-    if nickname not in deployment_configs:
+    destination_configs = self.yaml['deployments']
+    if nickname not in destination_configs:
       text = 'No deployment named {}. Valid deployments: {}.'
-      raise ValueError(text.format(nickname, ', '.join(deployment_configs.keys())))
-    deployment_params = deployment_configs[nickname]
+      raise ValueError(text.format(nickname, ', '.join(destination_configs.keys())))
+    deployment_params = destination_configs[nickname]
     kind = deployment_params.pop('destination')
     try:
-      deployment = deployments.Deployment.get(kind, **deployment_params)
+      config = destination_configs[nickname]
+      deployment = deployments.make_deployment(kind, config)
     except TypeError:
       logging.exception('Invalid deployment parameters.')
       raise

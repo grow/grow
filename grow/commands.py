@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import git
 import logging
 import gflags as flags
 import os
@@ -47,44 +48,7 @@ class DeployCmd(appcommands.Cmd):
     flags.DEFINE_boolean(
         'confirm', True, 'Whether to confirm prior to deployment.',
         flag_values=flag_values)
-    flags.DEFINE_enum(
-        'destination', None, ['gcs', 'local', 's3', 'zip'],
-        'Destination to deploy to.',
-        flag_values=flag_values)
-    flags.DEFINE_string(
-        'bucket', None, 'Google Cloud Storage or Amazon S3 bucket.',
-        flag_values=flag_values)
-    flags.DEFINE_string(
-        'out_dir', None, 'Directory to write to.',
-        flag_values=flag_values)
-    flags.DEFINE_string(
-        'out_file', None, 'File name of zip file to use.',
-        flag_values=flag_values)
     super(DeployCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
-
-  def _get_deployment_from_command_line(self):
-    if FLAGS.destination is None:
-      raise appcommands.AppCommandsError('Must specify: --destination.')
-    elif FLAGS.destination == 'gcs':
-      if FLAGS.bucket is None:
-        raise appcommands.AppCommandsError('Must specify: --bucket.')
-      deployment = deployments.GoogleCloudStorageDeployment(bucket=FLAGS.bucket)
-    elif FLAGS.destination == 's3':
-      if FLAGS.bucket is None:
-        raise appcommands.AppCommandsError('Must specify: --bucket.')
-      deployment = deployments.AmazonS3Deployment(bucket=FLAGS.bucket)
-    elif FLAGS.destination == 'local':
-      if FLAGS.out_dir is None:
-        raise appcommands.AppCommandsError('Must specify: --out_dir.')
-      out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir))
-      deployment = deployments.LocalDeployment(out_dir=out_dir)
-    elif FLAGS.destination == 'zip':
-      if FLAGS.out_dir is None and FLAGS.out_file is None:
-        raise appcommands.AppCommandsError('Must specify either: --out_dir or --out_file.')
-      out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir)) if FLAGS.out_dir else None
-      out_file = os.path.abspath(os.path.expanduser(FLAGS.out_file)) if FLAGS.out_file else None
-      deployment = deployments.ZipFileDeployment(out_dir=out_dir, out_file=out_file)
-    return deployment
 
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
@@ -92,23 +56,21 @@ class DeployCmd(appcommands.Cmd):
     pod.preprocess()
 
     # Figure out if we're using the default deployment.
-    if len(argv) == 2 and not FLAGS.destination:
+    if len(argv) == 2:
       deployment_name = 'default'  # grow deploy .
     elif len(argv) == 3:
       deployment_name = argv[-2]   # grow deploy <name> .
     else:
-      deployment_name = None       # grow deploy --destination=<kind> .
+      raise Exception('Invalid command.')
 
-    if deployment_name:
-      deployment = pod.get_deployment(deployment_name)
-    else:
-      deployment = self._get_deployment_from_command_line()
+    deployment = pod.get_deployment(deployment_name)
 
     if FLAGS.test:
       deployment.test()
     else:
       paths_to_contents = pod.dump()
-      deployment.deploy(paths_to_contents, confirm=FLAGS.confirm)
+      repo = git.Repo(pod.root)
+      deployment.deploy(paths_to_contents, repo=repo, confirm=FLAGS.confirm)
 
 
 class ExtractCmd(appcommands.Cmd):

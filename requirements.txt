@@ -19,6 +19,7 @@ paramiko
 polib
 premailer
 protorpc-standalone
+pygit
 python-gflags
 pytz
 pyyaml

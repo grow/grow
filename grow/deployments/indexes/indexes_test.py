@@ -10,16 +10,18 @@ class IndexTest(unittest.TestCase):
   def setUp(self):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
+  def assertFilePathsEqual(self, my_file_messages, their_file_messages):
+    for i, file_message in enumerate(my_file_messages):
+      self.assertEqual(file_message.path, their_file_messages[i].path)
+
   def test_diff(self):
-    my_index = indexes.Index()
-    my_index.update({
+    my_index = indexes.Index.create({
       '/file.txt': 'test',
       '/file2.txt': 'test',
       '/foo/file.txt': 'test',
       '/foo/file.txt': 'test',
     })
-    their_index = indexes.Index()
-    their_index.update({
+    their_index = indexes.Index.create({
       '/file2.txt': 'change',
       '/foo/file.txt': 'test',
       '/foo/file.txt': 'test',
@@ -31,7 +33,8 @@ class IndexTest(unittest.TestCase):
         deletes=[messages.FileMessage(path='/bar/new.txt')],
         nochanges=[messages.FileMessage(path='/foo/file.txt')],
     )
-    self.assertEqual(expected, my_index.create_diff(their_index))
+    diff = indexes.Diff.create(my_index, their_index)
+    self.assertFilePathsEqual(expected.adds, diff.adds)
 
 
 if __name__ == '__main__':

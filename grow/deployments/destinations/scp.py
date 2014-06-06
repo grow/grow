@@ -1,16 +1,26 @@
 from . import base
+from protorpc import messages
 import errno
 import os
 import paramiko
 
 
-class ScpDeployment(base.BaseDeployment):
+class Config(messages.Message):
+  host = messages.StringField(1)
+  port = messages.StringField(2)
+  root_dir = messages.StringField(3)
 
-  def __init__(self, host, root_dir='', port=22):
+
+class ScpDeployment(base.BaseDeployment):
+  NAME = 'scp'
+  Config = Config
+
+  def __init__(self, *args, **kwargs):
+    super(ScpDeployment, self).__init__(*args, **kwargs)
     self.ssh = paramiko.SSHClient()
-    self.host = host
-    self.port = port
-    self.root_dir = root_dir
+    self.host = self.config.host
+    self.port = self.config.port
+    self.root_dir = self.config.root_dir
 
     # One SSH client cannot accept multiple connections, so
     # this deployment is not parallelized (for now).

@@ -1,6 +1,5 @@
 from boto.s3 import key
 from . import base
-from grow.deployments.indexes import indexes
 import boto
 import cStringIO
 import logging
@@ -8,19 +7,15 @@ import mimetypes
 
 
 class AmazonS3Deployment(base.BaseDeployment):
-
-  def __init__(self, bucket, access_key=None, secret=None):
-    self.bucket_name = bucket
-    self.access_key = access_key
-    self.secret = secret
+  NAME = 's3'
 
   def get_destination_address(self):
     return 'http://{}/'.format(self.bucket_name)
 
   def write_index_at_destination(self, new_index):
     self.write_file(
-        indexes.Index.BASENAME,
-        new_index.to_yaml(),
+        self.get_index_path(),
+        new_index.to_string(),
         policy='private')
 
   def read_file(self, path):

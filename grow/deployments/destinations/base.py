@@ -60,12 +60,14 @@ To make the deployment available from the command line "grow deploy" utility,
 you must modify the DeployCmd class in pygrow/grow/commands.py.
 """
 
-import logging
-import time
-import inspect
-from grow.deployments.indexes import indexes
-from grow.common import utils
 from . import messages
+from .. import tests
+from ..indexes import indexes
+from grow.common import utils
+import inspect
+import logging
+import os
+import time
 
 
 class Error(Exception):
@@ -81,6 +83,16 @@ class DeploymentTestCase(object):
   def __init__(self, deployment):
     self.deployment = deployment
 
+  def test_write_file(self):
+    message = messages.TestResultMessage(title='Write a file')
+    path = os.path.join(self.deployment.get_temp_dir(), 'test.txt')
+    self.deployment.write_file(path, 'test')
+    content = self.deployment.read_file(path)
+    if content != 'test':
+      message.result = messages.Result.FAIL
+    self.deployment.delete_file(path)
+    return message
+
   def __iter__(self):
     for name, func in inspect.getmembers(self, predicate=inspect.ismethod):
       if name.startswith('test_'):
@@ -88,9 +100,11 @@ class DeploymentTestCase(object):
 
 
 class BaseDeployment(object):
-
   threaded = True
-  test_case_class = DeploymentTestCase
+  TestCase = DeploymentTestCase
+
+  def __init__(self, config):
+    self.config = config
 
   def read_file(self, path):
     """Returns a file-like object."""
@@ -105,38 +119,36 @@ class BaseDeployment(object):
   def test(self):
     results = messages.TestResultsMessage(test_results=[])
     failures = []
-    test_case = self.test_case_class(self)
+    test_case = self.TestCase(self)
     for func in test_case:
       result_message = func()
       results.test_results.append(result_message)
-      if not result_message.passed:
+      if result_message.result != messages.Result.PASS:
         failures.append(result_message)
     if failures:
       raise Exception('{} tests failed.'.format(len(failures)))
-
-    for message in results.test_results:
-      print message.passed, message.name, message.result
-
-    logging.info('Tests passed.')
+    tests.print_results(results)
+    return results
 
   def write_index_at_destination(self, new_index):
     path = self.get_index_path()
-    content = new_index.to_string()
+    content = indexes.Index.to_string(new_index)
     self.write_file(path, content)
     logging.info('Wrote index: {}'.format(path))
 
+  def get_temp_dir(self):
+    return '/.grow/tmp/'
+
   def get_index_path(self):
-    return '/.grow/index.proto.json'
+    return '/.grow/index.json'
 
   def get_index_at_destination(self):
     try:
       content = self.read_file(self.get_index_path())
-      index = indexes.Index.from_string(content)
-      logging.info('Last deployed {} by {}'.format(index.modified, index.modified_by))
-      return index
+      return indexes.Index.from_string(content)
     except IOError:
       logging.info('No index found at destination, assuming new deployment.')
-      return indexes.Index()
+      return indexes.Index.create()
 
   def postlaunch(self, dry_run=False):
     pass
@@ -144,7 +156,7 @@ class BaseDeployment(object):
   def prelaunch(self, dry_run=False):
     pass
 
-  def deploy(self, paths_to_contents, dry_run=False, confirm=False):
+  def deploy(self, paths_to_contents, repo=None, dry_run=False, confirm=False):
     destination_address = self.get_destination_address()
     logging.info('Deploying to: {}'.format(destination_address))
     self._prelaunch()
@@ -152,11 +164,10 @@ class BaseDeployment(object):
 
     try:
       deployed_index = self.get_index_at_destination()
-
-      new_index = indexes.Index()
-      new_index.update(paths_to_contents)
-
-      diff = new_index.create_diff(deployed_index)
+      new_index = indexes.Index.create(paths_to_contents)
+      if repo:
+        indexes.Index.add_repo(new_index, repo)
+      diff = indexes.Diff.create(new_index, deployed_index)
       if indexes.Diff.is_empty(diff):
         text = utils.colorize('{white}Diff is empty, nothing to launch, aborted.{/white}')
         logging.info(text)
@@ -166,12 +177,12 @@ class BaseDeployment(object):
       if confirm:
         indexes.Diff.pretty_print(diff)
         logging.info('About to launch => {}'.format(destination_address))
-        if not utils.interactive_confirm('Proceed with launch?'):
+        if not utils.interactive_confirm('Proceed?'):
           logging.info('Launch aborted.')
           return
 
       self.start_time = time.time()
-      indexes.Index.apply_diff(
+      indexes.Diff.apply(
           diff, paths_to_contents, write_func=self.write_file,
           delete_func=self.delete_file, threaded=self.threaded)
       # TODO(jeremydw): Index should only be updated if the diff was entirely

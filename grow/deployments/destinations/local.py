@@ -1,16 +1,20 @@
 from . import base
+from protorpc import messages
 from grow.pods.storage import storage as storage_lib
 import os
 
 
-class LocalDeployment(base.BaseDeployment):
+class Config(messages.Message):
+  out_dir = messages.StringField(1)
 
-  def __init__(self, out_dir, storage=storage_lib.FileStorage):
-    self.out_dir = os.path.expanduser(out_dir)
-    self.storage = storage
+
+class LocalDeployment(base.BaseDeployment):
+  NAME = 'local'
+  Config = Config
+  storage = storage_lib.FileStorage
 
   def get_destination_address(self):
-    return self.out_dir
+    return self.config.out_dir
 
   def read_file(self, path):
     path = os.path.join(self.out_dir, path.lstrip('/'))

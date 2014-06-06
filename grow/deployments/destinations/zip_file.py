@@ -7,6 +7,7 @@ import zipfile
 
 
 class ZipFileDeployment(base.BaseDeployment):
+  NAME = 'zip'
 
   def __init__(self, out_dir, out_file=None, storage=storage_lib.FileStorage):
     self.storage = storage_lib
