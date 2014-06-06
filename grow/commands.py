@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 
-import git
-import logging
-import gflags as flags
-import os
 from google.apputils import appcommands
-from grow.deployments import deployments
 from grow.common import launchpad
 from grow.common import sdk_utils
 from grow.common import utils
-from grow.server import manager
+from grow.deployments.destinations import local as local_destination
+from grow.deployments.stats import stats
 from grow.pods import commands as pod_commands
 from grow.pods import pods
 from grow.pods import storage
+from grow.server import manager
+import gflags as flags
+import git
+import logging
+import os
 
 
 FLAGS = flags.FLAGS
@@ -26,16 +27,20 @@ class BuildCmd(appcommands.Cmd):
   """Generates static files and dumps them to a local destination."""
 
   def __init__(self, name, flag_values, command_aliases=None):
-    flags.DEFINE_boolean(
-        'dot_grow_dir', True, 'Whether to include the .grow dir in the build.',
-        flag_values=flag_values)
+    flags.DEFINE_string(
+        'out_dir', None, 'Where to build to.', flag_values=flag_values)
     super(BuildCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
 
   def Run(self, argv):
-    root = os.path.abspath(os.path.join(os.getcwd(), argv[-2]))
-    out_dir = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+    root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+    out_dir = FLAGS.out_dir or os.path.join(root, 'build')
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.dump(out_dir=out_dir, include_dot_grow_dir=FLAGS.dot_grow_dir)
+    paths_to_contents = pod.dump()
+    repo = git.Repo(pod.root)
+    config = local_destination.Config(out_dir=out_dir)
+    stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
+    deployment = local_destination.LocalDeployment(config, run_tests=False)
+    deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False)
 
 
 class DeployCmd(appcommands.Cmd):
@@ -70,7 +75,9 @@ class DeployCmd(appcommands.Cmd):
     else:
       paths_to_contents = pod.dump()
       repo = git.Repo(pod.root)
-      deployment.deploy(paths_to_contents, repo=repo, confirm=FLAGS.confirm)
+      stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
+      deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
+                        confirm=FLAGS.confirm)
 
 
 class ExtractCmd(appcommands.Cmd):

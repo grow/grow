@@ -18,6 +18,7 @@ markupsafe
 paramiko
 polib
 premailer
+progressbar2
 protorpc-standalone
 pygit
 python-gflags

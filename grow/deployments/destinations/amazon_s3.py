@@ -1,22 +1,25 @@
-from boto.s3 import key
 from . import base
+from boto.s3 import key
+from protorpc import messages
 import boto
 import cStringIO
 import logging
 import mimetypes
+import webapp2
+
+
+class Config(messages.Message):
+  bucket = messages.StringField(1)
+  access_key = messages.StringField(2)
+  access_secret = messages.StringField(3)
 
 
 class AmazonS3Deployment(base.BaseDeployment):
   NAME = 's3'
+  Config = Config
 
-  def get_destination_address(self):
-    return 'http://{}/'.format(self.bucket_name)
-
-  def write_index_at_destination(self, new_index):
-    self.write_file(
-        self.get_index_path(),
-        new_index.to_string(),
-        policy='private')
+  def __str__(self):
+    return 's3://{}'.format(self.config.bucket)
 
   def read_file(self, path):
     file_key = key.Key(self.bucket)
@@ -34,34 +37,33 @@ class AmazonS3Deployment(base.BaseDeployment):
     bucket_key.key = path.lstrip('/')
     self.bucket.delete_key(bucket_key)
 
+  @webapp2.cached_property
+  def bucket(self):
+    connection = boto.connect_s3(self.config.access_key,
+                                 self.config.access_secret)
+    return connection.get_bucket(self.config.bucket)
+
+  def prelaunch(self, dry_run=False):
+    if dry_run:
+      return
+    logging.info('Configuring S3 bucket: {}'.format(self.config.bucket))
+    self.bucket.set_acl('public-read')
+    self.bucket.configure_versioning(False)
+    self.bucket.configure_website('index.html', '404.html')
+
   def write_file(self, path, content, policy='public-read'):
+    path = path.lstrip('/')
     if isinstance(content, unicode):
       content = content.encode('utf-8')
-    path = path.lstrip('/')
     bucket_key = key.Key(self.bucket)
+    bucket_key.key = path
     fp = cStringIO.StringIO()
     fp.write(content)
-    bucket_key.key = path
-    mimetype = mimetypes.guess_type(path)[0]
-    if path == 'rss/index.html':
-      mimetype = 'application/xml'
     # TODO(jeremydw): Better headers.
     headers = {
         'Cache-Control': 'no-cache',
-        'Content-Type': mimetype,
+        'Content-Type': mimetypes.guess_type(path)[0],
     }
     fp.seek(0)
     bucket_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy)
     fp.close()
-
-  def prelaunch(self, dry_run=False):
-    logging.info('Connecting to GCS...')
-    connection = boto.connect_s3(self.access_key, self.secret, is_secure=False)
-    self.bucket = connection.get_bucket(self.bucket_name)
-    logging.info('Connected!')
-    if dry_run:
-      return
-    logging.info('Connected! Configuring bucket: {}'.format(self.bucket_name))
-    self.bucket.set_acl('public-read')
-    self.bucket.configure_versioning(False)
-    self.bucket.configure_website('index.html', '404.html')

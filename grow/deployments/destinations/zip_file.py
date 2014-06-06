@@ -1,7 +1,6 @@
 from . import base
 from grow.pods.storage import storage as storage_lib
 import datetime
-import logging
 import os
 import zipfile
 
@@ -17,14 +16,13 @@ class ZipFileDeployment(base.BaseDeployment):
     else:
       self.filename = os.path.expanduser(out_file)
 
-  def get_destination_address(self):
+  def __str__(self):
     return self.filename
 
   def prelaunch(self):
     dirname = os.path.dirname(self.filename)
     if not os.path.exists(dirname):
       os.makedirs(dirname)
-    logging.info('Creating zip file to: {}'.format(self.filename))
 
   def deploy(self, pod):
     self.prelaunch()

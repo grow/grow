@@ -17,16 +17,14 @@ class CommitMessage(messages.Message):
 class FileMessage(messages.Message):
   path = messages.StringField(1)
   sha = messages.StringField(2)
-  modified = message_types.DateTimeField(3)
-  modified_by = messages.MessageField(AuthorMessage, 4)
+  deployed = message_types.DateTimeField(3)
+  deployed_by = messages.MessageField(AuthorMessage, 4)
 
 
 class IndexMessage(messages.Message):
   files = messages.MessageField(FileMessage, 1, repeated=True)
-  created = message_types.DateTimeField(2)
-  created_by = messages.MessageField(AuthorMessage, 3)
-  modified = message_types.DateTimeField(4)
-  modified_by = messages.MessageField(AuthorMessage, 5)
+  deployed = message_types.DateTimeField(4)
+  deployed_by = messages.MessageField(AuthorMessage, 5)
   commit = messages.MessageField(CommitMessage, 6)
 
 

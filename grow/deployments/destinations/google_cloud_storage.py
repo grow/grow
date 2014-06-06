@@ -1,9 +1,9 @@
 from . import base
 from . import messages as deployment_messages
-from ..indexes import indexes
 from boto.gs import key
 from protorpc import messages
 import boto
+import os
 import cStringIO
 import dns.resolver
 import logging
@@ -21,14 +21,15 @@ class Config(messages.Message):
 class TestCase(base.DeploymentTestCase):
 
   def test_domain_cname_is_gcs(self):
-    message = deployment_messages.TestResultMessage()
-    message.title = 'Domain CNAME is mapped to Google Cloud Storage'
-
+    bucket_name = self.deployment.config.bucket
     CNAME = 'c.storage.googleapis.com'
+
+    message = deployment_messages.TestResultMessage()
+    message.title = 'CNAME for {} is {}'.format(bucket_name, CNAME)
+
     dns_resolver = dns.resolver.Resolver()
     dns_resolver.nameservers = ['8.8.8.8']  # Use Google's DNS.
 
-    bucket_name = self.deployment.config.bucket
     try:
       content = str(dns_resolver.query(bucket_name, 'CNAME')[0])
     except:
@@ -52,14 +53,12 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
   TestCase = TestCase
   Config = Config
 
-  def get_destination_address(self):
-    return 'http://{}/'.format(self.config.bucket)
+  def __str__(self):
+    return 'gs://{}'.format(self.config.bucket)
 
-  def write_index_at_destination(self, new_index):
-    self.write_file(
-        self.get_index_path(),
-        indexes.Index.to_string(new_index),
-        policy='private')
+  def write_control_file(self, path, content):
+    path = os.path.join(self.control_dir, path.lstrip('/'))
+    return self.write_file(path, content, policy='private')
 
   def read_file(self, path):
     file_key = key.Key(self.bucket)
@@ -84,29 +83,25 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
     return connection.get_bucket(self.config.bucket)
 
   def prelaunch(self, dry_run=False):
-    logging.info('Connected to GCS bucket: {}'.format(self.config.bucket))
     if dry_run:
       return
-    logging.info('Setting bucket\'s ACLs and website configuration.')
+    logging.info('Configuring GCS bucket: {}'.format(self.config.bucket))
     self.bucket.set_acl('public-read')
     self.bucket.configure_versioning(False)
     self.bucket.configure_website(main_page_suffix='index.html', error_key='404.html')
 
   def write_file(self, path, content, policy='public-read'):
+    path = path.lstrip('/')
     if isinstance(content, unicode):
       content = content.encode('utf-8')
-    path = path.lstrip('/')
     bucket_key = key.Key(self.bucket)
+    bucket_key.key = path
     fp = cStringIO.StringIO()
     fp.write(content)
-    bucket_key.key = path
-    mimetype = mimetypes.guess_type(path)[0]
-    if path == 'rss/index.html':
-      mimetype = 'application/xml'
     # TODO(jeremydw): Better headers.
     headers = {
         'Cache-Control': 'no-cache',
-        'Content-Type': mimetype,
+        'Content-Type': mimetypes.guess_type(path)[0],
     }
     fp.seek(0)
     bucket_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy)

@@ -14,6 +14,7 @@ class Config(messages.Message):
 class ScpDeployment(base.BaseDeployment):
   NAME = 'scp'
   Config = Config
+  threaded = False
 
   def __init__(self, *args, **kwargs):
     super(ScpDeployment, self).__init__(*args, **kwargs)
@@ -22,12 +23,8 @@ class ScpDeployment(base.BaseDeployment):
     self.port = self.config.port
     self.root_dir = self.config.root_dir
 
-    # One SSH client cannot accept multiple connections, so
-    # this deployment is not parallelized (for now).
-    self.threaded = False
-
-  def get_destination_address(self):
-    return '{}:{}'.format(self.host, self.root_dir)
+  def __str__(self):
+    return 'scp://{}:{}'.format(self.config.host, self.config.root_dir)
 
   def prelaunch(self, dry_run=False):
     self.ssh.load_system_host_keys()

@@ -13,19 +13,19 @@ class LocalDeployment(base.BaseDeployment):
   Config = Config
   storage = storage_lib.FileStorage
 
-  def get_destination_address(self):
-    return self.config.out_dir
+  def __str__(self):
+    return 'file://{}'.format(self.config.out_dir)
 
   def read_file(self, path):
-    path = os.path.join(self.out_dir, path.lstrip('/'))
+    path = os.path.join(self.config.out_dir, path.lstrip('/'))
     return self.storage.read(path)
 
   def delete_file(self, path):
-    out_path = os.path.join(self.out_dir, path.lstrip('/'))
+    out_path = os.path.join(self.config.out_dir, path.lstrip('/'))
     self.storage.delete(out_path)
 
   def write_file(self, path, content):
     if isinstance(content, unicode):
       content = content.encode('utf-8')
-    out_path = os.path.join(self.out_dir, path.lstrip('/'))
+    out_path = os.path.join(self.config.out_dir, path.lstrip('/'))
     self.storage.write(out_path, content)

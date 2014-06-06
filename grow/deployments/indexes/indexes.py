@@ -5,6 +5,7 @@ import logging
 import texttable
 import threading
 from protorpc import protojson
+import progressbar
 
 
 class Error(Exception):
@@ -15,6 +16,17 @@ class CorruptIndexError(Error):
   pass
 
 
+class ProgressBarThread(threading.Thread):
+
+  def __init__(self, bar, *args, **kwargs):
+    self.bar = bar
+    super(ProgressBarThread, self).__init__(*args, **kwargs)
+
+  def run(self):
+    super(ProgressBarThread, self).run()
+    self.bar.update(self.bar.currval + 1)
+
+
 class Diff(object):
 
   @classmethod
@@ -22,41 +34,25 @@ class Diff(object):
     return not diff.adds and not diff.deletes and not diff.edits
 
   @classmethod
-  def _format_author(cls, author):
-    return '{} <{}>'.format(author.name, author.email) if author else ''
+  def _format_author(cls, author, include_email=True):
+    if include_email:
+      return '{} <{}>'.format(author.name, author.email) if author else ''
+    return author.name if author else ''
 
   @classmethod
   def _make_diff_row(cls, color, label, message):
     label = texttable.get_color_string(color, label)
     path = texttable.get_color_string(texttable.bcolors.WHITE, message.path)
-    formatted_author = cls._format_author(message.modified_by)
-    modified = str(message.modified).split('.')[0] if message.modified else ''
-    return [label, path, modified, formatted_author]
+    formatted_author = cls._format_author(message.deployed_by, True)
+    deployed = str(message.deployed).split('.')[0] if message.deployed else ''
+    return [label, path, deployed, formatted_author]
 
   @classmethod
   def pretty_print(cls, diff):
     last_commit = diff.indexes[0].commit
     new_commit = diff.indexes[1].commit
-    last_formatted_author = cls._format_author(last_commit.author) if last_commit else ''
-    new_formatted_author = cls._format_author(new_commit.author)
-    table = texttable.Texttable(max_width=0)
-    table.set_deco(texttable.Texttable.HEADER)
-    rows = []
-    rows.append(['', 'Commit author', 'Commit sha'])
-    if last_commit:
-      rows.append(['Old', last_formatted_author, last_commit.sha])
-    rows.append(['New', new_formatted_author, new_commit.sha])
-    table.add_rows(rows)
-    logging.info('\n' + table.draw() + '\n')
-
     last_index = diff.indexes[0]
     new_index = diff.indexes[1]
-    if last_index.modified and last_index.modified_by:
-      logging.info('Last deployed {} by {} <{}>'.format(
-          last_index.modified, last_index.modified_by.name,
-          last_index.modified_by.email))
-    logging.info('You are: {} <{}>'.format(
-          new_index.modified_by.name, new_index.modified_by.email))
 
     table = texttable.Texttable(max_width=0)
     table.set_deco(texttable.Texttable.HEADER)
@@ -73,6 +69,13 @@ class Diff(object):
     rows += file_rows
     table.add_rows(rows)
     logging.info('\n' + table.draw() + '\n')
+    if last_index.deployed and last_index.deployed_by:
+      logging.info('Last deployed {} by {}'.format(
+          last_index.deployed, cls._format_author(last_index.deployed_by)))
+    last_commit_sha = last_commit.sha if last_commit else 'N/A'
+    logging.info('From commit {} -> {}'.format(last_commit_sha, new_commit.sha))
+    logging.info('You are: {} <{}>'.format(
+          new_index.deployed_by.name, new_index.deployed_by.email))
 
   @classmethod
   def create(cls, index, theirs):
@@ -94,14 +97,14 @@ class Diff(object):
         if index_paths_to_shas[path] == their_paths_to_shas[path]:
           file_message = messages.FileMessage()
           file_message.path = path
-          file_message.modified = theirs.modified
-          file_message.modified_by = theirs.modified_by
+          file_message.deployed = theirs.deployed
+          file_message.deployed_by = theirs.deployed_by
           diff.nochanges.append(file_message)
         else:
           file_message = messages.FileMessage()
           file_message.path = path
-          file_message.modified = theirs.modified
-          file_message.modified_by = theirs.modified_by
+          file_message.deployed = theirs.deployed
+          file_message.deployed_by = theirs.deployed_by
           diff.edits.append(file_message)
         del their_paths_to_shas[path]
       else:
@@ -112,8 +115,8 @@ class Diff(object):
     for path, sha in their_paths_to_shas.iteritems():
       file_message = messages.FileMessage()
       file_message.path = path
-      file_message.modified = theirs.modified
-      file_message.modified_by = theirs.modified_by
+      file_message.deployed = theirs.deployed
+      file_message.deployed_by = theirs.deployed_by
       diff.deletes.append(file_message)
 
     return diff
@@ -123,39 +126,42 @@ class Diff(object):
     diff = message
     if not threaded:
       for file_message in diff.adds:
-        logging.info('Writing new file: {}'.format(file_message.path))
         content = file_message.paths_to_content[file_message.path]
         write_func(file_message.path, content)
       for file_message in diff.edits:
-        logging.info('Writing changed file: {}'.format(file_message.path))
         content = file_message.paths_to_content[file_message.path]
         write_func(file_message.path, content)
       for file_message in diff.deletes:
-        logging.info('Deleting file: {}'.format(file_message.path))
         delete_func(file_message.path)
       return
 
     # TODO(jeremydw): Thread pool for the threaded operation.
     threads = []
+    num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
+    text = 'Deploying files: %(value)d/{} (in %(elapsed)s)'
+    widgets = [progressbar.FormatLabel(text.format(num_files))]
+    bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+    bar.start()
     for file_message in diff.adds:
-      logging.info('Writing new file: {}'.format(file_message.path))
       content = paths_to_content[file_message.path]
-      thread = threading.Thread(target=write_func, args=(file_message.path, content))
+      thread = ProgressBarThread(
+          bar, target=write_func, args=(file_message.path, content))
       threads.append(thread)
       thread.start()
     for file_message in diff.edits:
-      logging.info('Writing changed file: {}'.format(file_message.path))
       content = paths_to_content[file_message.path]
-      thread = threading.Thread(target=write_func, args=(file_message.path, content))
+      thread = ProgressBarThread(
+          bar, target=write_func, args=(file_message.path, content))
       threads.append(thread)
       thread.start()
     for file_message in diff.deletes:
-      logging.info('Deleting file: {}'.format(file_message.path))
-      thread = threading.Thread(target=delete_func, args=(file_message.path,))
+      thread = ProgressBarThread(
+          bar, target=delete_func, args=(file_message.path,))
       threads.append(thread)
       thread.start()
     for thread in threads:
       thread.join()
+    bar.finish()
 
 
 class Index(object):
@@ -163,7 +169,7 @@ class Index(object):
   @classmethod
   def create(cls, paths_to_contents=None):
     message = messages.IndexMessage()
-    message.modified = datetime.datetime.now()
+    message.deployed = datetime.datetime.now()
     message.files = []
     if paths_to_contents is None:
       return message
@@ -185,7 +191,7 @@ class Index(object):
   @classmethod
   def add_repo(cls, message, repo):
     config = repo.config_reader()
-    message.modified_by = messages.AuthorMessage(
+    message.deployed_by = messages.AuthorMessage(
         name=config.get('user', 'name'),
         email=config.get('user', 'email'))
     commit = repo.head.commit

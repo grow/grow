@@ -44,8 +44,6 @@ from grow.pods import translations
 from grow.pods.collectionz import collectionz
 from grow.pods.controllers import tags
 from grow.pods.preprocessors import preprocessors
-from grow.deployments.indexes import indexes
-from grow.deployments.stats import stats
 
 
 class Error(Exception):
@@ -201,31 +199,14 @@ class Pod(object):
 
     return output
 
-  def dump(self, suffix='index.html', out_dir=None, include_dot_grow_dir=False):
-
-    if out_dir is not None:
-      logging.info('Dumping to {}...'.format(out_dir))
-
+  def dump(self, suffix='index.html'):
     output = self.export()
-
-    if include_dot_grow_dir:
-      index_message = indexes.Index.create(output)
-      stats_obj = stats.Stats(self, paths_to_contents=output)
-      output['/.grow/index.json'] = indexes.Index.to_string(index_message)
-      output['/.grow/stats.json'] = stats_obj.to_string()
-
     clean_output = {}
     if suffix:
       for path, content in output.iteritems():
         if suffix and path.endswith('/') or '.' not in os.path.basename(path):
           path = path.rstrip('/') + '/' + suffix
         clean_output[path] = content
-        if out_dir is not None:
-          out_path = os.path.join(out_dir, path.lstrip('/'))
-          if isinstance(content, unicode):
-            content = content.encode('utf-8')
-          self.storage.write(out_path, content)
-          logging.info('Dumping: {}'.format(path))
     else:
       clean_output = output
     return clean_output

@@ -23,16 +23,3 @@ class TestResultMessage(messages.Message):
 
 class TestResultsMessage(messages.Message):
   test_results = messages.MessageField(TestResultMessage, 1, repeated=True)
-
-
-###
-
-
-class ZipConfig(messages.Message):
-  pass
-
-
-#class DestinationConfig(messages.Message):
-#  google_storage = messages.MessageField(GoogleStorageConfig, 1)
-#  scp = messages.MessageField(ScpConfig, 2)
-#  zip = messages.MessageField(ZipConfig, 3)
