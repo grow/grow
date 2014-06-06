@@ -3,7 +3,7 @@
 A deployment takes a pod, builds a static fileset from it, and deploys it to a
 remote location, suitable for serving the web site to live end users.
 Currently, Grow only supports static deployments, however, this may change as
-Grow implements requirements such as "password protection" and geolocation.
+Grow implements features such as "password protection" and geolocation.
 
 The deployment process generally works like this:
 
@@ -57,8 +57,9 @@ If your deployment requires configuration, you should add a nested class:
   Config
     A ProtoRPC message for deployment configuration.
 
-To make the deployment available from the command line "grow deploy" utility,
-you must modify the DeployCmd class in pygrow/grow/commands.py.
+New builtin deployments should be added to the list of builtins in
+grow/deployments/deployments.py. Proprietary deployments can be registered
+using deployments.register_deployment.
 """
 
 from . import messages

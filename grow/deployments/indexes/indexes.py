@@ -44,7 +44,7 @@ class Diff(object):
     label = texttable.get_color_string(color, label)
     path = texttable.get_color_string(texttable.bcolors.WHITE, message.path)
     formatted_author = cls._format_author(message.deployed_by, True)
-    deployed = str(message.deployed).split('.')[0] if message.deployed else ''
+    deployed = str(message.deployed).split('.')[0][:-3] if message.deployed else ''
     return [label, path, deployed, formatted_author]
 
   @classmethod
@@ -60,11 +60,11 @@ class Diff(object):
     rows.append(['Action', 'Path', 'Last deployed', 'By'])
     file_rows = []
     for add in diff.adds:
-      file_rows.append(cls._make_diff_row(texttable.bcolors.GREEN, 'Add', add))
+      file_rows.append(cls._make_diff_row(texttable.bcolors.GREEN, 'add', add))
     for edit in diff.edits:
-      file_rows.append(cls._make_diff_row(texttable.bcolors.PURPLE, 'Edit', edit))
+      file_rows.append(cls._make_diff_row(texttable.bcolors.PURPLE, 'edit', edit))
     for delete in diff.deletes:
-      file_rows.append(cls._make_diff_row(texttable.bcolors.RED, 'Delete', delete))
+      file_rows.append(cls._make_diff_row(texttable.bcolors.RED, 'delete', delete))
     file_rows.sort(key=lambda row: row[1])
     rows += file_rows
     table.add_rows(rows)
