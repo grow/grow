@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from google.apputils import appcommands
-from grow.common import launchpad
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.deployments.destinations import local as local_destination
@@ -190,22 +189,6 @@ class MachineTranslateCmd(appcommands.Cmd):
       translation.machine_translate()
 
 
-class UpCmd(appcommands.Cmd):
-  """Uploads a pod to a launchpad server."""
-
-  def __init__(self, name, flag_values, command_aliases=None):
-    flags.DEFINE_string(
-        'host', 'grow-prod.appspot.com', 'Launchpad hostname.',
-        flag_values=flag_values)
-    super(UpCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
-
-  def Run(self, argv):
-    root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
-    pod = pods.Pod(root, storage=storage.FileStorage)
-    session = launchpad.Launchpad(FLAGS.host)
-    session.create_fileset(pod)
-
-
 def add_commands():
   appcommands.AddCmd('build', BuildCmd)
   appcommands.AddCmd('deploy', DeployCmd)
@@ -214,5 +197,4 @@ def add_commands():
   appcommands.AddCmd('init', InitCmd)
   appcommands.AddCmd('run', RunCmd)
   appcommands.AddCmd('routes', RoutesCmd)
-  appcommands.AddCmd('up', UpCmd)
   appcommands.AddCmd('test', TestCmd)
