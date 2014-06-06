@@ -57,7 +57,7 @@ We welcome pull requests, themes, bug fixes, feature suggestions, cake, and any 
 
 ### Issues and roadmap
 
-We use GitHub to track issues. Feel free to [https://github.com/grow/pygrow/issues](browse issues) and look for any issues pertaining to the features you'd like to work on and claim them. If the feature warrants discussion, conduct a discussion with the project authors in the GitHub issue or on the mailing list.
+We use GitHub to track issues. Feel free to [browse issues](https://github.com/grow/pygrow/issues "browse issues") and look for any issues pertaining to the features you'd like to work on and claim them. If the feature warrants discussion, conduct a discussion with the project authors in the GitHub issue or on the mailing list.
 
 ### Getting the code
 
