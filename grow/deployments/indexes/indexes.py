@@ -22,10 +22,7 @@ class Diff(object):
     return not diff.adds and not diff.deletes and not diff.edits
 
   @classmethod
-  def _format_author(cls, commit):
-    if not commit:
-      return ''
-    author = commit.author
+  def _format_author(cls, author):
     return '{} <{}>'.format(author.name, author.email) if author else ''
 
   @classmethod
@@ -40,8 +37,8 @@ class Diff(object):
   def pretty_print(cls, diff):
     last_commit = diff.indexes[0].commit
     new_commit = diff.indexes[1].commit
-    last_formatted_author = cls._format_author(last_commit)
-    new_formatted_author = cls._format_author(new_commit)
+    last_formatted_author = cls._format_author(last_commit.author) if last_commit else ''
+    new_formatted_author = cls._format_author(new_commit.author)
     table = texttable.Texttable(max_width=0)
     table.set_deco(texttable.Texttable.HEADER)
     rows = []
@@ -65,12 +62,15 @@ class Diff(object):
     table.set_deco(texttable.Texttable.HEADER)
     rows = []
     rows.append(['Action', 'Path', 'Last deployed', 'By'])
+    file_rows = []
     for add in diff.adds:
-      rows.append(cls._make_diff_row(texttable.bcolors.GREEN, 'Add', add))
+      file_rows.append(cls._make_diff_row(texttable.bcolors.GREEN, 'Add', add))
     for edit in diff.edits:
-      rows.append(cls._make_diff_row(texttable.bcolors.PURPLE, 'Edit', edit))
+      file_rows.append(cls._make_diff_row(texttable.bcolors.PURPLE, 'Edit', edit))
     for delete in diff.deletes:
-      rows.append(cls._make_diff_row(texttable.bcolors.RED, 'Delete', delete))
+      file_rows.append(cls._make_diff_row(texttable.bcolors.RED, 'Delete', delete))
+    file_rows.sort(key=lambda row: row[1])
+    rows += file_rows
     table.add_rows(rows)
     logging.info('\n' + table.draw() + '\n')
 
