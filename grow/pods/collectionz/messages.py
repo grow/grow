@@ -4,8 +4,10 @@ from protorpc import messages
 class Format(messages.Enum):
   YAML = 1
   MARKDOWN = 2
+  HTML = 3
 
 extensions_to_formats = {
+    '.html': Format.HTML,
     '.md': Format.MARKDOWN,
     '.yaml': Format.YAML,
 }

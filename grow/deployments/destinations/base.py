@@ -66,6 +66,7 @@ from . import messages
 from .. import tests
 from ..indexes import indexes
 from grow.common import utils
+from xtermcolor import colorize
 import inspect
 import logging
 import os
@@ -175,8 +176,8 @@ class BaseDeployment(object):
         indexes.Index.add_repo(new_index, repo)
       diff = indexes.Diff.create(new_index, deployed_index)
       if indexes.Diff.is_empty(diff):
-        text = utils.colorize('{white}Diff is empty, nothing to launch, aborted.{/white}')
-        logging.info(text)
+        text = 'Diff is empty, nothing to launch, aborted.'
+        print colorize(text, ansi=57)
         return
       if dry_run:
         return

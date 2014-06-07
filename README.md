@@ -26,7 +26,7 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
     # For Mac OS X, paste this command into Terminal. You will be prompted to continue.
 
-    python -c "$(curl -fsSL https://raw.github.com/grow/pygrow/master/install.py)" && source ~/.bash_profile
+    curl https://raw.github.com/grow/pygrow/master/install | bash && source ~/.bash_profile
 
     # For Linux/Unix, use pip.
 
@@ -47,9 +47,9 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
     grow run ~/example.com/
 
-(4) Deploy your site to the default destination.
+(4) Build your site.
 
-    grow deploy ~/example.com/
+    grow build ~/example.com/
 
 ## Contributing
 

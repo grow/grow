@@ -2,7 +2,7 @@ from grow.common import markdown_extensions
 from grow.common import utils
 from grow.pods import urls
 from grow.pods import locales
-from grow.pods.collectionz import messages
+from . import messages
 import jinja2
 import json
 import logging
@@ -55,6 +55,9 @@ class Document(object):
           self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
     elif self.format == messages.Format.YAML:
       self.doc_storage = YamlDocumentStorage(
+          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
+    elif self.format == messages.Format.HTML:
+      self.doc_storage = HtmlDocumentStorage(
           self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
     else:
       formats = messages.extensions_to_formats.keys()
@@ -345,13 +348,19 @@ class YamlDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, _ = utils.parse_yaml(content, path=path)
+    fields, body = utils.parse_yaml(content, path=path)
     self.content = content
     self.fields = fields or {}
     self.tagged_fields = {}
-    self.body = None
+    self.body = body
     self.tagged_fields = copy.deepcopy(fields)
     fields = untag_fields(fields)
+
+
+class HtmlDocumentStorage(YamlDocumentStorage):
+
+  def html(self, doc, params=None):
+    return self.body
 
 
 class MarkdownDocumentStorage(BaseDocumentStorage):

@@ -2,17 +2,18 @@
 
 from google.apputils import appcommands
 from grow.common import sdk_utils
-from grow.common import utils
 from grow.deployments.destinations import local as local_destination
 from grow.deployments.stats import stats
 from grow.pods import commands as pod_commands
 from grow.pods import pods
 from grow.pods import storage
 from grow.server import manager
+from xtermcolor import colorize
 import gflags as flags
 import git
 import logging
 import os
+import threading
 
 
 FLAGS = flags.FLAGS
@@ -20,6 +21,11 @@ FLAGS = flags.FLAGS
 flags.DEFINE_boolean(
     'skip_sdk_update_check', False, 'Whether to skip the check for SDK updates.')
 
+def _get_git_repo(root):
+  try:
+    return git.Repo(root)
+  except git.exc.InvalidGitRepositoryError:
+    logging.info('Warning: {} is not a Git repository.'.format(root))
 
 
 class BuildCmd(appcommands.Cmd):
@@ -35,7 +41,7 @@ class BuildCmd(appcommands.Cmd):
     out_dir = FLAGS.out_dir or os.path.join(root, 'build')
     pod = pods.Pod(root, storage=storage.FileStorage)
     paths_to_contents = pod.dump()
-    repo = git.Repo(pod.root)
+    repo = _get_git_repo(pod.root)
     config = local_destination.Config(out_dir=out_dir)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment = local_destination.LocalDeployment(config, run_tests=False)
@@ -73,7 +79,7 @@ class DeployCmd(appcommands.Cmd):
       deployment.test()
     else:
       paths_to_contents = pod.dump()
-      repo = git.Repo(pod.root)
+      repo = _get_git_repo(pod.root)
       stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
       deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
                         confirm=FLAGS.confirm)
@@ -152,7 +158,8 @@ class RunCmd(appcommands.Cmd):
     else:
       root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     if not FLAGS.skip_sdk_update_check:
-      sdk_utils.check_version(auto_update_prompt=True)
+      thread = threading.Thread(target=sdk_utils.check_version, args=(True,))
+      thread.start()
     pod = pods.Pod(root, storage=storage.FileStorage)
     manager.start(pod, host=FLAGS.host, port=FLAGS.port, open_browser=FLAGS.open)
 
@@ -178,15 +185,16 @@ class MachineTranslateCmd(appcommands.Cmd):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if not FLAGS.locale:
       raise appcommands.AppCommandsError('Must specify: --locale.')
-    text = ('---\n{red}WARNING!{/red} Use machine translation with caution.'
-            ' It is not intended for use in production.\n---')
-    logging.info(utils.colorize(text))
     translations = pod.get_translations()
     translations.extract()
     for locale in FLAGS.locale:
       translation = translations.get_translation(locale)
       translation.update_catalog()
       translation.machine_translate()
+    print ''
+    print colorize('  WARNING! Use machine translations with caution.', ansi=197)
+    print colorize('  Machine translations are not intended for use in production.', ansi=197)
+    print ''
 
 
 def add_commands():

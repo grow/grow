@@ -1,9 +1,9 @@
 """Collections contain content documents and blueprints."""
 
+from . import documents
+from . import messages
 from grow.common import utils
 from grow.pods import locales
-from grow.pods.collectionz import documents
-from grow.pods.collectionz import messages
 import json
 import operator
 import os
