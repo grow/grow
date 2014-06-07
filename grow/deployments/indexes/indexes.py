@@ -73,7 +73,8 @@ class Diff(object):
       logging.info('Last deployed {} by {}'.format(
           last_index.deployed, cls._format_author(last_index.deployed_by)))
     last_commit_sha = last_commit.sha if last_commit else 'N/A'
-    logging.info('From commit {} -> {}'.format(last_commit_sha, new_commit.sha))
+    new_commit_sha = new_commit.sha if new_commit else 'N/A'
+    logging.info('From commit {} -> {}'.format(last_commit_sha, new_commit_sha))
     logging.info('You are: {} <{}>'.format(
           new_index.deployed_by.name, new_index.deployed_by.email))
 
@@ -194,7 +195,11 @@ class Index(object):
     message.deployed_by = messages.AuthorMessage(
         name=config.get('user', 'name'),
         email=config.get('user', 'email'))
-    commit = repo.head.commit
+    try:
+      commit = repo.head.commit
+    except ValueError:
+      logging.info('Warning: No HEAD.')
+      return message
     commit_message = messages.CommitMessage()
     commit_message.sha = commit.hexsha
     commit_message.message = commit.message
