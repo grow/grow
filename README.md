@@ -2,7 +2,7 @@
 
 Welcome to the Grow SDK, the declarative file-based CMS and static site generator for building high-quality web sites.
 
-Grow is almost certainly the best way for teams to build and launch web sites. It works great for all kinds of content-heavy web sites – fom small personal blogs, to highly-interactive marketing campaigns, to informational web sites for a large organization.
+Grow is almost certainly the best way for teams to build and launch web sites. It works great for all kinds of content-heavy web sites – from small personal blogs, to highly-interactive marketing campaigns, to informational web sites for a large organization.
 
 Grow differentiates itself by being:
 
