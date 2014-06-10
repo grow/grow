@@ -9,19 +9,11 @@ class ScpDeployment(base.BaseDeployment):
   def __init__(self, **kwargs):
     self.ssh = paramiko.SSHClient()
     self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    if 'username' in kwargs:
-        self.username = kwargs['username']
-    self.host = kwargs['host']
-    if 'port' in kwargs:
-        self.port = kwargs['port']
-    else:
-        self.port = 22
-    if 'root_dir' in kwargs:
-        self.root_dir = kwargs['root_dir']
-    else:
-        self.root_dir = ''
 
-
+    self.host = kwargs.pop('host') # (Raises an error if "host" is not provided.)
+    self.username = kwargs.pop('username', None)
+    self.port = kwargs.pop('port', 22)
+    self.root_dir = kwargs.pop('root_dir', '')
 
     # One SSH client cannot accept multiple connections, so
     # this deployment is not parallelized (for now).
@@ -32,12 +24,7 @@ class ScpDeployment(base.BaseDeployment):
 
   def prelaunch(self, dry_run=False):
     self.ssh.load_system_host_keys()
-#    if hasattr(self, 'username'):
-    try:
-        login = self.username
-        self.ssh.connect(self.host, username=login, port=self.port)
-    except AttributeError:
-        self.ssh.connect(self.host, port=self.port)
+    self.ssh.connect(self.host, username=self.username, port=self.port)
     self.sftp = self.ssh.open_sftp()
 
   def postlaunch(self, dry_run=False):
