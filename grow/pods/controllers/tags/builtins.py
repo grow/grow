@@ -1,7 +1,8 @@
-import collections
 from grow.pods.collectionz import collectionz
-import markdown
+import collections
 import itertools
+import jinja2
+import markdown
 
 
 
@@ -75,3 +76,10 @@ def breadcrumb(doc, _pod=None):
 def url(pod_path, locale=None, _pod=None):
   doc = _pod.get_doc(pod_path, locale=locale)
   return doc.url
+
+
+@jinja2.contextfilter
+def render_filter(ctx, template):
+  if isinstance(template, basestring):
+    template = jinja2.Template(template)
+  return template.render(ctx)

@@ -248,7 +248,7 @@ class Document(object):
   @property
   def html(self):
     # TODO(jeremydw): Add ability to render HTML.
-    return self.doc_storage.html(self, params=None)
+    return self.doc_storage.html(self)
 
   def __eq__(self, other):
     return (isinstance(self, Document)
@@ -335,7 +335,7 @@ class BaseDocumentStorage(object):
   def load(self):
     raise NotImplementedError
 
-  def html(self, doc, params=None):
+  def html(self, doc):
     return self.body
 
   def write(self, content):
@@ -358,9 +358,7 @@ class YamlDocumentStorage(BaseDocumentStorage):
 
 
 class HtmlDocumentStorage(YamlDocumentStorage):
-
-  def html(self, doc, params=None):
-    return self.body
+  pass
 
 
 class MarkdownDocumentStorage(BaseDocumentStorage):
@@ -376,7 +374,7 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     self.tagged_fields = copy.deepcopy(fields)
     fields = untag_fields(fields)
 
-  def html(self, doc, params=None):
+  def html(self, doc):
     val = self.body
     if val is not None:
       extensions = [
@@ -386,12 +384,6 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
         markdown_extensions.UrlExtension(doc.pod),
       ]
       val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
-      if params is None:
-        params = {}
-      if params:
-        params['doc'] = doc
-        template = jinja2.Template(val)
-        val = template.render(params)
     return val
 
 

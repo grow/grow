@@ -280,6 +280,7 @@ class Pod(object):
         loader=_template_loader, autoescape=True, trim_blocks=True,
         extensions=['jinja2.ext.i18n'])
     env.filters['markdown'] = tags.markdown_filter
+    env.filters['render'] = tags.render_filter
     return env
 
   def get_root_path(self, locale=None):

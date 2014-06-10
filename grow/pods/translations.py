@@ -62,8 +62,13 @@ class Translations(object):
     return message
 
   def get_catalog(self, locale=None):
-    fp = self.pod.open_file(os.path.join(self.root, 'messages.pot'))
-    return pofile.read_po(fp)
+    path = os.path.join(self.root, 'messages.pot')
+    try:
+      fp = self.pod.open_file(path)
+      return pofile.read_po(fp)
+    except IOError:
+      text = 'Warning: Message template does not exist: {}'
+      logging.warning(text.format(path))
 
   def init_catalogs(self, locales):
     for locale in locales:
