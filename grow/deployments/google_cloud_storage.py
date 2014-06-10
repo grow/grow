@@ -1,12 +1,10 @@
-from boto.gs import key
 from grow.deployments import base
 from grow.pods import index
-import boto
+from gcloud import storage
 import cStringIO
 import dns.resolver
 import logging
 import mimetypes
-
 
 
 class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
@@ -30,12 +28,14 @@ class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
 
 class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
 
+  threaded = False # Threading causing SSL issues in upload.
   test_case_class = BaseGoogleCloudStorageDeploymentTestCase
 
-  def __init__(self, bucket, access_key=None, secret=None):
+  def __init__(self, bucket, project_id=None, email=None, key_path=None):
     self.bucket_name = bucket
-    self.access_key = access_key
-    self.secret = secret
+    self.project_id = project_id
+    self.connection = storage.get_connection(project_id, email, key_path)
+    self.bucket = self.connection.get_bucket(bucket)
 
   def get_destination_address(self):
     return 'http://{}/'.format(self.bucket_name)
@@ -47,32 +47,24 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
         policy='private')
 
   def read_file(self, path):
-    file_key = key.Key(self.bucket)
-    file_key.key = path
-    try:
-      file_key.get_contents_as_string()
-      return file_key
-    except boto.exception.GSResponseError, e:
-      if e.status != 404:
-        raise
+    file_key = self.bucket.get_key(path)
+
+    if not file_key:
       raise IOError('File not found: {}'.format(path))
 
+    return file_key.get_contents_as_string()
+
   def delete_file(self, path):
-    bucket_key = key.Key(self.bucket)
-    bucket_key.key = path.lstrip('/')
-    self.bucket.delete_key(bucket_key)
+    self.bucket.delete_key(path)
 
   def prelaunch(self, dry_run=False):
-    logging.info('Connecting to GCS...')
-    connection = boto.connect_gs(self.access_key, self.secret, is_secure=False)
-    self.bucket = connection.get_bucket(self.bucket_name)
-    logging.info('Connected!')
     if dry_run:
       return
     logging.info('Configuring bucket: {}'.format(self.bucket_name))
-    self.bucket.set_acl('public-read')
-    self.bucket.configure_versioning(False)
-    self.bucket.configure_website(main_page_suffix='index.html', error_key='404.html')
+    acl = self.bucket.get_default_object_acl()
+    acl.all().grant_read().revoke_write()
+    acl.save()
+    self.bucket.configure_website(main_page_suffix='index.html', not_found_page='404.html')
 
 
 
@@ -80,21 +72,27 @@ class GoogleCloudStorageDeployment(BaseGoogleCloudStorageDeployment):
   """Deploys a pod to a static Google Cloud Storage bucket for web serving."""
 
   def write_file(self, path, content, policy='public-read'):
+    path = path.lstrip('/')
+
     if isinstance(content, unicode):
       content = content.encode('utf-8')
-    path = path.lstrip('/')
-    bucket_key = key.Key(self.bucket)
+
     fp = cStringIO.StringIO()
     fp.write(content)
-    bucket_key.key = path
+    file_size = fp.tell()
+    fp.seek(0)
+
     mimetype = mimetypes.guess_type(path)[0]
     if path == 'rss/index.html':
       mimetype = 'application/xml'
-    # TODO(jeremydw): Better headers.
-    headers = {
-        'Cache-Control': 'no-cache',
-        'Content-Type': mimetype,
-    }
-    fp.seek(0)
-    bucket_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy)
-    fp.close()
+
+    file_key = self.bucket.new_key(path)
+    try:
+      file_key.set_contents_from_file(fp, content_type=mimetype, size=file_size)
+    finally:
+      fp.close()
+
+    if policy == 'private':
+      acl = file_key.get_acl()
+      acl.all().revoke_read().revoke_write()
+      file_key.save_acl(acl)
