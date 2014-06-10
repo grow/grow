@@ -6,11 +6,14 @@ import paramiko
 
 class ScpDeployment(base.BaseDeployment):
 
-  def __init__(self, host, root_dir='', port=22):
+  def __init__(self, **kwargs):
     self.ssh = paramiko.SSHClient()
-    self.host = host
-    self.port = port
-    self.root_dir = root_dir
+    self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    self.host = kwargs.pop('host') # (Raises an error if "host" is not provided.)
+    self.username = kwargs.pop('username', None)
+    self.port = kwargs.pop('port', 22)
+    self.root_dir = kwargs.pop('root_dir', '')
 
     # One SSH client cannot accept multiple connections, so
     # this deployment is not parallelized (for now).
@@ -21,7 +24,7 @@ class ScpDeployment(base.BaseDeployment):
 
   def prelaunch(self, dry_run=False):
     self.ssh.load_system_host_keys()
-    self.ssh.connect(self.host, port=self.port)
+    self.ssh.connect(self.host, username=self.username, port=self.port)
     self.sftp = self.ssh.open_sftp()
 
   def postlaunch(self, dry_run=False):
