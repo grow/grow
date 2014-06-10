@@ -28,6 +28,7 @@ class BaseGoogleCloudStorageDeploymentTestCase(base.DeploymentTestCase):
 
 class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
 
+  threaded = False # Threading causing SSL issues in upload.
   test_case_class = BaseGoogleCloudStorageDeploymentTestCase
 
   def __init__(self, bucket, project_id=None, email=None, key_path=None):
@@ -60,10 +61,10 @@ class BaseGoogleCloudStorageDeployment(base.BaseDeployment):
     if dry_run:
       return
     logging.info('Configuring bucket: {}'.format(self.bucket_name))
-    # acl = self.bucket.get_default_object_acl()
-    # acl.all().grant_read().revoke_write()
-    # acl.save()
-    # self.bucket.configure_website(main_page_suffix='index.html', not_found_page='404.html')
+    acl = self.bucket.get_default_object_acl()
+    acl.all().grant_read().revoke_write()
+    acl.save()
+    self.bucket.configure_website(main_page_suffix='index.html', not_found_page='404.html')
 
 
 
@@ -71,12 +72,27 @@ class GoogleCloudStorageDeployment(BaseGoogleCloudStorageDeployment):
   """Deploys a pod to a static Google Cloud Storage bucket for web serving."""
 
   def write_file(self, path, content, policy='public-read'):
+    path = path.lstrip('/')
+
     if isinstance(content, unicode):
       content = content.encode('utf-8')
+
+    fp = cStringIO.StringIO()
+    fp.write(content)
+    file_size = fp.tell()
+    fp.seek(0)
 
     mimetype = mimetypes.guess_type(path)[0]
     if path == 'rss/index.html':
       mimetype = 'application/xml'
 
     file_key = self.bucket.new_key(path)
-    file_key.set_contents_from_string(content, content_type=mimetype)
+    try:
+      file_key.set_contents_from_file(fp, content_type=mimetype, size=file_size)
+    finally:
+      fp.close()
+
+    if policy == 'private':
+      acl = file_key.get_acl()
+      acl.all().revoke_read().revoke_write()
+      file_key.save_acl(acl)
