@@ -1,6 +1,7 @@
 from . import base
 from . import messages as deployment_messages
 from boto.gs import key
+from boto.s3 import connection
 from protorpc import messages
 import boto
 import os
@@ -12,10 +13,10 @@ import webapp2
 
 
 class Config(messages.Message):
-  project = messages.StringField(1)
-  bucket = messages.StringField(2)
-  access_key = messages.StringField(3)
-  access_secret = messages.StringField(4)
+  bucket = messages.StringField(1)
+  access_key = messages.StringField(2)
+  access_secret = messages.StringField(3)
+  project = messages.StringField(4)
 
 
 class TestCase(base.DeploymentTestCase):
@@ -77,15 +78,15 @@ class GoogleCloudStorageDeployment(base.BaseDeployment):
 
   @webapp2.cached_property
   def bucket(self):
-    connection = boto.connect_gs(self.config.access_key,
-                                 self.config.access_secret,
-                                 is_secure=False)
-    return connection.get_bucket(self.config.bucket)
+    boto_connection = boto.connect_gs(
+        self.config.access_key, self.config.access_secret,
+        calling_format=connection.OrdinaryCallingFormat())
+    return boto_connection.get_bucket(self.config.bucket)
 
   def prelaunch(self, dry_run=False):
     if dry_run:
       return
-    logging.info('Configuring GCS bucket: {}'.format(self.config.bucket))
+    logging.info('Configuring GS bucket: {}'.format(self.config.bucket))
     self.bucket.set_acl('public-read')
     self.bucket.configure_versioning(False)
     self.bucket.configure_website(main_page_suffix='index.html', error_key='404.html')

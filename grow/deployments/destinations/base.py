@@ -119,7 +119,8 @@ class BaseDeployment(object):
     except IOError:
       return indexes.Index.create()
 
-  def _prelaunch(self):
+  def _prelaunch(self, dry_run=False):
+    self.prelaunch(dry_run=dry_run)
     if self.run_tests:
       self.test()
 
@@ -167,7 +168,7 @@ class BaseDeployment(object):
     pass
 
   def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False, confirm=False):
-    self._prelaunch()
+    self._prelaunch(dry_run=dry_run)
 
     try:
       deployed_index = self._get_remote_index()

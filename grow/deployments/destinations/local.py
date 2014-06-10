@@ -5,7 +5,7 @@ import os
 
 
 class Config(messages.Message):
-  out_dir = messages.StringField(1)
+  out_dir = messages.StringField(1, default='')
 
 
 class LocalDeployment(base.BaseDeployment):

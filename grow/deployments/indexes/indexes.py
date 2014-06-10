@@ -36,8 +36,8 @@ class Diff(object):
   @classmethod
   def _format_author(cls, author, include_email=True):
     if include_email:
-      return '{} <{}>'.format(author.name, author.email) if author else ''
-    return author.name if author else ''
+      return '{} <{}>'.format(author.name, author.email) if author else 'Unknown'
+    return author.name if author else 'Unknown'
 
   @classmethod
   def _make_diff_row(cls, color, label, message):
@@ -75,8 +75,7 @@ class Diff(object):
     last_commit_sha = last_commit.sha if last_commit else 'N/A'
     new_commit_sha = new_commit.sha if new_commit else 'N/A'
     logging.info('From commit {} -> {}'.format(last_commit_sha, new_commit_sha))
-    logging.info('You are: {} <{}>'.format(
-          new_index.deployed_by.name, new_index.deployed_by.email))
+    logging.info('You are: {}'.format(cls._format_author(new_index.deployed_by)))
 
   @classmethod
   def create(cls, index, theirs):
@@ -125,16 +124,6 @@ class Diff(object):
   @classmethod
   def apply(cls, message, paths_to_content, write_func, delete_func, threaded=True):
     diff = message
-    if not threaded:
-      for file_message in diff.adds:
-        content = file_message.paths_to_content[file_message.path]
-        write_func(file_message.path, content)
-      for file_message in diff.edits:
-        content = file_message.paths_to_content[file_message.path]
-        write_func(file_message.path, content)
-      for file_message in diff.deletes:
-        delete_func(file_message.path)
-      return
 
     # TODO(jeremydw): Thread pool for the threaded operation.
     threads = []
@@ -149,19 +138,26 @@ class Diff(object):
           bar, target=write_func, args=(file_message.path, content))
       threads.append(thread)
       thread.start()
+      if not threaded:
+        thread.join()
     for file_message in diff.edits:
       content = paths_to_content[file_message.path]
       thread = ProgressBarThread(
           bar, target=write_func, args=(file_message.path, content))
       threads.append(thread)
       thread.start()
+      if not threaded:
+        thread.join()
     for file_message in diff.deletes:
       thread = ProgressBarThread(
           bar, target=delete_func, args=(file_message.path,))
       threads.append(thread)
       thread.start()
-    for thread in threads:
-      thread.join()
+      if not threaded:
+        thread.join()
+    if threaded:
+      for thread in threads:
+        thread.join()
     bar.finish()
 
 

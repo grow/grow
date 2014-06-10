@@ -2,7 +2,6 @@ import json
 from .destinations import amazon_s3
 from .destinations import local
 from .destinations import google_cloud_storage
-from .destinations import zip_file
 from .destinations import scp
 from protorpc import protojson
 
@@ -12,7 +11,6 @@ _builtins = (
     amazon_s3.AmazonS3Deployment,
     local.LocalDeployment,
     google_cloud_storage.GoogleCloudStorageDeployment,
-    zip_file.ZipFileDeployment,
     scp.ScpDeployment)
 
 

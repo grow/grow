@@ -1,4 +1,5 @@
 from . import base
+from boto.s3 import connection
 from boto.s3 import key
 from protorpc import messages
 import boto
@@ -25,8 +26,7 @@ class AmazonS3Deployment(base.BaseDeployment):
     file_key = key.Key(self.bucket)
     file_key.key = path
     try:
-      file_key.get_contents_as_string()
-      return file_key
+      return file_key.get_contents_as_string()
     except boto.exception.S3ResponseError, e:
       if e.status != 404:
         raise
@@ -39,9 +39,10 @@ class AmazonS3Deployment(base.BaseDeployment):
 
   @webapp2.cached_property
   def bucket(self):
-    connection = boto.connect_s3(self.config.access_key,
-                                 self.config.access_secret)
-    return connection.get_bucket(self.config.bucket)
+    boto_connection = boto.connect_s3(
+        self.config.access_key, self.config.access_secret,
+        calling_format=connection.OrdinaryCallingFormat())
+    return boto_connection.get_bucket(self.config.bucket)
 
   def prelaunch(self, dry_run=False):
     if dry_run:

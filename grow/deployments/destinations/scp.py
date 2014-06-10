@@ -7,8 +7,9 @@ import paramiko
 
 class Config(messages.Message):
   host = messages.StringField(1)
-  port = messages.StringField(2)
-  root_dir = messages.StringField(3)
+  port = messages.IntegerField(2, default=22)
+  root_dir = messages.StringField(3, default='')
+  username = messages.StringField(4)
 
 
 class ScpDeployment(base.BaseDeployment):
@@ -19,16 +20,18 @@ class ScpDeployment(base.BaseDeployment):
   def __init__(self, *args, **kwargs):
     super(ScpDeployment, self).__init__(*args, **kwargs)
     self.ssh = paramiko.SSHClient()
+    self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     self.host = self.config.host
     self.port = self.config.port
     self.root_dir = self.config.root_dir
+    self.username = self.config.username
 
   def __str__(self):
     return 'scp://{}:{}'.format(self.config.host, self.config.root_dir)
 
   def prelaunch(self, dry_run=False):
     self.ssh.load_system_host_keys()
-    self.ssh.connect(self.host, port=self.port)
+    self.ssh.connect(self.host, username=self.username, port=self.port)
     self.sftp = self.ssh.open_sftp()
 
   def postlaunch(self, dry_run=False):

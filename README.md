@@ -10,6 +10,7 @@ Grow differentiates itself by being:
 - the best and easiest way to develop content-heavy localized websites,
 - designed for true structured content management,
 - designed with web performance and security in mind,
+- designed with first-party i18n support,
 - designed for developers, designers, content writers, and translators to work together.
 
 Visit the Grow SDK's website at http://growsdk.org where you can learn all about using the Grow SDK to build and launch your own web sites.
