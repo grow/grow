@@ -101,10 +101,11 @@ Authenticates using keys in `$HOME/.boto` (see example below).
 
 ### SCP
 
-Autenticates using the system's host keys. The `root_dir` option uses syntax from the standard `scp` command. Values can be either absolute or relative.
+Authenticates using the ssh keys running in ssh-agent. The `root_dir` option uses syntax from the standard `scp` command. Values can be either absolute or relative. The `host` is required. `username` is optional and is used to specify the target server username if it differs from your development environment user issuing the `grow deploy` command.
 
     - destination: scp
       host: example.com
+      username: serverusername
       root_dir: /home/username/domains/example.com/public_html/
 
 ### Zip file (not implemented)
