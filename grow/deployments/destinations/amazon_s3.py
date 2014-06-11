@@ -16,7 +16,7 @@ class Config(messages.Message):
   access_secret = messages.StringField(3)
 
 
-class AmazonS3Deployment(base.BaseDeployment):
+class AmazonS3Destination(base.BaseDestination):
   NAME = 's3'
   Config = Config
 

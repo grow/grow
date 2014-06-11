@@ -8,7 +8,7 @@ class Config(messages.Message):
   out_dir = messages.StringField(1, default='')
 
 
-class LocalDeployment(base.BaseDeployment):
+class LocalDestination(base.BaseDestination):
   NAME = 'local'
   Config = Config
   storage = storage_lib.FileStorage

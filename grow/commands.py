@@ -44,8 +44,8 @@ class BuildCmd(appcommands.Cmd):
     repo = _get_git_repo(pod.root)
     config = local_destination.Config(out_dir=out_dir)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
-    deployment = local_destination.LocalDeployment(config, run_tests=False)
-    deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False)
+    destination = local_destination.LocalDestination(config, run_tests=False)
+    destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False)
 
 
 class DeployCmd(appcommands.Cmd):

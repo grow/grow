@@ -19,7 +19,7 @@ class Config(messages.Message):
   project = messages.StringField(4)
 
 
-class TestCase(base.DeploymentTestCase):
+class TestCase(base.DestinationTestCase):
 
   def test_domain_cname_is_gcs(self):
     bucket_name = self.deployment.config.bucket
@@ -49,7 +49,7 @@ class TestCase(base.DeploymentTestCase):
     return message
 
 
-class GoogleCloudStorageDeployment(base.BaseDeployment):
+class GoogleCloudStorageDestination(base.BaseDestination):
   NAME = 'gcs'
   TestCase = TestCase
   Config = Config

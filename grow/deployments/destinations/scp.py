@@ -12,13 +12,13 @@ class Config(messages.Message):
   username = messages.StringField(4)
 
 
-class ScpDeployment(base.BaseDeployment):
+class ScpDestination(base.BaseDestination):
   NAME = 'scp'
   Config = Config
   threaded = False
 
   def __init__(self, *args, **kwargs):
-    super(ScpDeployment, self).__init__(*args, **kwargs)
+    super(ScpDestination, self).__init__(*args, **kwargs)
     self.ssh = paramiko.SSHClient()
     self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     self.host = self.config.host

@@ -1,7 +1,11 @@
-"""A base class for a deployment.
+"""Base class for destinations.
 
-A deployment takes a pod, builds a static fileset from it, and deploys it to a
-remote location, suitable for serving the web site to live end users.
+A destination is a place where Grow static builds can be deployed. Grow takes
+a pod, builds a static fileset, and deploys it to a remote location (the
+desitnation), suitable for serving the web site to lvie end users.
+
+A "deployment" is a destination loaded up with a configuration.
+
 Currently, Grow only supports static deployments, however, this may change as
 Grow implements features such as "password protection" and geolocation.
 
@@ -25,9 +29,9 @@ The deployment process generally works like this:
 
   The deployment is complete!
 
-All deployments follow this process, and the BaseDeployment class takes
+All deployments follow this process, and the BaseDestination class takes
 care of most of the hard work and business logic. So if you're adding a new
-deployment, you'll just have to implement the following methods/properties:
+destination, you'll just have to implement the following methods/properties:
 
   delete_file(self, path)
     Deletes a file at the destination, given the file's pod path.
@@ -52,14 +56,14 @@ The following methods are optional to implement:
   write_control_file(self, basename, content):
     Writes a control file to the destination.
 
-If your deployment requires configuration, you should add a nested class:
+If your destination requires configuration, you should add a nested class:
 
   Config
-    A ProtoRPC message for deployment configuration.
+    A ProtoRPC message for destination configuration.
 
-New builtin deployments should be added to the list of builtins in
-grow/deployments/deployments.py. Proprietary deployments can be registered
-using deployments.register_deployment.
+New builtin destinations should be added to the list of builtins in
+grow/deployments/deployments.py. Proprietary destinations can be registered
+using deployments.register_destination.
 """
 
 from . import messages
@@ -76,7 +80,7 @@ class Error(Exception):
   pass
 
 
-class DeploymentTestCase(object):
+class DestinationTestCase(object):
 
   def __init__(self, deployment):
     self.deployment = deployment
@@ -98,8 +102,8 @@ class DeploymentTestCase(object):
         yield func
 
 
-class BaseDeployment(object):
-  TestCase = DeploymentTestCase
+class BaseDestination(object):
+  TestCase = DestinationTestCase
   control_dir = '/.grow/'
   index_basename = 'index.proto.json'
   stats_basename = 'stats.proto.json'
