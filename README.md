@@ -2,7 +2,7 @@
 
 Welcome to the Grow SDK, the declarative file-based CMS and static site generator for building high-quality web sites.
 
-Grow is almost certainly the best way for teams to build and launch web sites. It works great for all kinds of content-heavy web sites – fom small personal blogs, to highly-interactive marketing campaigns, to informational web sites for a large organization.
+Grow is almost certainly the best way for teams to build and launch web sites. It works great for all kinds of content-heavy web sites – from small personal blogs, to highly-interactive marketing campaigns, to informational web sites for a large organization.
 
 Grow differentiates itself by being:
 
@@ -58,7 +58,7 @@ We welcome pull requests, themes, bug fixes, feature suggestions, cake, and any 
 
 ### Issues and roadmap
 
-We use GitHub to track issues. Feel free to [https://github.com/grow/pygrow/issues](browse issues) and look for any issues pertaining to the features you'd like to work on and claim them. If the feature warrants discussion, conduct a discussion with the project authors in the GitHub issue or on the mailing list.
+We use GitHub to track issues. Feel free to [browse issues](https://github.com/grow/pygrow/issues "browse issues") and look for any issues pertaining to the features you'd like to work on and claim them. If the feature warrants discussion, conduct a discussion with the project authors in the GitHub issue or on the mailing list.
 
 ### Getting the code
 
