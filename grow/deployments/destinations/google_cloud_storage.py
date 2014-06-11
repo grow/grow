@@ -70,7 +70,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
           calling_format=connection.OrdinaryCallingFormat())
     else:
       gs_connection = storage.get_connection(
-        self.config.project, self.config.email, self.config.key_path)
+          self.config.project, self.config.email, self.config.key_path)
     return gs_connection.get_bucket(self.config.bucket)
 
   def prelaunch(self, dry_run=False):
@@ -124,19 +124,21 @@ class GoogleCloudStorageDestination(base.BaseDestination):
     fp.write(content)
     size = fp.tell()
 
-    if self.use_interoperable_auth:
-      file_key = key.Key(self.bucket)
-      file_key.key = path
-      headers = {'Cache-Control': 'no-cache'}  # TODO(jeremydw): Better headers.
-      if mimetype:
-        headers['Content-Type'] = mimetype
-      file_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy, size=size, rewind=True)
-    else:
-      file_key = self.bucket.new_key(path)
-      file_key.set_contents_from_file(fp, content_type=mimetype, size=size, rewind=True)
-      if policy == 'private':
-        acl = file_key.get_acl()
-        acl.all().revoke_read().revoke_write()
-        file_key.save_acl(acl)
-
-    fp.close()
+    try:
+      if self.use_interoperable_auth:
+        file_key = key.Key(self.bucket)
+        file_key.key = path
+        headers = {'Cache-Control': 'no-cache'}  # TODO(jeremydw): Better headers.
+        if mimetype:
+          headers['Content-Type'] = mimetype
+        file_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy,
+                                        size=size, rewind=True)
+      else:
+        file_key = self.bucket.new_key(path)
+        file_key.set_contents_from_file(fp, content_type=mimetype, size=size, rewind=True)
+        if policy == 'private':
+          acl = file_key.get_acl()
+          acl.all().revoke_read().revoke_write()
+          file_key.save_acl(acl)
+    finally:
+      fp.close()
