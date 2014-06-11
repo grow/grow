@@ -194,7 +194,7 @@ class Index(object):
     try:
       commit = repo.head.commit
     except ValueError:
-      logging.info('Warning: No HEAD.')
+      logging.info('Warning: On initial commit, no HEAD yet.')
       return message
     commit_message = messages.CommitMessage()
     commit_message.sha = commit.hexsha

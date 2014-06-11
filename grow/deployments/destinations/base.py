@@ -147,17 +147,15 @@ class BaseDeployment(object):
     return self.write_file(path, content)
 
   def test(self):
-    logging.info('Running tests...')
+    print 'Running tests...'
     results = messages.TestResultsMessage(test_results=[])
     failures = []
     test_case = self.TestCase(self)
     for func in test_case:
       result_message = func()
       results.test_results.append(result_message)
-      if result_message.result != messages.Result.PASS:
+      if result_message.result == messages.Result.FAIL:
         failures.append(result_message)
-    if failures:
-      raise Exception('{} tests failed.'.format(len(failures)))
     tests.print_results(results)
     return results
 
