@@ -43,10 +43,13 @@ class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
     year, month, day, hh, mm, ss, x, y, z = time.localtime(now)
     return '%02d:%02d:%02d' % (hh, mm, ss)
 
-  def log_request(self, code='-', size='-'):
+  def log_request(self, code=0, size='-'):
     line = self.requestline[:-9]
     method, line = line.split(' ', 1)
-    code = colorize(code, ansi=19)
+    color = 19
+    if int(code) >= 500:
+      color = 161
+    code = colorize(code, ansi=color)
     size = colorize(sizeof(size), ansi=19)
     self.log_message('{} {} {}'.format(code, line, size))
 

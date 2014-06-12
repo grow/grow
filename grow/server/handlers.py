@@ -1,12 +1,15 @@
 from grow.common import utils
 from grow.pods import storage
 from grow.server import podgroups
+import gflags as flags
 import jinja2
 import logging
 import os
 import webapp2
 import webob
 import werkzeug
+
+FLAGS = flags.FLAGS
 
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
@@ -24,13 +27,16 @@ def set_pod_root(root):
 class BaseHandler(webapp2.RequestHandler):
 
   def handle_exception(self, exception, debug):
+    if FLAGS.debug:
+      logging.exception(exception)
+    else:
+      logging.error(str(exception))
     template = _env.get_template('error.html')
     html = template.render({'error': {'title': str(exception)}})
     if isinstance(exception, webob.exc.HTTPException):
       self.response.set_status(exception.code)
     else:
       self.response.set_status(500)
-      logging.exception(exception)
     self.response.write(html)
 
   def respond_with_controller(self, controller):
