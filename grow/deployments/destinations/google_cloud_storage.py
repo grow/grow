@@ -60,7 +60,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
 
   @property
   def use_interoperable_auth(self):
-    return self.config.access_key is not None
+    return self.config.email is None
 
   @webapp2.cached_property
   def bucket(self):
