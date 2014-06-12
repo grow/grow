@@ -11,6 +11,9 @@ import werkzeug
 
 FLAGS = flags.FLAGS
 
+flags.DEFINE_boolean(
+    'debug', False, 'Whether to show debug output.')
+
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
 _env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True,

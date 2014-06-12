@@ -19,9 +19,6 @@ import threading
 FLAGS = flags.FLAGS
 
 flags.DEFINE_boolean(
-    'debug', False, 'Whether to show debug output.')
-
-flags.DEFINE_boolean(
     'skip_sdk_update_check', False, 'Whether to skip the check for SDK updates.')
 
 def _get_git_repo(root):
