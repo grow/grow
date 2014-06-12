@@ -4,9 +4,7 @@ There are two ways to install the Grow SDK, depending on the platform you're usi
 
 *To install the Grow SDK on Mac OS X, paste the following command into Terminal.* This command downloads the SDK, which is packaged into an application, and sets up an alias. Before anything is done, you will be prompted to continue.
 
-<pre style="font-size: 13pt; font-family: monospace; word-wrap: break-word">
-python -c "$(curl -fsSL https://raw.github.com/grow/pygrow/master/install.py)" && source ~/.bash_profile
-</pre>
+    curl https://raw.githubusercontent.com/grow/pygrow/master/install | bash && source ~/.bash_profile
 
 ### Linux/Unix (Python egg)
 

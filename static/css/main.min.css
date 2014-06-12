@@ -1449,7 +1449,7 @@ p code, table code {
 
 h1, h2, h3 {
   clear: both;
-  font-weight: 300;
+  font-weight: 500;
   letter-spacing: -0.01em; }
 
 p {
@@ -1571,7 +1571,7 @@ table tr th {
   display: inline-block;
   padding: 12px 20px;
   text-decoration: none;
-  transition: box-shadow 0.2s, background 0.2s;
+  transition: box-shadow 0.1s, background 0.1s;
   text-transform: uppercase; }
 
 .button.button-primary {

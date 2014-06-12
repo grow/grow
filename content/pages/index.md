@@ -5,9 +5,9 @@ $title: Home
 
 hero:
 
-  title: The declarative, file-based CMS for building high-quality web sites.
-  content: The Grow SDK is a free and open source system for modern, rapid, collaborative web site management and production. With Grow, everyone (from individual developers to large creative agencies) can save time on architecture and maintenance, and make time for awesome and creative front end web development.
-  disclaimer: Thanks for checking out Grow! We're still *experimental* and in heavy development, including the documentation. We may make backwards incompatible changes, so try it out at your own risk.
+  title: The declarative, file-based system for building high-quality web sites.
+  content: The Grow SDK is a free and open source static site generator for modern, rapid, collaborative web site management and production. With Grow, everyone (from individual developers to large creative agencies) can save time on architecture and maintenance, and make time for awesome and creative front end web development.
+  disclaimer: Thanks for checking out Grow! We're still under heavy development, including the documentation. We may make backwards incompatible changes.
 
 sections:
 

@@ -69,6 +69,31 @@ YAML-formatted documents never use a separate YAML front matter. `{{doc.html}}` 
     key1: value1
     key2: value2
 
+### HTML body
+
+HTML-formatted documents have YAML front matter and an HTML body. As you'd expect, `{{doc.html}}` yields the HTML source for this document, and you'd likely want to use this as `{{doc.html|render|safe}}` in order to render the HTML within the tag's context.
+
+HTML-formatted documents are particularly useful when a content document has its own, unique presentation, that's closely coupled to its content structure. For example, if your collection has an index page, and if the index page has its own unique presentation that is never used anywhere else on the site, the index content document could define its own HTML template unique to itself.
+
+    # /content/pages/index.html
+
+    ---
+    $title: Hello, Grow!
+    $category: Get Started
+
+    sections:
+    - title: Section 1
+      text: Lorem ipsum dolor sit amet.
+    - title: Section 2
+      text: Lorem ipsum dolor sit amet.
+    - title: Section 3
+      text: Lorem ipsum dolor sit amet.
+    ---
+    {% for section in doc.sections %}
+      <h2>{{section.title}}</h2>
+      <p>{{section.text}}
+    {% endfor %}
+
 ## Functions
 
 There are several API functions available for documents. These are implemented as functions rather than properties because they accept optional parameters.
