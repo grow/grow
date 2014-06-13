@@ -5,10 +5,13 @@ werkzeug routing:
 """
 
 import webob
+import werkzeug
 from grow.common import utils
 from grow.pods import controllers
 from grow.pods import messages
-from werkzeug import routing
+
+
+routing = werkzeug.routing
 
 
 class Error(Exception):

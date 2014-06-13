@@ -28,6 +28,7 @@ class TestCase(base.DestinationTestCase):
     try:
       content = str(dns_resolver.query(bucket_name, 'CNAME')[0])
     except:
+      content = ''
       text = "Can't verify CNAME for {} is mapped to {}"
       message.result = deployment_messages.Result.WARNING
       message.text = text.format(bucket_name, CNAME)
@@ -102,10 +103,14 @@ class GoogleCloudStorageDestination(base.BaseDestination):
           raise
         raise IOError('File not found: {}'.format(path))
     else:
-      file_key = self.bucket.get_key(path)
-      if not file_key:
-        raise IOError('File not found: {}'.format(path))
-      return file_key.get_contents_as_string()
+      try:
+        file_key = self.bucket.get_key(path)
+        if file_key is not None:
+          return file_key.get_contents_as_string()
+      except (storage.exceptions.NotFoundError,
+              AttributeError):  # Bug in current version of gcloud.
+        pass
+      raise IOError('File not found: {}'.format(path))
 
   def delete_file(self, path):
     if self.use_interoperable_auth:

@@ -86,14 +86,14 @@ class DestinationTestCase(object):
     self.deployment = deployment
 
   def test_write_file(self):
-    path = os.path.join(self.deployment.control_dir, 'test.tmp')
+    basename = 'test.tmp'
     title = 'Can write files to {}'.format(self.deployment)
     message = messages.TestResultMessage(title=title)
-    self.deployment.write_file(path, 'test')
-    content = self.deployment.read_file(path)
+    self.deployment.write_control_file(basename, 'test')
+    content = self.deployment.read_control_file(basename)
     if content != 'test':
       message.result = messages.Result.FAIL
-    self.deployment.delete_file(path)
+    self.deployment.delete_control_file(basename)
     return message
 
   def __iter__(self):
