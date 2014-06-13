@@ -33,6 +33,7 @@ a = Analysis(['bin/grow'],
 a.datas += [
     ('VERSION', 'grow/VERSION', 'DATA'),
     ('server/templates/error.html', 'grow/server/templates/error.html', 'DATA'),
+    ('deployments/data/cacerts.txt', 'grow/deployments/data/cacerts.txt', 'DATA'),
 ]
 
 pyz = PYZ(a.pure)

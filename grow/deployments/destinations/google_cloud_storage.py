@@ -3,6 +3,7 @@ from . import messages as deployment_messages
 from boto.gs import key
 from boto.s3 import connection
 from gcloud import storage
+from grow.common import utils
 from protorpc import messages
 import boto
 import cStringIO
@@ -11,6 +12,8 @@ import logging
 import mimetypes
 import os
 import webapp2
+
+_certs_path = os.path.join(utils.get_grow_dir(), 'deployments', 'data', 'cacerts.txt')
 
 
 class TestCase(base.DestinationTestCase):
@@ -69,6 +72,10 @@ class GoogleCloudStorageDestination(base.BaseDestination):
       gs_connection = boto.connect_gs(
           self.config.access_key, self.config.access_secret,
           calling_format=connection.OrdinaryCallingFormat())
+      # Always use our internal cacerts.txt file. This fixes an issue with the
+      # PyInstaller-based frozen distribution, while allowing us to continue to
+      # verify certificates and use a secure connection.
+      gs_connection.ca_certificates_file = _certs_path
     else:
       gs_connection = storage.get_connection(
           self.config.project, self.config.email, self.config.key_path)
