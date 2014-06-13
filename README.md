@@ -27,7 +27,7 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
     # For Mac OS X, paste this command into Terminal. You will be prompted to continue.
 
-    curl http://install.growsdk.org | bash && source ~/.bash_profile
+    curl install.growsdk.org | bash && source ~/.bash_profile
 
     # For Linux/Unix, use pip.
 
