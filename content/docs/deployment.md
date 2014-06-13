@@ -68,6 +68,8 @@ Once you've configured a deployment in `podspec.yaml`, you can use the `grow dep
 
 ### Google Cloud Storage
 
+Deploys a build to Google Cloud Storage, appropriate for serving directly from GCS using the website serving feature.
+
 There are two ways Grow can establish a connection to Google Cloud Storage. You can either use the "interoperable" method (which uses an access key and secret, similar to connections to Amazon S3), or you can use a client email address and key file.
 
     # Authenticates using access key and secret.
@@ -99,7 +101,7 @@ In addition to obtaining your service account email address and key file, you mu
 
 ### Amazon S3
 
-Deploys a build to an Amazon S3 bucket.
+Deploys a build to an Amazon S3 bucket, appropriate for serving directly from S3 using the website serving feature.
 
     deployments:
       name:
