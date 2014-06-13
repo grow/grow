@@ -44,7 +44,7 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
     grow init codelab ~/example.com/
 
-(3) Run a live development web server for live editing and previewing.
+(3) Run a development web server for live editing and previewing.
 
     grow run ~/example.com/
 
