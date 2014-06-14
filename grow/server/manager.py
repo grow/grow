@@ -108,7 +108,7 @@ def _start(pod, host=None, port=None, open_browser=False):
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
     num_tries = 0
-    while num_tries < 5:
+    while num_tries < 10:
       try:
         httpd = simple_server.make_server(host, port, app,
                                           handler_class=DevServerWSGIRequestHandler)
