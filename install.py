@@ -61,7 +61,8 @@ def install():
       asset = each_asset
       break
   if asset is None:
-    'Release not available for platform: {}'.format(PLATFORM)
+    print 'Release not available for platform: {}'.format(PLATFORM)
+    sys.exit(-1)
 
   download_url = DOWNLOAD_URL_FORMAT.format(version=version, name=asset['name'])
 
