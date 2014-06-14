@@ -23,9 +23,7 @@ The Grow SDK is still under development and is *considered experimental*. We may
 
 Full documentation is available at http://growsdk.org, but this four-step process covers the basic workflow. See a full list of commands using: `grow help`.
 
-(1) Install Grow.
-
-    # Run the installer. You will be prompted to continue.
+(1) Install Grow. You will be prompted to continue.
 
     curl install.growsdk.org | bash && source ~/.bash_profile
 
@@ -41,7 +39,7 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
     grow build ~/example.com/
 
-If you prefer, you can also install using `pip install grow`, but you will not be able to take advantage of the autoupdater.
+By using the installer from `install.growsdk.org`, you can take advantage of the autoupdater. If you'd prefer to build yourself or install Grow another way (such as `pip`), see [installation alternatives](#installation-alternatives).
 
 ## Contributing
 
@@ -72,6 +70,23 @@ From a fresh system, you may need a few things to build Grow from scratch:
 
     sudo apt-get install python-dev python-pip libffi-dev g++ libxml2-dev libxslt-1-dev zip
     sudo pip install pyinstaller
+
+#### Installation alternatives
+
+    # Installs Grow in Python's site-packages directory.
+    sudo pip install grow
+
+    # Or, install Grow for a single user.
+    pip install --user grow
+
+    # If you have Grow already, upgrade it.
+    pip install --upgrade [--user] grow
+
+    # Or, build from source.
+    git clone git@github.com:grow/pygrow.git
+    cd pygrow
+    pip install -r requirements.txt
+    python setup.py install
 
 ### Running tests
 
