@@ -10,6 +10,7 @@ from xtermcolor import colorize
 import atexit
 import multiprocessing
 import os
+import socket
 import sys
 import threading
 import time
@@ -104,12 +105,25 @@ def _start(pod, host=None, port=None, open_browser=False):
     root = os.path.abspath(os.path.normpath(root))
     handlers.set_pod_root(root)
     app = main_lib.application
-    port = 8080 if port is None else port
+    port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
-    httpd = simple_server.make_server(host, int(port), app,
-                                      handler_class=DevServerWSGIRequestHandler)
-  except:
-    logging.exception('Failed to start server.')
+    num_tries = 0
+    while num_tries < 5:
+      try:
+        httpd = simple_server.make_server(host, port, app,
+                                          handler_class=DevServerWSGIRequestHandler)
+        num_tries = 99
+      except socket.error as e:
+        if e.errno == 48:
+          num_tries += 1
+          old_port = port
+          port += 1
+          logging.info("Couldn't use port {}, trying {} instead...".format(old_port, port))
+        else:
+          raise e
+
+  except Exception as e:
+    logging.error('Failed to start server: {}'.format(e))
     quit_event.set()
     change_watcher_thread.join()
     sys.exit()
