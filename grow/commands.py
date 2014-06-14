@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from google.apputils import appcommands
+from google_apputils import appcommands
 from grow.common import sdk_utils
 from grow.deployments.destinations import local as local_destination
 from grow.deployments.stats import stats

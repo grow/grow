@@ -9,7 +9,7 @@ dnspython
 dulwich
 ez_setup
 gcloud
-google-apputils
+git+git://github.com/jeremydw/google-apputils-python.git@master#egg=google_apputils
 goslate
 httplib2
 jinja2

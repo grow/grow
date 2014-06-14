@@ -14,10 +14,10 @@ import werkzeug
 import json
 sys.modules['simplejson'] = json
 
-import multiprocessing
-from google.apputils import appcommands
-from grow.common import sdk_utils
+from google_apputils import appcommands
 from grow import commands
+from grow.common import sdk_utils
+import multiprocessing
 
 # This hack displays useful information at the top of the "grow help" command.
 _text = ('The Grow SDK: a declarative, file-based CMS for building high-quality web sites.'
