@@ -6,7 +6,7 @@ case "`uname`" in
     PLATFORM="Mac"
     ;;
   *)
-    PLATOFRM="`uname`"
+    PLATFORM="`uname`"
     ;;
 esac
 pyinstaller grow.spec
