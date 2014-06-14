@@ -25,20 +25,9 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 
 (1) Install Grow.
 
-    # For Mac OS X, paste this command into Terminal. You will be prompted to continue.
+    # Run the installer. You will be prompted to continue.
 
     curl install.growsdk.org | bash && source ~/.bash_profile
-
-    # For Linux/Unix, use pip.
-
-    # Installs Grow for a single user (recommended, see below for alternative).
-    pip install --user grow
-
-    # Or, installs Grow in Python's site-packages directory.
-    sudo pip install grow
-
-    # Add --user pip installations to your PATH. (Put this in ~/.bashrc).
-    export PATH=$HOME/.local/bin:$PATH
 
 (2) Initialize a new pod using the "codelab" theme.
 
@@ -51,6 +40,8 @@ Full documentation is available at http://growsdk.org, but this four-step proces
 (4) Build your site.
 
     grow build ~/example.com/
+
+If you prefer, you can also install using `pip install grow`, but you will not be able to take advantage of the autoupdater.
 
 ## Contributing
 
