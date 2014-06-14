@@ -17,14 +17,14 @@ import zipfile
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/pygrow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/pygrow/releases'
 
-if 'linux' in sys.platform:
+if 'Linux' in platform.system():
   PLATFORM = 'linux'
-elif 'darwin' in sys.platform:
+elif 'Darwin' in platform.system():
   PLATFORM = 'mac'
 else:
-  raise ValueError(
-      '{} is an unsupported platform. Please file an issue at '
-      'https://github.com/grow/pygrow/issues'.format(sys.platform))
+  print ('{} is not a supported platform. Please file an issue at '
+         'https://github.com/grow/pygrow/issues'.format(sys.platform))
+  sys.exit(-1)
 
 
 def colorize(text):
@@ -122,7 +122,4 @@ def install():
 
 
 if __name__ == '__main__':
-  if platform.system() != 'Darwin':
-    print 'This installer is currently only for Mac OS X. Use "pip install grow" to install on Unix/Linux.'
-    sys.exit(-1)
   install()
