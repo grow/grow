@@ -79,7 +79,7 @@ We recommend using `virtualenv` to work on Grow in order to keep your system-wid
 
 From a fresh system, you may need a few things to build Grow from scratch:
 
-    sudo apt-get install python-dev python-pip libffi-dev g++ libxml2-dev libxslt-1-dev
+    sudo apt-get install python-dev python-pip libffi-dev g++ libxml2-dev libxslt-1-dev zip
     sudo pip install pyinstaller
 
 ### Running tests
