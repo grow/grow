@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 
-import logging
-import gflags as flags
-import os
-from google.apputils import appcommands
-from grow.deployments import deployments
+from google_apputils import appcommands
 from grow.common import sdk_utils
-from grow.common import utils
-from grow.server import manager
+from grow.deployments.destinations import local as local_destination
+from grow.deployments.stats import stats
 from grow.pods import commands as pod_commands
 from grow.pods import pods
 from grow.pods import storage
+from grow.server import manager
+from xtermcolor import colorize
+import gflags as flags
+import git
+import logging
+import os
+import threading
 
 
 FLAGS = flags.FLAGS
@@ -18,16 +21,31 @@ FLAGS = flags.FLAGS
 flags.DEFINE_boolean(
     'skip_sdk_update_check', False, 'Whether to skip the check for SDK updates.')
 
+def _get_git_repo(root):
+  try:
+    return git.Repo(root)
+  except git.exc.InvalidGitRepositoryError:
+    logging.info('Warning: {} is not a Git repository.'.format(root))
 
 
 class BuildCmd(appcommands.Cmd):
   """Generates static files and dumps them to a local destination."""
 
+  def __init__(self, name, flag_values, command_aliases=None):
+    flags.DEFINE_string(
+        'out_dir', None, 'Where to build to.', flag_values=flag_values)
+    super(BuildCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
+
   def Run(self, argv):
-    root = os.path.abspath(os.path.join(os.getcwd(), argv[-2]))
-    out_dir = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+    root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
+    out_dir = FLAGS.out_dir or os.path.join(root, 'build')
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.dump(out_dir=out_dir)
+    paths_to_contents = pod.dump()
+    repo = _get_git_repo(pod.root)
+    config = local_destination.Config(out_dir=out_dir)
+    stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
+    destination = local_destination.LocalDestination(config, run_tests=False)
+    destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False)
 
 
 class DeployCmd(appcommands.Cmd):
@@ -35,46 +53,12 @@ class DeployCmd(appcommands.Cmd):
 
   def __init__(self, name, flag_values, command_aliases=None):
     flags.DEFINE_boolean(
+        'test', False, 'Whether to only run the deployment tests.',
+        flag_values=flag_values)
+    flags.DEFINE_boolean(
         'confirm', True, 'Whether to confirm prior to deployment.',
         flag_values=flag_values)
-    flags.DEFINE_enum(
-        'destination', None, ['gcs', 'local', 's3', 'zip'],
-        'Destination to deploy to.',
-        flag_values=flag_values)
-    flags.DEFINE_string(
-        'bucket', None, 'Google Cloud Storage or Amazon S3 bucket.',
-        flag_values=flag_values)
-    flags.DEFINE_string(
-        'out_dir', None, 'Directory to write to.',
-        flag_values=flag_values)
-    flags.DEFINE_string(
-        'out_file', None, 'File name of zip file to use.',
-        flag_values=flag_values)
     super(DeployCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
-
-  def _get_deployment_from_command_line(self):
-    if FLAGS.destination is None:
-      raise appcommands.AppCommandsError('Must specify: --destination.')
-    elif FLAGS.destination == 'gcs':
-      if FLAGS.bucket is None:
-        raise appcommands.AppCommandsError('Must specify: --bucket.')
-      deployment = deployments.GoogleCloudStorageDeployment(bucket=FLAGS.bucket)
-    elif FLAGS.destination == 's3':
-      if FLAGS.bucket is None:
-        raise appcommands.AppCommandsError('Must specify: --bucket.')
-      deployment = deployments.AmazonS3Deployment(bucket=FLAGS.bucket)
-    elif FLAGS.destination == 'local':
-      if FLAGS.out_dir is None:
-        raise appcommands.AppCommandsError('Must specify: --out_dir.')
-      out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir))
-      deployment = deployments.LocalDeployment(out_dir=out_dir)
-    elif FLAGS.destination == 'zip':
-      if FLAGS.out_dir is None and FLAGS.out_file is None:
-        raise appcommands.AppCommandsError('Must specify either: --out_dir or --out_file.')
-      out_dir = os.path.abspath(os.path.expanduser(FLAGS.out_dir)) if FLAGS.out_dir else None
-      out_file = os.path.abspath(os.path.expanduser(FLAGS.out_file)) if FLAGS.out_file else None
-      deployment = deployments.ZipFileDeployment(out_dir=out_dir, out_file=out_file)
-    return deployment
 
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
@@ -82,18 +66,23 @@ class DeployCmd(appcommands.Cmd):
     pod.preprocess()
 
     # Figure out if we're using the default deployment.
-    if len(argv) == 2 and not FLAGS.destination:
+    if len(argv) == 2:
       deployment_name = 'default'  # grow deploy .
     elif len(argv) == 3:
       deployment_name = argv[-2]   # grow deploy <name> .
     else:
-      deployment_name = None       # grow deploy --destination=<kind> .
+      raise Exception('Invalid command.')
 
-    if deployment_name:
-      deployment = pod.get_deployment(deployment_name)
+    deployment = pod.get_deployment(deployment_name)
+
+    if FLAGS.test:
+      deployment.test()
     else:
-      deployment = self._get_deployment_from_command_line()
-    deployment.deploy(pod, confirm=FLAGS.confirm)
+      paths_to_contents = pod.dump()
+      repo = _get_git_repo(pod.root)
+      stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
+      deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
+                        confirm=FLAGS.confirm)
 
 
 class ExtractCmd(appcommands.Cmd):
@@ -126,13 +115,19 @@ class ExtractCmd(appcommands.Cmd):
 class InitCmd(appcommands.Cmd):
   """Initializes a pod using a theme, ready for development."""
 
+  def __init__(self, name, flag_values, command_aliases=None):
+    flags.DEFINE_boolean(
+        'force', False,
+        'Whether to overwrite any existsing files and directories in the pod.')
+    super(InitCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
+
   def Run(self, argv):
     if len(argv) != 3:
       raise Exception('Usage: grow init <repo> <pod root>')
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     theme_url = argv[-2]
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod_commands.init(pod, theme_url)
+    pod_commands.init(pod, theme_url, force=FLAGS.force)
 
 
 class RoutesCmd(appcommands.Cmd):
@@ -169,7 +164,8 @@ class RunCmd(appcommands.Cmd):
     else:
       root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     if not FLAGS.skip_sdk_update_check:
-      sdk_utils.check_version(auto_update_prompt=True)
+      thread = threading.Thread(target=sdk_utils.check_version, args=(True,))
+      thread.start()
     pod = pods.Pod(root, storage=storage.FileStorage)
     manager.start(pod, host=FLAGS.host, port=FLAGS.port, open_browser=FLAGS.open)
 
@@ -195,68 +191,16 @@ class MachineTranslateCmd(appcommands.Cmd):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if not FLAGS.locale:
       raise appcommands.AppCommandsError('Must specify: --locale.')
-    text = ('---\n{red}WARNING!{/red} Use machine translation with caution.'
-            ' It is not intended for use in production.\n---')
-    logging.info(utils.colorize(text))
     translations = pod.get_translations()
     translations.extract()
     for locale in FLAGS.locale:
       translation = translations.get_translation(locale)
       translation.update_catalog()
       translation.machine_translate()
-
-
-#class UpCmd(appcommands.Cmd):
-#  """Uploads a pod to a pod server."""
-#
-#  SKIP_PATTERNS = (
-#      '.DS_Store',
-#  )
-#
-#  def __init__(self, name, flag_values, command_aliases=None):
-#    flags.DEFINE_string(
-#        'host', 'beta.grow.io', 'Pod server hostname (ex: beta.grow.io.).',
-#        flag_values=flag_values)
-#    flags.DEFINE_string(
-#        'project', None, 'Project ID (ex: foo/bar).',
-#        flag_values=flag_values)
-#    super(UpCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
-#
-#  def Run(self, argv):
-#    owner, nickname = FLAGS.project.split('/')
-#    host = FLAGS.host
-#    pod = pods.Pod(argv[1], storage=storage.FileStorage)
-#
-#    # Uploading to GrowEdit on dev appserver.
-#    if True or (host is not None and 'localhost' in host):
-#      service = client.Client(host=FLAGS.host)
-#      for pod_path in pod.list_dir('/'):
-#        if os.path.basename(pod_path) in UpCmd.SKIP_PATTERNS:
-#          continue
-#        path = os.path.join(pod.root, pod_path)
-#        content = open(path).read()
-#        if isinstance(content, unicode):
-#          content = content.encode('utf-8')
-#        content = base64.b64encode(content)
-#        service.rpc('pods.update_file', {
-#           'project': {
-#             'owner': {'nickname': owner},
-#             'nickname': nickname,
-#           },
-#           'file': {
-#             'pod_path': pod_path,
-#             'content_b64': content,
-#           }
-#        })
-#        print 'Uploaded: {}'.format(pod_path)
-##      req = service.pods().finalizeStagedFiles(body={
-##        'pod': {'changeset': changeset}
-##      })
-##      req.execute()
-#      print 'Upload finalized.'
-#    else:
-#      raise NotImplementedError()
-##      google_cloud_storage.upload_to_gcs(pod, changeset, host=host)
+    print ''
+    print colorize('  WARNING! Use machine translations with caution.', ansi=197)
+    print colorize('  Machine translations are not intended for use in production.', ansi=197)
+    print ''
 
 
 def add_commands():
@@ -267,5 +211,4 @@ def add_commands():
   appcommands.AddCmd('init', InitCmd)
   appcommands.AddCmd('run', RunCmd)
   appcommands.AddCmd('routes', RoutesCmd)
-#  appcommands.AddCmd('up', UpCmd)
   appcommands.AddCmd('test', TestCmd)

@@ -10,6 +10,7 @@ Grow differentiates itself by being:
 - the best and easiest way to develop content-heavy localized websites,
 - designed for true structured content management,
 - designed with web performance and security in mind,
+- designed with first-party i18n support,
 - designed for developers, designers, content writers, and translators to work together.
 
 Visit the Grow SDK's website at http://growsdk.org where you can learn all about using the Grow SDK to build and launch your own web sites.
@@ -22,34 +23,23 @@ The Grow SDK is still under development and is *considered experimental*. We may
 
 Full documentation is available at http://growsdk.org, but this four-step process covers the basic workflow. See a full list of commands using: `grow help`.
 
-(1) Install Grow.
+(1) Install Grow. You will be prompted to continue.
 
-    # For Mac OS X, paste this command into Terminal. You will be prompted to continue.
-
-    python -c "$(curl -fsSL https://raw.github.com/grow/pygrow/master/install.py)" && source ~/.bash_profile
-
-    # For Linux/Unix, use pip.
-
-    # Installs Grow for a single user (recommended, see below for alternative).
-    pip install --user grow
-
-    # Or, installs Grow in Python's site-packages directory.
-    sudo pip install grow
-
-    # Add --user pip installations to your PATH. (Put this in ~/.bashrc).
-    export PATH=$HOME/.local/bin:$PATH
+    curl install.growsdk.org | bash && source ~/.bash_profile
 
 (2) Initialize a new pod using the "codelab" theme.
 
     grow init codelab ~/example.com/
 
-(3) Run a live development web server for live editing and previewing.
+(3) Run a development web server for live editing and previewing.
 
     grow run ~/example.com/
 
-(4) Deploy your site to the default destination.
+(4) Build your site.
 
-    grow deploy ~/example.com/
+    grow build ~/example.com/
+
+By using the installer from `install.growsdk.org`, you can take advantage of the autoupdater. If you'd prefer to build yourself or install Grow another way (such as `pip`), see [installation alternatives](#installation-alternatives).
 
 ## Contributing
 
@@ -73,6 +63,30 @@ We recommend using `virtualenv` to work on Grow in order to keep your system-wid
     pip install -r requirements.txt
     ...
     ./bin/grow                                    # Runs the Grow command line program.
+
+#### Gotchas
+
+From a fresh system, you may need a few things to build Grow from scratch:
+
+    sudo apt-get install python-dev python-pip libffi-dev g++ libxml2-dev libxslt-1-dev zip
+    sudo pip install pyinstaller
+
+#### Installation alternatives
+
+    # Installs Grow in Python's site-packages directory.
+    sudo pip install grow
+
+    # Or, install Grow for a single user.
+    pip install --user grow
+
+    # If you have Grow already, upgrade it.
+    pip install --upgrade [--user] grow
+
+    # Or, build from source.
+    git clone git@github.com:grow/pygrow.git
+    cd pygrow
+    pip install -r requirements.txt
+    python setup.py install
 
 ### Running tests
 

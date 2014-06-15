@@ -2,7 +2,7 @@ from grow.common import markdown_extensions
 from grow.common import utils
 from grow.pods import urls
 from grow.pods import locales
-from grow.pods.collectionz import messages
+from . import messages
 import jinja2
 import json
 import logging
@@ -55,6 +55,9 @@ class Document(object):
           self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
     elif self.format == messages.Format.YAML:
       self.doc_storage = YamlDocumentStorage(
+          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
+    elif self.format == messages.Format.HTML:
+      self.doc_storage = HtmlDocumentStorage(
           self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
     else:
       formats = messages.extensions_to_formats.keys()
@@ -136,7 +139,8 @@ class Document(object):
     return True
 
   def get_view(self):
-    return self.fields.get('$view', self.collection.get_view())
+    view_format = self.fields.get('$view', self.collection.get_view())
+    return self._format_path(view_format) if view_format is not None else None
 
   def get_path_format(self):
     val = None
@@ -202,18 +206,20 @@ class Document(object):
         break;
 
     try:
-      return path_format.format(**{
-          'doc': self,
-          'parent': self.parent if self.parent else DummyDict(),
-          'locale': locale,
-          'podspec': self.pod.get_podspec(),
-          'base': os.path.splitext(os.path.basename(self.pod_path))[0],
-          'slug': self.slug,
-          'date': self.date,
-      }).replace('//', '/')
+      return self._format_path(path_format)
     except KeyError:
       logging.error('Error with path format: {}'.format(path_format))
       raise
+
+  def _format_path(self, path_format):
+    return path_format.format(**{
+        'base': os.path.splitext(os.path.basename(self.pod_path))[0],
+        'date': self.date,
+        'locale': str(self.locale),
+        'parent': self.parent if self.parent else DummyDict(),
+        'podspec': self.pod.get_podspec(),
+        'slug': self.slug,
+    }).replace('//', '/')
 
   @property
   def locales(self):
@@ -242,7 +248,7 @@ class Document(object):
   @property
   def html(self):
     # TODO(jeremydw): Add ability to render HTML.
-    return self.doc_storage.html(self, params=None)
+    return self.doc_storage.html(self)
 
   def __eq__(self, other):
     return (isinstance(self, Document)
@@ -329,7 +335,7 @@ class BaseDocumentStorage(object):
   def load(self):
     raise NotImplementedError
 
-  def html(self, doc, params=None):
+  def html(self, doc):
     return self.body
 
   def write(self, content):
@@ -342,13 +348,17 @@ class YamlDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, _ = utils.parse_yaml(content, path=path)
+    fields, body = utils.parse_yaml(content, path=path)
     self.content = content
     self.fields = fields or {}
     self.tagged_fields = {}
-    self.body = None
+    self.body = body
     self.tagged_fields = copy.deepcopy(fields)
     fields = untag_fields(fields)
+
+
+class HtmlDocumentStorage(YamlDocumentStorage):
+  pass
 
 
 class MarkdownDocumentStorage(BaseDocumentStorage):
@@ -364,7 +374,7 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     self.tagged_fields = copy.deepcopy(fields)
     fields = untag_fields(fields)
 
-  def html(self, doc, params=None):
+  def html(self, doc):
     val = self.body
     if val is not None:
       extensions = [
@@ -374,12 +384,6 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
         markdown_extensions.UrlExtension(doc.pod),
       ]
       val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
-      if params is None:
-        params = {}
-      if params:
-        params['doc'] = doc
-        template = jinja2.Template(val)
-        val = template.render(params)
     return val
 
 

@@ -17,6 +17,15 @@ import zipfile
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/pygrow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/pygrow/releases'
 
+if 'Linux' in platform.system():
+  PLATFORM = 'linux'
+elif 'Darwin' in platform.system():
+  PLATFORM = 'mac'
+else:
+  print ('{} is not a supported platform. Please file an issue at '
+         'https://github.com/grow/pygrow/issues'.format(sys.platform))
+  sys.exit(-1)
+
 
 def colorize(text):
   return text.format(**{
@@ -44,8 +53,18 @@ def orly(text):
 
 def install():
   release = json.loads(urllib.urlopen(RELEASES_API).read())[0]
-  asset = release['assets'][0]
   version = release['tag_name']
+
+  asset = None
+  for each_asset in release['assets']:
+    if PLATFORM in each_asset.get('name', '').lower():
+      asset = each_asset
+      break
+  if asset is None:
+    print 'Release not yet available for platform: {}.'.format(platform.system())
+    print 'Please try again in a few minutes.'
+    sys.exit(-1)
+
   download_url = DOWNLOAD_URL_FORMAT.format(version=version, name=asset['name'])
 
   bin_path = '{}/bin/grow'.format(os.getenv('HOME'))
@@ -105,7 +124,4 @@ def install():
 
 
 if __name__ == '__main__':
-  if platform.system() != 'Darwin':
-    print 'This installer is currently only for Mac OS X. Use "pip install grow" to install on Unix/Linux.'
-    sys.exit(-1)
   install()

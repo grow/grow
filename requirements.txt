@@ -8,8 +8,8 @@ closure==20140110
 dnspython
 dulwich
 ez_setup
-google-api-python-client
-google-apputils
+gcloud
+git+git://github.com/jeremydw/google-apputils-python.git@master#egg=google_apputils
 goslate
 httplib2
 jinja2
@@ -18,11 +18,15 @@ markupsafe
 paramiko
 polib
 premailer
+progressbar2
 protorpc-standalone
+pygit
 python-gflags
 pytz
 pyyaml
 requests
+texttable
 translitcodec
 webapp2
 werkzeug
+xtermcolor

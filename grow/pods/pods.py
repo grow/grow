@@ -199,10 +199,7 @@ class Pod(object):
 
     return output
 
-  def dump(self, suffix='index.html', out_dir=None):
-    if out_dir is not None:
-      logging.info('Dumping to {}...'.format(out_dir))
-
+  def dump(self, suffix='index.html'):
     output = self.export()
     clean_output = {}
     if suffix:
@@ -210,12 +207,6 @@ class Pod(object):
         if suffix and path.endswith('/') or '.' not in os.path.basename(path):
           path = path.rstrip('/') + '/' + suffix
         clean_output[path] = content
-        if out_dir is not None:
-          out_path = os.path.join(out_dir, path.lstrip('/'))
-          if isinstance(content, unicode):
-            content = content.encode('utf-8')
-          self.storage.write(out_path, content)
-          logging.info('Dumping: {}'.format(path))
     else:
       clean_output = output
     return clean_output
@@ -235,9 +226,9 @@ class Pod(object):
     return pod_paths
 
   def list_deployments(self):
-    deployment_configs = self.yaml['deployments']
+    destination_configs = self.yaml['deployments']
     results = []
-    for name in deployment_configs.keys():
+    for name in destination_configs.keys():
       results.append(self.get_deployment(name))
     return results
 
@@ -245,14 +236,15 @@ class Pod(object):
     """Returns a pod-specific deployment."""
     if 'deployments' not in self.yaml:
       raise ValueError('No pod-specific deployments configured.')
-    deployment_configs = self.yaml['deployments']
-    if nickname not in deployment_configs:
+    destination_configs = self.yaml['deployments']
+    if nickname not in destination_configs:
       text = 'No deployment named {}. Valid deployments: {}.'
-      raise ValueError(text.format(nickname, ', '.join(deployment_configs.keys())))
-    deployment_params = deployment_configs[nickname]
+      raise ValueError(text.format(nickname, ', '.join(destination_configs.keys())))
+    deployment_params = destination_configs[nickname]
     kind = deployment_params.pop('destination')
     try:
-      deployment = deployments.Deployment.get(kind, **deployment_params)
+      config = destination_configs[nickname]
+      deployment = deployments.make_deployment(kind, config)
     except TypeError:
       logging.exception('Invalid deployment parameters.')
       raise
@@ -288,6 +280,7 @@ class Pod(object):
         loader=_template_loader, autoescape=True, trim_blocks=True,
         extensions=['jinja2.ext.i18n'])
     env.filters['markdown'] = tags.markdown_filter
+    env.filters['render'] = tags.render_filter
     return env
 
   def get_root_path(self, locale=None):

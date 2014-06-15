@@ -1,6 +1,5 @@
-from grow.common import utils
 from grow.pods.preprocessors import base
-import logging
+from xtermcolor import colorize
 import re
 
 SUFFIXES = frozenset(['po'])
@@ -23,8 +22,8 @@ class TranslationPreprocessor(base.BasePreprocessor):
   def run(self):
     # TODO(jeremydw): Ideally, this would be capable of flushing the gettext cache and
     # recompiling the translations itself without requiring user action.
-    text = '{yellow}Detected changes to translations.{/yellow} Restart the server to see changes.'
-    logging.info(utils.colorize(text))
+    text = 'Detected changes to translations. Restart the server to see changes.'
+    print colorize(text, ansi=226)
 
   def list_watched_dirs(self):
     return ['/translations/']

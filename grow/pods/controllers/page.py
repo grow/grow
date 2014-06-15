@@ -1,6 +1,5 @@
 import logging
 import mimetypes
-import jinja2
 from grow.common import utils
 from grow.pods import errors
 from grow.pods.controllers import base

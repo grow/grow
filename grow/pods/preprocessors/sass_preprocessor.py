@@ -36,7 +36,11 @@ class SassPreprocessor(base.BasePreprocessor):
       sass_fullname = os.path.join(sass_path, name)
       if os.path.isfile(sass_fullname):
         css_fullname = os.path.join(css_path, os.path.splitext(name)[0]) + self.suffix
-        css = sass.compile(filename=sass_fullname, include_paths=[_root_sass])
+        try:
+          css = sass.compile(filename=sass_fullname, include_paths=[_root_sass])
+        except sass.CompileError as e:
+          logging.error(str(e))
+          return result
         with open(css_fullname, 'w') as css_file:
           css_file.write(css)
         result[sass_fullname] = css_fullname

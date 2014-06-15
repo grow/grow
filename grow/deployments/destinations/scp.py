@@ -1,26 +1,33 @@
-from grow.deployments import base
+from . import base
+from protorpc import messages
 import errno
 import os
 import paramiko
 
 
-class ScpDeployment(base.BaseDeployment):
+class Config(messages.Message):
+  host = messages.StringField(1)
+  port = messages.IntegerField(2, default=22)
+  root_dir = messages.StringField(3, default='')
+  username = messages.StringField(4)
 
-  def __init__(self, **kwargs):
+
+class ScpDestination(base.BaseDestination):
+  NAME = 'scp'
+  Config = Config
+  threaded = False
+
+  def __init__(self, *args, **kwargs):
+    super(ScpDestination, self).__init__(*args, **kwargs)
     self.ssh = paramiko.SSHClient()
     self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    self.host = self.config.host
+    self.port = self.config.port
+    self.root_dir = self.config.root_dir
+    self.username = self.config.username
 
-    self.host = kwargs.pop('host') # (Raises an error if "host" is not provided.)
-    self.username = kwargs.pop('username', None)
-    self.port = kwargs.pop('port', 22)
-    self.root_dir = kwargs.pop('root_dir', '')
-
-    # One SSH client cannot accept multiple connections, so
-    # this deployment is not parallelized (for now).
-    self.threaded = False
-
-  def get_destination_address(self):
-    return '{}:{}'.format(self.host, self.root_dir)
+  def __str__(self):
+    return 'scp://{}:{}'.format(self.config.host, self.config.root_dir)
 
   def prelaunch(self, dry_run=False):
     self.ssh.load_system_host_keys()
