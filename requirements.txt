@@ -1,3 +1,4 @@
+GitPython
 GoogleAppEngineCloudStorageClient
 Markdown
 WebOb
@@ -20,12 +21,11 @@ polib
 premailer
 progressbar2
 protorpc-standalone
-pygit
 python-gflags
 pytz
 pyyaml
 requests
-texttable
+git+git://github.com/bufordtaylor/python-texttable.git@master#egg=texttable
 translitcodec
 webapp2
 werkzeug
