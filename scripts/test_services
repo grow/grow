@@ -29,4 +29,5 @@ if [ -d env ]; then
   deactivate
 else
   echo 'Run ./scripts/setup first.'
+  exit 1
 fi
