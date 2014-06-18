@@ -1,6 +1,8 @@
 *.py[cod]
 .DS_Store
-endpoints
+
+env
+htmlcov
 
 # C extensions
 *.so

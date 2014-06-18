@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ -d env ]; then
+  source env/bin/activate
+  ./bin/grow ${@}
+  deactivate
+else
+  echo 'Run ./scripts/setup first.'
+fi
