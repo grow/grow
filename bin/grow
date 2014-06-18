@@ -1,4 +1,23 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
+"""
+The Grow SDK: a declarative, file-based CMS for building high-quality web sites.
+See documentation at: http://growsdk.org.
+
+Usage: grow [--version] [--help] <command> [<args>...]
+
+The most commonly used grow commands are:
+  build              Generates static files and dumps them to a local
+                     destination.
+  deploy             Deploys a pod to a destination.
+  extract            Extracts a pod's translations into messages files.
+  init               Initializes a pod using a theme, ready for development.
+  machine_translate  Translates a message catalog using machine translation.
+  routes             Lists routes defined by a pod.
+  run                Starts a pod server for a single pod.
+  test               Validates a pod and runs its tests.
+
+See 'grow <command> --help' for more information on a specific command.
+"""
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -18,21 +37,28 @@ sys.modules['simplejson'] = json
 from watchdog.utils import unicode_paths
 unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
-from google_apputils import appcommands
-from grow import commands
 from grow.common import sdk_utils
+from subprocess import call
+from docopt import docopt
 import multiprocessing
-
-# This hack displays useful information at the top of the "grow help" command.
-_text = ('The Grow SDK: a declarative, file-based CMS for building high-quality web sites.'
-         '\n\nVersion: {}. See documentation at: http://growsdk.org.')
-__doc__ = _text.format(sdk_utils.get_this_version())
-
-
-def main(argv):
-  commands.add_commands()
 
 
 if __name__ == '__main__':
   multiprocessing.freeze_support()
-  appcommands.Run()
+
+  args = docopt(__doc__, version='grow version {}'.format(sdk_utils.get_this_version()), options_first=True)
+  argv = [args['<command>']] + args['<args>']
+
+  if args['<command>'] in 'build deploy extract init machine_translate routes run test'.split():
+    # Keep it DRY.
+    python_file = '../grow/commands/grow_{}.py'.format(args['<command>'])
+    python_file = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), python_file))
+    try:
+      exit(call([sys.executable, python_file] + argv))
+    except KeyboardInterrupt:
+      pass
+  elif args['<command>'] == 'help':
+    python_file = os.path.abspath(os.path.realpath(__file__))
+    exit(call([sys.executable, python_file, '--help']))
+  else:
+    exit("%r is not a grow command. See 'grow --help'." % args['<command>'])
