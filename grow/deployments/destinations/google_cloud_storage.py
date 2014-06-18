@@ -4,6 +4,7 @@ from boto.gs import key
 from boto.s3 import connection
 from gcloud import storage
 from grow.common import utils
+from grow.pods import env
 from protorpc import messages
 import boto
 import cStringIO
@@ -52,6 +53,7 @@ class Config(messages.Message):
   project = messages.StringField(4)
   email = messages.StringField(5)
   key_path = messages.StringField(6)
+  env = messages.MessageField(env.EnvConfig, 7)
 
 
 class GoogleCloudStorageDestination(base.BaseDestination):
