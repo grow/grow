@@ -34,7 +34,9 @@ class BuildCmd(appcommands.Cmd):
 
   def __init__(self, name, flag_values, command_aliases=None):
     flags.DEFINE_string(
-        'out_dir', None, 'Where to build to.', flag_values=flag_values)
+        'out_dir', None,
+        'Where to build to. By default, this is the "build" directory within a pod.',
+        flag_values=flag_values)
     super(BuildCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
 
   def Run(self, argv):
@@ -177,6 +179,9 @@ class TestCmd(appcommands.Cmd):
   """Validates a pod and runs its tests."""
 
   def Run(self):
+    print ''
+    print 'Sorry, this is not implemented yet.'
+    print ''
     raise NotImplementedError()
 
 
