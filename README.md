@@ -51,22 +51,20 @@ We use GitHub to track issues. Feel free to [browse issues](https://github.com/g
 
 ### Getting the code
 
-We recommend using `virtualenv` to work on Grow in order to keep your system-wide installation separate from your working copy.
+For contributors, Grow includes a setup script to help you get a development environment setup for running the tests and executing the command line tools. The setup script helps install `pip`, `virtualenv`, and all of the libraries required to perform development.
 
-    sudo pip install virtualenv                   # Install virtualenv if you don't have it.
-    virtualenv --no-site-packages <dir>           # Creates a new virtualenv in <dir>.
-    cd <dir>
-    source bin/activate                           # Activates the virtualenv.
-    git clone git@github.com:grow/pygrow.git      # Clones this repo.
-    ...
+    git clone git@github.com:grow/pygrow.git       # Clones this repo.
     cd pygrow
-    pip install -r requirements.txt
-    ...
-    ./bin/grow                                    # Runs the Grow command line program.
+    ./scripts/setup                                # Runs setup script.
+
+Once installed, you can...
+
+    ./scripts/test                                 # Runs tests.
+    ./scripts/grow                                 # Runs `grow` command line program.
 
 #### Gotchas
 
-From a fresh system, you may need a few things to build Grow from scratch:
+From a fresh system, you may need a few things to build a Grow release from scratch:
 
     sudo apt-get install python-dev python-pip libffi-dev g++ libxml2-dev libxslt-1-dev zip
     sudo pip install pyinstaller
@@ -92,12 +90,8 @@ From a fresh system, you may need a few things to build Grow from scratch:
 
 To run Grow's unit tests, run from the project's root directory:
 
-    python run_tests.py
-
-The Grow SDK also includes service tests, which test the pod server RPC system:
-
-    ./bin/grow run grow/pods/testdata/pod/        # Start a dev server.
-    ./run_service_tests.sh
+    ./scripts/test                                # Runs unit tests.
+    ./scripts/test_services                       # Runs service tests.
 
 ## License
 
