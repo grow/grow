@@ -59,7 +59,7 @@ class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
     sys.stderr.write('%s %s\n' % (timestring, format % args))
 
 
-def _start(pod, host=None, port=None, open_browser=False):
+def _start(pod, host=None, port=None, open_browser=False, debug=False):
   print ''
   print '  The Grow SDK is experimental. Expect backwards incompatibility until v0.1.0.'
   print '  Thank you for testing and contributing! Visit http://growsdk.org for resources.'
@@ -104,6 +104,7 @@ def _start(pod, host=None, port=None, open_browser=False):
     # Create the development server.
     root = os.path.abspath(os.path.normpath(root))
     handlers.set_pod_root(root)
+    main_lib.podserver_app.debug = debug
     app = main_lib.application
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
@@ -156,17 +157,17 @@ def _start(pod, host=None, port=None, open_browser=False):
   sys.exit()
 
 
-def start(pod, host=None, port=None, open_browser=False, use_subprocess=False):
+def start(pod, host=None, port=None, open_browser=False, use_subprocess=False, debug=False):
   root = pod.root
   if root in _servers:
     logging.error('Server already started for pod: {}'.format(root))
     return
 
   if not use_subprocess:
-    _start(pod, host=host, port=port, open_browser=open_browser)
+    _start(pod, host=host, port=port, open_browser=open_browser, debug=debug)
     return
 
-  server_process = multiprocessing.Process(target=_start, args=(root, host, port, open_browser))
+  server_process = multiprocessing.Process(target=_start, args=(root, host, port, open_browser, debug))
   server_process.start()
   _servers[root] = server_process
   return server_process
