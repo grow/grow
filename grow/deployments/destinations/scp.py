@@ -1,4 +1,5 @@
 from . import base
+from grow.pods import env
 from protorpc import messages
 import errno
 import os
@@ -10,6 +11,7 @@ class Config(messages.Message):
   port = messages.IntegerField(2, default=22)
   root_dir = messages.StringField(3, default='')
   username = messages.StringField(4)
+  env = messages.MessageField(env.EnvConfig, 5)
 
 
 class ScpDestination(base.BaseDestination):

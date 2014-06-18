@@ -33,6 +33,7 @@ import os
 import re
 from grow.common import utils
 from grow.deployments import deployments
+from grow.pods import env as environment
 from grow.pods import files
 from grow.pods import locales
 from grow.pods import messages
@@ -59,10 +60,12 @@ class BuildError(Error):
 
 class Pod(object):
 
-  def __init__(self, root, changeset=None, storage=storage.auto):
+  def __init__(self, root, changeset=None, storage=storage.auto, env=None):
     self.storage = storage
     self.root = root if self.storage.is_cloud_storage else os.path.abspath(root)
     self.changeset = changeset
+    self.env = env if env else environment.Env(
+        environment.EnvConfig(host='localhost'))
 
     self.routes = routes.Routes(pod=self)
     self.locales = locales.Locales(pod=self)

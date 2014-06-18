@@ -70,6 +70,7 @@ from . import messages
 from .. import tests
 from ..indexes import indexes
 from grow.common import utils
+from grow.pods import env
 from xtermcolor import colorize
 import inspect
 import logging
@@ -127,6 +128,12 @@ class BaseDestination(object):
     self.prelaunch(dry_run=dry_run)
     if self.run_tests:
       self.test()
+
+  def get_env(self):
+    """Returns an environment object based on the config."""
+    if self.config.env:
+      return env.Env(self.config.env)
+    return env.Env('localhost')
 
   def read_file(self, path):
     """Returns a file-like object."""

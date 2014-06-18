@@ -1,6 +1,7 @@
 from grow.common import utils
+from grow.pods import env
+from grow.pods import pods
 from grow.pods import storage
-from grow.server import podgroups
 import gflags as flags
 import jinja2
 import logging
@@ -55,14 +56,15 @@ class PodHandler(BaseHandler):
   def get(self):
     if 'grow:pod_root' not in os.environ:
       raise Exception('Environment variable "grow:pod_root" missing.')
-    domain = self.request.host
+    domain, port = self.request.host.split(':')
+    port = int(port) if port else 80
     url_scheme = self.request.scheme
-    root = os.path.dirname(os.environ['grow:pod_root'])
-    podgroup = podgroups.Podgroup(root)
-    pod_name = os.path.basename(os.path.normpath(os.environ['grow:pod_root']))
-    podgroup.load_pods_by_id([pod_name])
+    root = os.environ['grow:pod_root']
+    environment = env.Env(env.EnvConfig(host=domain, port=port, scheme=url_scheme))
+    pod = pods.Pod(root, env=environment)
     try:
-      controller = podgroup.match(self.request.path, domain=domain, url_scheme=url_scheme)
+      routes = pod.get_routes()
+      controller = routes.match(self.request.path, domain=domain, url_scheme=url_scheme)
       self.respond_with_controller(controller)
     except werkzeug.routing.RequestRedirect as e:
       self.redirect(e.new_url)
