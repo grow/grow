@@ -3,6 +3,7 @@
 Usage: grow run [options] [<pod_path>]
 
   --help
+  --debug                  Run the server in debug mode
   --host=<host>            IP address or hostname to bind the server
                            to [default: localhost]
   --port=<port>            Port to bind the server to [default: 8080]
@@ -31,4 +32,6 @@ if __name__ == '__main__':
   root = os.path.abspath(os.path.join(os.getcwd(), args['<pod_path>'] or '.'))
   environment = env.Env(env.EnvConfig(host=args['--host'], port=args['--port']))
   pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
-  manager.start(pod, host=args['--host'], port=args['--port'], open_browser=args['--open'])
+  manager.start(
+      pod, host=args['--host'], port=args['--port'],
+      open_browser=args['--open'], debug=args['--debug'])
