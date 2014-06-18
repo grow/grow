@@ -88,6 +88,7 @@ class PageController(base.BaseController):
       return template.render({
           'g': context,
           'doc': self.document,
+          'env': self.pod.env,
           'podspec': self.pod.get_podspec(),
       })
     except Exception as e:

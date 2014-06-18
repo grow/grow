@@ -5,6 +5,7 @@ from grow.common import sdk_utils
 from grow.deployments.destinations import local as local_destination
 from grow.deployments.stats import stats
 from grow.pods import commands as pod_commands
+from grow.pods import env
 from grow.pods import pods
 from grow.pods import storage
 from grow.server import manager
@@ -74,6 +75,7 @@ class DeployCmd(appcommands.Cmd):
       raise Exception('Invalid command.')
 
     deployment = pod.get_deployment(deployment_name)
+    pod.env = deployment.get_env()
 
     if FLAGS.test:
       deployment.test()
@@ -166,7 +168,8 @@ class RunCmd(appcommands.Cmd):
     if not FLAGS.skip_sdk_update_check:
       thread = threading.Thread(target=sdk_utils.check_version, args=(True,))
       thread.start()
-    pod = pods.Pod(root, storage=storage.FileStorage)
+    environment = env.Env(env.EnvConfig(host=FLAGS.host, port=FLAGS.port))
+    pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
     manager.start(pod, host=FLAGS.host, port=FLAGS.port, open_browser=FLAGS.open)
 
 

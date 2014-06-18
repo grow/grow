@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ -d env ]; then
+  source env/bin/activate
+  ./bin/grow run grow/pods/testdata/pod/
+  
+  printf '\n --- \n'
+
+  curl \
+  -H 'content-type:application/json' \
+  -d '{}' \
+  http://localhost:8080/_api/protorpc.services
+
+  printf '\n --- \n'
+
+  curl \
+  -H 'content-type:application/json' \
+  -d '{"names": ["/_api/pods.*"]}' \
+  http://localhost:8080/_api/protorpc.get_file_set
+
+
+  curl \
+  -H 'content-type:application/json' \
+  -d '{"names": ["/_api/pods.*"]}' \
+  http://localhost:8080/_api/protorpc.get_file_set
+
+  printf '\n --- \n'
+
+  deactivate
+else
+  echo 'Run ./scripts/setup first.'
+  exit 1
+fi

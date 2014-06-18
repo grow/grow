@@ -1,11 +1,13 @@
 from . import base
 from protorpc import messages
+from grow.pods import env
 from grow.pods.storage import storage as storage_lib
 import os
 
 
 class Config(messages.Message):
   out_dir = messages.StringField(1, default='')
+  env = messages.MessageField(env.EnvConfig, 2)
 
 
 class LocalDestination(base.BaseDestination):

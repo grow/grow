@@ -1,6 +1,7 @@
 from . import base
 from boto.s3 import connection
 from boto.s3 import key
+from grow.pods import env
 from protorpc import messages
 import boto
 import cStringIO
@@ -14,6 +15,7 @@ class Config(messages.Message):
   bucket = messages.StringField(1)
   access_key = messages.StringField(2)
   access_secret = messages.StringField(3)
+  env = messages.MessageField(env.EnvConfig, 4)
 
 
 class AmazonS3Destination(base.BaseDestination):

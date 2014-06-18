@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ -d env ]; then
+  source env/bin/activate
+  nosetests \
+    -v \
+    --rednose \
+    --with-coverage \
+    --cover-erase \
+    --cover-html \
+    --cover-html-dir=htmlcov \
+    --cover-package=grow \
+    grow/
+  deactivate
+else
+  echo 'Run ./scripts/setup first.'
+  exit 1
+fi
