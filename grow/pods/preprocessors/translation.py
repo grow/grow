@@ -8,7 +8,6 @@ SUFFIX_PATTERN = re.compile('[.](' + '|'.join(map(re.escape, SUFFIXES)) + ')$')
 
 
 class TranslationPreprocessor(base.BasePreprocessor):
-
   KIND = '_translation'
 
   def __init__(self, pod):

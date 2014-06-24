@@ -5,8 +5,9 @@ import os
 
 class BasePreprocessor(object):
 
-  def __init__(self, root, config):
-    self.root = root
+  def __init__(self, pod, config):
+    self.pod = pod
+    self.root = pod.root
     self.config = config
     self.logger = logging.getLogger('preprocessor')
 

@@ -19,14 +19,14 @@ def config_from_json(preprocessor_class, content):
   return protojson.decode_message(config_class, content)
 
 
-def make_preprocessor(name, config, root):
+def make_preprocessor(name, config, pod):
   class_obj = _preprocessor_kinds_to_classes.get(name)
   if class_obj is None:
     raise ValueError('No preprocessor named "{}".'.format(name))
   if isinstance(config, dict):
     config = json.dumps(config)
     config = config_from_json(class_obj, config)
-  return class_obj(root, config)
+  return class_obj(pod, config)
 
 
 def register_builtins():
