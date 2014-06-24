@@ -1,11 +1,11 @@
 # -*- mode: python -*-
 
 a = Analysis(['bin/grow'],
-             pathex=['.', '../grow', '/Library/Python/2.7/site-packages/'],
+             pathex=['.', '../grow', '../env/lib/python2.7/site-packages/'],
              hiddenimports=[
                 'babel.numbers',
                 'babel.plural',
-                'markdown', 
+                'markdown',
                 'markdown.extensions',
                 'werkzeug',
                 'werkzeug._internal',
@@ -34,6 +34,7 @@ a.datas += [
     ('VERSION', 'grow/VERSION', 'DATA'),
     ('server/templates/error.html', 'grow/server/templates/error.html', 'DATA'),
     ('deployments/data/cacerts.txt', 'grow/deployments/data/cacerts.txt', 'DATA'),
+    ('closure/closure.jar', 'env/lib/python2.7/site-packages/closure/closure.jar', 'DATA'),
 ]
 
 pyz = PYZ(a.pure)
