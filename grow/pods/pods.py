@@ -262,8 +262,7 @@ class Pod(object):
     preprocessor_config = copy.deepcopy(self.yaml.get('preprocessors', []))
     for params in preprocessor_config:
       kind = params.pop('kind')
-      preprocessor = preprocessors.Preprocessor.get(kind, pod=self)
-      preprocessor.set_params(**params)
+      preprocessor = preprocessors.make_preprocessor(kind, params, self.root)
       results.append(preprocessor)
     return results
 

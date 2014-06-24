@@ -1,14 +1,37 @@
-from grow.pods.preprocessors import sass_preprocessor
 from grow.pods.preprocessors import closure_compiler
+from grow.pods.preprocessors import sass_preprocessor
+from protorpc import protojson
+import json
+
+_preprocessor_kinds_to_classes = {}
+
+_builtins = (
+    sass_preprocessor.SassPreprocessor,
+    closure_compiler.ClosureCompilerPreprocessor)
 
 
+def register_preprocessor(class_obj):
+  _preprocessor_kinds_to_classes[class_obj.KIND] = class_obj
 
-class Preprocessor(object):
 
-  @classmethod
-  def get(self, kind, *args, **kwargs):
-    if kind == sass_preprocessor.SassPreprocessor.KIND:
-      return sass_preprocessor.SassPreprocessor(*args, **kwargs)
-    elif kind == closure_compiler.ClosureCompiler.KIND:
-      return closure_compiler.ClosureCompilerPreprocessor(*args, **kwargs)
-    raise ValueError('Invalid preprocessor: {}'.format(kind))
+def config_from_json(preprocessor_class, content):
+  config_class = preprocessor_class.Config
+  return protojson.decode_message(config_class, content)
+
+
+def make_preprocessor(name, config, root):
+  class_obj = _preprocessor_kinds_to_classes.get(name)
+  if class_obj is None:
+    raise ValueError('No preprocessor named "{}".'.format(name))
+  if isinstance(config, dict):
+    config = json.dumps(config)
+    config = config_from_json(class_obj, config)
+  return class_obj(root, config)
+
+
+def register_builtins():
+  for builtin in _builtins:
+    register_preprocessor(builtin)
+
+
+register_builtins()
