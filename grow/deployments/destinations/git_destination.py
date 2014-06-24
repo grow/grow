@@ -14,7 +14,7 @@ class Config(messages.Message):
   env = messages.MessageField(env.EnvConfig, 1)
   repo = messages.StringField(2)
   branch = messages.StringField(3, default='master')
-  path = messages.StringField(4, default='')
+  root_dir = messages.StringField(4, default='')
 
 
 class GitDestination(base.BaseDestination):
@@ -33,7 +33,7 @@ class GitDestination(base.BaseDestination):
       prefix = self.config.repo
     else:
       prefix = 'git:{}'.format(self.config.repo)
-    return '{}@{}:{}'.format(prefix, self.config.branch, self.config.path)
+    return '{}@{}:{}'.format(prefix, self.config.branch, self.config.root_dir)
 
   @webapp2.cached_property
   def is_remote(self):
@@ -88,7 +88,8 @@ class GitDestination(base.BaseDestination):
       self.repo.git.checkout(b=self._original_branch_name)
 
   def read_file(self, path):
-    path = os.path.join(self.repo_path, self.config.path, path.lstrip('/'))
+    path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),
+                        path.lstrip('/'))
     return self.storage.read(path)
 
   def delete_control_file(self, path):
@@ -98,7 +99,8 @@ class GitDestination(base.BaseDestination):
     self.deletes.remove(out_path)
 
   def delete_file(self, path):
-    out_path = os.path.join(self.repo_path, self.config.path, path.lstrip('/'))
+    out_path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),
+                            path.lstrip('/'))
     self.storage.delete(out_path)
     self.deletes.add(out_path)
     if out_path in self.adds:
@@ -108,7 +110,8 @@ class GitDestination(base.BaseDestination):
   def write_file(self, path, content):
     if isinstance(content, unicode):
       content = content.encode('utf-8')
-    out_path = os.path.join(self.repo_path, self.config.path, path.lstrip('/'))
+    out_path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),
+                            path.lstrip('/'))
     self.storage.write(out_path, content)
     self.adds.add(out_path)
     if out_path in self.deletes:
