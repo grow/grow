@@ -37,12 +37,18 @@ class BuildCmd(appcommands.Cmd):
         'out_dir', None,
         'Where to build to. By default, this is the "build" directory within a pod.',
         flag_values=flag_values)
+    flags.DEFINE_boolean(
+        'preprocess', True,
+        'Whether to run preprocessors before building.',
+        flag_values=flag_values)
     super(BuildCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
 
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     out_dir = FLAGS.out_dir or os.path.join(root, 'build')
     pod = pods.Pod(root, storage=storage.FileStorage)
+    if FLAGS.preprocess:
+      pod.preprocess()
     paths_to_contents = pod.dump()
     repo = _get_git_repo(pod.root)
     config = local_destination.Config(out_dir=out_dir)
@@ -56,6 +62,10 @@ class DeployCmd(appcommands.Cmd):
 
   def __init__(self, name, flag_values, command_aliases=None):
     flags.DEFINE_boolean(
+        'preprocess', True,
+        'Whether to run preprocessors before building.',
+        flag_values=flag_values)
+    flags.DEFINE_boolean(
         'test', False, 'Whether to only run the deployment tests.',
         flag_values=flag_values)
     flags.DEFINE_boolean(
@@ -66,7 +76,8 @@ class DeployCmd(appcommands.Cmd):
   def Run(self, argv):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.preprocess()
+    if FLAGS.preprocess:
+      pod.preprocess()
 
     # Figure out if we're using the default deployment.
     if len(argv) == 2:
