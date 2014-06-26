@@ -2,6 +2,13 @@ import logging
 import os
 
 
+class Error(Exception):
+  pass
+
+
+class PreprocessorError(Error):
+  pass
+
 
 class BasePreprocessor(object):
 

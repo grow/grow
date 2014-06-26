@@ -7,7 +7,8 @@ _preprocessor_kinds_to_classes = {}
 
 _builtins = (
     sass_preprocessor.SassPreprocessor,
-    closure_compiler.ClosureCompilerPreprocessor)
+    closure_compiler.ClosureCompilerPreprocessor,
+    closure_compiler.ClosureBuilderPreprocessor)
 
 
 def register_preprocessor(class_obj):
