@@ -53,11 +53,15 @@ def start(pod, host=None, port=None, open_browser=False):
   print '  Thank you for testing and contributing! Visit http://growsdk.org for resources.'
   print ''
 
-  observer = file_watchers.ManagedObserver(pod)
-  observer.schedule_podspec()
-  observer.schedule_translation()
-  observer.schedule_preprocessors()
-  observer.start()
+  main_observer = file_watchers.ManagedObserver(pod)
+  main_observer.schedule_translation()
+  main_observer.schedule_preprocessors()
+  main_observer.run_handlers()
+
+  podspec_observer = file_watchers.ManagedObserver(pod)
+  podspec_observer.schedule_podspec()
+  podspec_observer.add_child(main_observer)
+  podspec_observer.start()
 
   root = pod.root
   try:
@@ -84,8 +88,8 @@ def start(pod, host=None, port=None, open_browser=False):
 
   except Exception as e:
     logging.error('Failed to start server: {}'.format(e))
-    observer.stop()
-    observer.join()
+    podspec_observer.stop()
+    podspec_observer.join()
     sys.exit()
 
   try:
@@ -109,7 +113,7 @@ def start(pod, host=None, port=None, open_browser=False):
   except KeyboardInterrupt:
     logging.info('Shutting down...')
     httpd.server_close()
-    observer.stop()
+    podspec_observer.stop()
 
   # Clean up once server exits.
   sys.exit()

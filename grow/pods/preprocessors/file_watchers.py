@@ -12,16 +12,14 @@ class PodspecFileEventHandler(events.PatternMatchingEventHandler):
     self.managed_observer = managed_observer
     super(PodspecFileEventHandler, self).__init__(*args, **kwargs)
 
-  def _handle(self, event):
-    print len(self.managed_observer._preprocessor_watches)
-    self.managed_observer.reschedule_preprocessors()
-    print len(self.managed_observer._preprocessor_watches)
+  def handle(self, event=None):
+    self.managed_observer.reschedule_children()
 
   def on_created(self, event):
-    self._handle(event)
+    self.handle(event)
 
   def on_modified(self, event):
-    self._handle(event)
+    self.handle(event)
 
 
 class PreprocessorEventHandler(events.FileSystemEventHandler):
@@ -30,10 +28,16 @@ class PreprocessorEventHandler(events.FileSystemEventHandler):
     self.preprocessor = preprocessor
     super(PreprocessorEventHandler, self).__init__(*args, **kwargs)
 
+  def handle(self, event=None):
+    if event is not None and event.is_directory:
+      return
+    self.preprocessor.run()
+
+  def on_created(self, event):
+    self.handle(event)
+
   def on_modified(self, event):
-    print event.src_path
-    print event.event_type
-    print 'modified', event
+    self.handle(event)
 
 
 class ManagedObserver(observers.Observer):
@@ -41,6 +45,7 @@ class ManagedObserver(observers.Observer):
   def __init__(self, pod):
     self.pod = pod
     self._preprocessor_watches = []
+    self._child_observers = []
     super(ManagedObserver, self).__init__()
 
   def schedule_podspec(self):
@@ -52,6 +57,7 @@ class ManagedObserver(observers.Observer):
     self._schedule_preprocessor('/translations/', preprocessor)
 
   def schedule_preprocessors(self):
+    self._preprocessor_watches = []
     for preprocessor in self.pod.list_preprocessors():
       for path in preprocessor.list_watched_dirs():
         watch = self._schedule_preprocessor(path, preprocessor)
@@ -62,10 +68,32 @@ class ManagedObserver(observers.Observer):
     handler = PreprocessorEventHandler(preprocessor)
     return self.schedule(handler, path=path, recursive=True)
 
-  def reschedule_preprocessors(self):
-    self.stop()
-    for watch in self._preprocessor_watches:
-      self.unschedule(watch)
-    self.schedule_preprocessors()
-    self.start()
-    print 'done'
+  def reschedule_children(self):
+    for observer in self._child_observers:
+      for watch in observer._preprocessor_watches:
+        observer.unschedule(watch)
+      observer.schedule_preprocessors()
+
+  def add_child(self, observer):
+    self._child_observers.append(observer)
+    return observer
+
+  def start(self):
+    for observer in self._child_observers:
+      observer.start()
+    super(ManagedObserver, self).start()
+
+  def stop(self):
+    for observer in self._child_observers:
+      observer.stop()
+    super(ManagedObserver, self).stop()
+
+  def join(self):
+    for observer in self._child_observers:
+      observer.join()
+    super(ManagedObserver, self).join()
+
+  def run_handlers(self):
+    for handlers in self._handlers.values():
+      for handler in handlers:
+        handler.handle()
