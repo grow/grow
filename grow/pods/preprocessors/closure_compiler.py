@@ -115,7 +115,9 @@ class ClosureBuilderPreprocessor(base.BasePreprocessor):
     proc = subprocess.Popen([builder_command] + flags,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     for line in iter(proc.stderr.readline, b''):
-      print line,
+      # Strip the script path (which is added by Closure Builder's use of the logging
+      # module) from the output.
+      print '  [closurebuilder] ' + line.split(': ')[-1],
     result = proc.stdout.read()
     if result is None:
       raise base.PreprocessorError('Error with Closure Builder.')
