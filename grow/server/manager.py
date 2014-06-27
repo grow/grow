@@ -101,9 +101,10 @@ def start(pod, host=None, port=None, open_browser=False):
     browser_thread.join()
 
   except KeyboardInterrupt:
-    logging.info('Shutting down...')
+    logging.info('Goodbye! Shutting down...')
     httpd.server_close()
     podspec_observer.stop()
+    podspec_observer.join()
 
   # Clean up once server exits.
   sys.exit()
