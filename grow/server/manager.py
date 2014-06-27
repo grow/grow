@@ -50,7 +50,7 @@ def start(pod, host=None, port=None, open_browser=False):
   print '  Thank you for testing and contributing! Visit http://growsdk.org for resources.'
   print ''
 
-  podspec_observer = file_watchers.create_dev_server_watchers(pod)
+  podspec_observer = file_watchers.create_dev_server_observer(pod)
 
   root = pod.root
   try:

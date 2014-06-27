@@ -105,7 +105,7 @@ class ManagedObserver(observers.Observer):
         handler.handle()
 
 
-def create_dev_server_watchers(pod):
+def create_dev_server_observer(pod):
   main_observer = ManagedObserver(pod)
   main_observer.schedule_translation()
   main_observer.schedule_preprocessors()
