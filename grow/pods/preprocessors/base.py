@@ -1,10 +1,22 @@
+import logging
+import os
+
+
+class Error(Exception):
+  pass
+
+
+class PreprocessorError(Error):
+  pass
+
+
 class BasePreprocessor(object):
 
-  def __init__(self, pod):
+  def __init__(self, pod, config):
     self.pod = pod
-
-  def set_params(self, **kwargs):
-    pass
+    self.root = pod.root
+    self.config = config
+    self.logger = logging.getLogger('preprocessor')
 
   def first_run(self):
     self.run()
@@ -14,3 +26,6 @@ class BasePreprocessor(object):
 
   def list_watched_dirs(self):
     return []
+
+  def normalize_path(self, path):
+    return os.path.join(self.root, path.lstrip('/'))

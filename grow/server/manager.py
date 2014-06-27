@@ -7,8 +7,6 @@ from grow.server import handlers
 from grow.server import main as main_lib
 from wsgiref import simple_server
 from xtermcolor import colorize
-import atexit
-import multiprocessing
 import os
 import socket
 import sys

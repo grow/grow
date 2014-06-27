@@ -1,11 +1,12 @@
 from . import messages
+from protorpc import protojson
+import ConfigParser
 import datetime
 import hashlib
 import logging
+import progressbar
 import texttable
 import threading
-from protorpc import protojson
-import progressbar
 
 
 class Error(Exception):
@@ -188,9 +189,12 @@ class Index(object):
   @classmethod
   def add_repo(cls, message, repo):
     config = repo.config_reader()
-    message.deployed_by = messages.AuthorMessage(
-        name=config.get('user', 'name'),
-        email=config.get('user', 'email'))
+    try:
+      message.deployed_by = messages.AuthorMessage(
+          name=config.get('user', 'name'),
+          email=config.get('user', 'email'))
+    except ConfigParser.NoSectionError:
+      logging.warning("Couldn't find user info in repository config.")
     try:
       commit = repo.head.commit
     except ValueError:
