@@ -1,4 +1,5 @@
 from grow.pods.preprocessors import translation as translation_preprocessor
+import threading
 from watchdog import events
 from watchdog import observers
 
@@ -23,6 +24,7 @@ class PodspecFileEventHandler(events.PatternMatchingEventHandler):
 
 
 class PreprocessorEventHandler(events.FileSystemEventHandler):
+  num_runs = 0
 
   def __init__(self, preprocessor, *args, **kwargs):
     self.preprocessor = preprocessor
@@ -31,7 +33,11 @@ class PreprocessorEventHandler(events.FileSystemEventHandler):
   def handle(self, event=None):
     if event is not None and event.is_directory:
       return
-    self.preprocessor.run()
+    if self.num_runs == 0:
+      self.preprocessor.first_run()
+    else:
+      self.preprocessor.run()
+    self.num_runs += 1
 
   def on_created(self, event):
     self.handle(event)
@@ -97,3 +103,17 @@ class ManagedObserver(observers.Observer):
     for handlers in self._handlers.values():
       for handler in handlers:
         handler.handle()
+
+
+def create_dev_server_watchers(pod):
+  main_observer = ManagedObserver(pod)
+  main_observer.schedule_translation()
+  main_observer.schedule_preprocessors()
+  thread = threading.Thread(target=main_observer.run_handlers)
+  thread.start()
+
+  podspec_observer = ManagedObserver(pod)
+  podspec_observer.schedule_podspec()
+  podspec_observer.add_child(main_observer)
+  podspec_observer.start()
+  return podspec_observer

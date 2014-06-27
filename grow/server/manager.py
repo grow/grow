@@ -13,19 +13,15 @@ import threading
 import time
 import webbrowser
 
-_servers = {}
-
-
-def sizeof(num):
-  for x in ['b', 'KB', 'MB', 'GB', 'TB']:
-    if num < 1024.0:
-      return '%3.1f%s' % (num, x)
-    num /= 1024.0
-
 
 class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
 
-#  def log_error(self, format, *args):
+  @staticmethod
+  def sizeof(num):
+    for x in ['b', 'KB', 'MB', 'GB', 'TB']:
+      if num < 1024.0:
+        return '%3.1f%s' % (num, x)
+      num /= 1024.0
 
   def log_date_time_string(self):
     now = time.time()
@@ -39,10 +35,11 @@ class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
     if int(code) >= 500:
       color = 161
     code = colorize(code, ansi=color)
-    size = colorize(sizeof(size), ansi=19)
+    size = colorize(DevServerWSGIRequestHandler.sizeof(size), ansi=19)
     self.log_message('{} {} {}'.format(code, line, size))
 
   def log_message(self, format, *args):
+    #  def log_error(self, format, *args)
     timestring = colorize(self.log_date_time_string(), ansi=241, ansi_bg=233)
     sys.stderr.write('%s %s\n' % (timestring, format % args))
 
@@ -53,15 +50,7 @@ def start(pod, host=None, port=None, open_browser=False):
   print '  Thank you for testing and contributing! Visit http://growsdk.org for resources.'
   print ''
 
-  main_observer = file_watchers.ManagedObserver(pod)
-  main_observer.schedule_translation()
-  main_observer.schedule_preprocessors()
-  main_observer.run_handlers()
-
-  podspec_observer = file_watchers.ManagedObserver(pod)
-  podspec_observer.schedule_podspec()
-  podspec_observer.add_child(main_observer)
-  podspec_observer.start()
+  podspec_observer = file_watchers.create_dev_server_watchers(pod)
 
   root = pod.root
   try:
@@ -104,7 +93,8 @@ def start(pod, host=None, port=None, open_browser=False):
         webbrowser.open(url)
 
     server_ready_event = threading.Event()
-    browser_thread = threading.Thread(target=start_browser, args=(server_ready_event,))
+    browser_thread = threading.Thread(target=start_browser,
+                                      args=(server_ready_event,))
     browser_thread.start()
     server_ready_event.set()
     httpd.serve_forever()
