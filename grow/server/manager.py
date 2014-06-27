@@ -1,8 +1,7 @@
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-from grow.pods.preprocessors import translation as translation_preprocessor
-from grow.pods.preprocessors.file_watchers import file_watchers
+from grow.pods.preprocessors import file_watchers
 from grow.server import handlers
 from grow.server import main as main_lib
 from wsgiref import simple_server
@@ -16,13 +15,6 @@ import webbrowser
 
 _servers = {}
 
-
-def _watch_for_changes(pod, file_watchers_to_preprocessors, quit_event):
-  while not quit_event.is_set():
-    for file_watcher, preprocessors in file_watchers_to_preprocessors.iteritems():
-      if file_watcher.has_changes():
-        [preprocessor.run() for preprocessor in preprocessors]
-    quit_event.wait(timeout=1.5)
 
 def sizeof(num):
   for x in ['b', 'KB', 'MB', 'GB', 'TB']:
@@ -61,42 +53,14 @@ def start(pod, host=None, port=None, open_browser=False):
   print '  Thank you for testing and contributing! Visit http://growsdk.org for resources.'
   print ''
 
+  observer = file_watchers.ManagedObserver(pod)
+  observer.schedule_podspec()
+  observer.schedule_translation()
+  observer.schedule_preprocessors()
+  observer.start()
+
   root = pod.root
-  preprocessors = pod.list_preprocessors()
-
-  # Add the translation preprocessor as a builtin.
-  preprocessors.insert(0, translation_preprocessor.TranslationPreprocessor(pod=pod))
-
   try:
-    # Map directory names to preprocessors.
-    dirs_to_preprocessors = {}
-    for preprocessor in preprocessors:
-      for watched_dir in preprocessor.list_watched_dirs():
-        if watched_dir not in dirs_to_preprocessors:
-          dirs_to_preprocessors[watched_dir] = []
-        dirs_to_preprocessors[watched_dir].append(preprocessor)
-
-    # Run all preprocessors for the pod.
-    for preprocessor in preprocessors:
-      thread = threading.Thread(target=preprocessor.first_run)
-      thread.start()
-      thread.join()
-
-    # Create file watchers for each preprocessor.
-    file_watchers_to_preprocessors = {}
-    for dirname, preprocessors in dirs_to_preprocessors.iteritems():
-      dirname = os.path.join(pod.root, dirname.lstrip('/'))
-      change_watcher = file_watchers.get_file_watcher([dirname])
-      change_watcher.start()
-      file_watchers_to_preprocessors[change_watcher] = preprocessors
-
-    # Start a thread where preprocessors can run if there are changes.
-    quit_event = threading.Event()
-    change_watcher_thread = threading.Thread(
-        target=_watch_for_changes,
-        args=(pod, file_watchers_to_preprocessors, quit_event))
-    change_watcher_thread.start()
-
     # Create the development server.
     root = os.path.abspath(os.path.normpath(root))
     handlers.set_pod_root(root)
@@ -120,8 +84,8 @@ def start(pod, host=None, port=None, open_browser=False):
 
   except Exception as e:
     logging.error('Failed to start server: {}'.format(e))
-    quit_event.set()
-    change_watcher_thread.join()
+    observer.stop()
+    observer.join()
     sys.exit()
 
   try:
@@ -145,8 +109,7 @@ def start(pod, host=None, port=None, open_browser=False):
   except KeyboardInterrupt:
     logging.info('Shutting down...')
     httpd.server_close()
+    observer.stop()
 
-  # Clean up once serve exits.
-  quit_event.set()
-  change_watcher_thread.join()
+  # Clean up once server exits.
   sys.exit()

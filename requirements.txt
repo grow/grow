@@ -32,5 +32,6 @@ pytz==2014.4
 rednose==0.4.1
 requests==2.2.1
 translitcodec==0.3
+watchdog==0.7.1
 webapp2==2.5.2
 xtermcolor==1.3

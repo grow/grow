@@ -54,18 +54,28 @@ def validate_name(name):
   if ('//' in name
       or '..' in name
       or ' ' in name):
-    raise errors.BadNameError('Name must be lowercase and only contain letters, numbers, backslashes, and dashes. Found: "{}"'.format(name))
+    raise errors.BadNameError(
+        'Name must be lowercase and only contain letters, numbers, '
+        'backslashes, and dashes. Found: "{}"'.format(name))
 
 
 def memoize(f):
+
   class memodict(dict):
+
     def __init__(self, f):
       self.f = f
+
     def __call__(self, *args):
       return self[args]
+
+    def clear_cache(self):
+      self.clear()
+
     def __missing__(self, key):
       ret = self[key] = self.f(*key)
       return ret
+
   return memodict(f)
 
 

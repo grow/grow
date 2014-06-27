@@ -81,7 +81,6 @@ class Pod(object):
     return self.file_exists('/podspec.yaml')
 
   @property
-  @utils.memoize
   def yaml(self):
     try:
       return utils.parse_yaml(self.read_file('/podspec.yaml'))[0]
@@ -89,9 +88,8 @@ class Pod(object):
       raise Error('Pod does not exist or malformed podspec.yaml.')
 
   @property
-  @utils.memoize
   def podspec(self):
-    return podspec.Podspec(pod=self)
+    return podspec.Podspec(yaml=self.yaml)
 
   @property
   def error_routes(self):
