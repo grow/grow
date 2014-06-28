@@ -1,5 +1,6 @@
 from bisect import bisect_left, bisect_right
 from grow.pods import errors
+import functools
 import json
 import logging
 import mimetypes
@@ -59,24 +60,32 @@ def validate_name(name):
         'backslashes, and dashes. Found: "{}"'.format(name))
 
 
-def memoize(f):
+class memoize(object):
 
-  class memodict(dict):
+  def __init__(self, func):
+    self.func = func
+    self.cache = {}
 
-    def __init__(self, f):
-      self.f = f
+  def __call__(self, *args):
+    try:
+      return self.cache[args]
+    except KeyError:
+      value = self.func(*args)
+      self.cache[args] = value
+      return value
+    except TypeError:
+      return self.func(*args)
 
-    def __call__(self, *args):
-      return self[args]
+  def __repr__(self):
+    return self.func.__doc__
 
-    def clear_cache(self):
-      self.clear()
+  def __get__(self, obj, objtype):
+    fn = functools.partial(self.__call__, obj)
+    fn.reset = self._reset
+    return fn
 
-    def __missing__(self, key):
-      ret = self[key] = self.f(*key)
-      return ret
-
-  return memodict(f)
+  def _reset(self):
+    self.cache = {}
 
 
 def every_two(l):

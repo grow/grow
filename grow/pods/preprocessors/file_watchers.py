@@ -14,6 +14,7 @@ class PodspecFileEventHandler(events.PatternMatchingEventHandler):
     super(PodspecFileEventHandler, self).__init__(*args, **kwargs)
 
   def handle(self, event=None):
+    self.pod.reset_yaml()
     self.managed_observer.reschedule_children()
 
   def on_created(self, event):
@@ -23,7 +24,7 @@ class PodspecFileEventHandler(events.PatternMatchingEventHandler):
     self.handle(event)
 
 
-class PreprocessorEventHandler(events.FileSystemEventHandler):
+class PreprocessorEventHandler(events.PatternMatchingEventHandler):
   num_runs = 0
 
   def __init__(self, preprocessor, *args, **kwargs):
@@ -59,8 +60,12 @@ class ManagedObserver(observers.Observer):
     self.schedule(podspec_handler, path=self.pod.root, recursive=False)
 
   def schedule_translation(self):
-    preprocessor = translation_preprocessor.TranslationPreprocessor(pod=self.pod)
-    self._schedule_preprocessor('/translations/', preprocessor)
+    try:
+      preprocessor = translation_preprocessor.TranslationPreprocessor(pod=self.pod)
+      self._schedule_preprocessor('/translations/', preprocessor, patterns=['*.po'])
+    except OSError:
+      # No translations directory found.
+      pass
 
   def schedule_preprocessors(self):
     self._preprocessor_watches = []
@@ -69,9 +74,9 @@ class ManagedObserver(observers.Observer):
         watch = self._schedule_preprocessor(path, preprocessor)
         self._preprocessor_watches.append(watch)
 
-  def _schedule_preprocessor(self, path, preprocessor):
+  def _schedule_preprocessor(self, path, preprocessor, patterns=None):
     path = self.pod.abs_path(path)
-    handler = PreprocessorEventHandler(preprocessor)
+    handler = PreprocessorEventHandler(preprocessor, patterns=patterns)
     return self.schedule(handler, path=path, recursive=True)
 
   def reschedule_children(self):
