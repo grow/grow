@@ -15,7 +15,7 @@ Each pod is a Git repo, and each pod contains all the files used to build your s
 
 Here's an example pod. Folders and files marked with __*__ are *builtins*, and their names cannot change.
 
-[sourcecode:txt]
+[sourcecode:bash]
 ├──  /content*                     # All your content.
 |    ├──  /pages                   # A content collection.
 |         ├──  /_blueprint.yaml*   # A blueprint.
