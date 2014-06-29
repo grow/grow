@@ -1288,135 +1288,6 @@
 .fa-plus-square-o:before {
   content: "\f196"; }
 
-/* Doxy pretty-printing styles. Used with prettify.js.  */
-pre .str, code .str {
-  color: #fec243; }
-
-/* string  - eggyolk gold */
-pre .kwd, code .kwd {
-  color: #8470FF; }
-
-/* keyword - light slate blue */
-pre .com, code .com {
-  color: #32cd32;
-  font-style: italic; }
-
-/* comment - green */
-pre .typ, code .typ {
-  color: #6ecbcc; }
-
-/* type - turq green */
-pre .lit, code .lit {
-  color: #d06; }
-
-/* literal - cherry red */
-pre .pun, code .pun {
-  color: #8B8970; }
-
-/* punctuation - lemon chiffon4  */
-pre .pln, code .pln {
-  color: #f0f0f0; }
-
-/* plaintext - white */
-pre .tag, code .tag {
-  color: #9c9cff; }
-
-/* html/xml tag  (bluey)  */
-pre .htm, code .htm {
-  color: #dda0dd; }
-
-/* html tag  light purply*/
-pre .xsl, code .xsl {
-  color: #d0a0d0; }
-
-/* xslt tag  light purply*/
-pre .atn, code .atn {
-  color: #46eeee;
-  font-weight: normal; }
-
-/* html/xml attribute name  - lt turquoise */
-pre .atv, code .atv {
-  color: #EEB4B4; }
-
-/* html/xml attribute value - rosy brown2 */
-pre .dec, code .dec {
-  color: #3387CC; }
-
-/* decimal - blue */
-a {
-  text-decoration: none; }
-
-pre.prettyprint, code.prettyprint {
-  font-family: 'Droid Sans Mono', 'CPMono_v07 Bold', 'Droid Sans';
-  font-weight: bold;
-  font-size: 9pt;
-  background-color: #0f0f0f;
-  -moz-border-radius: 8px;
-  -webkit-border-radius: 8px;
-  -o-border-radius: 8px;
-  -ms-border-radius: 8px;
-  -khtml-border-radius: 8px;
-  border-radius: 8px; }
-
-/*  background is black (well, just a tad less dark )  */
-pre.prettyprint {
-  width: 95%;
-  margin: 1em auto;
-  padding: 1em;
-  white-space: pre-wrap; }
-
-pre.prettyprint a, code.prettyprint a {
-  text-decoration: none; }
-
-/* Specify class=linenums on a pre to get line numbering; line numbers themselves are the same color as punctuation */
-ol.linenums {
-  margin-top: 0;
-  margin-bottom: 0;
-  color: #8B8970; }
-
-/* IE indents via margin-left */
-li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
-  list-style-type: none; }
-
-/* Alternate shading for lines */
-
-/* print is mostly unchanged from default at present  */
-@media print {
-  pre.prettyprint, code.prettyprint {
-    background-color: #fff; }
-  pre .str, code .str {
-    color: #088; }
-  pre .kwd, code .kwd {
-    color: #006;
-    font-weight: bold; }
-  pre .com, code .com {
-    color: #efefef;
-    font-style: italic; }
-  pre .typ, code .typ {
-    color: #404;
-    font-weight: bold; }
-  pre .lit, code .lit {
-    color: #044; }
-  pre .pun, code .pun {
-    color: #440; }
-  pre .pln, code .pln {
-    color: #000; }
-  pre .tag, code .tag {
-    color: #b66ff7;
-    font-weight: bold; }
-  pre .htm, code .htm {
-    color: #606;
-    font-weight: bold; }
-  pre .xsl, code .xsl {
-    color: #606;
-    font-weight: bold; }
-  pre .atn, code .atn {
-    color: #c71585;
-    font-weight: normal; }
-  pre .atv, code .atv {
-    color: #088;
-    font-weight: normal; } }
-
 .cf:before, .cf:after {
   content: ' ';
   display: table; }
@@ -1427,13 +1298,13 @@ li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 {
 body {
   color: #444;
   font-family: 'Roboto', arial, sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 300;
-  background: #eeeeee;
+  background: #fff;
   margin: 0; }
 
 a {
-  color: #097be8;
+  color: #7e57c2;
   text-decoration: none; }
 
 a:hover {
@@ -1443,13 +1314,13 @@ code {
   font-family: Monaco, Menlo, Consolas, 'Courier New', monospace; }
 
 p code, table code {
-  background: rgba(0, 0, 0, 0.15);
+  background: #e0f7fa;
   border-radius: 3px;
   font-size: 0.9em; }
 
 h1, h2, h3 {
   clear: both;
-  font-weight: 500;
+  font-weight: 300;
   letter-spacing: -0.01em; }
 
 p {
@@ -1461,7 +1332,7 @@ p {
 
 .wrap {
   margin: 0 auto;
-  max-width: 1280px;
+  max-width: 1024px;
   padding: 15px; }
 
 .index .wrap {
@@ -1514,7 +1385,7 @@ table {
   margin: 40px 0; }
 
 table, table tr td, table tr th {
-  background: rgba(255, 255, 255, 0.5);
+  background: #fafafa;
   border-collapse: collapse;
   border: 1px solid #dedede; }
 
@@ -1527,8 +1398,8 @@ table tr th {
   text-align: left; }
 
 .panel nav.side {
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 5px;
+  background: #fafafa;
+  box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
   box-sizing: border-box;
   font-size: 13px;
   margin-right: 50px;
@@ -1566,15 +1437,15 @@ table tr th {
   margin-right: 5px; }
 
 .button {
-  background: #fff;
-  border-radius: 3px;
   box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
-  color: #333;
+  background: #7e57c2;
+  border-radius: 3px;
+  color: #fff;
   cursor: pointer;
   display: inline-block;
   padding: 12px 20px;
   text-decoration: none;
-  transition: box-shadow 0.1s, background 0.1s;
+  transition: all 200ms ease;
   text-transform: uppercase; }
 
 .button.button-primary {
@@ -1585,7 +1456,7 @@ table tr th {
   margin: 0 7px 0 0; }
 
 .button:hover {
-  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.1), 0px 2px 10px 0px rgba(0, 0, 0, 0.1); }
+  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.2), 0px 2px 10px 0px rgba(0, 0, 0, 0.2); }
 
 .banner {
   background-color: #362d6c;
@@ -1605,13 +1476,15 @@ section h2 {
   font-size: 11px; }
 
 header {
-  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background: #7e57c2;
+  color: #fff;
   box-sizing: border-box;
   margin: 0; }
 
 header i {
   font-size: 11px;
-  color: #d61a7f;
+  color: #d1c4e9;
   text-transform: uppercase;
   margin-left: 6px;
   display: inline-block; }
@@ -1632,7 +1505,9 @@ header .logo img {
   width: 35px; }
 
 footer {
-  background: #fff; }
+  background: #fff;
+  font-size: 12px;
+  border-top: 1px solid #efefef; }
 
 footer p {
   margin: 1.25em 0; }
@@ -1654,16 +1529,18 @@ nav.navbar ul, nav.navbar ul li {
   padding: 0; }
 
 nav.navbar ul li a {
-  color: #000;
+  color: #fff;
   display: inline-block;
-  font-weight: 500;
+  font-weight: 300;
   list-style: none;
-  padding: 10px 15px;
+  margin: 0 13px;
+  padding: 10px 0;
   text-decoration: none;
-  transition: box-shadow 0.3s, background 0.3s; }
+  transition: all 300ms ease;
+  border-bottom: 4px solid rgba(0, 0, 0, 0); }
 
 nav.navbar ul li a:hover {
-  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.1), 0px 2px 10px 0px rgba(0, 0, 0, 0.1); }
+  border-bottom: 4px solid #00e5ff; }
 
 nav.side h3 {
   font-size: 14px;
@@ -1672,20 +1549,24 @@ nav.side h3 {
 nav.side h3:first-child {
   margin-top: 0; }
 
-pre.prettyprint {
-  box-sizing: border-box;
-  margin-left: 0;
-  margin-right: 0;
-  width: 100%;
-  font-size: 12px;
-  font-weight: 200; }
-
 div.toc:before {
   content: 'In this document'; }
 
+pre {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 12px;
+  line-height: 125%;
+  margin-bottom: 0;
+  padding: 20px; }
+
+.code .highlight + br {
+  display: none; }
+
 div.toc {
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 5px;
+  background: #fafafa;
+  box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
   box-sizing: border-box;
   float: right;
   font-size: 13px;
@@ -1743,15 +1624,14 @@ footer i {
 
 .banner ul li img {
   box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
-  border-radius: 5px;
   height: 100%;
   width: 100%; }
 
 .banner ul li img:hover {
-  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.1), 0px 2px 10px 0px rgba(0, 0, 0, 0.1); }
+  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.2), 0px 2px 10px 0px rgba(0, 0, 0, 0.2); }
 
 ul.codelab {
-  background: rgba(255, 255, 255, 0.5);
+  background: #fafafa;
   border-radius: 7px;
   list-style: none;
   margin: 0 0 40px;
@@ -1774,7 +1654,7 @@ ul.codelab li:last-child a {
   border-bottom-right-radius: 7px; }
 
 ul.codelab li a:hover {
-  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.1), 0px 2px 10px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.2), 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
   text-decoration: none; }
 
 ul.codelab li.active a {
@@ -1783,18 +1663,16 @@ ul.codelab li.active a {
   color: #fff; }
 
 .badge {
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 5px;
-  padding: 4px 9px; }
-
-.badge-not-implemented {
-  background: #675288;
-  color: #fff; }
+  font-size: 13px;
+  font-weight: 300;
+  padding: 6px 8px 6px 10px;
+  border-left-size: 2px;
+  background-color: #efefef;
+  border-left: 6px solid #999; }
 
 .badge-docs-incomplete {
-  background: #4598cc;
-  color: #fff; }
+  background-color: #e5ecf9;
+  border-left-color: #36c; }
 
 .screencast {
   margin: 40px auto;
@@ -1829,7 +1707,7 @@ ul.codelab li.active a {
   border-bottom: 1px solid #555; }
 
 .video-wrap {
-  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.1), 0px 2px 10px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.2), 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
   margin: 30px auto;
   max-height: 675px;
   max-width: 888px; }

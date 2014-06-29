@@ -42,27 +42,31 @@ These universal steps ensure that every deployment remains consistent – and so
 
 You can configure deployments by specifying them in `podspec.yaml`. The *deployments* key maps deployment names to destination configurations.
 
-    # In podspec.yaml...
+[sourcecode:yaml]
+# In podspec.yaml...
 
-    deployments:
+deployments:
 
-      default:                # Deployment name.
-        destination: local    # Destination.
-        out_dir: ~/out/       # Parameters for "local" destination.
+  default:                # Deployment name.
+    destination: local    # Destination.
+    out_dir: ~/out/       # Parameters for "local" destination.
 
-      growsdk.org:
-        destination: gcs
-        bucket: preview.growsdk.org
+  growsdk.org:
+    destination: gcs
+    bucket: preview.growsdk.org
+[/sourcecode]
 
 ### Commands
 
 Once you've configured a deployment in `podspec.yaml`, you can use the `grow deploy` command to launch your site. This will kick off the deployment process (above).
 
-    # Deploys your pod to the default destination.
-    grow deploy <pod>
+[sourcecode:bash]
+# Deploys your pod to the default destination.
+grow deploy <pod>
 
-    # Deploys your site to a named destination.
-    grow deploy growsdk.org <pod>
+# Deploys your site to a named destination.
+grow deploy growsdk.org <pod>
+[/sourcecode]
 
 ## Launch destinations
 
@@ -72,28 +76,27 @@ Deploys a build to Google Cloud Storage, appropriate for serving directly from G
 
 There are two ways Grow can establish a connection to Google Cloud Storage. You can either use the "interoperable" method (which uses an access key and secret, similar to connections to Amazon S3), or you can use a client email address and key file.
 
-    # Authenticates using access key and secret.
-    deployments:
-      name:
-        destination: gcs
-        bucket: mybucket.example.com
+[sourcecode:yaml]
+# Authenticates using access key and secret.
+destination: gcs
+bucket: mybucket.example.com
 
-    # Authenticates using service account email and private key file.
-    deployments:
-      name:
-        destination: gcs
-        bucket: mybucket.example.com
-        project: project-id
-        email: 606734090113-6ink7iugcv89da9sru7lii8bs3i0obqg@developer.gserviceaccount.com
-        key_path: /path/to/key/file.p12
+# Authenticates using service account email and private key file.
+destination: gcs
+bucket: mybucket.example.com
+project: project-id
+email: 606734090113-6ink7iugcv89da9sru7lii8bs3i0obqg@developer.gserviceaccount.com
+key_path: /path/to/key/file.p12
+[/sourcecode]
 
 To use the "interoperable" method, obtain an access key and secret from the Cloud Console, and place them in `$HOME/.boto`. [See documentation on obtaining access keys](https://developers.google.com/storage/docs/migrating#keys).
 
-    # `$HOME/.boto`...
-
-    [Credentials]
-    gs_access_key_id = GOOGTS7C7FUP3AIRVJTE
-    gs_secret_access_key = bGoa+V7g/yqDXvKRqq+JTFn4uQZbPiQJo4pf9RzJ
+[sourcecode:ini]
+# `$HOME/.boto`
+[Credentials]
+gs_access_key_id = GOOGTS7C7FUP3AIRVJTE
+gs_secret_access_key = bGoa+V7g/yqDXvKRqq+JTFn4uQZbPiQJo4pf9RzJ
+[/sourcecode]
 
 To use a client email and private key file, visit the Google Developers Console (`https://console.developers.google.com/project/apps~YOUR_PROJECT/apiui/credential`) and use the *email address* for the *Service Account* and download the key using the *Generate New Key* button. If you do not have a *Service Account* listed on this screen, use the *Create new Client ID* button.
 
@@ -103,36 +106,51 @@ In addition to obtaining your service account email address and key file, you mu
 
 Deploys a build to an Amazon S3 bucket, appropriate for serving directly from S3 using the website serving feature.
 
-    deployments:
-      name:
-        destination: s3
-        bucket: mybucket.example.com
+[sourcecode:yaml]
+destination: s3
+bucket: mybucket.example.com
+[/sourcecode]
 
 To authenticate to Amazon S3, obtain your access key and secret and place them in `$HOME/.boto`.
 
-    [Credentials]
-    aws_access_key_id = ...
-    aws_secret_access_key  = ...
+[sourcecode:ini]
+[Credentials]
+aws_access_key_id = ...
+aws_secret_access_key  = ...
+[/sourcecode]
 
 ### Local
 
 Deploys a build to a local destination on your computer.
 
-    deployments:
-      name:
-        destination: local
-        out_dir: /path/to/out/directory/
+[sourcecode:yaml]
+destination: local
+out_dir: /path/to/out/directory/
+[/sourcecode]
 
 ### SCP
 
 Authenticates using the ssh keys running in ssh-agent. The `root_dir` option uses syntax from the standard `scp` command. Values can be either absolute or relative. The `host` is required. `username` is optional and is used to specify the target server username if it differs from your development environment user issuing the `grow deploy` command.
 
-    destinations:
-      name:
-        destination: scp
-        host: example.com
-        username: serverusername
-        root_dir: /home/username/domains/example.com/public_html/
+[sourcecode:yaml]
+destination: scp
+host: example.com
+username: username
+root_dir: /home/username/domains/example.com/public_html/
+[/sourcecode]
+
+### Git
+
+Deploys a build to a Git repository (either remote or local). Remote repositories are first cloned to a temporary directory, then the specified branch is checked out. The deployment is applied, committed, and then (if the repository is remote), the branch is pushed to the origin. Unless specified otherwise by using the `path` field, builds are deployed to the root folder of the repository.
+
+Git deployments can be used in conjunction with GitHub pages by specifying the `gh-pages` branch.
+
+[sourcecode:yaml]
+destination: git
+repo: https://github.com/owner/project.git
+branch: master
+root_dir: <optional base path within the repository>
+[/sourcecode]
 
 ### Unimplemented builtin destinations
 
@@ -141,8 +159,6 @@ We would like to also add support for deployment to...
 - Zip files
 - Google App Engine
 - Dropbox
-- GitHub Pages
-- Git
 
 ## Deployment index
 

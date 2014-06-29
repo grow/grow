@@ -11,36 +11,38 @@ In addition to controlling site-wide localization in podspec.yaml, you can creat
 
 ## Markdown body localization
 
-    # Blueprint /content/pages/_blueprint.yaml...
+[sourcecode:yaml]
+  # Blueprint /content/pages/_blueprint.yaml...
 
-    path: /{slug}/
-    view: /views/pages.html
+  path: /{slug}/
+  view: /views/pages.html
 
-    # Overrides localization config from podspec.yaml.
-    localization:
-      path: /{locale}/{slug}/
-      default_locale: en
-      locales:
-      - en
-      - de
-      - fr
-      - it
+  # Overrides localization config from podspec.yaml.
+  localization:
+    path: /{locale}/{slug}/
+    default_locale: en
+    locales:
+    - en
+    - de
+    - fr
+    - it
 
-    # Document /content/pages/welcome.md...
+  # Document /content/pages/welcome.md...
 
-    ---
-    $title@: Hello, Grow localization!
-    ---
-    Welcome!
-    ---
-    $locale: de
-    $slug: wilkommen
-    ---
-    Willkommen!
-    ---
-    $locale: fr
-    ---
-    Bienvenue!
+  ---
+  $title@: Hello, Grow localization!
+  ---
+  Welcome!
+  ---
+  $locale: de
+  $slug: wilkommen
+  ---
+  Willkommen!
+  ---
+  $locale: fr
+  ---
+  Bienvenue!
+[/sourcecode]
 
 This example builds the following pages:
 
@@ -53,41 +55,45 @@ This example builds the following pages:
 
 You can localize front matter data on a per-locale basis. If you've localized some fields, but not all fields that are specified in the blueprint or default locale, the localized fields will be merged with the default locale's fields, cascading from a localized version down to the default version.
 
-    # In document /content/pages/hello.md...
+[sourcecode:yaml]
+  # In document /content/pages/hello.md...
 
-    ---
-    $title: Hello World!
-    $path: /{slug}/
-    $view: /views/pages.html
-    $localization:
-      path: /{locale}/{slug}/
-    foo: bar
-    qaz: qux
-    ---
-    Hello World!
-    ---
-    $locale: de
-    foo: baz
-    ---
-    Hallo Welt!
+  ---
+  $title: Hello World!
+  $path: /{slug}/
+  $view: /views/pages.html
+  $localization:
+    path: /{locale}/{slug}/
+  foo: bar
+  qaz: qux
+  ---
+  Hello World!
+  ---
+  $locale: de
+  foo: baz
+  ---
+  Hallo Welt!
 
-    # On page /hello/...
+  # On page /hello/...
 
-    {{doc.foo}}         # bar
-    {{doc.qaz}}         # qux
-    {{doc.locale}}      # Locale('en')
+  {{doc.foo}}         # bar
+  {{doc.qaz}}         # qux
+  {{doc.locale}}      # Locale('en')
 
-    # On page /de/hello/...
+  # On page /de/hello/...
 
-    {{doc.foo}}         # baz
-    {{doc.qaz}}         # qux
-    {{doc.locale}}      # Locale('de')
+  {{doc.foo}}         # baz
+  {{doc.qaz}}         # qux
+  {{doc.locale}}      # Locale('de')
+[/sourcecode]
 
 ## Locale class
 
 Grow's `Locale` objects subclass the [Babel project's Locale class](http://babel.pocoo.org/docs/locale/), providing access to some useful data. Grow validates locales and only accepts locales from the [Common Locale Data Repository (CLDR)](http://unicode.org/cldr/).
 
-    # On page /de/hello/...
+[sourcecode:yaml]
+# On page /de/hello/...
 
-    {{doc.locale.get_language_name('en')}}       # German.
-    {{doc.locale.get_language_name('de')}}       # Deutsch.
+{{doc.locale.get_language_name('en')}}       # German.
+{{doc.locale.get_language_name('de')}}       # Deutsch.
+[/sourcecode]

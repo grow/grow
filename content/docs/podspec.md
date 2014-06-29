@@ -152,27 +152,33 @@ It also allows you to use a non-English language as the source language for cont
 
 A list of locales that your site is available in. Language codes will be derived from the locales in this list and separate translation catalogs will be created for each language. The `{locale}` converter can be used in `path` configs (such as in `podspec.yaml` or in a blueprint).
 
-    locales:
-    - en
-    - de
-    - it
+[sourcecode:yaml]
+locales:
+- en
+- de
+- it
+[/sourcecode]
 
 ### preprocessors
 
 A list of [preprocessors]([url('/content/docs/preprocessors.md')]). The type of preprocessor is determined by the `kind` key. The remaining keys are configuration parameters for the preprocessor.
 
-    - kind: sass
-      sass_dir: /source/sass/
-      out_dir: /static/css/
+[sourcecode:yaml]
+kind: sass
+sass_dir: /source/sass/
+out_dir: /static/css/
+[/sourcecode]
 
 ### deployments
 
 A mapping of named deployments. The deployment destination is determined by the `destination` key. The remaining keys are configuration parameters for the deployment. The `default` name can be used to specify the pod's default deployment.
 
-    default:
-      destination: gcs
-      bucket: staging.example.com
+[sourcecode:yaml]
+default:
+  destination: gcs
+  bucket: staging.example.com
 
-    production:
-      destination: gcs
-      bucket: example.com
+production:
+  destination: gcs
+  bucket: example.com
+[/sourcecode]

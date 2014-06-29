@@ -6,29 +6,33 @@
 <title>{{doc.title}} – {{podspec.title}}</title>
 <header class="cf">
   <div class="wrap">
-    {% set index_doc = g.doc('/content/pages/index.md') %}
+    {% set index_doc = g.doc('/content/pages/index.html') %}
     <a href="{{index_doc.url.path}}" class="logo">
       <img src="{{g.static('/static/images/grow.svg')}}">
       Grow SDK
     </a>
-    <i>Alpha</i>
+    <i>Preview</i>
     <nav class="navbar">
     <ul>
       <li><a href="{{g.url('/content/codelab/0.md').path}}">Start</a>
       <li><a href="{{g.url('/content/docs/index.md').path}}">Docs</a>
-      <li><a href="{{g.url('/content/pages/project.md').path}}">Project</a>
+      <li><a href="{{g.url('/content/pages/project.html').path}}">Project</a>
     </nav>
   </div>
 </header>
 {% block main %}
-  <div class="wrap">
-    {{doc.html|safe}}
-  </div>
+  {% if doc.format == 'MARKDOWN' %}
+    <div class="wrap">
+      {{doc.html|safe}}
+    </div>
+  {% else %}
+    {{doc.html|render|safe}}
+  {% endif %}
 {% endblock %}
 <footer>
   <div class="flex wrap">
     <div class="col">
-      <p>The Grow SDK is released under the <a href="https://github.com/grow/pygrow/blob/master/LICENSE">MIT License</a>, and the documentation under <a href="http://creativecommons.org/licenses/by/3.0/us/">CC 3.0</a>. Some icons are from <a href="http://flatties.uiparade.com">Flatties</a>.
+      <p>The Grow SDK is released under the <a href="https://github.com/grow/pygrow/blob/master/LICENSE">MIT License</a>. Except otherwise noted, documentation is released under <a href="http://creativecommons.org/licenses/by/3.0/us/">CC 3.0</a>. Some icons are from <a href="http://flatties.uiparade.com">Flatties</a>.
     </div>
     <div class="col">
       <p>
@@ -37,12 +41,7 @@
     </div>
   </div>
 </footer>
-<script src="{{g.static('/static/js/prettify.js')}}"></script>
 <script>
-  [].forEach.call(
-    document.querySelectorAll('pre'),
-    function(el) { el.className += ' prettyprint'; });
-  prettyPrint();
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)

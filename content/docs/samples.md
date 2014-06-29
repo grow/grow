@@ -14,11 +14,13 @@ An actual directory of samples is coming soon. In the meantime, you can view the
 
 The `grow init` command accepts either a theme name (for themes owned by the [growthemes organization on GitHub](http://github.com/growthemes)) or the URL to a git repo containing the theme.
 
-    # Clones the codelab theme to a directory "./foo".
-    grow init codelab ./foo
+[sourcecode:bash]
+# Clones the codelab theme to a directory "./foo".
+grow init codelab ./foo
 
-    # Clones the growsdk.org pod to a directory "./growsdk.org".
-    grow init https://github.com/grow/growsdk.org growsdk.org
+# Clones the growsdk.org pod to a directory "./growsdk.org".
+grow init https://github.com/grow/growsdk.org growsdk.org
+[/sourcecode]
 
 ## Themes
 

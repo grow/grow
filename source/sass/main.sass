@@ -1,28 +1,31 @@
 @import url(//fonts.googleapis.com/css?family=Roboto:300,500,500italic,600,700,700italic,800|Source+Code+Pro|Dosis:300,400);
 @import 'font-awesome/font-awesome.scss';
-@import 'prettify/prettify.sass';
 @import '_utils.sass';
 
 $break-small: 700px;
 
-@mixin button() {
-  background: #fff;
-  border-radius: 3px;
+@mixin shadow() {
   box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
-  color: #333;
+}
+
+@mixin button() {
+  @include shadow();
+  background: #7e57c2;
+  border-radius: 3px;
+  color: #fff;
   cursor: pointer;
   display: inline-block;
   padding: 12px 20px;
   text-decoration: none;
-  transition: box-shadow 0.1s, background 0.1s;
+  transition: all 200ms ease;
 }
 
 @mixin button-hover() {
-  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.1), 0px 2px 10px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.2), 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
 }
 
 @mixin frosted-background() {
-  background: rgba(255, 255, 255, 0.5);
+  background: #fafafa;
 }
 
 @mixin inverted-background() {
@@ -34,14 +37,14 @@ $break-small: 700px;
 body {
   color: #444;
   font-family: 'Roboto', arial, sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 300;
-  background: rgb(238, 238, 238);
+  background: #fff;
   margin: 0;
 }
 
 a {
-  color: #097be8;
+  color: #7e57c2;
   text-decoration: none;
 }
 
@@ -55,7 +58,7 @@ code {
 
 p code,
 table code {
-  background: rgba(0, 0, 0, .15);
+  background: #e0f7fa;
   border-radius: 3px;
   font-size: .9em;
 }
@@ -64,7 +67,7 @@ h1,
 h2,
 h3 {
   clear: both;
-  font-weight: 500;
+  font-weight: 300;
   letter-spacing: -0.01em;
 }
 
@@ -79,7 +82,7 @@ p {
 
 .wrap {
   margin: 0 auto;
-  max-width: 1280px;
+  max-width: 1024px;
   padding: 15px;
 }
 
@@ -168,7 +171,7 @@ table tr th {
 
 .panel nav.side {
   @include frosted-background();
-  border-radius: 5px;
+  @include shadow();
   box-sizing: border-box;
   font-size: 13px;
   margin-right: 50px;
@@ -251,14 +254,16 @@ section h2 {
 }
 
 header {
-  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,.1);
+  background: #7e57c2;
+  color: #fff;
   box-sizing: border-box;
   margin: 0;
 }
 
 header i {
   font-size: 11px;
-  color: rgb(214, 26, 127);
+  color: #d1c4e9;
   text-transform: uppercase;
   margin-left: 6px;
   display: inline-block;
@@ -283,6 +288,8 @@ header .logo img {
 
 footer {
   background: #fff;
+  font-size: 12px;
+  border-top: 1px solid #efefef;
 }
 
 footer p {
@@ -313,17 +320,19 @@ nav.navbar ul li {
 }
 
 nav.navbar ul li a {
-  color: #000;
+  color: #fff;
   display: inline-block;
-  font-weight: 500;
+  font-weight: 300;
   list-style: none;
-  padding: 10px 15px;
+  margin: 0 13px;
+  padding: 10px 0;
   text-decoration: none;
-  transition: box-shadow 0.3s, background 0.3s;
+  transition: all 300ms ease;
+  border-bottom: 4px solid rgba(0, 0, 0, 0);
 }
 
 nav.navbar ul li a:hover {
-  @include button-hover();
+  border-bottom: 4px solid #00e5ff;
 }
 
 nav.side h3 {
@@ -335,22 +344,27 @@ nav.side h3:first-child {
   margin-top: 0;
 }
 
-pre.prettyprint {
-  box-sizing: border-box;
-  margin-left: 0;
-  margin-right: 0;
-  width: 100%;
-  font-size: 12px;
-  font-weight: 200;
-}
-
 div.toc:before {
   content: 'In this document';
 }
 
+pre {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 12px;
+  line-height: 125%;
+  margin-bottom: 0;
+  padding: 20px;
+}
+
+.code .highlight + br {
+  display: none;
+}
+
 div.toc {
   @include frosted-background();
-  border-radius: 5px;
+  @include shadow();
   box-sizing: border-box;
   float: right;
   font-size: 13px;
@@ -423,7 +437,6 @@ footer i {
 
 .banner ul li img {
   box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
-  border-radius: 5px;
   height: 100%;
   width: 100%;
 }
@@ -470,20 +483,17 @@ ul.codelab li.active a {
 }
 
 .badge {
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 5px;
-  padding: 4px 9px;
-}
-
-.badge-not-implemented {
-  background: #675288;
-  color: #fff;
+  font-size: 13px;
+  font-weight: 300;
+  padding: 6px 8px 6px 10px;
+  border-left-size: 2px;
+  background-color: #efefef;
+  border-left: 6px solid #999;
 }
 
 .badge-docs-incomplete {
-  background: #4598cc;
-  color: #fff;
+  background-color: #e5ecf9;
+  border-left-color: #36c;
 }
 
 .screencast {

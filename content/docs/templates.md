@@ -20,18 +20,22 @@ There are several built-in global variables available to templates. Because thes
 
 The current content document associated with the current page that's being rendered. See the [full documentation for the document API]([url('/content/docs/documents.md')]).
 
-    {{doc.category}}      # Document's category
-    {{doc.title}}         # Document's canonical title.
-    {{doc.titles('nav')}} # Document's "nav" title.
-    {{doc.html|safe}}     # Document's rendered Markdown body.
-    {{doc.foo}}           # Value of the "foo" custom field from the YAML front matter.
+[sourcecode:html+jinja]
+{{doc.category}}      # Document's category
+{{doc.title}}         # Document's canonical title.
+{{doc.titles('nav')}} # Document's "nav" title.
+{{doc.html|safe}}     # Document's rendered Markdown body.
+{{doc.foo}}           # Value of the "foo" custom field from the YAML front matter.
+[/sourcecode]
 
 ### podspec
 
 Refers to the [`podspec.yaml` configuration file]([url('/content/docs/podspec.md')]) and allows you to access pod-wide settings in templates.
 
-    {{podspec.title}}         # Pod's title.
-    {{podspec.project_id}}    # Pod's project ID.
+[sourcecode:html+jinja]
+{{podspec.title}}         # Pod's title.
+{{podspec.project_id}}    # Pod's project ID.
+[/sourcecode]
 
 ## Functions
 
@@ -45,12 +49,14 @@ All built-in functions are prefixed with the `g` namespace.
 
 Returns a list of ancestor documents, in order from oldest to youngest, to produce a breadcrumb for the given document.
 
-    <!-- Produces a breadcrumb for the current page. -->
-    <ul>
-      {% for item in g.breadcrumb(doc) %}
-        <li><a href="{{item.url.path}}">{{item.title('breadcrumb')}}</a>
-      {% endfor %}
-    </ul>
+[sourcecode:html+jinja]
+<!-- Produces a breadcrumb for the current page. -->
+<ul>
+  {% for item in g.breadcrumb(doc) %}
+    <li><a href="{{item.url.path}}">{{item.title('breadcrumb')}}</a>
+  {% endfor %}
+</ul>
+[/sourcecode]
 
 ### g.categories
 
@@ -58,14 +64,16 @@ Returns a list of ancestor documents, in order from oldest to youngest, to produ
 
 Lists content documents within a collection and groups them by their *$category*. Useful for generating navigation and categorized lists of documents.
 
-    {% for category, docs in g.docs('pages') %}
-      <h3>{{category}}</h3>
-      <ul>
-        {% for doc in docs %}
-          <li>{{doc.title()}}
-        {% endfor %}
-      </ul>
+[sourcecode:html+jinja]
+{% for category, docs in g.docs('pages') %}
+  <h3>{{category}}</h3>
+  <ul>
+    {% for doc in docs %}
+      <li>{{doc.title()}}
     {% endfor %}
+  </ul>
+{% endfor %}
+[/sourcecode]
 
 ### g.doc
 
@@ -73,12 +81,13 @@ Lists content documents within a collection and groups them by their *$category*
 
 Gets a single content document, given its pod path.
 
-    {% set foo = g.doc('/content/pages/index.md') %}
-    {{foo}}
+[sourcecode:html+jinja]
+{% set foo = g.doc('/content/pages/index.html') %}
+{{foo}}
 
-
-    # Returns the fr version of a document.
-    {{g.doc('/content/pages/index.md', locale='fr'}}
+# Returns the fr version of a document.
+{{g.doc('/content/pages/index.html', locale='fr'}}
+[/sourcecode]
 
 ### g.docs
 
@@ -86,11 +95,13 @@ Gets a single content document, given its pod path.
 
 Searches content documents within a collection.
 
-    <ul>
-      {% for doc in g.docs('pages') %}
-        <li>{{doc.title}}
-      {% endfor %}
-    </ul>
+[sourcecode:html+jinja]
+<ul>
+  {% for doc in g.docs('pages') %}
+    <li>{{doc.title}}
+  {% endfor %}
+</ul>
+[/sourcecode]
 
 ### g.nav
 
@@ -106,7 +117,9 @@ Returns the URL object for a static file from the pod's static directory. `<file
 
 It is a best practice to refer to static files using the `g.static` tag rather than referring to their URLs directly. This allows Grow to automatically implement efficient cache headers and cache-busting techniques for incremental static file deployments.
 
-    <img src="{{g.static('/static/example.png').path}}">
+[sourcecode:html+jinja]
+<img src="{{g.static('/static/example.png').path}}">
+[/sourcecode]
 
 ### g.url
 
@@ -114,4 +127,6 @@ It is a best practice to refer to static files using the `g.static` tag rather t
 
 Returns the URL object for a document, given a document's pod path. Access the `path` property of the URL object to retrieve an absolute link to the document.
 
-    <a href="{{g.url('/content/pages/index.md').path}}">Home</a>
+[sourcecode:html+jinja]
+<a href="{{g.url('/content/pages/index.html').path}}">Home</a>
+[/sourcecode]

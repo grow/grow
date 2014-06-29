@@ -26,6 +26,17 @@ Includes another document's Markdown body directly. Enables the reuse of content
 
     [include('/content/<collection>/<document>.md')]
 
+### sourcecode
+
+Implements pygments syntax highlighting for code snippets.
+
+    [​sourcecode:html]
+    <!doctype html>
+    <meta charset="utf-8">
+    <title>Hello World!</title>
+    <p>Source code highlighting.
+    [/sourcecode]
+
 ### url
 
 Returns the URL to a document. Follows the "don't repeat yourself" philosophy, preventing you from having to specify URLs manually.

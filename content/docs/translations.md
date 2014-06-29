@@ -17,51 +17,59 @@ Grow takes a __what you tag is what you translate__ approach: only things that y
 
 UI strings (and other text) in views are translatable. UI strings must be tagged with a template function that indicates the text is translatable. This template function, `gettext`, has been aliased to `{{_(<text>)}}`.
 
-    <!-- /views/pages.html -->
+[sourcecode:html]
+<!-- /views/pages.html -->
 
-    <!DOCTYPE html>
-    <meta charset="utf-8">
-    <title>{{_('Hello World!')}}</title>
-    <h1>{{_('Page Title')}}</h1>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>{{_('Hello World!')}}</title>
+<h1>{{_('Page Title')}}</h1>
 
-    <ul>
-      {% for callout in g.doc.callouts %}
-        <li>{{_(callout.title)}} – {{_(callout.description)}}
-      {% endfor %}
-    </ul>
+<ul>
+  {% for callout in g.doc.callouts %}
+    <li>{{_(callout.title)}} – {{_(callout.description)}}
+  {% endfor %}
+</ul>
 
-    <!-- Using Python-format placeholders. -->
-    <p>{{_('Posted: %(date)s', date='12/25/86')}}
+<!-- Using Python-format placeholders. -->
+<p>{{_('Posted: %(date)s', date='12/25/86')}}
+[/sourcecode]
 
 Sicne Grow translations are opt-in instead of opt-out, it's possible to show translated text from a content document right next to untranslated text.
 
-    {{doc.title()}}      <!-- Untranslated -->
-    {{_(doc.title())}}   <!-- Translated -->
+[sourcecode:html]
+{{doc.title()}}      <!-- Untranslated -->
+{{_(doc.title())}}   <!-- Translated -->
+[/sourcecode]
 
 ### Content documents
 
 Field names postfixed with an `@` symbol are translatable. Note that you should omit the `@` when referring to the field in a template. The @ is simply used to tag the field for translation in the YAML front matter.
 
-    # /content/pages/foo.md (YAML front matter)
+[sourcecode:yaml]
+# /content/pages/foo.md (YAML front matter)
 
-    ---
-    $title@: Hello World!
+\---
+$title@: Hello World!
 
-    sections:
-    - title@: Section A        # Extracted for translation.
-      content@: A's content.
-    - title@: Section B        # Extracted for translation.
-      content@: B's content.
-    - title: Section C         # Not extracted for translation.
-      content: C's content.
-    ---
+sections:
+- title@: Section A        # Extracted for translation.
+  content@: A's content.
+- title@: Section B        # Extracted for translation.
+  content@: B's content.
+- title: Section C         # Not extracted for translation.
+  content: C's content.
+\---
+[/sourcecode]
 
-    # /views/pages.html (sample usage in a view)
+[sourcecode:html]
+# /views/pages.html (sample usage in a view)
 
-    {% for section in doc.sections %}
-      <li>{{_(doc.title)}}     <!-- Translated. -->
-      <li>{{doc.content}}      <!-- Not translated. -->
-    {% endfor %}
+{% for section in doc.sections %}
+  <li>{{_(doc.title)}}     <!-- Translated. -->
+  <li>{{doc.content}}      <!-- Not translated. -->
+{% endfor %}
+[/sourcecode]
 
 ## Extracting translations
 
@@ -69,14 +77,16 @@ To extract translations into a message catalog, tag all translatable items as ex
 
 This file can then be used to create translation catalogs manually using a PO file editor, or integrated with a translation provider such as Google Translator Toolkit.
 
-    $ grow extract ~/my-codelab/
+[sourcecode:bash]
+$ grow extract ~/my-codelab/
 
-    Extracted 128 messages from 3 files to: /translations/messages.pot
-    Creating catalog 'translations/de/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
-    Creating catalog 'translations/fr/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
-    Creating catalog 'translations/it/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
-    Creating catalog 'translations/ja/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+Extracted 128 messages from 3 files to: /translations/messages.pot
+Creating catalog 'translations/de/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+Creating catalog 'translations/fr/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+Creating catalog 'translations/it/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+Creating catalog 'translations/ja/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+[/sourcecode]
 
 ## Compiling translations
 
-Grow automatically recompiles translations upon server start and deployment. Translations must be recompiled before they're visible on your site.
+Grow automatically recompiles translations when the development server starts, builds a pod, and during deployment. Translations must be recompiled before they're visible on your site.

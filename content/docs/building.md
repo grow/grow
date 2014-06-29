@@ -11,15 +11,22 @@ The Grow SDK implements several commands to help you build and test your pod and
 
 ## Commands
 
-### dump
+### build
 
-Builds your pod and dumps generated files to a local destination using the `grow dump` command. This command does nothing special in terms of deployment management or timing. In order to deploy your site locally or to a launch destination, [see the `grow deploy` command]([url('/content/docs/deployment.md')]).
+Builds a pod, generating all the static files needed to render your site. By default, the `grow build` command outputs files to the `build` directory within your pod. You can specify a target directory by using an optional fourth argument. In order to deploy your site locally or to a launch destination, [see the `grow deploy` command]([url('/content/docs/deployment.md')]).
 
-    # Dumps <pod> to directory <out directory>.
-    grow dump <pod> <out directory>
+[sourcecode:bash]
+# Builds pod to "build" directory.
+grow build <pod>
+
+# Builds pod to <dir>.
+grow build <pod> <dir>
+[/sourcecode]
 
 ### routes
 
 Shows all routes built by your pod. Useful for testing and debugging.
 
-    grow routes <pod>
+[sourcecode:bash]
+grow routes <pod>
+[/sourcecode]

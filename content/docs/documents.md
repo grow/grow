@@ -43,19 +43,21 @@ A document's body is the stuff that comes after its YAML front matter. For Markd
 
 Markdown-formatted documents can have optional YAML front matter, which is delimited using `---`.
 
-    # /content/pages/foo.md
+[sourcecode:yaml]
+  # /content/pages/foo.md
 
-    ---
-    $title: Hello, Grow!
-    $category: Get Started
-    ---
-    # Welcome to Grow!
+  ---
+  $title: Hello, Grow!
+  $category: Get Started
+  ---
+  # Welcome to Grow!
 
-    This is a [Markdown](http://daringfireball.net/projects/markdown/) document.
+  This is a [Markdown](http://daringfireball.net/projects/markdown/) document.
 
-    - I can use...
-    - ... Markdown syntax...
-    - ... to write my content.
+  - I can use...
+  - ... Markdown syntax...
+  - ... to write my content.
+[/sourcecode]
 
 ### YAML body
 
@@ -304,30 +306,33 @@ Documents can also specify their own fields if a specific document has more cont
 
 `/content/people/_blueprint.yaml`
 
-    title: People
-    view: /views/people.html
+[sourcecode:yaml]
+title: People
+view: /views/people.html
 
-    fields:
+fields:
 
-    - name:
-        title: Name
-        type: text
-    - age:
-        title: Age
-        type: number
-    - color:
-        title: Favorite colors
-        type: color
-        multiple: yes
+- name:
+    title: Name
+    type: text
+- age:
+    title: Age
+    type: number
+- color:
+    title: Favorite colors
+    type: color
+    multiple: yes
+[/sourcecode]
 
 `/content/people/john.md`
 
-    ---
-    $title: John
+[sourcecode:yaml]
+  ---
+  $title: John
 
-    name: John Smith
-    age: 25
-    color: rgb(0, 0, 128)
-    ---
-    This is the bio for John. It's Markdown-formatted, but it's so short that doesn't really matter.
-    -->
+  name: John Smith
+  age: 25
+  color: rgb(0, 0, 128)
+  ---
+  This is the bio for John. It's Markdown-formatted, but it's so short that doesn't really matter.
+[/sourcecode]

@@ -15,41 +15,43 @@ Each pod is a Git repo, and each pod contains all the files used to build your s
 
 Here's an example pod. Folders and files marked with __*__ are *builtins*, and their names cannot change.
 
-    ├──  /content*                     # All your content.
-    |    ├──  /pages                   # A content collection.
-    |         ├──  /_blueprint.yaml*   # A blueprint.
-    |         ├──  /about.md           # A content document.
-    |         ├──  /contact.md
-    |         └──  /index.md
-    |    └──  /posts
-    |         ├──  /_blueprint.yaml
-    |         ├──  /my-first-post.md
-    |         └──  /hello-grow.md
-    ├──  /source                       # Source files.
-    |    ├──  /sass
-    |         ├──  /_header.sass
-    |         ├──  /_carousel.sass
-    |         └──  /main.sass
-    |    └──  /js
-    |         ├──  /carousel.js
-    |         ├──  /main.js
-    |         └──  /widget.js
-    ├──  /static                       # Static files.
-    |    └──  /css
-    |         └──  /main.min.css
-    |    └──  /js
-    |         ├──  /jquery.min.js
-    |         └──  /main.min.js
-    ├──  /translations*                # All your translation data.
-    |    ├──  /messages.pot            # Message catalog template.
-    |    └──  /de
-    |         └──  /messages.po        # A message catalog.
-    |    └──  /fr
-    |         └──  /messages.po
-    |    └──  /it
-    |         └──  /messages.po
-    ├──  /views*                       # Front end views.
-    |    └──  /base.html
-    |    └──  /pages.html
-    |    └──  /posts.html
-    └──  /podspec.yaml*                # Pod specification.
+[sourcecode:txt]
+├──  /content*                     # All your content.
+|    ├──  /pages                   # A content collection.
+|         ├──  /_blueprint.yaml*   # A blueprint.
+|         ├──  /about.md           # A content document.
+|         ├──  /contact.md
+|         └──  /index.md
+|    └──  /posts
+|         ├──  /_blueprint.yaml
+|         ├──  /my-first-post.md
+|         └──  /hello-grow.md
+├──  /source                       # Source files.
+|    ├──  /sass
+|         ├──  /_header.sass
+|         ├──  /_carousel.sass
+|         └──  /main.sass
+|    └──  /js
+|         ├──  /carousel.js
+|         ├──  /main.js
+|         └──  /widget.js
+├──  /static                       # Static files.
+|    └──  /css
+|         └──  /main.min.css
+|    └──  /js
+|         ├──  /jquery.min.js
+|         └──  /main.min.js
+├──  /translations*                # All your translation data.
+|    ├──  /messages.pot            # Message catalog template.
+|    └──  /de
+|         └──  /messages.po        # A message catalog.
+|    └──  /fr
+|         └──  /messages.po
+|    └──  /it
+|         └──  /messages.po
+├──  /views*                       # Front end views.
+|    └──  /base.html
+|    └──  /pages.html
+|    └──  /posts.html
+└──  /podspec.yaml*                # Pod specification.
+[/sourcecode]
