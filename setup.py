@@ -23,7 +23,6 @@ setup(
     scripts=[
         'bin/grow',
     ],
-    install_requires=open('requirements.txt').read().split('\n'),
     keywords=[
         'grow',
         'cms',
