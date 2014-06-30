@@ -51,6 +51,10 @@ class Error(Exception):
   pass
 
 
+class PodSpecParseError(Error):
+  pass
+
+
 class BuildError(Error):
   pass
 
@@ -81,17 +85,22 @@ class Pod(object):
     return self.file_exists('/podspec.yaml')
 
   @property
-  @utils.memoize
   def yaml(self):
+    return self._parse_yaml()
+
+  def reset_yaml(self):
+    self._parse_yaml.reset()
+
+  @utils.memoize
+  def _parse_yaml(self):
     try:
       return utils.parse_yaml(self.read_file('/podspec.yaml'))[0]
     except IOError:
-      raise Error('Pod does not exist or malformed podspec.yaml.')
+      raise PodSpecParseError('Pod does not exist or malformed podspec.yaml.')
 
   @property
-  @utils.memoize
   def podspec(self):
-    return podspec.Podspec(pod=self)
+    return podspec.Podspec(yaml=self.yaml)
 
   @property
   def error_routes(self):
@@ -104,6 +113,9 @@ class Pod(object):
   @property
   def title(self):
     return self.yaml.get('title')
+
+  def match(self, path):
+    return self.routes.match(path, env=self.env.to_wsgi_env())
 
   def get_routes(self):
     return self.routes
@@ -193,7 +205,7 @@ class Pod(object):
     output = {}
     routes = self.get_routes()
     for path in routes.list_concrete_paths():
-      controller = routes.match(path)
+      controller = self.match(path)
       output[path] = controller.render()
 
     error_controller = routes.match_error('/404.html')

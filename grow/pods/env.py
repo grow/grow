@@ -1,7 +1,12 @@
 """An Env holds the environment context that a pod is running in."""
 
-
 from protorpc import messages
+
+
+class EnvConfig(messages.Message):
+  host = messages.StringField(1)
+  scheme = messages.StringField(2)
+  port = messages.IntegerField(3)
 
 
 class Env(object):
@@ -50,7 +55,18 @@ class Env(object):
 
     return '{}://{}{}/'.format(self.scheme, self.host, url_port)
 
-class EnvConfig(messages.Message):
-  host = messages.StringField(1)
-  scheme = messages.StringField(2)
-  port = messages.IntegerField(3)
+  @classmethod
+  def from_wsgi_env(cls, wsgi_env):
+    config = EnvConfig()
+    config.host = wsgi_env.get('HTTP_HOST', wsgi_env.get('SERVER_NAME', 'localhost'))
+    config.scheme = wsgi_env['wsgi.url_scheme']
+    config.port = int(wsgi_env.get('SERVER_PORT', 80))
+    return cls(config)
+
+  def to_wsgi_env(self):
+    return {
+        'REQUEST_METHOD': 'GET',
+        'SERVER_NAME': self.host,
+        'SERVER_PORT': str(self.port),
+        'wsgi.url_scheme': self.scheme,
+    }

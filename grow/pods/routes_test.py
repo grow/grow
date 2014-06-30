@@ -10,10 +10,9 @@ class RoutesTest(unittest.TestCase):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_match(self):
-    routes = self.pod.get_routes()
-    routes.match('/')
-    routes.match('/de/about/')
-    self.assertRaises(webob.exc.HTTPNotFound, routes.match, '/dummy/')
+    self.pod.match('/')
+    self.pod.match('/de/about/')
+    self.assertRaises(webob.exc.HTTPNotFound, self.pod.match, '/dummy/')
 
   def test_list_concrete_paths(self):
     expected = [

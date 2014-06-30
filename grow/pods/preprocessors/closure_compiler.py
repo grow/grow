@@ -114,11 +114,14 @@ class ClosureBuilderPreprocessor(base.BasePreprocessor):
     self.logger.info('Running Closure Builder -> {}...'.format(self.config.output_file))
     proc = subprocess.Popen([builder_command] + flags,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    err = proc.stderr.read()
-    print err
+    for line in iter(proc.stderr.readline, b''):
+      # Strip the script path (which is added by Closure Builder's use of the logging
+      # module) from the output.
+      print '  [closurebuilder] ' + line.split(': ')[-1],
     result = proc.stdout.read()
     if result is None:
-      raise base.PreprocessorError('Error')
+      raise base.PreprocessorError('Error with Closure Builder.')
+    proc.communicate()
     return result
 
   def run(self):

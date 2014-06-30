@@ -1,7 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
 <title>Error!!1</title>
-<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAlQTFRF1tbmKysusLDH+3AJkwAAACtJREFUeNpiYCALMDKCCChNnABEFN0YRpItZkTRxIhuLiNWi3ACJjQAEGAAEygAPggNb/kAAAAASUVORK5CYII=">
 <style>
   html {
     background: linear-gradient(rgba(255,255,255,0.3),rgba(255,255,255,0));
@@ -19,36 +18,27 @@
     font-weight: 200;
   }
   pre {
-    border-radius: 5px;
-    margin: 20px 0;
     background: #fff;
-    padding: 30px;
-    border: 1px solid #d8d8d8;
-    border-bottom-width: 2px;
-    border-radius: 3px;
+    box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
+    color: #333;
     font-family: Monaco, monospace;
     font-size: 14px;
-    color: #333;
+    margin: 20px 0;
+    padding: 30px;
     word-wrap: break-word;
   }
-  .mark {
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHMAAABzCAMAAACcnc3UAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAGBQTFRFfHx8k5OT19fXVVVV4eHhtLS029vb6enpaWlpgYGBR0dHMzMzjo6OhYWFOjo6bm5uiYmJubm5+vr6JycndnZ2Wlpa////AAAA8/PzXl5ezs7OxsbGysrK9/f3/f39////ckfcjQAAACB0Uk5T/////////////////////////////////////////wBcXBvtAAAEDklEQVR42szbC1OjMBAA4G2J11Yo1Yuy4OP4///yeBfIJuwuqWMcRzTT/VwICYQAtbjYZZEHgB2aVoYYoJCFSKCEhXggm4W4IkuF2CJDhfjipgqPEDdU0JKIqEVBmSQCACpTBT2pRmEHqUVB03hGchu1XNNGNC3PFJA6FBRnpcy026aMhESBgrzvEZs2bEpJSBQoiHtYjWn3mUtSlSjsS1OVKEjHLkySZEHyTEubvHERe2gs3DznqMhE775FnckgS/SYXQ0bBQlZNqEnE+9mX8NG1WZzbbLX5JGlGaSW7DcbE00pQpUm4ojqTSszEQvTlPYXiWmFZkeW5hNnaQ7mZ2fyEwVRmpNZ9EVqWr2JZjANqk1Wn/fRld68l9Z8/eqq2H290Px6JfL8CbMjmxw7VGnyxpN7U23NbnMwx8IdXvjmvQ01Zpdke5airA3tMLE/WZreQGlaRZ7F1Iikpt0wL3rzojXf/G1oblJt6C1o+snb9UbneboXT56Lj65Rv3m5Xk+H64UyuxRPfTOizNVH+Wb7z57pPLfM1UclpgWyH8LTzGx2LtkPgVWadLt1TFm73TCt3gydoGB/3KT2exrXTDnmSxo0sViYTacbNt1whHmwUc3Ddp7p+9N7cPx0zdD4SYVz88yOL8I8TShPItzKTPMk+5M95wHTrEwTMOlwCzPPE7jA99vLNc8jmL5wC/NyeDXm+9/3H3PJKt81mGv6rsF84Zb7Nk2yDP5Cds2j7FtPOKcNPR+OhzyNdDzpcI6ZZ8cs9bdbdMxiuC+jTSqca94+boFzBc/F2jwHTSIcEP+ZjWhS4aj+NmDimTDPGOxvXbOWjCsduTZHlDuuyMbsnnTMAeWP2QJzIF2zRx9hjiRhdugDzImkzBZ9gDmRpNmifLOWkrTJRtn3gnPSY3JRrrkgfSYTZd5nL0mvyUKZ9/Yr0m9yUJ65JgMmA2XNDzlkyNxEa6a5Cju7okXEdWUMkyBNMc2DNVcmMpQ1r4lOMYM1bjhl91wqTTZUOW3pzPqHTObceDexN28/hDmrbr+ZZs3O0xQr00002rMONF0hzaFK+nxluwM0/bUmafZV0Z9dDdeT91nxxTZrDkP8XHB5OFcma55a/vxzd571bzFrzpwUeX6WDFPz3H48ntNZWN5PWcbxVK1PGJIhze08699l1g8ydetqBnJCu0f1CzKAKtcPzczpnmneKYZM5Topd9yY/dwYUbTrwfD4dHz66L6OuK4Z/r6u8ZHsdW/+ZDbS3Le+r2qLsMbuXMeoMPeu16wqX2hvze51qXJz9/rbqvKF9tREWGcsNSOsp64qH0rWRFk3LjLjrI+vKh/q1sR6D4BvxnvfofKhy4rY73Vsmo95f8VF5aDUnOS5KQ/wX4ABAONGUMcNDLT4AAAAAElFTkSuQmCC);
-    width: 115px;
-    height: 115px;
-    margin: 40px auto;
+  aside {
+    background: url(data:image/png;base64,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);
+    width: 150px;
+    background-size: 100%;
+    height: 83px;
+    margin: 20px auto;
   }
 </style>
-
 <h1>Something went wrong while building this page.</h1>
-
-<p>Here's what we know:
-
 <pre>{{error.title}}</pre>
-
 <p>Here's what you can do:
-
 <ul>
-  <li>Check the content document, blueprint, or view for syntax errors.
+  <li>Check the content document, blueprint, view, or podspec for syntax errors.
 </ul>
-
-<div class="mark"></div>
+<aside></aside>
