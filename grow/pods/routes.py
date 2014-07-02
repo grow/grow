@@ -4,11 +4,14 @@ werkzeug routing:
   http://werkzeug.pocoo.org/docs/routing/#werkzeug.routing.Map
 """
 
+from . import messages
+from .controllers import rendered
+from .controllers import static
+from grow.common import utils
+import texttable
+import logging
 import webob
 import werkzeug
-from grow.common import utils
-from grow.pods import controllers
-from grow.pods import messages
 
 
 routing = werkzeug.routing
@@ -32,9 +35,8 @@ class Routes(object):
   def __init__(self, pod):
     self.pod = pod
 
-  @property
-  def domains(self):
-    return self.pod.yaml.get('domains')
+  def __iter__(self):
+    return self.routing_map.iter_rules()
 
   @property
   @utils.memoize
@@ -46,29 +48,17 @@ class Routes(object):
     # Content documents.
     for collection in self.pod.list_collections():
       for doc in collection.list_servable_documents(include_hidden=True):
-        controller = controllers.PageController(
+        controller = rendered.RenderedController(
             view=doc.get_view(),
             document=doc,
             _pod=self.pod)
         rule = routing.Rule(doc.get_serving_path(), endpoint=controller)
         rules.append(rule)
 
-    # Extra routes.
-    extra_routes = self.pod.yaml.get('routes', [])
-    for route in extra_routes:
-      if route['kind'] == 'static':
-        controller = controllers.StaticController(
-            path_format=route['path'], source_format=route['source'], pod=self.pod)
-        rules.append(routing.Rule(route['path'], endpoint=controller))
-      elif route['kind'] == 'page':
-        controller = controllers.PageController(
-            view=route['view'], path=route['path'], _pod=self.pod)
-        rules.append(routing.Rule(route['path'], endpoint=controller))
-
     # Auto-generated from flags.
     if 'static_dir' in self.pod.flags:
       path = self.pod.flags['static_dir'] + '<grow:filename>'
-      controller = controllers.StaticController(
+      controller = static.StaticController(
           path_format=path, source_format=path, pod=self.pod)
       rules.append(routing.Rule(path, endpoint=controller))
 
@@ -76,9 +66,9 @@ class Routes(object):
       for config in podspec_config['static_dirs']:
         static_dir = config['static_dir'] + '<grow:filename>'
         serve_at = config['serve_at'] + '<grow:filename>'
-        controller = controllers.StaticController(path_format=serve_at,
-                                                  source_format=static_dir,
-                                                  pod=self.pod)
+        controller = static.StaticController(path_format=serve_at,
+                                             source_format=static_dir,
+                                             pod=self.pod)
         rules.append(routing.Rule(serve_at, endpoint=controller))
 
     routing_map = routing.Map(rules, converters=Routes.converters)
@@ -103,11 +93,12 @@ class Routes(object):
     except routing.NotFound:
       raise webob.exc.HTTPNotFound()
 
-  def match_error(self, path, domain=None, status=404):
+  def match_error(self, path, status=404):
     if status == 404 and self.pod.error_routes:
       view = self.pod.error_routes.get('default')
-      return controllers.PageController(view=view, _pod=self.pod)
+      return rendered.RenderedController(view=view, _pod=self.pod)
 
+  @utils.memoize
   def list_concrete_paths(self):
     path_formats = []
     for route in self.routing_map.iter_rules():
@@ -117,11 +108,20 @@ class Routes(object):
 
   def to_message(self):
     message = messages.RoutesMessage()
-    if self.domains:
-      message.domains = self.domains
     message.routes = []
-    for path in self.list_concrete_paths():
-      route_message = messages.RouteMessage()
-      route_message.path = path
-      message.routes.append(route_message)
+    for route in self:
+      controller = route.endpoint
+      message.routes.extend(controller.to_route_messages())
     return message
+
+  def pretty_print(self):
+    table = texttable.Texttable(max_width=0)
+    table.set_deco(texttable.Texttable.HEADER)
+    rows = []
+    rows.append(['Kind', 'Path'])
+    for route in self:
+      controller = route.endpoint
+      for path in controller.list_concrete_paths():
+        rows.append([controller.KIND, path])
+    table.add_rows(rows)
+    logging.info('\n' + table.draw() + '\n')

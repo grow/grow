@@ -154,7 +154,7 @@ class RoutesCmd(appcommands.Cmd):
     root = os.path.abspath(os.path.join(os.getcwd(), argv[-1]))
     pod = pods.Pod(root, storage=storage.FileStorage)
     routes = pod.get_routes()
-    logging.info(routes.to_message())
+    routes.pretty_print()
 
 
 class RunCmd(appcommands.Cmd):
