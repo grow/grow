@@ -22,20 +22,24 @@ The following extensions are specific to Grow and are available for you to use.
 
 ### include
 
-Includes another document's Markdown body directly. Enables the reuse of content and "partial documents". The include tag must be placed at the beginning of the line.
+Includes another document's body directly. Enables the reuse of content and "partial documents". The include tag must be placed at the beginning of the line.
 
-    [include('/content/<collection>/<document>.md')]
+[sourcecode:markdown]
+[​include('/content/<collection>/<document>.md')]
+[/sourcecode]
 
 ### sourcecode
 
 Implements pygments syntax highlighting for code snippets.
 
-    [​sourcecode:html]
-    <!doctype html>
-    <meta charset="utf-8">
-    <title>Hello World!</title>
-    <p>Source code highlighting.
-    [/sourcecode]
+[sourcecode:markdown]
+[​sourcecode:html]
+<!doctype html>
+<meta charset="utf-8">
+<title>Hello World!</title>
+<p>Source code highlighting.
+[​/sourcecode]
+[/sourcecode]
 
 ### url
 

@@ -18,6 +18,7 @@ Documents optionally have a `path` property which allows the document to be expo
 
 Aside from the *_blueprint.yaml* folder, files in a content collection's directory are treated as a content documents. Grow accepts content documents in the following formats, indicated by their file extensions:
 
+  - HTML (.html)
   - Markdown (.md)
   - YAML (.yaml)
 
@@ -44,32 +45,34 @@ A document's body is the stuff that comes after its YAML front matter. For Markd
 Markdown-formatted documents can have optional YAML front matter, which is delimited using `---`.
 
 [sourcecode:yaml]
-  # /content/pages/foo.md
+# /content/pages/foo.md
 
-  ---
-  $title: Hello, Grow!
-  $category: Get Started
-  ---
-  # Welcome to Grow!
+​---
+$title: Hello, Grow!
+$category: Get Started
+​---
+# Welcome to Grow!
 
-  This is a [Markdown](http://daringfireball.net/projects/markdown/) document.
+This is a [Markdown](http://daringfireball.net/projects/markdown/) document.
 
-  - I can use...
-  - ... Markdown syntax...
-  - ... to write my content.
+- I can use...
+- ... Markdown syntax...
+- ... to write my content.
 [/sourcecode]
 
 ### YAML body
 
 YAML-formatted documents never use a separate YAML front matter. `{{doc.html}}` and `{{doc.body}}` are both `None` for YAML-formatted content documents.
 
-    # /content/pages/bar.yaml
+[sourcecode:yaml]
+# /content/pages/bar.yaml
 
-    $title: Hello, Grow!
-    $category: Get Started
+$title: Hello, Grow!
+$category: Get Started
 
-    key1: value1
-    key2: value2
+key1: value1
+key2: value2
+[/sourcecode]
 
 ### HTML body
 
@@ -77,24 +80,26 @@ HTML-formatted documents have YAML front matter and an HTML body. As you'd expec
 
 HTML-formatted documents are particularly useful when a content document has its own, unique presentation, that's closely coupled to its content structure. For example, if your collection has an index page, and if the index page has its own unique presentation that is never used anywhere else on the site, the index content document could define its own HTML template unique to itself.
 
-    # /content/pages/index.html
+[sourcecode:jinja]
+# /content/pages/index.html
 
-    ---
-    $title: Hello, Grow!
-    $category: Get Started
+​---
+$title: Hello, Grow!
+$category: Get Started
 
-    sections:
-    - title: Section 1
-      text: Lorem ipsum dolor sit amet.
-    - title: Section 2
-      text: Lorem ipsum dolor sit amet.
-    - title: Section 3
-      text: Lorem ipsum dolor sit amet.
-    ---
-    {% for section in doc.sections %}
-      <h2>{{section.title}}</h2>
-      <p>{{section.text}}
-    {% endfor %}
+sections:
+- title: Section 1
+  text: Lorem ipsum dolor sit amet.
+- title: Section 2
+  text: Lorem ipsum dolor sit amet.
+- title: Section 3
+  text: Lorem ipsum dolor sit amet.
+​---
+{% for section in doc.sections %}
+  <h2>{{section.title}}</h2>
+  <p>{{section.text}}
+{% endfor %}
+[/sourcecode]
 
 ## Functions
 
@@ -106,13 +111,15 @@ There are several API functions available for documents. These are implemented a
 
 Returns the next document from a list of documents. If no list is provided, the default document ordering within a collection is used. If there is no next document, `None` is returned.
 
-    # Returns the next document from the default list of documents.
-    {{doc.next()}}                     # <Document>
+[sourcecode:jinja]
+# Returns the next document from the default list of documents.
+{{doc.next()}}                     # <Document>
 
-    # Returns the next document from a custom list of documents.
-    {% set doc1 = g.doc('/content/pages/foo.md')
-    {% set doc2 = g.doc('/content/pages/bar.md')
-    {{doc.next([doc1, doc, doc2])}}    # <Document (/content/pages/bar.md)>
+# Returns the next document from a custom list of documents.
+{% set doc1 = g.doc('/content/pages/foo.md') %}
+{% set doc2 = g.doc('/content/pages/bar.md') %}
+{{doc.next([doc1, doc, doc2])}}    # <Document (/content/pages/bar.md)>
+[/sourcecode]
 
 ### prev
 
@@ -132,21 +139,23 @@ Opposite of `next`. Returns the previous document from a list of documents. If n
 
 A function that returns a title, given a title name. Allows for cascading titles. Useful for giving the document a different title in different contexts (for example, a breadcrumb or a side menu). If the parameter is omitted or None, the document's canonical title is used.
 
-    {{doc.titles('nav')}}
+[sourcecode:jinja]
+{{doc.titles('nav')}}
 
-    # This sample YAML front matter...
+# This sample YAML front matter...
 
-    $title: Example Hello World Document
-    $titles:
-      nav: Hello World
-      breadcrumb: Hello World Document
+$title: Example Hello World Document
+$titles:
+  nav: Hello World
+  breadcrumb: Hello World Document
 
-    # ...produces the following results.
+# ...produces the following results.
 
-    {{doc.titles('nav')}}          # Hello
-    {{doc.titles('breadcrumb')}}   # Hello World Document
-    {{doc.titles('unknown')}}      # Example Hello World Document
-    {{doc.title()}}                # Example Hello World Document
+{{doc.titles('nav')}}          # Hello
+{{doc.titles('breadcrumb')}}   # Hello World Document
+{{doc.titles('unknown')}}      # Example Hello World Document
+{{doc.title()}}                # Example Hello World Document
+[/sourcecode]
 
 ## Properties
 
