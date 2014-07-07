@@ -168,8 +168,8 @@ class RunCmd(appcommands.Cmd):
         'port', '8080', 'Port to start the server on.',
         flag_values=flag_values)
     flags.DEFINE_boolean(
-        'open', False,
-        'Whether to open a web browser when starting the server.')
+        'browser', True,
+        'Whether to open a web browser.')
     super(RunCmd, self).__init__(name, flag_values, command_aliases=command_aliases)
 
   def Run(self, argv):
@@ -183,7 +183,7 @@ class RunCmd(appcommands.Cmd):
       thread.start()
     environment = env.Env(env.EnvConfig(host=FLAGS.host, port=FLAGS.port))
     pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
-    manager.start(pod, host=FLAGS.host, port=FLAGS.port, open_browser=FLAGS.open)
+    manager.start(pod, host=FLAGS.host, port=FLAGS.port, open_browser=FLAGS.browser)
 
 
 class TestCmd(appcommands.Cmd):

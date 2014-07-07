@@ -101,7 +101,7 @@ class Routes(object):
   @utils.memoize
   def list_concrete_paths(self):
     path_formats = []
-    for route in self.routing_map.iter_rules():
+    for route in self:
       controller = route.endpoint
       path_formats.extend(controller.list_concrete_paths())
     return path_formats
