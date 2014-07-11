@@ -48,17 +48,14 @@ class BaseHandler(webapp2.RequestHandler):
 class PodHandler(BaseHandler):
 
   def get(self):
-    if 'grow:pod_root' not in os.environ:
+    try:
+      root = os.environ['grow:pod_root']
+    except KeyError:
       raise Exception('Environment variable "grow:pod_root" missing.')
-    domain, port = self.request.host.split(':')
-    port = int(port) if port else 80
-    url_scheme = self.request.scheme
-    root = os.environ['grow:pod_root']
-    environment = env.Env(env.EnvConfig(host=domain, port=port, scheme=url_scheme))
+    environment = env.Env.from_wsgi_env(self.request.environ)
     pod = pods.Pod(root, env=environment)
     try:
-      routes = pod.get_routes()
-      controller = routes.match(self.request.path, domain=domain, url_scheme=url_scheme)
+      controller = pod.routes.match(self.request.path, self.request.environ)
       self.respond_with_controller(controller)
     except werkzeug.routing.RequestRedirect as e:
       self.redirect(e.new_url)

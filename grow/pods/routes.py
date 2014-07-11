@@ -84,7 +84,7 @@ class Routes(object):
     routing_map = routing.Map(rules, converters=Routes.converters)
     return routing_map
 
-  def match(self, path, domain=None, script_name=None, subdomain=None, url_scheme=None):
+  def match(self, path, env):
     """Matches a controller from the pod.
 
     Returns:
@@ -93,17 +93,12 @@ class Routes(object):
       routing.RequestRedirect: When the controller is a redirect.
       routing.NotFound: When no controller is found.
     """
-    if url_scheme is None:
-      url_scheme = 'http'
-    if domain is None:  # Needed for generating static files.
-      domain = 'localhost'
-
-    urls = self.routing_map.bind(domain, script_name, subdomain, url_scheme)
+    urls = self.routing_map.bind_to_environ(env)
     try:
       controller, route_params = urls.match(path)
       controller.set_route_params(route_params)
       # validate route_params here, raise NotFound if params are invalid
-  #    controller.validate_route_params(route_params)
+      # controller.validate_route_params(route_params)
       return controller
     except routing.NotFound:
       raise webob.exc.HTTPNotFound()

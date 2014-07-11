@@ -41,8 +41,6 @@ class FileStorage(base_storage.BaseStorage):
     dirpath = _normalize(dirpath)
     paths = []
     for root, dirs, files in os.walk(dirpath):
-      if '.git' in root:
-        continue
       for filename in files:
         path = os.path.join(root, filename)[len(dirpath):]
         paths.append(path)

@@ -133,7 +133,8 @@ class BaseDestination(object):
     """Returns an environment object based on the config."""
     if self.config.env:
       return env.Env(self.config.env)
-    return env.Env('localhost')
+    config = env.EnvConfig(host='localhost')
+    return env.Env(config)
 
   def read_file(self, path):
     """Returns a file-like object."""
@@ -198,7 +199,6 @@ class BaseDestination(object):
           logging.info('Launch aborted.')
           return
 
-      self.prelaunch(dry_run=dry_run)
       indexes.Diff.apply(
           diff, paths_to_contents, write_func=self.write_file,
           delete_func=self.delete_file, threaded=self.threaded)

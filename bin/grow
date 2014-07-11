@@ -26,12 +26,16 @@ import os
 import sys
 sys.path.extend([os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')])
 
-# Fixes issue with werkzeug and PyInstaller.
+# Fixes werkzeug and PyInstaller.
 import werkzeug
 
-# Fixes issue with simplejson and PyInstaller.
+# Fixes simplejson and PyInstaller.
 import json
 sys.modules['simplejson'] = json
+
+# Fixes sys.getfilesystemencoding() and PyInstaller.
+from watchdog.utils import unicode_paths
+unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
 from grow.common import sdk_utils
 from subprocess import call

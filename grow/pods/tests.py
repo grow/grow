@@ -30,8 +30,7 @@ class Tests(object):
 
   def run(self):
     for test in self.yaml['tests']:
-      routes = self.pod.get_routes()
-      controller = routes.match(test['path'])
+      controller = self.pod.match(test['path'])
       html = controller.render()
       if 'assertInHtml' not in test:
         continue

@@ -3,7 +3,6 @@ from grow.common import utils
 from grow.pods import urls
 from grow.pods import locales
 from . import messages
-import jinja2
 import json
 import logging
 import markdown
@@ -380,6 +379,7 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
       extensions = [
         tables.TableExtension(),
         toc.TocExtension(),
+        markdown_extensions.CodeBlockExtension(),
         markdown_extensions.IncludeExtension(doc.pod),
         markdown_extensions.UrlExtension(doc.pod),
       ]
