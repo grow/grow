@@ -15,6 +15,7 @@ dnspython==1.11.1
 dulwich==0.9.6
 ez-setup==0.9
 gcloud==0.02.2
+git+git://github.com/grow/jetway-client@master#egg=jetway
 git+git://github.com/pyinstaller/pyinstaller.git@develop
 git+git://github.com/bufordtaylor/python-texttable.git@master#egg=texttable
 git+git://github.com/jeremydw/google-apputils-python.git@master#egg=google_apputils

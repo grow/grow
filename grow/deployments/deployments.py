@@ -1,6 +1,7 @@
 import json
 from .destinations import amazon_s3
 from .destinations import git_destination
+from .destinations import jetway_destination
 from .destinations import local
 from .destinations import google_cloud_storage
 from .destinations import scp
@@ -10,6 +11,7 @@ _destination_names_to_classes = {}
 
 _builtins = (
     amazon_s3.AmazonS3Destination,
+    jetway_destination.JetwayDestination,
     git_destination.GitDestination,
     local.LocalDestination,
     google_cloud_storage.GoogleCloudStorageDestination,
