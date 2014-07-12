@@ -12,10 +12,12 @@ from grow.deployments.destinations import local as local_destination
 from grow.deployments.stats import stats
 from grow.pods import pods
 from grow.pods import storage
+import multiprocessing
 import os
 
 
 if __name__ == '__main__':
+  multiprocessing.freeze_support()
   args = docopt(__doc__)
   root = os.path.abspath(os.path.join(os.getcwd(), args['<pod_path>'] or '.'))
   out_dir = args['--out_dir'] or os.path.join(root, 'build')

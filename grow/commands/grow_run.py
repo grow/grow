@@ -17,11 +17,13 @@ from grow.pods import env
 from grow.pods import pods
 from grow.pods import storage
 from grow.server import manager
+import multiprocessing
 import os
 import threading
 
 
 if __name__ == '__main__':
+  multiprocessing.freeze_support()
   args = docopt(__doc__)
 
   if not args['--skip_sdk_update_check']:
