@@ -26,6 +26,7 @@ polib==1.0.4
 premailer==1.13
 progressbar2==2.6.2
 protorpc-standalone==0.9.1
+pygments==1.6
 pytz==2014.4
 rednose==0.4.1
 requests==2.2.1
