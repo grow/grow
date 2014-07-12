@@ -11,10 +11,12 @@ from docopt import docopt
 from grow.deployments.stats import stats
 from grow.pods import pods
 from grow.pods import storage
+import multiprocessing
 import os
 
 
 if __name__ == '__main__':
+  multiprocessing.freeze_support()
   args = docopt(__doc__)
   root = os.path.abspath(os.path.join(os.getcwd(), args['<pod_path>'] or '.'))
   deployment_name = args['<nickname>'] || 'default'

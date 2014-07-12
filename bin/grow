@@ -40,12 +40,9 @@ unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 from grow.common import sdk_utils
 from subprocess import call
 from docopt import docopt
-import multiprocessing
 
 
 if __name__ == '__main__':
-  multiprocessing.freeze_support()
-
   args = docopt(__doc__, version='grow version {}'.format(sdk_utils.get_this_version()), options_first=True)
   argv = [args['<command>']] + args['<args>']
 
