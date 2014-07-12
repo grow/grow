@@ -1,7 +1,9 @@
+from . import base
+from . import messages
 import mimetypes
 import re
-from grow.pods.controllers import base
 
+# TODO(jeremydw): Move to storage lib.
 try:
   from google.appengine.ext import blobstore
 except ImportError:
@@ -13,8 +15,7 @@ mimetypes.add_type('text/css', '.css')
 
 
 class StaticController(base.BaseController):
-
-  KIND = 'Static file'
+  KIND = messages.Kind.STATIC
 
   def __init__(self, path_format, source_format=None, pod=None):
     # path_format: "serve_at"

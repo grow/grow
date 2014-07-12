@@ -1,13 +1,12 @@
 from protorpc import messages
 
 
-class PageMessage(messages.Message):
-  name = messages.StringField(1)
-  view = messages.StringField(4)
-  staging_url = messages.StringField(5)
-  path = messages.StringField(6)
+class Kind(messages.Enum):
+  RENDERED = 1
+  STATIC = 2
 
 
-class ControllerMessage(messages.Message):
-  name = messages.StringField(1)
-  page = messages.MessageField(PageMessage, 2)
+class RouteMessage(messages.Message):
+  path = messages.StringField(1)
+  kind = messages.EnumField(Kind, 2)
+  locale = messages.StringField(3)

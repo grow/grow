@@ -1,18 +1,18 @@
 from grow.pods import locales
 from grow.pods import pods
 from grow.pods import storage
-from grow.pods.controllers import page
+from . import rendered
 import unittest
 
 
-class PageTest(unittest.TestCase):
+class RenderedTest(unittest.TestCase):
 
   def setUp(self):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_ll(self):
     controller = self.pod.match('/')
-    self.assertEqual(page.PageController.Defaults.LL, controller.ll)
+    self.assertEqual(rendered.RenderedController.Defaults.LL, controller.ll)
     controller = self.pod.match('/de/about/')
     de_locale = locales.Locale.parse('de')
     self.assertEqual(de_locale, controller.locale)

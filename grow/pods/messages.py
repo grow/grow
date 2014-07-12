@@ -1,5 +1,6 @@
 from protorpc import messages
-from grow.pods.collectionz import messages as collection_messages
+from .controllers import messages as controller_messages
+from .collectionz import messages as collection_messages
 
 
 class LocaleGroupMessage(messages.Message):
@@ -27,14 +28,8 @@ class TranslationsMessage(messages.Message):
   catalogs = messages.MessageField(TranslationCatalogMessage, 1, repeated=True)
 
 
-class RouteMessage(messages.Message):
-  path = messages.StringField(1)
-  kind = messages.StringField(2)
-
-
 class RoutesMessage(messages.Message):
-  domains = messages.StringField(1, repeated=True)
-  routes = messages.MessageField(RouteMessage, 2, repeated=True)
+  routes = messages.MessageField(controller_messages.RouteMessage, 1, repeated=True)
 
 
 class FileMessage(messages.Message):
