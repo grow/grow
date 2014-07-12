@@ -79,6 +79,7 @@ class MemoryRepo(repo.MemoryRepo):
     blob = self.get_object(tree[filename][1])
     return blob.data
 
+
 def _copy_files_to_pod(temp_root, pod, force=False):
   """Copies all files from a temp directory into the pod root."""
   if not os.path.exists(pod.root):

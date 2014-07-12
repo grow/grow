@@ -1,15 +1,15 @@
-import logging
-import mimetypes
+from . import base
+from . import messages
+from . import tags
 from grow.common import utils
 from grow.pods import errors
-from grow.pods.controllers import base
-from grow.pods.controllers import tags
 from grow.pods.storage import gettext_storage as gettext
+import logging
+import mimetypes
 
 
-class PageController(base.BaseController):
-
-  KIND = 'Page'
+class RenderedController(base.BaseController):
+  KIND = messages.Kind.RENDERED
 
   class Defaults(object):
     LL = 'en'
@@ -20,12 +20,13 @@ class PageController(base.BaseController):
     self.view = view
     self.document = document
     self.path = path
-    super(PageController, self).__init__(_pod=_pod)
+    super(RenderedController, self).__init__(_pod=_pod)
 
   def __repr__(self):
     if not self.document:
-      return '<Page(view=\'{}\')>'.format(self.view)
-    return '<Page(view=\'{}\', document=\'{}\')>'.format(self.view, self.document.pod_path)
+      return '<Rendered(view=\'{}\')>'.format(self.view)
+    return '<Rendered(view=\'{}\', document=\'{}\')>'.format(
+        self.view, self.document.pod_path)
 
   @property
   def mimetype(self):
@@ -38,11 +39,11 @@ class PageController(base.BaseController):
 
   @property
   def ll(self):
-    return self.route_params.get('ll', PageController.Defaults.LL)
+    return self.route_params.get('ll', RenderedController.Defaults.LL)
 
   @property
   def cc(self):
-    return self.route_params.get('cc', PageController.Defaults.CC)
+    return self.route_params.get('cc', RenderedController.Defaults.CC)
 
   @property
   @utils.memoize
@@ -70,8 +71,7 @@ class PageController(base.BaseController):
     ll = self.locale
     self._install_translations(ll)
     template = self._template_env.get_template(self.view.lstrip('/'))
-    context = {}
-    context = {
+    g = {
         'categories': lambda *args, **kwargs: tags.categories(*args, _pod=self.pod, **kwargs),
         'docs': lambda *args, **kwargs: tags.docs(*args, _pod=self.pod, **kwargs),
         'doc': lambda *args, **kwargs: tags.get_doc(*args, _pod=self.pod, **kwargs),
@@ -81,12 +81,11 @@ class PageController(base.BaseController):
         'cc': self.cc,
         'll': self.ll,
         'params': self.route_params,
-        'pod': self.pod,
         'url': lambda *args, **kwargs: tags.url(*args, _pod=self.pod, **kwargs),
     }
     try:
       return template.render({
-          'g': context,
+          'g': g,
           'doc': self.document,
           'env': self.pod.env,
           'podspec': self.pod.get_podspec(),
