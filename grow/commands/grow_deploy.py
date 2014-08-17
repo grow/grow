@@ -8,6 +8,7 @@ Usage: grow deploy [options] [<nickname>] [<pod_path>]
 """
 
 from docopt import docopt
+from grow.common import utils
 from grow.deployments.stats import stats
 from grow.pods import pods
 from grow.pods import storage
@@ -19,7 +20,7 @@ if __name__ == '__main__':
   multiprocessing.freeze_support()
   args = docopt(__doc__)
   root = os.path.abspath(os.path.join(os.getcwd(), args['<pod_path>'] or '.'))
-  deployment_name = args['<nickname>'] || 'default'
+  deployment_name = args['<nickname>'] or 'default'
 
   pod = pods.Pod(root, storage=storage.FileStorage)
   pod.preprocess()
@@ -32,7 +33,7 @@ if __name__ == '__main__':
     deployment.test()
   else:
     paths_to_contents = pod.dump()
-    repo = _get_git_repo(pod.root)
+    repo = utils.get_git_repo(pod.root)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
                       confirm=args['--skip_confirm'] == False)
