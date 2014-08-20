@@ -114,7 +114,6 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
       except ValueError:
         lexer = lexers.TextLexer()
       code = highlight(m.group(2), lexer, self.formatter)
-      code = code.replace('\n\n', '\n&nbsp;\n').replace('\n', '<br />')
       return '\n\n<div class="code">%s</div>\n\n' % code
     joined_lines = "\n".join(lines)
     joined_lines = self.pattern.sub(repl, joined_lines)
