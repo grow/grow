@@ -1,6 +1,7 @@
 from bisect import bisect_left, bisect_right
 from grow.pods import errors
 import functools
+import git
 import json
 import logging
 import mimetypes
@@ -23,6 +24,13 @@ def get_grow_dir():
   if is_packaged_app():
     return os.path.join(sys._MEIPASS)
   return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+
+def get_git_repo(root):
+  try:
+    return git.Repo(root)
+  except git.exc.InvalidGitRepositoryError:
+    logging.info('Warning: {} is not a Git repository.'.format(root))
 
 
 def interactive_confirm(message, default=False):
