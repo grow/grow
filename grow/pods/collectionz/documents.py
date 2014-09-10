@@ -347,11 +347,11 @@ class YamlDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, body = utils.parse_yaml(content, path=path)
-    self.content = content
+    fields = utils.parse_yaml(content, path=path)
+    self.content = None
     self.fields = fields or {}
     self.tagged_fields = {}
-    self.body = body
+    self.body = None
     self.tagged_fields = copy.deepcopy(fields)
     fields = untag_fields(fields)
 

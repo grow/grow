@@ -94,7 +94,7 @@ class Pod(object):
   @utils.memoize
   def _parse_yaml(self):
     try:
-      return utils.parse_yaml(self.read_file('/podspec.yaml'))[0]
+      return utils.parse_yaml(self.read_file('/podspec.yaml'))
     except IOError:
       raise PodSpecParseError('Pod does not exist or malformed podspec.yaml.')
 
