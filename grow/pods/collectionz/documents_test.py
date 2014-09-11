@@ -21,6 +21,13 @@ class DocumentsTestCase(unittest.TestCase):
     self.assertIsNone(doc.body)
     self.assertIsNone(doc.html)
 
+    default_doc = self.pod.get_doc('/content/pages/about.yaml')
+    self.assertEqual('bar', default_doc.foo)
+
+    de_doc = self.pod.get_doc('/content/pages/about.yaml', locale='de')
+    self.assertEqual('bar', de_doc.foo)
+    self.assertEqual('qux', de_doc.qaz)
+
 
 if __name__ == '__main__':
   unittest.main()
