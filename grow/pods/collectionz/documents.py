@@ -347,7 +347,8 @@ class YamlDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields = utils.parse_yaml(content, path=path)
+    fields = utils.parse_yaml(content, path=path, locale=self.locale,
+                              default_locale=self.default_locale)
     self.content = None
     self.fields = fields or {}
     self.tagged_fields = {}

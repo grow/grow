@@ -150,7 +150,7 @@ def parse_yaml(content, path=None, locale=None, default_locale=None):
 
     if locale in locales_to_fields:
       localized_fields = locales_to_fields[locale]
-      if not fields:
+      if fields is None:
         fields = {}
       fields.update(localized_fields)
 
