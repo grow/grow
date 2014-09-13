@@ -143,7 +143,8 @@ class Document(object):
 
   def get_path_format(self):
     val = None
-    if self.locale and self._default_locale and self.locale != self._default_locale:
+    if (self.locale and self._default_locale and self.locale != self._default_locale
+        and '$path' not in self.fields):
       if '$localization' in self.fields and 'path' in self.fields['$localization']:
         val = self.fields['$localization']['path']
       elif self.collection.localization:
@@ -214,7 +215,7 @@ class Document(object):
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': str(self.locale),
+        'locale': str(self.locale).lower(),
         'parent': self.parent if self.parent else DummyDict(),
         'podspec': self.pod.get_podspec(),
         'slug': self.slug,
