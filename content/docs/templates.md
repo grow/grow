@@ -67,6 +67,21 @@ Lists content documents within a collection and groups them by their *$category*
       </ul>
     {% endfor %}
 
+### g.date
+
+`g.date(<DateTime|string>, from=<string>, to=<string>)`
+
+Multipurpose date and time utility function. Capable of both formatting a DateTime as a string and/or parsing a string into a DateTime. Uses [Python date formatting directives](https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior).
+
+    # Returns a DateTime given a string and a format.
+    {{g.date('12/31/2000', from='%m/%d/%Y')}}
+
+    # Returns a formatted string given a DateTime.
+    {{g.date(date, to='%m')}}
+
+    # Returns a formatted string, given both a string and a format.
+    {{g.date('12/31/2000', from='%m/%d/%Y', to='%m')}}
+
 ### g.doc
 
 `g.doc(<document path>, locale=<locale>)`
@@ -75,7 +90,6 @@ Gets a single content document, given its pod path.
 
     {% set foo = g.doc('/content/pages/index.md') %}
     {{foo}}
-
 
     # Returns the fr version of a document.
     {{g.doc('/content/pages/index.md', locale='fr'}}
