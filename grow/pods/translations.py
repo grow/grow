@@ -93,6 +93,11 @@ class Translations(object):
 
     logging.info('Updating translation template: {}'.format(template_path))
 
+    options = {
+        'extensions': ','.join(self.pod.get_template_env().extensions.keys()),
+        'silent': 'false',
+    }
+
     # Extract messages from content and views.
     pod_files = [os.path.join('/views', path) for path in self.pod.list_dir('/views/')]
     pod_files += [os.path.join('/content', path) for path in self.pod.list_dir('/content/')]
@@ -101,7 +106,7 @@ class Translations(object):
         logging.info('Extracting from: {}'.format(pod_path))
         fp = self.pod.open_file(pod_path)
         try:
-          messages = extract.extract('jinja2.ext.babel_extract', fp)
+          messages = extract.extract('jinja2.ext.babel_extract', fp, options=options)
           for message in messages:
             lineno, string, comments, context = message
             added_message = catalog_obj.add(

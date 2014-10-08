@@ -4,6 +4,9 @@ msgstr ""
 msgid "About us"
 msgstr ""
 
+msgid "AboutDE"
+msgstr ""
+
 msgid "Bar"
 msgstr ""
 

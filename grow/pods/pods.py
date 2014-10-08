@@ -292,7 +292,7 @@ class Pod(object):
     _template_loader = self.storage.JinjaLoader(self.root)
     env = jinja2.Environment(
         loader=_template_loader, autoescape=True, trim_blocks=True,
-        extensions=['jinja2.ext.i18n'])
+        extensions=['jinja2.ext.i18n', 'jinja2.ext.do'])
     env.filters['markdown'] = tags.markdown_filter
     env.filters['render'] = tags.render_filter
     return env

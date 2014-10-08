@@ -15,7 +15,7 @@ class TranslationsTest(unittest.TestCase):
 
   def test_extract(self):
     catalog = self.pod.translations.extract()
-    self.assertEqual(11, len(catalog))  # X from views, N from content.
+    self.assertEqual(12, len(catalog))  # X from views, N from content.
     expected = [
         'Hello World!',
         'Hello World 2!',

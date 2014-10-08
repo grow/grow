@@ -212,12 +212,21 @@ class Document(object):
       raise
 
   def _format_path(self, path_format):
+    locale = str(self.locale).lower()
+    podspec = self.pod.get_podspec()
+    config = podspec.get_config()
+
+    if 'localization' in config and 'aliases' in config['localization']:
+      aliases = config['localization']['aliases']
+      for babel_locale, custom_locale in aliases.iteritems():
+        locale = locale.replace(babel_locale, custom_locale)
+
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': str(self.locale).lower(),
+        'locale': locale,
         'parent': self.parent if self.parent else DummyDict(),
-        'podspec': self.pod.get_podspec(),
+        'podspec': podspec,
         'slug': self.slug,
     }).replace('//', '/')
 
@@ -226,11 +235,11 @@ class Document(object):
     return self.list_locales()
 
   def list_locales(self):
-    if '$localization' in self.fields:
-      if 'locales' in self.fields['$localization']:
-        codes = self.fields['$localization']['locales']
-    codes = self.collection.list_locales()
-    return locales.Locale.parse_codes(codes)
+    if ('$localization' in self.fields
+        and 'locales' in self.fields['$localization']):
+      codes = self.fields['$localization']['locales']
+      return locales.Locale.parse_codes(codes)
+    return self.collection.list_locales()
 
   @property
   @utils.memoize
