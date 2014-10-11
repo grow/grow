@@ -143,9 +143,12 @@ class Document(object):
 
   def get_path_format(self):
     val = None
-    if (self.locale and self._default_locale and self.locale != self._default_locale
+    if (self.locale
+        and self._default_locale
+        and self.locale != self._default_locale
         and '$path' not in self.fields):
-      if '$localization' in self.fields and 'path' in self.fields['$localization']:
+      if ('$localization' in self.fields
+          and 'path' in self.fields['$localization']):
         val = self.fields['$localization']['path']
       elif self.collection.localization:
         val = self.collection.localization['path']
@@ -211,20 +214,23 @@ class Document(object):
       logging.error('Error with path format: {}'.format(path_format))
       raise
 
-  def _format_path(self, path_format):
+  @property
+  def locale_alias(self):
     locale = str(self.locale).lower()
     podspec = self.pod.get_podspec()
     config = podspec.get_config()
-
     if 'localization' in config and 'aliases' in config['localization']:
       aliases = config['localization']['aliases']
-      for babel_locale, custom_locale in aliases.iteritems():
+      for custom_locale, babel_locale in aliases.iteritems():
         locale = locale.replace(babel_locale, custom_locale)
+    return locale
 
+  def _format_path(self, path_format):
+    podspec = self.pod.get_podspec()
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': locale,
+        'locale': self.locale_alias,
         'parent': self.parent if self.parent else DummyDict(),
         'podspec': podspec,
         'slug': self.slug,
