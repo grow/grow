@@ -259,10 +259,12 @@ class Pod(object):
     kind = deployment_params.pop('destination')
     try:
       config = destination_configs[nickname]
-      deployment = deployments.make_deployment(kind, config)
+      deployment = deployments.make_deployment(kind, config, name=nickname)
     except TypeError:
       logging.exception('Invalid deployment parameters.')
       raise
+    if deployment.config.keep_control_dir:
+      deployment.pod = self
     return deployment
 
   def list_locales(self):

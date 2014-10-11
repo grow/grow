@@ -11,10 +11,11 @@ class Config(messages.Message):
   name = messages.StringField(3, required=True)
   server = messages.StringField(4, required=True)
   is_secure = messages.BooleanField(5, default=True)
+  keep_control_dir = messages.BooleanField(6, default=False)
 
 
 class JetwayDestination(base.BaseDestination):
-  NAME = 'jetway'
+  KIND = 'jetway'
   Config = Config
 
   def __init__(self, *args, **kwargs):

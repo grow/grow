@@ -16,10 +16,11 @@ class Config(messages.Message):
   access_key = messages.StringField(2)
   access_secret = messages.StringField(3)
   env = messages.MessageField(env.EnvConfig, 4)
+  keep_control_dir = messages.BooleanField(5, default=False)
 
 
 class AmazonS3Destination(base.BaseDestination):
-  NAME = 's3'
+  KIND = 's3'
   Config = Config
 
   def __str__(self):

@@ -8,10 +8,11 @@ import os
 class Config(messages.Message):
   out_dir = messages.StringField(1, default='')
   env = messages.MessageField(env.EnvConfig, 2)
+  keep_control_dir = messages.BooleanField(3, default=False)
 
 
 class LocalDestination(base.BaseDestination):
-  NAME = 'local'
+  KIND = 'local'
   Config = Config
   storage = storage_lib.FileStorage
 
