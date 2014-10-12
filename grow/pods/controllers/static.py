@@ -1,5 +1,6 @@
 from . import base
 from . import messages
+import fnmatch
 import mimetypes
 import re
 
@@ -12,6 +13,11 @@ except ImportError:
 mimetypes.add_type('application/font-woff', '.woff')
 mimetypes.add_type('image/svg+xml', '.svg')
 mimetypes.add_type('text/css', '.css')
+
+
+SKIP_PATTERNS = [
+    '**/.**',
+]
 
 
 class StaticController(base.BaseController):
@@ -59,6 +65,16 @@ class StaticController(base.BaseController):
 
       paths = self.pod.list_dir(source)
       paths = [('/' + source + path).replace(self.pod.root, '') for path in paths]
+
+      # Exclude paths matched by skip patterns.
+      for pattern in SKIP_PATTERNS:
+        # .gitignore-style treatment of paths without slashes.
+        if '/' not in pattern:
+          pattern = '**{}**'.format(pattern)
+        for skip_paths in fnmatch.filter(paths, pattern):
+          paths = [path for path in paths
+                   if path.replace(self.pod.root, '') not in skip_paths]
+
       for path in paths:
         for filename in re.findall(source_regex, path):
           params = {'filename': filename}
