@@ -16,7 +16,7 @@ class DocumentsTestCase(unittest.TestCase):
     self.assertItemsEqual(keys, doc.fields.keys())
 
     doc = self.pod.get_doc('/content/pages/home.yaml')
-    keys = ['$title', '$view', '$path', '$order', 'foo']
+    keys = ['$title', '$view', '$path', '$order', '$localization', 'foo']
     self.assertItemsEqual(keys, doc.fields.keys())
     self.assertIsNone(doc.body)
     self.assertIsNone(doc.html)

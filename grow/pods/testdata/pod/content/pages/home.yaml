@@ -2,5 +2,7 @@ $path: /
 $view: /views/home.html
 $title@: Home page
 $order: 0
+$localization:
+  path: /{locale}/home/
 
 foo: bar

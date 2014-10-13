@@ -145,8 +145,7 @@ class Document(object):
     val = None
     if (self.locale
         and self._default_locale
-        and self.locale != self._default_locale
-        and '$path' not in self.fields):
+        and self.locale != self._default_locale):
       if ('$localization' in self.fields
           and 'path' in self.fields['$localization']):
         val = self.fields['$localization']['path']
