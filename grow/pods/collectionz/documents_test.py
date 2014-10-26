@@ -16,7 +16,8 @@ class DocumentsTestCase(unittest.TestCase):
     self.assertItemsEqual(keys, doc.fields.keys())
 
     doc = self.pod.get_doc('/content/pages/home.yaml')
-    keys = ['$title', '$view', '$path', '$order', '$localization', 'foo']
+    keys = ['$title', '$view', '$path', '$order', '$localization', 'foo',
+            'translation_with_priority']
     self.assertItemsEqual(keys, doc.fields.keys())
     self.assertIsNone(doc.body)
     self.assertIsNone(doc.html)
@@ -27,6 +28,13 @@ class DocumentsTestCase(unittest.TestCase):
     de_doc = self.pod.get_doc('/content/pages/about.yaml', locale='de')
     self.assertEqual('baz', de_doc.foo)
     self.assertEqual('qux', de_doc.qaz)
+
+    doc = self.pod.get_doc('/content/pages/home.yaml', locale='de')
+    self.assertEqual('Higher Priority', doc.translation_with_priority)
+
+    doc = self.pod.get_doc('/content/pages/home.yaml', locale='ja')
+    self.assertEqual('Lower Priority', doc.translation_with_priority)
+
 
 
 if __name__ == '__main__':

@@ -369,7 +369,7 @@ class YamlDocumentStorage(BaseDocumentStorage):
     self.tagged_fields = {}
     self.body = None
     self.tagged_fields = copy.deepcopy(fields)
-    fields = untag_fields(fields)
+    fields = untag_fields(fields, locale=self.locale, pod=self.pod)
 
 
 class HtmlDocumentStorage(YamlDocumentStorage):
@@ -387,7 +387,7 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     self.fields = fields or {}
     self.body = body
     self.tagged_fields = copy.deepcopy(fields)
-    fields = untag_fields(fields)
+    fields = untag_fields(fields, locale=self.locale, pod=self.pod)
 
   def html(self, doc):
     val = self.body
@@ -403,11 +403,34 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     return val
 
 
-def untag_fields(fields):
+def untag_fields(fields, locale=None, pod=None):
+  """Untags fields, handling translation priority."""
+  untagged_keys_to_add = {}
+  nodes_and_keys_to_add = []
+  nodes_and_keys_to_remove = []
+  catalog = pod.get_translation_catalog(locale)
   def callback(item, key, node):
     if not isinstance(key, basestring):
       return
     if key.endswith('@'):
-      node[key[0:(len(key) - 1)]] = node.pop(key)
+      untagged_key = key.rstrip('@')
+      priority = len(key) - len(untagged_key)
+      content = node[key]
+      nodes_and_keys_to_remove.append((node, key))
+      if priority > 1 and untagged_key in untagged_keys_to_add:
+        try:
+          has_translation_for_higher_priority_key = catalog.has_translation(content)
+        except AttributeError:
+          has_translation_for_higher_priority_key = False
+        if has_translation_for_higher_priority_key:
+          untagged_keys_to_add[untagged_key] = True
+          nodes_and_keys_to_add.append((node, untagged_key, content))
+      elif priority <= 1:
+        untagged_keys_to_add[untagged_key] = True
+        nodes_and_keys_to_add.append((node, untagged_key, content))
   utils.walk(fields, callback)
+  for node, key in nodes_and_keys_to_remove:
+    del node[key]
+  for node, untagged_key, content in nodes_and_keys_to_add:
+    node[untagged_key] = content
   return fields

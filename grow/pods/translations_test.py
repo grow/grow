@@ -10,12 +10,12 @@ class TranslationsTest(unittest.TestCase):
 
   def test_list_locales(self):
     self.assertListEqual(
-        ['de', 'en', 'ja'],
+        ['fr', 'de', 'en', 'it', 'ja'],
         self.pod.translations.list_locales())
 
   def test_extract(self):
     catalog = self.pod.translations.extract()
-    self.assertEqual(12, len(catalog))  # X from views, N from content.
+    self.assertEqual(14, len(catalog))  # X from views, N from content.
     expected = [
         'Hello World!',
         'Hello World 2!',

@@ -81,14 +81,16 @@ class Translations(object):
       translation.update_catalog()
 
   def extract(self):
-    catalog_obj = catalog.Catalog()
-
     # Create directory if it doesn't exist. TODO(jeremydw): Optimize this.
     template_path = os.path.join(self.root, 'messages.pot')
     if not self.pod.file_exists(template_path):
       self.pod.create_file(template_path, None)
+      existing = False
+    else:
+      existing = pofile.read_po(self.pod.open_file(template_path))
 
     template = self.pod.open_file(template_path, mode='w')
+    catalog_obj = pofile.read_po(self.pod.open_file(template_path))
     extracted = []
 
     logging.info('Updating translation template: {}'.format(template_path))
@@ -109,9 +111,14 @@ class Translations(object):
           messages = extract.extract('jinja2.ext.babel_extract', fp, options=options)
           for message in messages:
             lineno, string, comments, context = message
+            flags = set()
+            if existing and string in existing:
+              existing_message = existing.get(string)
+              if existing_message and 'requested' in existing_message.flags:
+                flags.add('requested')
             added_message = catalog_obj.add(
                 string, None, [(pod_path, lineno)], auto_comments=comments,
-                context=context)
+                context=context, flags=flags)
             extracted.append(added_message)
         except tokenize.TokenError:
           logging.error('Problem extracting: {}'.format(pod_path))
@@ -187,6 +194,9 @@ class Translation(object):
 
   def get_gettext_translations(self):
     return self._gettext_translations
+
+  def has_translation(self, string):
+    return string in self._gettext_translations._catalog
 
   def get_catalog(self):
     return self._gettext_translations._catalog

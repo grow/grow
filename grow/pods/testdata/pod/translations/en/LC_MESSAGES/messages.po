@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-08-03 10:56-0700\n"
+"POT-Creation-Date: 2014-10-27 12:42+1300\n"
 "PO-Revision-Date: 2013-08-03 10:56-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -18,11 +18,45 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: source/templates/home.html:4
+msgid "About"
+msgstr ""
+
+msgid "About us"
+msgstr ""
+
+msgid "AboutDE"
+msgstr ""
+
+msgid "Bar"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
+
+msgid "Foo"
+msgstr ""
+
+msgid "Goodnight Moon!"
+msgstr ""
+
+msgid "Hello World 2!"
+msgstr ""
+
 msgid "Hello World!"
 msgstr ""
 
-#: source/templates/home.html:4
-msgid "Hello World 123!"
+msgid "Higher Priority"
+msgstr ""
+
+msgid "Home page"
+msgstr ""
+
+msgid "Introduction"
+msgstr ""
+
+msgid "Lower Priority"
+msgstr ""
+
+msgid "Newest!"
 msgstr ""
 

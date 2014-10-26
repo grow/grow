@@ -6,3 +6,5 @@ $localization:
   path: /{locale}/home/
 
 foo: bar
+translation_with_priority@: Lower Priority
+translation_with_priority@@: Higher Priority
