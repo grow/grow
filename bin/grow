@@ -1,27 +1,9 @@
 #! /usr/bin/env python
-"""
-The Grow SDK: a declarative, file-based CMS for building high-quality web sites.
-See documentation at: http://growsdk.org.
-
-Usage: grow [--version] [--help] <command> [<args>...]
-
-The most commonly used grow commands are:
-  build              Generates static files and dumps them to a local
-                     destination.
-  deploy             Deploys a pod to a destination.
-  extract            Extracts a pod's translations into messages files.
-  init               Initializes a pod using a theme, ready for development.
-  machine_translate  Translates a message catalog using machine translation.
-  routes             Lists routes defined by a pod.
-  run                Starts a pod server for a single pod.
-  test               Validates a pod and runs its tests.
-
-See 'grow <command> --help' for more information on a specific command.
-"""
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
+import click
 import os
 import sys
 
@@ -29,7 +11,6 @@ base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 sys.path.extend([base_dir])
 
 # Fixes werkzeug and PyInstaller.
-from grow.commands import *
 import werkzeug
 
 # Fixes simplejson and PyInstaller.
@@ -40,29 +21,17 @@ sys.modules['simplejson'] = json
 from watchdog.utils import unicode_paths
 unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
-from grow.common import sdk_utils
-from grow.common import utils
-from subprocess import call
-from docopt import docopt
+from grow import commands
+
+
+@click.group()
+def grow():
+  """The Grow SDK: a declarative, file-based CMS for building high-quality web sites.
+  See documentation at: http://growsdk.org."""
+
+
+commands.add(grow)
 
 
 if __name__ == '__main__':
-  args = docopt(__doc__, version='grow version {}'.format(
-      sdk_utils.get_this_version()), options_first=True)
-  argv = [args['<command>']] + args['<args>']
-
-  if args['<command>'] in 'build deploy extract init machine_translate routes run test'.split():
-    # Keep it DRY.
-    python_file = 'commands/grow_{}.py'.format(args['<command>'])
-    python_file = os.path.join(utils.get_grow_dir(), python_file)
-    env = os.environ.copy()
-    env['PYTHONPATH'] = '{}:{}'.format(base_dir, os.environ['PATH'])
-    try:
-      sys.exit(call([sys.executable, python_file] + argv, env=env))
-    except KeyboardInterrupt:
-      pass
-  elif args['<command>'] == 'help':
-    python_file = os.path.abspath(os.path.realpath(__file__))
-    sys.exit(call([sys.executable, python_file, '--help']))
-  else:
-    sys.exit('{} is not a grow command. See "grow --help"'.format(args['<command>']))
+  grow()
