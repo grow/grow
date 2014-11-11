@@ -1,28 +1,21 @@
-"""Translates the pod message catalog using machine translation.
-
-Usage: grow machine_translate [options] --locale=<locale>... [<pod_path>]
-
-  --help
-  --locale=<locale>  Locale(s) to translate
-"""
-
-from docopt import docopt
 from grow.pods import pods
 from grow.pods import storage
 from xtermcolor import colorize
-import multiprocessing
+import click
 import os
 
 
-if __name__ == '__main__':
-  multiprocessing.freeze_support()
-  args = docopt(__doc__)
-  root = os.path.abspath(os.path.join(os.getcwd(), args['<pod_path>'] or '.'))
+@click.command()
+@click.argument('pod_path', default='.')
+@click.option('--locale', type=basestring, multiple=True)
+def machine_translate(pod_path, locale):
+  """Translates the pod message catalog using machine translation."""
+  root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
 
   translations = pod.get_translations()
   translations.extract()
-  for locale in args['--locale']:
+  for locale in locale:
     translation = translations.get_translation(locale)
     translation.update_catalog()
     translation.machine_translate()

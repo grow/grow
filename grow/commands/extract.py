@@ -1,22 +1,15 @@
-"""Extracts a pod's translations into messages files.
-
-Usage: grow extract [options] [<pod_path>]
-
-  --help
-  --init  Init catalogs (wipes out existing translations)
-"""
-
-from docopt import docopt
 from grow.pods import pods
 from grow.pods import storage
-import multiprocessing
+import click
 import os
 
 
-if __name__ == '__main__':
-  multiprocessing.freeze_support()
-  args = docopt(__doc__)
-  root = os.path.abspath(os.path.join(os.getcwd(), args['<pod_path>'] or '.'))
+@click.command()
+@click.argument('pod_path', default='.')
+@click.option('--init', default=False, help='Whether to wipe out existing translations.')
+def extract(pod_path, init):
+  """Extracts translations into messages files."""
+  root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
 
   translations = pod.get_translations()
@@ -26,7 +19,7 @@ if __name__ == '__main__':
     logging.info('No pod-specific locales defined, '
                  'skipped generating locale-specific catalogs.')
   else:
-    if args['--init']:
+    if init:
       translations.init_catalogs(locales)
     else:
       translations.update_catalogs(locales)
