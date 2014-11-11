@@ -26,6 +26,15 @@ The current content document associated with the current page that's being rende
     {{doc.html|safe}}     # Document's rendered Markdown body.
     {{doc.foo}}           # Value of the "foo" custom field from the YAML front matter.
 
+### env
+
+The rendering environment that exists when the page is being built or served.
+
+    {{env.host}}
+    {{env.name}}
+    {{env.port}}
+    {{env.scheme}}
+
 ### podspec
 
 Refers to the [`podspec.yaml` configuration file]([url('/content/docs/podspec.md')]) and allows you to access pod-wide settings in templates.
