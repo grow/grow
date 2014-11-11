@@ -181,7 +181,7 @@ class RunCmd(appcommands.Cmd):
     if not FLAGS.skip_sdk_update_check:
       thread = threading.Thread(target=sdk_utils.check_version, args=(True,))
       thread.start()
-    environment = env.Env(env.EnvConfig(host=FLAGS.host, port=FLAGS.port))
+    environment = env.Env(env.EnvConfig(host=FLAGS.host, port=FLAGS.port, name='dev'))
     pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
     manager.start(pod, host=FLAGS.host, port=FLAGS.port, open_browser=FLAGS.browser)
 

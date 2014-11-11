@@ -12,14 +12,16 @@ from grow.server import handlers
 from grow.server import services
 
 
-podserver_app = webapp2.WSGIApplication([
-    ('/.*', handlers.PodHandler),
-])
-routes = [
-    ('/_api/pods.*', services.PodService),
-]
-application = service.service_mappings(
-    routes,
-    service_prefix='/_api',
-    registry_path='/_api/protorpc',
-    append_wsgi_apps=[podserver_app])
+def CreateWSGIApplication(pod=None):
+  podserver_app = webapp2.WSGIApplication([
+      ('/.*', handlers.PodHandler),
+  ])
+  podserver_app.registry['pod'] = pod
+  routes = [
+      ('/_api/pods.*', services.PodService),
+  ]
+  return service.service_mappings(
+      routes,
+      service_prefix='/_api',
+      registry_path='/_api/protorpc',
+      append_wsgi_apps=[podserver_app])

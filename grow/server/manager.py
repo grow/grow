@@ -52,12 +52,9 @@ def start(pod, host=None, port=None, open_browser=False):
 
   podspec_observer = file_watchers.create_dev_server_observer(pod)
 
-  root = pod.root
   try:
     # Create the development server.
-    root = os.path.abspath(os.path.normpath(root))
-    handlers.set_pod_root(root)
-    app = main_lib.application
+    app = main_lib.CreateWSGIApplication(pod)
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
     num_tries = 0
@@ -84,7 +81,7 @@ def start(pod, host=None, port=None, open_browser=False):
   try:
     root_path = pod.get_root_path()
     url = 'http://{}:{}{}'.format(host, port, root_path)
-    message = 'Serving pod {} @ {}'.format(root, colorize(url, ansi=99))
+    message = 'Serving pod {} @ {}'.format(pod.root, colorize(url, ansi=99))
     print colorize('Ready! ', ansi=47) + message
 
     def start_browser(server_ready_event):
