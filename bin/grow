@@ -24,9 +24,12 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 import os
 import sys
-sys.path.extend([os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')])
+
+base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+sys.path.extend([base_dir])
 
 # Fixes werkzeug and PyInstaller.
+from grow.commands import *
 import werkzeug
 
 # Fixes simplejson and PyInstaller.
@@ -38,24 +41,28 @@ from watchdog.utils import unicode_paths
 unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
 from grow.common import sdk_utils
+from grow.common import utils
 from subprocess import call
 from docopt import docopt
 
 
 if __name__ == '__main__':
-  args = docopt(__doc__, version='grow version {}'.format(sdk_utils.get_this_version()), options_first=True)
+  args = docopt(__doc__, version='grow version {}'.format(
+      sdk_utils.get_this_version()), options_first=True)
   argv = [args['<command>']] + args['<args>']
 
   if args['<command>'] in 'build deploy extract init machine_translate routes run test'.split():
     # Keep it DRY.
-    python_file = '../grow/commands/grow_{}.py'.format(args['<command>'])
-    python_file = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), python_file))
+    python_file = 'commands/grow_{}.py'.format(args['<command>'])
+    python_file = os.path.join(utils.get_grow_dir(), python_file)
+    env = os.environ.copy()
+    env['PYTHONPATH'] = '{}:{}'.format(base_dir, os.environ['PATH'])
     try:
-      exit(call([sys.executable, python_file] + argv))
+      sys.exit(call([sys.executable, python_file] + argv, env=env))
     except KeyboardInterrupt:
       pass
   elif args['<command>'] == 'help':
     python_file = os.path.abspath(os.path.realpath(__file__))
-    exit(call([sys.executable, python_file, '--help']))
+    sys.exit(call([sys.executable, python_file, '--help']))
   else:
-    exit("%r is not a grow command. See 'grow --help'." % args['<command>'])
+    sys.exit('{} is not a grow command. See "grow --help"'.format(args['<command>']))

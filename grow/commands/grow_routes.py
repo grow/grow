@@ -1,14 +1,15 @@
 """Lists routes defined by a pod.
 
-Usage: grow routes [options] <theme_repo> [<pod_path>]
+Usage: grow routes [options] <pod_path>
 
   --help
 """
 
 from docopt import docopt
+from grow.pods import commands
 from grow.pods import pods
 from grow.pods import storage
-from grow.pods import commands
+import logging
 import multiprocessing
 import os
 
