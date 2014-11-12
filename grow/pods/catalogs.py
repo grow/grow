@@ -29,9 +29,10 @@ class Catalog(catalog.Catalog):
   def __repr__(self):
     return '<Catalog: {}>'.format(self.path)
 
-  def load(self):
-    po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
-    po_file = self.pod.open_file(po_filename)
+  def load(self, path=None):
+    if path is None:
+      path = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
+    po_file = self.pod.open_file(path)
     try:
       babel_catalog = pofile.read_po(po_file, self.locale)
     finally:
@@ -86,106 +87,68 @@ class Catalog(catalog.Catalog):
       catalog_message.messages.append(message_message)
     return catalog_message
 
-  def init(self):
-    locale = str(self.locale)
-    input_path = os.path.join('translations', 'messages.pot')
-    output_path = os.path.join('translations', locale, 'LC_MESSAGES', 'messages.po')
-    logging.info('Creating catalog %r based on %r', output_path, input_path)
-    infile = self.pod.open_file(input_path)
-    try:
-      babel_catalog = pofile.read_po(infile, locale=locale)
-    finally:
-      infile.close()
-
-    babel_locale = babel.Locale.parse(locale)
-    babel_catalog.locale = babel_locale
-    babel_catalog.revision_date = datetime.now(util.LOCALTZ)
-    babel_catalog.fuzzy = False
-
+  def save(self, ignore_obsolete=True, include_previous=True, width=80):
     # TODO(jeremydw): Optimize.
     # Creates directory if it doesn't exist.
-    path = os.path.join(output_path)
+    path = os.path.join('translations', str(self.locale), 'LC_MESSAGES',
+                        'messages.po')
     if not self.pod.file_exists(path):
       self.pod.create_file(path, None)
 
-    outfile = self.pod.open_file(output_path, mode='w')
+    outfile = self.pod.open_file(path, mode='w')
     try:
-      pofile.write_po(outfile, babel_catalog, width=80)
+      pofile.write_po(outfile, self, ignore_obsolete=ignore_obsolete,
+                      include_previous=include_previous, width=width)
     finally:
       outfile.close()
 
+  def init(self):
+    self.load(os.path.join('translations', 'messages.pot'))
+    self.revision_date = datetime.now(util.LOCALTZ)
+    self.fuzzy = False
+    self.save()
+
   def update(self, use_fuzzy=False, ignore_obsolete=True, include_previous=True,
              width=80):
-    locale = str(self.locale)
-    domain = 'messages'
-    po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
-    pot_filename = os.path.join('translations', 'messages.pot')
-    template = pofile.read_po(self.pod.open_file(pot_filename))
-
-    # Create a catalog if it doesn't exist.
-    if not self.pod.file_exists(po_filename):
-      self.init_catalog()
+    if not self.exists:
+      self.init()
       return
 
-    logging.info('Updating catalog {} using {}'.format(po_filename, pot_filename))
-    infile = self.pod.open_file(po_filename, 'U')
-    try:
-      catalog = pofile.read_po(infile, locale=locale, domain=domain)
-    finally:
-      infile.close()
+    # Updates with new extracted messages from the template.
+    template_file = self.pod.open_file(os.path.join('translations', 'messages.pot'))
+    template = pofile.read_po(template_file)
+    super(Catalog, self).update(template, use_fuzzy)
 
-    catalog.update(template, use_fuzzy)
-
-    temp_filename = po_filename + '.tmp'
-    if not self.pod.file_exists(temp_filename):
-      self.pod.create_file(temp_filename, None)
-
-    temp_file = self.pod.open_file(temp_filename, 'w')
-    try:
-      try:
-        pofile.write_po(temp_file, catalog, ignore_obsolete=ignore_obsolete,
-                        include_previous=include_previous, width=width)
-      finally:
-        temp_file.close()
-    except:
-      self.pod.delete_file(temp_filename)
-      raise
-
-    self.pod.move_file_to(temp_filename, po_filename)
+    # Save the result.
+    self.save(ignore_obsolete=ignore_obsolete,
+              include_previous=include_previous, width=width)
 
   def compile(self, use_fuzzy=False):
-    locale = str(self.locale)
-    po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
     mo_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.mo')
-    po_file = self.pod.open_file(po_filename)
-    try:
-      catalog = pofile.read_po(po_file, locale)
-    finally:
-      po_file.close()
 
     num_translated = 0
     num_total = 0
-    for message in list(catalog)[1:]:
+    for message in list(self)[1:]:
       if message.string:
         num_translated += 1
       num_total += 1
 
-    if catalog.fuzzy and not use_fuzzy:
-      logging.info('Catalog {} is marked as fuzzy, skipping.'.format(po_filename))
+    if self.fuzzy and not use_fuzzy:
+      logging.info('Skipping fuzzy catalog: {}'.format(self))
 
     try:
-      for message, errors in catalog.check():
+      for message, errors in self.check():
         for error in errors:
-          logging.error('Error: {}:{}: {}'.format(po_filename, message.lineno, error))
+          logging.error('Error: {}:{}: {}'.format(self.path, message.lineno, error))
     except IOError:
-      logging.info('Skipped catalog check.')
+      logging.info('Skipped catalog check for: {}'.format(self))
 
     text = 'Compiling {}/{} translated strings to {}'
     logging.info(text.format(num_translated, num_total, mo_filename))
 
     mo_file = self.pod.open_file(mo_filename, 'w')
     try:
-      mofile.write_mo(mo_file, catalog, use_fuzzy=use_fuzzy)
+      mofile.write_mo(mo_file, self, use_fuzzy=use_fuzzy)
     finally:
       mo_file.close()
 

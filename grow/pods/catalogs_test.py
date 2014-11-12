@@ -40,6 +40,20 @@ class CatalogTest(unittest.TestCase):
     self.assertIn('AboutDE', de_catalog)
     self.assertEqual(14, len(de_catalog))
 
+  def test_save(self):
+    it_catalog = self.pod.catalogs.get('it')
+    self.assertNotIn('foo', it_catalog)
+    it_catalog.add('foo', 'bar')
+    it_catalog.save()
+
+    it_catalog = self.pod.catalogs.get('it')
+    self.assertIn('foo', it_catalog)
+    it_catalog.delete('foo')
+    it_catalog.save()
+
+    it_catalog = self.pod.catalogs.get('it')
+    self.assertNotIn('foo', it_catalog)
+
 
 if __name__ == '__main__':
   unittest.main()

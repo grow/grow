@@ -20,8 +20,6 @@ _TRANSLATABLE_EXTENSIONS = (
   '.html',
 )
 
-BABEL_CONFIG = os.path.join(os.path.dirname(__file__), 'data', 'babel.cfg')
-
 
 
 class Catalogs(object):
