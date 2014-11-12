@@ -9,6 +9,10 @@ class DocumentsTestCase(unittest.TestCase):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_doc_storage(self):
+    # Because this test involves translation priority, ensure that we have
+    # compiled the MO files before running the test.
+    self.pod.translations.recompile_mo_files()
+
     doc = self.pod.get_doc('/content/pages/intro.md')
     self.assertEqual('About page.', doc.body)
     self.assertEqual('<p>About page.</p>', doc.html)
