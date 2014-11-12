@@ -51,6 +51,10 @@ class Error(Exception):
   pass
 
 
+class PodDoesNotExistError(Error, IOError):
+  pass
+
+
 class PodSpecParseError(Error):
   pass
 
@@ -94,8 +98,11 @@ class Pod(object):
   def _parse_yaml(self):
     try:
       return utils.parse_yaml(self.read_file('/podspec.yaml'))
-    except IOError:
-      raise PodSpecParseError('Pod does not exist or malformed podspec.yaml.')
+    except IOError as e:
+      path = self.abs_path('/podspec.yaml')
+      if e.args[0] == 2 and e.filename:
+        raise PodDoesNotExistError('Pod does not exist: {}'.format(path))
+      raise PodSpecParseError('Error parsing: {}'.format(path))
 
   @property
   def podspec(self):

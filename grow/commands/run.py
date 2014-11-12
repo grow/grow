@@ -26,4 +26,7 @@ def run(host, port, debug, browser, skip_sdk_update_check, pod_path):
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   environment = env.Env(env.EnvConfig(host=host, port=port, name='dev'))
   pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
-  manager.start(pod, host=host, port=port, open_browser=browser, debug=debug)
+  try:
+    manager.start(pod, host=host, port=port, open_browser=browser, debug=debug)
+  except pods.Error as e:
+    raise click.ClickException(str(e))
