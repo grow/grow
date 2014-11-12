@@ -143,8 +143,11 @@ class Document(object):
 
   def get_path_format(self):
     val = None
-    if self.locale and self._default_locale and self.locale != self._default_locale:
-      if '$localization' in self.fields and 'path' in self.fields['$localization']:
+    if (self.locale
+        and self._default_locale
+        and self.locale != self._default_locale):
+      if ('$localization' in self.fields
+          and 'path' in self.fields['$localization']):
         val = self.fields['$localization']['path']
       elif self.collection.localization:
         val = self.collection.localization['path']
@@ -210,13 +213,25 @@ class Document(object):
       logging.error('Error with path format: {}'.format(path_format))
       raise
 
+  @property
+  def locale_alias(self):
+    locale = str(self.locale).lower()
+    podspec = self.pod.get_podspec()
+    config = podspec.get_config()
+    if 'localization' in config and 'aliases' in config['localization']:
+      aliases = config['localization']['aliases']
+      for custom_locale, babel_locale in aliases.iteritems():
+        locale = locale.replace(babel_locale, custom_locale)
+    return locale
+
   def _format_path(self, path_format):
+    podspec = self.pod.get_podspec()
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': str(self.locale),
+        'locale': self.locale_alias,
         'parent': self.parent if self.parent else DummyDict(),
-        'podspec': self.pod.get_podspec(),
+        'podspec': podspec,
         'slug': self.slug,
     }).replace('//', '/')
 
@@ -225,11 +240,11 @@ class Document(object):
     return self.list_locales()
 
   def list_locales(self):
-    if '$localization' in self.fields:
-      if 'locales' in self.fields['$localization']:
-        codes = self.fields['$localization']['locales']
-    codes = self.collection.list_locales()
-    return locales.Locale.parse_codes(codes)
+    if ('$localization' in self.fields
+        and 'locales' in self.fields['$localization']):
+      codes = self.fields['$localization']['locales']
+      return locales.Locale.parse_codes(codes)
+    return self.collection.list_locales()
 
   @property
   @utils.memoize
@@ -347,13 +362,14 @@ class YamlDocumentStorage(BaseDocumentStorage):
   def load(self):
     path = self.pod_path
     content = self.pod.read_file(path)
-    fields, body = utils.parse_yaml(content, path=path)
-    self.content = content
+    fields = utils.parse_yaml(content, path=path, locale=self.locale,
+                              default_locale=self.default_locale)
+    self.content = None
     self.fields = fields or {}
     self.tagged_fields = {}
-    self.body = body
+    self.body = None
     self.tagged_fields = copy.deepcopy(fields)
-    fields = untag_fields(fields)
+    fields = untag_fields(fields, locale=self.locale, pod=self.pod)
 
 
 class HtmlDocumentStorage(YamlDocumentStorage):
@@ -371,7 +387,7 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     self.fields = fields or {}
     self.body = body
     self.tagged_fields = copy.deepcopy(fields)
-    fields = untag_fields(fields)
+    fields = untag_fields(fields, locale=self.locale, pod=self.pod)
 
   def html(self, doc):
     val = self.body
@@ -387,11 +403,34 @@ class MarkdownDocumentStorage(BaseDocumentStorage):
     return val
 
 
-def untag_fields(fields):
+def untag_fields(fields, locale=None, pod=None):
+  """Untags fields, handling translation priority."""
+  untagged_keys_to_add = {}
+  nodes_and_keys_to_add = []
+  nodes_and_keys_to_remove = []
+  catalog = pod.get_translation_catalog(locale)
   def callback(item, key, node):
     if not isinstance(key, basestring):
       return
     if key.endswith('@'):
-      node[key[0:(len(key) - 1)]] = node.pop(key)
+      untagged_key = key.rstrip('@')
+      priority = len(key) - len(untagged_key)
+      content = node[key]
+      nodes_and_keys_to_remove.append((node, key))
+      if priority > 1 and untagged_key in untagged_keys_to_add:
+        try:
+          has_translation_for_higher_priority_key = catalog.has_translation(content)
+        except AttributeError:
+          has_translation_for_higher_priority_key = False
+        if has_translation_for_higher_priority_key:
+          untagged_keys_to_add[untagged_key] = True
+          nodes_and_keys_to_add.append((node, untagged_key, content))
+      elif priority <= 1:
+        untagged_keys_to_add[untagged_key] = True
+        nodes_and_keys_to_add.append((node, untagged_key, content))
   utils.walk(fields, callback)
+  for node, key in nodes_and_keys_to_remove:
+    del node[key]
+  for node, untagged_key, content in nodes_and_keys_to_add:
+    node[untagged_key] = content
   return fields

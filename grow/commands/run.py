@@ -14,7 +14,11 @@ import threading
 @click.option('--port', default=8080)
 @click.option('--debug', default=False, is_flag=True,
               help='Whether to run in debug mode.')
+<<<<<<< HEAD
 @click.option('--browser', default=False, is_flag=True,
+=======
+@click.option('--browser', is_flag=True, default=False,
+>>>>>>> c4ec9ddf1d9cb97de6f16b68ae4397ade00263d3
               help='Whether to open a browser upon startup.')
 @click.option('--skip_sdk_update_check', default=False, is_flag=True,
               help='Whether to skip checking for updates to the Grow SDK.')
@@ -23,7 +27,12 @@ def run(host, port, debug, browser, skip_sdk_update_check, pod_path):
   if not skip_sdk_update_check:
     thread = threading.Thread(target=sdk_utils.check_version, args=(True,))
     thread.start()
+<<<<<<< HEAD
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   environment = env.Env(env.EnvConfig(host=host, port=port))
+=======
+  root = os.path.abspath(os.path.join(os.getcwd(), pod_path or '.'))
+  environment = env.Env(env.EnvConfig(host=host, port=port, name='dev'))
+>>>>>>> c4ec9ddf1d9cb97de6f16b68ae4397ade00263d3
   pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
   manager.start(pod, host=host, port=port, open_browser=browser, debug=debug)

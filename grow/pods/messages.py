@@ -17,6 +17,7 @@ class MessageMessage(messages.Message):
   msgid = messages.StringField(1)
   msgstr = messages.StringField(2)
   description = messages.StringField(3)
+  flags = messages.StringField(4, repeated=True)
 
 
 class TranslationCatalogMessage(messages.Message):

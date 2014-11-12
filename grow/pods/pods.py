@@ -68,8 +68,7 @@ class Pod(object):
     self.storage = storage
     self.root = root if self.storage.is_cloud_storage else os.path.abspath(root)
     self.changeset = changeset
-    self.env = env if env else environment.Env(
-        environment.EnvConfig(host='localhost'))
+    self.env = env if env else environment.Env(environment.EnvConfig(host='localhost'))
 
     self.routes = routes.Routes(pod=self)
     self.locales = locales.Locales(pod=self)
@@ -94,7 +93,7 @@ class Pod(object):
   @utils.memoize
   def _parse_yaml(self):
     try:
-      return utils.parse_yaml(self.read_file('/podspec.yaml'))[0]
+      return utils.parse_yaml(self.read_file('/podspec.yaml'))
     except IOError:
       raise PodSpecParseError('Pod does not exist or malformed podspec.yaml.')
 
@@ -259,10 +258,12 @@ class Pod(object):
     kind = deployment_params.pop('destination')
     try:
       config = destination_configs[nickname]
-      deployment = deployments.make_deployment(kind, config)
+      deployment = deployments.make_deployment(kind, config, name=nickname)
     except TypeError:
       logging.exception('Invalid deployment parameters.')
       raise
+    if deployment.config.keep_control_dir:
+      deployment.pod = self
     return deployment
 
   def list_locales(self):
@@ -292,7 +293,7 @@ class Pod(object):
     _template_loader = self.storage.JinjaLoader(self.root)
     env = jinja2.Environment(
         loader=_template_loader, autoescape=True, trim_blocks=True,
-        extensions=['jinja2.ext.i18n'])
+        extensions=['jinja2.ext.i18n', 'jinja2.ext.do'])
     env.filters['markdown'] = tags.markdown_filter
     env.filters['render'] = tags.render_filter
     return env
