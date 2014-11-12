@@ -22,7 +22,7 @@ class Tests(object):
   @property
   @utils.memoize
   def yaml(self):
-    return utils.parse_yaml(self.pod.read_file('/tests.yaml'))[0]
+    return utils.parse_yaml(self.pod.read_file('/tests.yaml'))
 
   @property
   def exists(self):

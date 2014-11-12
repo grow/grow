@@ -15,13 +15,6 @@ _env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True,
                           extensions=['jinja2.ext.i18n'])
 
 
-def set_pod_root(root):
-  if root is None and 'grow:pod_root' in os.environ:
-    del os.environ['grow:pod_root']
-  if root is not None:
-    os.environ['grow:pod_root'] = root
-
-
 class BaseHandler(webapp2.RequestHandler):
 
   def handle_exception(self, exception, debug):
@@ -48,12 +41,7 @@ class BaseHandler(webapp2.RequestHandler):
 class PodHandler(BaseHandler):
 
   def get(self):
-    try:
-      root = os.environ['grow:pod_root']
-    except KeyError:
-      raise Exception('Environment variable "grow:pod_root" missing.')
-    environment = env.Env.from_wsgi_env(self.request.environ)
-    pod = pods.Pod(root, env=environment)
+    pod = self.app.registry['pod']
     try:
       controller = pod.routes.match(self.request.path, self.request.environ)
       self.respond_with_controller(controller)

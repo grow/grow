@@ -21,28 +21,28 @@ class TestCase(base.DestinationTestCase):
 
   def test_domain_cname_is_gcs(self):
     bucket_name = self.deployment.config.bucket
-    CNAME = 'c.storage.googleapis.com'
+    CKIND = 'c.storage.googleapis.com'
 
     message = deployment_messages.TestResultMessage()
-    message.title = 'CNAME for {} is {}'.format(bucket_name, CNAME)
+    message.title = 'CKIND for {} is {}'.format(bucket_name, CKIND)
 
     dns_resolver = dns.resolver.Resolver()
     dns_resolver.nameservers = ['8.8.8.8']  # Use Google's DNS.
 
     try:
-      content = str(dns_resolver.query(bucket_name, 'CNAME')[0])
+      content = str(dns_resolver.query(bucket_name, 'CKIND')[0])
     except:
       content = ''
-      text = "Can't verify CNAME for {} is mapped to {}"
+      text = "Can't verify CKIND for {} is mapped to {}"
       message.result = deployment_messages.Result.WARNING
-      message.text = text.format(bucket_name, CNAME)
-    if not content.startswith(CNAME):
-      text = 'CNAME mapping for {} is not GCS! Found {}, expected {}'
+      message.text = text.format(bucket_name, CKIND)
+    if not content.startswith(CKIND):
+      text = 'CKIND mapping for {} is not GCS! Found {}, expected {}'
       message.result = deployment_messages.Result.WARNING
-      message.text = text.format(bucket_name, content, CNAME)
+      message.text = text.format(bucket_name, content, CKIND)
     else:
-      text = 'CNAME for {} -> {}'.format(bucket_name, content, CNAME)
-      message.text = text.format(text, content, CNAME)
+      text = 'CKIND for {} -> {}'.format(bucket_name, content, CKIND)
+      message.text = text.format(text, content, CKIND)
     return message
 
 
@@ -54,10 +54,11 @@ class Config(messages.Message):
   email = messages.StringField(5)
   key_path = messages.StringField(6)
   env = messages.MessageField(env.EnvConfig, 7)
+  keep_control_dir = messages.BooleanField(8, default=False)
 
 
 class GoogleCloudStorageDestination(base.BaseDestination):
-  NAME = 'gcs'
+  KIND = 'gcs'
   TestCase = TestCase
   Config = Config
 

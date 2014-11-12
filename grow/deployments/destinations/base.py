@@ -42,7 +42,7 @@ destination, you'll just have to implement the following methods/properties:
   write_file(self, path, content)
     Writes a file at the destination, given the file's pod path and its content.
 
-  NAME
+  KIND
     A string identifying the deployment.
 
 The following methods are optional to implement:
@@ -105,17 +105,26 @@ class DestinationTestCase(object):
 
 class BaseDestination(object):
   TestCase = DestinationTestCase
-  control_dir = '/.grow/'
   index_basename = 'index.proto.json'
   stats_basename = 'stats.proto.json'
   threaded = True
+  _control_dir = '/.grow/'
 
-  def __init__(self, config, run_tests=True):
+  def __init__(self, config, name='default', run_tests=True):
     self.config = config
     self.run_tests = run_tests
+    self.name = name
+    self.pod = None
 
   def __str__(self):
     return self.__class__.__name__
+
+  @property
+  def control_dir(self):
+    if self.config.keep_control_dir:
+      control_dir = self._control_dir
+      return os.path.join(self.pod.root, control_dir, 'deployments', self.name)
+    return self._control_dir
 
   def _get_remote_index(self):
     try:
@@ -148,14 +157,20 @@ class BaseDestination(object):
 
   def delete_control_file(self, path):
     path = os.path.join(self.control_dir, path.lstrip('/'))
+    if self.config.keep_control_dir:
+      return self.pod.delete_file(path)
     return self.delete_file(path)
 
   def read_control_file(self, path):
     path = os.path.join(self.control_dir, path.lstrip('/'))
+    if self.config.keep_control_dir:
+      return self.pod.read_file(path)
     return self.read_file(path)
 
   def write_control_file(self, path, content):
     path = os.path.join(self.control_dir, path.lstrip('/'))
+    if self.config.keep_control_dir:
+      return self.pod.write_file(path, content)
     return self.write_file(path, content)
 
   def test(self):

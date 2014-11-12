@@ -2,5 +2,9 @@ $path: /
 $view: /views/home.html
 $title@: Home page
 $order: 0
+$localization:
+  path: /{locale}/home/
 
 foo: bar
+translation_with_priority@: Lower Priority
+translation_with_priority@@: Higher Priority

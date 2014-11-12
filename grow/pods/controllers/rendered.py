@@ -4,6 +4,7 @@ from . import tags
 from grow.common import utils
 from grow.pods import errors
 from grow.pods.storage import gettext_storage as gettext
+import locale
 import logging
 import mimetypes
 
@@ -70,17 +71,24 @@ class RenderedController(base.BaseController):
     # TODO(jeremydw): This is a bit hacky. Be more explicit about translations.
     ll = self.locale
     self._install_translations(ll)
+    try:
+      locale.setlocale(locale.LC_TIME, str(self.locale))
+    except locale.Error:
+      logging.error('Bad locale: %s', self.locale)
     template = self._template_env.get_template(self.view.lstrip('/'))
     g = {
-        'categories': lambda *args, **kwargs: tags.categories(*args, _pod=self.pod, **kwargs),
-        'docs': lambda *args, **kwargs: tags.docs(*args, _pod=self.pod, **kwargs),
-        'doc': lambda *args, **kwargs: tags.get_doc(*args, _pod=self.pod, **kwargs),
-        'static': lambda path: tags.static(path, _pod=self.pod),
         'breadcrumb': lambda *args, **kwargs: tags.breadcrumb(*args, _pod=self.pod, **kwargs),
-        'nav': lambda *args, **kwargs: tags.nav(*args, _pod=self.pod, **kwargs),
+        'categories': lambda *args, **kwargs: tags.categories(*args, _pod=self.pod, **kwargs),
         'cc': self.cc,
+        'csv': lambda *args, **kwargs: tags.csv(*args, _pod=self.pod, **kwargs),
+        'date': lambda *args, **kwargs: tags.date(*args, _pod=self.pod, **kwargs),
+        'doc': lambda *args, **kwargs: tags.get_doc(*args, _pod=self.pod, **kwargs),
+        'docs': lambda *args, **kwargs: tags.docs(*args, _pod=self.pod, **kwargs),
         'll': self.ll,
+        'locales': lambda *args, **kwargs: tags.locales(*args, _pod=self.pod, **kwargs),
+        'nav': lambda *args, **kwargs: tags.nav(*args, _pod=self.pod, **kwargs),
         'params': self.route_params,
+        'static': lambda path: tags.static(path, _pod=self.pod),
         'url': lambda *args, **kwargs: tags.url(*args, _pod=self.pod, **kwargs),
     }
     try:

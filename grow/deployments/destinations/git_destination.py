@@ -15,10 +15,11 @@ class Config(messages.Message):
   repo = messages.StringField(2)
   branch = messages.StringField(3, default='master')
   root_dir = messages.StringField(4, default='')
+  keep_control_dir = messages.BooleanField(5, default=False)
 
 
 class GitDestination(base.BaseDestination):
-  NAME = 'git'
+  KIND = 'git'
   Config = Config
   storage = storage_lib.FileStorage
 

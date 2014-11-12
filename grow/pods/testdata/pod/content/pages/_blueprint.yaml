@@ -5,11 +5,9 @@ localization:
   path: /{locale}/{base}/
 
 fields:
-
 - key: title
   name: Title
   kind: Text
-
 - key: title
   name: Title
   kind: Text

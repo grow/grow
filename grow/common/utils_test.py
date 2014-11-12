@@ -44,24 +44,44 @@ class UtilsTestCase(unittest.TestCase):
         '# Bam'
     )
     fields, content = utils.parse_markdown(content)
-    print fields, content
     self.assertEqual(None, fields)
     self.assertEqual('# Bam', content)
 
-    localized_content = (
+    content = (
         '---\n'
-        'locale: foo\n'
+        '$locale: foo\n'
         '---\n'
         '# Foo\n'
         '---\n'
-        'locale: bar\n'
+        '$locale: bar\n'
         '---\n'
         '# Bar\n'
         '---\n'
-        'locale: qaz\n'
+        '$locale: qaz\n'
         '---\n'
         '# Qaz\n'
     )
+    fields, content = utils.parse_markdown(content, locale='bar')
+    self.assertEqual('# Bar', content)
+
+    content = (
+        '---\n'
+        '$locale: a\n'
+        'main: a\n'
+        'foo: bar\n'
+        '---\n'
+        '$locale: b\n'
+        'foo: baz\n'
+        '---\n'
+        '$locale: c\n'
+        'foo: qux\n'
+    )
+    fields = utils.parse_yaml(content, locale='a')
+    self.assertEqual({'foo': 'bar', '$locale': 'a', 'main': 'a'}, fields)
+    fields = utils.parse_yaml(content, locale='b')
+    self.assertEqual({'foo': 'baz', '$locale': 'b'}, fields)
+    fields = utils.parse_yaml(content, locale='b', default_locale='a')
+    self.assertEqual({'foo': 'baz', 'main': 'a', '$locale': 'b'}, fields)
 
 
 if __name__ == '__main__':

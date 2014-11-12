@@ -132,17 +132,38 @@ def parse_markdown(content, path=None, locale=None, default_locale=None):
   return fields, (content.strip() if content else None)
 
 
-def parse_yaml(content, path=None):
+def parse_yaml(content, path=None, locale=None, default_locale=None):
+  locale = str(locale) if locale is not None else locale
+  default_locale = str(default_locale) if default_locale is not None else default_locale
+  locales_to_fields = {}
+  default_locale_fields = {}
+
   try:
     content = content.strip()
     parts = re.split('---\n', content)
     if len(parts) == 1:
-      return yaml.load(content), None
-    parts.pop(0)
-    front_matter, body = parts
-    parsed_yaml = yaml.load(front_matter)
-    body = str(body)
-    return parsed_yaml, body
+      return yaml.load(content)
+
+    parts = parts[1:]   # Strip off empty group.
+
+    for fields in parts:
+      fields = yaml.load(fields)
+      doc_locale = fields.get('$locale', default_locale)
+      locales_to_fields[doc_locale] = fields
+
+    if default_locale is not None and default_locale in locales_to_fields:
+      fields = locales_to_fields[default_locale]
+    else:
+      fields = None
+
+    if locale in locales_to_fields:
+      localized_fields = locales_to_fields[locale]
+      if fields is None:
+        fields = {}
+      fields.update(localized_fields)
+
+    return fields
+
   except Exception as e:
     if path:
       text = 'Problem parsing YAML file "{}": {}'.format(path, str(e))

@@ -4,6 +4,9 @@ msgstr ""
 msgid "About us"
 msgstr ""
 
+msgid "AboutDE"
+msgstr ""
+
 msgid "Bar"
 msgstr ""
 
@@ -22,10 +25,16 @@ msgstr ""
 msgid "Hello World!"
 msgstr ""
 
+msgid "Higher Priority"
+msgstr ""
+
 msgid "Home page"
 msgstr ""
 
 msgid "Introduction"
+msgstr ""
+
+msgid "Lower Priority"
 msgstr ""
 
 msgid "Newest!"
