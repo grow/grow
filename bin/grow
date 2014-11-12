@@ -1,11 +1,14 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
+import click
 import os
 import sys
-sys.path.extend([os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')])
+
+base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+sys.path.extend([base_dir])
 
 # Fixes werkzeug and PyInstaller.
 import werkzeug
@@ -18,21 +21,17 @@ sys.modules['simplejson'] = json
 from watchdog.utils import unicode_paths
 unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
-from google_apputils import appcommands
 from grow import commands
-from grow.common import sdk_utils
-import multiprocessing
-
-# This hack displays useful information at the top of the "grow help" command.
-_text = ('The Grow SDK: a declarative, file-based CMS for building high-quality web sites.'
-         '\n\nVersion: {}. See documentation at: http://growsdk.org.')
-__doc__ = _text.format(sdk_utils.get_this_version())
 
 
-def main(argv):
-  commands.add_commands()
+@click.group()
+def grow():
+  """The Grow SDK: a declarative, file-based CMS for building high-quality web sites.
+  See documentation at: http://growsdk.org."""
+
+
+commands.add(grow)
 
 
 if __name__ == '__main__':
-  multiprocessing.freeze_support()
-  appcommands.Run()
+  grow()

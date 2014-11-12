@@ -2,18 +2,12 @@ from grow.common import utils
 from grow.pods import env
 from grow.pods import pods
 from grow.pods import storage
-import gflags as flags
 import jinja2
 import logging
 import os
 import webapp2
 import webob
 import werkzeug
-
-FLAGS = flags.FLAGS
-
-flags.DEFINE_boolean(
-    'debug', False, 'Whether to show debug output.')
 
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
@@ -24,7 +18,7 @@ _env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True,
 class BaseHandler(webapp2.RequestHandler):
 
   def handle_exception(self, exception, debug):
-    if FLAGS.debug:
+    if debug:
       logging.exception(exception)
     else:
       logging.error(str(exception))

@@ -44,7 +44,7 @@ class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
     sys.stderr.write('%s %s\n' % (timestring, format % args))
 
 
-def start(pod, host=None, port=None, open_browser=False):
+def start(pod, host=None, port=None, open_browser=False, debug=False):
   print ''
   print '  The Grow SDK is experimental. Expect backwards incompatibility until v0.1.0.'
   print '  Thank you for testing and contributing! Visit http://growsdk.org for resources.'
