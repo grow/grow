@@ -9,8 +9,8 @@ class TranslationsTest(unittest.TestCase):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
 
   def test_list_locales(self):
-    self.assertListEqual(
-        ['fr', 'de', 'en', 'it', 'ja'],
+    self.assertItemsEqual(
+        ['de', 'fr', 'en', 'it', 'ja'],
         self.pod.translations.list_locales())
 
   def test_extract(self):
