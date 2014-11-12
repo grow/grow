@@ -219,22 +219,22 @@ class PodService(remote.Service):
     return message
 
   @remote.method(
-      messages.GetTranslationCatalogRequest,
-      messages.GetTranslationCatalogResponse)
-  def get_translation_catalog(self, request):
+      messages.GetCatalogRequest,
+      messages.GetCatalogResponse)
+  def get_catalog(self, request):
     pod = self.get_pod_from_request(request)
-    catalog = pod.get_translation_catalog(request.catalog.locale)
-    message = messages.GetTranslationCatalogResponse()
+    catalog = pod.catalogs.get(request.catalog.locale)
+    message = messages.GetCatalogResponse()
     message.catalog = catalog.to_message()
     return message
 
   @remote.method(
-      messages.ExtractTranslationsRequest,
-      messages.ExtractTranslationsResponse)
+      messages.ExtractRequest,
+      messages.ExtractResponse)
   def extract_translations(self, request):
     pod = self.get_pod_from_request(request)
-    pod.translations.extract()
-    message = messages.ExtractTranslationsResponse()
+    pod.catalogs.extract()
+    message = messages.ExtractResponse()
     return message
 
   @remote.method(

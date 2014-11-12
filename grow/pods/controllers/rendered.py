@@ -55,8 +55,8 @@ class RenderedController(base.BaseController):
     if ll is None:
       gettext_translations = gettext.NullTranslations()
     else:
-      translation = self.pod.translations.get_translation(ll)
-      gettext_translations = translation.get_gettext_translations()
+      catalog = self.pod.catalogs.get(ll)
+      gettext_translations = catalog.gettext_translations
     self._template_env.uninstall_gettext_translations(None)
     self._template_env.install_gettext_translations(gettext_translations, newstyle=True)
 

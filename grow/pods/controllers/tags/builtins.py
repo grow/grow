@@ -126,14 +126,10 @@ def date(datetime_obj=None, _pod=None, **kwargs):
   elif isinstance(datetime_obj, basestring) and _from is not None:
     datetime_obj = datetime.strptime(datetime_obj, _from)
   if to_locale is not None:
-#    original_locale = locale.getlocale()
     try:
-      locale.setlocale(locale.LC_TIME, str(to_locale))
       to = locale.nl_langinfo(locale.D_FMT)
     except locale.Error:
       logging.error('Bad locale: %s', to_locale)
-#    if original_locale:
-#      locale.setlocale(original_locale)
   if to is not None:
     datetime_obj = datetime_obj.strftime(to)
     datetime_obj = datetime_obj.decode('utf-8')

@@ -29,8 +29,8 @@ class Stats(object):
     message.num_files_per_type = self.get_num_files_per_type()
 
     message.locales = [str(locale) for locale in self.pod.list_locales()]
-    message.langs = self.pod.get_translations().list_locales()
-    catalog = self.pod.get_translations().get_catalog()
+    message.langs = self.pod.catalogs.list_locales()
+    catalog = self.pod.catalogs.get_template()
     message.num_messages = len(catalog) if catalog else 0
     return message
 
