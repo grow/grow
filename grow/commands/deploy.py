@@ -1,3 +1,4 @@
+from grow.common import utils
 from grow.deployments.stats import stats
 from grow.pods import pods
 from grow.pods import storage
@@ -25,7 +26,7 @@ def deploy(pod_path, deployment_name, skip_confirm, test_only):
     deployment.test()
   else:
     paths_to_contents = pod.dump()
-    repo = _get_git_repo(pod.root)
+    repo = utils.get_git_repo(pod.root)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
                       confirm=skip_confirm)
