@@ -34,7 +34,7 @@ from . import podspec
 from . import routes
 from . import storage
 from . import tests
-from . import translations
+from . import catalog_holder
 from .collectionz import collectionz
 from .controllers import tags
 from .preprocessors import preprocessors
@@ -76,7 +76,7 @@ class Pod(object):
 
     self.routes = routes.Routes(pod=self)
     self.locales = locales.Locales(pod=self)
-    self.translations = translations.Translations(pod=self)
+    self.catalogs = catalog_holder.Catalogs(pod=self)
     self.tests = tests.Tests(pod=self)
 
   def __repr__(self):
@@ -125,9 +125,6 @@ class Pod(object):
 
   def get_routes(self):
     return self.routes
-
-  def get_translations(self):
-    return self.translations
 
   def abs_path(self, pod_path):
     path = os.path.join(self.root, pod_path.lstrip('/'))
@@ -188,9 +185,6 @@ class Pod(object):
     """
     pod_path = os.path.join('/content', collection_path)
     return collectionz.Collection.get(pod_path, _pod=self)
-
-  def get_translation_catalog(self, locale):
-    return self.translations.get_translation(locale)
 
   def duplicate_to(self, other, exclude=None):
     """Duplicates this pod to another pod."""
@@ -287,9 +281,7 @@ class Pod(object):
     return results
 
   def preprocess(self):
-    # Preprocess translations.
-    translations_obj = self.get_translations()
-    translations_obj.recompile_mo_files()
+    self.catalogs.compile()  # Preprocess translations.
     for preprocessor in self.list_preprocessors():
       preprocessor.run()
 

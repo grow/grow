@@ -20,13 +20,13 @@ class MessageMessage(messages.Message):
   flags = messages.StringField(4, repeated=True)
 
 
-class TranslationCatalogMessage(messages.Message):
+class CatalogMessage(messages.Message):
   locale = messages.StringField(1)
   messages = messages.MessageField(MessageMessage, 2, repeated=True)
 
 
-class TranslationsMessage(messages.Message):
-  catalogs = messages.MessageField(TranslationCatalogMessage, 1, repeated=True)
+class CatalogsMessage(messages.Message):
+  catalogs = messages.MessageField(CatalogMessage, 1, repeated=True)
 
 
 class RoutesMessage(messages.Message):

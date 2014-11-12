@@ -48,6 +48,7 @@ class Locales(object):
 class Locale(babel.Locale):
 
   RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
+  _alias = None
 
   def __eq__(self, other):
     if isinstance(other, basestring):
@@ -65,3 +66,21 @@ class Locale(babel.Locale):
   @property
   def direction(self):
     return 'rtl' if self.is_rtl else 'ltr'
+
+  def set_alias(self, pod):
+    locale = str(self).lower()
+    podspec = pod.get_podspec()
+    config = podspec.get_config()
+    if 'localization' in config and 'aliases' in config['localization']:
+      aliases = config['localization']['aliases']
+      for custom_locale, babel_locale in aliases.iteritems():
+        locale = locale.replace(babel_locale, custom_locale)
+    self._alias = locale
+
+  @property
+  def alias(self):
+    return self._alias
+
+  @alias.setter
+  def alias(self, alias):
+    self._alias = alias

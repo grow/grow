@@ -40,7 +40,13 @@ class Document(object):
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
     utils.validate_name(pod_path)
     self._default_locale = _pod.podspec.default_locale
+
     self.locale = locale or _pod.podspec.default_locale
+    if isinstance(self.locale, basestring):
+      self.locale = locales.Locale(self.locale)
+    if self.locale is not None:
+      self.locale.set_alias(_pod)
+
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self.base, self.ext = os.path.splitext(self.basename)
@@ -213,23 +219,12 @@ class Document(object):
       logging.error('Error with path format: {}'.format(path_format))
       raise
 
-  @property
-  def locale_alias(self):
-    locale = str(self.locale).lower()
-    podspec = self.pod.get_podspec()
-    config = podspec.get_config()
-    if 'localization' in config and 'aliases' in config['localization']:
-      aliases = config['localization']['aliases']
-      for custom_locale, babel_locale in aliases.iteritems():
-        locale = locale.replace(babel_locale, custom_locale)
-    return locale
-
   def _format_path(self, path_format):
     podspec = self.pod.get_podspec()
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': self.locale_alias,
+        'locale': self.locale.alias or self.locale,
         'parent': self.parent if self.parent else DummyDict(),
         'podspec': podspec,
         'slug': self.slug,
@@ -408,7 +403,7 @@ def untag_fields(fields, locale=None, pod=None):
   untagged_keys_to_add = {}
   nodes_and_keys_to_add = []
   nodes_and_keys_to_remove = []
-  catalog = pod.get_translation_catalog(locale)
+  catalog = pod.catalogs.get(locale)
   def callback(item, key, node):
     if not isinstance(key, basestring):
       return
@@ -419,7 +414,7 @@ def untag_fields(fields, locale=None, pod=None):
       nodes_and_keys_to_remove.append((node, key))
       if priority > 1 and untagged_key in untagged_keys_to_add:
         try:
-          has_translation_for_higher_priority_key = catalog.has_translation(content)
+          has_translation_for_higher_priority_key = content in catalog
         except AttributeError:
           has_translation_for_higher_priority_key = False
         if has_translation_for_higher_priority_key:

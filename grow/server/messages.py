@@ -175,21 +175,21 @@ class GetLocalesResponse(messages.Message):
   locales = messages.MessageField(pod_messages.LocalesMessage, 1)
 
 
-class GetTranslationCatalogRequest(messages.Message):
+class GetCatalogRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
-  catalog = messages.MessageField(pod_messages.TranslationCatalogMessage, 2)
+  catalog = messages.MessageField(pod_messages.CatalogMessage, 2)
 
 
-class GetTranslationCatalogResponse(messages.Message):
-  catalog = messages.MessageField(pod_messages.TranslationCatalogMessage, 1)
+class GetCatalogResponse(messages.Message):
+  catalog = messages.MessageField(pod_messages.CatalogMessage, 1)
 
 
-class ExtractTranslationsRequest(messages.Message):
+class ExtractRequest(messages.Message):
   project = messages.MessageField(ProjectMessage, 1)
 
 
-class ExtractTranslationsResponse(messages.Message):
-  translations = messages.MessageField(pod_messages.TranslationsMessage, 1)
+class ExtractResponse(messages.Message):
+  catalog = messages.MessageField(pod_messages.CatalogMessage, 1)
 
 
 ###
