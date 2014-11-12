@@ -7,6 +7,7 @@ class TranslationsTest(unittest.TestCase):
 
   def setUp(self):
     self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
+    self.pod.translations.recompile_mo_files()
 
   def test_list_locales(self):
     self.assertItemsEqual(
@@ -22,9 +23,6 @@ class TranslationsTest(unittest.TestCase):
     ]
     for string in expected:
       self.assertTrue(catalog.get(string))
-
-  def test_recompile_mo_files(self):
-    self.pod.translations.recompile_mo_files()
 
   def test_get_catalog(self):
     catalog = self.pod.translations.get_catalog()
