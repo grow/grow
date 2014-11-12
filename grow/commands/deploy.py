@@ -9,8 +9,10 @@ import os
 @click.command()
 @click.argument('pod_path', default='.')
 @click.argument('deployment_name', default='default')
-@click.option('--skip_confirm', default=False, help='Skip confirm prior to deployment.')
-@click.option('--test_only', default=False, help='Only run the deployment tests.')
+@click.option('--skip_confirm', default=False, is_flag=True,
+              help='Skip confirm prior to deployment.')
+@click.option('--test_only', default=False, is_flag=True,
+              help='Only run the deployment tests.')
 def deploy(pod_path, deployment_name, skip_confirm, test_only):
   """Deploys a pod to a destination."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
