@@ -11,15 +11,13 @@ def extract(pod_path, init):
   """Extracts translations into messages files."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
-
-  translations = pod.get_translations()
-  translations.extract()
+  pod.catalogs.extract()
   locales = pod.list_locales()
   if not locales:
     logging.info('No pod-specific locales defined, '
                  'skipped generating locale-specific catalogs.')
   else:
     if init:
-      translations.init_catalogs(locales)
+      pod.catalogs.init(locales)
     else:
-      translations.update_catalogs(locales)
+      pod.catalogs.update(locales)

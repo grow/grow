@@ -7,20 +7,15 @@ import os
 
 @click.command()
 @click.argument('pod_path', default='.')
-@click.option('--locale', type=basestring, multiple=True)
+@click.option('--locale', type=str, multiple=True)
 def machine_translate(pod_path, locale):
   """Translates the pod message catalog using machine translation."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
-
-  translations = pod.get_translations()
-  translations.extract()
+  pod.catalogs.extract()
   for locale in locale:
-    translation = translations.get_translation(locale)
-    translation.update_catalog()
-    translation.machine_translate()
-
-  print ''
-  print colorize('  WARNING! Use machine translations with caution.', ansi=197)
-  print colorize('  Machine translations are not intended for use in production.', ansi=197)
-  print ''
+    catalog = pod.catalogs.get(locale)
+    catalog.update()
+    catalog.machine_translate()
+  print colorize('WARNING! Use machine translations with caution.', ansi=197)
+  print colorize('Machine translations are not intended for use in production.', ansi=197)
