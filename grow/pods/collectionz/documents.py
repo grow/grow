@@ -224,7 +224,7 @@ class Document(object):
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': self.locale.alias or self.locale,
+        'locale': self.locale.alias if self.locale is not None else self.locale,
         'parent': self.parent if self.parent else DummyDict(),
         'podspec': podspec,
         'slug': self.slug,
