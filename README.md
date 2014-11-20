@@ -4,7 +4,7 @@ growsdk.org
 The Grow SDK's documentation and open source project page.
 
     # Install the Grow SDK.
-    pip install grow
+    curl install.growsdk.org | bash
 
     # Clone the repo.
     git clone git@github.com:grow/growsdk.org.git

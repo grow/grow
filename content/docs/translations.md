@@ -35,7 +35,7 @@ UI strings (and other text) in views are translatable. UI strings must be tagged
 <p>{{_('Posted: %(date)s', date='12/25/86')}}
 [/sourcecode]
 
-Sicne Grow translations are opt-in instead of opt-out, it's possible to show translated text from a content document right next to untranslated text.
+Since Grow translations are opt-in instead of opt-out, it's possible to show translated text from a content document right next to untranslated text.
 
 [sourcecode:html]
 {{doc.title()}}      <!-- Untranslated -->

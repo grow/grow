@@ -28,6 +28,15 @@ The current content document associated with the current page that's being rende
 {{doc.foo}}           # Value of the "foo" custom field from the YAML front matter.
 [/sourcecode]
 
+### env
+
+The rendering environment that exists when the page is being built or served.
+
+    {{env.host}}
+    {{env.name}}
+    {{env.port}}
+    {{env.scheme}}
+
 ### podspec
 
 Refers to the [`podspec.yaml` configuration file]([url('/content/docs/podspec.md')]) and allows you to access pod-wide settings in templates.
@@ -74,6 +83,21 @@ Lists content documents within a collection and groups them by their *$category*
   </ul>
 {% endfor %}
 [/sourcecode]
+
+### g.date
+
+`g.date(<DateTime|string>, from=<string>, to=<string>)`
+
+Multipurpose date and time utility function. Capable of both formatting a DateTime as a string and/or parsing a string into a DateTime. Uses [Python date formatting directives](https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior).
+
+    # Returns a DateTime given a string and a format.
+    {{g.date('12/31/2000', from='%m/%d/%Y')}}
+
+    # Returns a formatted string given a DateTime.
+    {{g.date(date, to='%m')}}
+
+    # Returns a formatted string, given both a string and a format.
+    {{g.date('12/31/2000', from='%m/%d/%Y', to='%m')}}
 
 ### g.doc
 

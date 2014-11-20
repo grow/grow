@@ -49,7 +49,7 @@ Bienvenue!
 This example builds the following pages:
 
 - /welcome/
-- /de/wilkommen/ (built to a different path because the built-in `$slug` value is overridden)
+- /de/willkommen/ (built to a different path because the built-in `$slug` value is overridden)
 - /fr/welcome/
 - /it/welcome/
 
