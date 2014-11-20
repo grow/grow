@@ -1382,12 +1382,17 @@ p {
   margin-top: 0; }
 
 table {
-  margin: 40px 0; }
+  margin: 40px 0;
+  width: 100%; }
 
 table, table tr td, table tr th {
   background: #fafafa;
   border-collapse: collapse;
   border: 1px solid #dedede; }
+
+table thead {
+  font-size: 0.8em;
+  font-weight: bold; }
 
 table tr td, table tr th {
   padding: 9px; }

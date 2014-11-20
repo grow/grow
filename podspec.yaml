@@ -2,18 +2,15 @@ grow_version: 0.0.31
 project: grow/growsdk.org
 title: Grow SDK
 
-flags:
-  static_dir: /static/
-
 localization:
   default_locale: en
 
 error_routes:
   default: /views/errors/default.html
 
-static_files:
-  - from: /static/
-    to: /static/
+static_dirs:
+  - static_dir: /static/
+    serve_at: /static/
 
 preprocessors:
   - kind: sass
@@ -27,3 +24,8 @@ deployments:
   sandbox:
     destination: gcs
     bucket: sandbox.growlaunches.com
+  jetway:
+    destination: jetway
+    name: growsdk
+    project: jeremydw/test
+    server: grow-prod.appspot.com

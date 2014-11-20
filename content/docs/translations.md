@@ -49,7 +49,7 @@ Field names postfixed with an `@` symbol are translatable. Note that you should 
 [sourcecode:yaml]
 # /content/pages/foo.md (YAML front matter)
 
-\---
+​---
 $title@: Hello World!
 
 sections:
@@ -59,7 +59,7 @@ sections:
   content@: B's content.
 - title: Section C         # Not extracted for translation.
   content: C's content.
-\---
+​---
 [/sourcecode]
 
 [sourcecode:html]
