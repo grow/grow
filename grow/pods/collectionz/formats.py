@@ -133,12 +133,11 @@ class MarkdownFormat(HtmlFormat):
     return val
 
 
-def untag_fields(fields, locale=None, pod=None):
+def untag_fields(fields, catalog):
   """Untags fields, handling translation priority."""
   untagged_keys_to_add = {}
   nodes_and_keys_to_add = []
   nodes_and_keys_to_remove = []
-  catalog = pod.catalogs.get(locale)
   def callback(item, key, node):
     if not isinstance(key, basestring):
       return

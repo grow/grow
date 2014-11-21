@@ -38,17 +38,15 @@ class Document(object):
       self.locale = locales.Locale(self.locale)
     if self.locale is not None:
       self.locale.set_alias(_pod)
-
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self.base, self.ext = os.path.splitext(self.basename)
-
     self.pod = _pod
     self.collection = _collection
-
     self.format = formats.Format.get(self)
     self.tagged_fields = self.format.fields
-    self.fields = formats.untag_fields(copy.deepcopy(self.tagged_fields), pod=self.pod, locale=self.locale)
+    self.fields = formats.untag_fields(copy.deepcopy(self.tagged_fields),
+                                       catalog=self.pod.catalogs.get(self.locale))
 
   def __repr__(self):
     if self.locale:
