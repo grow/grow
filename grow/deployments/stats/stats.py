@@ -30,8 +30,11 @@ class Stats(object):
 
     message.locales = [str(locale) for locale in self.pod.list_locales()]
     message.langs = self.pod.catalogs.list_locales()
-    catalog = self.pod.catalogs.get_template()
-    message.num_messages = len(catalog) if catalog else 0
+    if self.pod.catalogs.exists:
+      catalog = self.pod.catalogs.get_template()
+      message.num_messages = len(catalog)
+    else:
+      message.num_messages = 0
     return message
 
   def to_string(self):

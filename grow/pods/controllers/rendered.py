@@ -71,10 +71,13 @@ class RenderedController(base.BaseController):
     # TODO(jeremydw): This is a bit hacky. Be more explicit about translations.
     ll = self.locale
     self._install_translations(ll)
-    try:
-      locale.setlocale(locale.LC_TIME, str(self.locale))
-    except locale.Error:
-      logging.error('Bad locale: %s', self.locale)
+    if self.locale is None:  # Use the system's default locale.
+      locale.setlocale(locale.LC_ALL, '')
+    else:
+      try:
+        locale.setlocale(locale.LC_TIME, str(self.locale))
+      except locale.Error:
+        logging.error('Bad locale: %s', self.locale)
     template = self._template_env.get_template(self.view.lstrip('/'))
     g = {
         'breadcrumb': lambda *args, **kwargs: tags.breadcrumb(*args, _pod=self.pod, **kwargs),

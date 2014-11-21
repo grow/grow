@@ -24,18 +24,22 @@ _TRANSLATABLE_EXTENSIONS = (
 
 class Catalogs(object):
   root = '/translations'
+  template_path = os.path.join(root, 'messages.pot')
 
   def __init__(self, pod=None):
     self.pod = pod
+
+  @property
+  def exists(self):
+    return self.pod.file_exists(Catalogs.template_path)
 
   def get(self, locale):
     return catalogs.Catalog(pod=self.pod, locale=locale)
 
   def get_template(self):
-    template_path = os.path.join(Catalogs.root, 'messages.pot')
-    if not self.pod.file_exists(template_path):
-      self.pod.create_file(template_path, None)
-    return pofile.read_po(self.pod.open_file(template_path))
+    if not self.exists:
+      self.pod.create_file(Catalogs.template_path, None)
+    return pofile.read_po(self.pod.open_file(Catalogs.template_path))
 
   def list_locales(self):
     locales = set()
