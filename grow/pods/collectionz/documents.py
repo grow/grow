@@ -1,23 +1,16 @@
-from grow.common import markdown_extensions
-from grow.common import utils
-from grow.pods import urls
-from grow.pods import locales
+from . import formats
 from . import messages
+from grow.common import utils
+from grow.pods import locales
+from grow.pods import urls
+import copy
 import json
 import logging
-import markdown
 import os
-import copy
 import re
-from markdown.extensions import tables
-from markdown.extensions import toc
 
 
 class Error(Exception):
-  pass
-
-
-class BadFormatError(Error, ValueError):
   pass
 
 
@@ -39,8 +32,7 @@ class Document(object):
 
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
     utils.validate_name(pod_path)
-    self._default_locale = _pod.podspec.default_locale
-
+    self.default_locale = _pod.podspec.default_locale
     self.locale = locale or _pod.podspec.default_locale
     if isinstance(self.locale, basestring):
       self.locale = locales.Locale(self.locale)
@@ -54,23 +46,9 @@ class Document(object):
     self.pod = _pod
     self.collection = _collection
 
-    self.format = messages.extensions_to_formats.get(self.ext)
-    if self.format == messages.Format.MARKDOWN:
-      self.doc_storage = MarkdownDocumentStorage(
-          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
-    elif self.format == messages.Format.YAML:
-      self.doc_storage = YamlDocumentStorage(
-          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
-    elif self.format == messages.Format.HTML:
-      self.doc_storage = HtmlDocumentStorage(
-          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
-    else:
-      formats = messages.extensions_to_formats.keys()
-      text = 'Basename "{}" does not have a valid extension. Valid formats are: {}'
-      raise BadFormatError(text.format(self.basename, ', '.join(formats)))
-
-    self.fields = self.doc_storage.fields
-    self.tagged_fields = self.doc_storage.tagged_fields
+    self.format = formats.Format.get(self)
+    self.tagged_fields = self.format.fields
+    self.fields = formats.untag_fields(copy.deepcopy(self.tagged_fields), pod=self.pod, locale=self.locale)
 
   def __repr__(self):
     if self.locale:
@@ -150,8 +128,8 @@ class Document(object):
   def get_path_format(self):
     val = None
     if (self.locale
-        and self._default_locale
-        and self.locale != self._default_locale):
+        and self.default_locale
+        and self.locale != self.default_locale):
       if ('$localization' in self.fields
           and 'path' in self.fields['$localization']):
         val = self.fields['$localization']['path']
@@ -177,7 +155,7 @@ class Document(object):
     locale = str(self.locale)
     config = self.pod.get_podspec().get_config()
     root_path = config.get('flags', {}).get('root_path', '')
-    if locale == self._default_locale:
+    if locale == self.default_locale:
       root_path = config.get('localization', {}).get('root_path', root_path)
     path_format = (self.get_path_format()
         .replace('<grow:locale>', '{locale}')
@@ -244,20 +222,19 @@ class Document(object):
   @property
   @utils.memoize
   def body(self):
-    body = self.doc_storage.body
+    body = self.format.body
     if body is None:
       return body
     return body.decode('utf-8')
 
   @property
   def content(self):
-    content = self.doc_storage.content
+    content = self.format.content
     return content.decode('utf-8')
 
   @property
   def html(self):
-    # TODO(jeremydw): Add ability to render HTML.
-    return self.doc_storage.html(self)
+    return self.format.html
 
   def __eq__(self, other):
     return (isinstance(self, Document)
@@ -297,20 +274,16 @@ class Document(object):
         content = message.content.encode('utf-8')
       else:
         content = message.content
-      self.doc_storage.write(content)
+      self.format.write(content)
     elif message.fields is not None:
       content = '---\n{}\n---\n{}\n'.format(message.fields, message.body or '')
-      self.doc_storage.write(content)
-      self.doc_storage.fields = json.loads(message.fields)
-      self.doc_storage.body = message.body or ''
-      self.fields = self.doc_storage.fields
+      self.format.write(content)
+      self.fields = self.format.fields
     else:
       raise NotImplementedError()
 
   def to_message(self):
     message = messages.DocumentMessage()
-    message.builtins = messages.BuiltInFieldsMessage()
-    message.builtins.title = self.title
     message.basename = self.basename
     message.pod_path = self.pod_path
     message.collection_path = self.collection.collection_path
@@ -319,113 +292,3 @@ class Document(object):
     message.fields = json.dumps(self.fields, cls=utils.JsonEncoder)
     message.serving_path = self.get_serving_path()
     return message
-
-
-# TODO(jeremydw): This needs a lot of cleanup. :)
-
-class BaseDocumentStorage(object):
-
-  def __init__(self, pod_path, pod, locale=None, default_locale=None):
-    # TODO(jeremydw): Only accept Locale objects, not strings.
-    self.default_locale = default_locale
-    self.locale = str(locale) if isinstance(locale, basestring) else locale
-    self.pod_path = pod_path
-    self.pod = pod
-    self.content = None
-    self.fields = {}
-    self.tagged_fields = {}
-    self.builtins = None
-    self.body = None
-    try:
-      self.load()
-    except IOError:  # Document doesn't exist.
-      pass
-
-  def load(self):
-    raise NotImplementedError
-
-  def html(self, doc):
-    return self.body
-
-  def write(self, content):
-    self.content = content
-    self.pod.write_file(self.pod_path, content)
-
-
-class YamlDocumentStorage(BaseDocumentStorage):
-
-  def load(self):
-    path = self.pod_path
-    content = self.pod.read_file(path)
-    fields = utils.parse_yaml(content, path=path, locale=self.locale,
-                              default_locale=self.default_locale)
-    self.content = None
-    self.fields = fields or {}
-    self.tagged_fields = {}
-    self.body = None
-    self.tagged_fields = copy.deepcopy(fields)
-    fields = untag_fields(fields, locale=self.locale, pod=self.pod)
-
-
-class HtmlDocumentStorage(YamlDocumentStorage):
-  pass
-
-
-class MarkdownDocumentStorage(BaseDocumentStorage):
-
-  def load(self):
-    path = self.pod_path
-    content = self.pod.read_file(path)
-    fields, body = utils.parse_markdown(
-        content, path=path, locale=self.locale, default_locale=self.default_locale)
-    self.content = content
-    self.fields = fields or {}
-    self.body = body
-    self.tagged_fields = copy.deepcopy(fields)
-    fields = untag_fields(fields, locale=self.locale, pod=self.pod)
-
-  def html(self, doc):
-    val = self.body
-    if val is not None:
-      extensions = [
-        tables.TableExtension(),
-        toc.TocExtension(),
-        markdown_extensions.CodeBlockExtension(),
-        markdown_extensions.IncludeExtension(doc.pod),
-        markdown_extensions.UrlExtension(doc.pod),
-      ]
-      val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
-    return val
-
-
-def untag_fields(fields, locale=None, pod=None):
-  """Untags fields, handling translation priority."""
-  untagged_keys_to_add = {}
-  nodes_and_keys_to_add = []
-  nodes_and_keys_to_remove = []
-  catalog = pod.catalogs.get(locale)
-  def callback(item, key, node):
-    if not isinstance(key, basestring):
-      return
-    if key.endswith('@'):
-      untagged_key = key.rstrip('@')
-      priority = len(key) - len(untagged_key)
-      content = node[key]
-      nodes_and_keys_to_remove.append((node, key))
-      if priority > 1 and untagged_key in untagged_keys_to_add:
-        try:
-          has_translation_for_higher_priority_key = content in catalog
-        except AttributeError:
-          has_translation_for_higher_priority_key = False
-        if has_translation_for_higher_priority_key:
-          untagged_keys_to_add[untagged_key] = True
-          nodes_and_keys_to_add.append((node, untagged_key, content))
-      elif priority <= 1:
-        untagged_keys_to_add[untagged_key] = True
-        nodes_and_keys_to_add.append((node, untagged_key, content))
-  utils.walk(fields, callback)
-  for node, key in nodes_and_keys_to_remove:
-    del node[key]
-  for node, untagged_key, content in nodes_and_keys_to_add:
-    node[untagged_key] = content
-  return fields

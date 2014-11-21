@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-11-20 17:52-0800\n"
+"POT-Creation-Date: 2014-11-21 00:53-0800\n"
 "PO-Revision-Date: 2013-08-03 10:56-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
@@ -39,15 +39,14 @@ msgstr ""
 msgid "Goodnight Moon!"
 msgstr ""
 
-#, fuzzy
 msgid "Hello World 2!"
-msgstr "Hallo Welt!"
+msgstr ""
 
 msgid "Hello World!"
-msgstr "Hallo Welt!"
+msgstr ""
 
 msgid "Higher Priority"
-msgstr "Higher Priority (Translated)"
+msgstr ""
 
 msgid "Home page"
 msgstr ""
@@ -56,7 +55,7 @@ msgid "Introduction"
 msgstr ""
 
 msgid "Lower Priority"
-msgstr "Lower Priority (Translated)"
+msgstr ""
 
 msgid "Newest!"
 msgstr ""

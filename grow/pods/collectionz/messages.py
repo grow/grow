@@ -67,7 +67,6 @@ class DocumentMessage(messages.Message):
   doc_path = messages.StringField(1)  # posts/slug.md
   basename = messages.StringField(2)
   collection_path = messages.StringField(3)
-  builtins = messages.MessageField(BuiltInFieldsMessage, 4)
   fields = messages.StringField(5)  # JSON fields
   body = messages.StringField(6)
   content = messages.StringField(7)
