@@ -45,7 +45,7 @@ class Format(object):
 
   @property
   def html(self):
-    return self.body
+    return None
 
   def load(self):
     raise NotImplementedError
@@ -60,8 +60,10 @@ class YamlFormat(Format):
   def load(self):
     if not self.has_front_matter:
       self.fields = yaml.load(self.content)
+      self.body = self.content
       return
     locales_to_fields = {}
+    locales_to_bodies = {}
     default_locale_fields = {}
     locale = str(self.doc.locale)
     default_locale = str(self.doc.default_locale)
@@ -69,12 +71,15 @@ class YamlFormat(Format):
       fields = yaml.load(part)
       doc_locale = fields.get('$locale', default_locale)
       locales_to_fields[doc_locale] = fields
+      locales_to_bodies[doc_locale] = part
     fields = locales_to_fields.get(default_locale)
     if locale in locales_to_fields:
       localized_fields = locales_to_fields[locale]
       if fields is None:
         fields = {}
       fields.update(localized_fields)
+    self.body = locales_to_bodies.get(locale, locales_to_bodies.get(default_locale))
+    self.body = self.body.strip() if self.body is not None else None
     self.fields = fields
 
 
@@ -100,6 +105,10 @@ class HtmlFormat(YamlFormat):
     self.body = locales_to_bodies.get(locale, locales_to_bodies.get(default_locale))
     self.body = self.body.strip() if self.body is not None else None
     self.fields = fields
+
+  @property
+  def html(self):
+    return self.body
 
   def load(self):
     if not self.has_front_matter:

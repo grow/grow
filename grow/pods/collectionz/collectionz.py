@@ -2,6 +2,7 @@
 
 from . import documents
 from . import messages
+from grow.common import structures
 from grow.common import utils
 from grow.pods import locales
 import json
@@ -124,7 +125,7 @@ class Collection(object):
 
   def search_docs(self, order_by=None, locale=None):
     order_by = 'order' if order_by is None else order_by
-    sorted_docs = utils.SortedCollection(key=operator.attrgetter(order_by))
+    sorted_docs = structures.SortedCollection(key=operator.attrgetter(order_by))
     for path in self.pod.list_dir(self.pod_path):
       pod_path = os.path.join(self.pod_path, path.lstrip('/'))
       slug, ext = os.path.splitext(os.path.basename(pod_path))
@@ -146,7 +147,7 @@ class Collection(object):
       reverse = False
 
     paths = self.pod.list_dir(self.pod_path)
-    sorted_docs = utils.SortedCollection(key=operator.attrgetter(order_by))
+    sorted_docs = structures.SortedCollection(key=operator.attrgetter(order_by))
     for path in paths:
       pod_path = os.path.join(self.pod_path, path.lstrip('/'))
       slug, ext = os.path.splitext(os.path.basename(pod_path))
