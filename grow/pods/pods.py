@@ -74,7 +74,6 @@ class Pod(object):
     self.changeset = changeset
     self.env = env if env else environment.Env(environment.EnvConfig(host='localhost'))
 
-    self.routes = routes.Routes(pod=self)
     self.locales = locales.Locales(pod=self)
     self.catalogs = catalog_holder.Catalogs(pod=self)
     self.tests = tests.Tests(pod=self)
@@ -90,6 +89,13 @@ class Pod(object):
   @property
   def yaml(self):
     return self._parse_yaml()
+
+  @property
+  def routes(self):
+    # Rebuilding routes with each access of the routes propery prevents
+    # caching issues with data files. TODO: Rebuild routes only when routes
+    # and data files change.
+    return routes.Routes(pod=self)
 
   def reset_yaml(self):
     self._parse_yaml.reset()
