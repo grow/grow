@@ -15,6 +15,7 @@ def build(pod_path, out_dir):
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   out_dir = out_dir or os.path.join(root, 'build')
   pod = pods.Pod(root, storage=storage.FileStorage)
+  pod.preprocess()
   try:
     paths_to_contents = pod.dump()
     repo = utils.get_git_repo(pod.root)

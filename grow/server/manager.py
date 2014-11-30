@@ -2,11 +2,9 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 from grow.pods.preprocessors import file_watchers
-from grow.server import handlers
 from grow.server import main as main_lib
 from wsgiref import simple_server
 from xtermcolor import colorize
-import os
 import socket
 import sys
 import threading
@@ -50,7 +48,10 @@ def start(pod, host=None, port=None, open_browser=False, debug=False):
   print '  Thank you for testing and contributing! Visit http://growsdk.org for resources.'
   print ''
 
-  podspec_observer = file_watchers.create_dev_server_observer(pod)
+  observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
+  # Run preprocessors for the first time in a thread.
+  thread = threading.Thread(target=pod.preprocess)
+  thread.start()
 
   try:
     # Create the development server.
@@ -74,8 +75,8 @@ def start(pod, host=None, port=None, open_browser=False, debug=False):
 
   except Exception as e:
     logging.error('Failed to start server: {}'.format(e))
-    podspec_observer.stop()
-    podspec_observer.join()
+    observer.stop()
+    observer.join()
     sys.exit()
 
   try:
@@ -100,8 +101,8 @@ def start(pod, host=None, port=None, open_browser=False, debug=False):
   except KeyboardInterrupt:
     logging.info('Goodbye! Shutting down...')
     httpd.server_close()
-    podspec_observer.stop()
-    podspec_observer.join()
+    observer.stop()
+    observer.join()
 
   # Clean up once server exits.
   sys.exit()
