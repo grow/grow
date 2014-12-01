@@ -66,7 +66,7 @@ Once installed, you can...
 
 From a fresh system, you may need a few things to build a Grow release from scratch:
 
-    sudo apt-get install python-dev python-pip libffi-dev g++ libxml2-dev libxslt-1-dev zip
+    sudo apt-get install python-dev python-pip libffi-dev g++ git libxml2-dev libxslt-dev libssl-dev zip
     sudo pip install pyinstaller
 
 #### Installation alternatives

@@ -1,5 +1,4 @@
 from grow.pods.preprocessors import translation as translation_preprocessor
-import threading
 from watchdog import events
 from watchdog import observers
 
@@ -110,15 +109,13 @@ class ManagedObserver(observers.Observer):
         handler.handle()
 
 
-def create_dev_server_observer(pod):
+def create_dev_server_observers(pod):
   main_observer = ManagedObserver(pod)
   main_observer.schedule_translation()
   main_observer.schedule_preprocessors()
-  thread = threading.Thread(target=main_observer.run_handlers)
-  thread.start()
 
   podspec_observer = ManagedObserver(pod)
   podspec_observer.schedule_podspec()
   podspec_observer.add_child(main_observer)
   podspec_observer.start()
-  return podspec_observer
+  return main_observer, podspec_observer

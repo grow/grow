@@ -9,11 +9,11 @@ import os
 @click.command()
 @click.argument('deployment_name', default='default')
 @click.argument('pod_path', default='.')
-@click.option('--skip_confirm', default=False, is_flag=True,
-              help='Skip confirm prior to deployment.')
+@click.option('--confirm', default=True, is_flag=True,
+              help='Whether to confirm prior to deployment.')
 @click.option('--test_only', default=False, is_flag=True,
               help='Only run the deployment tests.')
-def deploy(deployment_name, pod_path, skip_confirm, test_only):
+def deploy(deployment_name, pod_path, confirm, test_only):
   """Deploys a pod to a destination."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
@@ -28,4 +28,4 @@ def deploy(deployment_name, pod_path, skip_confirm, test_only):
     repo = utils.get_git_repo(pod.root)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
-                      confirm=skip_confirm)
+                      confirm=confirm)
