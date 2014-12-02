@@ -44,12 +44,7 @@ a.datas += [
     ('VERSION', 'grow/VERSION', 'DATA'),
     ('server/templates/error.html', 'grow/server/templates/error.html', 'DATA'),
     ('deployments/data/cacerts.txt', 'grow/deployments/data/cacerts.txt', 'DATA'),
-    ('closure/closure.jar', 'env/lib/python2.7/site-packages/closure/closure.jar', 'DATA'),
-    ('pods/preprocessors/closure_lib/closurebuilder.py', 'grow/pods/preprocessors/closure_lib/closurebuilder.py', 'DATA'),
-    ('pods/preprocessors/closure_lib/depstree.py', 'grow/pods/preprocessors/closure_lib/depstree.py', 'DATA'),
-    ('pods/preprocessors/closure_lib/jscompiler.py', 'grow/pods/preprocessors/closure_lib/jscompiler.py', 'DATA'),
-    ('pods/preprocessors/closure_lib/source.py', 'grow/pods/preprocessors/closure_lib/source.py', 'DATA'),
-    ('pods/preprocessors/closure_lib/treescan.py', 'grow/pods/preprocessors/closure_lib/treescan.py', 'DATA'),
+    ('pods/preprocessors/closure_lib/compiler.jar', 'grow/pods/preprocessors/closure_lib/compiler.jar', 'DATA'),
 ]
 
 pyz = PYZ(a.pure)

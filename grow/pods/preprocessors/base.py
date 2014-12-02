@@ -28,4 +28,6 @@ class BasePreprocessor(object):
     return []
 
   def normalize_path(self, path):
-    return os.path.join(self.root, path.lstrip('/'))
+    if path.startswith('/'):
+      return os.path.join(self.root, path.lstrip('/'))
+    return path

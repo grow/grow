@@ -1,13 +1,8 @@
-import closure
-import itertools
-import os
-import subprocess
-from protorpc import messages
 from grow.pods.preprocessors import base
 from grow.common import utils
-
-# Needed for code freezing.
-from .closure_lib import closurebuilder
+from protorpc import messages
+import os
+import subprocess
 
 
 class CompilationLevel(messages.Enum):
@@ -35,7 +30,7 @@ _output_modes = {
 
 
 class ClosureCompilerPreprocessor(base.BasePreprocessor):
-  KIND = 'closurecompiler'
+  KIND = 'closure_compiler'
 
   class Config(messages.Message):
     compilation_level = messages.EnumField(
@@ -44,22 +39,34 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
     js_output_file = messages.StringField(3)
     js = messages.StringField(4, repeated=True)
     output_wrapper = messages.StringField(5)
+    manage_closure_dependencies = messages.BooleanField(6)
+    only_closure_dependencies = messages.BooleanField(7)
+    generate_exports = messages.BooleanField(8)
+    closure_entry_point = messages.StringField(9)
 
   def build_flags(self):
     flags = []
-    flags += ['--compilation_level', _levels[self.config.compilation_level]]
-    for js_file in self.config.js:
-      flags += ['--js', self.normalize_path(js_file)]
+    flags += ['--compilation_level={}'.format(_levels[self.config.compilation_level])]
     for extern in self.config.externs:
-      flags += ['--externs', self.normalize_path(extern)]
+      flags += ['--externs={}'.format(self.normalize_path(extern))]
+    for js_file in self.config.js:
+      flags += ['--js=\'{}\''.format(self.normalize_path(js_file))]
     if self.config.output_wrapper:
-      flags += ['--output_wrapper', self.config.output_wrapper]
+      flags += ['--output_wrapper={}'.format(self.config.output_wrapper)]
+    if self.config.output_wrapper:
+      flags += ['--closure_entry_point={}'.format(self.config.closure_entry_point)]
+    if self.config.manage_closure_dependencies:
+      flags += ['--manage_closure_dependencies']
+    if self.config.only_closure_dependencies:
+      flags += ['--only_closure_dependencies']
+    if self.config.generate_exports:
+      flags += ['--generate_exports']
     return flags
 
   def _compile(self):
-    jar = closure.get_jar_filename()
-    proc = subprocess.Popen(['java', '-jar', jar] + self.build_flags(),
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    jar = os.path.join(utils.get_grow_dir(), 'pods', 'preprocessors', 'closure_lib', 'compiler.jar')
+    command = ['java', '-jar', jar] + self.build_flags()
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     err = proc.stderr.read()
     if err:
       raise base.PreprocessorError(err)
@@ -67,71 +74,15 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
       return proc.stdout.read()
 
   def run(self):
-    output = self._compile()
     js_output_file = self.normalize_path(self.config.js_output_file)
+    self.logger.info('Compiling: {}'.format(js_output_file))
+    output = self._compile()
     self.pod.storage.write(js_output_file, output)
     self.logger.info('Compiled: {}'.format(js_output_file))
 
   def list_watched_dirs(self):
     dirs = set()
     for js_file in self.config.js:
-      dirs.add(os.path.dirname(js_file.lstrip('/')))
-    return list(dirs)
-
-
-
-class ClosureBuilderPreprocessor(base.BasePreprocessor):
-  KIND = 'closurebuilder'
-
-  class Config(messages.Message):
-    compiler_flags = messages.MessageField(ClosureCompilerPreprocessor.Config, 1)
-    namespace = messages.StringField(2, repeated=True)
-    root = messages.StringField(3, repeated=True)
-    output_mode = messages.EnumField(OutputMode, 4, default=OutputMode.SCRIPT)
-    input = messages.StringField(6, repeated=True)
-    output_file = messages.StringField(7)
-
-  def _compile(self):
-    flags = []
-    flags += ['--compiler_jar', closure.get_jar_filename()]
-    flags += ['--output_mode', _output_modes[self.config.output_mode]]
-    for root in self.config.root:
-      flags += ['--root', self.normalize_path(root)]
-    for input in self.config.input:
-      flags += ['--input', self.normalize_path(input)]
-    for namespace in self.config.namespace:
-      flags += ['--namespace', self.normalize_path(namespace)]
-    if self.config.compiler_flags:
-      compiler_preprocessor = ClosureCompilerPreprocessor(self.pod, self.config.compiler_flags)
-      compiler_flags = compiler_preprocessor.build_flags()
-      for name, val in itertools.izip(*[iter(compiler_flags)]*2):
-        compiler_flag = '{}="{}"'.format(name, val)
-        flags += ['--compiler_flags', compiler_flag]
-
-    builder_command = os.path.join(
-        utils.get_grow_dir(), 'pods', 'preprocessors', 'closure_lib',
-        'closurebuilder.py')
-    self.logger.info('Running Closure Builder -> {}...'.format(self.config.output_file))
-    proc = subprocess.Popen([builder_command] + flags,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    for line in iter(proc.stderr.readline, b''):
-      # Strip the script path (which is added by Closure Builder's use of the logging
-      # module) from the output.
-      print '  [closurebuilder] ' + line.split(': ')[-1],
-    result = proc.stdout.read()
-    if result is None:
-      raise base.PreprocessorError('Error with Closure Builder.')
-    proc.communicate()
-    return result
-
-  def run(self):
-    output = self._compile()
-    output_file = self.normalize_path(self.config.output_file)
-    self.pod.storage.write(output_file, output)
-    self.logger.info('Built: {}'.format(output_file))
-
-  def list_watched_dirs(self):
-    dirs = set()
-    for path in self.config.input:
-      dirs.add(os.path.dirname(path.lstrip('/')))
+      if js_file.startswith('/'):
+        dirs.add(os.path.dirname(js_file.lstrip('/')))
     return list(dirs)

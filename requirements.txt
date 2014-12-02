@@ -10,7 +10,6 @@ Werkzeug==0.9.4
 boto==2.22.1
 certifi==1.0.0
 click==3.3
-closure==20140110
 coverage==3.7.1
 dnspython==1.11.1
 dulwich==0.9.6

@@ -10,7 +10,7 @@ _builtins = (
     sass_preprocessor.SassPreprocessor,
     google_sheets.GoogleSheetsPreprocessor,
     closure_compiler.ClosureCompilerPreprocessor,
-    closure_compiler.ClosureBuilderPreprocessor)
+)
 
 
 def register_preprocessor(class_obj):
