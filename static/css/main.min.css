@@ -1564,7 +1564,8 @@ pre {
   font-size: 12px;
   line-height: 125%;
   margin-bottom: 0;
-  padding: 20px; }
+  padding: 20px;
+  white-space: pre-wrap; }
 
 .code .highlight + br {
   display: none; }
