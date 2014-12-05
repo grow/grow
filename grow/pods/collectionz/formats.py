@@ -1,4 +1,3 @@
-from . import messages
 from grow.common import markdown_extensions
 from grow.common import utils
 from markdown.extensions import tables
@@ -64,7 +63,6 @@ class YamlFormat(Format):
       return
     locales_to_fields = {}
     locales_to_bodies = {}
-    default_locale_fields = {}
     locale = str(self.doc.locale)
     default_locale = str(self.doc.default_locale)
     for part in Format.split_front_matter(self.content):
@@ -88,7 +86,6 @@ class HtmlFormat(YamlFormat):
   def _handle_pairs_of_parts_and_bodies(self):
     locales_to_bodies = {}
     locales_to_fields = {}
-    default_locale_fields = {}
     locale = str(self.doc.locale)
     default_locale = str(self.doc.default_locale)
     for part, body in utils.every_two(Format.split_front_matter(self.content)):
@@ -108,7 +105,8 @@ class HtmlFormat(YamlFormat):
 
   @property
   def html(self):
-    return self.body
+    if self.body is not None:
+      return self.body.decode('utf-8')
 
   def load(self):
     if not self.has_front_matter:
