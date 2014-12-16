@@ -37,6 +37,8 @@ class JetwayDestination(base.BaseDestination):
 
   def read_file(self, path):
     paths_to_contents, errors = self.jetway.read([path])
+    if errors:
+      raise base.Error(errors)
     if path not in paths_to_contents:
       raise IOError('{} not found.'.format(path))
     return paths_to_contents[path]
@@ -45,8 +47,12 @@ class JetwayDestination(base.BaseDestination):
     if isinstance(content, unicode):
       content = content.encode('utf-8')
     paths_to_contents, errors = self.jetway.write({path: content})
+    if errors:
+      raise base.Error(errors)
     return paths_to_contents[path]
 
   def delete_file(self, path):
     paths_to_contents, errors = self.jetway.delete([path])
+    if errors:
+      raise base.Error(errors)
     return paths_to_contents[path]
