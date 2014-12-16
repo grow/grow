@@ -43,6 +43,7 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
     only_closure_dependencies = messages.BooleanField(7)
     generate_exports = messages.BooleanField(8)
     closure_entry_point = messages.StringField(9)
+    angular_pass = messages.BooleanField(10)
 
   def build_flags(self):
     flags = []
@@ -61,6 +62,8 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
       flags += ['--only_closure_dependencies']
     if self.config.generate_exports:
       flags += ['--generate_exports']
+    if self.config.angular_pass:
+      flags += ['--angular_pass']
     return flags
 
   def _compile(self):
