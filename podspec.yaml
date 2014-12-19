@@ -1,4 +1,4 @@
-grow_version: 0.0.31
+grow_version: 0.0.32
 project: grow/growsdk.org
 title: Grow SDK
 
@@ -20,7 +20,7 @@ preprocessors:
 deployments:
   default:
     destination: gcs
-    bucket: preview.growsdk.org
+    bucket: growsdk.org
   sandbox:
     destination: gcs
     bucket: sandbox.growlaunches.com
