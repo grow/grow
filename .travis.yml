@@ -1,7 +1,7 @@
 install:
 - |
   curl -OL \
-  https://github.com/grow/pygrow/releases/download/0.0.35/Grow-SDK-Linux-0.0.35.zip
+  https://github.com/grow/pygrow/releases/download/0.0.35/Grow-SDK-Linux-0.0.35.zip \
   && unzip -q Grow-SDK-Linux-0.0.35.zip
 script: |
   ./grow build
