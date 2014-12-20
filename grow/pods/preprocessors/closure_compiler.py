@@ -42,7 +42,7 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
     manage_closure_dependencies = messages.BooleanField(6)
     only_closure_dependencies = messages.BooleanField(7)
     generate_exports = messages.BooleanField(8)
-    closure_entry_point = messages.StringField(9)
+    closure_entry_point = messages.StringField(9, repeated=True)
 
   def build_flags(self):
     flags = []
@@ -51,10 +51,10 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
       flags += ['--externs={}'.format(self.normalize_path(extern))]
     for js_file in self.config.js:
       flags += ['--js=\'{}\''.format(self.normalize_path(js_file))]
+    for entry_point in self.config.closure_entry_point:
+      flags += ['--closure_entry_point={}'.format(entry_point)]
     if self.config.output_wrapper:
       flags += ['--output_wrapper={}'.format(self.config.output_wrapper)]
-    if self.config.output_wrapper:
-      flags += ['--closure_entry_point={}'.format(self.config.closure_entry_point)]
     if self.config.manage_closure_dependencies:
       flags += ['--manage_closure_dependencies']
     if self.config.only_closure_dependencies:
