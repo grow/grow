@@ -100,7 +100,7 @@ class RenderedController(base.BaseController):
           'doc': self.document,
           'env': self.pod.env,
           'podspec': self.pod.get_podspec(),
-      })
+      }).lstrip()
     except Exception as e:
       text = 'Error building {}: {}'
       logging.exception(e)

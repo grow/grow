@@ -43,6 +43,9 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
     only_closure_dependencies = messages.BooleanField(7)
     generate_exports = messages.BooleanField(8)
     closure_entry_point = messages.StringField(9, repeated=True)
+    angular_pass = messages.BooleanField(10)
+    flagfile = messages.StringField(11)
+    third_party = messages.BooleanField(12)
 
   def build_flags(self):
     flags = []
@@ -51,7 +54,7 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
       flags += ['--externs={}'.format(self.normalize_path(extern))]
     for js_file in self.config.js:
       flags += ['--js=\'{}\''.format(self.normalize_path(js_file))]
-    for entry_point in self.config.closure_entry_point:
+    for entry_point in self.normalize_multi(self.config.closure_entry_point):
       flags += ['--closure_entry_point={}'.format(entry_point)]
     if self.config.output_wrapper:
       flags += ['--output_wrapper={}'.format(self.config.output_wrapper)]
@@ -61,10 +64,17 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
       flags += ['--only_closure_dependencies']
     if self.config.generate_exports:
       flags += ['--generate_exports']
+    if self.config.angular_pass:
+      flags += ['--angular_pass']
+    if self.config.third_party:
+      flags += ['--third_party']
+    if self.config.flagfile:
+      flags += ['--flagfile=\'{}\''.format(self.config.flagfile)]
     return flags
 
   def _compile(self):
-    jar = os.path.join(utils.get_grow_dir(), 'pods', 'preprocessors', 'closure_lib', 'compiler.jar')
+    jar = os.path.join(utils.get_grow_dir(), 'pods', 'preprocessors', 'closure_lib',
+                       'compiler.jar')
     command = ['java', '-jar', jar] + self.build_flags()
     proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     err = proc.stderr.read()
@@ -86,3 +96,9 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
       if js_file.startswith('/'):
         dirs.add(os.path.dirname(js_file.lstrip('/')))
     return list(dirs)
+
+  def normalize_multi(self, val):
+    if isinstance(val, basestring):
+      return [val]
+    return val
+
