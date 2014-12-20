@@ -1,6 +1,4 @@
-language: python
-python:
-- 2.7
+language: cpp
 install:
 #- git clone git@github.com:grow/pygrow.git \
 #  && cd pygrow \
@@ -11,4 +9,4 @@ install:
   https://github.com/grow/pygrow/releases/download/0.0.35/Grow-SDK-Linux-0.0.35.zip \
   && unzip -q Grow-SDK-Linux-0.0.35.zip
 script: |
-  ./bin/grow build
+  ./grow build
