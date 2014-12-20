@@ -1,6 +1,4 @@
 from grow.common import utils
-from grow.pods import env
-from grow.pods import pods
 from grow.pods import storage
 import jinja2
 import logging

@@ -13,6 +13,7 @@ import webbrowser
 
 
 class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
+  _logging_enabled = False
 
   @staticmethod
   def sizeof(num):
@@ -27,6 +28,8 @@ class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
     return '%02d:%02d:%02d' % (hh, mm, ss)
 
   def log_request(self, code=0, size='-'):
+    if not self._logging_enabled:
+      return
     line = self.requestline[:-9]
     method, line = line.split(' ', 1)
     color = 19
@@ -43,11 +46,6 @@ class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
 
 
 def start(pod, host=None, port=None, open_browser=False, debug=False):
-  print ''
-  print '  The Grow SDK is experimental. Expect backwards incompatibility until v0.1.0.'
-  print '  Thank you for testing and contributing! Visit http://growsdk.org for resources.'
-  print ''
-
   observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
   # Run preprocessors for the first time in a thread.
   thread = threading.Thread(target=pod.preprocess)
@@ -67,9 +65,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False):
       except socket.error as e:
         if e.errno == 48:
           num_tries += 1
-          old_port = port
           port += 1
-          logging.info("Couldn't use port {}, trying {} instead...".format(old_port, port))
         else:
           raise e
 
@@ -82,14 +78,14 @@ def start(pod, host=None, port=None, open_browser=False, debug=False):
   try:
     root_path = pod.get_root_path()
     url = 'http://{}:{}{}'.format(host, port, root_path)
-    message = 'Serving pod {} @ {}'.format(pod.root, colorize(url, ansi=99))
-    print colorize('Ready! ', ansi=47) + message
-
+    print 'Grow SDK (growsdk.org) is in alpha. Thanks for testing and contributing.'
+    print 'Pod: '.rjust(20) + pod.root
+    print 'Address: '.rjust(20) + url
+    print colorize('Server ready.'.rjust(19), ansi=47) + ' Press ctrl-c to quit.'
     def start_browser(server_ready_event):
       server_ready_event.wait()
       if open_browser:
         webbrowser.open(url)
-
     server_ready_event = threading.Event()
     browser_thread = threading.Thread(target=start_browser,
                                       args=(server_ready_event,))
@@ -99,7 +95,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False):
     browser_thread.join()
 
   except KeyboardInterrupt:
-    logging.info('Goodbye! Shutting down...')
+    logging.info('Goodbye. Shutting down.')
     httpd.server_close()
     observer.stop()
     observer.join()
