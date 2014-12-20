@@ -1,4 +1,6 @@
 language: cpp
+before_install:
+- sudo apt-get install libc6
 install:
 #- git clone git@github.com:grow/pygrow.git \
 #  && cd pygrow \
