@@ -200,7 +200,7 @@ class BaseDestination(object):
       new_index = indexes.Index.create(paths_to_contents)
       if repo:
         indexes.Index.add_repo(new_index, repo)
-      diff = indexes.Diff.create(new_index, deployed_index)
+      diff = indexes.Diff.create(new_index, deployed_index, repo=repo)
       if indexes.Diff.is_empty(diff):
         text = 'Diff is empty, nothing to launch, aborted.'
         print colorize(text, ansi=57)

@@ -77,9 +77,11 @@ class Diff(object):
     new_commit_sha = new_commit.sha if new_commit else 'N/A'
     logging.info('From commit {} -> {}'.format(last_commit_sha, new_commit_sha))
     logging.info('You are: {}'.format(cls._format_author(new_index.deployed_by)))
+    if diff.what_changed:
+      logging.info('\n' + diff.what_changed + '\n')
 
   @classmethod
-  def create(cls, index, theirs):
+  def create(cls, index, theirs, repo=None):
     diff = messages.DiffMessage()
     diff.indexes = []
     diff.indexes.append(theirs or messages.IndexMessage())
@@ -119,6 +121,12 @@ class Diff(object):
       file_message.deployed = theirs.deployed
       file_message.deployed_by = theirs.deployed_by
       diff.deletes.append(file_message)
+
+    if (repo is not None
+        and index.commit and index.commit.sha
+        and theirs.commit and theirs.commit.sha):
+      diff.what_changed = repo.git.whatchanged('{}..{}'.format(
+          theirs.commit.sha, index.commit.sha))
 
     return diff
 

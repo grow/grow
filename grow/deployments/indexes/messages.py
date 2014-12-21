@@ -19,6 +19,7 @@ class FileMessage(messages.Message):
   sha = messages.StringField(2)
   deployed = message_types.DateTimeField(3)
   deployed_by = messages.MessageField(AuthorMessage, 4)
+  action = messages.StringField(5)
 
 
 class IndexMessage(messages.Message):
@@ -28,9 +29,15 @@ class IndexMessage(messages.Message):
   commit = messages.MessageField(CommitMessage, 6)
 
 
+class WhatChangedMessage(messages.Message):
+  commit = messages.MessageField(CommitMessage, 1)
+  files = messages.MessageField(FileMessage, 2, repeated=True)
+
+
 class DiffMessage(messages.Message):
   adds = messages.MessageField(FileMessage, 1, repeated=True)
   edits = messages.MessageField(FileMessage, 2, repeated=True)
   deletes = messages.MessageField(FileMessage, 3, repeated=True)
   nochanges = messages.MessageField(FileMessage, 4, repeated=True)
   indexes = messages.MessageField(IndexMessage, 5, repeated=True)
+  what_changed = messages.StringField(6)
