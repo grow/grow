@@ -1,6 +1,7 @@
 from grow.pods import pods
 from grow.pods import storage
 import click
+import collections
 import os
 
 
@@ -12,10 +13,15 @@ def routes(pod_path):
   pod = pods.Pod(root, storage=storage.FileStorage)
   routes = pod.get_routes()
   out = []
+  controllers_to_paths = collections.defaultdict(set)
   for route in routes:
-    paths = sorted(route.endpoint.list_concrete_paths())
+    name = str(route.endpoint)
+    paths = route.endpoint.list_concrete_paths()
+    controllers_to_paths[name].update(paths)
+  for controller, paths in controllers_to_paths.iteritems():
+    paths = sorted(paths)
     if len(paths) > 1 or True:
-      out.append(str(route.endpoint))
+      out.append(controller)
       for path in paths:
         out.append('  {}'.format(path))
     else:
