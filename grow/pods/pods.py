@@ -33,11 +33,11 @@ from . import messages
 from . import podspec
 from . import routes
 from . import storage
-from . import tests
 from . import catalog_holder
 from .collectionz import collectionz
 from .controllers import tags
 from .preprocessors import preprocessors
+from .tests import tests
 from grow.common import utils
 from grow.deployments import deployments
 import copy
@@ -310,3 +310,6 @@ class Pod(object):
     if not path_format:
       return '/'
     return path_format.format(**{'locale': locale})
+
+  def test(self):
+    self.tests.run()

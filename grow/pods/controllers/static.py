@@ -31,6 +31,9 @@ class StaticController(base.BaseController):
     self.pod = pod
     self.route_params = {}
 
+  def __repr__(self):
+    return '<Static(format=\'{}\')>'.format(self.source_format)
+
   def get_pod_path(self):
     return self.source_format.format(**self.route_params)
 
