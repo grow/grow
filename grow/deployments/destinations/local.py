@@ -41,6 +41,7 @@ class LocalDestination(base.BaseDestination):
     super(LocalDestination, self).prelaunch(dry_run)
 
   def postlaunch(self, dry_run=False):
-    for command in self.config.after_deploy:
-      self.command(command)
+    if self._success:
+      for command in self.config.after_deploy:
+        self.command(command)
     super(LocalDestination, self).postlaunch(dry_run)

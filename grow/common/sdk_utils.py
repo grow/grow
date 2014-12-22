@@ -29,7 +29,7 @@ def get_latest_version():
     releases = json.loads(urllib.urlopen(RELEASES_API).read())
     return releases[0]['tag_name']
   except Exception as e:
-    text = 'Could not check for updates to the SDK. Are you online?'
+    text = 'Cannot check for updates to the SDK while offline.'
     logging.error(colorize(text, ansi=198))
     raise LatestVersionCheckError(str(e))
 

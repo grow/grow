@@ -21,28 +21,28 @@ class TestCase(base.DestinationTestCase):
 
   def test_domain_cname_is_gcs(self):
     bucket_name = self.deployment.config.bucket
-    CKIND = 'c.storage.googleapis.com'
+    CNAME = 'c.storage.googleapis.com'
 
     message = deployment_messages.TestResultMessage()
-    message.title = 'CKIND for {} is {}'.format(bucket_name, CKIND)
+    message.title = 'CNAME for {} is {}'.format(bucket_name, CNAME)
 
     dns_resolver = dns.resolver.Resolver()
     dns_resolver.nameservers = ['8.8.8.8']  # Use Google's DNS.
 
     try:
-      content = str(dns_resolver.query(bucket_name, 'CKIND')[0])
+      content = str(dns_resolver.query(bucket_name, 'CNAME')[0])
     except:
       content = ''
-      text = "Can't verify CKIND for {} is mapped to {}"
+      text = "Can't verify CNAME for {} is mapped to {}"
       message.result = deployment_messages.Result.WARNING
-      message.text = text.format(bucket_name, CKIND)
-    if not content.startswith(CKIND):
-      text = 'CKIND mapping for {} is not GCS! Found {}, expected {}'
+      message.text = text.format(bucket_name, CNAME)
+    if not content.startswith(CNAME):
+      text = 'CNAME mapping for {} is not GCS! Found {}, expected {}'
       message.result = deployment_messages.Result.WARNING
-      message.text = text.format(bucket_name, content, CKIND)
+      message.text = text.format(bucket_name, content, CNAME)
     else:
-      text = 'CKIND for {} -> {}'.format(bucket_name, content, CKIND)
-      message.text = text.format(text, content, CKIND)
+      text = 'CNAME for {} -> {}'.format(bucket_name, content, CNAME)
+      message.text = text.format(text, content, CNAME)
     return message
 
 

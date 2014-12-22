@@ -73,10 +73,11 @@ from grow.common import utils
 from grow.pods import env
 from xtermcolor import colorize
 import inspect
+import io
 import logging
 import os
-import shlex
 import subprocess
+import sys
 
 
 class Error(Exception):
@@ -115,6 +116,7 @@ class BaseDestination(object):
   stats_basename = 'stats.proto.json'
   threaded = True
   _control_dir = '/.grow/'
+  _success = False
 
   def __init__(self, config, name='default', run_tests=True):
     self.config = config
@@ -228,6 +230,7 @@ class BaseDestination(object):
         self.write_control_file(self.stats_basename, stats.to_string())
       else:
         self.delete_control_file(self.stats_basename)
+      self._success = True
     finally:
       self.postlaunch()
     return diff
@@ -235,12 +238,12 @@ class BaseDestination(object):
   def command(self, command):
     if self._diff:
       command = command.replace('${GROW_DEPLOY_WHATCHANGED}', self._diff.what_changed)
-    command = shlex.split(command)
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    err = proc.stderr.read()
-    if err:
-      raise CommandError(err)
-    else:
-      resp = proc.stdout.read()
-      logging.info(resp)
-      return resp
+    with io.BytesIO() as fp:
+      proc = subprocess.Popen(command, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, shell=True)
+      for line in iter(proc.stdout.readline, ''):
+        sys.stdout.write(line)
+        fp.write(line)
+      err = proc.stderr.read()
+      if err:
+        raise CommandError(err)
