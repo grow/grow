@@ -33,7 +33,7 @@ class RegExTestCase(PodTestCase):
     for path, content in self.paths_to_contents.iteritems():
       for i, line in enumerate(content.split('\n')):
         for check in self.checks:
-          if re.match(check.regex, line):
+          if re.search(check.regex, line):
             result = messages.TestResultMessage()
             result.path = path
             result.status = check.status
