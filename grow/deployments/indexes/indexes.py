@@ -122,11 +122,16 @@ class Diff(object):
       file_message.deployed_by = theirs.deployed_by
       diff.deletes.append(file_message)
 
+    # What changed in the pod between deploy commits.
     if (repo is not None
         and index.commit and index.commit.sha
         and theirs.commit and theirs.commit.sha):
       diff.what_changed = repo.git.whatchanged('{}..{}'.format(
           theirs.commit.sha, index.commit.sha))
+    # If on the original deploy show commit log messages only.
+    elif (repo is not None
+          and index.commit and index.commit.sha):
+      diff.what_changed = repo.git.log()
 
     return diff
 

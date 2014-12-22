@@ -75,9 +75,15 @@ from xtermcolor import colorize
 import inspect
 import logging
 import os
+import shlex
+import subprocess
 
 
 class Error(Exception):
+  pass
+
+
+class CommandError(Error):
   pass
 
 
@@ -115,6 +121,7 @@ class BaseDestination(object):
     self.run_tests = run_tests
     self.name = name
     self.pod = None
+    self._diff = None
 
   def __str__(self):
     return self.__class__.__name__
@@ -194,16 +201,16 @@ class BaseDestination(object):
 
   def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False, confirm=False):
     self._prelaunch(dry_run=dry_run)
-
     try:
       deployed_index = self._get_remote_index()
       new_index = indexes.Index.create(paths_to_contents)
       if repo:
         indexes.Index.add_repo(new_index, repo)
       diff = indexes.Diff.create(new_index, deployed_index, repo=repo)
+      self._diff = diff
       if indexes.Diff.is_empty(diff):
         text = 'Diff is empty, nothing to launch, aborted.'
-        print colorize(text, ansi=57)
+        logging.info(colorize(text, ansi=57))
         return
       if dry_run:
         return
@@ -213,18 +220,27 @@ class BaseDestination(object):
         if not utils.interactive_confirm(text):
           logging.info('Launch aborted.')
           return
-
       indexes.Diff.apply(
           diff, paths_to_contents, write_func=self.write_file,
           delete_func=self.delete_file, threaded=self.threaded)
-
       self.write_control_file(self.index_basename, indexes.Index.to_string(new_index))
       if stats is not None:
         self.write_control_file(self.stats_basename, stats.to_string())
       else:
         self.delete_control_file(self.stats_basename)
-
     finally:
       self.postlaunch()
-
     return diff
+
+  def command(self, command):
+    if self._diff:
+      command = command.replace('${GROW_DEPLOY_WHATCHANGED}', self._diff.what_changed)
+    command = shlex.split(command)
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    err = proc.stderr.read()
+    if err:
+      raise CommandError(err)
+    else:
+      resp = proc.stdout.read()
+      logging.info(resp)
+      return resp
