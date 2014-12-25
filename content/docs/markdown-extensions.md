@@ -20,19 +20,11 @@ The following built-in extensions are enabled by default:
 
 The following extensions are specific to Grow and are available for you to use.
 
-### include
-
-Includes another document's body directly. Enables the reuse of content and "partial documents". The include tag must be placed at the beginning of the line.
-
-[sourcecode:markdown]
-[​include('/content/<collection>/<document>.md')]
-[/sourcecode]
-
 ### sourcecode
 
 Implements pygments syntax highlighting for code snippets.
 
-[sourcecode:markdown]
+[sourcecode:text]
 [​sourcecode:html]
 <!doctype html>
 <meta charset="utf-8">
@@ -40,13 +32,3 @@ Implements pygments syntax highlighting for code snippets.
 <p>Source code highlighting.
 [​/sourcecode]
 [/sourcecode]
-
-### url
-
-Returns the URL to a document. Follows the "don't repeat yourself" philosophy, preventing you from having to specify URLs manually.
-
-    [url('/content/<collection>/<document>.md')]
-
-This extension can be used in conjunction with the standard Markdown link syntax.
-
-    [Back to the homepage.]([url('/content/<collection>/<document>.md')])

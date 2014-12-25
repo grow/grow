@@ -17,10 +17,10 @@ Builds a pod, generating all the static files needed to render your site. By def
 
 [sourcecode:bash]
 # Builds pod to "build" directory.
-grow build <pod>
+grow build
 
 # Builds pod to <dir>.
-grow build <pod> <dir>
+grow build --out_dir=<dir>
 [/sourcecode]
 
 ### routes
@@ -28,5 +28,13 @@ grow build <pod> <dir>
 Shows all routes built by your pod. Useful for testing and debugging.
 
 [sourcecode:bash]
-grow routes <pod>
+grow routes
+[/sourcecode]
+
+### test
+
+Runs tests.
+
+[sourcecode:bash]
+grow test
 [/sourcecode]

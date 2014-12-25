@@ -17,13 +17,14 @@ The [Closure Compiler](https://developers.google.com/closure/compiler/) preproce
 
 [sourcecode:yaml]
 kind: closure_compiler
+angular_pass: {yes|no}
 compilation_level: {ADVANCED_OPTIMIZATIONS|SIMPLE_OPTIMIZATIONS|WHITESPACE_ONLY}
-js_output_file: /static/js/main.min.js
-closure_entry_point: foo.bar
+generate_exports: {yes|no}
 manage_closure_dependencies: {yes|no}
 only_closure_dependencies: {yes|no}
-generate_exports: {yes|no}
 output_wrapper: "(function() { %output% })();"
+js_output_file: /static/js/main.min.js
+closure_entry_point: foo.bar
 js:
 - "/bower_components/closure-library/**.js"
 - "/source/js/**.js"
@@ -50,7 +51,7 @@ To install Closure Library using Bower, create a `bower.json` file and run `bowe
 
 ## Sass
 
-Use the [Sass CSS extension language](http://sass-lang.com/) to create, minify, and maintain your site's CSS files.
+Use the [Sass CSS extension language](http://sass-lang.com/) to create, minify, and maintain your site's CSS files. Sass files in `sass_dir` must have either a `.scss` or `.sass` extension and are automatically generated to files ending in `.min.css`.
 
 [sourcecode:yaml]
 kind: sass
