@@ -3,7 +3,7 @@ project: grow/growsdk.org
 title: Grow SDK
 
 localization:
-  default_locale: en
+  default_locale: en_US
 
 error_routes:
   default: /views/errors/default.html
@@ -18,10 +18,10 @@ preprocessors:
     out_dir: /static/css/
 
 deployments:
-  default:
+  growsdk.org:
     destination: gcs
     bucket: growsdk.org
-  sandbox:
+  sandbox.growlaunches.com:
     destination: gcs
     bucket: sandbox.growlaunches.com
   jetway:
