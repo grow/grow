@@ -131,7 +131,7 @@ class Diff(object):
     # If on the original deploy show commit log messages only.
     elif (repo is not None
           and index.commit and index.commit.sha):
-      diff.what_changed = repo.git.log().deocde('utf-8')
+      diff.what_changed = repo.git.log().decode('utf-8')
 
     return diff
 
