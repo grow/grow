@@ -33,17 +33,17 @@ These universal steps ensure that every deployment remains consistent – and so
 You can configure deployments by specifying them in `podspec.yaml`. The *deployments* key maps deployment names to destination configurations.
 
 [sourcecode:yaml]
-# In podspec.yaml...
+# podspec.yaml
 
 deployments:
 
   default:                # Deployment name.
-    destination: local    # Destination.
+    destination: local    # Destination kind.
     out_dir: ~/out/       # Parameters for "local" destination.
 
   growsdk.org:
     destination: gcs
-    bucket: preview.growsdk.org
+    bucket: growsdk.org
 [/sourcecode]
 
 ### Commands
@@ -51,14 +51,11 @@ deployments:
 Once you've configured a deployment in `podspec.yaml`, you can use the `grow deploy` command to launch your site. This will kick off the deployment process (above).
 
 [sourcecode:bash]
-# Deploys your pod to the default destination.
-grow deploy <pod>
-
-# Deploys your site to a named destination.
+# Deploys your site to a destination named `growsdk.org`.
 grow deploy growsdk.org <pod>
 [/sourcecode]
 
-## Launch destinations
+## Destinations
 
 ### Google Cloud Storage
 
@@ -79,7 +76,7 @@ email: 606734090113-6ink7iugcv89da9sru7lii8bs3i0obqg@developer.gserviceaccount.c
 key_path: /path/to/key/file.p12
 [/sourcecode]
 
-To use the "interoperable" method, obtain an access key and secret from the Cloud Console, and place them in `$HOME/.boto`. [See documentation on obtaining access keys](https://developers.google.com/storage/docs/migrating#keys).
+To use the "interoperable" method, obtain an access key and secret from the Cloud Console, and place them in `$HOME/.boto`. You can alternatively place them in environment variables `GS_ACCESS_KEY_ID` and `GS_SECRET_ACCESS_KEY` instead of using the `.boto` file. [See documentation on obtaining access keys](https://developers.google.com/storage/docs/migrating#keys).
 
 [sourcecode:ini]
 # `$HOME/.boto`
@@ -101,7 +98,7 @@ destination: s3
 bucket: mybucket.example.com
 [/sourcecode]
 
-To authenticate to Amazon S3, obtain your access key and secret and place them in `$HOME/.boto`.
+To authenticate to Amazon S3, obtain your access key and secret and place them in `$HOME/.boto`. You can also place these environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 
 [sourcecode:ini]
 [Credentials]
@@ -116,6 +113,12 @@ Deploys a build to a local destination on your computer.
 [sourcecode:yaml]
 destination: local
 out_dir: /path/to/out/directory/
+before_deploy:
+- <shell command>
+- <shell command>
+after_deploy:
+- <shell command>
+- <shell command>
 [/sourcecode]
 
 ### SCP
@@ -141,14 +144,6 @@ repo: https://github.com/owner/project.git
 branch: master
 root_dir: <optional base path within the repository>
 [/sourcecode]
-
-### Unimplemented builtin destinations
-
-We would like to also add support for deployment to...
-
-- Zip files
-- Google App Engine
-- Dropbox
 
 ## Deployment index
 
