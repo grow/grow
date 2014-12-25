@@ -19,7 +19,7 @@ In fact, this is [exactly how this documentation is deployed](https://github.com
 1. Connect your GitHub repo with Travis CI.
 1. Configure Travis CI.
 
-To configure Travis CI, add a `.travis.yml` file in your repository's root.
+To configure Travis CI, add a `.travis.yml` file in your repository's root. Any required access keys can be configured as secure environment variables in the _settings_ section of your Travis CI project.
 
 [sourcecode:yaml]
 language: python
