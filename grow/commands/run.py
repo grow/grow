@@ -14,7 +14,7 @@ import threading
 @click.option('--port', default=8080)
 @click.option('--debug', default=False, is_flag=True,
               help='Whether to run in debug mode.')
-@click.option('--browser', is_flag=True, default=False,
+@click.option('--browser/--nobrowser', is_flag=True, default=False,
               help='Whether to open a browser upon startup.')
 @click.option('--skip_sdk_update_check', default=False, is_flag=True,
               help='Whether to skip checking for updates to the Grow SDK.')

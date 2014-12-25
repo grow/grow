@@ -9,7 +9,7 @@ import os
 @click.command()
 @click.argument('deployment_name')
 @click.argument('pod_path', default='.')
-@click.option('--confirm', default=True, is_flag=True,
+@click.option('--confirm/--noconfirm', default=True, is_flag=True,
               help='Whether to confirm prior to deployment.')
 @click.option('--test_only', default=False, is_flag=True,
               help='Only run the deployment tests.')
