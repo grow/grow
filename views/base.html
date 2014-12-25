@@ -24,7 +24,7 @@
 {% block main %}
   {% if doc.format == 'MARKDOWN' %}
     <div class="wrap">
-      {{doc.html|safe}}
+      {{doc.html|render|safe}}
     </div>
   {% else %}
     {{doc.html|render|safe}}
