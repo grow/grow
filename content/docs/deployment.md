@@ -9,11 +9,11 @@ $order: 2
 
 Deployment is the act of taking your pod, generating a static site, and transferring it to a web server (or other location), typically ready for serving it publically to the world.
 
-## Launch process
+## Launch lifecycle
 
 ### Steps
 
-The launch process for a pod remains the same regardless of the destination for your deployment. Here are the steps that every launch undergoes:
+The launch lifecycle remains the same regardless of your deployment's destination. Here are the steps that every launch undergoes:
 
 1. __Processing__: All pre and post-processors used by your pod are run.
 1. __Pod testing:__ Built-in and pod-specific tests are run to verify your site.
