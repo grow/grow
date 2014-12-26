@@ -150,13 +150,22 @@ It also allows you to use a non-English language as the source language for cont
 
 #### locales
 
-A list of locales that your site is available in. Language codes will be derived from the locales in this list and separate translation catalogs will be created for each language. The `{locale}` converter can be used in `path` configs (such as in `podspec.yaml` or in a blueprint).
+A list of locale identifiers that your site is available in. Language codes will be derived from the identifiers in this list and individual translation catalogs will be created for each language. The `{locale}` converter can be used in `path` configs (such as in `podspec.yaml` or in a blueprint).
 
 [sourcecode:yaml]
 locales:
-- en
-- de
-- it
+- en_US
+- de_DE
+- it_IT
+[/sourcecode]
+
+#### aliases
+
+A mapping of aliases to locale identifiers. This can be used to translate a Grow locale to a locale used by your web server, should the identifiers differ.
+
+[sourcecode:yaml]
+aliases:
+  en_uk: en_gb
 [/sourcecode]
 
 ### preprocessors

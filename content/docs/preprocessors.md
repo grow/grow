@@ -24,7 +24,9 @@ manage_closure_dependencies: {yes|no}
 only_closure_dependencies: {yes|no}
 output_wrapper: "(function() { %output% })();"
 js_output_file: /static/js/main.min.js
-closure_entry_point: foo.bar
+closure_entry_point:
+- foo.main
+- bar.main
 js:
 - "/bower_components/closure-library/**.js"
 - "/source/js/**.js"
@@ -35,7 +37,7 @@ externs:
 
 ### Including Closure Library
 
-Grow does not implement any sort of package or dependency management system. If you want to use the `closure_compiler` preprocessor with Closure Library, you'll need to make Closure Library's sources available to the compiler. Instead of including Closure Library in its entirety in your Git repository, you could use a dependency management system such as Bower or Git submodules.
+Grow does not implement any sort of package or dependency management system. If you want to use the Closure Compiler preprocessor with Closure Library, you'll need to make Closure Library's sources available to the compiler. Instead of including Closure Library in its entirety in your Git repository, you could use a dependency management system such as Bower or Git submodules.
 
 To install Closure Library using Bower, create a `bower.json` file and run `bower install`.
 
@@ -57,4 +59,5 @@ Use the [Sass CSS extension language](http://sass-lang.com/) to create, minify, 
 kind: sass
 sass_dir: /source/sass/    # Where to find source Sass files.
 out_dir: /static/css/      # Where to write generated CSS files.
+suffix: .min.css           # Optional suffix of the generated filename.
 [/sourcecode]

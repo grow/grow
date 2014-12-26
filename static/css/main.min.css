@@ -1323,6 +1323,9 @@ h1, h2, h3 {
   font-weight: 300;
   letter-spacing: -0.01em; }
 
+h4 {
+  margin-top: 3em; }
+
 p {
   line-height: 1.5em;
   margin: 1.75em 0; }
