@@ -48,7 +48,17 @@ Refers to the [`podspec.yaml` configuration file]([url('/content/docs/podspec.md
 
 ## Functions
 
-All built-in functions are prefixed with the `g` namespace.
+### _
+
+`_(<string>)`
+
+The `_` tag is a special function used to tag strings in templates for both translation and message extraction.
+
+    # Simple translation.
+    {{_('Hello')}}
+
+    # A translation with a placeholder.
+    {{_('Hello, %(name)s', name='Alice')}
 
 ### g.breadcrumb
 
@@ -81,6 +91,19 @@ Lists content documents within a collection and groups them by their *$category*
       <li>{{doc.title()}}
     {% endfor %}
   </ul>
+{% endfor %}
+[/sourcecode]
+
+### g.csv
+
+`g.csv(<path to csv>, locale=<identifier>)`
+
+Parses a CSV file and returns a list of dictionaries mapping header rows to values for each row. Optionally use keyword arguments to filter results. This can be particularly useful for using a spreadsheet for localization (where rows represent values for different locales).
+
+[sourcecode:html+jinja]
+{% set people = g.csv('/data/people.csv') %}
+{% for person in people %}
+  <li>{{person.name}}
 {% endfor %}
 [/sourcecode]
 
@@ -126,6 +149,12 @@ Searches content documents within a collection.
   {% endfor %}
 </ul>
 [/sourcecode]
+
+### g.locales
+
+`g.locales(<list of locale identifier>)`
+
+Returns a list of [`Locale class`](http://babel.pocoo.org/docs/locale/#the-locale-class) given a list of locale identifiers.
 
 ### g.nav
 
