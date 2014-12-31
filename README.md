@@ -21,11 +21,11 @@ The Grow SDK is still under development and is *considered experimental*. We may
 
 ## Quick start usage
 
-Full documentation is available at http://growsdk.org, but this four-step process covers the basic workflow. See a full list of commands using: `grow --help`.
+Full documentation is available at https://growsdk.org, but this four-step process covers the basic workflow. See a full list of commands using: `grow --help`.
 
 (1) Install Grow. You will be prompted to continue.
 
-    curl install.growsdk.org | bash && source ~/.bash_profile
+    curl https://install.growsdk.org | bash
 
 (2) Initialize a new pod using the "codelab" theme.
 

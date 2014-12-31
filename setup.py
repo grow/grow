@@ -1,5 +1,8 @@
 from setuptools import find_packages
 from setuptools import setup
+from pip import req
+
+_install_requirements = req.parse_requirements('requirements.txt')
 
 
 setup(
@@ -10,16 +13,13 @@ setup(
           'static site generator/CMS for building high-quality web sites.'
     ),
     long_description=open('description.txt').read().strip(),
-    url='http://growsdk.org',
+    url='https://growsdk.org',
     license='MIT',
     author='Grow SDK Authors',
     author_email='hello@grow.io',
     include_package_data=True,
-    packages=find_packages(
-        exclude=[
-            'grow/submodules',
-        ],
-    ),
+    install_requires=[str(ir.req) for ir in _install_requirements],
+    packages=find_packages(),
     scripts=[
         'bin/grow',
     ],
