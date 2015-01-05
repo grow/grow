@@ -5,13 +5,16 @@ from oauth2client import client
 from oauth2client import keyring_storage
 from oauth2client import tools
 from protorpc import messages
+import cStringIO
+import csv
 import httplib2
+import json
 import logging
 import os
 
 # Google API details for a native/installed application for API project grow-prod.
 CLIENT_ID = '578372381550-jfl3hdlf1q5rgib94pqsctv1kgkflu1a.apps.googleusercontent.com'
-CLIENT_SECRET = 'XQKqbwTg88XVpaBNRcm_tYLf'
+CLIENT_SECRET = 'XQKqbwTg88XVpaBNRcm_tYLf'  # Not so secret for installed apps.
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
@@ -43,6 +46,10 @@ class GoogleSheetsPreprocessor(base.BasePreprocessor):
     service = discovery.build('drive', 'v2', http=http)
     resp = service.files().get(fileId=sheet_id).execute()
     ext = os.path.splitext(self.config.path)[1]
+    convert_to = None
+    if ext == '.json':
+      ext = 'csv'
+      convert_to = '.json'
     for mimetype, url in resp['exportLinks'].iteritems():
       if not mimetype.endswith(ext[1:]):
         continue
@@ -52,6 +59,12 @@ class GoogleSheetsPreprocessor(base.BasePreprocessor):
       if resp.status != 200:
         self.logger.error('Error downloading Google Sheet: {}'.format(path))
         break
+      if convert_to == '.json':
+        fp = cStringIO.StringIO()
+        fp.write(content)
+        fp.seek(0)
+        reader = csv.DictReader(fp)
+        content = json.dumps([row for row in reader])
       self.pod.write_file(path, content)
       self.logger.info('Downloaded Google Sheet -> {}'.format(path))
 
