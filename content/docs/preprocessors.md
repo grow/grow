@@ -51,6 +51,21 @@ To install Closure Library using Bower, create a `bower.json` file and run `bowe
 }
 [/sourcecode]
 
+## Google Sheets
+
+The Google Sheets preprocessor downloads data from a Google Sheet and saves it to a data file within your pod. The data can then be consumed by the `g.csv` tag, for example, in templates.
+
+After enabling this preprocessor, when you run the `grow build` command, you will be prompted (once on the command line) to authorize Grow to read your Google Drive files.
+
+Grow will export data from Google Sheets as either JSON or CSV, depending on the extension used in the `path` field.
+
+[sourcecode:yaml]
+kind: google_sheets
+path: /data/filename.{csv|json}                       # Where to save downloaded file.
+id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI      # Spreadsheet ID.
+gid: 0                                                # Worksheet ID (optional).
+[/sourcecode]
+
 ## Sass
 
 Use the [Sass CSS extension language](http://sass-lang.com/) to create, minify, and maintain your site's CSS files. Sass files in `sass_dir` must have either a `.scss` or `.sass` extension and are automatically generated to files ending in `.min.css`.
@@ -59,5 +74,5 @@ Use the [Sass CSS extension language](http://sass-lang.com/) to create, minify, 
 kind: sass
 sass_dir: /source/sass/    # Where to find source Sass files.
 out_dir: /static/css/      # Where to write generated CSS files.
-suffix: .min.css           # Optional suffix of the generated filename.
+suffix: .min.css           # Suffix of the generated filename (optional).
 [/sourcecode]
