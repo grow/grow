@@ -8,6 +8,7 @@ class EnvConfig(messages.Message):
   scheme = messages.StringField(2)
   port = messages.IntegerField(3)
   name = messages.StringField(4)
+  cached = messages.BooleanField(5, default=True)
 
 
 class Env(object):
@@ -18,6 +19,7 @@ class Env(object):
     self.host = config.host
     self.port = config.port or 80
     self.scheme = config.scheme or 'http'
+    self.cached = config.cached
 
   def __repr__(self):
     return '<Env: {}>'.format(self.url)

@@ -1,18 +1,14 @@
 from babel import util
 from babel.messages import catalog
-from babel.messages import extract
 from babel.messages import mofile
 from babel.messages import pofile
 from datetime import datetime
-from grow.common import utils
 from grow.pods import messages
 from grow.pods.storage import gettext_storage as gettext
-import babel
+import goslate
 import logging
 import os
 import re
-import tokenize
-import goslate
 
 
 
@@ -143,7 +139,7 @@ class Catalog(catalog.Catalog):
     except IOError:
       logging.info('Skipped catalog check for: {}'.format(self))
 
-    text = 'Compiling {}/{} translated strings to {}'
+    text = 'Compiling {}/{} translated strings -> {}'
     logging.info(text.format(num_translated, num_total, mo_filename))
 
     mo_file = self.pod.open_file(mo_filename, 'w')

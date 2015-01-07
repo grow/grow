@@ -24,7 +24,11 @@ def run(host, port, debug, browser, skip_sdk_update_check, pod_path):
     thread = threading.Thread(target=sdk_utils.check_version, args=(True,))
     thread.start()
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-  environment = env.Env(env.EnvConfig(host=host, port=port, name='dev'))
+  environment = env.Env(env.EnvConfig(
+      host=host,
+      port=port,
+      name='dev',
+      cached=False))
   pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
   try:
     manager.start(pod, host=host, port=port, open_browser=browser, debug=debug)

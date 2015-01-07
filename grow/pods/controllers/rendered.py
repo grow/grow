@@ -75,9 +75,10 @@ class RenderedController(base.BaseController):
       locale.setlocale(locale.LC_ALL, '')
     else:
       try:
+        # TODO(jeremydw): Convert from Babel locale to system locale.
         locale.setlocale(locale.LC_TIME, str(self.locale))
       except locale.Error:
-        logging.error('Bad locale: %s', self.locale)
+        pass
     template = self._template_env.get_template(self.view.lstrip('/'))
     g = {
         'breadcrumb': lambda *args, **kwargs: tags.breadcrumb(*args, _pod=self.pod, **kwargs),

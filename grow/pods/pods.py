@@ -79,6 +79,8 @@ class Pod(object):
     self.catalogs = catalog_holder.Catalogs(pod=self)
     self.tests = tests.Tests(pod=self)
 
+    self._routes = None
+
   def __repr__(self):
     if self.changeset is not None:
       return '<Pod: {}@{}>'.format(self.root, self.changeset)
@@ -93,10 +95,10 @@ class Pod(object):
 
   @property
   def routes(self):
-    # Rebuilding routes with each access of the routes propery prevents
-    # caching issues with data files. TODO: Rebuild routes only when routes
-    # and data files change.
-    return routes.Routes(pod=self)
+    if self.env.cached and self._routes is not None:
+      return self._routes
+    self._routes = routes.Routes(pod=self)
+    return self._routes
 
   def reset_yaml(self):
     self._parse_yaml.reset()

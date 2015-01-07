@@ -72,7 +72,7 @@ class SassPreprocessor(base.BasePreprocessor):
         result.update(subresult)
     for sass_path, out_path in result.iteritems():
       self.logger.info(
-          'Compiled {} -> {}'.format(sass_path.replace(self.root, ''),
+          'Compiled: {} -> {}'.format(sass_path.replace(self.root, ''),
                                      out_path.replace(self.root, '')))
     return result
 
