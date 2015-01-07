@@ -36,6 +36,7 @@ from . import storage
 from . import catalog_holder
 from .collectionz import collectionz
 from .controllers import tags
+from .controllers import jinja2htmlcompress
 from .preprocessors import preprocessors
 from .tests import tests
 from grow.common import utils
@@ -295,10 +296,16 @@ class Pod(object):
     return self.podspec
 
   def get_template_env(self):
-    _template_loader = self.storage.JinjaLoader(self.root)
-    env = jinja2.Environment(
-        loader=_template_loader, autoescape=True, trim_blocks=True,
-        extensions=['jinja2.ext.i18n', 'jinja2.ext.do'])
+    kwargs = {
+        'autoescape': True,
+        'extensions': ['jinja2.ext.i18n', 'jinja2.ext.do'],
+        'loader': self.storage.JinjaLoader(self.root),
+        'lstrip_blocks': True,
+        'trim_blocks': True,
+    }
+    if self.podspec.flags.get('compress_html'):
+      kwargs['extensions'].append(jinja2htmlcompress.HTMLCompress)
+    env = jinja2.Environment(**kwargs)
     env.filters['markdown'] = tags.markdown_filter
     env.filters['render'] = tags.render_filter
     return env
