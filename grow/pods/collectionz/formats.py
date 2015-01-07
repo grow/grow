@@ -151,7 +151,7 @@ def untag_fields(fields, catalog):
     if key.endswith('@'):
       untagged_key = key.rstrip('@')
       priority = len(key) - len(untagged_key)
-      content = node[key]
+      content = item
       nodes_and_keys_to_remove.append((node, key))
       if priority > 1 and untagged_key in untagged_keys_to_add:
         try:
@@ -166,7 +166,9 @@ def untag_fields(fields, catalog):
         nodes_and_keys_to_add.append((node, untagged_key, content))
   utils.walk(fields, callback)
   for node, key in nodes_and_keys_to_remove:
-    del node[key]
+    if isinstance(node, dict):
+      del node[key]
   for node, untagged_key, content in nodes_and_keys_to_add:
-    node[untagged_key] = content
+    if isinstance(node, dict):
+      node[untagged_key] = content
   return fields

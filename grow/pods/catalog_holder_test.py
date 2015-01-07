@@ -16,13 +16,16 @@ class CatalogsTest(unittest.TestCase):
 
   def test_extract(self):
     template_catalog = self.pod.catalogs.extract()
-    self.assertEqual(14, len(template_catalog))
+    self.assertEqual(17, len(template_catalog))
     expected = [
         'Hello World!',
         'Hello World 2!',
+        'Tagged String',
+        'Tagged String in List 1',
+        'Tagged String in List 2',
     ]
     for string in expected:
-      self.assertTrue(string in template_catalog)
+      self.assertIn(string, template_catalog)
 
   def test_get(self):
     de_catalog = self.pod.catalogs.get('de')

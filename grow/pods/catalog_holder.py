@@ -1,19 +1,11 @@
 from . import catalogs
-from babel import util
-from babel.messages import catalog
 from babel.messages import extract
-from babel.messages import mofile
 from babel.messages import pofile
-from datetime import datetime
 from grow.common import utils
 from grow.pods import messages
-from grow.pods.storage import gettext_storage as gettext
-import babel
 import logging
 import os
-import re
 import tokenize
-import goslate
 
 
 _TRANSLATABLE_EXTENSIONS = (
@@ -127,15 +119,13 @@ class Catalogs(object):
       _handle_field(doc.pod_path, item, key, unused_node)
 
     def _handle_field(path, item, key, unused_node):
-      if not isinstance(item, basestring):
+      if not key.endswith('@') or not isinstance(item, basestring):
         return
-      if key.endswith('@'):
-        comments = []
-        context = None
-        added_message = catalog_obj.add(
-            item, None, [(path, 0)], auto_comments=comments, context=context)
-        if added_message not in extracted:
-          extracted.append(added_message)
+      comments = ['{}:{}'.format(doc.pod_path, key)]
+      added_message = catalog_obj.add(
+          item, None, [(path, 0)], auto_comments=comments, context=context)
+      if added_message not in extracted:
+        extracted.append(added_message)
 
     for collection in self.pod.list_collections():
       logging.info('Extracting from collection: {}'.format(collection.pod_path))

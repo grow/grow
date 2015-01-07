@@ -5,6 +5,12 @@ $order: 0
 $localization:
   path: /{locale}/home/
 
+tagged_fields:
+  tagged_string@: Tagged String
+  tagged_strings@:
+  - Tagged String in List 1
+  - Tagged String in List 2
+
 foo: bar
 translation_with_priority@: Lower Priority
 translation_with_priority@@: Higher Priority

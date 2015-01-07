@@ -41,14 +41,23 @@ def interactive_confirm(message, default=False):
   return False
 
 
-def walk(node, callback):
+def walk(node, callback, parent_key=None):
   if node is None:
     return
   for key in node:
-    item = node[key] if isinstance(node, dict) else key
-    if isinstance(item, (list, set, dict)):
-      walk(item, callback)
+    if isinstance(node, dict):
+      item = node[key]
     else:
+      item = key
+
+    if isinstance(node, (dict)) and isinstance(item, (list, set)):
+      parent_key = key
+
+    if isinstance(item, (list, set, dict)):
+      walk(item, callback, parent_key=parent_key)
+    else:
+      if isinstance(node, (list, set)):
+        key = parent_key
       callback(item, key, node)
 
 
