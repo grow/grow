@@ -7,9 +7,9 @@ $order: 8
 
 [TOC]
 
-Preprocessors let you take source files in your pod and run programs on them to do things like optimization and code generation. Grow runs preprocessors every time affected source files change, allowing you to "save and refresh" to preview your changes. Preprocessors are also run before deployment.
+Preprocessors do things like optimization and code generation against your pod's source files. Grow runs preprocessors every time affected source files change, allowing you to "save and refresh" to preview your changes. Preprocessors are also run at build time.
 
-Grow includes the below preprocessors as built-ins with the SDK, and you'll always be free to bring your own external processing tools (such as Grunt or Gulp) to build files used by Grow sites.
+Grow includes the below preprocessors as built-ins with the SDK, and you'll always be free to bring your own external processing tools (such as Grunt or Gulp).
 
 ## Closure Compiler
 
@@ -72,7 +72,11 @@ Use the [Sass CSS extension language](http://sass-lang.com/) to create, minify, 
 
 [sourcecode:yaml]
 kind: sass
-sass_dir: /source/sass/    # Where to find source Sass files.
-out_dir: /static/css/      # Where to write generated CSS files.
-suffix: .min.css           # Suffix of the generated filename (optional).
+sass_dir: /source/sass/         # Where to find source Sass files.
+out_dir: /static/css/           # Where to write generated CSS files.
+suffix: .min.css                # Suffix of the generated filename (optional).
+# Style of compiled result (optional, default: compressed).
+output_style: {nested|expanded|compact|compressed}
+source_comments: {yes|no}       # Whether to add comments about source lines (optional).
+image_path: /static/images/     # Where to find images (optional).
 [/sourcecode]
