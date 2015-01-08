@@ -136,8 +136,8 @@ def install(rc_path=None, bin_path=None, force=False):
     fp.close()
     hai('{blue}[✓]{/blue} {green}Created "grow" alias in:{/green} %s' % rc_path)
     hai('{green}All done. To use Grow SDK...{/green}')
-    hai(' ...reload your shell session OR use `source {}`,')
-    hai(' ...then type `grow` and press enter.'.format(rc_path))
+    hai(' ...reload your shell session OR use `source {}`,'.format(rc_path))
+    hai(' ...then type `grow` and press enter.')
 
 
 def parse_args():
