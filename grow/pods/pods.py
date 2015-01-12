@@ -47,6 +47,12 @@ import logging
 import os
 import re
 
+_handler = logging.StreamHandler()
+_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S'))
+_logger = logging.getLogger('pod')
+_logger.propagate = False
+_logger.addHandler(_handler)
+
 
 class Error(Exception):
   pass
@@ -79,6 +85,7 @@ class Pod(object):
     self.catalogs = catalog_holder.Catalogs(pod=self)
     self.tests = tests.Tests(pod=self)
 
+    self.logger = _logger
     self._routes = None
 
   def __repr__(self):

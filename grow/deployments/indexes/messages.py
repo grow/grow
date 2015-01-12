@@ -12,6 +12,7 @@ class CommitMessage(messages.Message):
   author = messages.MessageField(AuthorMessage, 2)
   date = message_types.DateTimeField(3)
   message = messages.StringField(4)
+  has_unstaged_changes = messages.BooleanField(5)
 
 
 class FileMessage(messages.Message):

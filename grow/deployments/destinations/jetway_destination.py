@@ -4,7 +4,6 @@ from protorpc import messages
 import jetway
 
 
-
 class Config(messages.Message):
   env = messages.MessageField(env.EnvConfig, 1)
   project = messages.StringField(2, required=True)
@@ -17,6 +16,8 @@ class Config(messages.Message):
 class JetwayDestination(base.BaseDestination):
   KIND = 'jetway'
   Config = Config
+  threaded = True
+  batch_writes = True
 
   def __init__(self, *args, **kwargs):
     super(JetwayDestination, self).__init__(*args, **kwargs)
@@ -29,30 +30,36 @@ class JetwayDestination(base.BaseDestination):
   def __str__(self):
     return self.config.server
 
-  def prelaunch(self, dry_run=False):
-    pass
+  def login(self, account='default', reauth=False):
+    self.jetway.login(account, reauth=reauth)
 
-  def postlaunch(self, dry_run=False):
+  def prelaunch(self, dry_run=False):
+    self.login()
+    super(JetwayDestination, self).prelaunch(dry_run=dry_run)
+
+  def test(self):
+    # Don't run the default "can write files at destination" test.
     pass
 
   def read_file(self, path):
     paths_to_contents, errors = self.jetway.read([path])
-    if errors:
-      raise base.Error(errors)
     if path not in paths_to_contents:
       raise IOError('{} not found.'.format(path))
-    return paths_to_contents[path]
-
-  def write_file(self, path, content):
-    if isinstance(content, unicode):
-      content = content.encode('utf-8')
-    paths_to_contents, errors = self.jetway.write({path: content})
     if errors:
       raise base.Error(errors)
     return paths_to_contents[path]
 
-  def delete_file(self, path):
-    paths_to_contents, errors = self.jetway.delete([path])
+  def write_file(self, paths_to_contents):
+    for path, content in paths_to_contents.iteritems():
+      if isinstance(content, unicode):
+        paths_to_contents[path] = content.encode('utf-8')
+    paths_to_contents, errors = self.jetway.write(paths_to_contents)
     if errors:
       raise base.Error(errors)
-    return paths_to_contents[path]
+    return paths_to_contents
+
+  def delete_file(self, paths):
+    paths_to_contents, errors = self.jetway.delete(paths)
+    if errors:
+      raise base.Error(errors)
+    return paths_to_contents

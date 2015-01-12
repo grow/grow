@@ -2,6 +2,7 @@ from . import messages
 from protorpc import protojson
 import ConfigParser
 import datetime
+import git
 import hashlib
 import logging
 import progressbar
@@ -19,13 +20,15 @@ class CorruptIndexError(Error):
 
 class ProgressBarThread(threading.Thread):
 
-  def __init__(self, bar, *args, **kwargs):
+  def __init__(self, bar, enabled, *args, **kwargs):
     self.bar = bar
+    self.enabled = enabled
     super(ProgressBarThread, self).__init__(*args, **kwargs)
 
   def run(self):
     super(ProgressBarThread, self).run()
-    self.bar.update(self.bar.currval + 1)
+    if self.enabled:
+      self.bar.update(self.bar.currval + 1)
 
 
 class Diff(object):
@@ -37,8 +40,8 @@ class Diff(object):
   @classmethod
   def _format_author(cls, author, include_email=True):
     if include_email:
-      return '{} <{}>'.format(author.name, author.email) if author else 'Unknown'
-    return author.name if author else 'Unknown'
+      return '{} <{}>'.format(author.name, author.email) if author else ''
+    return author.name if author else ''
 
   @classmethod
   def _make_diff_row(cls, color, label, message):
@@ -71,14 +74,20 @@ class Diff(object):
     table.add_rows(rows)
     logging.info('\n' + table.draw() + '\n')
     if last_index.deployed and last_index.deployed_by:
-      logging.info('Last deployed {} by {}'.format(
+      logging.info('Last deployed {} <{}>'.format(
           last_index.deployed, cls._format_author(last_index.deployed_by)))
-    last_commit_sha = last_commit.sha if last_commit else 'N/A'
-    new_commit_sha = new_commit.sha if new_commit else 'N/A'
-    logging.info('From commit {} -> {}'.format(last_commit_sha, new_commit_sha))
-    logging.info('You are: {}'.format(cls._format_author(new_index.deployed_by)))
+    last_commit_sha = last_commit.sha if last_commit else ''
+    new_commit_sha = new_commit.sha if new_commit else ''
+    if new_index.deployed_by:
+      between_commits = '{}..{}'.format(
+          last_commit_sha[:7],
+          new_commit_sha[:7])
+      if new_commit.has_unstaged_changes:
+        between_commits += ' (with unstaged changes)'
+      logging.info('Launching: {} as {}'.format(
+          between_commits, new_index.deployed_by.email))
     if diff.what_changed:
-      logging.info('\n' + diff.what_changed + '\n')
+      logging.info(diff.what_changed + '\n')
 
   @classmethod
   def create(cls, index, theirs, repo=None):
@@ -126,53 +135,74 @@ class Diff(object):
     if (repo is not None
         and index.commit and index.commit.sha
         and theirs.commit and theirs.commit.sha):
-      diff.what_changed = repo.git.whatchanged('{}..{}'.format(
-          theirs.commit.sha, index.commit.sha))
+      diff.what_changed = repo.git.log(
+          '--date=short',
+          '--pretty=format:[%h] %ad <%ae> %s',
+          '{}..{}'.format(theirs.commit.sha, index.commit.sha)).decode('utf-8')
+
     # If on the original deploy show commit log messages only.
     elif (repo is not None
           and index.commit and index.commit.sha):
-      diff.what_changed = repo.git.log().decode('utf-8')
+      diff.what_changed = repo.git.log(
+          '--date=short',
+          '--pretty=format:[%h] %ad <%ae> %s').decode('utf-8')
 
     return diff
 
   @classmethod
-  def apply(cls, message, paths_to_content, write_func, delete_func, threaded=True):
-    diff = message
-
+  def apply(cls, message, paths_to_content, write_func, delete_func, threaded=True,
+            batch_writes=False):
     # TODO(jeremydw): Thread pool for the threaded operation.
+    diff = message
     threads = []
     num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
     text = 'Deploying files: %(value)d/{} (in %(elapsed)s)'
     widgets = [progressbar.FormatLabel(text.format(num_files))]
     bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
-    bar.start()
-    for file_message in diff.adds:
-      content = paths_to_content[file_message.path]
-      thread = ProgressBarThread(
-          bar, target=write_func, args=(file_message.path, content))
-      threads.append(thread)
-      thread.start()
-      if not threaded:
-        thread.join()
-    for file_message in diff.edits:
-      content = paths_to_content[file_message.path]
-      thread = ProgressBarThread(
-          bar, target=write_func, args=(file_message.path, content))
-      threads.append(thread)
-      thread.start()
-      if not threaded:
-        thread.join()
-    for file_message in diff.deletes:
-      thread = ProgressBarThread(
-          bar, target=delete_func, args=(file_message.path,))
-      threads.append(thread)
-      thread.start()
-      if not threaded:
-        thread.join()
+
+    if batch_writes:
+      writes_paths_to_contents = {}
+      for file_message in diff.adds:
+        writes_paths_to_contents[file_message.path] = paths_to_content[file_message.path]
+      for file_message in diff.edits:
+        writes_paths_to_contents[file_message.path] = paths_to_content[file_message.path]
+      deletes_paths = [file_message.path for file_message in diff.deletes]
+      if writes_paths_to_contents:
+        write_func(writes_paths_to_contents)
+      if deletes_paths:
+        delete_func(deletes_paths)
+
+    else:
+      bar.start()
+      for file_message in diff.adds:
+        content = paths_to_content[file_message.path]
+        thread = ProgressBarThread(
+            bar, True, target=write_func, args=(file_message.path, content))
+        threads.append(thread)
+        thread.start()
+        if not threaded:
+          thread.join()
+      for file_message in diff.edits:
+        content = paths_to_content[file_message.path]
+        thread = ProgressBarThread(
+            bar, True, target=write_func, args=(file_message.path, content))
+        threads.append(thread)
+        thread.start()
+        if not threaded:
+          thread.join()
+      for file_message in diff.deletes:
+        thread = ProgressBarThread(
+            bar, batch_writes, target=delete_func, args=(file_message.path,))
+        threads.append(thread)
+        thread.start()
+        if not threaded:
+          thread.join()
+
     if threaded:
       for thread in threads:
         thread.join()
-    bar.finish()
+    if not batch_writes:
+      bar.finish()
 
 
 class Index(object):
@@ -213,7 +243,13 @@ class Index(object):
     except ValueError:
       logging.info('Warning: On initial commit, no HEAD yet.')
       return message
+    try:
+      repo.git.diff('--quiet')
+      has_unstaged_changes = False
+    except git.exc.GitCommandError:
+      has_unstaged_changes = True
     commit_message = messages.CommitMessage()
+    commit_message.has_unstaged_changes = has_unstaged_changes
     commit_message.sha = commit.hexsha
     commit_message.message = commit.message
     commit_message.author = messages.AuthorMessage(

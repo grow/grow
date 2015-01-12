@@ -1,11 +1,4 @@
-import logging
 import os
-
-_handler = logging.StreamHandler()
-_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S'))
-_logger = logging.getLogger('preprocessor')
-_logger.propagate = False
-_logger.addHandler(_handler)
 
 
 class Error(Exception):
@@ -22,7 +15,7 @@ class BasePreprocessor(object):
     self.pod = pod
     self.root = pod.root
     self.config = config
-    self.logger = _logger
+    self.logger = self.pod.logger
 
   def first_run(self):
     self.run()

@@ -115,12 +115,12 @@ class BaseDestination(object):
   index_basename = 'index.proto.json'
   stats_basename = 'stats.proto.json'
   threaded = True
+  batch_writes = False
   _control_dir = '/.grow/'
   _success = False
 
-  def __init__(self, config, name='default', run_tests=True):
+  def __init__(self, config, name='default'):
     self.config = config
-    self.run_tests = run_tests
     self.name = name
     self.pod = None
     self._diff = None
@@ -141,11 +141,6 @@ class BaseDestination(object):
       return indexes.Index.from_string(content)
     except IOError:
       return indexes.Index.create()
-
-  def _prelaunch(self, dry_run=False):
-    self.prelaunch(dry_run=dry_run)
-    if self.run_tests:
-      self.test()
 
   def get_env(self):
     """Returns an environment object based on the config."""
@@ -180,10 +175,11 @@ class BaseDestination(object):
     path = os.path.join(self.control_dir, path.lstrip('/'))
     if self.config.keep_control_dir:
       return self.pod.write_file(path, content)
+    if self.batch_writes:
+      return self.write_file({path: content})
     return self.write_file(path, content)
 
   def test(self):
-    print 'Running tests...'
     results = messages.TestResultsMessage(test_results=[])
     failures = []
     test_case = self.TestCase(self)
@@ -201,8 +197,14 @@ class BaseDestination(object):
   def prelaunch(self, dry_run=False):
     pass
 
-  def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False, confirm=False):
-    self._prelaunch(dry_run=dry_run)
+  def login(self, account, reauth=False):
+    pass
+
+  def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False, confirm=False,
+             test=True):
+    self.prelaunch(dry_run=dry_run)
+    if test:
+      self.test()
     try:
       deployed_index = self._get_remote_index()
       new_index = indexes.Index.create(paths_to_contents)
@@ -211,20 +213,21 @@ class BaseDestination(object):
       diff = indexes.Diff.create(new_index, deployed_index, repo=repo)
       self._diff = diff
       if indexes.Diff.is_empty(diff):
-        text = 'Diff is empty, nothing to launch, aborted.'
+        text = 'Diff is empty, nothing to launch.'
         logging.info(colorize(text, ansi=57))
         return
       if dry_run:
         return
       if confirm:
         indexes.Diff.pretty_print(diff)
-        text = 'Proceed to launch? => {}'.format(self)
+        text = 'Proceed to launch? -> {}'.format(self)
         if not utils.interactive_confirm(text):
           logging.info('Launch aborted.')
           return
       indexes.Diff.apply(
           diff, paths_to_contents, write_func=self.write_file,
-          delete_func=self.delete_file, threaded=self.threaded)
+          delete_func=self.delete_file, threaded=self.threaded,
+          batch_writes=self.batch_writes)
       self.write_control_file(self.index_basename, indexes.Index.to_string(new_index))
       if stats is not None:
         self.write_control_file(self.stats_basename, stats.to_string())

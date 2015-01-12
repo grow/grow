@@ -21,7 +21,8 @@ def build(pod_path, out_dir):
     repo = utils.get_git_repo(pod.root)
     config = local_destination.Config(out_dir=out_dir)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
-    destination = local_destination.LocalDestination(config, run_tests=False)
-    destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False)
+    destination = local_destination.LocalDestination(config)
+    destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,
+                       test=False)
   except pods.Error as e:
     raise click.ClickException(str(e))

@@ -140,7 +140,7 @@ class Catalog(catalog.Catalog):
       logging.info('Skipped catalog check for: {}'.format(self))
 
     text = 'Compiling {}/{} translated strings -> {}'
-    logging.info(text.format(num_translated, num_total, mo_filename))
+    self.pod.logger.info(text.format(num_translated, num_total, mo_filename))
 
     mo_file = self.pod.open_file(mo_filename, 'w')
     try:
