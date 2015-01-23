@@ -1,0 +1,29 @@
+@mixin shadow() {
+  box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
+}
+
+@mixin button() {
+  @include shadow();
+  background: #7e57c2;
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: all 200ms ease;
+}
+
+@mixin button-hover() {
+  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.2), 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
+}
+
+@mixin frosted-background() {
+  background: #fafafa;
+}
+
+@mixin inverted-background() {
+  background-color: #362d6c;
+  background-image: linear-gradient(45deg, #362d6c 0%,#0c5593 100%);
+  color: #fff;
+}

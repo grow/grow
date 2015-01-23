@@ -3,10 +3,12 @@ $path: /
 $view: /views/base.html
 $title: Home
 
+class: home
+
 hero:
 
-  title: The declarative, file-based system for building high-quality web sites.
-  content: The Grow SDK is an open source static site generator for modern, rapid, collaborative web site management and production. With Grow, you can save time on architecture and maintenance, and make time for building awesome websites.
+  title: A declarative, file-based microsite generator
+  content: An open source, Git-based static site generator for rapid, content-driven website management and production.
 
 sections:
 
@@ -27,109 +29,42 @@ sections:
     content: |
         You can focus on what matters – your web sites – when you use the Grow SDK. Your projects are stored and managed entirely separate from the SDK, so you'll never have to maintain a deployed installation or deal with upgrades. Grow tests and verifies your sites every time you deploy them, and warns you when it discovers issues in your code related to web security.
 
-banner:
-  title: A swiss-army knife of tools for building your web sites.
-  panels:
-    - title: "Works with"
-      things:
-      - title: Markdown
-        key: markdown
-        link: http://en.wikipedia.org/wiki/Markdown
-      - title: Jinja2 templates
-        key: jinja
-        link: http://jinja.pocoo.org/
-      - title: SASS
-        key: sass
-        link: http://sass-lang.com/
-      - title: Closure JavaScript Compiler
-        key: closure
-        link: https://developers.google.com/closure/compiler/
-      - title: gettext message catalogs
-        key: gettext
-        link: http://en.wikipedia.org/wiki/Gettext
-      - title: Git
-        key: git
-        link: http://git-scm.com
-    - title: "Deploys to"
-      things:
-      - title: Google Cloud Storage
-        key: gcs
-        link: https://cloud.google.com/products/cloud-storage/
-      - title: Google App Engine
-        key: gae
-        link: https://cloud.google.com/products/app-engine/
-      - title: Amazon S3
-        key: s3
-        link: http://aws.amazon.com/s3/
-      - title: GitHub Pages
-        key: github
-        link: http://pages.github.com/
-      - title: Dropbox
-        key: dropbox
-        link: https://www.dropbox.com
-      - title: Your own custom web server
-        key: custom
-
 ---
-<div class="index">
+<div class="hero">
   <div class="wrap">
-    <div class="panel intro">
-      <div class="hero">
-        <img src="{{g.static('/static/images/grow.svg')}}">
-      </div>
-      <summary>
-        <h1>{{doc.hero.title}}</h1>
-        {{doc.hero.content}}
-        <div class="toolbar">
-          <a href="{{g.url('/content/codelab/0.md').path}}" class="button">
-            <i class="fa fa-arrow-right"></i>
-            Learn Grow
-          </a>
-          <a href="{{g.url('/content/docs/index.md').path}}#getting-grow" class="button">
-            <i class="fa fa-download"></i>
-            Get Grow
-          </a>
-        </div>
-        <div class="disclaimer">{{doc.hero.disclaimer}}</div>
-      </summary>
-    </div>
-    <div class="screencast">
-      <div class="title">Quick start - create and deploy in seconds</div>
-      <iframe src="https://showterm.herokuapp.com/0a96a7954525cb35fd6ef#fast"></iframe>
-    </div>
-
-    {% macro callout(sections) %}
-      <div class="panel callouts">
-        {% for section in sections %}
-          <summary>
-            <div class="image"><img src="{{g.static(section.image)}}"></div>
-            <h2>{{section.title}}</h2>
-            <p>{{section.content}}
-          </summary>
-        {% endfor %}
-      </div>
-    {% endmacro %}
-
-    {{callout(doc.sections[0:2])}}
-    {{callout(doc.sections[2:4])}}
-
-  </div>
-
-  <div class="banner">
-    <div class="wrap">
-      <h2>{{doc.banner.title}}</h2>
-      <div class="panel">
-        {% for panel in doc.banner.panels %}
-          <summary>
-          <h3>{{panel.title}}</h3>
-            <ul>
-              {% for item in panel.things %}
-              <li><a href="{{item.link}}" title="{{item.title}}"><img src="{{g.static('/static/images/banner/banner_{}.svg'.format(item.key))}}" alt="{{item.title}}"></a>
-              {% endfor %}
-            </ul>
-          </summary>
-        {% endfor %}
-      </div>
+    <a href="{{index_doc.url.path}}" class="growlogo big">
+      <img src="{{g.static('/static/images/grow.svg')}}">
+      Grow SDK
+    </a>
+    <h1>{{doc.hero.title}}</h1>
+    <div class="toolbar">
+      <a href="{{g.url('/content/codelab/0.md').path}}" class="button">
+        <i class="fa fa-arrow-right"></i>
+        Learn Grow
+      </a>
+      <a href="{{g.url('/content/docs/index.md').path}}#getting-grow" class="button">
+        <i class="fa fa-download"></i>
+        Get Grow
+      </a>
     </div>
   </div>
+</div>
+
+<div class="wrap">
+
+  {% macro callout(sections) %}
+  <div class="panel callouts">
+    {% for section in sections %}
+    <summary>
+    <div class="image"><img src="{{g.static(section.image)}}"></div>
+    <h2>{{section.title}}</h2>
+    <p>{{section.content}}
+    </summary>
+    {% endfor %}
+  </div>
+  {% endmacro %}
+
+  {{callout(doc.sections[0:2])}}
+  {{callout(doc.sections[2:4])}}
+
 </div>

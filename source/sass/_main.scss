@@ -1,44 +1,7 @@
-@import url(//fonts.googleapis.com/css?family=Roboto:300,500,500italic,600,700,700italic,800|Source+Code+Pro|Dosis:300,400);
-@import 'font-awesome/font-awesome.scss';
-@import '_utils.sass';
-
-$break-small: 700px;
-
-@mixin shadow() {
-  box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
-}
-
-@mixin button() {
-  @include shadow();
-  background: #7e57c2;
-  border-radius: 3px;
-  color: #fff;
-  cursor: pointer;
-  display: inline-block;
-  padding: 12px 20px;
-  text-decoration: none;
-  transition: all 200ms ease;
-}
-
-@mixin button-hover() {
-  box-shadow: 0px 4px 10px 0 rgba(0, 0, 0, 0.2), 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
-}
-
-@mixin frosted-background() {
-  background: #fafafa;
-}
-
-@mixin inverted-background() {
-  background-color: #362d6c;
-  background-image: linear-gradient(45deg, #362d6c 0%,#0c5593 100%);
-  color: #fff;
-}
-
 body {
-  color: #444;
-  font-family: 'Roboto', arial, sans-serif;
-  font-size: 14px;
-  font-weight: 300;
+  color: #394d54;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 15px;
   background: #fff;
   margin: 0;
 }
@@ -67,7 +30,6 @@ h1,
 h2,
 h3 {
   clear: both;
-  font-weight: 300;
   letter-spacing: -0.01em;
 }
 
@@ -209,15 +171,6 @@ table tr th {
   font-weight: 500;
 }
 
-.panel .hero {
-  height: 350px;
-  margin-right: 50px;
-  width: 350px;
-  @media screen and (max-width: $break-small) {
-    display: none;
-  }
-}
-
 .toolbar {
   margin: 40px 0 20px;
 }
@@ -273,6 +226,7 @@ header {
   box-shadow: 0 2px 5px rgba(0,0,0,.1);
   background: #7e57c2;
   color: #fff;
+  font-size: 18px;
   box-sizing: border-box;
   margin: 0;
 }
@@ -285,21 +239,35 @@ header i {
   display: inline-block;
 }
 
-header .logo {
+.growlogo {
   color: inherit;
+  display: inline-block;
   font-family: 'Dosis', 'Helvetica Neue', arial, sans-serif;
   font-size: 25px;
   font-weight: 300;
   line-height: 40px;
-  text-decoration: none;
   text-transform: uppercase;
-}
 
-header .logo img {
-  float: left;
-  margin: 4px 9px 0 0;
-  height: 35px;
-  width: 35px;
+  &.big {
+    font-size: 60px;
+
+    img {
+      margin-top: -10px;
+      height: 100px;
+      width: 100px;
+    }
+  }
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  img {
+    vertical-align: middle;
+    margin: -5px 9px 0 0;
+    height: 35px;
+    width: 35px;
+  }
 }
 
 footer {
@@ -338,7 +306,7 @@ nav.navbar ul li {
 nav.navbar ul li a {
   color: #fff;
   display: inline-block;
-  font-weight: 300;
+  font-weight: 500;
   list-style: none;
   margin: 0 13px;
   padding: 10px 0;
