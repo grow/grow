@@ -1,4 +1,5 @@
-from grow.pods.preprocessors import translation as translation_preprocessor
+from grow.pods.preprocessors import translation
+from grow.pods.preprocessors import routes_cache
 from watchdog import events
 from watchdog import observers
 
@@ -14,6 +15,7 @@ class PodspecFileEventHandler(events.PatternMatchingEventHandler):
 
   def handle(self, event=None):
     self.pod.reset_yaml()
+    self.pod.routes.reset_cache(rebuild=True)
     self.managed_observer.reschedule_children()
 
   def on_created(self, event):
@@ -58,9 +60,12 @@ class ManagedObserver(observers.Observer):
     podspec_handler = PodspecFileEventHandler(self.pod, managed_observer=self)
     self.schedule(podspec_handler, path=self.pod.root, recursive=False)
 
-  def schedule_translation(self):
+  def schedule_builtins(self):
     try:
-      preprocessor = translation_preprocessor.TranslationPreprocessor(pod=self.pod)
+      preprocessor = routes_cache.RoutesCachePreprocessor(pod=self.pod)
+      self._schedule_preprocessor('/content/', preprocessor, patterns=['*'])
+      self._schedule_preprocessor('/static/', preprocessor, patterns=['*'])
+      preprocessor = translation.TranslationPreprocessor(pod=self.pod)
       self._schedule_preprocessor('/translations/', preprocessor, patterns=['*.po'])
     except OSError:
       # No translations directory found.
@@ -73,9 +78,12 @@ class ManagedObserver(observers.Observer):
         watch = self._schedule_preprocessor(path, preprocessor)
         self._preprocessor_watches.append(watch)
 
-  def _schedule_preprocessor(self, path, preprocessor, patterns=None):
+  def _schedule_preprocessor(self, path, preprocessor, **kwargs):
+    if 'ignore_directories' in kwargs:
+      kwargs['ignore_directories'] = [self.pod.abs_path(p)
+                                      for p in kwargs['ignore_directories']]
     path = self.pod.abs_path(path)
-    handler = PreprocessorEventHandler(preprocessor, patterns=patterns)
+    handler = PreprocessorEventHandler(preprocessor, **kwargs)
     return self.schedule(handler, path=path, recursive=True)
 
   def reschedule_children(self):
@@ -111,7 +119,7 @@ class ManagedObserver(observers.Observer):
 
 def create_dev_server_observers(pod):
   main_observer = ManagedObserver(pod)
-  main_observer.schedule_translation()
+  main_observer.schedule_builtins()
   main_observer.schedule_preprocessors()
 
   podspec_observer = ManagedObserver(pod)

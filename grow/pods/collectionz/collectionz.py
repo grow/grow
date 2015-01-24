@@ -8,6 +8,7 @@ from grow.pods import locales
 import json
 import operator
 import os
+import threading
 
 _all = '__no-locale'
 
@@ -118,6 +119,8 @@ class Collection(object):
     return self.yaml.get('path')
 
   # TODO(jeremydw): Consolidate list_docs, search_docs, and list_documents!
+  # Implement a thread pool for document parsing and use a map of files to
+  # paths for routing efficiency.
 
   def list_docs(self, order_by=None, reverse=None):
     # TODO(jeremydw): Implement this, and search, and kill list_documents.
@@ -148,31 +151,37 @@ class Collection(object):
 
     paths = self.pod.list_dir(self.pod_path)
     sorted_docs = structures.SortedCollection(key=operator.attrgetter(order_by))
-    for path in paths:
+    threads = []
+
+    def process(path):
       pod_path = os.path.join(self.pod_path, path.lstrip('/'))
       slug, ext = os.path.splitext(os.path.basename(pod_path))
       if (slug.startswith('_')
           or ext not in messages.extensions_to_formats
           or not pod_path):
-        continue
+        return
       doc = self.get_doc(pod_path)
-      if not include_hidden and doc.is_hidden:
-        continue
 
       if locale in [_all, None]:
         sorted_docs.insert(doc)
 
       if locale is None:
-        continue
+        return
 
       for each_locale in doc.list_locales():
         if each_locale == self._default_locale:
           continue
         if each_locale == locale or locale == _all:
           doc = self.get_doc(pod_path, locale=each_locale)
-          if not include_hidden and doc.is_hidden:
-            continue
           sorted_docs.insert(doc)
+
+    for path in paths:
+      thread = threading.Thread(target=process, args=(path,))
+      threads.append(thread)
+      thread.start()
+
+    for thread in threads:
+      thread.join()
 
     return reversed(sorted_docs) if reverse else sorted_docs
 

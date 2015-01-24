@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import re
+import webapp2
 
 
 class Error(Exception):
@@ -43,10 +44,6 @@ class Document(object):
     self.base, self.ext = os.path.splitext(self.basename)
     self.pod = _pod
     self.collection = _collection
-    self.format = formats.Format.get(self)
-    self.tagged_fields = self.format.fields
-    self.fields = formats.untag_fields(copy.deepcopy(self.tagged_fields),
-                                       catalog=self.pod.catalogs.get(self.locale))
 
   def __repr__(self):
     if self.locale:
@@ -64,6 +61,19 @@ class Document(object):
       return self.fields[name]
     return object.__getattribute__(self, name)
 
+  @webapp2.cached_property
+  def fields(self):
+    return formats.untag_fields(copy.deepcopy(self.tagged_fields),
+                                catalog=self.pod.catalogs.get(self.locale))
+
+  @webapp2.cached_property
+  def format(self):
+    return formats.Format.get(self)
+
+  @webapp2.cached_property
+  def tagged_fields(self):
+    return self.format.fields
+
   @property
   def url(self):
     path = self.get_serving_path()
@@ -74,10 +84,6 @@ class Document(object):
     if '$slug' in self.fields:
       return self.fields['$slug']
     return utils.slugify(self.title) if self.title is not None else None
-
-  @property
-  def is_hidden(self):
-    return bool(self.fields.get('$hidden'))
 
   @property
   def order(self):

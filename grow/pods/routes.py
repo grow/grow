@@ -34,17 +34,17 @@ class Routes(object):
 
   def __init__(self, pod):
     self.pod = pod
+    self._routing_map = None
 
   def __iter__(self):
     return self.routing_map.iter_rules()
 
-  @property
-  @utils.memoize
-  def routing_map(self):
-    rules = []
-    podspec = self.pod.get_podspec()
-    podspec_config = podspec.get_config()
+  def reset_cache(self, rebuild=True):
+    if rebuild:
+      self._build_routing_map()
 
+  def _build_routing_map(self):
+    rules = []
     # Content documents.
     for collection in self.pod.list_collections():
       for doc in collection.list_servable_documents(include_hidden=True):
@@ -54,14 +54,26 @@ class Routes(object):
             _pod=self.pod)
         rule = routing.Rule(doc.get_serving_path(), endpoint=controller)
         rules.append(rule)
+    rules += self.list_static_routes()
+    self._routing_map = routing.Map(rules, converters=Routes.converters)
+    return self._routing_map
 
+  @property
+  def routing_map(self):
+    if not self.pod.env.cached or self._routing_map is None:
+      return self._build_routing_map()
+    return self._routing_map
+
+  def list_static_routes(self):
+    rules = []
+    podspec = self.pod.get_podspec()
+    podspec_config = podspec.get_config()
     # Auto-generated from flags.
     if 'static_dir' in self.pod.flags:
       path = self.pod.flags['static_dir'] + '<grow:filename>'
       controller = static.StaticController(
           path_format=path, source_format=path, pod=self.pod)
       rules.append(routing.Rule(path, endpoint=controller))
-
     if 'static_dirs' in podspec_config:
       for config in podspec_config['static_dirs']:
         static_dir = config['static_dir'] + '<grow:filename>'
@@ -70,9 +82,7 @@ class Routes(object):
                                              source_format=static_dir,
                                              pod=self.pod)
         rules.append(routing.Rule(serve_at, endpoint=controller))
-
-    routing_map = routing.Map(rules, converters=Routes.converters)
-    return routing_map
+    return rules
 
   def match(self, path, env):
     """Matches a controller from the pod.

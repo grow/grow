@@ -1,4 +1,5 @@
 from grow.common import utils
+from grow.deployments.destinations import base
 from grow.deployments.stats import stats
 from grow.pods import pods
 from grow.pods import storage
@@ -40,5 +41,7 @@ def deploy(deployment_name, pod_path, build, confirm, test, test_only, login):
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
                       confirm=confirm, test=test)
+  except base.Error as e:
+    raise click.ClickException(str(e))
   except pods.Error as e:
     raise click.ClickException(str(e))
