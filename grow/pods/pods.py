@@ -102,7 +102,7 @@ class Pod(object):
 
   @property
   def routes(self):
-    if self.env.cached and self._routes is not None:
+    if self._routes is not None:
       return self._routes
     self._routes = routes.Routes(pod=self)
     return self._routes

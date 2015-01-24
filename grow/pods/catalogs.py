@@ -129,9 +129,6 @@ class Catalog(catalog.Catalog):
         num_translated += 1
       num_total += 1
 
-    if self.fuzzy and not use_fuzzy:
-      logging.info('Skipping fuzzy catalog: {}'.format(self))
-
     try:
       for message, errors in self.check():
         for error in errors:
@@ -139,8 +136,8 @@ class Catalog(catalog.Catalog):
     except IOError:
       logging.info('Skipped catalog check for: {}'.format(self))
 
-    text = 'Compiling {}/{} translated strings -> {}'
-    self.pod.logger.info(text.format(num_translated, num_total, mo_filename))
+    text = 'Compiled: {} ({}/{})'
+    self.pod.logger.info(text.format(self.locale, num_translated, num_total))
 
     mo_file = self.pod.open_file(mo_filename, 'w')
     try:
