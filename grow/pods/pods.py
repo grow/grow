@@ -33,7 +33,7 @@ from . import messages
 from . import podspec
 from . import routes
 from . import storage
-from . import catalog_holder
+from .catalogs import catalog_holder
 from .collectionz import collectionz
 from .controllers import tags
 from .controllers import jinja2htmlcompress

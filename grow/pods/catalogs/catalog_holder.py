@@ -1,9 +1,9 @@
 from . import catalogs
+from . import importers
 from babel.messages import extract
 from babel.messages import pofile
 from grow.common import utils
 from grow.pods import messages
-import logging
 import os
 import tokenize
 
@@ -46,7 +46,7 @@ class Catalogs(object):
     for locale in locales:
       catalog = self.get(locale)
       if not catalog.exists:
-        logging.info('Does not exist: {}'.format(catalog))
+        self.pod.logger.info('Does not exist: {}'.format(catalog))
         continue
       catalog.compile()
 
@@ -68,6 +68,10 @@ class Catalogs(object):
       catalog = self.get(locale)
       catalog.update()
 
+  def import_translations(self, path):
+    importer = importers.Importer(self.pod)
+    importer.import_path(path)
+
   def extract(self):
     # Create directory if it doesn't exist. TODO(jeremydw): Optimize this.
     template_path = os.path.join(Catalogs.root, 'messages.pot')
@@ -81,7 +85,7 @@ class Catalogs(object):
     catalog_obj = pofile.read_po(self.pod.open_file(template_path))
     extracted = []
 
-    logging.info('Updating translation template: {}'.format(template_path))
+    self.pod.logger.info('Updating translation template: {}'.format(template_path))
 
     options = {
         'extensions': ','.join(self.pod.get_template_env().extensions.keys()),
@@ -93,7 +97,7 @@ class Catalogs(object):
     pod_files += [os.path.join('/content', path) for path in self.pod.list_dir('/content/')]
     for pod_path in pod_files:
       if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
-        logging.info('Extracting from: {}'.format(pod_path))
+        self.pod.logger.info('Extracting from: {}'.format(pod_path))
         fp = self.pod.open_file(pod_path)
         try:
           messages = extract.extract('jinja2.ext.babel_extract', fp, options=options)
@@ -109,7 +113,7 @@ class Catalogs(object):
                 context=context, flags=flags)
             extracted.append(added_message)
         except tokenize.TokenError:
-          logging.error('Problem extracting: {}'.format(pod_path))
+          self.pod.logger.error('Problem extracting: {}'.format(pod_path))
           raise
 
     # Extract messages from content files.
@@ -128,18 +132,18 @@ class Catalogs(object):
         extracted.append(added_message)
 
     for collection in self.pod.list_collections():
-      logging.info('Extracting from collection: {}'.format(collection.pod_path))
+      self.pod.logger.info('Extracting from collection: {}'.format(collection.pod_path))
       for doc in collection.list_documents(include_hidden=True):
         utils.walk(doc.tagged_fields, lambda *args: callback(doc, *args))
 
     # Extract messages from podspec.
     config = self.pod.get_podspec().get_config()
     podspec_path = '/podspec.yaml'
-    logging.info('Extracting from podspec: {}'.format(podspec_path))
+    self.pod.logger.info('Extracting from podspec: {}'.format(podspec_path))
     utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
 
     # Write to PO template.
-    logging.info('Writing {} messages to translation template.'.format(len(catalog_obj)))
+    self.pod.logger.info('Writing {} messages to translation template.'.format(len(catalog_obj)))
     pofile.write_po(template, catalog_obj, width=80, no_location=True,
                     omit_header=True, sort_output=True, sort_by_file=True)
     template.close()
