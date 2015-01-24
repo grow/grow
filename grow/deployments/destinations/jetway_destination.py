@@ -42,24 +42,33 @@ class JetwayDestination(base.BaseDestination):
     pass
 
   def read_file(self, path):
-    paths_to_contents, errors = self.jetway.read([path])
-    if path not in paths_to_contents:
-      raise IOError('{} not found.'.format(path))
-    if errors:
-      raise base.Error(errors)
-    return paths_to_contents[path]
+    try:
+      paths_to_contents, errors = self.jetway.read([path])
+      if path not in paths_to_contents:
+        raise IOError('{} not found.'.format(path))
+      if errors:
+        raise base.Error(errors)
+      return paths_to_contents[path]
+    except jetway.RpcError as e:
+      raise base.Error(e.message)
 
   def write_file(self, paths_to_contents):
-    for path, content in paths_to_contents.iteritems():
-      if isinstance(content, unicode):
-        paths_to_contents[path] = content.encode('utf-8')
-    paths_to_contents, errors = self.jetway.write(paths_to_contents)
-    if errors:
-      raise base.Error(errors)
-    return paths_to_contents
+    try:
+      for path, content in paths_to_contents.iteritems():
+        if isinstance(content, unicode):
+          paths_to_contents[path] = content.encode('utf-8')
+      paths_to_contents, errors = self.jetway.write(paths_to_contents)
+      if errors:
+        raise base.Error(errors)
+      return paths_to_contents
+    except jetway.RpcError as e:
+      raise base.Error(e.message)
 
   def delete_file(self, paths):
-    paths_to_contents, errors = self.jetway.delete(paths)
-    if errors:
-      raise base.Error(errors)
-    return paths_to_contents
+    try:
+      paths_to_contents, errors = self.jetway.delete(paths)
+      if errors:
+        raise base.Error(errors)
+      return paths_to_contents
+    except jetway.RpcError as e:
+      raise base.Error(e.message)
