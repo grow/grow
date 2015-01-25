@@ -8,7 +8,6 @@ from grow.pods import locales
 import json
 import operator
 import os
-import threading
 
 _all = '__no-locale'
 
@@ -151,7 +150,6 @@ class Collection(object):
 
     paths = self.pod.list_dir(self.pod_path)
     sorted_docs = structures.SortedCollection(key=operator.attrgetter(order_by))
-    threads = []
 
     def process(path):
       pod_path = os.path.join(self.pod_path, path.lstrip('/'))
@@ -176,12 +174,7 @@ class Collection(object):
           sorted_docs.insert(doc)
 
     for path in paths:
-      thread = threading.Thread(target=process, args=(path,))
-      threads.append(thread)
-      thread.start()
-
-    for thread in threads:
-      thread.join()
+      process(path)
 
     return reversed(sorted_docs) if reverse else sorted_docs
 
