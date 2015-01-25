@@ -43,12 +43,13 @@ class Locales(object):
     return message
 
 
-
-
 class Locale(babel.Locale):
 
   RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
   _alias = None
+
+  def __hash__(self):
+    return hash(str(self))
 
   def __eq__(self, other):
     if isinstance(other, basestring):

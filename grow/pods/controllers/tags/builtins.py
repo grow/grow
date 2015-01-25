@@ -66,7 +66,7 @@ def static(path, _pod=None):
 
 
 def get_doc(pod_path, locale=None, _pod=None):
-  return _pod.get_doc(pod_path, locale=locale)
+  return _pod.routes.get_doc(pod_path, locale=locale)
 
 
 class Menu(object):

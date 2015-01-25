@@ -5,9 +5,11 @@ werkzeug routing:
 """
 
 from . import messages
+from . import locales
 from .controllers import rendered
 from .controllers import static
 from grow.common import utils
+import collections
 import texttable
 import logging
 import webob
@@ -34,6 +36,7 @@ class Routes(object):
 
   def __init__(self, pod):
     self.pod = pod
+    self._paths_to_locales_to_docs = collections.defaultdict(dict)
     self._routing_map = None
 
   def __iter__(self):
@@ -43,7 +46,13 @@ class Routes(object):
     if rebuild:
       self._build_routing_map()
 
+  def get_doc(self, path, locale=None):
+    if isinstance(locale, basestring):
+      locale = locales.Locale(locale)
+    return self._paths_to_locales_to_docs.get(path, {}).get(locale)
+
   def _build_routing_map(self):
+    new_paths_to_locales_to_docs = collections.defaultdict(dict)
     rules = []
     # Content documents.
     for collection in self.pod.list_collections():
@@ -54,8 +63,10 @@ class Routes(object):
             _pod=self.pod)
         rule = routing.Rule(doc.get_serving_path(), endpoint=controller)
         rules.append(rule)
+        new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
     rules += self.list_static_routes()
     self._routing_map = routing.Map(rules, converters=Routes.converters)
+    self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
     return self._routing_map
 
   @property

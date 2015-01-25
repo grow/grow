@@ -102,9 +102,8 @@ class Pod(object):
 
   @property
   def routes(self):
-    if self._routes is not None:
-      return self._routes
-    self._routes = routes.Routes(pod=self)
+    if self._routes is None:
+      self._routes = routes.Routes(pod=self)
     return self._routes
 
   def reset_yaml(self):
@@ -223,11 +222,9 @@ class Pod(object):
     for path in routes.list_concrete_paths():
       controller = self.match(path)
       output[path] = controller.render()
-
     error_controller = routes.match_error('/404.html')
     if error_controller:
       output['/404.html'] = error_controller.render()
-
     return output
 
   def dump(self, suffix='index.html'):

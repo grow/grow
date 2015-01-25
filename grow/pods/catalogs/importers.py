@@ -38,7 +38,6 @@ class Importer(object):
     self.pod = pod
 
   def import_path(self, path):
-    print path
     if path.endswith('.zip') and os.path.isfile(path):
       self.import_zip_file(path)
     elif os.path.isdir(path):
