@@ -59,6 +59,10 @@ sections:
   content@: B's content.
 - title: Section C         # Not extracted for translation.
   content: C's content.
+
+items@:                    # Tagged list of strings.
+- Item 1.
+- Item 2.
 ​---
 [/sourcecode]
 
@@ -78,15 +82,27 @@ To extract translations into a message catalog, tag all translatable items as ex
 This file can then be used to create translation catalogs manually using a PO file editor, or integrated with a translation provider such as Google Translator Toolkit.
 
 [sourcecode:bash]
-$ grow extract ~/my-codelab/
-
-Extracted 128 messages from 3 files to: /translations/messages.pot
-Creating catalog 'translations/de/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
-Creating catalog 'translations/fr/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
-Creating catalog 'translations/it/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
-Creating catalog 'translations/ja/LC_MESSAGES/messages.po' based on 'translations/messages.pot'
+grow extract
 [/sourcecode]
 
 ## Compiling translations
 
 Grow automatically recompiles translations when the development server starts, builds a pod, and during deployment. Translations must be recompiled before they're visible on your site.
+
+## Importing translations
+
+Grow can import translation PO files from external sources. Currently Grow expects a zip file containing one directory named after its locale. Within each directory should be a `messages.po` file. Alternatively, you can specify a directory instead of a zip file.
+
+[sourcecode:text]
+# Structure of source zip file.
+
+/foo.zip
+  /de
+    /messages.po
+  /it/
+    /messages.po
+[/sourcecode]
+
+[sourcecode:bash]
+grow import_translations --source=<path to zip file or directory of locales>
+[/sourcecode]
