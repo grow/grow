@@ -35,7 +35,7 @@ class FormatsTestCase(unittest.TestCase):
     self.assertEqual('<div>HTML Content.</div>', doc.body)
     content = (
         '---\n'
-        '$title: HTML Page\n'
+        '$title@: HTML Page\n'
         '---\n'
         '<div>HTML Content.</div>\n'
     )

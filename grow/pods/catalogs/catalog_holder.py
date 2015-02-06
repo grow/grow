@@ -127,7 +127,7 @@ class Catalogs(object):
         return
       comments = ['{}:{}'.format(doc.pod_path, key)]
       added_message = catalog_obj.add(
-          item, None, [(path, 0)], auto_comments=comments, context=context)
+          item, None, [(path, 0)], auto_comments=comments, context=None)
       if added_message not in extracted:
         extracted.append(added_message)
 

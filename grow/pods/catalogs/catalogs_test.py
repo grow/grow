@@ -38,7 +38,7 @@ class CatalogTest(unittest.TestCase):
   def test_in(self):
     de_catalog = self.pod.catalogs.get('de')
     self.assertIn('AboutDE', de_catalog)
-    self.assertEqual(17, len(de_catalog))
+    self.assertEqual(18, len(de_catalog))
 
   def test_save(self):
     it_catalog = self.pod.catalogs.get('it')

@@ -26,6 +26,10 @@ msgstr ""
 msgid "Goodnight Moon!"
 msgstr ""
 
+#. /content/pages/html.html:$title@
+msgid "HTML Page"
+msgstr ""
+
 msgid "Hello World 2!"
 msgstr ""
 
