@@ -107,7 +107,7 @@ def url(pod_path, locale=None, _pod=None):
 @jinja2.contextfilter
 def render_filter(ctx, template):
   if isinstance(template, basestring):
-    template = jinja2.Template(template)
+    template = ctx.environment.from_string(template)
   return template.render(ctx)
 
 

@@ -48,7 +48,7 @@ class GoogleSheetsPreprocessor(base.BasePreprocessor):
     ext = os.path.splitext(self.config.path)[1]
     convert_to = None
     if ext == '.json':
-      ext = 'csv'
+      ext = '.csv'
       convert_to = '.json'
     for mimetype, url in resp['exportLinks'].iteritems():
       if not mimetype.endswith(ext[1:]):
