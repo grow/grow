@@ -18,17 +18,16 @@ import os
               help='Whether to run deployment tests.')
 @click.option('--test_only', default=False, is_flag=True,
               help='Only run the deployment tests.')
-@click.option('--login', default=False, is_flag=True,
-              help='Whether to log into deployment then quit.')
-def deploy(deployment_name, pod_path, build, confirm, test, test_only, login):
+@click.option('--auth', help='Authentication information used to '
+              'sign in to the deployment (such as an email address).')
+def deploy(deployment_name, pod_path, build, confirm, test, test_only, auth):
   """Deploys a pod to a destination."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   try:
     pod = pods.Pod(root, storage=storage.FileStorage)
     deployment = pod.get_deployment(deployment_name)
-    if login:
-      deployment.login(reauth=True)
-      return
+    if auth:
+      deployment.login(auth)
     if build:
       pod.preprocess()
     # Set the environment information for the pod based on the deployment.

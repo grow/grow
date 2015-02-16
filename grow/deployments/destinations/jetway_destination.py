@@ -34,7 +34,6 @@ class JetwayDestination(base.BaseDestination):
     self.jetway.login(account, reauth=reauth)
 
   def prelaunch(self, dry_run=False):
-    self.login()
     super(JetwayDestination, self).prelaunch(dry_run=dry_run)
 
   def test(self):
