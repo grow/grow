@@ -73,7 +73,7 @@ class GoogleSheetsPreprocessor(base.BasePreprocessor):
     credentials = storage.get()
     if credentials is None:
       parser = tools.argparser
-      flags, _ = parser.parse_known_args()
+      flags, _ = parser.parse_known_args([])
       flow = client.OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, OAUTH_SCOPE,
                                         redirect_uri=REDIRECT_URI)
       credentials = tools.run_flow(flow, storage, flags)
