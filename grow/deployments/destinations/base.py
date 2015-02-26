@@ -218,8 +218,8 @@ class BaseDestination(object):
         return
       if dry_run:
         return
+      indexes.Diff.pretty_print(diff)
       if confirm:
-        indexes.Diff.pretty_print(diff)
         text = 'Proceed to launch? -> {}'.format(self)
         if not utils.interactive_confirm(text):
           logging.info('Launch aborted.')
