@@ -1,8 +1,10 @@
+import pip
 from setuptools import find_packages
 from setuptools import setup
 from pip import req
 
-_install_requirements = req.parse_requirements('requirements.txt')
+_install_requirements = req.parse_requirements(
+    'requirements.txt', session=pip.download.PipSession())
 
 
 setup(
