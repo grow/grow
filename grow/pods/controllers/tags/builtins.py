@@ -46,7 +46,10 @@ def csv(path, locale=_no_locale, _pod=None):
   for row in csv_lib.DictReader(fp):
     data = {}
     for header, cell in row.iteritems():
+      if cell is None:
+        cell = ''
       data[header] = cell.decode('utf-8')
+
     rows.append(data)
   return rows
 
