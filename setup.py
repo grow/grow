@@ -1,8 +1,10 @@
+from pip import req
 from setuptools import find_packages
 from setuptools import setup
-from pip import req
+import uuid
 
-_install_requirements = req.parse_requirements('requirements.txt')
+_install_requirements = req.parse_requirements(
+    'requirements.txt', session=uuid.uuid1())
 
 
 setup(
