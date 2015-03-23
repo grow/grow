@@ -45,7 +45,10 @@ class AmazonS3Destination(base.BaseDestination):
     path = os.path.join(self.control_dir, path.lstrip('/'))
     return self.write_file(path, content, policy='private')
 
-  def read_file(self, path):
+  def read_file(self, path, buildsuffix=''):
+    if buildsuffix:
+      if path.endswith(buildsuffix):
+        path = path[:-len(buildsuffix)]
     file_key = key.Key(self.bucket)
     file_key.key = path
     try:
@@ -55,12 +58,15 @@ class AmazonS3Destination(base.BaseDestination):
         raise
       raise IOError('File not found: {}'.format(path))
 
-  def delete_file(self, path):
+  def delete_file(self, path, buildsuffix=''):
+    if buildsuffix:
+      if path.endswith(buildsuffix):
+        path = path[:-len(buildsuffix)]
     bucket_key = key.Key(self.bucket)
     bucket_key.key = path.lstrip('/')
     self.bucket.delete_key(bucket_key)
 
-  def write_file(self, path, content, policy='public-read'):
+  def write_file(self, path, content, policy='public-read', buildsuffix=''):
     path = path.lstrip('/')
     if isinstance(content, unicode):
       content = content.encode('utf-8')
@@ -73,6 +79,9 @@ class AmazonS3Destination(base.BaseDestination):
     headers = {'Cache-Control': 'no-cache'}
     if mimetype:
       headers['Content-Type'] = mimetype
+    if buildsuffix:
+      if path.endswith(buildsuffix):
+        bucket_key.key = path[:-len(buildsuffix)]
     fp.seek(0)
     bucket_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy)
     fp.close()
