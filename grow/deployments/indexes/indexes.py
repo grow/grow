@@ -155,7 +155,7 @@ class Diff(object):
 
   @classmethod
   def apply(cls, message, paths_to_content, write_func, delete_func, threaded=True,
-            batch_writes=False):
+            batch_writes=False, buildsuffix=''):
     # TODO(jeremydw): Thread pool for the threaded operation.
     diff = message
     threads = []
@@ -181,7 +181,7 @@ class Diff(object):
       for file_message in diff.adds:
         content = paths_to_content[file_message.path]
         thread = ProgressBarThread(
-            bar, True, target=write_func, args=(file_message.path, content))
+            bar, True, target=write_func, args=(file_message.path, content), kwargs={'buildsuffix': buildsuffix})
         threads.append(thread)
         thread.start()
         if not threaded:
@@ -189,14 +189,14 @@ class Diff(object):
       for file_message in diff.edits:
         content = paths_to_content[file_message.path]
         thread = ProgressBarThread(
-            bar, True, target=write_func, args=(file_message.path, content))
+            bar, True, target=write_func, args=(file_message.path, content), kwargs={'buildsuffix': buildsuffix})
         threads.append(thread)
         thread.start()
         if not threaded:
           thread.join()
       for file_message in diff.deletes:
         thread = ProgressBarThread(
-            bar, batch_writes, target=delete_func, args=(file_message.path,))
+            bar, batch_writes, target=delete_func, args=(file_message.path,), kwargs={'buildsuffix': buildsuffix})
         threads.append(thread)
         thread.start()
         if not threaded:
