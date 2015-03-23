@@ -227,16 +227,17 @@ class Pod(object):
       output['/404.html'] = error_controller.render()
     return output
 
-  def dump(self, suffix='/index.html'):
+  def dump(self, buildsuffix=''):
     output = self.export()
     clean_output = {}
-    if suffix:
-      for path, content in output.iteritems():
-        if suffix and path.endswith('/') or '.' not in os.path.basename(path):
-          path = path.rstrip('/') + suffix
-        clean_output[path] = content
-    else:
-      clean_output = output
+    for path, content in output.iteritems():
+      if path.endswith('/'):
+        path = path + 'index.html'
+      if not buildsuffix and '.' not in os.path.basename(path):
+        path = path.rstrip('/') + '/' + 'index.html'
+      if buildsuffix and '.' not in os.path.basename(path):
+        path = path + buildsuffix
+      clean_output[path] = content
     return clean_output
 
   def to_message(self):
