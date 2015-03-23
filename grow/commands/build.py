@@ -17,8 +17,8 @@ def build(pod_path, out_dir):
   pod = pods.Pod(root, storage=storage.FileStorage)
   pod.preprocess()
   try:
-    if 'suffix' in pod.flags:
-      paths_to_contents = pod.dump(suffix=pod.flags['suffix'])
+    if 'buildsuffix' in pod.flags:
+      paths_to_contents = pod.dump(suffix=pod.flags['buildsuffix'])
     else:
       paths_to_contents = pod.dump()
     repo = utils.get_git_repo(pod.root)
