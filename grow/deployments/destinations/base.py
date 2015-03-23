@@ -149,14 +149,14 @@ class BaseDestination(object):
     config = env.EnvConfig(host='localhost')
     return env.Env(config)
 
-  def read_file(self, path):
+  def read_file(self, path, buildsuffix=''):
     """Returns a file-like object."""
     raise NotImplementedError
 
-  def write_file(self, path, content):
+  def write_file(self, path, content, buildsuffix=''):
     raise NotImplementedError
 
-  def delete_file(self, path):
+  def delete_file(self, path, buildsuffix=''):
     raise NotImplementedError
 
   def delete_control_file(self, path):
@@ -218,6 +218,10 @@ class BaseDestination(object):
         return
       if dry_run:
         return
+      buildsuffix = ''
+      if stats is not None:
+        if 'buildsuffix' in stats.pod.flags:
+          buildsuffix = stats.pod.flags['buildsuffix']
       indexes.Diff.pretty_print(diff)
       if confirm:
         text = 'Proceed to launch? -> {}'.format(self)
@@ -227,7 +231,7 @@ class BaseDestination(object):
       indexes.Diff.apply(
           diff, paths_to_contents, write_func=self.write_file,
           delete_func=self.delete_file, threaded=self.threaded,
-          batch_writes=self.batch_writes)
+          batch_writes=self.batch_writes, buildsuffix=buildsuffix)
       self.write_control_file(self.index_basename, indexes.Index.to_string(new_index))
       if stats is not None:
         self.write_control_file(self.stats_basename, stats.to_string())
