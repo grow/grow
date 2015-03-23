@@ -21,15 +21,15 @@ class LocalDestination(base.BaseDestination):
   def __str__(self):
     return 'file://{}'.format(self.config.out_dir)
 
-  def read_file(self, path):
+  def read_file(self, path, buildsuffix=''):
     path = os.path.join(self.config.out_dir, path.lstrip('/'))
     return self.storage.read(path)
 
-  def delete_file(self, path):
+  def delete_file(self, path, buildsuffix=''):
     out_path = os.path.join(self.config.out_dir, path.lstrip('/'))
     self.storage.delete(out_path)
 
-  def write_file(self, path, content):
+  def write_file(self, path, content, buildsuffix=''):
     if isinstance(content, unicode):
       content = content.encode('utf-8')
     out_path = os.path.join(self.config.out_dir, path.lstrip('/'))
