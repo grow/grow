@@ -35,7 +35,10 @@ def deploy(deployment_name, pod_path, build, confirm, test, test_only, auth):
     if test_only:
       deployment.test()
       return
-    paths_to_contents = pod.dump()
+    if 'buildsuffix' in pod.flags:
+      paths_to_contents = pod.dump(buildsuffix=pod.flags['buildsuffix'])
+    else:
+      paths_to_contents = pod.dump()
     repo = utils.get_git_repo(pod.root)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
