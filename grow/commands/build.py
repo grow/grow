@@ -17,7 +17,10 @@ def build(pod_path, out_dir):
   pod = pods.Pod(root, storage=storage.FileStorage)
   pod.preprocess()
   try:
-    paths_to_contents = pod.dump()
+    if 'suffix' in pod.flags:
+      paths_to_contents = pod.dump(suffix=pod.flags['suffix'])
+    else:
+      paths_to_contents = pod.dump()
     repo = utils.get_git_repo(pod.root)
     config = local_destination.Config(out_dir=out_dir)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
