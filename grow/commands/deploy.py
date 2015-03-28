@@ -35,7 +35,15 @@ def deploy(deployment_name, pod_path, build, confirm, test, test_only, auth):
     if test_only:
       deployment.test()
       return
-    paths_to_contents = pod.dump()
+    build_extension = ''
+    try:
+      extensionless_paths = deployment.config.field_by_name('extensionless_paths')
+    except KeyError:
+      pass
+    else:
+      if deployment.config.extensionless_paths:
+        build_extension = deployment.config.build_extension
+    paths_to_contents = pod.dump(build_extension=build_extension)
     repo = utils.get_git_repo(pod.root)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
