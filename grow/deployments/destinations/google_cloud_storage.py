@@ -55,6 +55,9 @@ class Config(messages.Message):
   key_path = messages.StringField(6)
   env = messages.MessageField(env.EnvConfig, 7)
   keep_control_dir = messages.BooleanField(8, default=False)
+  strict_slashes = messages.BooleanField(9, default=True)
+  main_page_suffix = messages.StringField(10, default='index.html')
+  not_found_page = messages.StringField(11, default='404.html')
 
 
 class GoogleCloudStorageDestination(base.BaseDestination):
@@ -87,16 +90,19 @@ class GoogleCloudStorageDestination(base.BaseDestination):
   def prelaunch(self, dry_run=False):
     if dry_run:
       return
-    logging.info('Configuring GS bucket: {}'.format(self.config.bucket))
     if self.use_interoperable_auth:
       self.bucket.set_acl('public-read')
       self.bucket.configure_versioning(False)
-      self.bucket.configure_website(main_page_suffix='index.html', error_key='404.html')
+      self.bucket.configure_website(
+          main_page_suffix=self.config.main_page_suffix,
+          error_key=self.config.not_found_page)
     else:
       acl = self.bucket.get_default_object_acl()
       acl.all().grant_read().revoke_write()
       acl.save()
-      self.bucket.configure_website(main_page_suffix='index.html', not_found_page='404.html')
+      self.bucket.configure_website(
+          main_page_suffix=self.config.main_page_suffix,
+          not_found_page=self.config.not_found_page)
 
   def write_control_file(self, path, content):
     path = os.path.join(self.control_dir, path.lstrip('/'))
@@ -139,13 +145,18 @@ class GoogleCloudStorageDestination(base.BaseDestination):
     fp.write(content)
     size = fp.tell()
 
+    if path == '':
+      path = self.config.main_page_suffix
+
     try:
       if self.use_interoperable_auth:
         file_key = key.Key(self.bucket)
         file_key.key = path
-        headers = {'Cache-Control': 'no-cache'}  # TODO(jeremydw): Better headers.
-        if mimetype:
-          headers['Content-Type'] = mimetype
+        # TODO(jeremydw): Allow configurable headers.
+        headers = {
+            'Cache-Control': 'no-cache',
+            'Content-Type': mimetype if mimetype else 'text/html',
+        }
         file_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy,
                                         size=size, rewind=True)
       else:
