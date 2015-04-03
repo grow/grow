@@ -1,8 +1,10 @@
 #!/bin/bash
 
-if [ -d env ]; then
-  source env/bin/activate
-  ./bin/grow ${@}
+HERE="`dirname \"$0\"`"
+
+if [ -d $HERE/../env ]; then
+  source $HERE/../env/bin/activate
+  $HERE/../bin/grow ${@}
   deactivate
 else
   echo 'Run ./scripts/setup first.'
