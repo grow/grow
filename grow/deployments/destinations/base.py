@@ -200,6 +200,10 @@ class BaseDestination(object):
   def login(self, account, reauth=False):
     pass
 
+  def dump(self, pod):
+    pod.env = self.get_env()
+    return pod.dump()
+
   def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False, confirm=False,
              test=True):
     self.prelaunch(dry_run=dry_run)

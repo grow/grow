@@ -30,12 +30,10 @@ def deploy(deployment_name, pod_path, build, confirm, test, test_only, auth):
       deployment.login(auth)
     if build:
       pod.preprocess()
-    # Set the environment information for the pod based on the deployment.
-    pod.env = deployment.get_env()
     if test_only:
       deployment.test()
       return
-    paths_to_contents = pod.dump()
+    paths_to_contents = deployment.dump(pod)
     repo = utils.get_git_repo(pod.root)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,

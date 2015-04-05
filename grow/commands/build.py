@@ -17,11 +17,11 @@ def build(pod_path, out_dir):
   pod = pods.Pod(root, storage=storage.FileStorage)
   pod.preprocess()
   try:
-    paths_to_contents = pod.dump()
-    repo = utils.get_git_repo(pod.root)
     config = local_destination.Config(out_dir=out_dir)
-    stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     destination = local_destination.LocalDestination(config)
+    paths_to_contents = destination.dump(pod)
+    repo = utils.get_git_repo(pod.root)
+    stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,
                        test=False)
   except pods.Error as e:
