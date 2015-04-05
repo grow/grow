@@ -9,6 +9,7 @@ from protorpc import messages
 import boto
 import cStringIO
 import dns.resolver
+import logging
 import mimetypes
 import os
 import webapp2
@@ -95,6 +96,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
   def prelaunch(self, dry_run=False):
     if dry_run:
       return
+    logging.info('Configuring GCS bucket: {}'.format(self.config.bucket))
     if self.use_interoperable_auth:
       self.bucket.set_acl('public-read')
       self.bucket.configure_versioning(False)
