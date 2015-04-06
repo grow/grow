@@ -38,7 +38,37 @@ class PodTest(unittest.TestCase):
     self.pod.export()
 
   def test_dump(self):
-    self.pod.dump()
+    paths = [
+        '/about/index.html',
+        '/contact-us/index.html',
+        '/de/about/index.html',
+        '/de/contact-us/index.html',
+        '/de/home/index.html',
+        '/de/html/index.html',
+        '/de/intro/index.html',
+        '/fr/about/index.html',
+        '/fr/contact-us/index.html',
+        '/fr/home/index.html',
+        '/fr/html/index.html',
+        '/fr/intro/index.html',
+        '/html/index.html',
+        '/index.html',
+        '/intro/index.html',
+        '/it/about/index.html',
+        '/it/contact-us/index.html',
+        '/it/home/index.html',
+        '/it/html/index.html',
+        '/it/intro/index.html',
+        '/post/newer/index.html',
+        '/post/newest/index.html',
+        '/post/older/index.html',
+        '/post/oldest/index.html',
+        '/public/file.txt',
+        '/public/main.css',
+        '/public/main.min.js',
+    ]
+    result = self.pod.dump()
+    self.assertItemsEqual(paths, result)
 
   def test_to_message(self):
     self.pod.to_message()

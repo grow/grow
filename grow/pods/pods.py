@@ -232,7 +232,9 @@ class Pod(object):
     clean_output = {}
     if suffix:
       for path, content in output.iteritems():
-        if append_slashes and not path.endswith('/'):
+        if (append_slashes
+            and not path.endswith('/')
+            and not os.path.splitext(path)[-1]):
           path = path.rstrip('/') + '/'
         if append_slashes and path.endswith('/') and suffix:
           path += suffix
