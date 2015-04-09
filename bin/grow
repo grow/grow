@@ -1,17 +1,23 @@
 #! /usr/bin/env python
 
-import logging
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-
 import click
+import logging
 import os
 import sys
+import werkzeug  # Fixes werkzeug and PyInstaller.
 
-base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-sys.path.extend([base_dir])
+def is_packaged_app():
+  try:
+    sys._MEIPASS
+    return True
+  except AttributeError:
+    return False
 
-# Fixes werkzeug and PyInstaller.
-import werkzeug
+if not is_packaged_app():
+  base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+  sys.path.extend([base_dir])
+
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 # Fixes simplejson and PyInstaller.
 import json
