@@ -82,8 +82,11 @@ class Diff(object):
       between_commits = '{}..{}'.format(
           last_commit_sha[:7],
           new_commit_sha[:7])
-      if new_commit.has_unstaged_changes:
-        between_commits += ' (with unstaged changes)'
+      if new_commit:
+        if new_commit.has_unstaged_changes:
+          between_commits += ' (with unstaged changes)'
+      else:
+        between_commits += ' (initial commit)'
       logging.info('Launching: {} as {}'.format(
           between_commits, new_index.deployed_by.email))
     if diff.what_changed:
