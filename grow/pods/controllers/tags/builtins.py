@@ -68,10 +68,6 @@ def static(path, _pod=None):
   return path
 
 
-def get_doc(pod_path, locale=None, _pod=None):
-  return _pod.routes.get_doc(pod_path, locale=locale)
-
-
 class Menu(object):
 
   def __init__(self):
@@ -105,6 +101,10 @@ def breadcrumb(doc, _pod=None):
 def url(pod_path, locale=None, _pod=None):
   doc = _pod.get_doc(pod_path, locale=locale)
   return doc.url
+
+
+def get_doc(pod_path, locale=None, _pod=None):
+  return _pod.get_doc(pod_path, locale=locale)
 
 
 @jinja2.contextfilter
