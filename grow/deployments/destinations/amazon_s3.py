@@ -17,6 +17,8 @@ class Config(messages.Message):
   access_secret = messages.StringField(3)
   env = messages.MessageField(env.EnvConfig, 4)
   keep_control_dir = messages.BooleanField(5, default=False)
+  extensionless_paths = messages.BooleanField(6, default=False)
+  build_extension = messages.StringField(7, default='.objstore.html')
 
 
 class AmazonS3Destination(base.BaseDestination):
@@ -46,6 +48,9 @@ class AmazonS3Destination(base.BaseDestination):
     return self.write_file(path, content, policy='private')
 
   def read_file(self, path):
+    if self.config.extensionless_paths:
+      if path.endswith(self.config.build_extension):
+        path = path[:-len(self.config.build_extension)]
     file_key = key.Key(self.bucket)
     file_key.key = path
     try:
@@ -56,6 +61,9 @@ class AmazonS3Destination(base.BaseDestination):
       raise IOError('File not found: {}'.format(path))
 
   def delete_file(self, path):
+    if self.config.extensionless_paths:
+      if path.endswith(self.config.build_extension):
+        path = path[:-len(self.config.build_extension)]
     bucket_key = key.Key(self.bucket)
     bucket_key.key = path.lstrip('/')
     self.bucket.delete_key(bucket_key)
@@ -73,6 +81,9 @@ class AmazonS3Destination(base.BaseDestination):
     headers = {'Cache-Control': 'no-cache'}
     if mimetype:
       headers['Content-Type'] = mimetype
+    if self.config.extensionless_paths:
+      if path.endswith(self.config.build_extension):
+        bucket_key.key = path[:-len(self.config.build_extension)]
     fp.seek(0)
     bucket_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy)
     fp.close()
