@@ -133,6 +133,8 @@ class BaseDestination(object):
     if self.config.keep_control_dir:
       control_dir = self._control_dir
       return os.path.join(self.pod.root, control_dir, 'deployments', self.name)
+    if self._has_custom_control_dir:
+      return self.config.control_dir
     return self._control_dir
 
   def _get_remote_index(self):
@@ -159,22 +161,33 @@ class BaseDestination(object):
   def delete_file(self, path):
     raise NotImplementedError
 
+  @property
+  def _has_custom_control_dir(self):
+    return (hasattr(self.config, 'control_dir')
+            and self.config.control_dir is not None)
+
   def delete_control_file(self, path):
     path = os.path.join(self.control_dir, path.lstrip('/'))
     if self.config.keep_control_dir:
       return self.pod.delete_file(path)
+    if self._has_custom_control_dir:
+      return self.storage.delete(path)
     return self.delete_file(path)
 
   def read_control_file(self, path):
     path = os.path.join(self.control_dir, path.lstrip('/'))
     if self.config.keep_control_dir:
       return self.pod.read_file(path)
+    if self._has_custom_control_dir:
+      return self.storage.read(path)
     return self.read_file(path)
 
   def write_control_file(self, path, content):
     path = os.path.join(self.control_dir, path.lstrip('/'))
     if self.config.keep_control_dir:
       return self.pod.write_file(path, content)
+    if self._has_custom_control_dir:
+      return self.storage.write(path, content)
     if self.batch_writes:
       return self.write_file({path: content})
     return self.write_file(path, content)

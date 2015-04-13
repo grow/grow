@@ -11,6 +11,7 @@ class Config(messages.Message):
   keep_control_dir = messages.BooleanField(3, default=False)
   before_deploy = messages.StringField(4, repeated=True)
   after_deploy = messages.StringField(5, repeated=True)
+  control_dir = messages.StringField(6)
 
 
 class LocalDestination(base.BaseDestination):
