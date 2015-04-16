@@ -112,6 +112,7 @@ class DestinationTestCase(object):
 
 class BaseDestination(object):
   TestCase = DestinationTestCase
+  diff_basename = 'diff.proto.json'
   index_basename = 'index.proto.json'
   stats_basename = 'stats.proto.json'
   threaded = True
@@ -250,14 +251,14 @@ class BaseDestination(object):
         self.write_control_file(self.stats_basename, stats.to_string())
       else:
         self.delete_control_file(self.stats_basename)
+      if diff:
+        self.write_control_file(self.diff_basename, indexes.Diff.to_string(diff))
       self._success = True
     finally:
       self.postlaunch()
     return diff
 
   def command(self, command):
-    if self._diff:
-      command = command.replace('${GROW_DEPLOY_WHATCHANGED}', self._diff.what_changed)
     with io.BytesIO() as fp:
       proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE, shell=True)
