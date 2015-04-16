@@ -157,6 +157,10 @@ class Diff(object):
     return diff
 
   @classmethod
+  def to_string(cls, message):
+    return protojson.encode_message(message)
+
+  @classmethod
   def apply(cls, message, paths_to_content, write_func, delete_func, threaded=True,
             batch_writes=False):
     # TODO(jeremydw): Thread pool for the threaded operation.
