@@ -70,3 +70,7 @@ msgstr ""
 msgid "Tagged String in List 2"
 msgstr ""
 
+#. /content/pages/yaml_test.html:$title@
+msgid "YAML Test"
+msgstr ""
+

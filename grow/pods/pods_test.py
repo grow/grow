@@ -46,11 +46,13 @@ class PodTest(unittest.TestCase):
         '/de/home/index.html',
         '/de/html/index.html',
         '/de/intro/index.html',
+        '/de/yaml_test/index.html',
         '/fr/about/index.html',
         '/fr/contact-us/index.html',
         '/fr/home/index.html',
         '/fr/html/index.html',
         '/fr/intro/index.html',
+        '/fr/yaml_test/index.html',
         '/html/index.html',
         '/index.html',
         '/intro/index.html',
@@ -59,6 +61,7 @@ class PodTest(unittest.TestCase):
         '/it/home/index.html',
         '/it/html/index.html',
         '/it/intro/index.html',
+        '/it/yaml_test/index.html',
         '/post/newer/index.html',
         '/post/newest/index.html',
         '/post/older/index.html',
@@ -66,6 +69,7 @@ class PodTest(unittest.TestCase):
         '/public/file.txt',
         '/public/main.css',
         '/public/main.min.js',
+        '/yaml_test/index.html',
     ]
     result = self.pod.dump()
     self.assertItemsEqual(paths, result)

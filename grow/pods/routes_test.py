@@ -24,11 +24,13 @@ class RoutesTest(unittest.TestCase):
         '/de/home/',
         '/de/html/',
         '/de/intro/',
+        '/de/yaml_test/',
         '/fr/about/',
         '/fr/contact-us/',
         '/fr/home/',
         '/fr/html/',
         '/fr/intro/',
+        '/fr/yaml_test/',
         '/html/',
         '/intro/',
         '/it/about/',
@@ -36,6 +38,7 @@ class RoutesTest(unittest.TestCase):
         '/it/home/',
         '/it/html/',
         '/it/intro/',
+        '/it/yaml_test/',
         '/post/newer/',
         '/post/newest/',
         '/post/older/',
@@ -43,6 +46,7 @@ class RoutesTest(unittest.TestCase):
         '/public/file.txt',
         '/public/main.css',
         '/public/main.min.js',
+        '/yaml_test/',
     ]
     result = self.pod.routes.list_concrete_paths()
     self.assertItemsEqual(expected, result)

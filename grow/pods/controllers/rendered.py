@@ -94,6 +94,7 @@ class RenderedController(base.BaseController):
         'params': self.route_params,
         'static': lambda path: tags.static(path, _pod=self.pod),
         'url': lambda *args, **kwargs: tags.url(*args, _pod=self.pod, **kwargs),
+        'yaml': lambda path: tags.yaml(path, _pod=self.pod),
     }
     try:
       return template.render({
