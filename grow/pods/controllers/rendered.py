@@ -74,11 +74,16 @@ class RenderedController(base.BaseController):
     if self.locale is None:  # Use the system's default locale.
       locale.setlocale(locale.LC_ALL, '')
     else:
+      # TODO(jeremydw): Properly convert from Babel locale to system locale,
+      # detect system locale formatting and raise an error if the locale isn't
+      # installed.
       try:
-        # TODO(jeremydw): Convert from Babel locale to system locale.
         locale.setlocale(locale.LC_TIME, str(self.locale))
       except locale.Error:
-        pass
+        try:
+          locale.setlocale(locale.LC_TIME, str(self.locale) + '.utf-8')
+        except locale.Error:
+          pass
     template = self._template_env.get_template(self.view.lstrip('/'))
     g = {
         'breadcrumb': lambda *args, **kwargs: tags.breadcrumb(*args, _pod=self.pod, **kwargs),
