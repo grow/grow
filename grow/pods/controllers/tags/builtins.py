@@ -8,6 +8,7 @@ import jinja2
 import locale
 import logging
 import markdown
+from grow.common import utils
 
 
 
@@ -117,6 +118,11 @@ def render_filter(ctx, template):
 @jinja2.contextfilter
 def parsedatetime_filter(ctx, date_string, string_format):
   return datetime.strptime(date_string, string_format)
+
+
+@jinja2.contextfilter
+def yaml(ctx, path, _pod):
+  return utils.parse_yaml(_pod.read_file(path))
 
 
 def date(datetime_obj=None, _pod=None, **kwargs):
