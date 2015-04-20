@@ -1,0 +1,7 @@
+---
+$title@: YAML Test
+---
+{% set items = g.yaml('/data/file.yaml') %}
+{% for item in items %}
+<li>{{item}}
+{% endfor %}
