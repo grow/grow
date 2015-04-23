@@ -183,3 +183,9 @@ Returns the URL object for a document, given a document's pod path. Access the `
 [sourcecode:html+jinja]
 <a href="{{g.url('/content/pages/index.html').path}}">Home</a>
 [/sourcecode]
+
+### g.yaml
+
+`g.yaml(<path to yaml>)`
+
+Returns a parsed yaml object, given a yaml file's pod path. Respects translation tagging.
