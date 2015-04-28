@@ -1,4 +1,5 @@
 from datetime import datetime
+from grow.common import utils
 from grow.pods import locales as locales_lib
 from grow.pods.collectionz import collectionz
 import collections
@@ -8,7 +9,7 @@ import jinja2
 import locale
 import logging
 import markdown
-from grow.common import utils
+import re
 
 
 
@@ -61,7 +62,21 @@ def docs(collection, locale=None, order_by=None, _pod=None):
 
 
 def markdown_filter(value):
-  return markdown.markdown(value.decode('utf-8'))
+  try:
+    if isinstance(value, unicode):
+      value = value.decode('utf-8')
+    return markdown.markdown(value)
+  except UnicodeEncodeError:
+    return markdown.markdown(value)
+
+
+_slug_regex = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+def slug_filter(value):
+  result = []
+  for word in _slug_regex.split(value.lower()):
+    if word:
+      result.append(word)
+  return unicode(u'-'.join(result))
 
 
 def static(path, _pod=None):
@@ -120,7 +135,6 @@ def parsedatetime_filter(ctx, date_string, string_format):
   return datetime.strptime(date_string, string_format)
 
 
-@jinja2.contextfilter
 def yaml(ctx, path, _pod):
   return utils.parse_yaml(_pod.read_file(path))
 

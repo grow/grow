@@ -316,6 +316,7 @@ class Pod(object):
     if self.podspec.flags.get('compress_html'):
       kwargs['extensions'].append(jinja2htmlcompress.HTMLCompress)
     env = jinja2.Environment(**kwargs)
+    env.filters['slug'] = tags.slug_filter
     env.filters['markdown'] = tags.markdown_filter
     env.filters['render'] = tags.render_filter
     return env
