@@ -24,8 +24,13 @@ class CollectionsTestCase(unittest.TestCase):
     for doc in documents:
       self.assertEqual('fr', doc.locale)
 
-    # List all documents.
+    # List unhidden documents.
     documents = collection.list_documents()
+    for doc in documents:
+      self.assertFalse(doc.hidden)
+
+    # List all documents.
+    documents = collection.list_documents(include_hidden=True)
 
     collection = self.pod.get_collection('posts')
     documents = collection.list_documents(order_by='$published', reverse=True)
