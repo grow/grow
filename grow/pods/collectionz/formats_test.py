@@ -36,6 +36,7 @@ class FormatsTestCase(unittest.TestCase):
     content = (
         '---\n'
         '$title@: HTML Page\n'
+        '$hidden: true\n'
         '---\n'
         '<div>HTML Content.</div>\n'
     )
