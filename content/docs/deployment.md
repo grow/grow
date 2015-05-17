@@ -123,11 +123,12 @@ after_deploy:
 
 ### SCP
 
-Authenticates using the ssh keys running in ssh-agent. The `root_dir` option uses syntax from the standard `scp` command. Values can be either absolute or relative. The `host` is required. `username` is optional and is used to specify the target server username if it differs from your development environment user issuing the `grow deploy` command.
+Authenticates using the ssh keys running in ssh-agent. The `root_dir` option uses syntax from the standard `scp` command. Values can be either absolute or relative. The `host` is required. `port` is optional and will default to 22 if not specified. `username` is optional and is used to specify the target server username if it differs from your development environment user issuing the `grow deploy` command.
 
 [sourcecode:yaml]
 destination: scp
 host: example.com
+port: 1111
 username: username
 root_dir: /home/username/domains/example.com/public_html/
 [/sourcecode]
