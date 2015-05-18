@@ -134,6 +134,8 @@ class Collection(object):
       if slug.startswith('_') or ext not in messages.extensions_to_formats:
         continue
       doc = self.get_doc(pod_path)
+      if doc.hidden:
+        continue
       if locale is None:
         sorted_docs.insert(doc)
         continue
@@ -159,6 +161,8 @@ class Collection(object):
           or not pod_path):
         return
       doc = self.get_doc(pod_path)
+      if not include_hidden and doc.hidden:
+        return
 
       if locale in [_all, None]:
         sorted_docs.insert(doc)

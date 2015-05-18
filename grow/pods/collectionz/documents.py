@@ -240,6 +240,10 @@ class Document(object):
   def html(self):
     return self.format.html
 
+  @property
+  def hidden(self):
+    return self.fields.get('$hidden', False)
+
   def __eq__(self, other):
     return (isinstance(self, Document)
             and isinstance(other, Document)
