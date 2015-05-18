@@ -2,5 +2,9 @@
 <title>Hello World</title>
 <link rel="stylesheet" href="{{g.static('/public/main.css')}}">
 {% block main %}
-  {{doc.body}}
+  {% if doc.html %}
+    {{doc.html|render|safe}}
+  {% else %}
+    {{doc.body}}
+  {% endif %}
 {% endblock %}

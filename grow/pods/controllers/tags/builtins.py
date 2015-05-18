@@ -135,7 +135,7 @@ def parsedatetime_filter(ctx, date_string, string_format):
   return datetime.strptime(date_string, string_format)
 
 
-def yaml(ctx, path, _pod):
+def yaml(path, _pod):
   return utils.parse_yaml(_pod.read_file(path))
 
 
