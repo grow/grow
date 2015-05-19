@@ -87,6 +87,10 @@ class Catalogs(object):
 
     self.pod.logger.info('Updating translation template: {}'.format(template_path))
 
+    comment_tags = [
+        ':',
+    ]
+
     options = {
         'extensions': ','.join(self.pod.get_template_env().extensions.keys()),
         'silent': 'false',
@@ -100,7 +104,8 @@ class Catalogs(object):
         self.pod.logger.info('Extracting from: {}'.format(pod_path))
         fp = self.pod.open_file(pod_path)
         try:
-          messages = extract.extract('jinja2.ext.babel_extract', fp, options=options)
+          messages = extract.extract('jinja2.ext.babel_extract', fp,
+                                     options=options, comment_tags=comment_tags)
           for message in messages:
             lineno, string, comments, context = message
             flags = set()
@@ -122,12 +127,19 @@ class Catalogs(object):
       # in the default locale. If not, skip the document.
       _handle_field(doc.pod_path, item, key, unused_node)
 
-    def _handle_field(path, item, key, unused_node):
+    def _handle_field(path, item, key, node):
       if not key.endswith('@') or not isinstance(item, basestring):
         return
-      comments = ['{}:{}'.format(doc.pod_path, key)]
-      added_message = catalog_obj.add(
-          item, None, [(path, 0)], auto_comments=comments, context=None)
+      # Support gettext "extracted comments" on tagged fields. This is
+      # consistent with extracted comments in templates, which follow
+      # the format "{#: Extracted comment. #}". An example:
+      #   field@: Message.
+      #   field@#: Extracted comment for field@.
+      auto_comments = []
+      auto_comment = node.get('{}#'.format(key))
+      if auto_comment:
+        auto_comments.append(auto_comment)
+      added_message = catalog_obj.add(item, None, auto_comments=auto_comments)
       if added_message not in extracted:
         extracted.append(added_message)
 
@@ -144,7 +156,7 @@ class Catalogs(object):
 
     # Write to PO template.
     self.pod.logger.info('Writing {} messages to translation template.'.format(len(catalog_obj)))
-    pofile.write_po(template, catalog_obj, width=80, no_location=True,
+    pofile.write_po(template, catalog_obj, width=80,
                     omit_header=True, sort_output=True, sort_by_file=True)
     template.close()
     return catalog_obj

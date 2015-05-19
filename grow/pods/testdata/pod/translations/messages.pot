@@ -1,76 +1,59 @@
-#. /content/pages/about.yaml:$title@
 msgid "About"
 msgstr ""
 
-#. /content/pages/about.yaml:nav@
 msgid "About us"
 msgstr ""
 
-#. /content/pages/about.yaml:$title@
 msgid "AboutDE"
 msgstr ""
 
-#. /content/pages/intro.md:breadcrumb@
 msgid "Bar"
 msgstr ""
 
-#. /content/pages/contact.yaml:$title@
 msgid "Contact"
 msgstr ""
 
-#. /content/pages/intro.md:nav@
 msgid "Foo"
 msgstr ""
 
-#. /content/posts/newer.md:$title@
 msgid "Goodnight Moon!"
 msgstr ""
 
-#. /content/pages/html.html:$title@
 msgid "HTML Page"
 msgstr ""
 
+#: /views/home.html:8
 msgid "Hello World 2!"
 msgstr ""
 
-#. /content/posts/oldest.md:$title@
-#. /content/posts/older.md:$title@
+#: /views/home.html:7
 msgid "Hello World!"
 msgstr ""
 
-#. /content/pages/home.yaml:translation_with_priority@@
 msgid "Higher Priority"
 msgstr ""
 
-#. /content/pages/home.yaml:$title@
 msgid "Home page"
 msgstr ""
 
-#. /content/pages/intro.md:$title@
 msgid "Introduction"
 msgstr ""
 
-#. /content/pages/home.yaml:translation_with_priority@
 msgid "Lower Priority"
 msgstr ""
 
-#. /content/posts/newest.md:$title@
 msgid "Newest!"
 msgstr ""
 
-#. /content/pages/home.yaml:tagged_string@
 msgid "Tagged String"
 msgstr ""
 
-#. /content/pages/home.yaml:tagged_strings@
 msgid "Tagged String in List 1"
 msgstr ""
 
-#. /content/pages/home.yaml:tagged_strings@
 msgid "Tagged String in List 2"
 msgstr ""
 
-#. /content/pages/yaml_test.html:$title@
 msgid "YAML Test"
 msgstr ""
 
