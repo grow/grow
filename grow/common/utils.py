@@ -133,3 +133,39 @@ class JsonEncoder(json.JSONEncoder):
     if hasattr(obj, 'timetuple'):
       return time.mktime(obj.timetuple())
     raise TypeError(repr(obj) + ' is not JSON serializable.')
+
+
+def untag_fields(fields, catalog=None):
+  """Untags fields, handling translation priority."""
+  untagged_keys_to_add = {}
+  nodes_and_keys_to_add = []
+  nodes_and_keys_to_remove = []
+  def callback(item, key, node):
+    if not isinstance(key, basestring):
+      return
+    if key.endswith('@'):
+      untagged_key = key.rstrip('@')
+      priority = len(key) - len(untagged_key)
+      content = item
+      nodes_and_keys_to_remove.append((node, key))
+      if priority > 1 and untagged_key in untagged_keys_to_add:
+        has_translation_for_higher_priority_key = False
+        if catalog is not None:
+          try:
+            has_translation_for_higher_priority_key = content in catalog
+          except AttributeError:
+            pass
+        if has_translation_for_higher_priority_key:
+          untagged_keys_to_add[untagged_key] = True
+          nodes_and_keys_to_add.append((node, untagged_key, content))
+      elif priority <= 1:
+        untagged_keys_to_add[untagged_key] = True
+        nodes_and_keys_to_add.append((node, untagged_key, content))
+  walk(fields, callback)
+  for node, key in nodes_and_keys_to_remove:
+    if isinstance(node, dict):
+      del node[key]
+  for node, untagged_key, content in nodes_and_keys_to_add:
+    if isinstance(node, dict):
+      node[untagged_key] = content
+  return fields

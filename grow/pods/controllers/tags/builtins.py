@@ -135,8 +135,10 @@ def parsedatetime_filter(ctx, date_string, string_format):
   return datetime.strptime(date_string, string_format)
 
 
-def yaml(path, _pod):
-  return utils.parse_yaml(_pod.read_file(path))
+def yaml(path, _doc, _pod):
+  catalog = _pod.catalogs.get(_doc.locale) if _doc else None
+  fields = utils.parse_yaml(_pod.read_file(path))
+  return utils.untag_fields(fields, catalog=catalog)
 
 
 def date(datetime_obj=None, _pod=None, **kwargs):

@@ -3,9 +3,10 @@ grow_version: 0.0.24
 flags:
   static_dir: /public/
 
-domains:
-- example.com
-- example.net
+static_dirs:
+  - static_dir: /static/
+    serve_at: /app/static/
+    name: static_dir_name
 
 localization:
   default_locale: en
@@ -16,7 +17,6 @@ localization:
   - it
 
 deployments:
-
   gcs:
     destination: gcs
     bucket: gcs.example.com

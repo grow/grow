@@ -63,8 +63,9 @@ class Document(object):
 
   @webapp2.cached_property
   def fields(self):
-    return formats.untag_fields(copy.deepcopy(self.tagged_fields),
-                                catalog=self.pod.catalogs.get(self.locale))
+    catalog = self.pod.catalogs.get(self.locale)
+    return utils.untag_fields(copy.deepcopy(self.tagged_fields),
+                              catalog=catalog)
 
   @webapp2.cached_property
   def format(self):
