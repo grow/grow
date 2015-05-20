@@ -1,17 +1,18 @@
-import json
 from .destinations import amazon_s3
 from .destinations import git_destination
-from .destinations import jetway_destination
-from .destinations import local
 from .destinations import google_cloud_storage
+from .destinations import local
 from .destinations import scp
+from .destinations import webreview_destination
 from protorpc import protojson
+import json
 
 _destination_kinds_to_classes = {}
 
 _builtins = (
     amazon_s3.AmazonS3Destination,
-    jetway_destination.JetwayDestination,
+    webreview_destination.WebReviewDestination,
+    webreview_destination.LegacyJetwayDestination,
     git_destination.GitDestination,
     local.LocalDestination,
     google_cloud_storage.GoogleCloudStorageDestination,
