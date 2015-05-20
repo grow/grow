@@ -1,6 +1,7 @@
 from . import base
 from grow.pods import env
 from protorpc import messages
+import os
 import jetway
 
 
@@ -9,7 +10,7 @@ class Config(messages.Message):
   project = messages.StringField(2, required=True)
   name = messages.StringField(3, required=True)
   server = messages.StringField(4, required=True)
-  is_secure = messages.BooleanField(5, default=True)
+  secure = messages.BooleanField(5, default=True)
   keep_control_dir = messages.BooleanField(6, default=False)
 
 
@@ -21,11 +22,13 @@ class JetwayDestination(base.BaseDestination):
 
   def __init__(self, *args, **kwargs):
     super(JetwayDestination, self).__init__(*args, **kwargs)
+    api_key = os.getenv('WEBREVIEW_API_KEY')
     self.jetway = jetway.Jetway(
         project=self.config.project,
         name=self.config.name,
         host=self.config.server,
-        secure=self.config.is_secure)
+        secure=self.config.secure,
+        api_key=api_key)
 
   def __str__(self):
     return self.config.server
