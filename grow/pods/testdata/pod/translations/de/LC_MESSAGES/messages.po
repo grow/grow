@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-05-20 14:53-0700\n"
+"POT-Creation-Date: 2015-05-20 15:37-0700\n"
 "PO-Revision-Date: 2013-08-03 10:56-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
@@ -42,14 +42,15 @@ msgstr ""
 msgid "HTML Page"
 msgstr ""
 
-#: /views/home.html:8
+#. Main title 2.
 msgid "Hello World 2!"
 msgstr ""
 
-#: /views/home.html:7
+#. Main title.
 msgid "Hello World!"
 msgstr ""
 
+#. Higher Priority description.
 msgid "Higher Priority"
 msgstr ""
 
@@ -59,12 +60,14 @@ msgstr ""
 msgid "Introduction"
 msgstr ""
 
+#. Lower Priority description.
 msgid "Lower Priority"
 msgstr ""
 
 msgid "Newest!"
 msgstr ""
 
+#. Tagged String description.
 msgid "Tagged String"
 msgstr ""
 

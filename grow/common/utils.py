@@ -143,6 +143,8 @@ def untag_fields(fields, catalog=None):
   def callback(item, key, node):
     if not isinstance(key, basestring):
       return
+    if key.endswith('@#'):
+      nodes_and_keys_to_remove.append((node, key))
     if key.endswith('@'):
       untagged_key = key.rstrip('@')
       priority = len(key) - len(untagged_key)

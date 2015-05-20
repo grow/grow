@@ -22,14 +22,15 @@ msgstr ""
 msgid "HTML Page"
 msgstr ""
 
-#: /views/home.html:8
+#. Main title 2.
 msgid "Hello World 2!"
 msgstr ""
 
-#: /views/home.html:7
+#. Main title.
 msgid "Hello World!"
 msgstr ""
 
+#. Higher Priority description.
 msgid "Higher Priority"
 msgstr ""
 
@@ -39,12 +40,14 @@ msgstr ""
 msgid "Introduction"
 msgstr ""
 
+#. Lower Priority description.
 msgid "Lower Priority"
 msgstr ""
 
 msgid "Newest!"
 msgstr ""
 
+#. Tagged String description.
 msgid "Tagged String"
 msgstr ""
 
