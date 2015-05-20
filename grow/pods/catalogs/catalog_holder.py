@@ -136,9 +136,10 @@ class Catalogs(object):
       #   field@: Message.
       #   field@#: Extracted comment for field@.
       auto_comments = []
-      auto_comment = node.get('{}#'.format(key))
-      if auto_comment:
-        auto_comments.append(auto_comment)
+      if isinstance(node, dict):
+        auto_comment = node.get('{}#'.format(key))
+        if auto_comment:
+          auto_comments.append(auto_comment)
       added_message = catalog_obj.add(item, None, auto_comments=auto_comments)
       if added_message not in extracted:
         extracted.append(added_message)
