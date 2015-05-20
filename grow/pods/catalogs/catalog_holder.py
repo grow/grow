@@ -114,7 +114,7 @@ class Catalogs(object):
               if existing_message and 'requested' in existing_message.flags:
                 flags.add('requested')
             added_message = catalog_obj.add(
-                string, None, [(pod_path, lineno)], auto_comments=comments,
+                string, None, auto_comments=comments,
                 context=context, flags=flags)
             extracted.append(added_message)
         except tokenize.TokenError:
