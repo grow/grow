@@ -10,6 +10,9 @@ import tokenize
 
 _TRANSLATABLE_EXTENSIONS = (
   '.html',
+  '.md',
+  '.yaml',
+  '.yml',
 )
 
 
