@@ -6,6 +6,7 @@ import collections
 import csv as csv_lib
 import itertools
 import jinja2
+import json
 import locale
 import logging
 import markdown
@@ -133,6 +134,42 @@ def render_filter(ctx, template):
 @jinja2.contextfilter
 def parsedatetime_filter(ctx, date_string, string_format):
   return datetime.strptime(date_string, string_format)
+
+
+@jinja2.contextfilter
+def deeptrans(ctx, obj):
+  return _deep_gettext(ctx, obj)
+
+
+@jinja2.contextfilter
+def jsonify(ctx, obj, *args, **kwargs):
+  return json.dumps(obj, *args, **kwargs)
+
+
+def _deep_gettext(ctx, fields):
+  if isinstance(fields, dict):
+    new_dct = {}
+    for key, val in fields.iteritems():
+      if isinstance(val, (dict, list, set)):
+        new_dct[key] = _deep_gettext(ctx, val)
+      elif isinstance(val, basestring):
+        new_dct[key] = _gettext_alias(ctx, val)
+      else:
+        new_dct[key] = val
+    return new_dct
+  elif isinstance(fields, (list, set)):
+    for i, val in enumerate(fields):
+      if isinstance(val, (dict, list, set)):
+        fields[i] = _deep_gettext(ctx, val)
+      elif isinstance(val, basestring):
+        fields[i] = _gettext_alias(ctx, val)
+      else:
+        fields[i] = val
+    return fields
+
+
+def _gettext_alias(__context, *args, **kwargs):
+  return __context.call(__context.resolve('gettext'), *args, **kwargs)
 
 
 def yaml(path, _doc, _pod):
