@@ -1,8 +1,7 @@
 FROM ubuntu
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
-RUN apt-get update
-RUN apt-get install -y python python-pip git curl nodejs npm
+RUN apt-get update && apt-get install -y python python-pip git curl nodejs npm
 RUN npm install -g bower
 RUN npm install -g gulp
 RUN \
