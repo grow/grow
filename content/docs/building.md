@@ -1,7 +1,7 @@
 ---
 $title: Building and testing
 $category: Workflow
-$order: 0
+$order: 1
 ---
 # Building your site
 
