@@ -308,7 +308,12 @@ class Pod(object):
   def get_template_env(self):
     kwargs = {
         'autoescape': True,
-        'extensions': ['jinja2.ext.i18n', 'jinja2.ext.do'],
+        'extensions': [
+            'jinja2.ext.do',
+            'jinja2.ext.i18n',
+            'jinja2.ext.loopcontrols',
+            'jinja2.ext.with_',
+        ],
         'loader': self.storage.JinjaLoader(self.root),
         'lstrip_blocks': True,
         'trim_blocks': True,
