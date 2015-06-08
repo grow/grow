@@ -1,3 +1,4 @@
+from babel.messages import pofile
 import errno
 import os
 import shutil
@@ -14,7 +15,7 @@ external_to_babel_locales = {
     'pt-BR': 'pt_BR',
     'pt-PT': 'pt_PT',
     'zh-CN': 'zh_Hans_CN',
-    'zh-HK': 'pt_PT',
+    'zh-HK': 'zh_Hant_HK',
     'zh-TW': 'zh_Hant_TW',
 }
 
@@ -68,10 +69,21 @@ class Importer(object):
     if not os.path.exists(po_path):
       raise Error('Couldn\'t find PO file at: {}'.format(po_path))
     babel_locale = external_to_babel_locales.get(locale, locale)
-    locale = locale.replace('-', '_')
-    pod_translations_dir = os.path.join(self.pod.root, 'translations', babel_locale,
-                                        'LC_MESSAGES')
+    pod_translations_dir = os.path.join('translations', babel_locale, 'LC_MESSAGES')
     pod_po_path = os.path.join(pod_translations_dir, 'messages.po')
-    _mkdir(pod_translations_dir)
-    shutil.copyfile(po_path, pod_po_path)
-    self.pod.logger.info('Imported: {}'.format(locale))
+    if self.pod.file_exists(pod_po_path):
+      existing_po_file = self.pod.open_file(pod_po_path)
+      existing_catalog = pofile.read_po(existing_po_file, babel_locale)
+      po_file_to_merge = open(po_path)
+      catalog_to_merge = pofile.read_po(po_file_to_merge, babel_locale)
+      existing_catalog.update(catalog_to_merge)
+      existing_po_file = self.pod.open_file(pod_po_path, mode='w')
+      pofile.write_po(existing_po_file, catalog_to_merge, width=80)
+      self.pod.logger.info(
+          'Imported {} translations: {}'.format(len(catalog_to_merge), babel_locale))
+    else:
+      abs_po_path = self.pod.abs_path(pod_po_path)
+      abs_po_dir = os.path.dirname(abs_po_path)
+      _mkdir(abs_po_dir)
+      shutil.copyfile(po_path, abs_po_path)
+      self.pod.logger.info('Imported new catalog: {}'.format(babel_locale))

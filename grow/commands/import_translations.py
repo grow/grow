@@ -13,4 +13,6 @@ def import_translations(pod_path, source):
   source = os.path.expanduser(source)
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
+  if not pod.exists():
+    raise click.ClickException('Pod does not exist: {}'.format(pod.root))
   pod.catalogs.import_translations(source)
