@@ -159,8 +159,8 @@ class Catalogs(object):
     utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
 
     # Write to PO template.
-    self.pod.logger.info('Writing {} messages to translation template.'.format(len(catalog_obj)))
     pofile.write_po(template, catalog_obj, width=80,
                     omit_header=True, sort_output=True, sort_by_file=True)
+    self.pod.logger.info('Wrote {} messages to template: {}'.format(len(catalog_obj), template_path))
     template.close()
     return catalog_obj
