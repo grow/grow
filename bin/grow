@@ -15,8 +15,13 @@ if not is_packaged_app():
   base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
   sys.path.extend([base_dir])
 
+# Fixes PyInstaller issue when sys.getsystemencoding is None.
+# https://github.com/mitsuhiko/click/issues/355
+if sys.getfilesystemencoding() is None:
+  sys.getfilesystemencoding = lambda: 'utf-8'
+
 import click
-import werkzeug  # Fixes werkzeug and PyInstaller.
+import werkzeug  # Fixes PyInstaller issue with werkzeug.
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
