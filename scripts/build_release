@@ -19,6 +19,7 @@ if [ -d env ]; then
   zip -r Grow-SDK-${PLATFORM}-${VERSION}.zip grow
   cd ..
   echo "Built: dist/Grow-SDK-${PLATFORM}-${VERSION}.zip"
+  ./dist/grow
 
   deactivate
 else
