@@ -87,6 +87,7 @@ def install(rc_path=None, bin_path=None, force=False):
   alias_comment = '# Added by Grow SDK Installer ({})'.format(datetime.datetime.now())
 
   hai('{yellow}Welcome to the installer for Grow SDK v%s{/yellow}' % version)
+  hai('{yellow}Release notes: {/yellow}https://github.com/grow/pygrow/releases/tag/%s' % version)
   hai('{blue}==>{/blue} {green}This script will install:{/green} %s' % bin_path)
 
   has_alias = False

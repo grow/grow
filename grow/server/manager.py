@@ -78,10 +78,9 @@ def start(pod, host=None, port=None, open_browser=False, debug=False):
   try:
     root_path = pod.get_root_path()
     url = 'http://{}:{}{}'.format(host, port, root_path)
-    print 'Grow SDK (growsdk.org) is in alpha. Thanks for testing and contributing.'
     print 'Pod: '.rjust(20) + pod.root
     print 'Address: '.rjust(20) + url
-    print colorize('Server ready.'.rjust(19), ansi=47) + ' Press ctrl-c to quit.'
+    print colorize('Server ready. '.rjust(20), ansi=47) + 'Press ctrl-c to quit.'
     def start_browser(server_ready_event):
       server_ready_event.wait()
       if open_browser:

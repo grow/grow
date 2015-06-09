@@ -44,10 +44,13 @@ def check_version(auto_update_prompt=False):
   if theirs <= yours:
     return
 
+  url = 'https://github.com/grow/pygrow/releases/tag/{}'.format(theirs)
+
   print ''
-  print '  Please update to the newest version of the SDK. See http://growsdk.org.'
+  print '  Please update to the newest version of the Grow SDK.'
+  print '  See release notes: {}'.format(url)
   print '  Your version: {}, latest version: {}'.format(
-      colorize(yours, ansi=226), colorize(theirs, ansi=226))
+      colorize(yours, ansi=226), colorize(theirs, ansi=82))
   if utils.is_packaged_app() and auto_update_prompt:
     # If the installation was successful, restart the process.
     if (raw_input('Auto update now? [y/N]: ').lower() == 'y'
