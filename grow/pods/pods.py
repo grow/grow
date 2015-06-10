@@ -40,6 +40,7 @@ from .controllers import tags
 from .preprocessors import preprocessors
 from .tests import tests
 from babel import dates as babel_dates
+from grow.common import sdk_utils
 from grow.common import utils
 from grow.deployments import deployments
 import copy
@@ -76,10 +77,9 @@ class BuildError(Error):
 
 class Pod(object):
 
-  def __init__(self, root, changeset=None, storage=storage.auto, env=None):
+  def __init__(self, root, storage=storage.auto, env=None):
     self.storage = storage
     self.root = root if self.storage.is_cloud_storage else os.path.abspath(root)
-    self.changeset = changeset
     self.env = env if env else environment.Env(environment.EnvConfig(host='localhost'))
 
     self.locales = locales.Locales(pod=self)
@@ -88,10 +88,9 @@ class Pod(object):
 
     self.logger = _logger
     self._routes = None
+    sdk_utils.check_sdk_version(self)
 
   def __repr__(self):
-    if self.changeset is not None:
-      return '<Pod: {}@{}>'.format(self.root, self.changeset)
     return '<Pod: {}>'.format(self.root)
 
   def exists(self):
@@ -109,6 +108,10 @@ class Pod(object):
 
   def reset_yaml(self):
     self._parse_yaml.reset()
+
+  @property
+  def grow_version(self):
+    return self.podspec.grow_version
 
   @utils.memoize
   def _parse_yaml(self):
@@ -247,7 +250,6 @@ class Pod(object):
   def to_message(self):
     message = messages.PodMessage()
     message.collections = [collection.to_message() for collection in self.list_collections()]
-    message.changeset = self.changeset
     message.routes = self.routes.to_message()
     return message
 
