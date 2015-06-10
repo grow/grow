@@ -11,7 +11,7 @@ import os
 @click.argument('deployment_name')
 @click.argument('pod_path', default='.')
 @click.option('--build/--nobuild', default=True, is_flag=True,
-              help='Whether to build prior to deployment.')
+              help='Whether to run preprocessors.')
 @click.option('--confirm/--noconfirm', '-c/-f', default=True, is_flag=True,
               help='Whether to confirm prior to deployment.')
 @click.option('--test/--notest', default=True, is_flag=True,

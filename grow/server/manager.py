@@ -45,11 +45,13 @@ class DevServerWSGIRequestHandler(simple_server.WSGIRequestHandler):
     sys.stderr.write('%s %s\n' % (timestring, format % args))
 
 
-def start(pod, host=None, port=None, open_browser=False, debug=False):
+def start(pod, host=None, port=None, open_browser=False, debug=False,
+          preprocess=True):
   observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
-  # Run preprocessors for the first time in a thread.
-  thread = threading.Thread(target=pod.preprocess)
-  thread.start()
+  if preprocess:
+    # Run preprocessors for the first time in a thread.
+    thread = threading.Thread(target=pod.preprocess)
+    thread.start()
 
   try:
     # Create the development server.
