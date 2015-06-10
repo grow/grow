@@ -29,10 +29,14 @@ a = Analysis([
                 'markdown',
                 'markdown.extensions',
                 'pygments.formatters',
+                'pygments.formatters.html',
                 'pygments.lexers',
                 'pygments.lexers.configs',
                 'pygments.lexers.data',
                 'pygments.lexers.php',
+                'pygments.lexers.shell',
+                'pygments.lexers.special',
+                'pygments.lexers.templates',
                 'werkzeug',
                 'werkzeug._internal',
                 'werkzeug.datastructures',
@@ -52,10 +56,7 @@ a = Analysis([
                 'werkzeug.utils',
                 'werkzeug.wrappers',
                 'werkzeug.wsgi',
-             ]
-             + collect_submodules('pygments')
-             + collect_submodules('pygments.formatters')
-             + collect_submodules('pygments.lexers'),
+             ],
              hookspath=None,
              runtime_hooks=None)
 
