@@ -1,9 +1,6 @@
 from grow.pods.preprocessors import base
-from grow.common import utils
 from protorpc import messages
 import os
-import subprocess
-import time
 
 
 class CompilationLevel(messages.Enum):
@@ -48,48 +45,12 @@ class ClosureCompilerPreprocessor(base.BasePreprocessor):
     flagfile = messages.StringField(11)
     third_party = messages.BooleanField(12)
 
-  def build_flags(self):
-    flags = []
-    flags += ['--compilation_level={}'.format(_levels[self.config.compilation_level])]
-    for extern in self.config.externs:
-      flags += ['--externs={}'.format(self.normalize_path(extern))]
-    for js_file in self.config.js:
-      flags += ['--js=\'{}\''.format(self.normalize_path(js_file))]
-    for entry_point in self.normalize_multi(self.config.closure_entry_point):
-      flags += ['--closure_entry_point={}'.format(entry_point)]
-    if self.config.output_wrapper:
-      flags += ['--output_wrapper={}'.format(self.config.output_wrapper)]
-    if self.config.manage_closure_dependencies:
-      flags += ['--manage_closure_dependencies']
-    if self.config.only_closure_dependencies:
-      flags += ['--only_closure_dependencies']
-    if self.config.generate_exports:
-      flags += ['--generate_exports']
-    if self.config.angular_pass:
-      flags += ['--angular_pass']
-    if self.config.third_party:
-      flags += ['--third_party']
-    if self.config.flagfile:
-      flags += ['--flagfile=\'{}\''.format(self.config.flagfile)]
-    return flags
-
-  def _compile(self):
-    jar = os.path.join(utils.get_grow_dir(), 'pods', 'preprocessors', 'closure_lib',
-                       'compiler.jar')
-    command = ['java', '-jar', jar] + self.build_flags()
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    err = proc.stderr.read()
-    if err:
-      raise base.PreprocessorError(err)
-    else:
-      return proc.stdout.read()
-
   def run(self):
-    js_output_file = self.normalize_path(self.config.js_output_file)
-    self.logger.info('Compiling: {}'.format(js_output_file))
-    output = self._compile()
-    self.pod.storage.write(js_output_file, output)
-    self.logger.info('Compiled: {}'.format(js_output_file))
+    message = (
+        'The built-in Closure Compiler preprocessor has been deprecated.\n'
+        'You must invoke the compiler using compiler.jar, such as through gulp or grunt.\n'
+        'See: https://github.com/grow/pygrow/issues/77')
+    raise base.PreprocessorError(message)
 
   def list_watched_dirs(self):
     dirs = set()

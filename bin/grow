@@ -1,10 +1,8 @@
 #! /usr/bin/env python
 
-import click
 import logging
 import os
 import sys
-import werkzeug  # Fixes werkzeug and PyInstaller.
 
 def is_packaged_app():
   try:
@@ -16,6 +14,14 @@ def is_packaged_app():
 if not is_packaged_app():
   base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
   sys.path.extend([base_dir])
+
+# Fixes PyInstaller issue when sys.getsystemencoding is None.
+# https://github.com/mitsuhiko/click/issues/355
+if sys.getfilesystemencoding() is None:
+  sys.getfilesystemencoding = lambda: 'utf-8'
+
+import click
+import werkzeug  # Fixes PyInstaller issue with werkzeug.
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
@@ -32,7 +38,7 @@ from grow import commands
 
 @click.group()
 def grow():
-  """The Grow SDK: a declarative, file-based CMS for building high-quality web sites.
+  """Grow SDK: a declarative, file-based CMS for building high-quality web sites.
   See documentation at: http://growsdk.org."""
 
 

@@ -10,12 +10,15 @@ import os
 @click.command()
 @click.argument('pod_path', default='.')
 @click.option('--out_dir', help='Where to output built files.')
-def build(pod_path, out_dir):
+@click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
+              help='Whether to run preprocessors.')
+def build(pod_path, out_dir, preprocess):
   """Generates static files and dumps them to a local destination."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   out_dir = out_dir or os.path.join(root, 'build')
   pod = pods.Pod(root, storage=storage.FileStorage)
-  pod.preprocess()
+  if preprocess:
+    pod.preprocess()
   try:
     config = local_destination.Config(out_dir=out_dir)
     destination = local_destination.LocalDestination(config)

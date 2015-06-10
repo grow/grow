@@ -13,9 +13,11 @@ def machine_translate(pod_path, locale):
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
   pod.catalogs.extract()
-  for locale in locale:
-    catalog = pod.catalogs.get(locale)
+  for identifier in locale:
+    catalog = pod.catalogs.get(identifier)
     catalog.update()
     catalog.machine_translate()
-  print colorize('WARNING! Use machine translations with caution.', ansi=197)
-  print colorize('Machine translations are not intended for use in production.', ansi=197)
+  pod.logger.info(colorize(
+      'WARNING! Use machine translations with caution.', ansi=197))
+  pod.logger.info(colorize(
+      'Machine translations are not intended for use in production.', ansi=197))

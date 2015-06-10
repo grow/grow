@@ -7,6 +7,7 @@ class Podspec(object):
   def __init__(self, yaml):
     self.yaml = yaml
     self.flags = yaml.get('flags', {})
+    self.grow_version = yaml.get('grow_version')
     self.root_path = self.flags.get('root_path', '').lstrip('/').rstrip('/')
     self.default_locale = locales.Locale.parse(yaml.get('localization', {}).get('default_locale', None))
     self.fields = yaml
