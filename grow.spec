@@ -1,5 +1,7 @@
 # -*- mode: python -*-
 
+from PyInstaller.hooks.hookutils import collect_submodules
+
 a = Analysis([
                 'bin/grow',
              ],
@@ -26,6 +28,11 @@ a = Analysis([
                 'keyring.util.escape',
                 'markdown',
                 'markdown.extensions',
+                'pygments.formatters',
+                'pygments.lexers',
+                'pygments.lexers.configs',
+                'pygments.lexers.data',
+                'pygments.lexers.php',
                 'werkzeug',
                 'werkzeug._internal',
                 'werkzeug.datastructures',
@@ -45,7 +52,10 @@ a = Analysis([
                 'werkzeug.utils',
                 'werkzeug.wrappers',
                 'werkzeug.wsgi',
-             ],
+             ]
+             + collect_submodules('pygments')
+             + collect_submodules('pygments.formatters')
+             + collect_submodules('pygments.lexers'),
              hookspath=None,
              runtime_hooks=None)
 
