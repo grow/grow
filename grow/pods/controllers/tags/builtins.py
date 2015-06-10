@@ -7,8 +7,6 @@ import csv as csv_lib
 import itertools
 import jinja2
 import json
-import locale
-import logging
 import markdown
 import re
 
@@ -180,20 +178,10 @@ def yaml(path, _doc, _pod):
 
 def date(datetime_obj=None, _pod=None, **kwargs):
   _from = kwargs.get('from', None)
-  to = kwargs.get('to', None)
-  to_locale = kwargs.get('to_locale', None)
   if datetime_obj is None:
     datetime_obj = datetime.now()
   elif isinstance(datetime_obj, basestring) and _from is not None:
     datetime_obj = datetime.strptime(datetime_obj, _from)
-  if to_locale is not None:
-    try:
-      to = locale.nl_langinfo(locale.D_FMT)
-    except locale.Error:
-      logging.error('Bad locale: %s', to_locale)
-  if to is not None:
-    datetime_obj = datetime_obj.strftime(to)
-    datetime_obj = datetime_obj.decode('utf-8')
   return datetime_obj
 
 

@@ -35,10 +35,11 @@ from . import routes
 from . import storage
 from .catalogs import catalog_holder
 from .collectionz import collectionz
-from .controllers import tags
 from .controllers import jinja2htmlcompress
+from .controllers import tags
 from .preprocessors import preprocessors
 from .tests import tests
+from babel import dates as babel_dates
 from grow.common import utils
 from grow.deployments import deployments
 import copy
@@ -321,11 +322,14 @@ class Pod(object):
     if self.podspec.flags.get('compress_html'):
       kwargs['extensions'].append(jinja2htmlcompress.HTMLCompress)
     env = jinja2.Environment(**kwargs)
+    env.filters['date'] = babel_dates.format_date
+    env.filters['datetime'] = babel_dates.format_datetime
     env.filters['deeptrans'] = tags.deeptrans
     env.filters['jsonify'] = tags.jsonify
     env.filters['markdown'] = tags.markdown_filter
     env.filters['render'] = tags.render_filter
     env.filters['slug'] = tags.slug_filter
+    env.filters['time'] = babel_dates.format_time
     return env
 
   def get_root_path(self, locale=None):
