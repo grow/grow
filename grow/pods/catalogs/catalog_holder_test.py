@@ -27,14 +27,19 @@ class CatalogsTest(unittest.TestCase):
     for string in expected:
       self.assertIn(string, template_catalog)
 
+  def test_iter(self):
+    locales = self.pod.catalogs.list_locales()
+    for catalog in self.pod.catalogs:
+      self.assertIn(str(catalog.locale), locales)
+
   def test_get(self):
-    de_catalog = self.pod.catalogs.get('de')
+    self.pod.catalogs.get('de')
 
   def test_compile(self):
     self.pod.catalogs.compile()
 
   def test_to_message(self):
-    message = self.pod.catalogs.to_message()
+    self.pod.catalogs.to_message()
 
 #  TODO: Fix, since this currently affects testdata.
 #  def test_init(self):

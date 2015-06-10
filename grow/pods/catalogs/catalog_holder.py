@@ -4,6 +4,7 @@ from babel.messages import extract
 from babel.messages import pofile
 from grow.common import utils
 from grow.pods import messages
+import collections
 import os
 import tokenize
 
@@ -43,6 +44,10 @@ class Catalogs(object):
       if len(parts) > 2:
         locales.add(parts[1])
     return list(locales)
+
+  def __iter__(self):
+    for locale in self.list_locales():
+      yield self.get(locale)
 
   def compile(self):
     locales = self.list_locales()
@@ -161,6 +166,16 @@ class Catalogs(object):
     # Write to PO template.
     pofile.write_po(template, catalog_obj, width=80,
                     omit_header=True, sort_output=True, sort_by_file=True)
-    self.pod.logger.info('Wrote {} messages to template: {}'.format(len(catalog_obj), template_path))
+    self.pod.logger.info(
+        'Wrote {} messages to template: {}'.format(len(catalog_obj), template_path))
     template.close()
     return catalog_obj
+
+  def get_missing_translations(self, locales=None):
+    """Returns a mapping of message IDs to locales."""
+    strings_to_locales = collections.defaultdict(list)
+    for catalog in self:
+      for message in catalog:
+        if not message.string:
+          strings_to_locales[message.id].append(catalog.locale)
+    return strings_to_locales
