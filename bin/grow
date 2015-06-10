@@ -38,7 +38,7 @@ from grow import commands
 
 @click.group()
 def grow():
-  """The Grow SDK: a declarative, file-based CMS for building high-quality web sites.
+  """Grow SDK: a declarative, file-based CMS for building high-quality web sites.
   See documentation at: http://growsdk.org."""
 
 
