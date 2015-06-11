@@ -73,15 +73,18 @@ def get_crypto_path():
   crypto_path = Crypto.__path__[0]
   return crypto_path
 
-def get_qt4_path():
-  import PyQt4
-  qt4_path = PyQt4.__path__[0]
-  return qt4_path
-
 dict_tree = Tree(get_crypto_path(), prefix='Crypto', excludes=["*.pyc"])
 a.datas += dict_tree
-dict_tree = Tree(get_qt4_path(), prefix='PyQt4', excludes=["*.pyc"])
-a.datas += dict_tree
+
+try:
+  def get_qt4_path():
+    import PyQt4
+    qt4_path = PyQt4.__path__[0]
+    return qt4_path
+  dict_tree = Tree(get_qt4_path(), prefix='PyQt4', excludes=["*.pyc"])
+  a.datas += dict_tree
+except ImportError:
+  pass
 
 pyz = PYZ(a.pure,
           name='growsdk')
