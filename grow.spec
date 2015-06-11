@@ -10,10 +10,11 @@ a = Analysis([
                 './env/lib/python2.7/site-packages/',
              ],
              hiddenimports=[
+		'PIL.Imaging',
+		'PyQt4.QtCore',
                 'babel.numbers',
                 'babel.plural',
                 'keyring',
-                'keyring.credentials',
                 'keyring.backends.Gnome',
                 'keyring.backends.Google',
                 'keyring.backends.OS_X',
@@ -24,6 +25,7 @@ a = Analysis([
                 'keyring.backends.kwallet',
                 'keyring.backends.multi',
                 'keyring.backends.pyfs',
+                'keyring.credentials',
                 'keyring.util.XDG',
                 'keyring.util.escape',
                 'markdown',
@@ -71,7 +73,14 @@ def get_crypto_path():
   crypto_path = Crypto.__path__[0]
   return crypto_path
 
+def get_qt4_path():
+  import PyQt4
+  qt4_path = PyQt4.__path__[0]
+  return qt4_path
+
 dict_tree = Tree(get_crypto_path(), prefix='Crypto', excludes=["*.pyc"])
+a.datas += dict_tree
+dict_tree = Tree(get_qt4_path(), prefix='PyQt4', excludes=["*.pyc"])
 a.datas += dict_tree
 
 pyz = PYZ(a.pure,
