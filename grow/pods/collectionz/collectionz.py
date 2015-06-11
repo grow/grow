@@ -89,7 +89,10 @@ class Collection(object):
   @property
   @utils.memoize
   def yaml(self):
-    return utils.parse_yaml(self.pod.read_file(self._blueprint_path))
+    result = utils.parse_yaml(self.pod.read_file(self._blueprint_path))
+    if result is None:
+      return {}
+    return result
 
   def list_categories(self):
     return self.yaml.get('categories')
