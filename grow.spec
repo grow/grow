@@ -66,6 +66,14 @@ a.datas += [
     ('data/cacerts.txt', 'grow/data/cacerts.txt', 'DATA'),
 ]
 
+def get_crypto_path():
+  import Crypto
+  crypto_path = Crypto.__path__[0]
+  return crypto_path
+
+dict_tree = Tree(get_crypto_path(), prefix='Crypto', excludes=["*.pyc"])
+a.datas += dict_tree
+
 pyz = PYZ(a.pure,
           name='growsdk')
 
