@@ -22,19 +22,20 @@ import os
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
                    ' only applicable when using --missing.')
-@click.option('-o', type=str, default='messages.pot',
-              help='Where to write the extracted translation catalog.')
+@click.option('-o', type=str, default='/translations/messages.pot',
+              help='Where to write the extracted translation catalog. The path'
+                   ' must be relative to the pod\'s root.')
 def extract(pod_path, init, update, missing, locale, o):
   """Extracts tagged messages from source files into a template catalog."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
-  pod.catalogs.extract()
+  pod.catalogs.extract(template_path=o)
   if init:
     locales = pod.list_locales()
     pod.logger.info('Initializing {} empty translation catalogs.'.format(len(locales)))
-    pod.catalogs.init(locales)
+    pod.catalogs.init(locales=locales, template_path=o)
     return
   if update:
     locales = pod.catalogs.list_locales()
     pod.logger.info('Updating {} catalogs with extracted messages.'.format(len(locales)))
-    pod.catalogs.update(locales)
+    pod.catalogs.update(locales=locales, template_path=o)
