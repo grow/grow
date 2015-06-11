@@ -66,23 +66,29 @@ class Catalogs(object):
       message.catalogs.append(catalog.to_message())
     return message
 
-  def init(self, locales):
+  def init(self, locales, template_path=None):
+    template_path = self._normalize_template_path(template_path)
     for locale in locales:
       catalog = self.get(locale)
-      catalog.init()
+      catalog.init(template_path=template_path)
 
-  def update(self, locales):
+  def update(self, locales, template_path=None):
+    template_path = self._normalize_template_path(template_path)
     for locale in locales:
       catalog = self.get(locale)
-      catalog.update()
+      catalog.update(template_path=template_path)
 
   def import_translations(self, path):
     importer = importers.Importer(self.pod)
     importer.import_path(path)
 
-  def extract(self):
-    # Create directory if it doesn't exist. TODO(jeremydw): Optimize this.
-    template_path = os.path.join(Catalogs.root, 'messages.pot')
+  def _normalize_template_path(self, template_path):
+    if template_path is None:
+      return os.path.join(Catalogs.root, 'messages.pot')
+    return self.pod.abs_path(template_path)
+
+  def extract(self, template_path=None):
+    template_path = self._normalize_template_path(template_path)
     if not self.pod.file_exists(template_path):
       self.pod.create_file(template_path, None)
       existing = False

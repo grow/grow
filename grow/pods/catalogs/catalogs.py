@@ -13,17 +13,24 @@ import re
 
 
 class Catalog(catalog.Catalog):
+  root = '/translations'
 
-  def __init__(self, pod, locale):
+  def __init__(self, pod, locale, pod_path=None):
     self.pod = pod
     self.locale = locale
-    self.path = os.path.join('translations', str(self.locale))
+    if pod_path is None:
+      self.path = os.path.join('translations', str(self.locale))
     super(Catalog, self).__init__(locale=self.locale)
     if self.exists:
       self.load()
 
   def __repr__(self):
     return '<Catalog: {}>'.format(self.path)
+
+  def _normalize_template_path(self, template_path):
+    if template_path is None:
+      return os.path.join(Catalog.root, 'messages.pot')
+    return self.pod.abs_path(template_path)
 
   def load(self, path=None):
     if path is None:
@@ -98,20 +105,22 @@ class Catalog(catalog.Catalog):
     finally:
       outfile.close()
 
-  def init(self):
-    self.load(os.path.join('translations', 'messages.pot'))
+  def init(self, template_path=None):
+    template_path = self._normalize_template_path(template_path)
+    self.load(template_path)
     self.revision_date = datetime.now(util.LOCALTZ)
     self.fuzzy = False
     self.save()
 
   def update(self, use_fuzzy=False, ignore_obsolete=True, include_previous=True,
-             width=80):
+             width=80, template_path=None):
     if not self.exists:
       self.init()
       return
 
     # Updates with new extracted messages from the template.
-    template_file = self.pod.open_file(os.path.join('translations', 'messages.pot'))
+    template_path = self._normalize_template_path(template_path)
+    template_file = self.pod.open_file(template_path)
     template = pofile.read_po(template_file)
     super(Catalog, self).update(template, use_fuzzy)
 

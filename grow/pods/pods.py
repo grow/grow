@@ -194,6 +194,9 @@ class Pod(object):
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path, locale=locale)
 
+  def get_catalogs(self, template_path=None):
+    pass
+
   def get_collection(self, collection_path):
     """Returns a collection.
 
@@ -249,7 +252,8 @@ class Pod(object):
 
   def to_message(self):
     message = messages.PodMessage()
-    message.collections = [collection.to_message() for collection in self.list_collections()]
+    message.collections = [collection.to_message()
+                           for collection in self.list_collections()]
     message.routes = self.routes.to_message()
     return message
 
