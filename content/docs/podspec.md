@@ -9,12 +9,9 @@ $order: 1
 
 Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains flags and a few definitions that specify various behavior and properties of your site, such as URLs, the version of the Grow SDK compatible with the pod, and localization information.
 
-** denotes a required field.*
-
 ## podspec.yaml
 
-    project: <project owner>/<project nickname>
-    grow_version: 0.0.1
+    grow_version: ">=0.0.1"
     title: Project title.
     description: Project description.
 
@@ -51,7 +48,7 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
         destination: local
         out_dir: grow-codelab-build/
 
-### project*
+### project
 
 A unique identifier for this pod, formatted by `<owner's nickname>/<pod's nickname>`. The project ID is primarily used to identify your pod at a launch destination. Destinations may implement features such as access control or deploy hooks using the project ID. Two different pods on the same server cannot have the same project ID.
 
@@ -59,13 +56,15 @@ If you deploy a pod, subsequent deployments will use the pod's project ID to sto
 
     project: john/example
 
-### grow_version*
+### grow_version
 
-The version of the Grow SDK that works with this pod. Allows decentralized instances of Grow to identify compatibility.
+The version of the Grow SDK that works with this pod. Grow displays a warning if the version of the SDK does not match this specification in `podspec.yaml`.
 
 Grow uses [semantic versioning](http://semver.org/) which helps you know which versions of the Grow SDK will work with your pod. If your pod works with `1.2.3`, it will work at least up to `2.0.0`. Major versions (such as `2.x.x` from `1.x.x`) may introduce breaking changes when used with pods made for an older SDK version.
 
-    grow_version: 0.0.1
+This value must be a semantic version *specification*.
+
+    grow_version: ">=0.0.1"       # At least SDK version 0.0.1.
 
 ### flags
 
