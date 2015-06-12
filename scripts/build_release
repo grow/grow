@@ -2,23 +2,23 @@
 
 if [ -d env ]; then
   source env/bin/activate
-
   rm -rf build
-  VERSION=`cat grow/VERSION`
+
   case "`uname`" in
     "Darwin")
-      PLATFORM="Mac"
-      ;;
+      PLATFORM="Mac";;
     *)
-      PLATFORM="`uname`"
-      ;;
+      PLATFORM="`uname`";;
   esac
+  VERSION=`cat grow/VERSION`
+  FILENAME="Grow-SDK-${PLATFORM}-${VERSION}.zip"
+
   pyinstaller grow.spec
   chmod +x dist/grow
   cd dist
-  zip -r Grow-SDK-${PLATFORM}-${VERSION}.zip grow
+  zip -r FILENAME grow
   cd ..
-  echo "Built: dist/Grow-SDK-${PLATFORM}-${VERSION}.zip"
+  echo "Built: dist/${FILENAME}"
   ./dist/grow
 
   deactivate
