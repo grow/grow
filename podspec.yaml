@@ -1,5 +1,4 @@
-grow_version: 0.0.32
-project: grow/growsdk.org
+grow_version: ">=0.0.32"
 title: Grow SDK
 
 localization:
