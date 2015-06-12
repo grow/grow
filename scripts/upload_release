@@ -23,12 +23,17 @@ if [ -d env ]; then
   USER='grow'
   REPO='pygrow'
 
-  github-release --version > /dev/null || {
+  go version > /dev/null || {
     sudo apt-get install golang
-    export GOPATH=$HOME/go/
+  }
+  github-release > /dev/null || {
     go get github.com/aktau/github-release
   }
 
+  if [ -z "$GOPATH" ]; then
+    export GOPATH=$HOME/go/
+    export PATH=$HOME/go/bin/:$PATH
+  fi
   if github-release info -u $USER -r $REPO -t $VERSION ; then
     echo 'Using existing release.'
   else
