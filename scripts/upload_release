@@ -8,6 +8,7 @@ if [ -d env ]; then
     exit 1
   fi
 
+  git pull origin master
   ./scripts/test
   ./scripts/build_release
 
