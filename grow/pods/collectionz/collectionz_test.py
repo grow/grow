@@ -53,6 +53,13 @@ class CollectionsTestCase(unittest.TestCase):
     self.assertEqual('# Markdown', doc.body)
     self.assertEqual('<h1 id="markdown">Markdown</h1>', doc.html)
 
+  def test_empty_front_matter(self):
+    collection = self.pod.get_collection('empty-front-matter')
+    docs = collection.search_docs()
+    path = '/content/empty-front-matter/empty-front-matter.html'
+    expected_doc = self.pod.get_doc(path)
+    self.assertEqual(expected_doc, docs[0])
+
 
 if __name__ == '__main__':
   unittest.main()

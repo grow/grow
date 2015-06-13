@@ -93,6 +93,11 @@ class Pod(object):
   def __repr__(self):
     return '<Pod: {}>'.format(self.root)
 
+  def __cmp__(self, other):
+    return (isinstance(self, Pod)
+            and isinstance(other, Pod)
+            and self.root == other.root)
+
   def exists(self):
     return self.file_exists('/podspec.yaml')
 
