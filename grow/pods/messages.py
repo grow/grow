@@ -42,15 +42,9 @@ class FileMessage(messages.Message):
 
 
 class PodMessage(messages.Message):
-  changeset = messages.StringField(1)
   collections = messages.MessageField(collection_messages.CollectionMessage, 2, repeated=True)
   files = messages.MessageField(FileMessage, 3, repeated=True)
   routes = messages.MessageField(RoutesMessage, 4)
-
-
-class FileTransferMessage(messages.Message):
-  pod_path = messages.StringField(1)
-  content_b64 = messages.StringField(2)
 
 
 class FileSearchMessage(messages.Message):
