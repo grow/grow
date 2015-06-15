@@ -113,12 +113,6 @@ Deploys a build to a local destination on your computer.
 [sourcecode:yaml]
 destination: local
 out_dir: /path/to/out/directory/
-before_deploy:
-- <shell command>
-- <shell command>
-after_deploy:
-- <shell command>
-- <shell command>
 [/sourcecode]
 
 ### SCP
@@ -151,3 +145,15 @@ root_dir: <optional base path within the repository>
 <div class="badge badge-docs-incomplete">Documentation incomplete</div>
 
 The deployment index is a record of deployment for each pod. The deployment index records the current state of the deployed site, which files exist, when they were deployed, and who performed the deployment. The deployment index is deployed along with generated files with each launch and used to display a diff before each deployment.
+
+## Environment
+
+Deployments can specify environment parameters – for access in the `{{env}}` context variable. Use `{{env}}` to customize template behavior based on the deployment.
+
+[sourcecode:yaml]
+env:
+  name: prod
+  host: exmaple.com
+  por: 80
+  scheme: https
+[/sourcecode]
