@@ -1,7 +1,8 @@
-from grow.pods.preprocessors import translation
 from grow.pods.preprocessors import routes_cache
+from grow.pods.preprocessors import translation
 from watchdog import events
 from watchdog import observers
+from xtermcolor import colorize
 
 
 class PodspecFileEventHandler(events.PatternMatchingEventHandler):
@@ -35,10 +36,16 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
   def handle(self, event=None):
     if event is not None and event.is_directory:
       return
-    if self.num_runs == 0:
-      self.preprocessor.first_run()
-    else:
-      self.preprocessor.run()
+    try:
+      if self.num_runs == 0:
+        self.preprocessor.first_run()
+      else:
+        self.preprocessor.run()
+    except Exception:
+      # Avoid an inconsistent state where preprocessor doesn't run again
+      # if it encounters an exception. https://github.com/grow/pygrow/issues/81
+      text = colorize('Preprocessor error.', ansi=197)
+      self.preprocessor.pod.logger.exception(text)
     self.num_runs += 1
 
   def on_created(self, event):
