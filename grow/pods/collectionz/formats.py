@@ -103,17 +103,17 @@ class HtmlFormat(YamlFormat):
     self.body = self.body.strip() if self.body is not None else None
     self.fields = fields
 
+  def load(self):
+    if not self.has_front_matter:
+      self.fields = {}
+      self.body = self.content
+      return
+    self._handle_pairs_of_parts_and_bodies()
+
   @property
   def html(self):
     if self.body is not None:
       return self.body.decode('utf-8')
-
-  def load(self):
-    if not self.has_front_matter:
-      self.fields = yaml.load(self.content)
-      self.body = self.content
-      return
-    self._handle_pairs_of_parts_and_bodies()
 
 
 class MarkdownFormat(HtmlFormat):

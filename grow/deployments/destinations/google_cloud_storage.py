@@ -14,8 +14,6 @@ import mimetypes
 import os
 import webapp2
 
-_certs_path = os.path.join(utils.get_grow_dir(), 'deployments', 'data', 'cacerts.txt')
-
 
 class TestCase(base.DestinationTestCase):
 
@@ -81,7 +79,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
       # Always use our internal cacerts.txt file. This fixes an issue with the
       # PyInstaller-based frozen distribution, while allowing us to continue to
       # verify certificates and use a secure connection.
-      gs_connection.ca_certificates_file = _certs_path
+      gs_connection.ca_certificates_file = utils.get_cacerts_path()
     else:
       gs_connection = storage.get_connection(
           self.config.project, self.config.email, self.config.key_path)

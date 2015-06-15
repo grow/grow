@@ -10,7 +10,7 @@ import werkzeug
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
 _env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True,
-                          extensions=['jinja2.ext.i18n', 'jinja2.ext.with_'])
+                          extensions=['jinja2.ext.i18n'])
 
 
 class BaseHandler(webapp2.RequestHandler):

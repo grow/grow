@@ -1,5 +1,7 @@
 # -*- mode: python -*-
 
+from PyInstaller.hooks.hookutils import collect_submodules
+
 a = Analysis([
                 'bin/grow',
              ],
@@ -8,10 +10,11 @@ a = Analysis([
                 './env/lib/python2.7/site-packages/',
              ],
              hiddenimports=[
+		'PIL.Imaging',
+		'PyQt4.QtCore',
                 'babel.numbers',
                 'babel.plural',
                 'keyring',
-                'keyring.credentials',
                 'keyring.backends.Gnome',
                 'keyring.backends.Google',
                 'keyring.backends.OS_X',
@@ -22,10 +25,20 @@ a = Analysis([
                 'keyring.backends.kwallet',
                 'keyring.backends.multi',
                 'keyring.backends.pyfs',
+                'keyring.credentials',
                 'keyring.util.XDG',
                 'keyring.util.escape',
                 'markdown',
                 'markdown.extensions',
+                'pygments.formatters',
+                'pygments.formatters.html',
+                'pygments.lexers',
+                'pygments.lexers.configs',
+                'pygments.lexers.data',
+                'pygments.lexers.php',
+                'pygments.lexers.shell',
+                'pygments.lexers.special',
+                'pygments.lexers.templates',
                 'werkzeug',
                 'werkzeug._internal',
                 'werkzeug.datastructures',
@@ -52,8 +65,26 @@ a = Analysis([
 a.datas += [
     ('VERSION', 'grow/VERSION', 'DATA'),
     ('server/templates/error.html', 'grow/server/templates/error.html', 'DATA'),
-    ('deployments/data/cacerts.txt', 'grow/deployments/data/cacerts.txt', 'DATA'),
+    ('data/cacerts.txt', 'grow/data/cacerts.txt', 'DATA'),
 ]
+
+def get_crypto_path():
+  import Crypto
+  crypto_path = Crypto.__path__[0]
+  return crypto_path
+
+dict_tree = Tree(get_crypto_path(), prefix='Crypto', excludes=["*.pyc"])
+a.datas += dict_tree
+
+try:
+  def get_qt4_path():
+    import PyQt4
+    qt4_path = PyQt4.__path__[0]
+    return qt4_path
+  dict_tree = Tree(get_qt4_path(), prefix='PyQt4', excludes=["*.pyc"])
+  a.datas += dict_tree
+except ImportError:
+  pass
 
 pyz = PYZ(a.pure,
           name='growsdk')

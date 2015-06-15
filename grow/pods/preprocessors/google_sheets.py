@@ -1,5 +1,6 @@
 from googleapiclient import discovery
 from googleapiclient import errors
+from grow.common import utils
 from grow.pods.preprocessors import base
 from oauth2client import client
 from oauth2client import keyring_storage
@@ -41,7 +42,7 @@ class GoogleSheetsPreprocessor(base.BasePreprocessor):
 
   def download(self, path, sheet_id, sheet_gid):
     credentials = self._get_credentials()
-    http = httplib2.Http()
+    http = httplib2.Http(ca_certs=utils.get_cacerts_path())
     http = credentials.authorize(http)
     service = discovery.build('drive', 'v2', http=http)
     resp = service.files().get(fileId=sheet_id).execute()

@@ -29,6 +29,10 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 import json
 sys.modules['simplejson'] = json
 
+# Fixes issue with httplib2 and cacerts and PyInstaller.
+from grow.common import ca_certs_locater
+sys.modules['ca_certs_locater'] = ca_certs_locater
+
 # Fixes sys.getfilesystemencoding() and PyInstaller.
 from watchdog.utils import unicode_paths
 unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
@@ -38,7 +42,7 @@ from grow import commands
 
 @click.group()
 def grow():
-  """The Grow SDK: a declarative, file-based CMS for building high-quality web sites.
+  """Grow SDK: a declarative, file-based CMS for building high-quality web sites.
   See documentation at: http://growsdk.org."""
 
 
