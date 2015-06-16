@@ -199,6 +199,9 @@ class Pod(object):
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path, locale=locale)
 
+  def get_catalogs(self, template_path=None):
+    return catalog_holder.Catalogs(pod=self)
+
   def get_collection(self, collection_path):
     """Returns a collection.
 
