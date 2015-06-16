@@ -1,12 +1,14 @@
 from grow.pods import pods
 from grow.pods import storage
+from grow.testing import testing
 import unittest
 
 
 class CatalogTest(unittest.TestCase):
 
   def setUp(self):
-    self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
+    dir_path = testing.create_test_pod_dir()
+    self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
   def test_to_message(self):
     de_catalog = self.pod.catalogs.get('de')
@@ -16,10 +18,9 @@ class CatalogTest(unittest.TestCase):
     de_catalog = self.pod.catalogs.get('de')
     de_catalog.gettext_translations
 
-#  TODO: Fix, since this currently affects testdata.
-#  def test_init(self):
-#    de_catalog = self.pod.catalogs.get('de')
-#    de_catalog.init()
+  def test_init(self):
+    de_catalog = self.pod.catalogs.get('de')
+    de_catalog.init('translations/messages.pot')
 
   def test_update(self):
     de_catalog = self.pod.catalogs.get('de')
