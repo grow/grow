@@ -51,6 +51,7 @@ def extract(pod_path, init, update, missing, locale, o):
 
 
 def _validate_locales(valid_locales, locales):
+  valid_locales = sorted(valid_locales)
   for each in locales:
     if each not in valid_locales:
       text = '{} is not a valid translation catalog locale. Valid locales are: {}'
