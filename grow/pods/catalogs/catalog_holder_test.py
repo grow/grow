@@ -35,6 +35,13 @@ class CatalogsTest(unittest.TestCase):
   def test_get(self):
     self.pod.catalogs.get('de')
 
+  def test_get_template(self):
+    template = self.pod.catalogs.get_template()
+    self.assertTrue(template.exists)
+    template = self.pod.catalogs.get_template('messages.test.pot')
+    self.assertFalse(template.exists)
+    self.assertEqual(0, len(template))
+
   def test_compile(self):
     self.pod.catalogs.compile()
 

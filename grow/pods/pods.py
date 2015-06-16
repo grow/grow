@@ -83,8 +83,8 @@ class Pod(object):
     self.env = env if env else environment.Env(environment.EnvConfig(host='localhost'))
 
     self.locales = locales.Locales(pod=self)
-    self.catalogs = catalog_holder.Catalogs(pod=self)
     self.tests = tests.Tests(pod=self)
+    self.catalogs = catalog_holder.Catalogs(pod=self)
 
     self.logger = _logger
     self._routes = None
@@ -198,9 +198,6 @@ class Pod(object):
     collection_path, _ = os.path.split(pod_path)
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path, locale=locale)
-
-  def get_catalogs(self, template_path=None):
-    pass
 
   def get_collection(self, collection_path):
     """Returns a collection.
