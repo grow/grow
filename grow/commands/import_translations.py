@@ -13,6 +13,12 @@ import os
                    ' only applicable when --source is a .po file.')
 def import_translations(pod_path, source, locale):
   """Imports translations from an external source."""
+  if source.endswith('.po') and locale is None:
+    text = 'Must specify --locale when --source is a .po file.'
+    raise click.ClickException(text)
+  if not source.endswith('.po') and locale is not None:
+    text = 'Cannot specify --locale when --source is not a .po file.'
+    raise click.ClickException(text)
   source = os.path.expanduser(source)
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)

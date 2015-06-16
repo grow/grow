@@ -12,13 +12,23 @@ class CatalogsTest(unittest.TestCase):
     self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
     self.pod.catalogs.compile()
 
-  def test_import_path(self):
+  def test_import_path_with_po_file(self):
     de_catalog = self.pod.catalogs.get('de')
     self.assertNotIn('German Translation', de_catalog)
 
     path = testing.get_testdata_dir()
     po_path_to_import = os.path.join(path, 'external', 'messages.de.po')
     self.pod.catalogs.import_translations(po_path_to_import, locale='de')
+    de_catalog = self.pod.catalogs.get('de')
+    self.assertIn('German Translation', de_catalog)
+
+  def test_import_path_with_zip_file(self):
+    de_catalog = self.pod.catalogs.get('de')
+    self.assertNotIn('German Translation', de_catalog)
+
+    path = testing.get_testdata_dir()
+    po_path_to_import = os.path.join(path, 'external', 'messages.de.zip')
+    self.pod.catalogs.import_translations(po_path_to_import)
     de_catalog = self.pod.catalogs.get('de')
     self.assertIn('German Translation', de_catalog)
 

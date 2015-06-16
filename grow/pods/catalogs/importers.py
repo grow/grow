@@ -71,9 +71,11 @@ class Importer(object):
       if locale.startswith('.') or os.path.isfile(locale_dir):
         continue
       for basename in os.listdir(locale_dir):
+        po_path = os.path.join(locale_dir, basename)
         if basename.endswith('.po'):
-          po_path = os.path.join(locale_dir, basename)
           self.import_file(locale, po_path)
+        else:
+          self.pod.logger.warning('Skipping: {}'.format(po_path))
 
   def import_file(self, locale, po_path):
     if locale is None:
