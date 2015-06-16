@@ -57,9 +57,6 @@ class CatalogsTest(unittest.TestCase):
   def test_update(self):
     self.pod.catalogs.update(['de'])
 
-  def test_get_template(self):
-    self.pod.catalogs.get_template()
-
 
 if __name__ == '__main__':
   unittest.main()

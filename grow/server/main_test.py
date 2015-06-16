@@ -1,7 +1,6 @@
 from grow.pods import pods
 from grow.server import main
-from grow.server import handlers
-import os
+from grow.testing import testing
 import unittest
 import webapp2
 
@@ -9,8 +8,8 @@ import webapp2
 class PodHandlerTestCase(unittest.TestCase):
 
   def test_request(self):
-    root = os.path.join(os.path.dirname(__file__), '..', 'pods', 'testdata', 'pod')
-    pod = pods.Pod(root)
+    self.dir_path = testing.create_test_pod_dir()
+    pod = pods.Pod(self.dir_path)
 
     # Verify application errors when no pod root is set.
     app = main.CreateWSGIApplication()

@@ -70,11 +70,11 @@ class Catalogs(object):
       catalog = self.get(locale)
       catalog.update(template_path=self.template_path)
 
-  def import_translations(self, path):
+  def import_translations(self, path, locale=None):
     importer = importers.Importer(self.pod)
-    importer.import_path(path)
+    importer.import_path(path, locale=locale)
 
-  def extract_missing(self, locales):
+  def extract_missing(self, locales, out_path):
     strings_to_locales = collections.defaultdict(list)
     for locale in locales:
       catalog = self.get(locale)
@@ -85,11 +85,11 @@ class Catalogs(object):
       self.pod.logger.info(text.format(catalog.locale, num_missing, num_total))
       for message in missing_messages:
         strings_to_locales[message.id].append(catalog.locale)
-    self.pod.create_file(self.template_path, None)
-    babel_catalog = pofile.read_po(self.pod.open_file(self.template_path))
+    self.pod.create_file(out_path, None)
+    babel_catalog = pofile.read_po(self.pod.open_file(out_path))
     for string in strings_to_locales.keys():
       babel_catalog.add(string, None)
-    self.write_template(self.template_path, babel_catalog)
+    self.write_template(out_path, babel_catalog)
 
   def _get_or_create_catalog(self, template_path):
     exists = True
@@ -112,7 +112,6 @@ class Catalogs(object):
     template_path = self.template_path
     catalog_obj, exists = self._get_or_create_catalog(template_path)
     extracted = []
-    self.pod.logger.info('Updating translation template: {}'.format(template_path))
 
     comment_tags = [
         ':',
@@ -179,7 +178,7 @@ class Catalogs(object):
     template_file = self.pod.open_file(template_path, mode='w')
     pofile.write_po(template_file, catalog, width=80, omit_header=True,
                     sort_output=True, sort_by_file=True)
-    text = 'Wrote {} messages: {}'
+    text = 'Wrote {} messages to translation template: {}'
     self.pod.logger.info(text.format(len(catalog), template_path))
     template_file.close()
     return catalog

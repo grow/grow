@@ -16,10 +16,10 @@ class ExtractTestCase(unittest.TestCase):
     self.assertEqual(0, result.exit_code)
 
   def test_extract_missing(self):
-    args = [self.test_pod_dir, '--missing']
+    args = [self.test_pod_dir, '--missing', '-o', 'messages.missing.po']
     result = self.runner.invoke(extract.extract, args, catch_exceptions=False)
     self.assertEqual(0, result.exit_code)
-    args = [self.test_pod_dir, '--missing', '--locale=de']
+    args = [self.test_pod_dir, '--missing', '--locale=de', '-o', 'messages.missing.po']
     result = self.runner.invoke(extract.extract, args, catch_exceptions=False)
     self.assertEqual(0, result.exit_code)
 

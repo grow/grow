@@ -38,13 +38,21 @@ class Importer(object):
   def __init__(self, pod):
     self.pod = pod
 
-  def import_path(self, path):
-    if path.endswith('.zip') and os.path.isfile(path):
+  def _validate_path(self, path):
+    if not os.path.isfile(path):
+      raise Error('Not found: {}'.format(path))
+
+  def import_path(self, path, locale=None):
+    if path.endswith('.zip'):
+      self._validate_path(path)
       self.import_zip_file(path)
+    elif path.endswith('.po'):
+      self._validate_path(path)
+      self.import_file(locale, path)
     elif os.path.isdir(path):
       self.import_dir(path)
     else:
-      raise Error('Must import a zip file or directory.')
+      raise Error('Must import a .zip file, .po file, or directory.')
 
   def import_zip_file(self, zip_path):
     try:
@@ -62,12 +70,16 @@ class Importer(object):
       locale_dir = os.path.join(dir_path, locale)
       if locale.startswith('.') or os.path.isfile(locale_dir):
         continue
-      po_path = os.path.join(locale_dir, 'messages.po')
-      self.import_file(locale, po_path)
+      for basename in os.listdir(locale_dir):
+        if basename.endswith('.po'):
+          po_path = os.path.join(locale_dir, basename)
+          self.import_file(locale, po_path)
 
   def import_file(self, locale, po_path):
+    if locale is None:
+      raise Error('Must specify locale.')
     if not os.path.exists(po_path):
-      raise Error('Couldn\'t find PO file at: {}'.format(po_path))
+      raise Error('Couldn\'t find PO file: {}'.format(po_path))
     babel_locale = external_to_babel_locales.get(locale, locale)
     pod_translations_dir = os.path.join('translations', babel_locale, 'LC_MESSAGES')
     pod_po_path = os.path.join(pod_translations_dir, 'messages.po')
