@@ -167,7 +167,7 @@ class Diff(object):
     diff = message
     threads = []
     num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
-    text = 'Deploying files: %(value)d/{} (in %(elapsed)s)'
+    text = 'Deploying: %(value)d/{} (in %(elapsed)s)'
     widgets = [progressbar.FormatLabel(text.format(num_files))]
     bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
 
