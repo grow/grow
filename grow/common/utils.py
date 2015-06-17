@@ -11,6 +11,14 @@ import time
 import translitcodec
 import yaml
 
+# The CLoader implementation of the PyYaml loader is orders of magnitutde
+# faster than the default pure Python loader. CLoader is available when
+# libyaml is installed on the system.
+try:
+  from yaml import CLoader as yaml_Loader
+except ImportError:
+  from yaml import Loader as yaml_Loader
+
 
 def is_packaged_app():
   try:
@@ -113,8 +121,12 @@ def every_two(l):
   return zip(l[::2], l[1::2])
 
 
+def load_yaml(*args, **kwargs):
+  return yaml.load(*args, Loader=yaml_Loader, **kwargs)
+
+
 def parse_yaml(content):
-  return yaml.load(content)
+  return load_yaml(content)
 
 
 def dump_yaml(obj):

@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/bin/bash -e
+
+exists() {
+  type -t "$1" > /dev/null 2>&1; 
+}
 
 pip --version > /dev/null || {
   echo "pip not installed. Trying to install pip..."
@@ -9,6 +13,18 @@ virtualenv --version > /dev/null || {
   echo "virtualenv not installed. Trying to install virtualenv..."
   sudo pip install virtualenv
 }
+
+echo "Trying to install libyaml..."
+if exists brew; then
+  brew install libyaml || {
+    echo " Error installing libyaml with brew."
+    echo " Try installing from source: http://pyyaml.org/wiki/LibYAML"
+  }
+elif exists aptitude; then
+  sudo aptitude install libyaml-dev
+else
+  echo " You must install libyaml from source: http://pyyaml.org/wiki/LibYAML"
+fi
 
 virtualenv env
 source env/bin/activate
