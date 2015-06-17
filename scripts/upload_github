@@ -23,9 +23,6 @@ if [ -d env ]; then
   USER='grow'
   REPO='pygrow'
 
-  go version > /dev/null || {
-    sudo apt-get install golang
-  }
   github-release > /dev/null || {
     go get github.com/aktau/github-release
   }

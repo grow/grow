@@ -17,6 +17,7 @@ import yaml
 try:
   from yaml import CLoader as yaml_Loader
 except ImportError:
+  logging.warning('Warning: libyaml missing, using slower yaml parser.')
   from yaml import Loader as yaml_Loader
 
 
