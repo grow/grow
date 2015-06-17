@@ -328,14 +328,10 @@ class Pod(object):
 
   @webapp2.cached_property
   def template_env(self):
-    from werkzeug.contrib import cache as werkzeug_cache
-    client = werkzeug_cache.SimpleCache()
-    bytecode_cache = jinja2.MemcachedBytecodeCache(client)
     kwargs = {
         'autoescape': True,
-        'auto_reload': False,
-        'bytecode_cache': bytecode_cache,
         'extensions': [
+            'jinja2.ext.autoescape',
             'jinja2.ext.do',
             'jinja2.ext.i18n',
             'jinja2.ext.loopcontrols',
