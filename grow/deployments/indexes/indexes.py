@@ -74,7 +74,7 @@ class Diff(object):
     table.add_rows(rows)
     logging.info('\n' + table.draw() + '\n')
     if last_index.deployed and last_index.deployed_by:
-      logging.info('Last deployed {} <{}>'.format(
+      logging.info('Last deployed: {} by {}'.format(
           last_index.deployed, cls._format_author(last_index.deployed_by)))
     last_commit_sha = last_commit.sha if last_commit else ''
     new_commit_sha = new_commit.sha if new_commit else ''
@@ -87,7 +87,7 @@ class Diff(object):
           between_commits += ' (with unstaged changes)'
       else:
         between_commits += ' (initial commit)'
-      logging.info('Launching: {} as {}'.format(
+      logging.info('Diff: {} as {}'.format(
           between_commits, new_index.deployed_by.email))
     if diff.what_changed:
       logging.info(diff.what_changed + '\n')
