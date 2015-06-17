@@ -47,6 +47,7 @@ import copy
 import jinja2
 import logging
 import os
+import progressbar
 import re
 import webapp2
 
@@ -232,12 +233,19 @@ class Pod(object):
     """Builds the pod, returning a mapping of paths to content."""
     output = {}
     routes = self.get_routes()
-    for path in routes.list_concrete_paths():
+    paths = routes.list_concrete_paths()
+    text = 'Building: %(value)d/{} (in %(elapsed)s)'
+    widgets = [progressbar.FormatLabel(text.format(len(paths)))]
+    bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
+    bar.start()
+    for path in paths:
       controller = self.match(path)
       output[path] = controller.render()
+      bar.update(bar.currval + 1)
     error_controller = routes.match_error('/404.html')
     if error_controller:
       output['/404.html'] = error_controller.render()
+    bar.finish()
     return output
 
   def dump(self, suffix='index.html', append_slashes=True):
@@ -320,8 +328,13 @@ class Pod(object):
 
   @webapp2.cached_property
   def template_env(self):
+    from werkzeug.contrib import cache as werkzeug_cache
+    client = werkzeug_cache.SimpleCache()
+    bytecode_cache = jinja2.MemcachedBytecodeCache(client)
     kwargs = {
         'autoescape': True,
+        'auto_reload': False,
+        'bytecode_cache': bytecode_cache,
         'extensions': [
             'jinja2.ext.do',
             'jinja2.ext.i18n',

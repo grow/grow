@@ -29,7 +29,7 @@ class Catalog(catalog.Catalog):
       self.load()
 
   def __repr__(self):
-    return '<Catalog: {}>'.format(self.path)
+    return '<Catalog: {}>'.format(self.locale)
 
   def load(self, pod_path=None):
     # Use the "pod_path" argument to load another catalog (such as a template
@@ -134,7 +134,7 @@ class Catalog(catalog.Catalog):
     try:
       for message, errors in self.check():
         for error in errors:
-          logging.error('Error: {}:{}: {}'.format(self.path, message.lineno, error))
+          logging.error('Error: {}:{}: {}'.format(self.locale, message.lineno, error))
     except IOError:
       logging.info('Skipped catalog check for: {}'.format(self))
 

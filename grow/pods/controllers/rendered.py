@@ -5,7 +5,6 @@ from grow.pods import errors
 from grow.pods.storage import gettext_storage as gettext
 import logging
 import mimetypes
-import webapp2
 
 
 class RenderedController(base.BaseController):
