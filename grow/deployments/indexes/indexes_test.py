@@ -2,13 +2,15 @@ from . import indexes
 from . import messages
 from grow.pods import pods
 from grow.pods import storage
+from grow.testing import testing
 import unittest
 
 
 class IndexTest(unittest.TestCase):
 
   def setUp(self):
-    self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
+    dir_path = testing.create_test_pod_dir()
+    self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
   def assertFilePathsEqual(self, my_file_messages, their_file_messages):
     for i, file_message in enumerate(my_file_messages):

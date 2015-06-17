@@ -14,21 +14,29 @@ import re
 
 class Catalog(catalog.Catalog):
 
-  def __init__(self, pod, locale):
-    self.pod = pod
+  def __init__(self, basename='messages.po', locale=None, pod=None):
     self.locale = locale
-    self.path = os.path.join('translations', str(self.locale))
+    self.pod = pod
+    if self.locale is None:
+      self.pod_path = os.path.join('translations', basename)
+      self.is_template = True
+    else:
+      self.pod_path = os.path.join('translations', str(locale), 'LC_MESSAGES',
+                                   basename)
+      self.is_template = False
     super(Catalog, self).__init__(locale=self.locale)
-    if self.exists:
+    if not self.is_template and self.exists:
       self.load()
 
   def __repr__(self):
-    return '<Catalog: {}>'.format(self.path)
+    return '<Catalog: {}>'.format(self.locale)
 
-  def load(self, path=None):
-    if path is None:
-      path = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
-    po_file = self.pod.open_file(path)
+  def load(self, pod_path=None):
+    # Use the "pod_path" argument to load another catalog (such as a template
+    # catalog) into this one.
+    if pod_path is None:
+      pod_path = self.pod_path
+    po_file = self.pod.open_file(pod_path)
     try:
       babel_catalog = pofile.read_po(po_file, self.locale)
     finally:
@@ -56,17 +64,16 @@ class Catalog(catalog.Catalog):
 
   @property
   def exists(self):
-    path = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
-    return self.pod.file_exists(path)
+    return self.pod.file_exists(self.pod_path)
 
   @property
   def gettext_translations(self):
     locale = str(self.locale)
     try:
-      path = os.path.join(self.pod.root, 'translations', locale)
-      translations = gettext.translation(
-          'messages', os.path.dirname(path), [locale],
-          storage=self.pod.storage)
+      path = self.pod.abs_path(os.path.join('translations', locale))
+      dir_path = os.path.dirname(path)
+      translations = gettext.translation('messages', dir_path, [locale],
+                                         storage=self.pod.storage)
     except IOError:
       # TODO(jeremydw): If translation mode is strict, raise an error here if
       # no translation file is found.
@@ -84,34 +91,28 @@ class Catalog(catalog.Catalog):
     return catalog_message
 
   def save(self, ignore_obsolete=True, include_previous=True, width=80):
-    # TODO(jeremydw): Optimize.
-    # Creates directory if it doesn't exist.
-    path = os.path.join('translations', str(self.locale), 'LC_MESSAGES',
-                        'messages.po')
-    if not self.pod.file_exists(path):
-      self.pod.create_file(path, None)
+    if not self.pod.file_exists(self.pod_path):
+      self.pod.create_file(self.pod_path, None)
+    outfile = self.pod.open_file(self.pod_path, mode='w')
+    pofile.write_po(outfile, self, ignore_obsolete=ignore_obsolete,
+                    include_previous=include_previous, width=width)
+    outfile.close()
 
-    outfile = self.pod.open_file(path, mode='w')
-    try:
-      pofile.write_po(outfile, self, ignore_obsolete=ignore_obsolete,
-                      include_previous=include_previous, width=width)
-    finally:
-      outfile.close()
-
-  def init(self):
-    self.load(os.path.join('translations', 'messages.pot'))
+  def init(self, template_path):
+    self.load(template_path)
     self.revision_date = datetime.now(util.LOCALTZ)
     self.fuzzy = False
     self.save()
 
-  def update(self, use_fuzzy=False, ignore_obsolete=True, include_previous=True,
-             width=80):
+  def update(self, template_path=None, use_fuzzy=False, ignore_obsolete=True,
+             include_previous=True, width=80):
+    """Updates catalog with messages from a template."""
+    if template_path is None:
+      template_path = os.path.join('translations', 'messages.pot')
     if not self.exists:
-      self.init()
+      self.init(template_path)
       return
-
-    # Updates with new extracted messages from the template.
-    template_file = self.pod.open_file(os.path.join('translations', 'messages.pot'))
+    template_file = self.pod.open_file(template_path)
     template = pofile.read_po(template_file)
     super(Catalog, self).update(template, use_fuzzy)
 
@@ -120,7 +121,8 @@ class Catalog(catalog.Catalog):
               include_previous=include_previous, width=width)
 
   def compile(self, use_fuzzy=False):
-    mo_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.mo')
+    mo_dirpath = os.path.dirname(self.pod_path)
+    mo_filename = os.path.join(mo_dirpath, 'messages.mo')
 
     num_translated = 0
     num_total = 0
@@ -132,7 +134,7 @@ class Catalog(catalog.Catalog):
     try:
       for message, errors in self.check():
         for error in errors:
-          logging.error('Error: {}:{}: {}'.format(self.path, message.lineno, error))
+          logging.error('Error: {}:{}: {}'.format(self.locale, message.lineno, error))
     except IOError:
       logging.info('Skipped catalog check for: {}'.format(self))
 
@@ -148,16 +150,9 @@ class Catalog(catalog.Catalog):
   def machine_translate(self):
     locale = str(self.locale)
     domain = 'messages'
-    po_filename = os.path.join(self.path, 'LC_MESSAGES', 'messages.po')
-
-    # Create a catalog if it doesn't exist.
-    if not self.pod.file_exists(po_filename):
-      self.init_catalog()
-      return
-
-    infile = self.pod.open_file(po_filename, 'U')
+    infile = self.pod.open_file(self.pod_path, 'U')
     try:
-      catalog = pofile.read_po(infile, locale=locale, domain=domain)
+      babel_catalog = pofile.read_po(infile, locale=locale, domain=domain)
     finally:
       infile.close()
 
@@ -203,11 +198,17 @@ class Catalog(catalog.Catalog):
       source = message.id
       source = source.encode('utf-8') if isinstance(source, unicode) else source
 
-    output_path = os.path.join('translations', locale, 'LC_MESSAGES', 'messages.po')
-    outfile = self.pod.open_file(output_path, mode='w')
-    text = 'Machine translated {} strings: {}'
-    logging.info(text.format(len(strings_to_translate), output_path))
+    outfile = self.pod.open_file(self.pod_path, mode='w')
     try:
-      pofile.write_po(outfile, catalog, width=80)
+      pofile.write_po(outfile, babel_catalog, width=80)
     finally:
       outfile.close()
+    text = 'Machine translated {} strings: {}'
+    logging.info(text.format(len(strings_to_translate), self.pod_path))
+
+  def list_missing(self):
+    missing = []
+    for message in self:
+      if not message.string:
+        missing.append(message)
+    return missing

@@ -1,15 +1,16 @@
-from grow.pods import pods
-from grow.pods.collectionz import collectionz
-from grow.pods.collectionz import messages
 from grow.pods import locales
+from grow.pods import pods
 from grow.pods import storage
+from grow.pods.collectionz import collectionz
+from grow.testing import testing
 import unittest
 
 
 class CollectionsTestCase(unittest.TestCase):
 
   def setUp(self):
-    self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
+    dir_path = testing.create_test_pod_dir()
+    self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
   def test_get(self):
     self.pod.get_collection('/content/pages/')
@@ -52,6 +53,13 @@ class CollectionsTestCase(unittest.TestCase):
     doc = collection.get_doc('/content/posts/newest.md')
     self.assertEqual('# Markdown', doc.body)
     self.assertEqual('<h1 id="markdown">Markdown</h1>', doc.html)
+
+  def test_empty_front_matter(self):
+    collection = self.pod.get_collection('empty-front-matter')
+    docs = collection.search_docs()
+    path = '/content/empty-front-matter/empty-front-matter.html'
+    expected_doc = self.pod.get_doc(path)
+    self.assertEqual(expected_doc, docs[0])
 
 
 if __name__ == '__main__':

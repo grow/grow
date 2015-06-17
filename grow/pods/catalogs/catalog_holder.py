@@ -4,6 +4,7 @@ from babel.messages import extract
 from babel.messages import pofile
 from grow.common import utils
 from grow.pods import messages
+import collections
 import os
 import tokenize
 
@@ -19,22 +20,16 @@ _TRANSLATABLE_EXTENSIONS = (
 
 class Catalogs(object):
   root = '/translations'
-  template_path = os.path.join(root, 'messages.pot')
 
-  def __init__(self, pod=None):
+  def __init__(self, pod):
     self.pod = pod
+    self.template_path = os.path.join(Catalogs.root, 'messages.pot')
 
-  @property
-  def exists(self):
-    return self.pod.file_exists(Catalogs.template_path)
+  def get(self, locale, basename='messages.po'):
+    return catalogs.Catalog(basename, locale, pod=self.pod)
 
-  def get(self, locale):
-    return catalogs.Catalog(pod=self.pod, locale=locale)
-
-  def get_template(self):
-    if not self.exists:
-      self.pod.create_file(Catalogs.template_path, None)
-    return pofile.read_po(self.pod.open_file(Catalogs.template_path))
+  def get_template(self, basename='messages.pot'):
+    return catalogs.Catalog(basename, None, pod=self.pod)
 
   def list_locales(self):
     locales = set()
@@ -43,6 +38,10 @@ class Catalogs(object):
       if len(parts) > 2:
         locales.add(parts[1])
     return list(locales)
+
+  def __iter__(self):
+    for locale in self.list_locales():
+      yield self.get(locale)
 
   def compile(self):
     locales = self.list_locales()
@@ -64,41 +63,63 @@ class Catalogs(object):
   def init(self, locales):
     for locale in locales:
       catalog = self.get(locale)
-      catalog.init()
+      catalog.init(template_path=self.template_path)
 
   def update(self, locales):
     for locale in locales:
       catalog = self.get(locale)
-      catalog.update()
+      catalog.update(template_path=self.template_path)
 
-  def import_translations(self, path):
+  def import_translations(self, path, locale=None):
     importer = importers.Importer(self.pod)
-    importer.import_path(path)
+    importer.import_path(path, locale=locale)
 
-  def extract(self):
-    # Create directory if it doesn't exist. TODO(jeremydw): Optimize this.
-    template_path = os.path.join(Catalogs.root, 'messages.pot')
+  def extract_missing(self, locales, out_path):
+    strings_to_locales = collections.defaultdict(list)
+    for locale in locales:
+      catalog = self.get(locale)
+      missing_messages = catalog.list_missing()
+      text = 'Extracted missing strings: {} ({}/{})'
+      num_missing = len(missing_messages)
+      num_total = len(catalog)
+      self.pod.logger.info(text.format(catalog.locale, num_missing, num_total))
+      for message in missing_messages:
+        strings_to_locales[message.id].append(catalog.locale)
+    self.pod.create_file(out_path, None)
+    babel_catalog = pofile.read_po(self.pod.open_file(out_path))
+    for string in strings_to_locales.keys():
+      babel_catalog.add(string, None)
+    self.write_template(out_path, babel_catalog)
+
+  def _get_or_create_catalog(self, template_path):
+    exists = True
     if not self.pod.file_exists(template_path):
       self.pod.create_file(template_path, None)
-      existing = False
-    else:
-      existing = pofile.read_po(self.pod.open_file(template_path))
+      exists = False
+    catalog = pofile.read_po(self.pod.open_file(template_path))
+    return catalog, exists
 
-    template = self.pod.open_file(template_path, mode='w')
-    catalog_obj = pofile.read_po(self.pod.open_file(template_path))
+  def _add_message(self, catalog, message):
+    lineno, string, comments, context = message
+    flags = set()
+    if string in catalog:
+      existing_message = catalog.get(string)
+      flags = existing_message.flags
+    return catalog.add(string, None, auto_comments=comments, context=context,
+                       flags=flags)
+
+  def extract(self):
+    template_path = self.template_path
+    catalog_obj, exists = self._get_or_create_catalog(template_path)
     extracted = []
-
-    self.pod.logger.info('Updating translation template: {}'.format(template_path))
 
     comment_tags = [
         ':',
     ]
-
     options = {
-        'extensions': ','.join(self.pod.get_template_env().extensions.keys()),
+        'extensions': ','.join(self.pod.template_env.extensions.keys()),
         'silent': 'false',
     }
-
     # Extract messages from content and views.
     pod_files = [os.path.join('/views', path) for path in self.pod.list_dir('/views/')]
     pod_files += [os.path.join('/content', path) for path in self.pod.list_dir('/content/')]
@@ -110,15 +131,7 @@ class Catalogs(object):
           messages = extract.extract('jinja2.ext.babel_extract', fp,
                                      options=options, comment_tags=comment_tags)
           for message in messages:
-            lineno, string, comments, context = message
-            flags = set()
-            if existing and string in existing:
-              existing_message = existing.get(string)
-              if existing_message and 'requested' in existing_message.flags:
-                flags.add('requested')
-            added_message = catalog_obj.add(
-                string, None, auto_comments=comments,
-                context=context, flags=flags)
+            added_message = self._add_message(catalog_obj, message)
             extracted.append(added_message)
         except tokenize.TokenError:
           self.pod.logger.error('Problem extracting: {}'.format(pod_path))
@@ -159,8 +172,13 @@ class Catalogs(object):
     utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
 
     # Write to PO template.
-    pofile.write_po(template, catalog_obj, width=80,
-                    omit_header=True, sort_output=True, sort_by_file=True)
-    self.pod.logger.info('Wrote {} messages to template: {}'.format(len(catalog_obj), template_path))
-    template.close()
-    return catalog_obj
+    return self.write_template(template_path, catalog_obj)
+
+  def write_template(self, template_path, catalog):
+    template_file = self.pod.open_file(template_path, mode='w')
+    pofile.write_po(template_file, catalog, width=80, omit_header=True,
+                    sort_output=True, sort_by_file=True)
+    text = 'Wrote {} messages to translation template: {}'
+    self.pod.logger.info(text.format(len(catalog), template_path))
+    template_file.close()
+    return catalog

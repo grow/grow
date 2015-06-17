@@ -1,12 +1,14 @@
 from grow.pods import pods
 from grow.pods import storage
+from grow.testing import testing
 import unittest
 
 
 class CatalogsTest(unittest.TestCase):
 
   def setUp(self):
-    self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
+    dir_path = testing.create_test_pod_dir()
+    self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
     self.pod.catalogs.compile()
 
   def test_list_locales(self):
@@ -27,14 +29,26 @@ class CatalogsTest(unittest.TestCase):
     for string in expected:
       self.assertIn(string, template_catalog)
 
+  def test_iter(self):
+    locales = self.pod.catalogs.list_locales()
+    for catalog in self.pod.catalogs:
+      self.assertIn(str(catalog.locale), locales)
+
   def test_get(self):
-    de_catalog = self.pod.catalogs.get('de')
+    self.pod.catalogs.get('de')
+
+  def test_get_template(self):
+    template = self.pod.catalogs.get_template()
+    self.assertTrue(template.exists)
+    template = self.pod.catalogs.get_template('messages.test.pot')
+    self.assertFalse(template.exists)
+    self.assertEqual(0, len(template))
 
   def test_compile(self):
     self.pod.catalogs.compile()
 
   def test_to_message(self):
-    message = self.pod.catalogs.to_message()
+    self.pod.catalogs.to_message()
 
 #  TODO: Fix, since this currently affects testdata.
 #  def test_init(self):
@@ -42,9 +56,6 @@ class CatalogsTest(unittest.TestCase):
 
   def test_update(self):
     self.pod.catalogs.update(['de'])
-
-  def test_get_template(self):
-    self.pod.catalogs.get_template()
 
 
 if __name__ == '__main__':

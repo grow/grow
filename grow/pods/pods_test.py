@@ -1,23 +1,23 @@
 from grow.pods import pods
 from grow.pods import storage
+from grow.testing import testing
 import os
 import unittest
-
-TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata', 'pod')
 
 
 class PodTest(unittest.TestCase):
 
   def setUp(self):
-    self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
+    self.dir_path = testing.create_test_pod_dir()
+    self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
   def test_list_dir(self):
-    os.listdir(os.path.join(TESTDATA_DIR, 'content'))
+    os.listdir(os.path.join(self.dir_path, 'content'))
     self.pod.list_dir('/content')
 
   def test_read_file(self):
     content = self.pod.read_file('/README.md')
-    path = os.path.join(TESTDATA_DIR, 'README.md')
+    path = os.path.join(self.dir_path, 'README.md')
     expected_content = open(path).read()
     self.assertEqual(expected_content, content)
 

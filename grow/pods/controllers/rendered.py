@@ -1,7 +1,6 @@
 from . import base
 from . import messages
 from . import tags
-from grow.common import utils
 from grow.pods import errors
 from grow.pods.storage import gettext_storage as gettext
 import logging
@@ -46,9 +45,8 @@ class RenderedController(base.BaseController):
     return self.route_params.get('cc', RenderedController.Defaults.CC)
 
   @property
-  @utils.memoize
   def _template_env(self):
-    return self.pod.get_template_env()
+    return self.pod.template_env
 
   def _install_translations(self, ll):
     if ll is None:

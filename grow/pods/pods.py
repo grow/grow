@@ -47,7 +47,9 @@ import copy
 import jinja2
 import logging
 import os
+import progressbar
 import re
+import webapp2
 
 _handler = logging.StreamHandler()
 _handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S'))
@@ -83,8 +85,8 @@ class Pod(object):
     self.env = env if env else environment.Env(environment.EnvConfig(host='localhost'))
 
     self.locales = locales.Locales(pod=self)
-    self.catalogs = catalog_holder.Catalogs(pod=self)
     self.tests = tests.Tests(pod=self)
+    self.catalogs = catalog_holder.Catalogs(pod=self)
 
     self.logger = _logger
     self._routes = None
@@ -92,6 +94,11 @@ class Pod(object):
 
   def __repr__(self):
     return '<Pod: {}>'.format(self.root)
+
+  def __cmp__(self, other):
+    return (isinstance(self, Pod)
+            and isinstance(other, Pod)
+            and self.root == other.root)
 
   def exists(self):
     return self.file_exists('/podspec.yaml')
@@ -194,6 +201,9 @@ class Pod(object):
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path, locale=locale)
 
+  def get_catalogs(self, template_path=None):
+    return catalog_holder.Catalogs(pod=self)
+
   def get_collection(self, collection_path):
     """Returns a collection.
 
@@ -223,12 +233,19 @@ class Pod(object):
     """Builds the pod, returning a mapping of paths to content."""
     output = {}
     routes = self.get_routes()
-    for path in routes.list_concrete_paths():
+    paths = routes.list_concrete_paths()
+    text = 'Building: %(value)d/{} (in %(elapsed)s)'
+    widgets = [progressbar.FormatLabel(text.format(len(paths)))]
+    bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
+    bar.start()
+    for path in paths:
       controller = self.match(path)
       output[path] = controller.render()
+      bar.update(bar.currval + 1)
     error_controller = routes.match_error('/404.html')
     if error_controller:
       output['/404.html'] = error_controller.render()
+    bar.finish()
     return output
 
   def dump(self, suffix='index.html', append_slashes=True):
@@ -249,7 +266,8 @@ class Pod(object):
 
   def to_message(self):
     message = messages.PodMessage()
-    message.collections = [collection.to_message() for collection in self.list_collections()]
+    message.collections = [collection.to_message()
+                           for collection in self.list_collections()]
     message.routes = self.routes.to_message()
     return message
 
@@ -308,10 +326,12 @@ class Pod(object):
   def get_podspec(self):
     return self.podspec
 
-  def get_template_env(self):
+  @webapp2.cached_property
+  def template_env(self):
     kwargs = {
         'autoescape': True,
         'extensions': [
+            'jinja2.ext.autoescape',
             'jinja2.ext.do',
             'jinja2.ext.i18n',
             'jinja2.ext.loopcontrols',

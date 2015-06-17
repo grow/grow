@@ -31,6 +31,14 @@ class GrowConverter(routing.PathConverter):
   pass
 
 
+class ValidationError(Error, ValueError):
+  pass
+
+
+class DuplicatePathsError(Error, ValueError):
+  pass
+
+
 class Routes(object):
   converters = {'grow': GrowConverter}
 
@@ -121,11 +129,17 @@ class Routes(object):
 
   @utils.memoize
   def list_concrete_paths(self):
-    path_formats = []
+    paths = set()
     for route in self:
       controller = route.endpoint
-      path_formats.extend(controller.list_concrete_paths())
-    return path_formats
+      new_paths = set(controller.list_concrete_paths())
+      intersection = paths.intersection(new_paths)
+      if intersection:
+        text = '"{}" from {}'
+        error = text.format(', '.join(intersection), controller)
+        raise DuplicatePathsError(error)
+      paths.update(new_paths)
+    return list(paths)
 
   def to_message(self):
     message = messages.RoutesMessage()
