@@ -20,8 +20,8 @@ if exists brew; then
     echo " Error installing libyaml with brew."
     echo " Try installing from source: http://pyyaml.org/wiki/LibYAML"
   }
-elif exists aptitude; then
-  sudo aptitude install libyaml-dev
+elif exists apt-get; then
+  sudo apt-get install libyaml-dev
 else
   echo " You must install libyaml from source: http://pyyaml.org/wiki/LibYAML"
 fi
