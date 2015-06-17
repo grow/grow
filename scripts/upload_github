@@ -1,0 +1,65 @@
+#!/bin/bash -e
+
+if [ -d env ]; then
+  source env/bin/activate
+
+  if [ `git rev-parse --abbrev-ref HEAD` != "master" ]; then
+    echo 'Releases must be made from "master".'
+    exit 1
+  fi
+
+  git pull origin master
+  ./scripts/test
+  ./scripts/build_release
+
+  case "`uname`" in
+    "Darwin")
+      PLATFORM="Mac";;
+    *)
+      PLATFORM="`uname`";;
+  esac
+  VERSION=`cat grow/VERSION`
+  FILENAME="Grow-SDK-${PLATFORM}-${VERSION}.zip"
+  USER='grow'
+  REPO='pygrow'
+
+  go version > /dev/null || {
+    sudo apt-get install golang
+  }
+  github-release > /dev/null || {
+    go get github.com/aktau/github-release
+  }
+
+  if [ -z "$GOPATH" ]; then
+    export GOPATH=$HOME/go/
+    export PATH=$HOME/go/bin/:$PATH
+  fi
+  if github-release info -u $USER -r $REPO -t $VERSION ; then
+    echo 'Using existing release.'
+  else
+    echo 'Creating new release.'
+    git tag $VERSION && git push --tags
+    github-release \
+      release \
+      -u $USER \
+      -r $REPO \
+      -t $VERSION \
+      -n "$VERSION" \
+      --pre-release \
+      --draft
+  fi
+
+  echo "Uploading: $FILENAME"
+  github-release \
+    upload \
+    -u $USER \
+    -r $REPO \
+    -t $VERSION \
+    -n "$FILENAME" \
+    --file dist/$FILENAME
+
+  deactivate
+else
+  echo 'Run ./scripts/setup first.'
+  exit 1
+fi
