@@ -65,30 +65,30 @@ class Catalogs(object):
       catalog = self.get(locale)
       catalog.init(template_path=self.template_path)
 
-  def update(self, locales):
+  def update(self, locales, use_fuzzy=False):
     for locale in locales:
       catalog = self.get(locale)
-      catalog.update(template_path=self.template_path)
+      catalog.update(template_path=self.template_path, use_fuzzy=use_fuzzy)
 
   def import_translations(self, path, locale=None):
     importer = importers.Importer(self.pod)
     importer.import_path(path, locale=locale)
 
-  def extract_missing(self, locales, out_path):
-    strings_to_locales = collections.defaultdict(list)
+  def extract_missing(self, locales, out_path, use_fuzzy=False):
+    messages_to_locales = collections.defaultdict(list)
     for locale in locales:
       catalog = self.get(locale)
-      missing_messages = catalog.list_missing()
+      missing_messages = catalog.list_missing(use_fuzzy=use_fuzzy)
       text = 'Extracted missing strings: {} ({}/{})'
       num_missing = len(missing_messages)
       num_total = len(catalog)
       self.pod.logger.info(text.format(catalog.locale, num_missing, num_total))
       for message in missing_messages:
-        strings_to_locales[message.id].append(catalog.locale)
+        messages_to_locales[message].append(catalog.locale)
     self.pod.create_file(out_path, None)
     babel_catalog = pofile.read_po(self.pod.open_file(out_path))
-    for string in strings_to_locales.keys():
-      babel_catalog.add(string, None)
+    for message in messages_to_locales.keys():
+      babel_catalog[message.id] = message
     self.write_template(out_path, babel_catalog)
 
   def _get_or_create_catalog(self, template_path):

@@ -206,9 +206,11 @@ class Catalog(catalog.Catalog):
     text = 'Machine translated {} strings: {}'
     logging.info(text.format(len(strings_to_translate), self.pod_path))
 
-  def list_missing(self):
+  def list_missing(self, use_fuzzy=False):
     missing = []
     for message in self:
-      if not message.string:
+      if not message.string or (not use_fuzzy and message.fuzzy):
+        message.string = ''
+        message.flags.discard('fuzzy')
         missing.append(message)
     return missing
