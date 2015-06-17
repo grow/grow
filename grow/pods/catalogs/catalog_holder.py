@@ -117,7 +117,7 @@ class Catalogs(object):
         ':',
     ]
     options = {
-        'extensions': ','.join(self.pod.get_template_env().extensions.keys()),
+        'extensions': ','.join(self.pod.template_env.extensions.keys()),
         'silent': 'false',
     }
     # Extract messages from content and views.

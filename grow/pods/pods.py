@@ -48,6 +48,7 @@ import jinja2
 import logging
 import os
 import re
+import webapp2
 
 _handler = logging.StreamHandler()
 _handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S'))
@@ -317,7 +318,8 @@ class Pod(object):
   def get_podspec(self):
     return self.podspec
 
-  def get_template_env(self):
+  @webapp2.cached_property
+  def template_env(self):
     kwargs = {
         'autoescape': True,
         'extensions': [
