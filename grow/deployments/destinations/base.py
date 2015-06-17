@@ -231,16 +231,14 @@ class BaseDestination(object):
       diff = indexes.Diff.create(new_index, deployed_index, repo=repo)
       self._diff = diff
       if indexes.Diff.is_empty(diff):
-        text = 'Diff is empty, nothing to launch.'
-        logging.info(colorize(text, ansi=57))
         return
       if dry_run:
         return
       indexes.Diff.pretty_print(diff)
       if confirm:
-        text = 'Proceed to launch? -> {}'.format(self)
+        text = 'Proceed to deploy? -> {}'.format(self)
         if not utils.interactive_confirm(text):
-          logging.info('Launch aborted.')
+          logging.info('Aborted.')
           return
       indexes.Diff.apply(
           diff, paths_to_contents, write_func=self.write_file,
