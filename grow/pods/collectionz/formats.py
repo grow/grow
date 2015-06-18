@@ -57,7 +57,7 @@ class YamlFormat(Format):
 
   def load(self):
     if not self.has_front_matter:
-      self.fields = utils.load_yaml(self.content)
+      self.fields = utils.load_yaml(self.content, pod=self.doc.pod)
       self.body = self.content
       return
     locales_to_fields = {}
@@ -65,7 +65,7 @@ class YamlFormat(Format):
     locale = str(self.doc.locale)
     default_locale = str(self.doc.default_locale)
     for part in Format.split_front_matter(self.content):
-      fields = utils.load_yaml(part)
+      fields = utils.load_yaml(part, pod=self.doc.pod)
       doc_locale = fields.get('$locale', default_locale)
       locales_to_fields[doc_locale] = fields
       locales_to_bodies[doc_locale] = part
@@ -88,7 +88,7 @@ class HtmlFormat(YamlFormat):
     locale = str(self.doc.locale)
     default_locale = str(self.doc.default_locale)
     for part, body in utils.every_two(Format.split_front_matter(self.content)):
-      fields = utils.load_yaml(part)
+      fields = utils.load_yaml(part, pod=self.doc.pod)
       doc_locale = fields.get('$locale', default_locale)
       locales_to_fields[doc_locale] = fields
       locales_to_bodies[doc_locale] = body

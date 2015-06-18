@@ -86,7 +86,7 @@ def validate_name(name):
       or '..' in name
       or ' ' in name):
     raise errors.BadNameError(
-        'Name must be lowercase and only contain letters, numbers, '
+        'Names must be lowercase and only contain letters, numbers, '
         'backslashes, and dashes. Found: "{}"'.format(name))
 
 
@@ -122,12 +122,26 @@ def every_two(l):
   return zip(l[::2], l[1::2])
 
 
+
 def load_yaml(*args, **kwargs):
-  return yaml.load(*args, Loader=yaml_Loader, **kwargs)
+  pod = kwargs.pop('pod', None)
+
+  class YamlLoader(yaml_Loader):
+
+    def construct_doc(self, node):
+      if isinstance(node, yaml.SequenceNode):
+        items = []
+        for i, each in enumerate(node.value):
+          items.append(pod.get_doc(node.value[i].value))
+        return items
+      return pod.get_doc(node.value)
+
+  YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
+  return yaml.load(*args, Loader=YamlLoader, **kwargs)
 
 
-def parse_yaml(content):
-  return load_yaml(content)
+def parse_yaml(content, **kwargs):
+  return load_yaml(content, **kwargs)
 
 
 def dump_yaml(obj):

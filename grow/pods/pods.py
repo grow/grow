@@ -326,8 +326,7 @@ class Pod(object):
   def get_podspec(self):
     return self.podspec
 
-  @webapp2.cached_property
-  def template_env(self):
+  def create_template_env(self):
     kwargs = {
         'autoescape': True,
         'extensions': [

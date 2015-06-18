@@ -55,6 +55,11 @@ class CatalogTest(unittest.TestCase):
     it_catalog = self.pod.catalogs.get('it')
     self.assertNotIn('foo', it_catalog)
 
+  def test_list_missing(self):
+    de_catalog = self.pod.catalogs.get('de')
+    de_catalog.list_missing()
+    de_catalog.list_missing(use_fuzzy=True)
+
 
 if __name__ == '__main__':
   unittest.main()

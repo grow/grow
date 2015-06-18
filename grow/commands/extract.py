@@ -18,6 +18,8 @@ import os
                    ' untranslated messages. This option would typically be'
                    ' used to avoid re-requesting translation of existing'
                    ' messages.')
+@click.option('--fuzzy/--no-fuzzy', default=False, is_flag=True,
+              help='Whether to include fuzzy translations.')
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
@@ -26,7 +28,7 @@ import os
               help='Where to write the extracted translation catalog. The path'
                    ' must be relative to the pod\'s root. This option is'
                    ' only applicable when using --missing.')
-def extract(pod_path, init, update, missing, locale, o):
+def extract(pod_path, init, update, missing, locale, o, fuzzy):
   """Extracts tagged messages from source files into a template catalog."""
   if missing and o is None:
     raise click.BadOptionUsage('-o', 'Must specify -o when using --missing.')
@@ -37,7 +39,7 @@ def extract(pod_path, init, update, missing, locale, o):
   if missing:
     locales = _validate_locales(catalogs.list_locales(), locale)
     catalogs.update(locales=locale)
-    catalogs.extract_missing(locales, out_path=o)
+    catalogs.extract_missing(locales, out_path=o, use_fuzzy=fuzzy)
     return
   if init:
     locales = _validate_locales(pod.list_locales(), locale)

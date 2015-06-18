@@ -172,7 +172,7 @@ def _gettext_alias(__context, *args, **kwargs):
 
 def yaml(path, _doc, _pod):
   catalog = _pod.catalogs.get(_doc.locale) if _doc else None
-  fields = utils.parse_yaml(_pod.read_file(path))
+  fields = utils.parse_yaml(_pod.read_file(path), pod=_pod)
   return utils.untag_fields(fields, catalog=catalog)
 
 
