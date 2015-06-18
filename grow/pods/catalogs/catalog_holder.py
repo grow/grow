@@ -109,6 +109,7 @@ class Catalogs(object):
                        flags=flags)
 
   def extract(self):
+    env = self.pod.create_template_env()
     template_path = self.template_path
     catalog_obj, exists = self._get_or_create_catalog(template_path)
     extracted = []
@@ -117,7 +118,7 @@ class Catalogs(object):
         ':',
     ]
     options = {
-        'extensions': ','.join(self.pod.template_env.extensions.keys()),
+        'extensions': ','.join(env.extensions.keys()),
         'silent': 'false',
     }
     # Extract messages from content and views.

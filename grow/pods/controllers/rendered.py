@@ -5,6 +5,7 @@ from grow.pods import errors
 from grow.pods.storage import gettext_storage as gettext
 import logging
 import mimetypes
+import webapp2
 
 
 class RenderedController(base.BaseController):
@@ -44,9 +45,9 @@ class RenderedController(base.BaseController):
   def cc(self):
     return self.route_params.get('cc', RenderedController.Defaults.CC)
 
-  @property
+  @webapp2.cached_property
   def _template_env(self):
-    return self.pod.template_env
+    return self.pod.create_template_env()
 
   def _install_translations(self, ll):
     if ll is None:
