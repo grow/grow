@@ -1,5 +1,6 @@
+from grow.testing import testing
+from . import utils
 import unittest
-import utils
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -20,7 +21,15 @@ class UtilsTestCase(unittest.TestCase):
     expected = ['bar', 'bar2', 'bar3', 'bar4']
     self.assertItemsEqual(expected, actual)
 
+  def test_parse_yaml(self):
+    pod = testing.create_test_pod()
+    content = pod.read_file('/data/constructors.yaml')
+    result = utils.parse_yaml(content, pod=pod)
+    doc = pod.get_doc('/content/pages/home.yaml')
+    self.assertEqual(doc, result['doc'])
+    for item in result['docs']:
+      self.assertEqual(doc, item)
+
 
 if __name__ == '__main__':
   unittest.main()
-
