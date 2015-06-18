@@ -27,8 +27,12 @@ class UtilsTestCase(unittest.TestCase):
     result = utils.parse_yaml(content, pod=pod)
     doc = pod.get_doc('/content/pages/home.yaml')
     self.assertEqual(doc, result['doc'])
-    for item in result['docs']:
-      self.assertEqual(doc, item)
+    expected_docs = [
+        pod.get_doc('/content/pages/home.yaml'),
+        pod.get_doc('/content/pages/about.yaml'),
+        pod.get_doc('/content/pages/home.yaml'),
+    ]
+    self.assertEqual(expected_docs, result['docs'])
 
 
 if __name__ == '__main__':

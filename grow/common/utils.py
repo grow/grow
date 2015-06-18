@@ -131,8 +131,8 @@ def load_yaml(*args, **kwargs):
     def construct_doc(self, node):
       if isinstance(node, yaml.SequenceNode):
         items = []
-        for each in node.value:
-          items.append(pod.get_doc(node.value[0].value))
+        for i, each in enumerate(node.value):
+          items.append(pod.get_doc(node.value[i].value))
         return items
       return pod.get_doc(node.value)
 
