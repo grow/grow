@@ -1,4 +1,3 @@
-from . import rendered
 from grow.pods import locales
 from grow.pods import pods
 from grow.pods import storage
@@ -12,9 +11,7 @@ class RenderedTest(unittest.TestCase):
     self.dir_path = testing.create_test_pod_dir()
     self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
-  def test_ll(self):
-    controller = self.pod.match('/')
-    self.assertEqual(rendered.RenderedController.Defaults.LL, controller.ll)
+  def test_locale(self):
     controller = self.pod.match('/de/about/')
     de_locale = locales.Locale.parse('de')
     self.assertEqual(de_locale, controller.locale)
