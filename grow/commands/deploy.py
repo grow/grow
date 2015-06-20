@@ -8,9 +8,9 @@ import os
 
 
 @click.command()
-@click.argument('deployment_name')
+@click.argument('deployment_name', required=False, default='default')
 @click.argument('pod_path', default='.')
-@click.option('--build/--nobuild', default=True, is_flag=True,
+@click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
               help='Whether to run preprocessors.')
 @click.option('--confirm/--noconfirm', '-c/-f', default=True, is_flag=True,
               help='Whether to confirm prior to deployment.')
@@ -20,7 +20,7 @@ import os
               help='Only run the deployment tests.')
 @click.option('--auth', help='Authentication information used to '
               'sign in to the deployment (such as an email address).')
-def deploy(deployment_name, pod_path, build, confirm, test, test_only, auth):
+def deploy(deployment_name, pod_path, preprocess, confirm, test, test_only, auth):
   """Deploys a pod to a destination."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   try:
@@ -28,7 +28,7 @@ def deploy(deployment_name, pod_path, build, confirm, test, test_only, auth):
     deployment = pod.get_deployment(deployment_name)
     if auth:
       deployment.login(auth)
-    if build:
+    if preprocess:
       pod.preprocess()
     if test_only:
       deployment.test()
