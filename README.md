@@ -29,15 +29,16 @@ Full documentation is available at https://growsdk.org, but this four-step proce
 
 (2) Initialize a new pod using the "codelab" theme.
 
-    grow init codelab ~/example.com/
+    grow init codelab codelab
+    cd codelab
 
 (3) Run a development web server for live editing and previewing.
 
-    grow run ~/example.com/
+    grow run
 
 (4) Build your site.
 
-    grow build ~/example.com/
+    grow build
 
 By using the installer from `install.growsdk.org`, you can take advantage of the autoupdater. If you'd prefer to build yourself or install Grow another way (such as `pip`), see [installation alternatives](#installation-alternatives).
 
