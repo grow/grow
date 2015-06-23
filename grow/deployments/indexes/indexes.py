@@ -1,4 +1,5 @@
 from . import messages
+from .. import utils
 from protorpc import protojson
 import ConfigParser
 import datetime
@@ -250,22 +251,9 @@ class Index(object):
     except ConfigParser.NoSectionError:
       logging.warning("Couldn't find user info in repository config.")
     try:
-      commit = repo.head.commit
-    except ValueError:
-      logging.info('Warning: On initial commit, no HEAD yet.')
-      return message
-    try:
-      repo.git.diff('--quiet')
-      has_unstaged_changes = False
-    except git.exc.GitCommandError:
-      has_unstaged_changes = True
-    commit_message = messages.CommitMessage()
-    commit_message.has_unstaged_changes = has_unstaged_changes
-    commit_message.sha = commit.hexsha
-    commit_message.message = commit.message
-    commit_message.author = messages.AuthorMessage(
-        name=commit.author.name, email=commit.author.email)
-    message.commit = commit_message
+      message.commit = utils.create_commit_message(repo)
+    except utils.NoGitHeadError as e:
+      logging.warning(e)
     return message
 
   @classmethod

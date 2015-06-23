@@ -13,6 +13,7 @@ class CommitMessage(messages.Message):
   date = message_types.DateTimeField(3)
   message = messages.StringField(4)
   has_unstaged_changes = messages.BooleanField(5)
+  branch = messages.StringField(6)
 
 
 class FileMessage(messages.Message):

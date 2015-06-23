@@ -6,6 +6,7 @@ from . import import_translations
 from . import machine_translate
 from . import routes
 from . import run
+from . import stage
 from . import test
 
 
@@ -18,4 +19,5 @@ def add(group):
   group.add_command(machine_translate.machine_translate)
   group.add_command(routes.routes)
   group.add_command(run.run)
+  group.add_command(stage.stage)
   group.add_command(test.test)

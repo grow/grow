@@ -1,4 +1,5 @@
 from . import base
+from .. import utils
 from grow.pods import env
 from protorpc import messages
 import os
@@ -12,6 +13,7 @@ class Config(messages.Message):
   server = messages.StringField(4, required=True)
   secure = messages.BooleanField(5, default=True)
   keep_control_dir = messages.BooleanField(6, default=False)
+  remote = messages.StringField(8)
 
 
 class WebReviewDestination(base.BaseDestination):
@@ -23,6 +25,10 @@ class WebReviewDestination(base.BaseDestination):
   def __init__(self, *args, **kwargs):
     super(WebReviewDestination, self).__init__(*args, **kwargs)
     api_key = os.getenv('WEBREVIEW_API_KEY')
+    if self.config.remote:
+      self.config.server, self.config.project = self.config.remote.split('/', 1)
+    if self.config.server.startswith('localhost:'):
+      self.config.secure = False
     self.webreview = webreview.WebReview(
         project=self.config.project,
         name=self.config.name,
@@ -33,6 +39,17 @@ class WebReviewDestination(base.BaseDestination):
   def __str__(self):
     return self.config.server
 
+  def deploy(self, *args, **kwargs):
+    repo = kwargs.get('repo')
+    if repo:
+      try:
+        self.webreview.commit = utils.create_commit_message(repo)
+      except ValueError:
+        raise ValueError(
+            'Cannot deploy to WebReview from a Git repository without a HEAD.'
+            ' Commit first then deploy to WebReview.')
+    return super(WebReviewDestination, self).deploy(*args, **kwargs)
+
   def login(self, account='default', reauth=False):
     self.webreview.login(account, reauth=reauth)
 
@@ -40,7 +57,7 @@ class WebReviewDestination(base.BaseDestination):
     super(WebReviewDestination, self).prelaunch(dry_run=dry_run)
 
   def test(self):
-    # Don't run the default "can write files at destination" test.
+    # Skip the default "can write files at destination" test.
     pass
 
   def read_file(self, path):
