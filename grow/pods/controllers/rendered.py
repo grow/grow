@@ -41,7 +41,7 @@ class RenderedController(base.BaseController):
 
   def _install_translations(self, locale):
     if locale is None:
-      gettext_translations = gettext.NulocaleTranslations()
+      gettext_translations = gettext.NullTranslations()
     else:
       catalog = self.pod.catalogs.get(locale)
       gettext_translations = catalog.gettext_translations
