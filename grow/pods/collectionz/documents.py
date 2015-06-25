@@ -63,8 +63,9 @@ class Document(object):
 
   @webapp2.cached_property
   def fields(self):
+    tagged_fields = self.get_tagged_fields()
     catalog = self.pod.catalogs.get(self.locale)
-    fields = utils.untag_fields(self.tagged_fields, catalog=catalog)
+    fields = utils.untag_fields(tagged_fields, catalog=catalog)
     if fields is None:
       return {}
     return fields
@@ -73,9 +74,9 @@ class Document(object):
   def format(self):
     return formats.Format.get(self)
 
-  @webapp2.cached_property
-  def tagged_fields(self):
-    return self.format.fields
+  def get_tagged_fields(self):
+    format_obj = formats.Format.get(self)
+    return format_obj.fields
 
   @property
   def url(self):
