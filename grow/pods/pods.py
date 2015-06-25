@@ -49,7 +49,6 @@ import logging
 import os
 import progressbar
 import re
-import webapp2
 
 _handler = logging.StreamHandler()
 _handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S'))
@@ -90,7 +89,12 @@ class Pod(object):
 
     self.logger = _logger
     self._routes = None
-    sdk_utils.check_sdk_version(self)
+
+    try:
+      sdk_utils.check_sdk_version(self)
+    except PodDoesNotExistError:
+      # Pod doesn't exist yet, simply pass.
+      pass
 
   def __repr__(self):
     return '<Pod: {}>'.format(self.root)

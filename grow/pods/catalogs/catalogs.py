@@ -159,7 +159,7 @@ class Catalog(catalog.Catalog):
     # Get strings to translate.
     # TODO(jeremydw): Use actual string, not the msgid. Currently we assume
     # the msgid is the source string.
-    messages_to_translate = [message for message in catalog if not message.string]
+    messages_to_translate = [message for message in babel_catalog if not message.string]
     strings_to_translate = [message.id for message in messages_to_translate]
     if not strings_to_translate:
       logging.info('No untranslated strings for {}, skipping.'.format(locale))

@@ -1,5 +1,6 @@
 from . import catalogs
 from . import importers
+from babel import util as babel_util
 from babel.messages import extract
 from babel.messages import pofile
 from grow.common import utils
@@ -108,10 +109,16 @@ class Catalogs(object):
     return catalog.add(string, None, auto_comments=comments, context=context,
                        flags=flags)
 
-  def extract(self):
+  def extract(self, include_obsolete=False):
     env = self.pod.create_template_env()
     template_path = self.template_path
     catalog_obj, exists = self._get_or_create_catalog(template_path)
+
+    if not include_obsolete:
+      catalog_obj.obsolete = babel_util.odict()
+      for message in list(catalog_obj):
+        catalog_obj.delete(message.id, context=message.context)
+
     extracted = []
 
     comment_tags = [
@@ -164,7 +171,8 @@ class Catalogs(object):
     for collection in self.pod.list_collections():
       self.pod.logger.info('Extracting from collection: {}'.format(collection.pod_path))
       for doc in collection.list_documents(include_hidden=True):
-        utils.walk(doc.tagged_fields, lambda *args: callback(doc, *args))
+        tagged_fields = doc.get_tagged_fields()
+        utils.walk(tagged_fields, lambda *args: callback(doc, *args))
 
     # Extract messages from podspec.
     config = self.pod.get_podspec().get_config()
@@ -173,12 +181,14 @@ class Catalogs(object):
     utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
 
     # Write to PO template.
-    return self.write_template(template_path, catalog_obj)
+    return self.write_template(template_path, catalog_obj,
+                               include_obsolete=include_obsolete)
 
-  def write_template(self, template_path, catalog):
+  def write_template(self, template_path, catalog, include_obsolete=False):
     template_file = self.pod.open_file(template_path, mode='w')
     pofile.write_po(template_file, catalog, width=80, omit_header=True,
-                    sort_output=True, sort_by_file=True)
+                    sort_output=True, sort_by_file=True,
+                    ignore_obsolete=(not include_obsolete))
     text = 'Wrote {} messages to translation template: {}'
     self.pod.logger.info(text.format(len(catalog), template_path))
     template_file.close()

@@ -12,9 +12,7 @@ class RenderedController(base.BaseController):
   KIND = messages.Kind.RENDERED
 
   class Defaults(object):
-    LL = 'en'
     LOCALE = None
-    CC = None
 
   def __init__(self, view=None, document=None, path=None, _pod=None):
     self.view = view
@@ -37,23 +35,15 @@ class RenderedController(base.BaseController):
     if self.document:
       return self.document.locale
 
-  @property
-  def ll(self):
-    return self.route_params.get('ll', RenderedController.Defaults.LL)
-
-  @property
-  def cc(self):
-    return self.route_params.get('cc', RenderedController.Defaults.CC)
-
   @webapp2.cached_property
   def _template_env(self):
     return self.pod.create_template_env()
 
-  def _install_translations(self, ll):
-    if ll is None:
+  def _install_translations(self, locale):
+    if locale is None:
       gettext_translations = gettext.NullTranslations()
     else:
-      catalog = self.pod.catalogs.get(ll)
+      catalog = self.pod.catalogs.get(locale)
       gettext_translations = catalog.gettext_translations
     self._template_env.uninstall_gettext_translations(None)
     self._template_env.install_gettext_translations(gettext_translations, newstyle=True)
@@ -71,7 +61,6 @@ class RenderedController(base.BaseController):
     g = {
         'breadcrumb': lambda *args, **kwargs: tags.breadcrumb(*args, _pod=self.pod, **kwargs),
         'categories': lambda *args, **kwargs: tags.categories(*args, _pod=self.pod, **kwargs),
-        'cc': self.cc,
         'csv': lambda *args, **kwargs: tags.csv(*args, _pod=self.pod, **kwargs),
         'date': lambda *args, **kwargs: tags.date(*args, _pod=self.pod, **kwargs),
         'doc': lambda *args, **kwargs: tags.get_doc(*args, _pod=self.pod, **kwargs),

@@ -1,5 +1,6 @@
 from grow.common import utils
 from grow.deployments.destinations import base
+from grow.deployments.destinations import webreview_destination
 from grow.deployments.stats import stats
 from grow.pods import pods
 from grow.pods import storage
@@ -8,36 +9,29 @@ import os
 
 
 @click.command()
-@click.argument('deployment_name', required=False, default='default')
 @click.argument('pod_path', default='.')
 @click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
               help='Whether to run preprocessors.')
-@click.option('--confirm/--noconfirm', '-c/-f', default=True, is_flag=True,
-              help='Whether to confirm prior to deployment.')
-@click.option('--test/--notest', default=True, is_flag=True,
-              help='Whether to run deployment tests.')
-@click.option('--test_only', default=False, is_flag=True,
-              help='Only run the deployment tests.')
 @click.option('--auth', help='Authentication information used to '
               'sign in to the deployment (such as an email address).')
-def deploy(deployment_name, pod_path, preprocess, confirm, test, test_only, auth):
-  """Deploys a pod to a destination."""
+@click.option('--remote', required=True,
+              help='WebReview remote address (example: '
+                   ' example.com/owner/project).')
+def stage(pod_path, remote, auth, preprocess):
+  """Stages a build on a WebReview server."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   try:
     pod = pods.Pod(root, storage=storage.FileStorage)
-    deployment = pod.get_deployment(deployment_name)
+    dest_class = webreview_destination.WebReviewDestination
+    deployment = dest_class(dest_class.Config(remote=remote))
     if auth:
       deployment.login(auth)
-    if preprocess:
-      pod.preprocess()
-    if test_only:
-      deployment.test()
-      return
-    paths_to_contents = deployment.dump(pod)
+    pod.preprocess()
     repo = utils.get_git_repo(pod.root)
+    paths_to_contents = deployment.dump(pod)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
     deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
-                      confirm=confirm, test=test)
+                      confirm=False, test=False)
   except base.Error as e:
     raise click.ClickException(str(e))
   except pods.Error as e:

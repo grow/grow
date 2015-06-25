@@ -71,7 +71,6 @@ from .. import tests
 from ..indexes import indexes
 from grow.common import utils
 from grow.pods import env
-from xtermcolor import colorize
 import inspect
 import io
 import logging
