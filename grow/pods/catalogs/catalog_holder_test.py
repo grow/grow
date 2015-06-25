@@ -29,6 +29,20 @@ class CatalogsTest(unittest.TestCase):
     for string in expected:
       self.assertIn(string, template_catalog)
 
+    # Verify "include_obsolete" behavior.
+    self.assertNotIn('foo', template_catalog)
+
+    template_catalog.add('foo', 'bar')
+    self.pod.catalogs.write_template(
+        self.pod.catalogs.template_path, template_catalog)
+
+    template_catalog = self.pod.catalogs.extract(include_obsolete=True)
+    self.assertIn('foo', template_catalog)
+
+    template_catalog = self.pod.catalogs.extract(include_obsolete=False)
+    self.assertNotIn('foo', template_catalog)
+
+
   def test_iter(self):
     locales = self.pod.catalogs.list_locales()
     for catalog in self.pod.catalogs:
