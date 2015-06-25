@@ -89,7 +89,12 @@ class Pod(object):
 
     self.logger = _logger
     self._routes = None
-    sdk_utils.check_sdk_version(self)
+
+    try:
+      sdk_utils.check_sdk_version(self)
+    except PodDoesNotExistError:
+      # Pod doesn't exist yet, simply pass.
+      pass
 
   def __repr__(self):
     return '<Pod: {}>'.format(self.root)

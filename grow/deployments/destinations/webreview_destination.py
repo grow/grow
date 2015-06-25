@@ -48,7 +48,9 @@ class WebReviewDestination(base.BaseDestination):
         raise ValueError(
             'Cannot deploy to WebReview from a Git repository without a HEAD.'
             ' Commit first then deploy to WebReview.')
-    return super(WebReviewDestination, self).deploy(*args, **kwargs)
+    result = super(WebReviewDestination, self).deploy(*args, **kwargs)
+    self.webreview.finalize()
+    return result
 
   def login(self, account='default', reauth=False):
     self.webreview.login(account, reauth=reauth)

@@ -60,6 +60,10 @@ class CatalogTest(unittest.TestCase):
     de_catalog.list_missing()
     de_catalog.list_missing(use_fuzzy=True)
 
+  def test_machine_translate(self):
+    de_catalog = self.pod.catalogs.get('de')
+    de_catalog.machine_translate()
+
 
 if __name__ == '__main__':
   unittest.main()
