@@ -14,6 +14,7 @@ class CatalogsTest(unittest.TestCase):
 
   def test_import_path_with_po_file(self):
     de_catalog = self.pod.catalogs.get('de')
+    self.assertIn('About', de_catalog)
     self.assertNotIn('German Translation', de_catalog)
 
     path = testing.get_testdata_dir()
@@ -21,6 +22,9 @@ class CatalogsTest(unittest.TestCase):
     self.pod.catalogs.import_translations(po_path_to_import, locale='de')
     de_catalog = self.pod.catalogs.get('de')
     self.assertIn('German Translation', de_catalog)
+    # Verify strings not present in the catalog-to-merge are preserved
+    # in the existing catalog.
+    self.assertIn('About', de_catalog)
 
   def test_import_path_with_zip_file(self):
     de_catalog = self.pod.catalogs.get('de')
