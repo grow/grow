@@ -1,5 +1,7 @@
 from . import base
 from . import messages
+from grow.pods import locales
+from grow.pods import urls
 import fnmatch
 import mimetypes
 import re
@@ -18,6 +20,30 @@ mimetypes.add_type('text/css', '.css')
 SKIP_PATTERNS = [
     '**/.**',
 ]
+
+
+class StaticFile(object):
+
+  def __init__(self, pod_path, serving_path, locale=None, pod=None):
+    self.pod_path = pod_path
+    self.serving_path = serving_path
+    self.pod = pod
+    self.default_locale = pod.podspec.default_locale
+    self.locale = locale or pod.podspec.default_locale
+    if isinstance(self.locale, basestring):
+      self.locale = locales.Locale(self.locale)
+    if self.locale is not None:
+      self.locale.set_alias(pod)
+
+  def __repr__(self):
+    if self.locale:
+      return "<StaticFile({}, locale='{}')>".format(self.pod_path, self.locale)
+    return "<StaticFile({})>".format(self.pod_path)
+
+  @property
+  def url(self):
+    path = self.serving_path
+    return urls.Url(path=path) if path else None
 
 
 class StaticController(base.BaseController):
@@ -54,6 +80,16 @@ class StaticController(base.BaseController):
     headers['Last-Modified'] = modified.split('.')[0]
     headers['Cache-Control'] = 'max-age'
     return headers
+
+  def match_pod_path(self, pod_path):
+    if self.path_format == pod_path:
+      return self.path_format
+    tokens = re.findall('.?{([^>]+)}.?', self.path_format)
+    if 'filename' in tokens:
+      source_regex = self.source_format.replace('{filename}', '(.*)')
+      for filename in re.findall(source_regex, pod_path):
+        params = {'filename': filename}
+        return self.path_format.format(**params)
 
   def list_concrete_paths(self):
     concrete_paths = set()

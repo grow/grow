@@ -40,6 +40,7 @@ class PodTest(unittest.TestCase):
   def test_dump(self):
     paths = [
         '/about/index.html',
+        '/app/static/test.txt',
         '/contact-us/index.html',
         '/de/about/index.html',
         '/de/contact-us/index.html',

@@ -20,6 +20,7 @@ class RoutesTest(unittest.TestCase):
     expected = [
         '/',
         '/about/',
+        '/app/static/test.txt',
         '/contact-us/',
         '/de/about/',
         '/de/contact-us/',
