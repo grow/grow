@@ -24,7 +24,11 @@ def create_commit_message(repo):
   message.has_unstaged_changes = has_unstaged_changes
   message.sha = commit.hexsha
   message.message = commit.message
-  message.branch = repo.head.ref.name
+  try:
+    message.branch = repo.head.ref.name
+  except TypeError:
+    # Allow operating in an environment with a detached HEAD.
+    pass
   message.author = messages.AuthorMessage(
       name=commit.author.name, email=commit.author.email)
   return message
