@@ -209,7 +209,8 @@ class Pod(object):
         serving_path = controller.match_pod_path(pod_path)
         if serving_path:
           return static.StaticFile(pod_path, serving_path, locale=locale,
-                                   pod=self, localization=controller.localization)
+                                   pod=self, controller=controller,
+                                   localization=controller.localization)
 
   def get_doc(self, pod_path, locale=None):
     """Returns a document, given the document's pod path."""

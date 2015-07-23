@@ -13,6 +13,8 @@ class StaticTest(unittest.TestCase):
   def test_static(self):
     static = self.pod.get_static('/static/test.txt')
     self.assertEqual('/app/static/test.txt', static.url.path)
+    static = self.pod.get_static('/static/test.txt', locale='de')
+    self.assertEqual('/app/static/somepath/de/test.txt', static.url.path)
 
 
 if __name__ == '__main__':

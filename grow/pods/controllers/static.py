@@ -25,7 +25,7 @@ SKIP_PATTERNS = [
 class StaticFile(object):
 
   def __init__(self, pod_path, serving_path, locale=None, localization=None,
-               pod=None):
+               controller=None, pod=None):
     self.pod = pod
     self.default_locale = pod.podspec.default_locale
     self.locale = locale or pod.podspec.default_locale
@@ -36,6 +36,7 @@ class StaticFile(object):
     self.localization = localization
     self.pod_path = pod_path
     self.serving_path = serving_path
+    self.controller = controller
 
   def __repr__(self):
     if self.locale:
@@ -44,8 +45,16 @@ class StaticFile(object):
 
   @property
   def url(self):
-    path = self.serving_path
-    return urls.Url(path=path) if path else None
+    serving_path = self.serving_path
+    path_format = self.controller.path_format.replace('{filename}', '')
+    suffix = serving_path.replace(path_format, '')
+    localized_pod_path = self.localization['static_dir'] + suffix
+    localized_pod_path = localized_pod_path.format(locale=self.locale)
+    if self.pod.file_exists(localized_pod_path):
+      localized_serving_path = self.localization['serve_at'] + suffix
+      localized_serving_path = localized_serving_path.format(locale=self.locale)
+      serving_path = localized_serving_path
+    return urls.Url(path=serving_path) if serving_path else None
 
 
 class StaticController(base.BaseController):
@@ -65,16 +74,21 @@ class StaticController(base.BaseController):
   def __repr__(self):
     return '<Static(format=\'{}\')>'.format(self.source_format)
 
-  def get_pod_path(self):
-    # If a localized file exists, serve it. Otherwise, serve the base file.
-    if self.localization and '{locale}' in self.path_format:
-      source_format = self.localization.get('static_dir')
+  def get_localized_pod_path(self):
+    if (self.localization
+        and '{locale}' in self.localization['static_dir']
+        and 'locale' in self.route_params):
+      source_format = self.localization['serve_at']
       source_format += '/{filename}'
       source_format = source_format.replace('//', '/')
       pod_path = source_format.format(**self.route_params)
       if self.pod.file_exists(pod_path):
         return pod_path
-    return self.source_format.format(**self.route_params)
+
+  def get_pod_path(self):
+    # If a localized file exists, serve it. Otherwise, serve the base file.
+    return (self.get_localized_pod_path()
+            or self.source_format.format(**self.route_params))
 
   def render(self):
     return self.pod.read_file(self.get_pod_path())
@@ -102,7 +116,8 @@ class StaticController(base.BaseController):
       source_regex = self.source_format.replace('{filename}', '(?P<filename>.*)')
       source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
       match = re.match(source_regex, pod_path)
-      return self.path_format.format(**match.groupdict())
+      if match:
+        return self.path_format.format(**match.groupdict())
 
   def list_concrete_paths(self):
     concrete_paths = set()
@@ -132,6 +147,15 @@ class StaticController(base.BaseController):
 
       for path in paths:
         match = re.match(source_regex, path)
+        # Skip adding localized paths in subfolders of other rules.
+        if not self.localized and self.localization:
+          localized_source_format = self.localization['static_dir']
+          localized_source_regex = localized_source_format.replace(
+              '{filename}', '(?P<filename>.*)')
+          localized_source_regex = localized_source_regex.replace(
+              '{locale}', '(?P<locale>[^/]*)')
+          if re.match(localized_source_regex, path):
+            continue
         if match:
           matched_path = self.path_format.format(**match.groupdict())
           concrete_paths.add(matched_path)
