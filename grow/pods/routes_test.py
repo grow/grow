@@ -21,6 +21,7 @@ class RoutesTest(unittest.TestCase):
         '/',
         '/about/',
         '/app/static/test.txt',
+        '/app/static/somepath/de/test.txt',
         '/contact-us/',
         '/de/about/',
         '/de/contact-us/',

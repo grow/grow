@@ -24,9 +24,8 @@ SKIP_PATTERNS = [
 
 class StaticFile(object):
 
-  def __init__(self, pod_path, serving_path, locale=None, pod=None):
-    self.pod_path = pod_path
-    self.serving_path = serving_path
+  def __init__(self, pod_path, serving_path, locale=None, localization=None,
+               pod=None):
     self.pod = pod
     self.default_locale = pod.podspec.default_locale
     self.locale = locale or pod.podspec.default_locale
@@ -34,6 +33,9 @@ class StaticFile(object):
       self.locale = locales.Locale(self.locale)
     if self.locale is not None:
       self.locale.set_alias(pod)
+    self.localization = localization
+    self.pod_path = pod_path
+    self.serving_path = serving_path
 
   def __repr__(self):
     if self.locale:
@@ -49,18 +51,29 @@ class StaticFile(object):
 class StaticController(base.BaseController):
   KIND = messages.Kind.STATIC
 
-  def __init__(self, path_format, source_format=None, pod=None):
+  def __init__(self, path_format, source_format=None, localized=False,
+               localization=None, pod=None):
     # path_format: "serve_at"
     # source_format: "static_dir"
     self.path_format = path_format.replace('<grow:', '{').replace('>', '}')
     self.source_format = source_format.replace('<grow:', '{').replace('>', '}')
     self.pod = pod
+    self.localized = localized
+    self.localization = localization
     self.route_params = {}
 
   def __repr__(self):
     return '<Static(format=\'{}\')>'.format(self.source_format)
 
   def get_pod_path(self):
+    # If a localized file exists, serve it. Otherwise, serve the base file.
+    if self.localization and '{locale}' in self.path_format:
+      source_format = self.localization.get('static_dir')
+      source_format += '/{filename}'
+      source_format = source_format.replace('//', '/')
+      pod_path = source_format.format(**self.route_params)
+      if self.pod.file_exists(pod_path):
+        return pod_path
     return self.source_format.format(**self.route_params)
 
   def render(self):
@@ -86,22 +99,25 @@ class StaticController(base.BaseController):
       return self.path_format
     tokens = re.findall('.?{([^>]+)}.?', self.path_format)
     if 'filename' in tokens:
-      source_regex = self.source_format.replace('{filename}', '(.*)')
-      for filename in re.findall(source_regex, pod_path):
-        params = {'filename': filename}
-        return self.path_format.format(**params)
+      source_regex = self.source_format.replace('{filename}', '(?P<filename>.*)')
+      source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
+      match = re.match(source_regex, pod_path)
+      return self.path_format.format(**match.groupdict())
 
   def list_concrete_paths(self):
     concrete_paths = set()
-    tokens = re.findall('.?{([^>]+)}.?', self.path_format)
+    tokens = re.findall('.?{([^}]+)}.?', self.path_format)
+
+    source_regex = self.source_format.replace('{filename}', '(?P<filename>.*)')
+    source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
 
     if '{' not in self.path_format:
       concrete_paths.add(self.path_format)
 
     elif 'filename' in tokens:
       source = self.source_format.replace('{filename}', '')[1:]
-      source_regex = self.source_format.replace('{filename}', '(.*)')
-
+      source = source.replace('{locale}', '')
+      source = source.rstrip('/')
       paths = self.pod.list_dir(source)
       paths = [('/' + source + path).replace(self.pod.root, '') for path in paths]
 
@@ -115,8 +131,9 @@ class StaticController(base.BaseController):
                    if path.replace(self.pod.root, '') not in skip_paths]
 
       for path in paths:
-        for filename in re.findall(source_regex, path):
-          params = {'filename': filename}
-          concrete_paths.add(self.path_format.format(**params))
+        match = re.match(source_regex, path)
+        if match:
+          matched_path = self.path_format.format(**match.groupdict())
+          concrete_paths.add(matched_path)
 
     return list(concrete_paths)
