@@ -34,11 +34,7 @@ class Document(object):
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
     utils.validate_name(pod_path)
     self.default_locale = _pod.podspec.default_locale
-    self.locale = locale or _pod.podspec.default_locale
-    if isinstance(self.locale, basestring):
-      self.locale = locales.Locale(self.locale)
-    if self.locale is not None:
-      self.locale.set_alias(_pod)
+    self.locale = _pod.normalize_locale(locale)
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self.base, self.ext = os.path.splitext(self.basename)

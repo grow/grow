@@ -28,11 +28,7 @@ class StaticFile(object):
                controller=None, pod=None):
     self.pod = pod
     self.default_locale = pod.podspec.default_locale
-    self.locale = locale or pod.podspec.default_locale
-    if isinstance(self.locale, basestring):
-      self.locale = locales.Locale(self.locale)
-    if self.locale is not None:
-      self.locale.set_alias(pod)
+    self.locale = pod.normalize_locale(locale)
     self.localization = localization
     self.pod_path = pod_path
     self.serving_path = serving_path
@@ -51,8 +47,10 @@ class StaticFile(object):
     localized_pod_path = self.localization['static_dir'] + suffix
     localized_pod_path = localized_pod_path.format(locale=self.locale)
     if self.pod.file_exists(localized_pod_path):
+      # Internal paths use Babel locales, serving paths use aliases.
+      locale = self.locale.alias if self.locale is not None else self.locale
       localized_serving_path = self.localization['serve_at'] + suffix
-      localized_serving_path = localized_serving_path.format(locale=self.locale)
+      localized_serving_path = localized_serving_path.format(locale=locale)
       serving_path = localized_serving_path
     return urls.Url(path=serving_path) if serving_path else None
 
@@ -81,7 +79,10 @@ class StaticController(base.BaseController):
       source_format = self.localization['serve_at']
       source_format += '/{filename}'
       source_format = source_format.replace('//', '/')
-      pod_path = source_format.format(**self.route_params)
+      kwargs = self.route_params
+      if 'locale' in kwargs:
+        kwargs['locale'] = locales.Locale.from_alias(self.pod, kwargs['locale'])
+      pod_path = source_format.format(**kwargs)
       if self.pod.file_exists(pod_path):
         return pod_path
 
@@ -117,7 +118,10 @@ class StaticController(base.BaseController):
       source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
       match = re.match(source_regex, pod_path)
       if match:
-        return self.path_format.format(**match.groupdict())
+        kwargs = match.groupdict()
+        if 'locale' in kwargs:
+          kwargs['locale'] = locales.Locale.from_alias(self.pod, kwargs['locale'])
+        return self.path_format.format(**kwargs)
 
   def list_concrete_paths(self):
     concrete_paths = set()
@@ -157,7 +161,12 @@ class StaticController(base.BaseController):
           if re.match(localized_source_regex, path):
             continue
         if match:
-          matched_path = self.path_format.format(**match.groupdict())
+          kwargs = match.groupdict()
+          if 'locale' in kwargs:
+            normalized_locale = self.pod.normalize_locale(kwargs['locale'])
+            kwargs['locale'] = (normalized_locale.alias
+                                if normalized_locale is not None else normalized_locale)
+          matched_path = self.path_format.format(**kwargs)
           concrete_paths.add(matched_path)
 
     return list(concrete_paths)

@@ -17,6 +17,8 @@ localization:
   - en
   - fr
   - it
+  aliases:
+    de_alias: de
 
 deployments:
   gcs:
