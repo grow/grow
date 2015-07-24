@@ -12,8 +12,13 @@ class PodTest(unittest.TestCase):
     self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
   def test_list_dir(self):
-    os.listdir(os.path.join(self.dir_path, 'content'))
-    self.pod.list_dir('/content')
+    dirpath = os.path.join(self.dir_path, 'content')
+    num_files = 0
+    for root, dirs, files in os.walk(dirpath):
+      for filename in files:
+        num_files += 1
+    actual = self.pod.list_dir('/content')
+    self.assertEqual(len(actual), num_files)
 
   def test_read_file(self):
     content = self.pod.read_file('/README.md')
@@ -40,13 +45,15 @@ class PodTest(unittest.TestCase):
   def test_dump(self):
     paths = [
         '/about/index.html',
+        '/app/static/test.txt',
+        '/app/static/somepath/de_alias/test.txt',
         '/contact-us/index.html',
-        '/de/about/index.html',
-        '/de/contact-us/index.html',
-        '/de/home/index.html',
-        '/de/html/index.html',
-        '/de/intro/index.html',
-        '/de/yaml_test/index.html',
+        '/de_alias/about/index.html',
+        '/de_alias/contact-us/index.html',
+        '/de_alias/home/index.html',
+        '/de_alias/html/index.html',
+        '/de_alias/intro/index.html',
+        '/de_alias/yaml_test/index.html',
         '/fr/about/index.html',
         '/fr/contact-us/index.html',
         '/fr/home/index.html',

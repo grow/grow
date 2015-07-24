@@ -36,6 +36,8 @@ from . import storage
 from .catalogs import catalog_holder
 from .collectionz import collectionz
 from .controllers import jinja2htmlcompress
+from .controllers import messages as controller_messages
+from .controllers import static
 from .controllers import tags
 from .preprocessors import preprocessors
 from .tests import tests
@@ -198,6 +200,17 @@ class Pod(object):
   def create_file(self, pod_path, content):
     """Creates a file inside the pod."""
     return files.File.create(pod_path, content, self)
+
+  def get_static(self, pod_path, locale=None):
+    """Returns a StaticFile, given the static file's pod path."""
+    for route in self.routes:
+      controller = route.endpoint
+      if controller.KIND == controller_messages.Kind.STATIC:
+        serving_path = controller.match_pod_path(pod_path)
+        if serving_path:
+          return static.StaticFile(pod_path, serving_path, locale=locale,
+                                   pod=self, controller=controller,
+                                   localization=controller.localization)
 
   def get_doc(self, pod_path, locale=None):
     """Returns a document, given the document's pod path."""
@@ -367,3 +380,11 @@ class Pod(object):
 
   def test(self):
     self.tests.run()
+
+  def normalize_locale(self, locale):
+    locale = locale or self.podspec.default_locale
+    if isinstance(locale, basestring):
+      locale = locales.Locale(locale)
+    if locale is not None:
+      locale.set_alias(self)
+    return locale
