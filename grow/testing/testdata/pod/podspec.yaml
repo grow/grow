@@ -4,9 +4,11 @@ flags:
   static_dir: /public/
 
 static_dirs:
-  - static_dir: /static/
-    serve_at: /app/static/
-    name: static_dir_name
+- static_dir: /static/
+  serve_at: /app/static/
+  localization:
+    static_dir: /static/intl/{locale}/
+    serve_at: /app/static/somepath/{locale}/
 
 localization:
   default_locale: en
@@ -15,6 +17,8 @@ localization:
   - en
   - fr
   - it
+  aliases:
+    de_alias: de
 
 deployments:
   gcs:

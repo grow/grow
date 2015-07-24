@@ -97,10 +97,23 @@ class Routes(object):
       for config in podspec_config['static_dirs']:
         static_dir = config['static_dir'] + '<grow:filename>'
         serve_at = config['serve_at'] + '<grow:filename>'
+        localization = config.get('localization')
         controller = static.StaticController(path_format=serve_at,
                                              source_format=static_dir,
+                                             localized=False,
+                                             localization=localization,
                                              pod=self.pod)
         rules.append(routing.Rule(serve_at, endpoint=controller))
+        if localization:
+          localized_serve_at = localization.get('serve_at') + '<grow:filename>'
+          localized_static_dir = localization.get('static_dir') + '<grow:filename>'
+          rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
+          controller = static.StaticController(path_format=localized_serve_at,
+                                               source_format=localized_static_dir,
+                                               localized=True,
+                                               localization=localization,
+                                               pod=self.pod)
+          rules.append(routing.Rule(rule_path, endpoint=controller))
     return rules
 
   def match(self, path, env):

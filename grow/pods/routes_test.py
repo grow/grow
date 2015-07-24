@@ -13,20 +13,23 @@ class RoutesTest(unittest.TestCase):
 
   def test_match(self):
     self.pod.match('/')
-    self.pod.match('/de/about/')
+    self.pod.match('/fr/about/')
+    self.pod.match('/de_alias/about/')
     self.assertRaises(webob.exc.HTTPNotFound, self.pod.match, '/dummy/')
 
   def test_list_concrete_paths(self):
     expected = [
         '/',
         '/about/',
+        '/app/static/test.txt',
+        '/app/static/somepath/de_alias/test.txt',
         '/contact-us/',
-        '/de/about/',
-        '/de/contact-us/',
-        '/de/home/',
-        '/de/html/',
-        '/de/intro/',
-        '/de/yaml_test/',
+        '/de_alias/about/',
+        '/de_alias/contact-us/',
+        '/de_alias/home/',
+        '/de_alias/html/',
+        '/de_alias/intro/',
+        '/de_alias/yaml_test/',
         '/fr/about/',
         '/fr/contact-us/',
         '/fr/home/',

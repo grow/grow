@@ -68,6 +68,17 @@ class Locale(babel.Locale):
   def direction(self):
     return 'rtl' if self.is_rtl else 'ltr'
 
+  @classmethod
+  def from_alias(cls, pod, alias):
+    podspec = pod.get_podspec()
+    config = podspec.get_config()
+    if 'localization' in config and 'aliases' in config['localization']:
+      aliases = config['localization']['aliases']
+      for custom_locale, babel_locale in aliases.iteritems():
+        if custom_locale == alias:
+          return cls(babel_locale)
+    return cls(alias)
+
   def set_alias(self, pod):
     locale = str(self).lower()
     podspec = pod.get_podspec()

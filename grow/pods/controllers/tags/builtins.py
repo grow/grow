@@ -78,9 +78,8 @@ def slug_filter(value):
   return unicode(u'-'.join(result))
 
 
-def static(path, _pod=None):
-  # TODO(jeremydw): Implement this.
-  return path
+def static(path, locale=None, _pod=None):
+  return _pod.get_static(path, locale=locale)
 
 
 class Menu(object):

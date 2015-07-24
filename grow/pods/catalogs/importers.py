@@ -90,9 +90,11 @@ class Importer(object):
       existing_catalog = pofile.read_po(existing_po_file, babel_locale)
       po_file_to_merge = open(po_path)
       catalog_to_merge = pofile.read_po(po_file_to_merge, babel_locale)
-      existing_catalog.update(catalog_to_merge)
+      for message in catalog_to_merge:
+        existing_catalog[message.id] = message
       existing_po_file = self.pod.open_file(pod_po_path, mode='w')
-      pofile.write_po(existing_po_file, catalog_to_merge, width=80)
+      pofile.write_po(existing_po_file, existing_catalog, width=80,
+                      omit_header=True, sort_output=True, sort_by_file=True)
       self.pod.logger.info(
           'Imported {} translations: {}'.format(len(catalog_to_merge), babel_locale))
     else:

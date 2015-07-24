@@ -68,7 +68,7 @@ class RenderedController(base.BaseController):
         'locales': lambda *args, **kwargs: tags.locales(*args, _pod=self.pod, **kwargs),
         'nav': lambda *args, **kwargs: tags.nav(*args, _pod=self.pod, **kwargs),
         'params': self.route_params,
-        'static': lambda path: tags.static(path, _pod=self.pod),
+        'static': lambda *args, **kwargs: tags.static(*args, _pod=self.pod, **kwargs),
         'url': lambda *args, **kwargs: tags.url(*args, _pod=self.pod, **kwargs),
         'yaml': lambda path: tags.yaml(path, _doc=self.document, _pod=self.pod),
     }
