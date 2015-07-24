@@ -44,14 +44,15 @@ class StaticFile(object):
     serving_path = self.serving_path
     path_format = self.controller.path_format.replace('{filename}', '')
     suffix = serving_path.replace(path_format, '')
-    localized_pod_path = self.localization['static_dir'] + suffix
-    localized_pod_path = localized_pod_path.format(locale=self.locale)
-    if self.pod.file_exists(localized_pod_path):
-      # Internal paths use Babel locales, serving paths use aliases.
-      locale = self.locale.alias if self.locale is not None else self.locale
-      localized_serving_path = self.localization['serve_at'] + suffix
-      localized_serving_path = localized_serving_path.format(locale=locale)
-      serving_path = localized_serving_path
+    if self.localization:
+      localized_pod_path = self.localization['static_dir'] + suffix
+      localized_pod_path = localized_pod_path.format(locale=self.locale)
+      if self.pod.file_exists(localized_pod_path):
+        # Internal paths use Babel locales, serving paths use aliases.
+        locale = self.locale.alias if self.locale is not None else self.locale
+        localized_serving_path = self.localization['serve_at'] + suffix
+        localized_serving_path = localized_serving_path.format(locale=locale)
+        serving_path = localized_serving_path
     return urls.Url(path=serving_path) if serving_path else None
 
 
