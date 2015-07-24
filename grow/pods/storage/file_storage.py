@@ -1,15 +1,8 @@
 from grow.pods.storage import base_storage
 import errno
-import shutil
 import jinja2
 import os
-
-
-def _normalize(filename):
-  if filename.startswith('/_grow'):
-    filename = filename[1:]
-    filename = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'growedit'))
-  return filename
+import shutil
 
 
 class FileStorage(base_storage.BaseStorage):
@@ -18,27 +11,22 @@ class FileStorage(base_storage.BaseStorage):
   def open(filename, mode=None):
     if mode is None:
       mode = 'r'
-    filename = _normalize(filename)
     return open(filename, mode=mode)
 
   @staticmethod
   def read(filename):
-    filename = _normalize(filename)
     return open(filename).read()
 
   @staticmethod
   def modified(filename):
-    filename = _normalize(filename)
     return os.stat(filename).st_mtime
 
   @staticmethod
   def stat(filename):
-    filename = _normalize(filename)
     return os.stat(filename)
 
   @staticmethod
   def listdir(dirpath):
-    dirpath = _normalize(dirpath)
     paths = []
     for root, dirs, files in os.walk(dirpath):
       for filename in files:
@@ -68,12 +56,10 @@ class FileStorage(base_storage.BaseStorage):
 
   @staticmethod
   def delete(filename):
-    filename = _normalize(filename)
     return os.remove(filename)
 
   @staticmethod
   def delete_dir(dirpath):
-    dirpath = _normalize(dirpath)
     shutil.rmtree(dirpath)
 
   @staticmethod

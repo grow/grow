@@ -135,8 +135,10 @@ class StaticController(base.BaseController):
       concrete_paths.add(self.path_format)
 
     elif 'filename' in tokens:
+      # NOTE: This should be updated to support globbing directories,
+      # and not simply strip all sub-paths beneath {locale}.
       source = self.source_format.replace('{filename}', '')[1:]
-      source = source.replace('{locale}', '')
+      source = re.sub('{locale}.*', '', source)
       source = source.rstrip('/')
       paths = self.pod.list_dir(source)
       paths = [('/' + source + path).replace(self.pod.root, '') for path in paths]
