@@ -81,7 +81,7 @@ class StaticController(base.BaseController):
       source_format = source_format.replace('//', '/')
       kwargs = self.route_params
       if 'locale' in kwargs:
-        kwargs['locale'] = locales.Locale.from_alias(self.pod, kwargs['locale'])
+        kwargs['locale'] = str(locales.Locale.from_alias(self.pod, kwargs['locale']))
       pod_path = source_format.format(**kwargs)
       if self.pod.file_exists(pod_path):
         return pod_path
@@ -120,7 +120,8 @@ class StaticController(base.BaseController):
       if match:
         kwargs = match.groupdict()
         if 'locale' in kwargs:
-          kwargs['locale'] = locales.Locale.from_alias(self.pod, kwargs['locale'])
+          kwargs['locale'] = str(
+              locales.Locale.from_alias(self.pod, kwargs['locale']))
         return self.path_format.format(**kwargs)
 
   def list_concrete_paths(self):
@@ -164,8 +165,9 @@ class StaticController(base.BaseController):
           kwargs = match.groupdict()
           if 'locale' in kwargs:
             normalized_locale = self.pod.normalize_locale(kwargs['locale'])
-            kwargs['locale'] = (normalized_locale.alias
-                                if normalized_locale is not None else normalized_locale)
+            kwargs['locale'] = (
+                normalized_locale.alias if normalized_locale is not None
+                else normalized_locale)
           matched_path = self.path_format.format(**kwargs)
           concrete_paths.add(matched_path)
 
