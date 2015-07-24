@@ -93,7 +93,9 @@ Hallo Welt!
 
 ## Locale class
 
-Grow's `Locale` objects subclass the [Babel project's Locale class](http://babel.pocoo.org/docs/locale/), providing access to some useful data. Grow validates locales and only accepts locales from the [Common Locale Data Repository (CLDR)](http://unicode.org/cldr/).
+Grow's `Locale` objects subclass the [Babel project's Locale class](http://babel.pocoo.org/docs/locale/), providing access to some useful data. Grow validates locales and only accepts locales from the [Common Locale Data Repository (CLDR)](http://unicode.org/cldr/), which uses ICU.
+
+[A full list of compatible locales can be found here](http://www.localeplanet.com/icu/).
 
 [sourcecode:yaml]
 # Page /de/hello/
