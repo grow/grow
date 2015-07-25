@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="stylesheet" href="{{g.static('/static/css/main.min.css')}}">
-<link rel="shortcut icon" href="{{g.static('/static/images/icon.png')}}">
+<link rel="stylesheet" href="{{g.static('/static/css/main.min.css').url.path}}">
+<link rel="shortcut icon" href="{{g.static('/static/images/icon.png').url.path}}">
 <title>{{doc.title}} – {{podspec.title}}</title>
 <body class="{{doc.class}}">
 <header class="cf">
   <div class="wrap">
     {% set index_doc = g.doc('/content/pages/index.html') %}
     <a href="{{index_doc.url.path}}" class="growlogo">
-      <img src="{{g.static('/static/images/grow.svg')}}">
+      <img src="{{g.static('/static/images/grow.svg').url.path}}">
       Grow SDK
     </a>
     <i>Alpha</i>

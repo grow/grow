@@ -33,7 +33,7 @@ sections:
 <div class="hero">
   <div class="wrap">
     <a href="{{index_doc.url.path}}" class="growlogo big">
-      <img src="{{g.static('/static/images/grow.svg')}}">
+      <img src="{{g.static('/static/images/grow.svg').url.path}}">
       Grow SDK
     </a>
     <h1>{{doc.hero.title}}</h1>
@@ -56,7 +56,7 @@ sections:
   <div class="panel callouts">
     {% for section in sections %}
     <summary>
-    <div class="image"><img src="{{g.static(section.image)}}"></div>
+    <div class="image"><img src="{{g.static(section.image).url.path}}"></div>
     <h2>{{section.title}}</h2>
     <p>{{section.content}}
     </summary>

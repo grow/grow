@@ -166,12 +166,14 @@ Returns an object which can be used to create navigation.
 
 `g.static(<file path>)`
 
-Returns the URL object for a static file from the pod's static directory. `<file path>` is the full pod path of the static file. Access the `path` property of the URL object to retrieve an absolute link to the static file.
+Returns a StaticFile object corresponding to a static file contained within the pod. `<file path>` is the full pod path of the static file. Access the `path` property of the URL object to retrieve an absolute link to the static file. Resources must first be configured in the `static_dirs` option in `podspec.yaml` before they can be referred to by the `g.static` tag.
 
 It is a best practice to refer to static files using the `g.static` tag rather than referring to their URLs directly. This allows Grow to automatically implement efficient cache headers and cache-busting techniques for incremental static file deployments.
 
+Lastly, using `g.static` allows you to change the serving paths of static files without moving them internally – plus it catches broken links at build time.
+
 [sourcecode:html+jinja]
-<img src="{{g.static('/static/example.png').path}}">
+<img src="{{g.static('/static/example.png').url.path}}">
 [/sourcecode]
 
 ### g.url
