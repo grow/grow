@@ -11,46 +11,6 @@ Preprocessors do things like optimization and code generation against your pod's
 
 Grow includes the below preprocessors as built-ins with the SDK, and you'll always be free to bring your own external processing tools (such as Grunt or Gulp).
 
-## Closure Compiler
-
-The [Closure Compiler](https://developers.google.com/closure/compiler/) preprocessor optimizes and compiles JavaScript files. Use Closure Compiler to make your site's JavaScript more efficient and to check your code.
-
-[sourcecode:yaml]
-kind: closure_compiler
-angular_pass: {yes|no}
-compilation_level: {ADVANCED_OPTIMIZATIONS|SIMPLE_OPTIMIZATIONS|WHITESPACE_ONLY}
-generate_exports: {yes|no}
-manage_closure_dependencies: {yes|no}
-only_closure_dependencies: {yes|no}
-output_wrapper: "(function() { %output% })();"
-js_output_file: /static/js/main.min.js
-closure_entry_point:
-- foo.main
-- bar.main
-js:
-- "/bower_components/closure-library/**.js"
-- "/source/js/**.js"
-- "!**_test.js"
-externs:
-- /source/js/externs.js
-[/sourcecode]
-
-### Including Closure Library
-
-Grow does not implement any sort of package or dependency management system. If you want to use the Closure Compiler preprocessor with Closure Library, you'll need to make Closure Library's sources available to the compiler. Instead of including Closure Library in its entirety in your Git repository, you could use a dependency management system such as Bower or Git submodules.
-
-To install Closure Library using Bower, create a `bower.json` file and run `bower install`.
-
-[sourcecode:json]
-{
-  "name": "<project name>",
-  "private": true,
-  "dependencies": {
-    "closure-library": "git://github.com/google/closure-library.git"
-  }
-}
-[/sourcecode]
-
 ## Google Sheets
 
 The Google Sheets preprocessor downloads data from a Google Sheet and saves it to a data file within your pod. The data can then be consumed by the `g.csv` tag, for example, in templates.
