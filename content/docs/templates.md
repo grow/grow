@@ -176,6 +176,16 @@ Lastly, using `g.static` allows you to change the serving paths of static files 
 <img src="{{g.static('/static/example.png').url.path}}">
 [/sourcecode]
 
+`g.static` supports static file localization by way of the `localization` option of the `static_dirs` setting in `podspec.yaml`. If a localized static file exists, it will return the object corresponding to the localized static file. If it doesn't, it will return the object corresponding to the base static file.
+
+[sourcecode:html+jinja]
+# Uses the current document's locale.
+{{g.static('/static/example.png', locale=doc.locale)}}
+
+# Uses a hardcoded locale.
+{{g.static('/static/example.png', locale='de')}}
+[/sourcecode]
+
 ### g.url
 
 `g.url(<document path>)`
