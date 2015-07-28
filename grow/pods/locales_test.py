@@ -10,6 +10,7 @@ class LocalesTest(unittest.TestCase):
     self.assertEqual(locale, 'en_US')
     self.assertEqual(locale, 'en_us')
     self.assertEqual(locale, locales.Locale('en_US'))
+    self.assertEqual(locale, locales.Locale('en_us'))
 
 
 if __name__ == '__main__':

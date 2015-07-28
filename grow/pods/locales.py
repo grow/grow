@@ -48,6 +48,13 @@ class Locale(babel.Locale):
   RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
   _alias = None
 
+  def __init__(self, language, *args, **kwargs):
+    # Normalize from "de_de" to "de_DE" for case-sensitive filesystems.
+    parts = language.split('_', 1)
+    if len(parts) > 1:
+      language = '{}_{}'.format(parts[0], parts[1].upper())
+    super(Locale, self).__init__(language, *args, **kwargs)
+
   def __hash__(self):
     return hash(str(self))
 
