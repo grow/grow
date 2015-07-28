@@ -12,6 +12,9 @@ import os
                    ' messages will be removed from the catalog template. By'
                    ' default, Grow cleans obsolete messages from the catalog'
                    ' template.')
+@click.option('--localized/--no-localized', default=False, is_flag=True,
+              help='Whether to create localized message catalogs. Use this'
+                   ' option if content varies by locale.')
 @click.option('--init/--no-init', default=False, is_flag=True,
               help='Whether to create an initial set of empty translation'
                    ' catalogs using the locales configured in podpsec.')
@@ -34,14 +37,17 @@ import os
               help='Where to write the extracted translation catalog. The path'
                    ' must be relative to the pod\'s root. This option is'
                    ' only applicable when using --missing.')
-def extract(pod_path, init, update, missing, locale, o, fuzzy, include_obsolete):
+def extract(pod_path, init, update, missing, locale, o, fuzzy,
+            include_obsolete, localized):
   """Extracts tagged messages from source files into a template catalog."""
   if missing and o is None:
     raise click.BadOptionUsage('-o', 'Must specify -o when using --missing.')
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
   catalogs = pod.get_catalogs()
-  catalogs.extract(include_obsolete=include_obsolete)
+  catalogs.extract(include_obsolete=include_obsolete, localized=localized)
+  if localized:
+    return
   if missing:
     locales = _validate_locales(catalogs.list_locales(), locale)
     catalogs.update(locales=locale)

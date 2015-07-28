@@ -1,6 +1,8 @@
 from . import catalogs
 from . import importers
+from datetime import datetime
 from babel import util as babel_util
+from babel.messages import catalog
 from babel.messages import extract
 from babel.messages import pofile
 from grow.common import utils
@@ -109,17 +111,13 @@ class Catalogs(object):
     return catalog.add(string, None, auto_comments=comments, context=context,
                        flags=flags)
 
-  def extract(self, include_obsolete=False):
+  def extract(self, include_obsolete=False, localized=False):
     env = self.pod.create_template_env()
-    template_path = self.template_path
-    catalog_obj, exists = self._get_or_create_catalog(template_path)
 
-    if not include_obsolete:
-      catalog_obj.obsolete = babel_util.odict()
-      for message in list(catalog_obj):
-        catalog_obj.delete(message.id, context=message.context)
-
-    extracted = []
+    all_locales = set(list(self.pod.list_locales()))
+    all_message_ids = set()
+    paths_to_messages = collections.defaultdict(list)
+    paths_to_locales = collections.defaultdict(list)
 
     comment_tags = [
         ':',
@@ -128,22 +126,6 @@ class Catalogs(object):
         'extensions': ','.join(env.extensions.keys()),
         'silent': 'false',
     }
-    # Extract messages from content and views.
-    pod_files = [os.path.join('/views', path) for path in self.pod.list_dir('/views/')]
-    pod_files += [os.path.join('/content', path) for path in self.pod.list_dir('/content/')]
-    for pod_path in pod_files:
-      if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
-        self.pod.logger.info('Extracting from: {}'.format(pod_path))
-        fp = self.pod.open_file(pod_path)
-        try:
-          messages = extract.extract('jinja2.ext.babel_extract', fp,
-                                     options=options, comment_tags=comment_tags)
-          for message in messages:
-            added_message = self._add_message(catalog_obj, message)
-            extracted.append(added_message)
-        except tokenize.TokenError:
-          self.pod.logger.error('Problem extracting: {}'.format(pod_path))
-          raise
 
     # Extract messages from content files.
     def callback(doc, item, key, unused_node):
@@ -164,23 +146,95 @@ class Catalogs(object):
         auto_comment = node.get('{}#'.format(key))
         if auto_comment:
           auto_comments.append(auto_comment)
-      added_message = catalog_obj.add(item, None, auto_comments=auto_comments)
-      if added_message not in extracted:
-        extracted.append(added_message)
+      locations = [(path, 0)]
+      message = catalog.Message(item, None, auto_comments=auto_comments,
+                                locations=locations)
+      all_message_ids.add(message.id)
+      paths_to_messages[path].append(message)
 
     for collection in self.pod.list_collections():
-      self.pod.logger.info('Extracting from collection: {}'.format(collection.pod_path))
+      text = 'Extracting collection: {}'.format(collection.pod_path)
+      self.pod.logger.info(text)
       for doc in collection.list_documents(include_hidden=True):
         tagged_fields = doc.get_tagged_fields()
         utils.walk(tagged_fields, lambda *args: callback(doc, *args))
+        paths_to_locales[doc.pod_path] = doc.locales
+        all_locales.update(doc.locales)
 
     # Extract messages from podspec.
     config = self.pod.get_podspec().get_config()
     podspec_path = '/podspec.yaml'
-    self.pod.logger.info('Extracting from podspec: {}'.format(podspec_path))
+    self.pod.logger.info('Extracting podspec: {}'.format(podspec_path))
     utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
 
-    # Write to PO template.
+    # Extract messages from content and views.
+    pod_files = [os.path.join('/views', path)
+                 for path in self.pod.list_dir('/views/')]
+    pod_files += [os.path.join('/content', path)
+                  for path in self.pod.list_dir('/content/')]
+    for pod_path in pod_files:
+      if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
+        locales = paths_to_locales.get(pod_path)
+        if locales:
+          text = 'Extracting: {} ({} locales)'.format(pod_path, len(locales))
+          self.pod.logger.info(text)
+        else:
+          self.pod.logger.info('Extracting: {}'.format(pod_path))
+        fp = self.pod.open_file(pod_path)
+        try:
+          all_parts = extract.extract(
+              'jinja2.ext.babel_extract', fp, options=options,
+              comment_tags=comment_tags)
+          for parts in all_parts:
+            lineno, string, comments, context = parts
+            locations = [(pod_path, 0)]
+            message = catalog.Message(string, None, auto_comments=comments,
+                                      context=context, locations=locations)
+            paths_to_messages[pod_path].append(message)
+            all_message_ids.add(message.id)
+        except tokenize.TokenError:
+          self.pod.logger.error('Problem extracting: {}'.format(pod_path))
+          raise
+
+    # Localized message catalogs.
+    if localized:
+      for locale in all_locales:
+        localized_catalog = self.get(locale)
+        if not include_obsolete:
+          localized_catalog.obsolete = babel_util.odict()
+          for message in list(localized_catalog):
+            if message.id not in all_message_ids:
+              localized_catalog.delete(message.id, context=message.context)
+        for path, message_items in paths_to_messages.iteritems():
+          locales_with_this_path = paths_to_locales.get(path)
+          if locales_with_this_path and locale not in locales_with_this_path:
+            continue
+          for message in message_items:
+            if message.id not in localized_catalog:
+              localized_catalog.add(
+                  message.id, None, locations=message.locations,
+                  auto_comments=message.auto_comments)
+        localized_catalog.save(omit_header=True)
+        missing = localized_catalog.list_missing(use_fuzzy=True)
+        num_messages = len(localized_catalog)
+        num_translated = num_messages - len(missing)
+        text = 'Saved: {} ({}/{})'
+        self.pod.logger.info(
+            text.format(localized_catalog.pod_path, num_translated,
+                        num_messages))
+      return
+
+    # Global message catalog.
+    template_path = self.template_path
+    catalog_obj, _ = self._get_or_create_catalog(template_path)
+    if not include_obsolete:
+      catalog_obj.obsolete = babel_util.odict()
+      for message in list(catalog_obj):
+        catalog_obj.delete(message.id, context=message.context)
+    for message_items in paths_to_messages.itervalues():
+      for message in message_items:
+        catalog_obj.add(message.id, None, locations=message.locations,
+                        auto_comments=message.auto_comments)
     return self.write_template(template_path, catalog_obj,
                                include_obsolete=include_obsolete)
 
@@ -189,7 +243,7 @@ class Catalogs(object):
     pofile.write_po(template_file, catalog, width=80, omit_header=True,
                     sort_output=True, sort_by_file=True,
                     ignore_obsolete=(not include_obsolete))
-    text = 'Wrote {} messages to translation template: {}'
-    self.pod.logger.info(text.format(len(catalog), template_path))
+    text = 'Saved: {} ({} messages)'
+    self.pod.logger.info(text.format(template_path, len(catalog)))
     template_file.close()
     return catalog
