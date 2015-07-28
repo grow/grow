@@ -50,7 +50,7 @@ class Locale(babel.Locale):
 
   def __init__(self, language, *args, **kwargs):
     # Normalize from "de_de" to "de_DE" for case-sensitive filesystems.
-    parts = language.split('_', 1)
+    parts = language.rsplit('_', 1)
     if len(parts) > 1:
       language = '{}_{}'.format(parts[0], parts[1].upper())
     super(Locale, self).__init__(language, *args, **kwargs)
