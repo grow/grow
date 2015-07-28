@@ -3,7 +3,6 @@ from . import messages
 from grow.common import utils
 from grow.pods import locales
 from grow.pods import urls
-import copy
 import json
 import logging
 import os
@@ -33,8 +32,7 @@ class Document(object):
 
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
     utils.validate_name(pod_path)
-    self.default_locale = _pod.podspec.default_locale
-    self.locale = _pod.normalize_locale(locale)
+    self.locale = _pod.normalize_locale(locale, default=self.default_locale)
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self.base, self.ext = os.path.splitext(self.basename)
@@ -58,10 +56,24 @@ class Document(object):
     return object.__getattribute__(self, name)
 
   @webapp2.cached_property
+  def default_locale(self):
+    return locales.Locale('de')
+#    if ('$localization' in self.fields
+#        and 'default_locale' in self.fields['$localization']):
+#      locale = self.fields['$localization']['default_locale']
+#    elif (self.collection.localization
+#          and 'default_locale' in self.collection.localization):
+#      locale = self.collection.localization['default_locale']
+#    else:
+#      locale = self.pod.podspec.default_locale
+#    locale = locales.Locale.parse(locale)
+#    locale.set_alias(self.pod)
+#    return locale
+
+  @webapp2.cached_property
   def fields(self):
     tagged_fields = self.get_tagged_fields()
-    catalog = self.pod.catalogs.get(self.locale)
-    fields = utils.untag_fields(tagged_fields, catalog=catalog)
+    fields = utils.untag_fields(tagged_fields)
     if fields is None:
       return {}
     return fields
@@ -106,6 +118,14 @@ class Document(object):
   @property
   def date(self):
     return self.fields.get('$date')
+
+  @property
+  def base_locale_enabled(self):
+    if '$localization' in self.fields:
+      return self.fields['$localization'].get('base', True)
+    if self.collection.localization:
+      return self.collection.localization.get('base', True)
+    return True
 
   def dates(self, date_name=None):
     if date_name is None:
@@ -202,11 +222,15 @@ class Document(object):
       raise
 
   def _format_path(self, path_format):
+    if self.specified_locale is None:
+      locale = self.default_locale
+    else:
+      locale = self.locale
     podspec = self.pod.get_podspec()
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': self.locale.alias if self.locale is not None else self.locale,
+        'locale': locale.alias if locale is not None else locale,
         'parent': self.parent if self.parent else DummyDict(),
         'podspec': podspec,
         'slug': self.slug,

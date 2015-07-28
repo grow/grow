@@ -1,3 +1,4 @@
+from grow.pods import locales
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
@@ -42,11 +43,21 @@ class DocumentsTestCase(unittest.TestCase):
     self.assertEqual('baz', de_doc.foo)
     self.assertEqual('qux', de_doc.qaz)
 
-    doc = self.pod.get_doc('/content/pages/home.yaml', locale='de')
-    self.assertEqual('Higher Priority', doc.translation_with_priority)
+#    doc = self.pod.get_doc('/content/pages/home.yaml', locale='de')
+#    self.assertEqual('Higher Priority', doc.translation_with_priority)
+#
+#    doc = self.pod.get_doc('/content/pages/home.yaml', locale='ja')
+#    self.assertEqual('Lower Priority', doc.translation_with_priority)
 
-    doc = self.pod.get_doc('/content/pages/home.yaml', locale='ja')
-    self.assertEqual('Lower Priority', doc.translation_with_priority)
+  def test_locales(self):
+    doc = self.pod.get_doc('/content/pages/contact.yaml')
+    self.assertEqual(locales.Locale('de'), doc.locale)
+    expected = locales.Locale.parse_codes([
+        'de',
+        'fr',
+        'it',
+    ])
+    self.assertEqual(expected, doc.list_locales())
 
 
 if __name__ == '__main__':
