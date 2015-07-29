@@ -18,7 +18,7 @@ class CatalogsTest(unittest.TestCase):
 
   def test_extract(self):
     template_catalog = self.pod.catalogs.extract()
-    self.assertEqual(19, len(template_catalog))
+    self.assertEqual(17, len(template_catalog))
     expected = [
         'Hello World!',
         'Hello World 2!',

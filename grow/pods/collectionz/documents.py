@@ -60,8 +60,7 @@ class Document(object):
   @webapp2.cached_property
   def fields(self):
     tagged_fields = self.get_tagged_fields()
-    catalog = self.pod.catalogs.get(self.locale)
-    fields = utils.untag_fields(tagged_fields, catalog=catalog)
+    fields = utils.untag_fields(tagged_fields)
     if fields is None:
       return {}
     return fields

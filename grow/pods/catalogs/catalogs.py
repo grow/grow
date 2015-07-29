@@ -90,11 +90,13 @@ class Catalog(catalog.Catalog):
       catalog_message.messages.append(message_message)
     return catalog_message
 
-  def save(self, ignore_obsolete=True, include_previous=True, width=80):
+  def save(self, ignore_obsolete=True, include_previous=True, width=80,
+           omit_header=True):
     if not self.pod.file_exists(self.pod_path):
       self.pod.create_file(self.pod_path, None)
     outfile = self.pod.open_file(self.pod_path, mode='w')
-    pofile.write_po(outfile, self, ignore_obsolete=ignore_obsolete,
+    pofile.write_po(outfile, self, omit_header=omit_header, sort_output=True,
+                    sort_by_file=True, ignore_obsolete=ignore_obsolete,
                     include_previous=include_previous, width=width)
     outfile.close()
 
