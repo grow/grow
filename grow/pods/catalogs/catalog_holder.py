@@ -1,6 +1,5 @@
 from . import catalogs
 from . import importers
-from datetime import datetime
 from babel import util as babel_util
 from babel.messages import catalog
 from babel.messages import extract
@@ -18,7 +17,6 @@ _TRANSLATABLE_EXTENSIONS = (
   '.yaml',
   '.yml',
 )
-
 
 
 class Catalogs(object):
@@ -115,7 +113,7 @@ class Catalogs(object):
     env = self.pod.create_template_env()
 
     all_locales = set(list(self.pod.list_locales()))
-    all_message_ids = set()
+    message_ids_to_messages = {}
     paths_to_messages = collections.defaultdict(list)
     paths_to_locales = collections.defaultdict(list)
 
@@ -147,10 +145,14 @@ class Catalogs(object):
         if auto_comment:
           auto_comments.append(auto_comment)
       locations = [(path, 0)]
-      message = catalog.Message(item, None, auto_comments=auto_comments,
-                                locations=locations)
-      all_message_ids.add(message.id)
-      paths_to_messages[path].append(message)
+      existing_message = message_ids_to_messages.get(item)
+      if existing_message:
+        message_ids_to_messages[item].locations.extend(locations)
+      else:
+        message = catalog.Message(item, None, auto_comments=auto_comments,
+                                  locations=locations)
+        message_ids_to_messages[message.id] = message
+        paths_to_messages[path].append(message)
 
     for collection in self.pod.list_collections():
       text = 'Extracting collection: {}'.format(collection.pod_path)
@@ -187,11 +189,15 @@ class Catalogs(object):
               comment_tags=comment_tags)
           for parts in all_parts:
             lineno, string, comments, context = parts
-            locations = [(pod_path, 0)]
-            message = catalog.Message(string, None, auto_comments=comments,
-                                      context=context, locations=locations)
-            paths_to_messages[pod_path].append(message)
-            all_message_ids.add(message.id)
+            locations = [(pod_path, lineno)]
+            existing_message = message_ids_to_messages.get(string)
+            if existing_message:
+              message_ids_to_messages[string].locations.extend(locations)
+            else:
+              message = catalog.Message(string, None, auto_comments=comments,
+                                        context=context, locations=locations)
+              paths_to_messages[pod_path].append(message)
+              message_ids_to_messages[message.id] = message
         except tokenize.TokenError:
           self.pod.logger.error('Problem extracting: {}'.format(pod_path))
           raise
@@ -203,22 +209,25 @@ class Catalogs(object):
         if not include_obsolete:
           localized_catalog.obsolete = babel_util.odict()
           for message in list(localized_catalog):
-            if message.id not in all_message_ids:
+            if message.id not in message_ids_to_messages:
               localized_catalog.delete(message.id, context=message.context)
         for path, message_items in paths_to_messages.iteritems():
           locales_with_this_path = paths_to_locales.get(path)
           if locales_with_this_path and locale not in locales_with_this_path:
             continue
           for message in message_items:
-            if message.id not in localized_catalog:
-              localized_catalog.add(
-                  message.id, None, locations=message.locations,
-                  auto_comments=message.auto_comments)
+            translation = None
+            existing_message = localized_catalog.get(message.id)
+            if existing_message:
+              translation = existing_message.string
+            localized_catalog.add(
+                message.id, translation, locations=message.locations,
+                auto_comments=message.auto_comments)
         localized_catalog.save(omit_header=True)
         missing = localized_catalog.list_missing(use_fuzzy=True)
         num_messages = len(localized_catalog)
         num_translated = num_messages - len(missing)
-        text = 'Saved: {} ({}/{})'
+        text = 'Saved: /{} ({}/{})'
         self.pod.logger.info(
             text.format(localized_catalog.pod_path, num_translated,
                         num_messages))
@@ -231,10 +240,9 @@ class Catalogs(object):
       catalog_obj.obsolete = babel_util.odict()
       for message in list(catalog_obj):
         catalog_obj.delete(message.id, context=message.context)
-    for message_items in paths_to_messages.itervalues():
-      for message in message_items:
-        catalog_obj.add(message.id, None, locations=message.locations,
-                        auto_comments=message.auto_comments)
+    for message in message_ids_to_messages.itervalues():
+      catalog_obj.add(message.id, None, locations=message.locations,
+                      auto_comments=message.auto_comments)
     return self.write_template(template_path, catalog_obj,
                                include_obsolete=include_obsolete)
 
