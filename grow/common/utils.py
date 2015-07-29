@@ -96,15 +96,16 @@ class memoize(object):
     self.func = func
     self.cache = {}
 
-  def __call__(self, *args):
+  def __call__(self, *args, **kwargs):
+    key = (args, frozenset(kwargs.items()))
     try:
-      return self.cache[args]
+      return self.cache[key]
     except KeyError:
-      value = self.func(*args)
-      self.cache[args] = value
+      value = self.func(*args, **kwargs)
+      self.cache[key] = value
       return value
     except TypeError:
-      return self.func(*args)
+      return self.func(*args, **kwargs)
 
   def __repr__(self):
     return self.func.__doc__
@@ -120,7 +121,6 @@ class memoize(object):
 
 def every_two(l):
   return zip(l[::2], l[1::2])
-
 
 
 def load_yaml(*args, **kwargs):
@@ -140,8 +140,9 @@ def load_yaml(*args, **kwargs):
   return yaml.load(*args, Loader=YamlLoader, **kwargs)
 
 
-def parse_yaml(content, **kwargs):
-  return load_yaml(content, **kwargs)
+@memoize
+def parse_yaml(content, pod=None):
+  return load_yaml(content, pod=pod)
 
 
 def dump_yaml(obj):
@@ -166,7 +167,8 @@ class JsonEncoder(json.JSONEncoder):
     raise TypeError(repr(obj) + ' is not JSON serializable.')
 
 
-def untag_fields(fields, catalog=None):
+@memoize
+def untag_fields(fields):
   """Untags fields, handling translation priority."""
   untagged_keys_to_add = {}
   nodes_and_keys_to_add = []
@@ -178,22 +180,10 @@ def untag_fields(fields, catalog=None):
       nodes_and_keys_to_remove.append((node, key))
     if key.endswith('@'):
       untagged_key = key.rstrip('@')
-      priority = len(key) - len(untagged_key)
       content = item
       nodes_and_keys_to_remove.append((node, key))
-      if priority > 1 and untagged_key in untagged_keys_to_add:
-        has_translation_for_higher_priority_key = False
-        if catalog is not None:
-          try:
-            has_translation_for_higher_priority_key = content in catalog
-          except AttributeError:
-            pass
-        if has_translation_for_higher_priority_key:
-          untagged_keys_to_add[untagged_key] = True
-          nodes_and_keys_to_add.append((node, untagged_key, content))
-      elif priority <= 1:
-        untagged_keys_to_add[untagged_key] = True
-        nodes_and_keys_to_add.append((node, untagged_key, content))
+      untagged_keys_to_add[untagged_key] = True
+      nodes_and_keys_to_add.append((node, untagged_key, content))
   walk(fields, callback)
   for node, key in nodes_and_keys_to_remove:
     if isinstance(node, dict):
