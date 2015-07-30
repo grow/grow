@@ -31,13 +31,14 @@ class DummyDict(object):
 class Document(object):
 
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
+    self._locale_kwarg = locale
     utils.validate_name(pod_path)
-    self.locale = _pod.normalize_locale(locale, default=self.default_locale)
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self.base, self.ext = os.path.splitext(self.basename)
     self.pod = _pod
     self.collection = _collection
+    self.locale = _pod.normalize_locale(locale, default=self.default_locale)
 
   def __repr__(self):
     if self.locale:
@@ -57,18 +58,17 @@ class Document(object):
 
   @webapp2.cached_property
   def default_locale(self):
-    return locales.Locale('de')
-#    if ('$localization' in self.fields
-#        and 'default_locale' in self.fields['$localization']):
-#      locale = self.fields['$localization']['default_locale']
-#    elif (self.collection.localization
-#          and 'default_locale' in self.collection.localization):
-#      locale = self.collection.localization['default_locale']
-#    else:
-#      locale = self.pod.podspec.default_locale
-#    locale = locales.Locale.parse(locale)
-#    locale.set_alias(self.pod)
-#    return locale
+    if ('$localization' in self.fields
+        and 'default_locale' in self.fields['$localization']):
+      locale = self.fields['$localization']['default_locale']
+    elif (self.collection.localization
+          and 'default_locale' in self.collection.localization):
+      locale = self.collection.localization['default_locale']
+    else:
+      locale = self.pod.podspec.default_locale
+    locale = locales.Locale.parse(locale)
+    locale.set_alias(self.pod)
+    return locale
 
   @webapp2.cached_property
   def fields(self):
@@ -222,15 +222,11 @@ class Document(object):
       raise
 
   def _format_path(self, path_format):
-    if self.specified_locale is None:
-      locale = self.default_locale
-    else:
-      locale = self.locale
     podspec = self.pod.get_podspec()
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': locale.alias if locale is not None else locale,
+        'locale': self.locale.alias if self.locale is not None else self.locale,
         'parent': self.parent if self.parent else DummyDict(),
         'podspec': podspec,
         'slug': self.slug,

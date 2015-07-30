@@ -382,11 +382,9 @@ class Pod(object):
     self.tests.run()
 
   def normalize_locale(self, locale, default=None):
-    if default is None:
-      default = self.podspec.default_locale
-    locale = locale or default
+    locale = locale or default or self.podspec.default_locale
     if isinstance(locale, basestring):
-      locale = locales.Locale(locale)
+      locale = locales.Locale.parse(locale)
     if locale is not None:
       locale.set_alias(self)
     return locale
