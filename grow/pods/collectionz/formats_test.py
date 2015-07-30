@@ -18,7 +18,6 @@ class FormatsTestCase(unittest.TestCase):
   def test_yaml(self):
     doc = self.pod.get_doc('/content/pages/home.yaml')
     self.assertEqual('bar', doc.fields['foo'])
-    self.assertEqual('Higher Priority', doc.translation_with_priority)
 
     doc = self.pod.get_doc('/content/pages/about.yaml')
     self.assertEqual('bar', doc.foo)

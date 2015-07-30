@@ -13,7 +13,3 @@ tagged_fields:
   - Tagged String in List 2
 
 foo: bar
-translation_with_priority@: Lower Priority
-translation_with_priority@#: Lower Priority description.
-translation_with_priority@@: Higher Priority
-translation_with_priority@@#: Higher Priority description.
