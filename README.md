@@ -1,4 +1,4 @@
-growsdk.org
+growsdk.org  [![Build Status](https://travis-ci.org/grow/growsdk.org.png?branch=master)](https://travis-ci.org/grow/growsdk.org)
 ===========
 
 The Grow SDK's documentation and open source project page.
