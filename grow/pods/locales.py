@@ -64,7 +64,7 @@ class Locale(babel.Locale):
     # Weak attempt to permit fuzzy locales (locales for which we still have
     # language and country information, but not a full localedata file for),
     # but disallow completely invalid locales. See note at end of file.
-    if locale.get_display_name() is None:
+    if locale and locale.get_display_name() is None:
       raise ValueError('{} is not a valid locale identifier'.format(args[0]))
     return locale
 

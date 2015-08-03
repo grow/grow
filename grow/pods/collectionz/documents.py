@@ -71,7 +71,8 @@ class Document(object):
     else:
       locale = self.pod.podspec.default_locale
     locale = locales.Locale.parse(locale)
-    locale.set_alias(self.pod)
+    if locale:
+      locale.set_alias(self.pod)
     return locale
 
   @webapp2.cached_property
