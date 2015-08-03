@@ -16,6 +16,7 @@ setup(
     ),
     long_description=open('description.txt').read().strip(),
     url='https://growsdk.org',
+    zip_safe=False,
     license='MIT',
     author='Grow SDK Authors',
     author_email='hello@grow.io',
