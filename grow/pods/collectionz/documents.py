@@ -14,6 +14,10 @@ class Error(Exception):
   pass
 
 
+class PathFormatError(Error, ValueError):
+  pass
+
+
 class DocumentDoesNotExistError(Error, ValueError):
   pass
 
@@ -181,14 +185,19 @@ class Document(object):
     root_path = config.get('flags', {}).get('root_path', '')
     if locale == self.default_locale:
       root_path = config.get('localization', {}).get('root_path', root_path)
-    path_format = (self.get_path_format()
+    path_format = self.get_path_format()
+    if path_format is None:
+      raise PathFormatError(
+          'No path format found for {}. You must specify a path '
+          'format in either the blueprint or the document.'.format(self))
+    path_format = (path_format
         .replace('<grow:locale>', '{locale}')
         .replace('<grow:slug>', '{slug}')
         .replace('<grow:published_year>', '{published_year}'))
 
     # Prevent double slashes when combining root path and path format.
     if path_format.startswith('/') and root_path.endswith('/'):
-      root_path = root_path[0:len(root_path)-1]
+      root_path = root_path[0:len(root_path) - 1]
     path_format = root_path + path_format
 
     # Handle default date formatting in the url.
