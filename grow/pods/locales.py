@@ -96,18 +96,20 @@ class Locale(babel.Locale):
       aliases = config['localization']['aliases']
       for custom_locale, babel_locale in aliases.iteritems():
         if custom_locale == alias:
-          return cls(babel_locale)
-    return cls(alias)
+          return cls.parse(babel_locale)
+    return cls.parse(alias)
 
   def set_alias(self, pod):
-    locale = str(self).lower()
+    normalized_locale = str(self).lower()
     podspec = pod.get_podspec()
     config = podspec.get_config()
     if 'localization' in config and 'aliases' in config['localization']:
       aliases = config['localization']['aliases']
       for custom_locale, babel_locale in aliases.iteritems():
-        locale = locale.replace(babel_locale, custom_locale)
-    self._alias = locale
+        normalized_babel_locale = babel_locale.lower()
+        normalized_locale = normalized_locale.replace(
+            normalized_babel_locale, custom_locale)
+    self._alias = normalized_locale
 
   @property
   def alias(self):

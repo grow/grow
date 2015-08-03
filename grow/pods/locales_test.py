@@ -1,4 +1,5 @@
 from . import locales
+from grow.testing import testing
 import unittest
 
 
@@ -10,6 +11,16 @@ class LocalesTest(unittest.TestCase):
     self.assertEqual(locale, 'en_us')
     self.assertEqual(locale, locales.Locale('en_US'))
     self.assertEqual(locale, locales.Locale('en_us'))
+
+  def test_locale_aliases(self):
+    # Verify case insensitivty for locale aliases.
+    pod = testing.create_test_pod()
+    locale = locales.Locale('de')
+    locale.set_alias(pod)
+    self.assertEqual('de_alias', locale.alias)
+    locale = locales.Locale('DE')
+    locale.set_alias(pod)
+    self.assertEqual('de_alias', locale.alias)
 
   def test_fuzzy_locales(self):
     locale = locales.Locale.parse('en_BD')
