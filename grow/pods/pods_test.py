@@ -47,7 +47,6 @@ class PodTest(unittest.TestCase):
         '/about/index.html',
         '/app/static/test.txt',
         '/app/static/somepath/de_alias/test.txt',
-        '/contact-us/index.html',
         '/de_alias/about/index.html',
         '/de_alias/contact-us/index.html',
         '/de_alias/home/index.html',

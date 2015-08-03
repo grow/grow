@@ -62,8 +62,8 @@ class YamlFormat(Format):
       return
     locales_to_fields = {}
     locales_to_bodies = {}
-    locale = str(self.doc.locale)
-    default_locale = str(self.doc.default_locale)
+    locale = self.doc._locale_kwarg
+    default_locale = None
     for part in Format.split_front_matter(self.content):
       fields = utils.load_yaml(part, pod=self.doc.pod)
       doc_locale = fields.get('$locale', default_locale)
@@ -85,8 +85,8 @@ class HtmlFormat(YamlFormat):
   def _handle_pairs_of_parts_and_bodies(self):
     locales_to_bodies = {}
     locales_to_fields = {}
-    locale = str(self.doc.locale)
-    default_locale = str(self.doc.default_locale)
+    locale = self.doc._locale_kwarg
+    default_locale = None
     for part, body in utils.every_two(Format.split_front_matter(self.content)):
       fields = utils.load_yaml(part, pod=self.doc.pod)
       doc_locale = fields.get('$locale', default_locale)

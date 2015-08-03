@@ -23,7 +23,6 @@ class RoutesTest(unittest.TestCase):
         '/about/',
         '/app/static/test.txt',
         '/app/static/somepath/de_alias/test.txt',
-        '/contact-us/',
         '/de_alias/about/',
         '/de_alias/contact-us/',
         '/de_alias/home/',

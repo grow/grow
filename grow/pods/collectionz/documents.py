@@ -3,7 +3,6 @@ from . import messages
 from grow.common import utils
 from grow.pods import locales
 from grow.pods import urls
-import copy
 import json
 import logging
 import os
@@ -32,14 +31,14 @@ class DummyDict(object):
 class Document(object):
 
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
+    self._locale_kwarg = locale
     utils.validate_name(pod_path)
-    self.default_locale = _pod.podspec.default_locale
-    self.locale = _pod.normalize_locale(locale)
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self.base, self.ext = os.path.splitext(self.basename)
     self.pod = _pod
     self.collection = _collection
+    self.locale = _pod.normalize_locale(locale, default=self.default_locale)
 
   def __repr__(self):
     if self.locale:
@@ -56,6 +55,20 @@ class Document(object):
     if name in self.fields:
       return self.fields[name]
     return object.__getattribute__(self, name)
+
+  @webapp2.cached_property
+  def default_locale(self):
+    if ('$localization' in self.fields
+        and 'default_locale' in self.fields['$localization']):
+      locale = self.fields['$localization']['default_locale']
+    elif (self.collection.localization
+          and 'default_locale' in self.collection.localization):
+      locale = self.collection.localization['default_locale']
+    else:
+      locale = self.pod.podspec.default_locale
+    locale = locales.Locale.parse(locale)
+    locale.set_alias(self.pod)
+    return locale
 
   @webapp2.cached_property
   def fields(self):
@@ -105,6 +118,14 @@ class Document(object):
   @property
   def date(self):
     return self.fields.get('$date')
+
+  @property
+  def base_locale_enabled(self):
+    if '$localization' in self.fields:
+      return self.fields['$localization'].get('base', True)
+    if self.collection.localization:
+      return self.collection.localization.get('base', True)
+    return True
 
   def dates(self, date_name=None):
     if date_name is None:
