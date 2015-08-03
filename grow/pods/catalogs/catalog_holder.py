@@ -114,8 +114,8 @@ class Catalogs(object):
 
     all_locales = set(list(self.pod.list_locales()))
     message_ids_to_messages = {}
-    paths_to_messages = collections.defaultdict(list)
-    paths_to_locales = collections.defaultdict(list)
+    paths_to_messages = collections.defaultdict(set)
+    paths_to_locales = collections.defaultdict(set)
 
     comment_tags = [
         ':',
@@ -127,8 +127,8 @@ class Catalogs(object):
 
     # Extract messages from content files.
     def callback(doc, item, key, unused_node):
-      # Verify that the fields we're extracting are fields for a document that's
-      # in the default locale. If not, skip the document.
+      # Verify that the fields we're extracting are fields for a document
+      # that's in the default locale. If not, skip the document.
       _handle_field(doc.pod_path, item, key, unused_node)
 
     def _handle_field(path, item, key, node):
@@ -148,11 +148,12 @@ class Catalogs(object):
       existing_message = message_ids_to_messages.get(item)
       if existing_message:
         message_ids_to_messages[item].locations.extend(locations)
+        paths_to_messages[path].add(existing_message)
       else:
         message = catalog.Message(item, None, auto_comments=auto_comments,
                                   locations=locations)
         message_ids_to_messages[message.id] = message
-        paths_to_messages[path].append(message)
+        paths_to_messages[path].add(message)
 
     for collection in self.pod.list_collections():
       text = 'Extracting collection: {}'.format(collection.pod_path)
@@ -160,7 +161,7 @@ class Catalogs(object):
       for doc in collection.list_documents(include_hidden=True):
         tagged_fields = doc.get_tagged_fields()
         utils.walk(tagged_fields, lambda *args: callback(doc, *args))
-        paths_to_locales[doc.pod_path] = doc.locales
+        paths_to_locales[doc.pod_path].update(doc.locales)
         all_locales.update(doc.locales)
 
     # Extract messages from podspec.
@@ -196,7 +197,7 @@ class Catalogs(object):
             else:
               message = catalog.Message(string, None, auto_comments=comments,
                                         context=context, locations=locations)
-              paths_to_messages[pod_path].append(message)
+              paths_to_messages[pod_path].add(message)
               message_ids_to_messages[message.id] = message
         except tokenize.TokenError:
           self.pod.logger.error('Problem extracting: {}'.format(pod_path))

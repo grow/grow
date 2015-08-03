@@ -18,7 +18,7 @@ class CatalogsTest(unittest.TestCase):
 
   def test_extract(self):
     template_catalog = self.pod.catalogs.extract()
-    self.assertEqual(17, len(template_catalog))
+    self.assertEqual(19, len(template_catalog))
     expected = [
         'Hello World!',
         'Hello World 2!',
@@ -42,6 +42,14 @@ class CatalogsTest(unittest.TestCase):
     template_catalog = self.pod.catalogs.extract(include_obsolete=False)
     self.assertNotIn('foo', template_catalog)
 
+  def test_localized_extract(self):
+    self.pod.catalogs.extract(localized=True)
+    de_catalog = self.pod.catalogs.get('de')
+    self.assertIn('Tagged localized title.', de_catalog)
+    self.assertNotIn('Tagged localized body.', de_catalog)
+    hi_catalog = self.pod.catalogs.get('hi_IN')
+    self.assertIn('Tagged localized title.', hi_catalog)
+    self.assertIn('Tagged localized body.', hi_catalog)
 
   def test_iter(self):
     locales = self.pod.catalogs.list_locales()
@@ -64,9 +72,8 @@ class CatalogsTest(unittest.TestCase):
   def test_to_message(self):
     self.pod.catalogs.to_message()
 
-#  TODO: Fix, since this currently affects testdata.
-#  def test_init(self):
-#    self.pod.catalogs.init(['de'])
+  def test_init(self):
+    self.pod.catalogs.init(['de'])
 
   def test_update(self):
     self.pod.catalogs.update(['de'])
