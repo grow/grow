@@ -6,6 +6,7 @@ $localization:
   path: /{locale}/home/
 
 tagged_fields:
+  title@: "Tagged localized title."
   tagged_string@: Tagged String
   tagged_string@#: Tagged String description.
   tagged_strings@:

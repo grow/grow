@@ -45,9 +45,8 @@ class PodTest(unittest.TestCase):
   def test_dump(self):
     paths = [
         '/about/index.html',
-        '/app/static/test.txt',
         '/app/static/somepath/de_alias/test.txt',
-        '/contact-us/index.html',
+        '/app/static/test.txt',
         '/de_alias/about/index.html',
         '/de_alias/contact-us/index.html',
         '/de_alias/home/index.html',
@@ -62,6 +61,8 @@ class PodTest(unittest.TestCase):
         '/fr/yaml_test/index.html',
         '/html/index.html',
         '/index.html',
+        '/intl/en_gb/localized/index.html',
+        '/intl/hi_in/localized/index.html',
         '/intro/index.html',
         '/it/about/index.html',
         '/it/contact-us/index.html',

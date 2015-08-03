@@ -167,14 +167,14 @@ class Collection(object):
       if not include_hidden and doc.hidden:
         return
 
-      if locale in [_all, None]:
+      if (locale in [_all, None]):
         sorted_docs.insert(doc)
 
       if locale is None:
         return
 
       for each_locale in doc.list_locales():
-        if each_locale == self._default_locale:
+        if each_locale == doc.default_locale:
           continue
         if each_locale == locale or locale == _all:
           doc = self.get_doc(pod_path, locale=each_locale)

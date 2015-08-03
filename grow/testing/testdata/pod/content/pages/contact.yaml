@@ -1,5 +1,10 @@
-$path: /contact-us/
+$path: /{locale}/contact-us/
 $title@: Contact
 $order: 2
 $localization:
   path: /{locale}/contact-us/
+  default_locale: de
+  locales:
+  - de
+  - fr
+  - it

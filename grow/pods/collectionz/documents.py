@@ -3,7 +3,6 @@ from . import messages
 from grow.common import utils
 from grow.pods import locales
 from grow.pods import urls
-import copy
 import json
 import logging
 import os
@@ -12,6 +11,10 @@ import webapp2
 
 
 class Error(Exception):
+  pass
+
+
+class PathFormatError(Error, ValueError):
   pass
 
 
@@ -32,14 +35,14 @@ class DummyDict(object):
 class Document(object):
 
   def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
+    self._locale_kwarg = locale
     utils.validate_name(pod_path)
-    self.default_locale = _pod.podspec.default_locale
-    self.locale = _pod.normalize_locale(locale)
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self.base, self.ext = os.path.splitext(self.basename)
     self.pod = _pod
     self.collection = _collection
+    self.locale = _pod.normalize_locale(locale, default=self.default_locale)
 
   def __repr__(self):
     if self.locale:
@@ -56,6 +59,20 @@ class Document(object):
     if name in self.fields:
       return self.fields[name]
     return object.__getattribute__(self, name)
+
+  @webapp2.cached_property
+  def default_locale(self):
+    if ('$localization' in self.fields
+        and 'default_locale' in self.fields['$localization']):
+      locale = self.fields['$localization']['default_locale']
+    elif (self.collection.localization
+          and 'default_locale' in self.collection.localization):
+      locale = self.collection.localization['default_locale']
+    else:
+      locale = self.pod.podspec.default_locale
+    locale = locales.Locale.parse(locale)
+    locale.set_alias(self.pod)
+    return locale
 
   @webapp2.cached_property
   def fields(self):
@@ -105,6 +122,14 @@ class Document(object):
   @property
   def date(self):
     return self.fields.get('$date')
+
+  @property
+  def base_locale_enabled(self):
+    if '$localization' in self.fields:
+      return self.fields['$localization'].get('base', True)
+    if self.collection.localization:
+      return self.collection.localization.get('base', True)
+    return True
 
   def dates(self, date_name=None):
     if date_name is None:
@@ -160,14 +185,19 @@ class Document(object):
     root_path = config.get('flags', {}).get('root_path', '')
     if locale == self.default_locale:
       root_path = config.get('localization', {}).get('root_path', root_path)
-    path_format = (self.get_path_format()
+    path_format = self.get_path_format()
+    if path_format is None:
+      raise PathFormatError(
+          'No path format found for {}. You must specify a path '
+          'format in either the blueprint or the document.'.format(self))
+    path_format = (path_format
         .replace('<grow:locale>', '{locale}')
         .replace('<grow:slug>', '{slug}')
         .replace('<grow:published_year>', '{published_year}'))
 
     # Prevent double slashes when combining root path and path format.
     if path_format.startswith('/') and root_path.endswith('/'):
-      root_path = root_path[0:len(root_path)-1]
+      root_path = root_path[0:len(root_path) - 1]
     path_format = root_path + path_format
 
     # Handle default date formatting in the url.

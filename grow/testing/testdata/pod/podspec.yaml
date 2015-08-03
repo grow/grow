@@ -18,7 +18,7 @@ localization:
   - fr
   - it
   aliases:
-    de_alias: de
+    de_alias: DE  # Verify case sensitivity.
 
 deployments:
   gcs:
