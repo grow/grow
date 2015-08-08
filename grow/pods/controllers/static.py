@@ -91,8 +91,8 @@ class StaticController(base.BaseController):
 
   def validate(self):
     if not self.pod.file_exists(self.get_pod_path()):
-      path = self.get_pod_path()
-      message = '"{}" could not be found in the pod.'.format(path)
+      path = self.pod.abs_path(self.get_pod_path())
+      message = '{} does not exist.'.format(path)
       raise webob.exc.HTTPNotFound(message)
 
   def render(self):

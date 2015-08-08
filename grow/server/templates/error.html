@@ -11,8 +11,14 @@
     background: linear-gradient(rgba(255,255,255,0.3),rgba(255,255,255,0));
     background-color: #e8ebef;
     background-repeat: no-repeat;
-    font-family: 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
     font-weight: 200;
+  }
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    font-weight: 400;
   }
   body {
     max-width: 700px;
@@ -53,11 +59,12 @@
   <p>No resource matches the requested path. Here's what you can do:
     <ul>
       <li>If requesting a rendered page, ensure all path configurations in content documents, blueprints, and the podspec are correct.
-      <li>If requesting a static file, the file corresponding to this route could not be found in the pod. Ensure the file exists and try again or check the configuration in the podspec.
+      <li>If requesting a static file, the file corresponding to this route could not be found. Ensure the file exists or check the directory configuration in the podspec.
     </ul>
 {% else %}
-  <p>We tried to render this page but failed. Here's what you can do:
+  <p>This page failed to render. Here's what you can do:
   <ul>
     <li>Check the view, document, blueprint, or podspec for syntax errors.
   </ul>
 {% endif %}
+<footer>{{pod.root}}</footer>
