@@ -10,7 +10,7 @@ class BaseController(object):
   def set_route_params(self, route_params):
     self.route_params = route_params
 
-  def validate_route_params(self, route_params):
+  def validate(self):
     pass
 
   def get_route_params(self):

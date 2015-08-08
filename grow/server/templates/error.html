@@ -2,6 +2,11 @@
 <meta charset="utf-8">
 <title>Error!!1</title>
 <style>
+  code {
+    font-family: 'Monaco', monospace;
+    font-size: .8em;
+    font-weight: bold;
+  }
   html {
     background: linear-gradient(rgba(255,255,255,0.3),rgba(255,255,255,0));
     background-color: #e8ebef;
@@ -16,6 +21,12 @@
   }
   h1 {
     font-weight: 200;
+  }
+  p, li {
+    line-height: 1.4em;
+  }
+  li {
+    margin-bottom: 10px;
   }
   pre {
     background: #fff;
@@ -36,9 +47,17 @@
   }
 </style>
 <h1>Something went wrong while building this page.</h1>
-<pre>{{error.title}}</pre>
-<p>Here's what you can do:
-<ul>
-  <li>Check the content document, blueprint, view, or podspec for syntax errors.
-</ul>
+<pre>{{exception}}</pre>
 <aside></aside>
+{% if status == 404 %}
+  <p>No resource matches the requested path. Here's what you can do:
+    <ul>
+      <li>If requesting a rendered page, ensure all path configurations in content documents, blueprints, and the podspec are correct.
+      <li>If requesting a static file, the file corresponding to this route could not be found in the pod. Ensure the file exists and try again or check the configuration in the podspec.
+    </ul>
+{% else %}
+  <p>We tried to render this page but failed. Here's what you can do:
+  <ul>
+    <li>Check the view, document, blueprint, or podspec for syntax errors.
+  </ul>
+{% endif %}

@@ -5,12 +5,8 @@ from grow.pods import urls
 import fnmatch
 import mimetypes
 import re
-
-# TODO(jeremydw): Move to storage lib.
-try:
-  from google.appengine.ext import blobstore
-except ImportError:
-  blobstore = None
+import webob
+import webapp2
 
 mimetypes.add_type('application/font-woff', '.woff')
 mimetypes.add_type('image/svg+xml', '.svg')
@@ -82,7 +78,8 @@ class StaticController(base.BaseController):
       source_format = source_format.replace('//', '/')
       kwargs = self.route_params
       if 'locale' in kwargs:
-        kwargs['locale'] = str(locales.Locale.from_alias(self.pod, kwargs['locale']))
+        locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
+        kwargs['locale'] = str(locale)
       pod_path = source_format.format(**kwargs)
       if self.pod.file_exists(pod_path):
         return pod_path
@@ -91,6 +88,12 @@ class StaticController(base.BaseController):
     # If a localized file exists, serve it. Otherwise, serve the base file.
     return (self.get_localized_pod_path()
             or self.source_format.format(**self.route_params))
+
+  def validate(self):
+    if not self.pod.file_exists(self.get_pod_path()):
+      path = self.get_pod_path()
+      message = '"{}" could not be found in the pod.'.format(path)
+      raise webob.exc.HTTPNotFound(message)
 
   def render(self):
     return self.pod.read_file(self.get_pod_path())
@@ -102,9 +105,7 @@ class StaticController(base.BaseController):
   def get_http_headers(self):
     path = self.pod.abs_path(self.get_pod_path())
     headers = super(StaticController, self).get_http_headers()
-    if blobstore and self.pod.storage.is_cloud_storage:
-      blob_key = blobstore.create_gs_key('/gs' + path)
-      headers['X-AppEngine-BlobKey'] = blob_key
+    self.pod.storage.update_headers(headers, path)
     modified = str(self.pod.storage.modified(path))
     headers['Last-Modified'] = modified.split('.')[0]
     headers['Cache-Control'] = 'max-age'
@@ -142,7 +143,8 @@ class StaticController(base.BaseController):
       source = re.sub('{locale}.*', '', source)
       source = source.rstrip('/')
       paths = self.pod.list_dir(source)
-      paths = [('/' + source + path).replace(self.pod.root, '') for path in paths]
+      paths = [('/' + source + path).replace(self.pod.root, '')
+               for path in paths]
 
       # Exclude paths matched by skip patterns.
       for pattern in SKIP_PATTERNS:

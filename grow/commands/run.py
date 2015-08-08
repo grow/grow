@@ -12,15 +12,17 @@ import threading
 @click.argument('pod_path', default='.')
 @click.option('--host', default='localhost')
 @click.option('--port', default=8080)
-@click.option('--debug', default=False, is_flag=True,
-              help='Whether to run in debug mode.')
-@click.option('--browser/--nobrowser', '-b', is_flag=True, default=False,
+@click.option('--debug/--no-debug', default=False, is_flag=True,
+              help='Whether to run in debug mode and show internal tracebacks'
+                   ' when encountering exceptions.')
+@click.option('--browser/--no-browser', '-b', is_flag=True, default=False,
               help='Whether to open a browser upon startup.')
 @click.option('--skip_sdk_update_check', default=False, is_flag=True,
               help='Whether to skip checking for updates to the Grow SDK.')
 @click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
               help='Whether to run preprocessors on server start.')
-def run(host, port, debug, browser, skip_sdk_update_check, preprocess, pod_path):
+def run(host, port, debug, browser, skip_sdk_update_check, preprocess,
+        pod_path):
   """Starts a development server for a single pod."""
   if not skip_sdk_update_check:
     update_func = sdk_utils.check_for_sdk_updates

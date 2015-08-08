@@ -11,9 +11,6 @@ import webapp2
 class RenderedController(base.BaseController):
   KIND = messages.Kind.RENDERED
 
-  class Defaults(object):
-    LOCALE = None
-
   def __init__(self, view=None, document=None, path=None, _pod=None):
     self.view = view
     self.document = document
@@ -46,7 +43,8 @@ class RenderedController(base.BaseController):
       catalog = self.pod.catalogs.get(locale)
       gettext_translations = catalog.gettext_translations
     self._template_env.uninstall_gettext_translations(None)
-    self._template_env.install_gettext_translations(gettext_translations, newstyle=True)
+    self._template_env.install_gettext_translations(gettext_translations,
+                                                    newstyle=True)
 
   def list_concrete_paths(self):
     if self.path:

@@ -129,8 +129,6 @@ class Routes(object):
     try:
       controller, route_params = urls.match(path)
       controller.set_route_params(route_params)
-      # validate route_params here, raise NotFound if params are invalid
-      # controller.validate_route_params(route_params)
       return controller
     except routing.NotFound:
       raise webob.exc.HTTPNotFound()

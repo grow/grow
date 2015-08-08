@@ -55,14 +55,15 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
 
   try:
     # Create the development server.
-    app = main_lib.CreateWSGIApplication(pod)
+    app = main_lib.CreateWSGIApplication(pod, debug=debug)
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
     num_tries = 0
     while num_tries < 10:
       try:
+        handler_class = DevServerWSGIRequestHandler
         httpd = simple_server.make_server(host, port, app,
-                                          handler_class=DevServerWSGIRequestHandler)
+                                          handler_class=handler_class)
         num_tries = 99
       except socket.error as e:
         if e.errno == 48:
@@ -72,7 +73,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
           raise e
 
   except Exception as e:
-    logging.error('Failed to start server: {}'.format(e))
+    pod.logger.error('Failed to start server: {}'.format(e))
     observer.stop()
     observer.join()
     sys.exit()
@@ -96,7 +97,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     browser_thread.join()
 
   except KeyboardInterrupt:
-    logging.info('Goodbye. Shutting down.')
+    pod.logger.info('Goodbye. Shutting down.')
     httpd.server_close()
     observer.stop()
     observer.join()

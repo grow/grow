@@ -136,9 +136,11 @@ class Catalog(catalog.Catalog):
     try:
       for message, errors in self.check():
         for error in errors:
-          logging.error('Error: {}:{}: {}'.format(self.locale, message.lineno, error))
+          text = 'Error compiling ({}:{}): {}'
+          message = text.format(self.locale, message.lineno, error)
+          self.pod.logger.error(message)
     except IOError:
-      logging.info('Skipped catalog check for: {}'.format(self))
+      self.pod.logger.info('Skipped catalog check for: {}'.format(self))
 
     text = 'Compiled: {} ({}/{})'
     self.pod.logger.info(text.format(self.locale, num_translated, num_total))
