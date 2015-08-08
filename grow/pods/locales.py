@@ -7,7 +7,6 @@ import babel
 import re
 
 
-
 class Locales(object):
 
   def __init__(self, pod):
