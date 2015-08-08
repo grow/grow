@@ -4,14 +4,12 @@ werkzeug routing:
   http://werkzeug.pocoo.org/docs/routing/#werkzeug.routing.Map
 """
 
-from . import messages
 from . import locales
+from . import messages
 from .controllers import rendered
 from .controllers import static
 from grow.common import utils
 import collections
-import texttable
-import logging
 import webob
 import werkzeug
 
@@ -72,6 +70,7 @@ class Routes(object):
         rule = routing.Rule(doc.get_serving_path(), endpoint=controller)
         rules.append(rule)
         new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
+    # Static routes.
     rules += self.list_static_routes()
     self._routing_map = routing.Map(rules, converters=Routes.converters)
     self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
@@ -108,11 +107,12 @@ class Routes(object):
           localized_serve_at = localization.get('serve_at') + '<grow:filename>'
           localized_static_dir = localization.get('static_dir') + '<grow:filename>'
           rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
-          controller = static.StaticController(path_format=localized_serve_at,
-                                               source_format=localized_static_dir,
-                                               localized=True,
-                                               localization=localization,
-                                               pod=self.pod)
+          controller = static.StaticController(
+              path_format=localized_serve_at,
+              source_format=localized_static_dir,
+              localized=True,
+              localization=localization,
+              pod=self.pod)
           rules.append(routing.Rule(rule_path, endpoint=controller))
     return rules
 
@@ -161,15 +161,3 @@ class Routes(object):
       controller = route.endpoint
       message.routes.extend(controller.to_route_messages())
     return message
-
-  def pretty_print(self):
-    table = texttable.Texttable(max_width=0)
-    table.set_deco(texttable.Texttable.HEADER)
-    rows = []
-    rows.append(['Kind', 'Path'])
-    for route in self:
-      controller = route.endpoint
-      for path in controller.list_concrete_paths():
-        rows.append([controller.KIND, path])
-    table.add_rows(rows)
-    logging.info('\n' + table.draw() + '\n')

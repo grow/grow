@@ -1,5 +1,6 @@
 from grow.pods import errors
 import functools
+import gettext
 import git
 import json
 import logging
@@ -128,6 +129,14 @@ def load_yaml(*args, **kwargs):
 
   class YamlLoader(yaml_Loader):
 
+    def construct_gettext(self, node):
+      if isinstance(node, yaml.SequenceNode):
+        items = []
+        for i, each in enumerate(node.value):
+          items.append(gettext.gettext(node.value[i].value))
+        return items
+      return gettext.gettext(node.value)
+
     def construct_doc(self, node):
       if isinstance(node, yaml.SequenceNode):
         items = []
@@ -136,6 +145,7 @@ def load_yaml(*args, **kwargs):
         return items
       return pod.get_doc(node.value)
 
+  YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
   YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
   return yaml.load(*args, Loader=YamlLoader, **kwargs)
 

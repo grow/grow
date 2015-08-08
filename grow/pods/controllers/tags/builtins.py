@@ -11,8 +11,8 @@ import markdown
 import re
 
 
-
-def categories(collection=None, collections=None, reverse=None, order_by=None, _pod=None):
+def categories(collection=None, collections=None, reverse=None, order_by=None,
+               _pod=None):
   if isinstance(collection, collectionz.Collection):
     collection = collection
   elif isinstance(collection, basestring):
@@ -22,10 +22,11 @@ def categories(collection=None, collections=None, reverse=None, order_by=None, _
     raise ValueError(text.format(collection, type(collection)))
 
   category_list = collection.list_categories()
+
   def order_func(doc):
     return category_list.index(doc.category)
 
-  docs = [doc for doc in collection.list_documents(reverse=reverse, order_by='order')]
+  docs = [doc for doc in collection.list_docs(reverse=reverse)]
   docs = sorted(docs, key=order_func)
   items = itertools.groupby(docs, key=order_func)
   return ((category_list[index], pages) for index, pages in items)
@@ -37,7 +38,9 @@ def LocaleIterator(iterator, locale):
     if i == 0 or line.startswith(locale):
       yield line
 
+
 _no_locale = '__no_locale'
+
 
 def csv(path, locale=_no_locale, _pod=None):
   fp = _pod.open_file(path)
@@ -57,7 +60,7 @@ def csv(path, locale=_no_locale, _pod=None):
 
 def docs(collection, locale=None, order_by=None, _pod=None):
   collection = _pod.get_collection(collection)
-  return collection.search_docs(locale=locale, order_by=order_by)
+  return collection.list_docs(locale=locale, order_by=order_by)
 
 
 def markdown_filter(value):
@@ -70,6 +73,8 @@ def markdown_filter(value):
 
 
 _slug_regex = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+
+
 def slug_filter(value):
   result = []
   for word in _slug_regex.split(value.lower()):
@@ -102,7 +107,7 @@ class Menu(object):
 
 def nav(collection=None, locale=None, _pod=None):
   collection_obj = _pod.get_collection('/content/' + collection)
-  results = collection_obj.search_docs(order_by='order', locale=locale)
+  results = collection_obj.list_docs(order_by='order', locale=locale)
   menu = Menu()
   menu.build(results)
   return menu

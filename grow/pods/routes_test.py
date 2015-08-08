@@ -8,6 +8,7 @@ import webob.exc
 class RoutesTest(unittest.TestCase):
 
   def setUp(self):
+    self.maxDiff = None
     self.dir_path = testing.create_test_pod_dir()
     self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
@@ -36,6 +37,7 @@ class RoutesTest(unittest.TestCase):
         '/fr/intro/',
         '/fr/yaml_test/',
         '/html/',
+        '/intl/de_alias/localized/',
         '/intl/en_gb/localized/',
         '/intl/hi_in/localized/',
         '/intro/',

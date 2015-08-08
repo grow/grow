@@ -34,7 +34,7 @@ class DummyDict(object):
 
 class Document(object):
 
-  def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
+  def __init__(self, pod_path, _pod, locale=None, _collection=None):
     self._locale_kwarg = locale
     utils.validate_name(pod_path)
     self.pod_path = pod_path
@@ -124,14 +124,6 @@ class Document(object):
   def date(self):
     return self.fields.get('$date')
 
-  @property
-  def base_locale_enabled(self):
-    if '$localization' in self.fields:
-      return self.fields['$localization'].get('base', True)
-    if self.collection.localization:
-      return self.collection.localization.get('base', True)
-    return True
-
   def dates(self, date_name=None):
     if date_name is None:
       return self.date
@@ -146,9 +138,6 @@ class Document(object):
 
   def has_collection(self):
     return self.collection.exists()
-
-  def has_url(self):
-    return True
 
   def get_view(self):
     view_format = self.fields.get('$view', self.collection.get_view())
@@ -179,6 +168,11 @@ class Document(object):
     parent_pod_path = self.fields['$parent']
     return self.collection.get_doc(parent_pod_path, locale=self.locale)
 
+  @utils.memoize
+  def has_serving_path(self):
+    return bool(self.get_path_format())
+
+  @utils.memoize
   def get_serving_path(self):
     # Get root path.
     locale = str(self.locale)
@@ -192,9 +186,9 @@ class Document(object):
           'No path format found for {}. You must specify a path '
           'format in either the blueprint or the document.'.format(self))
     path_format = (path_format
-        .replace('<grow:locale>', '{locale}')
-        .replace('<grow:slug>', '{slug}')
-        .replace('<grow:published_year>', '{published_year}'))
+                   .replace('<grow:locale>', '{locale}')
+                   .replace('<grow:slug>', '{slug}')
+                   .replace('<grow:published_year>', '{published_year}'))
 
     # Prevent double slashes when combining root path and path format.
     if path_format.startswith('/') and root_path.endswith('/'):
@@ -208,10 +202,11 @@ class Document(object):
       if match:
         formatted_date = self.date
         formatted_date = formatted_date.strftime(match.group('date_format'))
-        path_format = path_format[:match.start()] + formatted_date + path_format[match.end():]
+        path_format = (path_format[:match.start()] + formatted_date +
+                       path_format[match.end():])
       else:
         # Does not match expected format, let the normal format attempt it.
-        break;
+        break
 
     # Handle the special formatting of dates in the url.
     while '{dates.' in path_format:
@@ -219,11 +214,13 @@ class Document(object):
       match = re.search(re_dates, path_format)
       if match:
         formatted_date = self.dates(match.group('date_name'))
-        formatted_date = formatted_date.strftime(match.group('date_format') or '%Y-%m-%d')
-        path_format = path_format[:match.start()] + formatted_date + path_format[match.end():]
+        date_format = match.group('date_format') or '%Y-%m-%d'
+        formatted_date = formatted_date.strftime(date_format)
+        path_format = (path_format[:match.start()] + formatted_date +
+                       path_format[match.end():])
       else:
         # Does not match expected format, let the normal format attempt it.
-        break;
+        break
 
     try:
       return self._format_path(path_format)
@@ -233,16 +230,17 @@ class Document(object):
 
   def _format_path(self, path_format):
     podspec = self.pod.get_podspec()
+    locale = self.locale.alias if self.locale is not None else self.locale
     return path_format.format(**{
         'base': os.path.splitext(os.path.basename(self.pod_path))[0],
         'date': self.date,
-        'locale': self.locale.alias if self.locale is not None else self.locale,
+        'locale': locale,
         'parent': self.parent if self.parent else DummyDict(),
         'podspec': podspec,
         'slug': self.slug,
     }).replace('//', '/')
 
-  @property
+  @webapp2.cached_property
   def locales(self):
     return self.list_locales()
 
@@ -280,10 +278,11 @@ class Document(object):
             and self.pod_path == other.pod_path)
 
   def next(self, docs=None):
-    # TODO(jeremydw): Verify items is a list of docs.
     if docs is None:
-      docs = self.collection.search_docs()
+      docs = self.collection.list_docs()
     for i, doc in enumerate(docs):
+      if type(doc) != self.__class__:
+        raise ValueError('Usage: {{doc.next(<docs>)}}.')
       if doc == self:
         n = i + 1
         if n == len(docs):
@@ -291,10 +290,11 @@ class Document(object):
         return docs[i + 1]
 
   def prev(self, docs=None):
-    # TODO(jeremydw): Verify items is a list of docs.
     if docs is None:
-      docs = self.collection.search_docs()
+      docs = self.collection.list_docs()
     for i, doc in enumerate(docs):
+      if type(doc) != self.__class__:
+        raise ValueError('Usage: {{doc.prev(<docs>)}}.')
       if doc == self:
         n = i - 1
         if n < 0:

@@ -77,13 +77,16 @@ class Collection(object):
   def get(cls, collection_path, _pod):
     collection = cls(collection_path, _pod)
     if not collection.exists():
-      raise CollectionDoesNotExistError('{} does not exist.'.format(collection))
+      message = '{} does not exist.'.format(collection)
+      raise CollectionDoesNotExistError(message)
     return collection
 
   def get_doc(self, pod_path, locale=None):
-    doc = documents.Document(pod_path, locale=locale, _pod=self.pod, _collection=self)
+    doc = documents.Document(pod_path, locale=locale, _pod=self.pod,
+                             _collection=self)
     if not doc.exists():
-      raise documents.DocumentDoesNotExistError('{} does not exist.'.format(doc))
+      message = '{} does not exist.'.format(doc)
+      raise documents.DocumentDoesNotExistError(message)
     return doc
 
   @property
@@ -102,7 +105,7 @@ class Collection(object):
     return self.yaml.get('title')
 
   def delete(self):
-    if len(self.list_documents(include_hidden=True)):
+    if len(self.list_docs(include_hidden=True)):
       text = 'Collections that are not empty cannot be deleted.'
       raise CollectionNotEmptyError(text)
     self.pod.delete_file(self._blueprint_path)
@@ -120,77 +123,39 @@ class Collection(object):
   def get_path_format(self):
     return self.yaml.get('path')
 
-  # TODO(jeremydw): Consolidate list_docs, search_docs, and list_documents!
-  # Implement a thread pool for document parsing and use a map of files to
-  # paths for routing efficiency.
-
-  def list_docs(self, order_by=None, reverse=None):
-    # TODO(jeremydw): Implement this, and search, and kill list_documents.
-    pass
-
-  def search_docs(self, order_by=None, locale=None):
+  def list_docs(self, order_by=None, locale=_all, reverse=None,
+                include_hidden=False):
+    reverse = False if reverse is None else reverse
     order_by = 'order' if order_by is None else order_by
-    sorted_docs = structures.SortedCollection(key=operator.attrgetter(order_by))
+    key = operator.attrgetter(order_by)
+    sorted_docs = structures.SortedCollection(key=key)
     for path in self.pod.list_dir(self.pod_path):
       pod_path = os.path.join(self.pod_path, path.lstrip('/'))
       slug, ext = os.path.splitext(os.path.basename(pod_path))
-      if slug.startswith('_') or ext not in messages.extensions_to_formats:
-        continue
-      doc = self.get_doc(pod_path)
-      if doc.hidden:
-        continue
-      if locale is None:
-        sorted_docs.insert(doc)
-        continue
-      for each_locale in doc.list_locales():
-        if each_locale == locale:
-          sorted_docs.insert(self.get_doc(pod_path, locale=locale))
-    return sorted_docs
-
-  def list_documents(self, order_by=None, reverse=None, include_hidden=False, locale=_all):
-    if order_by is None:
-      order_by = 'order'
-    if reverse is None:
-      reverse = False
-
-    paths = self.pod.list_dir(self.pod_path)
-    sorted_docs = structures.SortedCollection(key=operator.attrgetter(order_by))
-
-    def process(path):
-      pod_path = os.path.join(self.pod_path, path.lstrip('/'))
-      slug, ext = os.path.splitext(os.path.basename(pod_path))
       if (slug.startswith('_')
-          or ext not in messages.extensions_to_formats
-          or not pod_path):
-        return
+              or ext not in messages.extensions_to_formats
+              or not pod_path):
+        continue
       doc = self.get_doc(pod_path)
       if not include_hidden and doc.hidden:
-        return
-
-      if (locale in [_all, None]):
+        continue
+      if locale in [_all, None]:
         sorted_docs.insert(doc)
-
       if locale is None:
-        return
-
+        continue
       for each_locale in doc.list_locales():
         if each_locale == doc.default_locale:
           continue
-        if each_locale == locale or locale == _all:
-          doc = self.get_doc(pod_path, locale=each_locale)
-          sorted_docs.insert(doc)
-
-    for path in paths:
-      process(path)
-
+        if locale in [_all, each_locale]:
+          sorted_docs.insert(self.get_doc(pod_path, locale=each_locale))
     return reversed(sorted_docs) if reverse else sorted_docs
 
   def list_servable_documents(self, include_hidden=False):
     docs = []
-    for doc in self.list_documents(include_hidden=include_hidden):
+    for doc in self.list_docs(include_hidden=include_hidden):
       if self.yaml.get('draft'):
         continue
-      if not doc.has_url() or not doc.get_view():
+      if not doc.has_serving_path() or not doc.get_view():
         continue
       docs.append(doc)
     return docs
@@ -213,9 +178,6 @@ class Collection(object):
           return locales.Locale.parse_codes(config['localization']['locales'])
         raise NoLocalesError('{} has no locales.')
     return []
-
-  def search_documents(self, order_by='order'):
-    return self.list_documents(order_by=order_by)
 
   def to_message(self):
     message = messages.CollectionMessage()

@@ -158,7 +158,7 @@ class Catalogs(object):
     for collection in self.pod.list_collections():
       text = 'Extracting collection: {}'.format(collection.pod_path)
       self.pod.logger.info(text)
-      for doc in collection.list_documents(include_hidden=True):
+      for doc in collection.list_docs(include_hidden=True):
         tagged_fields = doc.get_tagged_fields()
         utils.walk(tagged_fields, lambda *args: callback(doc, *args))
         paths_to_locales[doc.pod_path].update(doc.locales)

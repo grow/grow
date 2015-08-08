@@ -1,0 +1,5 @@
+$title: Localized
+$localization:
+  path: /intl/{locale}/localized/
+  locales:
+  - de
