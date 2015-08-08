@@ -55,8 +55,8 @@ class Collection(object):
 
   @classmethod
   def list(cls, pod):
+    # TODO: Implement "depth" argument on pod.list_dir and use.
     paths = pod.list_dir('/content/')
-    # TODO: replace with depth
     clean_paths = set()
     for path in paths:
       parts = path.split('/')
@@ -153,9 +153,8 @@ class Collection(object):
   def list_servable_documents(self, include_hidden=False):
     docs = []
     for doc in self.list_docs(include_hidden=include_hidden):
-      if self.yaml.get('draft'):
-        continue
-      if not doc.has_serving_path() or not doc.get_view():
+      if (self.yaml.get('draft') or not doc.has_serving_path()
+          or not doc.get_view()):
         continue
       docs.append(doc)
     return docs

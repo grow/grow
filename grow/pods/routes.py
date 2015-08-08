@@ -105,7 +105,8 @@ class Routes(object):
         rules.append(routing.Rule(serve_at, endpoint=controller))
         if localization:
           localized_serve_at = localization.get('serve_at') + '<grow:filename>'
-          localized_static_dir = localization.get('static_dir') + '<grow:filename>'
+          static_dir = localization.get('static_dir')
+          localized_static_dir = static_dir + '<grow:filename>'
           rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
           controller = static.StaticController(
               path_format=localized_serve_at,

@@ -4,7 +4,6 @@ import gettext
 import git
 import json
 import logging
-import mimetypes
 import os
 import re
 import sys
@@ -73,12 +72,6 @@ def walk(node, callback, parent_key=None):
       if isinstance(node, (list, set)):
         key = parent_key
       callback(item, key, node)
-
-
-def apply_heaers(headers, path):
-  mimetype = mimetypes.guess_type(path)[0]
-  if mimetype:
-    headers['Content-Type'] = mimetype
 
 
 def validate_name(name):
