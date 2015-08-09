@@ -7,7 +7,7 @@ from .destinations import webreview_destination
 from protorpc import protojson
 import json
 
-_destination_kinds_to_classes = {}
+_destination_kinds_to_classes = None
 
 _builtins = (
     amazon_s3.AmazonS3Destination,
@@ -24,11 +24,16 @@ def register_destination(class_obj):
 
 
 def register_builtins():
+  global _destination_kinds_to_classes
+  if _destination_kinds_to_classes is None:
+    _destination_kinds_to_classes = {}
   for builtin in _builtins:
     register_destination(builtin)
 
 
 def make_deployment(kind, config, name='default'):
+  if _destination_kinds_to_classes is None:
+    register_builtins()
   class_obj = _destination_kinds_to_classes.get(kind)
   if class_obj is None:
     raise ValueError('No configuration exists for "{}".'.format(kind))
@@ -41,6 +46,3 @@ def make_deployment(kind, config, name='default'):
 def config_from_json(deployment_class, content):
   config_class = deployment_class.Config
   return protojson.decode_message(config_class, content)
-
-
-register_builtins()
