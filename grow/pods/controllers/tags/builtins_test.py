@@ -15,6 +15,12 @@ class BuiltinsTestCase(unittest.TestCase):
     words = 'Foo Bar Baz'
     self.assertEqual('foo-bar-baz', builtins.slug_filter(words))
 
+  def test_json(self):
+    controller = self.pod.match('/yaml_test/')
+    html = controller.render()
+    self.assertIn('key - value', html)
+    self.assertIn('key2 - value2', html)
+
 
 if __name__ == '__main__':
   unittest.main()

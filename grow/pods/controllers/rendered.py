@@ -63,6 +63,7 @@ class RenderedController(base.BaseController):
         'date': lambda *args, **kwargs: tags.date(*args, _pod=self.pod, **kwargs),
         'doc': lambda *args, **kwargs: tags.get_doc(*args, _pod=self.pod, **kwargs),
         'docs': lambda *args, **kwargs: tags.docs(*args, _pod=self.pod, **kwargs),
+        'json': lambda path: tags.json(path, _pod=self.pod),
         'locales': lambda *args, **kwargs: tags.locales(*args, _pod=self.pod, **kwargs),
         'nav': lambda *args, **kwargs: tags.nav(*args, _pod=self.pod, **kwargs),
         'params': self.route_params,

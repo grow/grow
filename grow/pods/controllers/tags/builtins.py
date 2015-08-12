@@ -6,7 +6,7 @@ import collections
 import csv as csv_lib
 import itertools
 import jinja2
-import json
+import json as json_lib
 import markdown
 import re
 
@@ -145,7 +145,7 @@ def deeptrans(ctx, obj):
 
 @jinja2.contextfilter
 def jsonify(ctx, obj, *args, **kwargs):
-  return json.dumps(obj, *args, **kwargs)
+  return json_lib.dumps(obj, *args, **kwargs)
 
 
 def _deep_gettext(ctx, fields):
@@ -177,6 +177,11 @@ def _gettext_alias(__context, *args, **kwargs):
 def yaml(path, _doc, _pod):
   fields = utils.parse_yaml(_pod.read_file(path), pod=_pod)
   return utils.untag_fields(fields)
+
+
+def json(path, _pod):
+  fp = _pod.open_file(path)
+  return json_lib.load(fp)
 
 
 def date(datetime_obj=None, _pod=None, **kwargs):
