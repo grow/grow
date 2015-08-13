@@ -20,7 +20,7 @@ class LocalDestination(base.BaseDestination):
   storage = storage_lib.FileStorage
 
   def __str__(self):
-    return 'file://{}'.format(self.out_dir)
+    return os.path.abspath(os.path.join(self.out_dir))
 
   @property
   def out_dir(self):
