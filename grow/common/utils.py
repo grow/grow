@@ -154,6 +154,8 @@ def dump_yaml(obj):
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 def slugify(text, delim=u'-'):
+  if not isinstance(text, basestring):
+    text = str(text)
   result = []
   for word in _slug_re.split(text.lower()):
     word = word.encode('translit/long')
