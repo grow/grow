@@ -2,8 +2,10 @@ from grow.common import markdown_extensions
 from grow.common import utils
 from markdown.extensions import tables
 from markdown.extensions import toc
+import logging
 import markdown
 import re
+import yaml
 
 
 class Error(Exception):
@@ -56,51 +58,64 @@ class Format(object):
 class YamlFormat(Format):
 
   def load(self):
-    if not self.has_front_matter:
-      self.fields = utils.load_yaml(self.content, pod=self.doc.pod)
-      self.body = self.content
-      return
-    locales_to_fields = {}
-    locales_to_bodies = {}
-    locale = self.doc._locale_kwarg
-    default_locale = None
-    for part in Format.split_front_matter(self.content):
-      fields = utils.load_yaml(part, pod=self.doc.pod)
-      doc_locale = fields.get('$locale', default_locale)
-      locales_to_fields[doc_locale] = fields
-      locales_to_bodies[doc_locale] = part
-    fields = locales_to_fields.get(default_locale)
-    if locale in locales_to_fields:
-      localized_fields = locales_to_fields[locale]
-      if fields is None:
-        fields = {}
-      fields.update(localized_fields)
-    self.body = locales_to_bodies.get(locale, locales_to_bodies.get(default_locale))
-    self.body = self.body.strip() if self.body is not None else None
-    self.fields = fields
+    try:
+      if not self.has_front_matter:
+        self.fields = utils.load_yaml(self.content, pod=self.doc.pod)
+        self.body = self.content
+        return
+      locales_to_fields = {}
+      locales_to_bodies = {}
+      locale = self.doc._locale_kwarg
+      default_locale = None
+      for part in Format.split_front_matter(self.content):
+        fields = utils.load_yaml(part, pod=self.doc.pod)
+        doc_locale = fields.get('$locale', default_locale)
+        locales_to_fields[doc_locale] = fields
+        locales_to_bodies[doc_locale] = part
+      fields = locales_to_fields.get(default_locale)
+      if locale in locales_to_fields:
+        localized_fields = locales_to_fields[locale]
+        if fields is None:
+          fields = {}
+        fields.update(localized_fields)
+      default_body = locales_to_bodies.get(default_locale)
+      self.body = locales_to_bodies.get(locale, default_body)
+      self.body = self.body.strip() if self.body is not None else None
+      self.fields = fields
+    except yaml.composer.ComposerError:
+      message = 'Error parsing: {}'.format(self.doc.pod_path)
+      logging.exception(message)
+      raise BadFormatError(message)
 
 
 class HtmlFormat(YamlFormat):
 
   def _handle_pairs_of_parts_and_bodies(self):
-    locales_to_bodies = {}
-    locales_to_fields = {}
-    locale = self.doc._locale_kwarg
-    default_locale = None
-    for part, body in utils.every_two(Format.split_front_matter(self.content)):
-      fields = utils.load_yaml(part, pod=self.doc.pod)
-      doc_locale = fields.get('$locale', default_locale)
-      locales_to_fields[doc_locale] = fields
-      locales_to_bodies[doc_locale] = body
-    fields = locales_to_fields.get(default_locale)
-    if locale in locales_to_fields:
-      localized_fields = locales_to_fields[locale]
-      if fields is None:
-        fields = {}
-      fields.update(localized_fields)
-    self.body = locales_to_bodies.get(locale, locales_to_bodies.get(default_locale))
-    self.body = self.body.strip() if self.body is not None else None
-    self.fields = fields
+    try:
+      locales_to_bodies = {}
+      locales_to_fields = {}
+      locale = self.doc._locale_kwarg
+      default_locale = None
+      split_content = Format.split_front_matter(self.content)
+      for part, body in utils.every_two(split_content):
+        fields = utils.load_yaml(part, pod=self.doc.pod)
+        doc_locale = fields.get('$locale', default_locale)
+        locales_to_fields[doc_locale] = fields
+        locales_to_bodies[doc_locale] = body
+      fields = locales_to_fields.get(default_locale)
+      if locale in locales_to_fields:
+        localized_fields = locales_to_fields[locale]
+        if fields is None:
+          fields = {}
+        fields.update(localized_fields)
+      default_body = locales_to_bodies.get(default_locale)
+      self.body = locales_to_bodies.get(locale, default_body)
+      self.body = self.body.strip() if self.body is not None else None
+      self.fields = fields
+    except yaml.composer.ComposerError:
+      message = 'Error parsing: {}'.format(self.doc.pod_path)
+      logging.exception(message)
+      raise BadFormatError(message)
 
   def load(self):
     if not self.has_front_matter:
@@ -129,11 +144,11 @@ class MarkdownFormat(HtmlFormat):
     val = self.body
     if val is not None:
       extensions = [
-        tables.TableExtension(),
-        toc.TocExtension(),
-        markdown_extensions.CodeBlockExtension(),
-        markdown_extensions.IncludeExtension(self.doc.pod),
-        markdown_extensions.UrlExtension(self.doc.pod),
+          tables.TableExtension(),
+          toc.TocExtension(),
+          markdown_extensions.CodeBlockExtension(),
+          markdown_extensions.IncludeExtension(self.doc.pod),
+          markdown_extensions.UrlExtension(self.doc.pod),
       ]
       val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
     return val
