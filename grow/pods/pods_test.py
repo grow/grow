@@ -89,6 +89,11 @@ class PodTest(unittest.TestCase):
   def test_list_deployments(self):
     self.pod.list_deployments()
 
+  def test_get_home_doc(self):
+    home_doc = self.pod.get_home_doc()
+    doc = self.pod.get_doc('/content/pages/home.yaml')
+    self.assertEqual(home_doc, doc)
+
 
 if __name__ == '__main__':
   unittest.main()
