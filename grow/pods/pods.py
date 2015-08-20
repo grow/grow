@@ -217,6 +217,12 @@ class Pod(object):
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path, locale=locale)
 
+  def get_home_doc(self):
+    home = self.yaml.get('home')
+    if home is None:
+      return None
+    return self.get_doc(home)
+
   def get_catalogs(self, template_path=None):
     return catalog_holder.Catalogs(pod=self)
 

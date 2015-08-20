@@ -79,7 +79,11 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     sys.exit()
 
   try:
-    root_path = pod.get_root_path()
+    home_doc = pod.get_home_doc()
+    if home_doc:
+      root_path = home_doc.url.path
+    else:
+      root_path = pod.get_root_path()
     url = 'http://{}:{}{}'.format(host, port, root_path)
     print 'Pod: '.rjust(20) + pod.root
     print 'Address: '.rjust(20) + url
