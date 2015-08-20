@@ -7,6 +7,8 @@ import markdown
 import re
 import yaml
 
+BOUNDARY = re.compile(r'^-{3,}$', re.MULTILINE)
+
 
 class Error(Exception):
   pass
@@ -40,7 +42,7 @@ class Format(object):
 
   @staticmethod
   def split_front_matter(content):
-    parts = re.split('(?:^|[\n])---', content, re.DOTALL)
+    parts = BOUNDARY.split(content)
     return parts[1:]
 
   @property
@@ -59,19 +61,20 @@ class YamlFormat(Format):
 
   def load(self):
     try:
-      if not self.has_front_matter:
-        self.fields = utils.load_yaml(self.content, pod=self.doc.pod)
+      docs = list(utils.load_yaml_all(self.content, pod=self.doc.pod))
+      if len(docs) == 1:
+        self.fields = docs[0]
         self.body = self.content
         return
       locales_to_fields = {}
       locales_to_bodies = {}
       locale = self.doc._locale_kwarg
       default_locale = None
-      for part in Format.split_front_matter(self.content):
-        fields = utils.load_yaml(part, pod=self.doc.pod)
+      parts = Format.split_front_matter(self.content)
+      for i, fields in enumerate(docs):
         doc_locale = fields.get('$locale', default_locale)
         locales_to_fields[doc_locale] = fields
-        locales_to_bodies[doc_locale] = part
+        locales_to_bodies[doc_locale] = parts[i]
       fields = locales_to_fields.get(default_locale)
       if locale in locales_to_fields:
         localized_fields = locales_to_fields[locale]
@@ -82,8 +85,8 @@ class YamlFormat(Format):
       self.body = locales_to_bodies.get(locale, default_body)
       self.body = self.body.strip() if self.body is not None else None
       self.fields = fields
-    except yaml.composer.ComposerError:
-      message = 'Error parsing: {}'.format(self.doc.pod_path)
+    except (yaml.composer.ComposerError, yaml.scanner.ScannerError) as e:
+      message = 'Error parsing {}: {}'.format(self.doc.pod_path, e)
       logging.exception(message)
       raise BadFormatError(message)
 

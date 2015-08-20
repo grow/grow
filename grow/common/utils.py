@@ -7,6 +7,7 @@ import logging
 import os
 import re
 import sys
+import cStringIO
 import time
 import translitcodec
 import yaml
@@ -117,9 +118,7 @@ def every_two(l):
   return zip(l[::2], l[1::2])
 
 
-def load_yaml(*args, **kwargs):
-  pod = kwargs.pop('pod', None)
-
+def make_yaml_loader(pod):
   class YamlLoader(yaml_Loader):
 
     def construct_gettext(self, node):
@@ -140,7 +139,22 @@ def load_yaml(*args, **kwargs):
 
   YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
   YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
-  return yaml.load(*args, Loader=YamlLoader, **kwargs)
+  return YamlLoader
+
+
+def load_yaml(*args, **kwargs):
+  pod = kwargs.pop('pod', None)
+  loader = make_yaml_loader(pod)
+  return yaml.load(*args, Loader=loader, **kwargs)
+
+
+def load_yaml_all(*args, **kwargs):
+  pod = kwargs.pop('pod', None)
+  fp = cStringIO.StringIO()
+  fp.write(args[0])
+  fp.seek(0)
+  loader = make_yaml_loader(pod)
+  return yaml.load_all(*args, Loader=loader, **kwargs)
 
 
 @memoize
