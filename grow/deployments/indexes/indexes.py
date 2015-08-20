@@ -248,7 +248,7 @@ class Index(object):
       message.deployed_by = messages.AuthorMessage(
           name=config.get('user', 'name'),
           email=config.get('user', 'email'))
-    except ConfigParser.NoSectionError:
+    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
       logging.warning("Couldn't find user info in repository config.")
     try:
       message.commit = utils.create_commit_message(repo)
