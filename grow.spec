@@ -68,13 +68,17 @@ a.datas += [
     ('data/cacerts.txt', 'grow/data/cacerts.txt', 'DATA'),
 ]
 
-def get_crypto_path():
-  import Crypto
-  crypto_path = Crypto.__path__[0]
-  return crypto_path
-
-dict_tree = Tree(get_crypto_path(), prefix='Crypto', excludes=["*.pyc"])
-a.datas += dict_tree
+# Crypto doesn't seem to be needed when building on Mac. TODO(jeremydw):
+# research this dependency and determine if it can be eliminated from
+# non-Mac builds.
+import sys
+if sys.platform != 'darwin':
+  def get_crypto_path():
+    import Crypto
+    crypto_path = Crypto.__path__[0]
+    return crypto_path
+  dict_tree = Tree(get_crypto_path(), prefix='Crypto', excludes=["*.pyc"])
+  a.datas += dict_tree
 
 try:
   def get_qt4_path():

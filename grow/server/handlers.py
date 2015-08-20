@@ -16,24 +16,22 @@ _env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True,
 class BaseHandler(webapp2.RequestHandler):
 
   def handle_exception(self, exception, debug):
-    if debug:
-      logging.exception(exception)
-    else:
-      logging.error(str(exception))
-    template = _env.get_template('error.html')
-    html = template.render({'error': {'title': str(exception)}})
+    pod = self.app.registry['pod']
+    log_func = logging.exception if debug else pod.logger.error
     if isinstance(exception, webob.exc.HTTPException):
-      self.response.set_status(exception.code)
+      status = exception.status_int
+      log_func('{}: {}'.format(status, self.request.path))
     else:
-      self.response.set_status(500)
+      status = 500
+      log_func('{}: {} - {}'.format(status, self.request.path, exception))
+    template = _env.get_template('error.html')
+    html = template.render({
+        'exception': exception,
+        'pod': pod,
+        'status': status,
+    })
+    self.response.set_status(status)
     self.response.write(html)
-
-  def respond_with_controller(self, controller):
-    headers = controller.get_http_headers()
-    self.response.headers.update(headers)
-    if 'X-AppEngine-BlobKey' in self.response.headers:
-      return
-    return self.response.out.write(controller.render())
 
 
 class PodHandler(BaseHandler):
@@ -42,6 +40,11 @@ class PodHandler(BaseHandler):
     pod = self.app.registry['pod']
     try:
       controller = pod.routes.match(self.request.path, self.request.environ)
-      self.respond_with_controller(controller)
+      controller.validate()
+      headers = controller.get_http_headers()
+      self.response.headers.update(headers)
+      if 'X-AppEngine-BlobKey' in self.response.headers:
+        return
+      self.response.out.write(controller.render())
     except werkzeug.routing.RequestRedirect as e:
       self.redirect(e.new_url)

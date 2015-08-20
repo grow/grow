@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 
+
 def is_packaged_app():
   try:
     sys._MEIPASS
@@ -40,16 +41,19 @@ from watchdog.utils import unicode_paths
 unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
 from grow import commands
+from grow.common import utils
+
+_grow_dir = utils.get_grow_dir()
+ver = open(os.path.join(_grow_dir, 'VERSION')).read().strip()
+text = ('Grow is a declarative file-based website generator. Read docs at '
+        'http://growsdk.org. This is version {}.'.format(ver))
 
 
-@click.group()
+@click.group(help=text)
 def grow():
-  """Grow SDK: a declarative, file-based CMS for building high-quality web sites.
-  See documentation at: http://growsdk.org."""
-
+  pass
 
 commands.add(grow)
-
 
 if __name__ == '__main__':
   grow()

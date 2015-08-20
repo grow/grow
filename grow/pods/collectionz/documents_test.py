@@ -52,5 +52,14 @@ class DocumentsTestCase(unittest.TestCase):
     ])
     self.assertEqual(expected, doc.list_locales())
 
+  def test_next_prev(self):
+    collection = self.pod.get_collection('pages')
+    docs = collection.list_docs()
+    doc = self.pod.get_doc('/content/pages/contact.yaml')
+    doc.next(docs)
+    self.assertRaises(ValueError, doc.next, [1, 2, 3])
+    doc.prev(docs)
+    self.assertRaises(ValueError, doc.prev, [1, 2, 3])
+
 if __name__ == '__main__':
   unittest.main()

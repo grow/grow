@@ -46,12 +46,12 @@ def extract(pod_path, init, update, missing, locale, o, fuzzy,
   pod = pods.Pod(root, storage=storage.FileStorage)
   catalogs = pod.get_catalogs()
   catalogs.extract(include_obsolete=include_obsolete, localized=localized)
-  if localized:
-    return
   if missing:
     locales = _validate_locales(catalogs.list_locales(), locale)
     catalogs.update(locales=locale)
     catalogs.extract_missing(locales, out_path=o, use_fuzzy=fuzzy)
+    return
+  if localized:
     return
   if init:
     locales = _validate_locales(pod.list_locales(), locale)

@@ -53,7 +53,8 @@ import progressbar
 import re
 
 _handler = logging.StreamHandler()
-_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S'))
+_formatter = logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S')
+_handler.setFormatter(_formatter)
 _logger = logging.getLogger('pod')
 _logger.propagate = False
 _logger.addHandler(_handler)
@@ -82,21 +83,19 @@ class Pod(object):
 
   def __init__(self, root, storage=storage.auto, env=None):
     self.storage = storage
-    self.root = root if self.storage.is_cloud_storage else os.path.abspath(root)
-    self.env = env if env else environment.Env(environment.EnvConfig(host='localhost'))
-
+    self.root = (root if self.storage.is_cloud_storage
+                 else os.path.abspath(root))
+    self.env = (env if env
+                else environment.Env(environment.EnvConfig(host='localhost')))
     self.locales = locales.Locales(pod=self)
     self.tests = tests.Tests(pod=self)
     self.catalogs = catalog_holder.Catalogs(pod=self)
-
     self.logger = _logger
     self._routes = None
-
     try:
       sdk_utils.check_sdk_version(self)
     except PodDoesNotExistError:
-      # Pod doesn't exist yet, simply pass.
-      pass
+      pass  # Pod doesn't exist yet, simply pass.
 
   def __repr__(self):
     return '<Pod: {}>'.format(self.root)
@@ -188,8 +187,8 @@ class Pod(object):
 
   def move_file_to(self, source_pod_path, destination_pod_path):
     source_path = os.path.join(self.root, source_pod_path.lstrip('/'))
-    destination_path = os.path.join(self.root, destination_pod_path.lstrip('/'))
-    return self.storage.move_to(source_path, destination_path)
+    dest_path = os.path.join(self.root, destination_pod_path.lstrip('/'))
+    return self.storage.move_to(source_path, dest_path)
 
   def list_collections(self):
     return collectionz.Collection.list(self)
@@ -225,7 +224,7 @@ class Pod(object):
     """Returns a collection.
 
     Args:
-      collection_path: The collection's path relative to the /content/ directory.
+      collection_path: A collection's path relative to the /content/ directory.
     Returns:
       Collection.
     """
@@ -309,7 +308,8 @@ class Pod(object):
     destination_configs = self.yaml['deployments']
     if nickname not in destination_configs:
       text = 'No deployment named {}. Valid deployments: {}.'
-      raise ValueError(text.format(nickname, ', '.join(destination_configs.keys())))
+      keys = ', '.join(destination_configs.keys())
+      raise ValueError(text.format(nickname, keys))
     deployment_params = destination_configs[nickname]
     kind = deployment_params.pop('destination')
     try:

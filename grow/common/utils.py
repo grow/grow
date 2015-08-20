@@ -1,12 +1,13 @@
 from grow.pods import errors
 import functools
+import gettext
 import git
 import json
 import logging
-import mimetypes
 import os
 import re
 import sys
+import cStringIO
 import time
 import translitcodec
 import yaml
@@ -74,12 +75,6 @@ def walk(node, callback, parent_key=None):
       callback(item, key, node)
 
 
-def apply_heaers(headers, path):
-  mimetype = mimetypes.guess_type(path)[0]
-  if mimetype:
-    headers['Content-Type'] = mimetype
-
-
 def validate_name(name):
   # TODO: better validation.
   if ('//' in name
@@ -123,10 +118,16 @@ def every_two(l):
   return zip(l[::2], l[1::2])
 
 
-def load_yaml(*args, **kwargs):
-  pod = kwargs.pop('pod', None)
-
+def make_yaml_loader(pod):
   class YamlLoader(yaml_Loader):
+
+    def construct_gettext(self, node):
+      if isinstance(node, yaml.SequenceNode):
+        items = []
+        for i, each in enumerate(node.value):
+          items.append(gettext.gettext(node.value[i].value))
+        return items
+      return gettext.gettext(node.value)
 
     def construct_doc(self, node):
       if isinstance(node, yaml.SequenceNode):
@@ -136,8 +137,24 @@ def load_yaml(*args, **kwargs):
         return items
       return pod.get_doc(node.value)
 
+  YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
   YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
-  return yaml.load(*args, Loader=YamlLoader, **kwargs)
+  return YamlLoader
+
+
+def load_yaml(*args, **kwargs):
+  pod = kwargs.pop('pod', None)
+  loader = make_yaml_loader(pod)
+  return yaml.load(*args, Loader=loader, **kwargs)
+
+
+def load_yaml_all(*args, **kwargs):
+  pod = kwargs.pop('pod', None)
+  fp = cStringIO.StringIO()
+  fp.write(args[0])
+  fp.seek(0)
+  loader = make_yaml_loader(pod)
+  return yaml.load_all(*args, Loader=loader, **kwargs)
 
 
 @memoize
@@ -151,6 +168,8 @@ def dump_yaml(obj):
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 def slugify(text, delim=u'-'):
+  if not isinstance(text, basestring):
+    text = str(text)
   result = []
   for word in _slug_re.split(text.lower()):
     word = word.encode('translit/long')

@@ -61,6 +61,7 @@ class PodTest(unittest.TestCase):
         '/fr/yaml_test/index.html',
         '/html/index.html',
         '/index.html',
+        '/intl/de_alias/localized/index.html',
         '/intl/en_gb/localized/index.html',
         '/intl/hi_in/localized/index.html',
         '/intro/index.html',
