@@ -144,7 +144,8 @@ class Collection(object):
       if locale is None:
         continue
       for each_locale in doc.list_locales():
-        if each_locale == doc.default_locale:
+        # TODO(jeremydw): Add test for listing documents at the default locale.
+        if each_locale == doc.default_locale and locale != each_locale:
           continue
         if locale in [_all, each_locale]:
           sorted_docs.insert(self.get_doc(pod_path, locale=each_locale))
