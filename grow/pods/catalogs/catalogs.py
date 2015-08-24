@@ -11,7 +11,6 @@ import os
 import re
 
 
-
 class Catalog(catalog.Catalog):
 
   def __init__(self, basename='messages.po', locale=None, pod=None):
@@ -91,23 +90,24 @@ class Catalog(catalog.Catalog):
     return catalog_message
 
   def save(self, ignore_obsolete=True, include_previous=True, width=80,
-           omit_header=True):
+           include_header=False):
     if not self.pod.file_exists(self.pod_path):
       self.pod.create_file(self.pod_path, None)
     outfile = self.pod.open_file(self.pod_path, mode='w')
-    pofile.write_po(outfile, self, omit_header=omit_header, sort_output=True,
-                    sort_by_file=True, ignore_obsolete=ignore_obsolete,
-                    include_previous=include_previous, width=width)
+    pofile.write_po(
+        outfile, self, omit_header=(not include_header), sort_output=True,
+        sort_by_file=True, ignore_obsolete=ignore_obsolete,
+        include_previous=include_previous, width=width)
     outfile.close()
 
-  def init(self, template_path):
+  def init(self, template_path, include_header=False):
     self.load(template_path)
     self.revision_date = datetime.now(util.LOCALTZ)
     self.fuzzy = False
-    self.save()
+    self.save(include_header=include_header)
 
   def update(self, template_path=None, use_fuzzy=False, ignore_obsolete=True,
-             include_previous=True, width=80):
+             include_previous=True, width=80, include_header=False):
     """Updates catalog with messages from a template."""
     if template_path is None:
       template_path = os.path.join('translations', 'messages.pot')
@@ -117,10 +117,9 @@ class Catalog(catalog.Catalog):
     template_file = self.pod.open_file(template_path)
     template = pofile.read_po(template_file)
     super(Catalog, self).update(template, use_fuzzy)
-
-    # Save the result.
     self.save(ignore_obsolete=ignore_obsolete,
-              include_previous=include_previous, width=width)
+              include_previous=include_previous, width=width,
+              include_header=include_header)
 
   def compile(self, use_fuzzy=False):
     mo_dirpath = os.path.dirname(self.pod_path)
@@ -163,15 +162,16 @@ class Catalog(catalog.Catalog):
     # Get strings to translate.
     # TODO(jeremydw): Use actual string, not the msgid. Currently we assume
     # the msgid is the source string.
-    messages_to_translate = [message for message in babel_catalog if not message.string]
+    messages_to_translate = [message for message in babel_catalog
+                             if not message.string]
     strings_to_translate = [message.id for message in messages_to_translate]
     if not strings_to_translate:
       logging.info('No untranslated strings for {}, skipping.'.format(locale))
       return
 
-    # Convert Python-format named placeholders to numerical placeholders compatible
-    # with Google Translate. Ex: %(name)s => (O).
-    placeholders = []  # Lists a mapping of (#) placeholders to %(name)s placeholders.
+    # Convert Python-format named placeholders to numerical placeholders
+    # compatible with Google Translate. Ex: %(name)s => (O).
+    placeholders = []  # Lists (#) placeholders to %(name)s placeholders.
     for n, string in enumerate(strings_to_translate):
       match = re.search('(%\([^\)]*\)\w)', string)
       if not match:
@@ -200,7 +200,8 @@ class Catalog(catalog.Catalog):
       if isinstance(string, unicode):
         string = string.encode('utf-8')
       source = message.id
-      source = source.encode('utf-8') if isinstance(source, unicode) else source
+      source = (source.encode('utf-8')
+                if isinstance(source, unicode) else source)
 
     outfile = self.pod.open_file(self.pod_path, mode='w')
     try:

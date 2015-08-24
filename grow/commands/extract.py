@@ -42,8 +42,10 @@ import os
               help='Where to write the extracted translation catalog. The path'
                    ' must be relative to the pod\'s root. This option is'
                    ' only applicable when using --missing.')
+@click.option('--include-header', default=False, is_flag=True,
+              help='Whether to preserve headers at the beginning of catalogs.')
 def extract(pod_path, init, update, missing, locale, o, fuzzy,
-            include_obsolete, localized, path):
+            include_obsolete, localized, path, include_header):
   """Extracts tagged messages from source files into a template catalog."""
   if missing and o is None:
     raise click.BadOptionUsage('-o', 'Must specify -o when using --missing.')
@@ -51,11 +53,12 @@ def extract(pod_path, init, update, missing, locale, o, fuzzy,
   pod = pods.Pod(root, storage=storage.FileStorage)
   catalogs = pod.get_catalogs(template_path=o)
   catalogs.extract(include_obsolete=include_obsolete, localized=localized,
-                   paths=path)
+                   paths=path, include_header=include_header)
   if missing:
     locales = _validate_locales(catalogs.list_locales(), locale)
     catalogs.update(locales=locale)
-    catalogs.extract_missing(locales, out_path=o, use_fuzzy=fuzzy, paths=path)
+    catalogs.extract_missing(locales, out_path=o, use_fuzzy=fuzzy, paths=path,
+                             include_header=include_header)
     return
   if localized:
     return
@@ -63,19 +66,20 @@ def extract(pod_path, init, update, missing, locale, o, fuzzy,
     locales = _validate_locales(pod.list_locales(), locale)
     text = 'Initializing {} empty translation catalogs.'
     pod.logger.info(text.format(len(locales)))
-    catalogs.init(locales=locales)
+    catalogs.init(locales=locales, include_header=include_header)
     return
   if update:
     locales = _validate_locales(catalogs.list_locales(), locale)
     text = 'Updating {} catalogs with extracted messages.'
     pod.logger.info(text.format(len(locales)))
-    catalogs.update(locales=locales)
+    catalogs.update(locales=locales, include_header=include_header)
 
 
 def _validate_locales(valid_locales, locales):
   valid_locales = sorted(valid_locales)
   for each in locales:
     if each not in valid_locales:
-      text = '{} is not a valid translation catalog locale. Valid locales are: {}'
+      text = ('{} is not a valid translation catalog locale. '
+              'Valid locales are: {}')
       raise ValueError(text.format(each, ', '.join(valid_locales)))
   return locales or valid_locales
