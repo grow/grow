@@ -2,6 +2,8 @@ sudo: false
 language: python
 python:
   - 2.7
+before_install:
+- pip install pyopenssl ndg-httpsclient pyasn1
 script: |
     nosetests \
       -v \
