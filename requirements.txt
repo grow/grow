@@ -19,7 +19,7 @@ gcloud==0.02.2
 git+git://github.com/bufordtaylor/python-texttable.git@master#egg=texttable
 git+git://github.com/grow/webreview-client@master#egg=webreview
 goslate==1.4.0
-httplib2==0.9
+httplib2==0.9.1
 libsass==0.6.2
 paramiko==1.13.0
 polib==1.0.4
