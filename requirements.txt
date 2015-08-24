@@ -38,7 +38,7 @@ xtermcolor==1.3
 # Google API clients.
 google-api-python-client==1.3.1
 oauth2client==1.4.12
-pyasn1==0.1.7
+pyasn1==0.1.8
 keyring>=2.1
 
 # Testing.
