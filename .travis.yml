@@ -3,8 +3,6 @@ language: python
 python:
 - 2.7
 cache: pip
-before_install:
-- pip install pyopenssl ndg-httpsclient pyasn1==0.1.8
 script: |
     nosetests \
       -v \
