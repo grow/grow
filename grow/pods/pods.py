@@ -203,7 +203,7 @@ class Pod(object):
     """Creates a file inside the pod."""
     return files.File.create(pod_path, content, self)
 
-  def list_static(self, pod_path, locale=None):
+  def list_statics(self, pod_path, locale=None):
     for path in self.list_dir(pod_path):
       yield self.get_static(pod_path + path, locale=locale)
 

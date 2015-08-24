@@ -19,10 +19,17 @@
       <li><a href="{{page.url.path}}">{{page.titles('nav')}}</a>
     {% endfor %}
   </nav>
+    <h2>g.docs('posts')</h2>
     {% for post in g.docs('posts') %}
       <article>
-        <h2><a href="{{post.url.path}}">{{post.title}}</a></h2>
+        <h3><a href="{{post.url.path}}">{{post.title}}</a></h3>
         {{post.html|safe}}
       </article>
     {% endfor %}
+    <h2>g.statics</h2>
+    <ul>
+    {% for static in g.statics('/static/') %}
+      <li>{{static}} - {{static.url.path}}
+    {% endfor %}
+    </ul>
 {% endblock %}

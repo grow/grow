@@ -98,8 +98,8 @@ class PodTest(unittest.TestCase):
     doc = self.pod.get_doc('/content/pages/home.yaml')
     self.assertEqual(home_doc, doc)
 
-  def test_list_static(self):
-    items = self.pod.list_static('/public/')
+  def test_list_statics(self):
+    items = self.pod.list_statics('/public/')
     expected = [
         self.pod.get_static('/public/.dummy_dot_file'),
         self.pod.get_static('/public/file.txt'),

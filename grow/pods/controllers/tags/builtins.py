@@ -63,6 +63,10 @@ def docs(collection, locale=None, order_by=None, _pod=None):
   return collection.list_docs(locale=locale, order_by=order_by)
 
 
+def statics(pod_path, locale=None, _pod=None):
+  return _pod.list_statics(pod_path, locale=locale)
+
+
 def markdown_filter(value):
   try:
     if isinstance(value, unicode):
