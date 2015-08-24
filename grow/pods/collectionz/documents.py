@@ -232,7 +232,7 @@ class Document(object):
     podspec = self.pod.get_podspec()
     locale = self.locale.alias if self.locale is not None else self.locale
     return path_format.format(**{
-        'base': os.path.splitext(os.path.basename(self.pod_path))[0],
+        'base': self.base,
         'date': self.date,
         'locale': locale,
         'parent': self.parent if self.parent else DummyDict(),

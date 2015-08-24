@@ -6,7 +6,7 @@ import fnmatch
 import mimetypes
 import re
 import webob
-import webapp2
+import os
 
 mimetypes.add_type('application/font-woff', '.woff')
 mimetypes.add_type('image/svg+xml', '.svg')
@@ -29,11 +29,20 @@ class StaticFile(object):
     self.pod_path = pod_path
     self.serving_path = serving_path
     self.controller = controller
+    self.basename = os.path.basename(pod_path)
+    self.base, self.ext = os.path.splitext(self.basename)
 
   def __repr__(self):
     if self.locale:
       return "<StaticFile({}, locale='{}')>".format(self.pod_path, self.locale)
     return "<StaticFile({})>".format(self.pod_path)
+
+  def __eq__(self, other):
+    return (self.pod_path == other.pod_path and self.pod == other.pod
+            and other.locale == self.locale)
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
 
   @property
   def url(self):

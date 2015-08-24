@@ -11,6 +11,10 @@ class PodTest(unittest.TestCase):
     self.dir_path = testing.create_test_pod_dir()
     self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
+  def test_eq(self):
+    pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
+    self.assertEqual(self.pod, pod)
+
   def test_list_dir(self):
     dirpath = os.path.join(self.dir_path, 'content')
     num_files = 0
@@ -93,6 +97,17 @@ class PodTest(unittest.TestCase):
     home_doc = self.pod.get_home_doc()
     doc = self.pod.get_doc('/content/pages/home.yaml')
     self.assertEqual(home_doc, doc)
+
+  def test_list_static(self):
+    items = self.pod.list_static('/public/')
+    expected = [
+        self.pod.get_static('/public/.dummy_dot_file'),
+        self.pod.get_static('/public/file.txt'),
+        self.pod.get_static('/public/main.css'),
+        self.pod.get_static('/public/main.min.js'),
+    ]
+    for item in items:
+      self.assertIn(item, expected)
 
 
 if __name__ == '__main__':

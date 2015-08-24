@@ -100,10 +100,13 @@ class Pod(object):
   def __repr__(self):
     return '<Pod: {}>'.format(self.root)
 
-  def __cmp__(self, other):
+  def __eq__(self, other):
     return (isinstance(self, Pod)
             and isinstance(other, Pod)
             and self.root == other.root)
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
 
   def exists(self):
     return self.file_exists('/podspec.yaml')
@@ -199,6 +202,10 @@ class Pod(object):
   def create_file(self, pod_path, content):
     """Creates a file inside the pod."""
     return files.File.create(pod_path, content, self)
+
+  def list_static(self, pod_path, locale=None):
+    for path in self.list_dir(pod_path):
+      yield self.get_static(pod_path + path, locale=locale)
 
   def get_static(self, pod_path, locale=None):
     """Returns a StaticFile, given the static file's pod path."""
