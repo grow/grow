@@ -22,9 +22,12 @@ _TRANSLATABLE_EXTENSIONS = (
 class Catalogs(object):
   root = '/translations'
 
-  def __init__(self, pod):
+  def __init__(self, pod, template_path=None):
     self.pod = pod
-    self.template_path = os.path.join(Catalogs.root, 'messages.pot')
+    if template_path:
+      self.template_path = template_path
+    else:
+      self.template_path = os.path.join(Catalogs.root, 'messages.pot')
 
   def get(self, locale, basename='messages.po'):
     return catalogs.Catalog(basename, locale, pod=self.pod)
@@ -69,17 +72,18 @@ class Catalogs(object):
   def update(self, locales, use_fuzzy=False):
     for locale in locales:
       catalog = self.get(locale)
+      self.pod.logger.info('Updating: {}'.format(locale))
       catalog.update(template_path=self.template_path, use_fuzzy=use_fuzzy)
 
   def import_translations(self, path, locale=None):
     importer = importers.Importer(self.pod)
     importer.import_path(path, locale=locale)
 
-  def extract_missing(self, locales, out_path, use_fuzzy=False):
+  def extract_missing(self, locales, out_path, use_fuzzy=False, paths=None):
     messages_to_locales = collections.defaultdict(list)
     for locale in locales:
       catalog = self.get(locale)
-      missing_messages = catalog.list_missing(use_fuzzy=use_fuzzy)
+      missing_messages = catalog.list_missing(use_fuzzy=use_fuzzy, paths=paths)
       text = 'Extracted missing strings: {} ({}/{})'
       num_missing = len(missing_messages)
       num_total = len(catalog)
@@ -109,7 +113,12 @@ class Catalogs(object):
     return catalog.add(string, None, auto_comments=comments, context=context,
                        flags=flags)
 
-  def extract(self, include_obsolete=False, localized=False):
+  def _should_extract(self, given_paths, path):
+    if os.path.splitext(path)[-1] not in _TRANSLATABLE_EXTENSIONS:
+      return False
+    return not given_paths or path in given_paths
+
+  def extract(self, include_obsolete=False, localized=False, paths=None):
     env = self.pod.create_template_env()
 
     all_locales = set(list(self.pod.list_locales()))
@@ -159,6 +168,8 @@ class Catalogs(object):
       text = 'Extracting collection: {}'.format(collection.pod_path)
       self.pod.logger.info(text)
       for doc in collection.list_docs(include_hidden=True):
+        if not self._should_extract(paths, doc.pod_path):
+          continue
         tagged_fields = doc.get_tagged_fields()
         utils.walk(tagged_fields, lambda *args: callback(doc, *args))
         paths_to_locales[doc.pod_path].update(doc.locales)
@@ -167,8 +178,9 @@ class Catalogs(object):
     # Extract messages from podspec.
     config = self.pod.get_podspec().get_config()
     podspec_path = '/podspec.yaml'
-    self.pod.logger.info('Extracting podspec: {}'.format(podspec_path))
-    utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
+    if self._should_extract(paths, podspec_path):
+      self.pod.logger.info('Extracting podspec: {}'.format(podspec_path))
+      utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
 
     # Extract messages from content and views.
     pod_files = [os.path.join('/views', path)
@@ -176,7 +188,7 @@ class Catalogs(object):
     pod_files += [os.path.join('/content', path)
                   for path in self.pod.list_dir('/content/')]
     for pod_path in pod_files:
-      if os.path.splitext(pod_path)[-1] in _TRANSLATABLE_EXTENSIONS:
+      if self._should_extract(paths, pod_path):
         locales = paths_to_locales.get(pod_path)
         if locales:
           text = 'Extracting: {} ({} locales)'.format(pod_path, len(locales))
@@ -225,7 +237,7 @@ class Catalogs(object):
                 message.id, translation, locations=message.locations,
                 auto_comments=message.auto_comments)
         localized_catalog.save(omit_header=True)
-        missing = localized_catalog.list_missing(use_fuzzy=True)
+        missing = localized_catalog.list_missing(use_fuzzy=True, paths=paths)
         num_messages = len(localized_catalog)
         num_translated = num_messages - len(missing)
         text = 'Saved: /{} ({}/{})'

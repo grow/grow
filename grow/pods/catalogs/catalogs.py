@@ -210,9 +210,18 @@ class Catalog(catalog.Catalog):
     text = 'Machine translated {} strings: {}'
     logging.info(text.format(len(strings_to_translate), self.pod_path))
 
-  def list_missing(self, use_fuzzy=False):
+  def _message_in_paths(self, message, paths):
+    location_paths = set([path for path, unused_lineno in message.locations])
+    for path in paths:
+      if path in location_paths:
+        return True
+    return False
+
+  def list_missing(self, use_fuzzy=False, paths=None):
     missing = []
     for message in self:
+      if paths is not None and not self._message_in_paths(message, paths):
+        continue
       if not message.string or (not use_fuzzy and message.fuzzy):
         message.string = ''
         message.flags.discard('fuzzy')

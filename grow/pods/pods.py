@@ -224,7 +224,7 @@ class Pod(object):
     return self.get_doc(home)
 
   def get_catalogs(self, template_path=None):
-    return catalog_holder.Catalogs(pod=self)
+    return catalog_holder.Catalogs(pod=self, template_path=template_path)
 
   def get_collection(self, collection_path):
     """Returns a collection.

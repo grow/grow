@@ -33,34 +33,42 @@ import os
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
                    ' only applicable when using --missing.')
+@click.option('--path', type=str, multiple=True,
+              help='Which paths to extract strings from. By default, all paths'
+                   ' are extracted. This option is useful if you\'d like to'
+                   ' generate a partial messages file representing just a'
+                   ' specific set of files.')
 @click.option('-o', type=str, default=None,
               help='Where to write the extracted translation catalog. The path'
                    ' must be relative to the pod\'s root. This option is'
                    ' only applicable when using --missing.')
 def extract(pod_path, init, update, missing, locale, o, fuzzy,
-            include_obsolete, localized):
+            include_obsolete, localized, path):
   """Extracts tagged messages from source files into a template catalog."""
   if missing and o is None:
     raise click.BadOptionUsage('-o', 'Must specify -o when using --missing.')
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
-  catalogs = pod.get_catalogs()
-  catalogs.extract(include_obsolete=include_obsolete, localized=localized)
+  catalogs = pod.get_catalogs(template_path=o)
+  catalogs.extract(include_obsolete=include_obsolete, localized=localized,
+                   paths=path)
   if missing:
     locales = _validate_locales(catalogs.list_locales(), locale)
     catalogs.update(locales=locale)
-    catalogs.extract_missing(locales, out_path=o, use_fuzzy=fuzzy)
+    catalogs.extract_missing(locales, out_path=o, use_fuzzy=fuzzy, paths=path)
     return
   if localized:
     return
   if init:
     locales = _validate_locales(pod.list_locales(), locale)
-    pod.logger.info('Initializing {} empty translation catalogs.'.format(len(locales)))
+    text = 'Initializing {} empty translation catalogs.'
+    pod.logger.info(text.format(len(locales)))
     catalogs.init(locales=locales)
     return
   if update:
     locales = _validate_locales(catalogs.list_locales(), locale)
-    pod.logger.info('Updating {} catalogs with extracted messages.'.format(len(locales)))
+    text = 'Updating {} catalogs with extracted messages.'
+    pod.logger.info(text.format(len(locales)))
     catalogs.update(locales=locales)
 
 
