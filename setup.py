@@ -11,8 +11,8 @@ setup(
     name='grow',
     version=open('grow/VERSION').read().strip(),
     description=(
-          'Develop everywhere and deploy anywhere: a declarative '
-          'static site generator/CMS for building high-quality web sites.'
+        'Develop everywhere and deploy anywhere: a declarative '
+        'static site generator/CMS for building high-quality web sites.'
     ),
     long_description=open('description.txt').read().strip(),
     url='https://growsdk.org',
