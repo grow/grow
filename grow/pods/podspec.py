@@ -9,7 +9,8 @@ class Podspec(object):
     self.flags = yaml.get('flags', {})
     self.grow_version = yaml.get('grow_version')
     self.root_path = self.flags.get('root_path', '').lstrip('/').rstrip('/')
-    self.default_locale = locales.Locale.parse(yaml.get('localization', {}).get('default_locale', None))
+    _default_locale = yaml.get('localization', {}).get('default_locale', None)
+    self.default_locale = locales.Locale.parse(_default_locale)
     self.fields = yaml
 
   def get_config(self):
@@ -21,3 +22,7 @@ class Podspec(object):
     if '{}@'.format(name) in self.fields:
       return self.fields['{}@'.format(name)]
     return object.__getattribute__(self, name)
+
+  @property
+  def root(self):
+    return self.fields.get('root')

@@ -1,5 +1,6 @@
 grow_version: ">=0.0.24"
 home: /content/pages/home.yaml
+root: /root/
 
 flags:
   static_dir: /public/
