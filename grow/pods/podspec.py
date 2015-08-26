@@ -4,9 +4,10 @@ from grow.pods import locales
 
 class Podspec(object):
 
-  def __init__(self, yaml):
+  def __init__(self, yaml, pod):
     self.yaml = yaml
     self.flags = yaml.get('flags', {})
+    self.pod = pod
     self.grow_version = yaml.get('grow_version')
     self.root_path = self.flags.get('root_path', '').lstrip('/').rstrip('/')
     _default_locale = yaml.get('localization', {}).get('default_locale', None)
@@ -22,6 +23,10 @@ class Podspec(object):
     if '{}@'.format(name) in self.fields:
       return self.fields['{}@'.format(name)]
     return object.__getattribute__(self, name)
+
+  @property
+  def home(self):
+    return self.pod.get_home_doc()
 
   @property
   def root(self):

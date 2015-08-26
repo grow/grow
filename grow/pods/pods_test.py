@@ -83,6 +83,7 @@ class PodTest(unittest.TestCase):
         '/public/main.css',
         '/public/main.min.js',
         '/root/base/index.html',
+        '/root/static/file.txt',
         '/yaml_test/index.html',
     ]
     result = self.pod.dump()

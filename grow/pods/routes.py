@@ -96,6 +96,9 @@ class Routes(object):
       for config in podspec_config['static_dirs']:
         static_dir = config['static_dir'] + '<grow:filename>'
         serve_at = config['serve_at'] + '<grow:filename>'
+        if podspec.root:
+          serve_at = serve_at.replace('{root}', podspec.root)
+        serve_at = serve_at.replace('//', '/')
         localization = config.get('localization')
         controller = static.StaticController(path_format=serve_at,
                                              source_format=static_dir,
@@ -108,6 +111,9 @@ class Routes(object):
           static_dir = localization.get('static_dir')
           localized_static_dir = static_dir + '<grow:filename>'
           rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
+          if podspec.root:
+            rule_path = rule_path.replace('{root}', podspec.root)
+          rule_path = rule_path.replace('//', '/')
           controller = static.StaticController(
               path_format=localized_serve_at,
               source_format=localized_static_dir,
@@ -132,7 +138,7 @@ class Routes(object):
       controller.set_route_params(route_params)
       return controller
     except routing.NotFound:
-      raise webob.exc.HTTPNotFound()
+      raise webob.exc.HTTPNotFound('{} not found.'.format(path))
 
   def match_error(self, path, status=404):
     if status == 404 and self.pod.error_routes:

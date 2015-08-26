@@ -55,6 +55,7 @@ class RoutesTest(unittest.TestCase):
         '/public/main.css',
         '/public/main.min.js',
         '/root/base/',
+        '/root/static/file.txt',
         '/yaml_test/',
     ]
     result = self.pod.routes.list_concrete_paths()

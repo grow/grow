@@ -80,8 +80,8 @@ class StaticController(base.BaseController):
 
   def get_localized_pod_path(self):
     if (self.localization
-        and '{locale}' in self.localization['static_dir']
-        and 'locale' in self.route_params):
+       and '{locale}' in self.localization['static_dir']
+       and 'locale' in self.route_params):
       source_format = self.localization['serve_at']
       source_format += '/{filename}'
       source_format = source_format.replace('//', '/')
@@ -125,15 +125,20 @@ class StaticController(base.BaseController):
       return self.path_format
     tokens = re.findall('.?{([^>]+)}.?', self.path_format)
     if 'filename' in tokens:
-      source_regex = self.source_format.replace('{filename}', '(?P<filename>.*)')
+      source_regex = self.source_format.replace(
+          '{filename}', '(?P<filename>.*)')
       source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
+      source_regex = source_regex.replace('{locale}', '(?P<root>[^/])')
       match = re.match(source_regex, pod_path)
       if match:
         kwargs = match.groupdict()
+        kwargs['root'] = self.pod.podspec.root
         if 'locale' in kwargs:
-          kwargs['locale'] = str(
-              locales.Locale.from_alias(self.pod, kwargs['locale']))
-        return self.path_format.format(**kwargs)
+          locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
+          kwargs['locale'] = str(locale)
+        path = self.path_format.format(**kwargs)
+        path = path.replace('//', '/')
+        return path
 
   def list_concrete_paths(self):
     concrete_paths = set()
@@ -177,12 +182,14 @@ class StaticController(base.BaseController):
             continue
         if match:
           kwargs = match.groupdict()
+          kwargs['root'] = self.pod.podspec.root
           if 'locale' in kwargs:
             normalized_locale = self.pod.normalize_locale(kwargs['locale'])
             kwargs['locale'] = (
                 normalized_locale.alias if normalized_locale is not None
                 else normalized_locale)
           matched_path = self.path_format.format(**kwargs)
+          matched_path = matched_path.replace('//', '/')
           concrete_paths.add(matched_path)
 
     return list(concrete_paths)

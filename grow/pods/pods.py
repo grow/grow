@@ -140,7 +140,7 @@ class Pod(object):
 
   @property
   def podspec(self):
-    return podspec.Podspec(yaml=self.yaml)
+    return podspec.Podspec(yaml=self.yaml, pod=self)
 
   @property
   def error_routes(self):
