@@ -45,6 +45,7 @@ from babel import dates as babel_dates
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.deployments import deployments
+from werkzeug.contrib import cache as werkzeug_cache
 import copy
 import jinja2
 import logging
@@ -88,6 +89,7 @@ class Pod(object):
     self.catalogs = catalog_holder.Catalogs(pod=self)
     self.logger = _logger
     self._routes = None
+    self._template_env = None
     try:
       sdk_utils.check_sdk_version(self)
     except PodDoesNotExistError:
@@ -366,6 +368,8 @@ class Pod(object):
     return self.podspec
 
   def create_template_env(self):
+    if self.env.cached and self._template_env is not None:
+      return self._template_env
     kwargs = {
         'autoescape': True,
         'extensions': [
@@ -379,6 +383,10 @@ class Pod(object):
         'lstrip_blocks': True,
         'trim_blocks': True,
     }
+    if self.env.cached:
+      client = werkzeug_cache.SimpleCache()
+      bytecode_cache = jinja2.MemcachedBytecodeCache(client=client)
+      kwargs['bytecode_cache'] = bytecode_cache
     if self.podspec.flags.get('compress_html'):
       kwargs['extensions'].append(jinja2htmlcompress.HTMLCompress)
     env = jinja2.Environment(**kwargs)
@@ -390,6 +398,8 @@ class Pod(object):
     env.filters['render'] = tags.render_filter
     env.filters['slug'] = tags.slug_filter
     env.filters['time'] = babel_dates.format_time
+    if self.env.cached:
+      self._template_env = env
     return env
 
   def get_root_path(self, locale=None):
