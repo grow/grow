@@ -72,10 +72,6 @@ class PodSpecParseError(Error):
   pass
 
 
-class BuildError(Error):
-  pass
-
-
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
 
@@ -172,6 +168,10 @@ class Pod(object):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     return self.storage.open(path, mode=mode)
 
+  def file_modified(self, pod_path):
+    path = os.path.join(self.root, pod_path.lstrip('/'))
+    return self.storage.modified(path)
+
   def read_file(self, pod_path):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     return self.storage.read(path)
@@ -217,10 +217,16 @@ class Pod(object):
           return static.StaticFile(pod_path, serving_path, locale=locale,
                                    pod=self, controller=controller,
                                    localization=controller.localization)
+    text = ('Either no file exists at "{}" or the "static_dirs" setting was '
+            'not configured for this path in podspec.yaml.'.format(pod_path))
+    raise static.BadStaticFileError(text)
 
   def get_doc(self, pod_path, locale=None):
     """Returns a document, given the document's pod path."""
-    collection_path, _ = os.path.split(pod_path)
+    collection_path, unused_path = os.path.split(pod_path)
+    if not collection_path or not unused_path:
+      text = '"{}" is not a path to a document.'.format(pod_path)
+      raise collectionz.BadCollectionNameError(text)
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path, locale=locale)
 

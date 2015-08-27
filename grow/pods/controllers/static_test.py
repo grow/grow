@@ -20,6 +20,8 @@ class StaticTest(unittest.TestCase):
     self.assertEqual(static, static_same)
     self.assertNotEqual(static, static_de)
     self.assertEqual('test', static.base)
+    self.assertIsNotNone(static.modified)
+    self.assertTrue(static.exists)
     self.assertEqual('.txt', static.ext)
 
 

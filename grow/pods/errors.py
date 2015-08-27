@@ -24,6 +24,7 @@ class TestFailedError(Error, AssertionError):
 
 class BuildError(Error):
   exception = None
+  controller = None
 
 
 class BadNameError(Error, ValueError):

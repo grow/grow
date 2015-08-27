@@ -1,5 +1,6 @@
 from grow.pods import pods
 from grow.pods import storage
+from grow.pods.controllers import static
 from grow.testing import testing
 import os
 import unittest
@@ -102,6 +103,14 @@ class PodTest(unittest.TestCase):
     home_doc = self.pod.get_home_doc()
     doc = self.pod.get_doc('/content/pages/home.yaml')
     self.assertEqual(home_doc, doc)
+
+  def test_get_static(self):
+    static_file = self.pod.get_static('/public/file.txt')
+    self.assertEqual('file', static_file.base)
+    self.assertTrue(static_file.exists)
+    self.assertRaises(
+        static.BadStaticFileError, self.pod.get_static,
+        '/bad-path/bad-file.txt')
 
   def test_list_statics(self):
     items = self.pod.list_statics('/public/')

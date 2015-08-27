@@ -31,7 +31,10 @@ class BaseHandler(webapp2.RequestHandler):
         'pod': pod,
         'status': status,
     }
-    if isinstance(exception, errors.BuildError):
+    if (isinstance(exception, errors.BuildError)):
+      kwargs['build_error'] = exception.exception
+    if (isinstance(exception, errors.BuildError)
+       and isinstance(exception.exception, jinja2.TemplateSyntaxError)):
       kwargs['template_exception'] = exception.exception
     elif isinstance(exception, jinja2.TemplateSyntaxError):
       kwargs['template_exception'] = exception

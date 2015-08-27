@@ -18,6 +18,14 @@ SKIP_PATTERNS = [
 ]
 
 
+class Error(Exception):
+  pass
+
+
+class BadStaticFileError(Error):
+  pass
+
+
 class StaticFile(object):
 
   def __init__(self, pod_path, serving_path, locale=None, localization=None,
@@ -43,6 +51,14 @@ class StaticFile(object):
 
   def __ne__(self, other):
     return not self.__eq__(other)
+
+  @property
+  def exists(self):
+    return self.pod.file_exists(self.pod_path)
+
+  @property
+  def modified(self):
+    return self.pod.file_modified(self.pod_path)
 
   @property
   def url(self):

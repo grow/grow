@@ -58,11 +58,17 @@
 </style>
 <h1>Something went wrong while building this page.</h1>
 <pre>
-  <span>{{exception}}</span>
+  {% if build_error %}
+    <span>An error occurred building <b>{{exception.controller}}</b></span>
+    <hr>
+    <div>{{build_error}}</div>
+  {% else %}
+    <span>{{exception}}</span>
+  {% endif %}
   {% if template_exception %}
-  <hr>
-  <div>We think the problem is with <b>line {{template_exception.lineno}}</b> of <b>{{template_exception.filename}}</b>.</div>
-{% endif %}
+    <hr>
+    <div>We think the problem is with <b>line {{template_exception.lineno}}</b> of <b>{{template_exception.filename}}</b>.</div>
+  {% endif %}
 </pre>
 <aside></aside>
 {% if status == 404 %}
