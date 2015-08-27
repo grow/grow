@@ -17,7 +17,7 @@ class BaseHandler(webapp2.RequestHandler):
 
   def handle_exception(self, exception, debug):
     pod = self.app.registry['pod']
-    log_func = logging.exception if debug else pod.logger.error
+    log_func = logging.exception if debug or not pod else pod.logger.error
     if isinstance(exception, webob.exc.HTTPException):
       status = exception.status_int
       log_func('{}: {}'.format(status, self.request.path))
@@ -26,6 +26,7 @@ class BaseHandler(webapp2.RequestHandler):
       log_func('{}: {} - {}'.format(status, self.request.path, exception))
     template = _env.get_template('error.html')
     html = template.render({
+        'exception_type': str(type(exception)),
         'exception': exception,
         'pod': pod,
         'status': status,

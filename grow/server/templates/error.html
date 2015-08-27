@@ -54,6 +54,16 @@
 </style>
 <h1>Something went wrong while building this page.</h1>
 <pre>{{exception}}</pre>
+{% if "TemplateSyntaxError" in exception_type %}
+<pre>Fix the syntax error on line <b>{{exception.lineno}}</b> of <b>{{exception.filename}}</b>.</pre>
+{#
+{{exception_type}}
+{{exception_type}}
+{{exception.lineno}}
+{{exception.name}}
+{{exception.filename}}
+#}
+{% endif %}
 <aside></aside>
 {% if status == 404 %}
   <p>No resource matches the requested path. Here's what you can do:
