@@ -122,7 +122,15 @@ def install(rc_path=None, bin_path=None, force=False):
     local.close()
     fp = open(temp_path, 'rb')
     zp = zipfile.ZipFile(fp)
-    zp.extract('grow', os.path.dirname(bin_path))
+    try:
+      raise IOError("Errno 26] Text file busy: 'REDACTED/bin/grow'")
+      zp.extract('grow', os.path.dirname(bin_path))
+    except IOError as e:
+      if 'Text file busy' in str(e):
+        hai('Unable to overwrite {}. Try closing Grow and installing again.'.format(bin_path))
+        hai('You can use the installer by running: curl https://install.growsdk.org | bash')
+        sys.exit(-1)
+      raise
     fp.close()
     hai('{blue}[✓]{/blue} {green}Installed Grow SDK to:{/green} %s' % bin_path)
     stat = os.stat(bin_path)
