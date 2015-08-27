@@ -82,4 +82,6 @@ class RenderedController(base.BaseController):
     except Exception as e:
       text = 'Error building {}: {}'
       logging.exception(e)
-      raise errors.BuildError(text.format(self, e))
+      exception = errors.BuildError(text.format(self, e))
+      exception.exception = e
+      raise exception

@@ -38,11 +38,15 @@
     background: #fff;
     box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
     color: #333;
-    font-family: Monaco, monospace;
     font-size: 14px;
     margin: 20px 0;
     padding: 30px;
     word-wrap: break-word;
+    white-space: normal;
+  }
+  hr {
+    border: 1px solid #ddd;
+    margin: 30px 0;
   }
   aside {
     background: url(data:image/png;base64,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);
@@ -53,17 +57,13 @@
   }
 </style>
 <h1>Something went wrong while building this page.</h1>
-<pre>{{exception}}</pre>
-{% if "TemplateSyntaxError" in exception_type %}
-<pre>Fix the syntax error on line <b>{{exception.lineno}}</b> of <b>{{exception.filename}}</b>.</pre>
-{#
-{{exception_type}}
-{{exception_type}}
-{{exception.lineno}}
-{{exception.name}}
-{{exception.filename}}
-#}
+<pre>
+  <span>{{exception}}</span>
+  {% if template_exception %}
+  <hr>
+  <div>We think the problem is with <b>line {{template_exception.lineno}}</b> of <b>{{template_exception.filename}}</b>.</div>
 {% endif %}
+</pre>
 <aside></aside>
 {% if status == 404 %}
   <p>No resource matches the requested path. Here's what you can do:

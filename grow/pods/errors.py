@@ -23,7 +23,7 @@ class TestFailedError(Error, AssertionError):
 
 
 class BuildError(Error):
-  pass
+  exception = None
 
 
 class BadNameError(Error, ValueError):
