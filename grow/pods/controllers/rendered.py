@@ -37,6 +37,9 @@ class RenderedController(base.BaseController):
     return self.pod.create_template_env()
 
   def _install_translations(self, locale):
+    if (locale == self.pod.active_locale
+       and self.pod.active_locale != '__unset'):
+      return
     if locale is None:
       gettext_translations = gettext.NullTranslations()
     else:
@@ -45,6 +48,7 @@ class RenderedController(base.BaseController):
     self._template_env.uninstall_gettext_translations(None)
     self._template_env.install_gettext_translations(gettext_translations,
                                                     newstyle=True)
+    self.pod.active_locale = locale
 
   def list_concrete_paths(self):
     if self.path:

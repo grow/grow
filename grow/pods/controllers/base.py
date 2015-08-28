@@ -7,6 +7,10 @@ class BaseController(object):
     self.pod = _pod
     self.route_params = {}
 
+  @property
+  def locale(self):
+    return None
+
   def set_route_params(self, route_params):
     self.route_params = route_params
 

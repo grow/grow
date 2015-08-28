@@ -88,6 +88,7 @@ class Pod(object):
     self.tests = tests.Tests(pod=self)
     self.catalogs = catalog_holder.Catalogs(pod=self)
     self.logger = _logger
+    self.active_locale = '__unset'
     self._routes = None
     self._template_env = None
     try:
@@ -270,7 +271,9 @@ class Pod(object):
     """Builds the pod, returning a mapping of paths to content."""
     output = {}
     routes = self.get_routes()
-    paths = routes.list_concrete_paths()
+    paths = []
+    for items in routes.get_locales_to_paths().values():
+      paths += items
     text = 'Building: %(value)d/{} (in %(elapsed)s)'
     widgets = [progressbar.FormatLabel(text.format(len(paths)))]
     bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
