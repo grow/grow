@@ -29,8 +29,8 @@ class Catalogs(object):
     else:
       self.template_path = os.path.join(Catalogs.root, 'messages.pot')
 
-  def get(self, locale, basename='messages.po'):
-    return catalogs.Catalog(basename, locale, pod=self.pod)
+  def get(self, locale, basename='messages.po', dir_path=None):
+    return catalogs.Catalog(basename, locale, pod=self.pod, dir_path=dir_path)
 
   def get_template(self, basename='messages.pot'):
     return catalogs.Catalog(basename, None, pod=self.pod)
@@ -82,17 +82,25 @@ class Catalogs(object):
     importer.import_path(path, locale=locale)
 
   def extract_missing(self, locales, out_path, use_fuzzy=False, paths=None,
-                      include_header=False):
+                      include_header=False, outdir=None):
     messages_to_locales = collections.defaultdict(list)
     for locale in locales:
       catalog = self.get(locale)
       missing_messages = catalog.list_missing(use_fuzzy=use_fuzzy, paths=paths)
-      text = 'Extracted missing strings: {} ({}/{})'
       num_missing = len(missing_messages)
       num_total = len(catalog)
-      self.pod.logger.info(text.format(catalog.locale, num_missing, num_total))
       for message in missing_messages:
         messages_to_locales[message].append(catalog.locale)
+      if outdir:
+        catalog = self.get(locale, dir_path=outdir)
+        for message in missing_messages:
+          catalog[message.id] = message
+        text = 'Saving: {} ({} missing of {})'
+        text = text.format(catalog.pod_path, num_missing, num_total)
+        self.pod.logger.info(text)
+        catalog.save(include_header=include_header)
+    if outdir:
+      return
     self.pod.create_file(out_path, None)
     babel_catalog = pofile.read_po(self.pod.open_file(out_path))
     for message in messages_to_locales.keys():
@@ -122,7 +130,7 @@ class Catalogs(object):
     return not given_paths or path in given_paths
 
   def extract(self, include_obsolete=False, localized=False, paths=None,
-              include_header=False):
+              include_header=False, locales=None):
     env = self.pod.create_template_env()
 
     all_locales = set(list(self.pod.list_locales()))
@@ -193,9 +201,10 @@ class Catalogs(object):
                   for path in self.pod.list_dir('/content/')]
     for pod_path in pod_files:
       if self._should_extract(paths, pod_path):
-        locales = paths_to_locales.get(pod_path)
-        if locales:
-          text = 'Extracting: {} ({} locales)'.format(pod_path, len(locales))
+        pod_locales = paths_to_locales.get(pod_path)
+        if pod_locales:
+          text = 'Extracting: {} ({} locales)'
+          text = text.format(pod_path, len(pod_locales))
           self.pod.logger.info(text)
         else:
           self.pod.logger.info('Extracting: {}'.format(pod_path))
@@ -222,6 +231,8 @@ class Catalogs(object):
     # Localized message catalogs.
     if localized:
       for locale in all_locales:
+        if locales and locale not in locales:
+          continue
         localized_catalog = self.get(locale)
         if not include_obsolete:
           localized_catalog.obsolete = babel_util.odict()
@@ -241,16 +252,17 @@ class Catalogs(object):
                 message.id, translation, locations=message.locations,
                 auto_comments=message.auto_comments)
         localized_catalog.save(include_header=include_header)
-        missing = localized_catalog.list_missing(use_fuzzy=True, paths=paths)
+        missing = localized_catalog.list_missing(use_fuzzy=True)
         num_messages = len(localized_catalog)
         num_translated = num_messages - len(missing)
-        text = 'Saved: /{} ({}/{})'
+        text = 'Saved: /{path} ({num_translated}/{num_messages})'
         self.pod.logger.info(
-            text.format(localized_catalog.pod_path, num_translated,
-                        num_messages))
+            text.format(path=localized_catalog.pod_path,
+                        num_translated=num_translated,
+                        num_messages=num_messages))
       return
 
-    # Global message catalog.
+    # Global (or missing, specified by -o) message catalog.
     template_path = self.template_path
     catalog_obj, _ = self._get_or_create_catalog(template_path)
     if not include_obsolete:
