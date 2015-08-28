@@ -13,14 +13,16 @@ import re
 
 class Catalog(catalog.Catalog):
 
-  def __init__(self, basename='messages.po', locale=None, pod=None):
+  def __init__(self, basename='messages.po', locale=None, pod=None,
+               dir_path=None):
+    dir_path = 'translations' if dir_path is None else dir_path
     self.locale = locale
     self.pod = pod
     if self.locale is None:
-      self.pod_path = os.path.join('translations', basename)
+      self.pod_path = os.path.join(dir_path, basename)
       self.is_template = True
     else:
-      self.pod_path = os.path.join('translations', str(locale), 'LC_MESSAGES',
+      self.pod_path = os.path.join(dir_path, str(locale), 'LC_MESSAGES',
                                    basename)
       self.is_template = False
     super(Catalog, self).__init__(locale=self.locale)
@@ -221,7 +223,7 @@ class Catalog(catalog.Catalog):
   def list_missing(self, use_fuzzy=False, paths=None):
     missing = []
     for message in self:
-      if paths is not None and not self._message_in_paths(message, paths):
+      if paths and not self._message_in_paths(message, paths):
         continue
       if not message.string or (not use_fuzzy and message.fuzzy):
         message.string = ''
