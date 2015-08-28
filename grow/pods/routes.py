@@ -78,7 +78,7 @@ class Routes(object):
 
   @property
   def routing_map(self):
-    if not self.pod.env.cached or self._routing_map is None:
+    if self._routing_map is None:
       return self._build_routing_map()
     return self._routing_map
 

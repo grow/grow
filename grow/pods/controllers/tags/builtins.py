@@ -11,6 +11,7 @@ import markdown
 import re
 
 
+@utils.memoize_tag
 def categories(collection=None, collections=None, reverse=None, order_by=None,
                _pod=None):
   if isinstance(collection, collectionz.Collection):
@@ -42,6 +43,7 @@ def LocaleIterator(iterator, locale):
 _no_locale = '__no_locale'
 
 
+@utils.memoize_tag
 def csv(path, locale=_no_locale, _pod=None):
   fp = _pod.open_file(path)
   if locale is not _no_locale:
@@ -53,16 +55,17 @@ def csv(path, locale=_no_locale, _pod=None):
       if cell is None:
         cell = ''
       data[header] = cell.decode('utf-8')
-
     rows.append(data)
   return rows
 
 
+@utils.memoize_tag
 def docs(collection, locale=None, order_by=None, _pod=None):
   collection = _pod.get_collection(collection)
   return collection.list_docs(locale=locale, order_by=order_by)
 
 
+@utils.memoize_tag
 def statics(pod_path, locale=None, _pod=None):
   return _pod.list_statics(pod_path, locale=locale)
 
@@ -87,6 +90,7 @@ def slug_filter(value):
   return unicode(u'-'.join(result))
 
 
+@utils.memoize_tag
 def static(path, locale=None, _pod=None):
   return _pod.get_static(path, locale=locale)
 
@@ -109,6 +113,7 @@ class Menu(object):
       self._recursive_build(tree[child], child, nodes)
 
 
+@utils.memoize_tag
 def nav(collection=None, locale=None, _pod=None):
   collection_obj = _pod.get_collection('/content/' + collection)
   results = collection_obj.list_docs(order_by='order', locale=locale)
@@ -117,15 +122,18 @@ def nav(collection=None, locale=None, _pod=None):
   return menu
 
 
+@utils.memoize_tag
 def breadcrumb(doc, _pod=None):
   pass
 
 
+@utils.memoize_tag
 def url(pod_path, locale=None, _pod=None):
   doc = _pod.get_doc(pod_path, locale=locale)
   return doc.url
 
 
+@utils.memoize_tag
 def get_doc(pod_path, locale=None, _pod=None):
   return _pod.get_doc(pod_path, locale=locale)
 
@@ -178,11 +186,13 @@ def _gettext_alias(__context, *args, **kwargs):
   return __context.call(__context.resolve('gettext'), *args, **kwargs)
 
 
-def yaml(path, _doc, _pod):
+@utils.memoize_tag
+def yaml(path, _pod):
   fields = utils.parse_yaml(_pod.read_file(path), pod=_pod)
   return utils.untag_fields(fields)
 
 
+@utils.memoize_tag
 def json(path, _pod):
   fp = _pod.open_file(path)
   return json_lib.load(fp)
@@ -197,5 +207,6 @@ def date(datetime_obj=None, _pod=None, **kwargs):
   return datetime_obj
 
 
+@utils.memoize_tag
 def locales(codes, _pod=None):
   return locales_lib.Locale.parse_codes(codes)

@@ -273,9 +273,6 @@ class Pod(object):
     paths = routes.list_concrete_paths()
     text = 'Building: %(value)d/{} (in %(elapsed)s)'
     widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-    if len(paths) > 1000:
-      widgets.append(' ... ')
-      widgets.append(progressbar.AdaptiveETA())
     bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
     bar.start()
     for path in paths:

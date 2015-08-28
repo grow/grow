@@ -114,6 +114,15 @@ class memoize(object):
     self.cache = {}
 
 
+class memoize_tag(memoize):
+
+  def __call__(self, *args, **kwargs):
+    use_cache = kwargs.pop('use_cache', False)
+    if use_cache is True:
+      return super(memoize_tag, self).__call__(*args, **kwargs)
+    return self.func(*args, **kwargs)
+
+
 def every_two(l):
   return zip(l[::2], l[1::2])
 
