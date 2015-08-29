@@ -1,0 +1,16 @@
+<h3>{{pod.root}}</h3>
+
+<ul>
+  {% for route in pod.routes %}
+  <li>{{route}}
+  <ul>
+    {% if route.endpoint.document %}
+      {{route.endpoint.document}}
+      {{route.endpoint.document.get_view()}}
+    {% endif %}
+    {% for path in route.endpoint.list_concrete_paths() %}
+    <li><a href="{{path}}">{{path}}</a>
+    {% endfor %}
+  </ul>
+  {% endfor %}
+</ul>

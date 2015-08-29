@@ -14,6 +14,7 @@ from grow.server import services
 
 def CreateWSGIApplication(pod=None, debug=False):
   podserver_app = webapp2.WSGIApplication([
+      ('/_grow/.*', handlers.ConsoleHandler),
       ('/.*', handlers.PodHandler),
   ], debug=debug)
   podserver_app.registry['pod'] = pod

@@ -58,3 +58,15 @@ class PodHandler(BaseHandler):
       self.response.out.write(controller.render())
     except werkzeug.routing.RequestRedirect as e:
       self.redirect(e.new_url)
+
+
+class ConsoleHandler(BaseHandler):
+
+  def get(self):
+    pod = self.app.registry['pod']
+    kwargs = {
+        'pod': pod,
+    }
+    template = _env.get_template('main.html')
+    html = template.render(kwargs)
+    self.response.write(html)
