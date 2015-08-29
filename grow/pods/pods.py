@@ -88,7 +88,6 @@ class Pod(object):
     self.tests = tests.Tests(pod=self)
     self.catalogs = catalog_holder.Catalogs(pod=self)
     self.logger = _logger
-    self.active_locale = '__unset'
     self._routes = None
     self._template_env = None
     try:
@@ -367,9 +366,17 @@ class Pod(object):
   def get_podspec(self):
     return self.podspec
 
-  def create_template_env(self):
-    if self.env.cached and self._template_env is not None:
-      return self._template_env
+  @utils.memoize
+  def _get_bytecode_cache(self):
+    # NOTE: It is safe to reuse the same bytecode cache across locales.
+    client = werkzeug_cache.SimpleCache()
+    return jinja2.MemcachedBytecodeCache(client=client)
+
+  @utils.memoize
+  def create_template_env(self, locale=None):
+    # NOTE: The template environment cannot be reused across locales, since
+    # gettext translations can/should not be unintalled across locales. If the
+    # environment is reused across locales, translation leakage can occur.
     kwargs = {
         'autoescape': True,
         'extensions': [
@@ -384,22 +391,22 @@ class Pod(object):
         'trim_blocks': True,
     }
     if self.env.cached:
-      client = werkzeug_cache.SimpleCache()
-      bytecode_cache = jinja2.MemcachedBytecodeCache(client=client)
-      kwargs['bytecode_cache'] = bytecode_cache
+      kwargs['bytecode_cache'] = self._get_bytecode_cache()
     if self.podspec.flags.get('compress_html'):
       kwargs['extensions'].append(jinja2htmlcompress.HTMLCompress)
     env = jinja2.Environment(**kwargs)
-    env.filters['date'] = babel_dates.format_date
-    env.filters['datetime'] = babel_dates.format_datetime
-    env.filters['deeptrans'] = tags.deeptrans
-    env.filters['jsonify'] = tags.jsonify
-    env.filters['markdown'] = tags.markdown_filter
-    env.filters['render'] = tags.render_filter
-    env.filters['slug'] = tags.slug_filter
-    env.filters['time'] = babel_dates.format_time
-    if self.env.cached:
-      self._template_env = env
+    filters = (
+        ('date', babel_dates.format_date),
+        ('datetime', babel_dates.format_datetime),
+        ('deeptrans', tags.deeptrans),
+        ('jsonify', tags.jsonify),
+        ('markdown', tags.markdown_filter),
+        ('render', tags.render_filter),
+        ('slug', tags.slug_filter),
+        ('time', babel_dates.format_time),
+    )
+    env.filters.update(filters)
+    env.active_locale = '__unset'
     return env
 
   def get_root_path(self, locale=None):

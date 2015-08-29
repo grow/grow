@@ -34,11 +34,13 @@ class RenderedController(base.BaseController):
 
   @webapp2.cached_property
   def _template_env(self):
-    return self.pod.create_template_env()
+    # NOTE: The same template environment can be reused within a controller
+    # since a single controller's locale never changes.
+    return self.pod.create_template_env(self.locale)
 
   def _install_translations(self, locale):
-    if (locale == self.pod.active_locale
-       and self.pod.active_locale != '__unset'):
+    active_locale = self._template_env.active_locale
+    if locale == active_locale and active_locale != '__unset':
       return
     if locale is None:
       gettext_translations = gettext.NullTranslations()
@@ -48,7 +50,7 @@ class RenderedController(base.BaseController):
     self._template_env.uninstall_gettext_translations(None)
     self._template_env.install_gettext_translations(gettext_translations,
                                                     newstyle=True)
-    self.pod.active_locale = locale
+    self._template_env.active_locale = locale
 
   def list_concrete_paths(self):
     if self.path:
