@@ -22,14 +22,37 @@ import os
               help='Whether to update translation catalogs with extracted'
                    ' messages. If false, only a catalog template will be'
                    ' created.')
+@click.option('--missing/--no-missing', default=False, is_flag=True,
+              help='Whether to create a template catalog that contains only'
+                   ' untranslated messages. This option would typically be'
+                   ' used to avoid re-requesting translation of existing'
+                   ' messages.')
 @click.option('--fuzzy/--no-fuzzy', default=False, is_flag=True,
               help='Whether to include fuzzy translations.')
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
                    ' only applicable when using --missing.')
+@click.option('--path', type=str, multiple=True,
+              help='Which paths to extract strings from. By default, all paths'
+                   ' are extracted. This option is useful if you\'d like to'
+                   ' generate a partial messages file representing just a'
+                   ' specific set of files.')
+@click.option('-o', type=str, default=None,
+              help='Where to write the extracted translation catalog. The path'
+                   ' must be relative to the pod\'s root. This option is'
+                   ' only applicable when using --missing.')
 @click.option('--include-header', default=False, is_flag=True,
               help='Whether to preserve headers at the beginning of catalogs.')
+@click.option('--outdir', type=str, default=None,
+              help='Where to write extracted localized translation catalogs.'
+                   ' The path must be relative to the pod\'s root. This option'
+                   ' is only applicable when using both --localized and'
+                   ' --missing.')
+@click.option('-f', default=False, is_flag=True,
+              help='Whether to force an update when writing localized, missing'
+                   ' message catalogs. This option is only applicable when'
+                   ' using both --localized and --missing.')
 def extract(pod_path, init, update, missing, locale, o, fuzzy,
             include_obsolete, localized, path, include_header, outdir, f):
   """Extracts tagged messages from source files into a template catalog."""
