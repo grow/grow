@@ -22,63 +22,41 @@ import os
               help='Whether to update translation catalogs with extracted'
                    ' messages. If false, only a catalog template will be'
                    ' created.')
-@click.option('--fuzzy/--no-fuzzy', default=False, is_flag=True,
-              help='Whether to include fuzzy translations.')
+@click.option('--include-header', default=False, is_flag=True,
+              help='Whether to preserve headers at the beginning of catalogs.')
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
                    ' only applicable when using --missing.')
-@click.option('--include-header', default=False, is_flag=True,
-              help='Whether to preserve headers at the beginning of catalogs.')
-def extract(pod_path, init, update, missing, locale, o, fuzzy,
-            include_obsolete, localized, path, include_header, outdir, f):
+def extract(pod_path, init, update, include_obsolete, localized,
+            include_header, locale):
   """Extracts tagged messages from source files into a template catalog."""
-  if path and o is None and outdir is None:
-    raise click.BadOptionUsage(
-        '--path', '--path must be used in conjunction with --missing.')
-  if missing and o is None and not localized and not outdir:
-    raise click.BadOptionUsage('-o', 'Must specify -o when using --missing.')
-  if missing and localized and not outdir:
-    raise click.BadOptionUsage(
-        '--outdir',
-        'Must specify --outdir when using both --localized and --missing.')
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
-  if outdir and pod.file_exists(outdir) and not f:
-    raise click.UsageError(
-        '{} exists. You must specify a directory that does not exist, or '
-        'use the "-f" flag, which will force update catalogs within the '
-        'specified directory.'.format(outdir))
-  catalogs = pod.get_catalogs(template_path=o)
+  catalogs = pod.get_catalogs()
   catalogs.extract(include_obsolete=include_obsolete, localized=localized,
-                   paths=path, include_header=include_header, locales=locale)
-  if missing:
-    locales = _validate_locales(catalogs.list_locales(), locale)
-    if not path:
-      catalogs.update(locales=locale)
-    catalogs.extract_missing(locales, out_path=o, use_fuzzy=fuzzy, paths=path,
-                             include_header=include_header, outdir=outdir)
-    return
-  if localized or missing:
+                   include_header=include_header)
+  if localized:
     return
   if init:
-    locales = _validate_locales(pod.list_locales(), locale)
+    locales = validate_locales(pod.list_locales(), locale)
     text = 'Initializing {} empty translation catalogs.'
     pod.logger.info(text.format(len(locales)))
     catalogs.init(locales=locales, include_header=include_header)
     return
   if update:
-    locales = _validate_locales(catalogs.list_locales(), locale)
+    locales = validate_locales(catalogs.list_locales(), locale)
     text = 'Updating {} catalogs with extracted messages.'
     pod.logger.info(text.format(len(locales)))
     catalogs.update(locales=locales, include_header=include_header)
 
 
-def _validate_locales(valid_locales, locales):
+def validate_locales(valid_locales, locales):
   valid_locales = sorted(valid_locales)
   for each in locales:
     if each not in valid_locales:
       text = ('{} is not a valid translation catalog locale. '
               'Valid locales are: {}')
+      valid_locales = [str(locale) for locale in valid_locales]
       raise ValueError(text.format(each, ', '.join(valid_locales)))
   return locales or valid_locales

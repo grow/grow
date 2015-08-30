@@ -20,13 +20,13 @@ class Catalog(catalog.Catalog):
     self.pod = pod
     if self.locale is None:
       self.pod_path = os.path.join(dir_path, basename)
-      self.is_template = True
+      is_template = True
     else:
       self.pod_path = os.path.join(dir_path, str(locale), 'LC_MESSAGES',
                                    basename)
-      self.is_template = False
+      is_template = False
     super(Catalog, self).__init__(locale=self.locale)
-    if not self.is_template and self.exists:
+    if not is_template and self.exists:
       self.load()
 
   def __repr__(self):
@@ -108,8 +108,9 @@ class Catalog(catalog.Catalog):
     self.fuzzy = False
     self.save(include_header=include_header)
 
-  def update(self, template_path=None, use_fuzzy=False, ignore_obsolete=True,
-             include_previous=True, width=80, include_header=False):
+  def update(self, template_path=None, include_fuzzy=False,
+             ignore_obsolete=True, include_previous=True, width=80,
+             include_header=False):
     """Updates catalog with messages from a template."""
     if template_path is None:
       template_path = os.path.join('translations', 'messages.pot')
@@ -118,7 +119,7 @@ class Catalog(catalog.Catalog):
       return
     template_file = self.pod.open_file(template_path)
     template = pofile.read_po(template_file)
-    super(Catalog, self).update(template, use_fuzzy)
+    super(Catalog, self).update(template, include_fuzzy)
     self.save(ignore_obsolete=ignore_obsolete,
               include_previous=include_previous, width=width,
               include_header=include_header)
@@ -220,13 +221,11 @@ class Catalog(catalog.Catalog):
         return True
     return False
 
-  def list_missing(self, use_fuzzy=False, paths=None):
-    missing = []
+  def list_untranslated(self, include_fuzzy=True, paths=None):
+    untranslated = []
     for message in self:
       if paths and not self._message_in_paths(message, paths):
         continue
-      if not message.string or (not use_fuzzy and message.fuzzy):
-        message.string = ''
-        message.flags.discard('fuzzy')
-        missing.append(message)
-    return missing
+      if not message.string or (include_fuzzy and message.fuzzy):
+        untranslated.append(message)
+    return untranslated
