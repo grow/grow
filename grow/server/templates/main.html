@@ -1,16 +1,14 @@
-<h3>{{pod.root}}</h3>
+{% extends "base.html" %}
 
+{% block main %}
 <ul>
-  {% for route in pod.routes %}
-  <li>{{route}}
+{% for controller, paths in pod.routes.get_controllers_to_paths().iteritems() %}
+  <li>{{controller}}</li>
   <ul>
-    {% if route.endpoint.document %}
-      {{route.endpoint.document}}
-      {{route.endpoint.document.get_view()}}
-    {% endif %}
-    {% for path in route.endpoint.list_concrete_paths() %}
-    <li><a href="{{path}}">{{path}}</a>
+    {% for path in paths|sort %}
+    <li><a href="{{path}}">{{path}}</a></li>
     {% endfor %}
   </ul>
-  {% endfor %}
+{% endfor %}
 </ul>
+{% endblock %}

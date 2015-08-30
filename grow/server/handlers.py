@@ -10,8 +10,17 @@ import werkzeug
 
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
-_env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True,
-                          extensions=['jinja2.ext.i18n'])
+_env = jinja2.Environment(
+    loader=_loader,
+    autoescape=True,
+    trim_blocks=True,
+    extensions=[
+        'jinja2.ext.autoescape',
+        'jinja2.ext.do',
+        'jinja2.ext.i18n',
+        'jinja2.ext.loopcontrols',
+        'jinja2.ext.with_',
+    ])
 
 
 class BaseHandler(webapp2.RequestHandler):
@@ -60,13 +69,30 @@ class PodHandler(BaseHandler):
       self.redirect(e.new_url)
 
 
-class ConsoleHandler(BaseHandler):
+class BaseConsoleHandler(BaseHandler):
 
-  def get(self):
+  def get(self, *args):
     pod = self.app.registry['pod']
     kwargs = {
         'pod': pod,
+        'args': args,
     }
-    template = _env.get_template('main.html')
+    template = _env.get_template(self.template_path)
     html = template.render(kwargs)
     self.response.write(html)
+
+
+class CatalogHandler(BaseConsoleHandler):
+  template_path = 'catalog.html'
+
+
+class CatalogsHandler(BaseConsoleHandler):
+  template_path = 'catalogs.html'
+
+
+class CollectionsHandler(BaseConsoleHandler):
+  template_path = 'collections.html'
+
+
+class ConsoleHandler(BaseConsoleHandler):
+  template_path = 'main.html'
