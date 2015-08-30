@@ -6,17 +6,26 @@ from babel.messages import extract
 from babel.messages import pofile
 from grow.common import utils
 from grow.pods import messages
+import click
 import collections
 import os
 import tokenize
 
 
 _TRANSLATABLE_EXTENSIONS = (
-  '.html',
-  '.md',
-  '.yaml',
-  '.yml',
+    '.html',
+    '.md',
+    '.yaml',
+    '.yml',
 )
+
+
+class Error(Exception):
+  pass
+
+
+class UsageError(Error, click.UsageError):
+  pass
 
 
 class Catalogs(object):
@@ -29,8 +38,8 @@ class Catalogs(object):
     else:
       self.template_path = os.path.join(Catalogs.root, 'messages.pot')
 
-  def get(self, locale, basename='messages.po'):
-    return catalogs.Catalog(basename, locale, pod=self.pod)
+  def get(self, locale, basename='messages.po', dir_path=None):
+    return catalogs.Catalog(basename, locale, pod=self.pod, dir_path=dir_path)
 
   def get_template(self, basename='messages.pot'):
     return catalogs.Catalog(basename, None, pod=self.pod)
@@ -70,34 +79,17 @@ class Catalogs(object):
       catalog.init(template_path=self.template_path,
                    include_header=include_header)
 
-  def update(self, locales, use_fuzzy=False, include_header=False):
+  def update(self, locales, use_fuzzy_matching=False, include_header=False):
     for locale in locales:
       catalog = self.get(locale)
       self.pod.logger.info('Updating: {}'.format(locale))
-      catalog.update(template_path=self.template_path, use_fuzzy=use_fuzzy,
+      catalog.update(template_path=self.template_path,
+                     use_fuzzy_matching=use_fuzzy_matching,
                      include_header=include_header)
 
   def import_translations(self, path, locale=None):
     importer = importers.Importer(self.pod)
     importer.import_path(path, locale=locale)
-
-  def extract_missing(self, locales, out_path, use_fuzzy=False, paths=None,
-                      include_header=False):
-    messages_to_locales = collections.defaultdict(list)
-    for locale in locales:
-      catalog = self.get(locale)
-      missing_messages = catalog.list_missing(use_fuzzy=use_fuzzy, paths=paths)
-      text = 'Extracted missing strings: {} ({}/{})'
-      num_missing = len(missing_messages)
-      num_total = len(catalog)
-      self.pod.logger.info(text.format(catalog.locale, num_missing, num_total))
-      for message in missing_messages:
-        messages_to_locales[message].append(catalog.locale)
-    self.pod.create_file(out_path, None)
-    babel_catalog = pofile.read_po(self.pod.open_file(out_path))
-    for message in messages_to_locales.keys():
-      babel_catalog[message.id] = message
-    self.write_template(out_path, babel_catalog, include_header=include_header)
 
   def _get_or_create_catalog(self, template_path):
     exists = True
@@ -122,7 +114,7 @@ class Catalogs(object):
     return not given_paths or path in given_paths
 
   def extract(self, include_obsolete=False, localized=False, paths=None,
-              include_header=False):
+              include_header=False, locales=None, use_fuzzy_matching=False):
     env = self.pod.create_template_env()
 
     all_locales = set(list(self.pod.list_locales()))
@@ -193,9 +185,10 @@ class Catalogs(object):
                   for path in self.pod.list_dir('/content/')]
     for pod_path in pod_files:
       if self._should_extract(paths, pod_path):
-        locales = paths_to_locales.get(pod_path)
-        if locales:
-          text = 'Extracting: {} ({} locales)'.format(pod_path, len(locales))
+        pod_locales = paths_to_locales.get(pod_path)
+        if pod_locales:
+          text = 'Extracting: {} ({} locales)'
+          text = text.format(pod_path, len(pod_locales))
           self.pod.logger.info(text)
         else:
           self.pod.logger.info('Extracting: {}'.format(pod_path))
@@ -222,12 +215,16 @@ class Catalogs(object):
     # Localized message catalogs.
     if localized:
       for locale in all_locales:
+        if locales and locale not in locales:
+          continue
         localized_catalog = self.get(locale)
         if not include_obsolete:
           localized_catalog.obsolete = babel_util.odict()
           for message in list(localized_catalog):
             if message.id not in message_ids_to_messages:
               localized_catalog.delete(message.id, context=message.context)
+
+        catalog_to_merge = catalog.Catalog()
         for path, message_items in paths_to_messages.iteritems():
           locales_with_this_path = paths_to_locales.get(path)
           if locales_with_this_path and locale not in locales_with_this_path:
@@ -237,20 +234,26 @@ class Catalogs(object):
             existing_message = localized_catalog.get(message.id)
             if existing_message:
               translation = existing_message.string
-            localized_catalog.add(
+            catalog_to_merge.add(
                 message.id, translation, locations=message.locations,
-                auto_comments=message.auto_comments)
+                auto_comments=message.auto_comments, flags=message.flags,
+                user_comments=message.user_comments, context=message.context,
+                lineno=message.lineno, previous_id=message.previous_id)
+
+        localized_catalog.update_using_catalog(
+            catalog_to_merge, use_fuzzy_matching=use_fuzzy_matching)
         localized_catalog.save(include_header=include_header)
-        missing = localized_catalog.list_missing(use_fuzzy=True, paths=paths)
+        missing = localized_catalog.list_untranslated()
         num_messages = len(localized_catalog)
         num_translated = num_messages - len(missing)
-        text = 'Saved: /{} ({}/{})'
+        text = 'Saved: /{path} ({num_translated}/{num_messages})'
         self.pod.logger.info(
-            text.format(localized_catalog.pod_path, num_translated,
-                        num_messages))
+            text.format(path=localized_catalog.pod_path,
+                        num_translated=num_translated,
+                        num_messages=num_messages))
       return
 
-    # Global message catalog.
+    # Global (or missing, specified by -o) message catalog.
     template_path = self.template_path
     catalog_obj, _ = self._get_or_create_catalog(template_path)
     if not include_obsolete:
@@ -275,3 +278,45 @@ class Catalogs(object):
     self.pod.logger.info(text.format(template_path, len(catalog)))
     template_file.close()
     return catalog
+
+  def filter(self, out_path=None, out_dir=None,
+             include_obsolete=True, localized=False,
+             paths=None, include_header=None, locales=None):
+    if localized and out_dir is None:
+      raise UsageError('Must specify --out_dir when using --localized in '
+                       'order to generate localized catalogs.')
+    if not localized and out_path is None:
+      raise UsageError('Must specify -o when not using --localized.')
+    filtered_catalogs = []
+    messages_to_locales = collections.defaultdict(list)
+    for locale in locales:
+      locale_catalog = self.get(locale)
+      missing_messages = locale_catalog.list_untranslated(paths=paths)
+      num_missing = len(missing_messages)
+      num_total = len(locale_catalog)
+      for message in missing_messages:
+        messages_to_locales[message].append(locale_catalog.locale)
+      # Generate localized catalogs.
+      if localized:
+        filtered_catalog = self.get(locale, dir_path=out_dir)
+        for message in missing_messages:
+          filtered_catalog[message.id] = message
+        if len(filtered_catalog):
+          text = 'Saving: {} ({} missing of {})'
+          text = text.format(filtered_catalog.pod_path, num_missing, num_total)
+          self.pod.logger.info(text)
+          filtered_catalog.save(include_header=include_header)
+        else:
+          text = 'Skipping: {} (0 missing of {})'
+          text = text.format(filtered_catalog.pod_path, num_total)
+          self.pod.logger.info(text)
+        filtered_catalogs.append(filtered_catalog)
+    if localized:
+      return filtered_catalogs
+    # Generate a single catalog template.
+    self.pod.create_file(out_path, None)
+    babel_catalog = pofile.read_po(self.pod.open_file(out_path))
+    for message in messages_to_locales.keys():
+      babel_catalog[message.id] = message
+    self.write_template(out_path, babel_catalog, include_header=include_header)
+    return [babel_catalog]

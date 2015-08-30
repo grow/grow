@@ -20,13 +20,13 @@ class Catalog(catalog.Catalog):
     self.pod = pod
     if self.locale is None:
       self.pod_path = os.path.join(dir_path, basename)
-      self.is_template = True
+      is_template = True
     else:
       self.pod_path = os.path.join(dir_path, str(locale), 'LC_MESSAGES',
                                    basename)
-      self.is_template = False
+      is_template = False
     super(Catalog, self).__init__(locale=self.locale)
-    if not self.is_template and self.exists:
+    if not is_template and self.exists:
       self.load()
 
   def __repr__(self):
@@ -108,8 +108,13 @@ class Catalog(catalog.Catalog):
     self.fuzzy = False
     self.save(include_header=include_header)
 
-  def update(self, template_path=None, use_fuzzy=False, ignore_obsolete=True,
-             include_previous=True, width=80, include_header=False):
+  def update_using_catalog(self, catalog_to_merge, use_fuzzy_matching=False):
+    super(Catalog, self).update(
+        catalog_to_merge, no_fuzzy_matching=(not use_fuzzy_matching))
+
+  def update(self, template_path=None, use_fuzzy_matching=False,
+             ignore_obsolete=True, include_previous=True, width=80,
+             include_header=False):
     """Updates catalog with messages from a template."""
     if template_path is None:
       template_path = os.path.join('translations', 'messages.pot')
@@ -118,12 +123,15 @@ class Catalog(catalog.Catalog):
       return
     template_file = self.pod.open_file(template_path)
     template = pofile.read_po(template_file)
-    super(Catalog, self).update(template, use_fuzzy)
+    super(Catalog, self).update(
+        template, no_fuzzy_matching=(not use_fuzzy_matching))
     self.save(ignore_obsolete=ignore_obsolete,
               include_previous=include_previous, width=width,
               include_header=include_header)
 
-  def compile(self, use_fuzzy=False):
+  def compile(self):
+    localization = self.pod.podspec.localization
+    compile_fuzzy = localization.get('compile_fuzzy')
     mo_dirpath = os.path.dirname(self.pod_path)
     mo_filename = os.path.join(mo_dirpath, 'messages.mo')
 
@@ -148,7 +156,7 @@ class Catalog(catalog.Catalog):
 
     mo_file = self.pod.open_file(mo_filename, 'w')
     try:
-      mofile.write_mo(mo_file, self, use_fuzzy=use_fuzzy)
+      mofile.write_mo(mo_file, self, use_fuzzy=compile_fuzzy)
     finally:
       mo_file.close()
 
@@ -220,13 +228,14 @@ class Catalog(catalog.Catalog):
         return True
     return False
 
-  def list_missing(self, use_fuzzy=False, paths=None):
-    missing = []
+  def list_untranslated(self, paths=None):
+    """Returns untranslated messages, including fuzzy translations."""
+    untranslated = []
     for message in self:
       if paths and not self._message_in_paths(message, paths):
         continue
-      if not message.string or (not use_fuzzy and message.fuzzy):
-        message.string = ''
-        message.flags.discard('fuzzy')
-        missing.append(message)
-    return missing
+      # Ensure fuzzy messages have a message.id otherwise we'd include
+      # the header as part of the results, which we don't want.
+      if not message.string or (message.fuzzy and message.id):
+        untranslated.append(message)
+    return untranslated

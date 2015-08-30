@@ -31,3 +31,7 @@ class Podspec(object):
   @property
   def root(self):
     return self.fields.get('root')
+
+  @property
+  def localization(self):
+    return self.fields.get('localization')
