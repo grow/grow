@@ -17,9 +17,6 @@ class FilterTestCase(unittest.TestCase):
     args = [self.test_pod_dir, '--locale=de', '-o', 'missing.po']
     result = self.runner.invoke(filter.filter, args, catch_exceptions=False)
     self.assertEqual(0, result.exit_code)
-    args = [self.test_pod_dir, '-o', 'missing.po', '--fuzzy']
-    result = self.runner.invoke(filter.filter, args, catch_exceptions=False)
-    self.assertEqual(0, result.exit_code)
     args = [self.test_pod_dir, '--out_dir=missing-dir', '--localized']
     result = self.runner.invoke(filter.filter, args, catch_exceptions=False)
     self.assertEqual(0, result.exit_code)

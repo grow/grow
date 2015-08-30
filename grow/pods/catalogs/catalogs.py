@@ -108,7 +108,7 @@ class Catalog(catalog.Catalog):
     self.fuzzy = False
     self.save(include_header=include_header)
 
-  def update(self, template_path=None, include_fuzzy=False,
+  def update(self, template_path=None, use_fuzzy_matching=True,
              ignore_obsolete=True, include_previous=True, width=80,
              include_header=False):
     """Updates catalog with messages from a template."""
@@ -119,12 +119,15 @@ class Catalog(catalog.Catalog):
       return
     template_file = self.pod.open_file(template_path)
     template = pofile.read_po(template_file)
-    super(Catalog, self).update(template, include_fuzzy)
+    super(Catalog, self).update(
+        template, no_fuzzy_matching=(not use_fuzzy_matching))
     self.save(ignore_obsolete=ignore_obsolete,
               include_previous=include_previous, width=width,
               include_header=include_header)
 
-  def compile(self, use_fuzzy=False):
+  def compile(self):
+    localization = self.pod.podspec.localization
+    compile_fuzzy = localization.get('compile_fuzzy')
     mo_dirpath = os.path.dirname(self.pod_path)
     mo_filename = os.path.join(mo_dirpath, 'messages.mo')
 
@@ -149,7 +152,7 @@ class Catalog(catalog.Catalog):
 
     mo_file = self.pod.open_file(mo_filename, 'w')
     try:
-      mofile.write_mo(mo_file, self, use_fuzzy=use_fuzzy)
+      mofile.write_mo(mo_file, self, use_fuzzy=compile_fuzzy)
     finally:
       mo_file.close()
 
@@ -221,11 +224,14 @@ class Catalog(catalog.Catalog):
         return True
     return False
 
-  def list_untranslated(self, include_fuzzy=True, paths=None):
+  def list_untranslated(self, paths=None):
+    """Returns untranslated messages, including fuzzy translations."""
     untranslated = []
     for message in self:
       if paths and not self._message_in_paths(message, paths):
         continue
-      if not message.string or (include_fuzzy and message.fuzzy):
+      # Ensure fuzzy messages have a message.id otherwise we'd include
+      # the header as part of the results, which we don't want.
+      if not message.string or (message.fuzzy and message.id):
         untranslated.append(message)
     return untranslated

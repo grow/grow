@@ -78,3 +78,7 @@ msgstr ""
 
 msgid "Missing 1"
 msgstr ""
+
+#, fuzzy
+msgid "Fuzzy string"
+msgstr "Fuzzy string translation"

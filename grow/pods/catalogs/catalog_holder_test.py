@@ -85,7 +85,7 @@ class CatalogsTest(unittest.TestCase):
         locales=locales,
         localized=False)
     de_catalog = catalogs[0]
-    self.assertEqual(2, len(de_catalog))
+    self.assertEqual(3, len(de_catalog))
 
     paths = [
         '/content/pages/yaml_test.html',
@@ -107,7 +107,7 @@ class CatalogsTest(unittest.TestCase):
     localized_de_catalog = catalogs[0]
     localized_fr_catalog = catalogs[1]
     fr_catalog = self.pod.catalogs.get('fr')
-    self.assertEqual(2, len(localized_de_catalog))
+    self.assertEqual(3, len(localized_de_catalog))
     self.assertEqual(14, len(localized_fr_catalog))
     self.assertEqual(14, len(fr_catalog))
 
@@ -123,7 +123,7 @@ class CatalogsTest(unittest.TestCase):
         localized=True)
     localized_de_catalog = catalogs[0]
     localized_fr_catalog = catalogs[1]
-    self.assertEqual(2, len(localized_de_catalog))
+    self.assertEqual(3, len(localized_de_catalog))
     self.assertEqual(14, len(localized_fr_catalog))
 
 

@@ -79,12 +79,12 @@ class Catalogs(object):
       catalog.init(template_path=self.template_path,
                    include_header=include_header)
 
-  def update(self, locales, include_fuzzy=False, include_header=False):
+  def update(self, locales, use_fuzzy_matching=False, include_header=False):
     for locale in locales:
       catalog = self.get(locale)
       self.pod.logger.info('Updating: {}'.format(locale))
       catalog.update(template_path=self.template_path,
-                     include_fuzzy=include_fuzzy,
+                     use_fuzzy_matching=use_fuzzy_matching,
                      include_header=include_header)
 
   def import_translations(self, path, locale=None):
@@ -114,7 +114,7 @@ class Catalogs(object):
     return not given_paths or path in given_paths
 
   def extract(self, include_obsolete=False, localized=False, paths=None,
-              include_header=False, locales=None):
+              include_header=False, locales=None, use_fuzzy_matching=True):
     env = self.pod.create_template_env()
 
     all_locales = set(list(self.pod.list_locales()))
@@ -235,8 +235,9 @@ class Catalogs(object):
             localized_catalog.add(
                 message.id, translation, locations=message.locations,
                 auto_comments=message.auto_comments)
+        # TODO: Implement use_fuzzy_matching for localized catalogs.
         localized_catalog.save(include_header=include_header)
-        missing = localized_catalog.list_untranslated(include_fuzzy=True)
+        missing = localized_catalog.list_untranslated()
         num_messages = len(localized_catalog)
         num_translated = num_messages - len(missing)
         text = 'Saved: /{path} ({num_translated}/{num_messages})'
@@ -274,8 +275,7 @@ class Catalogs(object):
 
   def filter(self, out_path=None, out_dir=None,
              include_obsolete=True, localized=False,
-             paths=None, include_header=None, locales=None,
-             include_fuzzy=True):
+             paths=None, include_header=None, locales=None):
     if localized and out_dir is None:
       raise UsageError('Must specify --out_dir when using --localized in '
                        'order to generate localized catalogs.')
@@ -285,8 +285,7 @@ class Catalogs(object):
     messages_to_locales = collections.defaultdict(list)
     for locale in locales:
       locale_catalog = self.get(locale)
-      func = locale_catalog.list_untranslated
-      missing_messages = func(include_fuzzy=include_fuzzy, paths=paths)
+      missing_messages = locale_catalog.list_untranslated(paths=paths)
       num_missing = len(missing_messages)
       num_total = len(locale_catalog)
       for message in missing_messages:

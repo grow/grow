@@ -27,15 +27,24 @@ import os
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
-                   ' only applicable when using --missing.')
+                   ' only applicable when using --update or --init.')
+@click.option('--fuzzy-matching/--no-fuzzy-matching', default=True,
+              is_flag=True,
+              help='Whether to use fuzzy matching when updating translation'
+                   ' catalogs. If --fuzzy-matching is specified, updated'
+                   ' catalogs will contain fuzzy-translated messages with the'
+                   ' "fuzzy" flag. If --fuzzy-matching is not specified,'
+                   ' updated catalogs will contain new messages without fuzzy'
+                   ' translations.')
 def extract(pod_path, init, update, include_obsolete, localized,
-            include_header, locale):
+            include_header, locale, fuzzy_matching):
   """Extracts tagged messages from source files into a template catalog."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
   catalogs = pod.get_catalogs()
   catalogs.extract(include_obsolete=include_obsolete, localized=localized,
-                   include_header=include_header)
+                   include_header=include_header,
+                   use_fuzzy_matching=fuzzy_matching)
   if localized:
     return
   if init:
@@ -48,7 +57,8 @@ def extract(pod_path, init, update, include_obsolete, localized,
     locales = validate_locales(catalogs.list_locales(), locale)
     text = 'Updating {} catalogs with extracted messages.'
     pod.logger.info(text.format(len(locales)))
-    catalogs.update(locales=locales, include_header=include_header)
+    catalogs.update(locales=locales, include_header=include_header,
+                    use_fuzzy_matching=fuzzy_matching)
 
 
 def validate_locales(valid_locales, locales):

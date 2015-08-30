@@ -15,9 +15,6 @@ import os
 @click.option('--localized/--no-localized', default=False, is_flag=True,
               help='Whether to create localized message catalogs. Use this'
                    ' option if content varies by locale.')
-@click.option('--fuzzy/--no-fuzzy', default=True, is_flag=True,
-              help='Whether to include fuzzy translations in filtered'
-                   ' catalog.')
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
@@ -39,8 +36,8 @@ import os
 @click.option('-f', default=False, is_flag=True,
               help='Whether to force an update when writing localized message'
                    ' catalogs.')
-def filter(pod_path, locale, o, fuzzy,
-           include_obsolete, localized, path, include_header, out_dir, f):
+def filter(pod_path, locale, o, include_obsolete, localized, path,
+           include_header, out_dir, f):
   """Filters untranslated messages from catalogs into new catalogs."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
@@ -55,5 +52,4 @@ def filter(pod_path, locale, o, fuzzy,
   catalogs.filter(out_path=o, out_dir=out_dir,
                   include_obsolete=include_obsolete,
                   localized=localized, paths=path,
-                  include_header=include_header, locales=locale,
-                  include_fuzzy=fuzzy)
+                  include_header=include_header, locales=locale)

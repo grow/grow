@@ -40,7 +40,7 @@ class CatalogTest(unittest.TestCase):
   def test_in(self):
     de_catalog = self.pod.catalogs.get('de')
     self.assertIn('AboutDE', de_catalog)
-    self.assertEqual(20, len(de_catalog))
+    self.assertEqual(21, len(de_catalog))
 
   def test_save(self):
     it_catalog = self.pod.catalogs.get('it')
@@ -60,9 +60,6 @@ class CatalogTest(unittest.TestCase):
     de_catalog = self.pod.catalogs.get('de')
     untranslated = de_catalog.list_untranslated()
     self.assertEqual(3, len(untranslated))
-    untranslated = de_catalog.list_untranslated(include_fuzzy=False)
-    self.assertEqual(2, len(untranslated))
-
     fr_catalog = self.pod.catalogs.get('fr')
     untranslated = fr_catalog.list_untranslated()
     self.assertEqual(14, len(untranslated))
