@@ -28,14 +28,17 @@ import os
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
                    ' only applicable when using --update or --init.')
-@click.option('--fuzzy-matching/--no-fuzzy-matching', default=True,
+@click.option('--fuzzy-matching/--no-fuzzy-matching', default=False,
               is_flag=True,
               help='Whether to use fuzzy matching when updating translation'
                    ' catalogs. If --fuzzy-matching is specified, updated'
                    ' catalogs will contain fuzzy-translated messages with the'
                    ' "fuzzy" flag. If --fuzzy-matching is not specified,'
                    ' updated catalogs will contain new messages without fuzzy'
-                   ' translations.')
+                   ' translations. This flag is set to "false" by default'
+                   ' because some translation tools may not remove the "fuzzy"'
+                   ' flag from messages even after a translation has been'
+                   ' provided.')
 def extract(pod_path, init, update, include_obsolete, localized,
             include_header, locale, fuzzy_matching):
   """Extracts tagged messages from source files into a template catalog."""

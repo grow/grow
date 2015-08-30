@@ -114,7 +114,7 @@ class Catalogs(object):
     return not given_paths or path in given_paths
 
   def extract(self, include_obsolete=False, localized=False, paths=None,
-              include_header=False, locales=None, use_fuzzy_matching=True):
+              include_header=False, locales=None, use_fuzzy_matching=False):
     env = self.pod.create_template_env()
 
     all_locales = set(list(self.pod.list_locales()))
@@ -223,6 +223,8 @@ class Catalogs(object):
           for message in list(localized_catalog):
             if message.id not in message_ids_to_messages:
               localized_catalog.delete(message.id, context=message.context)
+
+        catalog_to_merge = catalog.Catalog()
         for path, message_items in paths_to_messages.iteritems():
           locales_with_this_path = paths_to_locales.get(path)
           if locales_with_this_path and locale not in locales_with_this_path:
@@ -232,10 +234,14 @@ class Catalogs(object):
             existing_message = localized_catalog.get(message.id)
             if existing_message:
               translation = existing_message.string
-            localized_catalog.add(
+            catalog_to_merge.add(
                 message.id, translation, locations=message.locations,
-                auto_comments=message.auto_comments)
-        # TODO: Implement use_fuzzy_matching for localized catalogs.
+                auto_comments=message.auto_comments, flags=message.flags,
+                user_comments=message.user_comments, context=message.context,
+                lineno=message.lineno, previous_id=message.previous_id)
+
+        localized_catalog.update_using_catalog(
+            catalog_to_merge, use_fuzzy_matching=use_fuzzy_matching)
         localized_catalog.save(include_header=include_header)
         missing = localized_catalog.list_untranslated()
         num_messages = len(localized_catalog)

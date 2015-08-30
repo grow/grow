@@ -108,7 +108,11 @@ class Catalog(catalog.Catalog):
     self.fuzzy = False
     self.save(include_header=include_header)
 
-  def update(self, template_path=None, use_fuzzy_matching=True,
+  def update_using_catalog(self, catalog_to_merge, use_fuzzy_matching=False):
+    super(Catalog, self).update(
+        catalog_to_merge, no_fuzzy_matching=(not use_fuzzy_matching))
+
+  def update(self, template_path=None, use_fuzzy_matching=False,
              ignore_obsolete=True, include_previous=True, width=80,
              include_header=False):
     """Updates catalog with messages from a template."""
