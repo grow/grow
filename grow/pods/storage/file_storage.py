@@ -15,7 +15,10 @@ class FileStorage(base_storage.BaseStorage):
 
   @staticmethod
   def read(filename):
-    return open(filename).read()
+    fp = open(filename)
+    content = fp.read()
+    fp.close()
+    return content
 
   @staticmethod
   def modified(filename):
@@ -48,7 +51,10 @@ class FileStorage(base_storage.BaseStorage):
         pass
       else:
         raise
-    return cls.open(path, mode='w').write(content)
+    fp = cls.open(path, mode='w')
+    fp.write(content)
+    fp.close()
+    return fp
 
   @staticmethod
   def exists(filename):
