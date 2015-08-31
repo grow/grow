@@ -44,9 +44,9 @@ class CatalogsTest(unittest.TestCase):
 
   def test_localized_extract(self):
     self.pod.catalogs.extract(localized=True)
-    de_catalog = self.pod.catalogs.get('de')
-    self.assertIn('Tagged localized title.', de_catalog)
-    self.assertNotIn('Tagged localized body.', de_catalog)
+    fr_catalog = self.pod.catalogs.get('fr')
+    self.assertIn('Tagged localized title.', fr_catalog)
+    self.assertNotIn('Tagged localized body.', fr_catalog)
     hi_catalog = self.pod.catalogs.get('hi_IN')
     self.assertIn('Tagged localized title.', hi_catalog)
     self.assertIn('Tagged localized body.', hi_catalog)
@@ -57,7 +57,7 @@ class CatalogsTest(unittest.TestCase):
       self.assertIn(str(catalog.locale), locales)
 
   def test_get(self):
-    self.pod.catalogs.get('de')
+    self.pod.catalogs.get('fr')
 
   def test_get_template(self):
     template = self.pod.catalogs.get_template()
@@ -73,10 +73,58 @@ class CatalogsTest(unittest.TestCase):
     self.pod.catalogs.to_message()
 
   def test_init(self):
-    self.pod.catalogs.init(['de'])
+    self.pod.catalogs.init(['fr'])
 
   def test_update(self):
-    self.pod.catalogs.update(['de'])
+    self.pod.catalogs.update(['fr'])
+
+  def test_filter(self):
+    locales = ['de']
+    catalogs = self.pod.catalogs.filter(
+        out_path='./untranslated.po',
+        locales=locales,
+        localized=False)
+    de_catalog = catalogs[0]
+    self.assertEqual(3, len(de_catalog))
+
+    paths = [
+        '/content/pages/yaml_test.html',
+    ]
+    catalogs = self.pod.catalogs.filter(
+        out_path='./untranslated.po',
+        locales=locales,
+        paths=paths,
+        localized=False)
+    de_catalog = catalogs[0]
+    self.assertEqual(1, len(de_catalog))
+
+  def test_filter_localized(self):
+    locales = ['de', 'fr']
+    catalogs = self.pod.catalogs.filter(
+        out_dir='./untranslated/',
+        locales=locales,
+        localized=True)
+    localized_de_catalog = catalogs[0]
+    localized_fr_catalog = catalogs[1]
+    fr_catalog = self.pod.catalogs.get('fr')
+    self.assertEqual(3, len(localized_de_catalog))
+    self.assertEqual(14, len(localized_fr_catalog))
+    self.assertEqual(14, len(fr_catalog))
+
+    paths = [
+        '/content/pages/yaml_test.yaml',
+        '/views/home.html',
+    ]
+    locales = ['de', 'fr']
+    catalogs = self.pod.catalogs.filter(
+        out_dir='./untranslated/',
+        locales=locales,
+        paths=paths,
+        localized=True)
+    localized_de_catalog = catalogs[0]
+    localized_fr_catalog = catalogs[1]
+    self.assertEqual(3, len(localized_de_catalog))
+    self.assertEqual(14, len(localized_fr_catalog))
 
 
 if __name__ == '__main__':

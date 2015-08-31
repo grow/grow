@@ -45,6 +45,7 @@ from babel import dates as babel_dates
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.deployments import deployments
+from werkzeug.contrib import cache as werkzeug_cache
 import copy
 import jinja2
 import logging
@@ -72,10 +73,6 @@ class PodSpecParseError(Error):
   pass
 
 
-class BuildError(Error):
-  pass
-
-
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
 
@@ -92,6 +89,7 @@ class Pod(object):
     self.catalogs = catalog_holder.Catalogs(pod=self)
     self.logger = _logger
     self._routes = None
+    self._template_env = None
     try:
       sdk_utils.check_sdk_version(self)
     except PodDoesNotExistError:
@@ -100,10 +98,13 @@ class Pod(object):
   def __repr__(self):
     return '<Pod: {}>'.format(self.root)
 
-  def __cmp__(self, other):
+  def __eq__(self, other):
     return (isinstance(self, Pod)
             and isinstance(other, Pod)
             and self.root == other.root)
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
 
   def exists(self):
     return self.file_exists('/podspec.yaml')
@@ -137,7 +138,7 @@ class Pod(object):
 
   @property
   def podspec(self):
-    return podspec.Podspec(yaml=self.yaml)
+    return podspec.Podspec(yaml=self.yaml, pod=self)
 
   @property
   def error_routes(self):
@@ -168,6 +169,10 @@ class Pod(object):
   def open_file(self, pod_path, mode=None):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     return self.storage.open(path, mode=mode)
+
+  def file_modified(self, pod_path):
+    path = os.path.join(self.root, pod_path.lstrip('/'))
+    return self.storage.modified(path)
 
   def read_file(self, pod_path):
     path = os.path.join(self.root, pod_path.lstrip('/'))
@@ -200,6 +205,10 @@ class Pod(object):
     """Creates a file inside the pod."""
     return files.File.create(pod_path, content, self)
 
+  def list_statics(self, pod_path, locale=None):
+    for path in self.list_dir(pod_path):
+      yield self.get_static(pod_path + path, locale=locale)
+
   def get_static(self, pod_path, locale=None):
     """Returns a StaticFile, given the static file's pod path."""
     for route in self.routes:
@@ -210,10 +219,16 @@ class Pod(object):
           return static.StaticFile(pod_path, serving_path, locale=locale,
                                    pod=self, controller=controller,
                                    localization=controller.localization)
+    text = ('Either no file exists at "{}" or the "static_dirs" setting was '
+            'not configured for this path in podspec.yaml.'.format(pod_path))
+    raise static.BadStaticFileError(text)
 
   def get_doc(self, pod_path, locale=None):
     """Returns a document, given the document's pod path."""
-    collection_path, _ = os.path.split(pod_path)
+    collection_path, unused_path = os.path.split(pod_path)
+    if not collection_path or not unused_path:
+      text = '"{}" is not a path to a document.'.format(pod_path)
+      raise collectionz.BadCollectionNameError(text)
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path, locale=locale)
 
@@ -224,7 +239,7 @@ class Pod(object):
     return self.get_doc(home)
 
   def get_catalogs(self, template_path=None):
-    return catalog_holder.Catalogs(pod=self)
+    return catalog_holder.Catalogs(pod=self, template_path=template_path)
 
   def get_collection(self, collection_path):
     """Returns a collection.
@@ -255,7 +270,9 @@ class Pod(object):
     """Builds the pod, returning a mapping of paths to content."""
     output = {}
     routes = self.get_routes()
-    paths = routes.list_concrete_paths()
+    paths = []
+    for items in routes.get_locales_to_paths().values():
+      paths += items
     text = 'Building: %(value)d/{} (in %(elapsed)s)'
     widgets = [progressbar.FormatLabel(text.format(len(paths)))]
     bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
@@ -349,7 +366,17 @@ class Pod(object):
   def get_podspec(self):
     return self.podspec
 
-  def create_template_env(self):
+  @utils.memoize
+  def _get_bytecode_cache(self):
+    # NOTE: It is safe to reuse the same bytecode cache across locales.
+    client = werkzeug_cache.SimpleCache()
+    return jinja2.MemcachedBytecodeCache(client=client)
+
+  @utils.memoize
+  def create_template_env(self, locale=None):
+    # NOTE: The template environment cannot be reused across locales, since
+    # gettext translations can/should not be unintalled across locales. If the
+    # environment is reused across locales, translation leakage can occur.
     kwargs = {
         'autoescape': True,
         'extensions': [
@@ -363,17 +390,23 @@ class Pod(object):
         'lstrip_blocks': True,
         'trim_blocks': True,
     }
+    if self.env.cached:
+      kwargs['bytecode_cache'] = self._get_bytecode_cache()
     if self.podspec.flags.get('compress_html'):
       kwargs['extensions'].append(jinja2htmlcompress.HTMLCompress)
     env = jinja2.Environment(**kwargs)
-    env.filters['date'] = babel_dates.format_date
-    env.filters['datetime'] = babel_dates.format_datetime
-    env.filters['deeptrans'] = tags.deeptrans
-    env.filters['jsonify'] = tags.jsonify
-    env.filters['markdown'] = tags.markdown_filter
-    env.filters['render'] = tags.render_filter
-    env.filters['slug'] = tags.slug_filter
-    env.filters['time'] = babel_dates.format_time
+    filters = (
+        ('date', babel_dates.format_date),
+        ('datetime', babel_dates.format_datetime),
+        ('deeptrans', tags.deeptrans),
+        ('jsonify', tags.jsonify),
+        ('markdown', tags.markdown_filter),
+        ('render', tags.render_filter),
+        ('slug', tags.slug_filter),
+        ('time', babel_dates.format_time),
+    )
+    env.filters.update(filters)
+    env.active_locale = '__unset'
     return env
 
   def get_root_path(self, locale=None):

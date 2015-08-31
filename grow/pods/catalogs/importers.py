@@ -83,7 +83,8 @@ class Importer(object):
     if not os.path.exists(po_path):
       raise Error('Couldn\'t find PO file: {}'.format(po_path))
     babel_locale = external_to_babel_locales.get(locale, locale)
-    pod_translations_dir = os.path.join('translations', babel_locale, 'LC_MESSAGES')
+    pod_translations_dir = os.path.join(
+        'translations', babel_locale, 'LC_MESSAGES')
     pod_po_path = os.path.join(pod_translations_dir, 'messages.po')
     if self.pod.file_exists(pod_po_path):
       existing_po_file = self.pod.open_file(pod_po_path)
@@ -91,12 +92,15 @@ class Importer(object):
       po_file_to_merge = open(po_path)
       catalog_to_merge = pofile.read_po(po_file_to_merge, babel_locale)
       for message in catalog_to_merge:
-        existing_catalog[message.id] = message
+        if message.id not in existing_catalog:
+          existing_catalog[message.id] = message
+        else:
+          existing_catalog[message.id].string = message.string
       existing_po_file = self.pod.open_file(pod_po_path, mode='w')
       pofile.write_po(existing_po_file, existing_catalog, width=80,
                       omit_header=True, sort_output=True, sort_by_file=True)
-      self.pod.logger.info(
-          'Imported {} translations: {}'.format(len(catalog_to_merge), babel_locale))
+      text = 'Imported {} translations: {}'
+      self.pod.logger.info(text.format(len(catalog_to_merge), babel_locale))
     else:
       abs_po_path = self.pod.abs_path(pod_po_path)
       abs_po_dir = os.path.dirname(abs_po_path)

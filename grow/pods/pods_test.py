@@ -1,5 +1,6 @@
 from grow.pods import pods
 from grow.pods import storage
+from grow.pods.controllers import static
 from grow.testing import testing
 import os
 import unittest
@@ -10,6 +11,10 @@ class PodTest(unittest.TestCase):
   def setUp(self):
     self.dir_path = testing.create_test_pod_dir()
     self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
+
+  def test_eq(self):
+    pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
+    self.assertEqual(self.pod, pod)
 
   def test_list_dir(self):
     dirpath = os.path.join(self.dir_path, 'content')
@@ -62,8 +67,11 @@ class PodTest(unittest.TestCase):
         '/html/index.html',
         '/index.html',
         '/intl/de_alias/localized/index.html',
+        '/intl/de_alias/multiple-locales/index.html',
         '/intl/en_gb/localized/index.html',
+        '/intl/fr/multiple-locales/index.html',
         '/intl/hi_in/localized/index.html',
+        '/intl/it/multiple-locales/index.html',
         '/intro/index.html',
         '/it/about/index.html',
         '/it/contact-us/index.html',
@@ -78,6 +86,8 @@ class PodTest(unittest.TestCase):
         '/public/file.txt',
         '/public/main.css',
         '/public/main.min.js',
+        '/root/base/index.html',
+        '/root/static/file.txt',
         '/yaml_test/index.html',
     ]
     result = self.pod.dump()
@@ -93,6 +103,25 @@ class PodTest(unittest.TestCase):
     home_doc = self.pod.get_home_doc()
     doc = self.pod.get_doc('/content/pages/home.yaml')
     self.assertEqual(home_doc, doc)
+
+  def test_get_static(self):
+    static_file = self.pod.get_static('/public/file.txt')
+    self.assertEqual('file', static_file.base)
+    self.assertTrue(static_file.exists)
+    self.assertRaises(
+        static.BadStaticFileError, self.pod.get_static,
+        '/bad-path/bad-file.txt')
+
+  def test_list_statics(self):
+    items = self.pod.list_statics('/public/')
+    expected = [
+        self.pod.get_static('/public/.dummy_dot_file'),
+        self.pod.get_static('/public/file.txt'),
+        self.pod.get_static('/public/main.css'),
+        self.pod.get_static('/public/main.min.js'),
+    ]
+    for item in items:
+      self.assertIn(item, expected)
 
 
 if __name__ == '__main__':

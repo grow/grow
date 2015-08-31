@@ -1,7 +1,8 @@
 sudo: false
 language: python
 python:
-  - 2.7
+- 2.7
+cache: pip
 script: |
     nosetests \
       -v \

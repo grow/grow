@@ -38,8 +38,11 @@ class RoutesTest(unittest.TestCase):
         '/fr/yaml_test/',
         '/html/',
         '/intl/de_alias/localized/',
+        '/intl/de_alias/multiple-locales/',
         '/intl/en_gb/localized/',
+        '/intl/fr/multiple-locales/',
         '/intl/hi_in/localized/',
+        '/intl/it/multiple-locales/',
         '/intro/',
         '/it/about/',
         '/it/contact-us/',
@@ -54,6 +57,8 @@ class RoutesTest(unittest.TestCase):
         '/public/file.txt',
         '/public/main.css',
         '/public/main.min.js',
+        '/root/base/',
+        '/root/static/file.txt',
         '/yaml_test/',
     ]
     result = self.pod.routes.list_concrete_paths()

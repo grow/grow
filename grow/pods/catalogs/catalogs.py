@@ -11,21 +11,22 @@ import os
 import re
 
 
-
 class Catalog(catalog.Catalog):
 
-  def __init__(self, basename='messages.po', locale=None, pod=None):
+  def __init__(self, basename='messages.po', locale=None, pod=None,
+               dir_path=None):
+    dir_path = 'translations' if dir_path is None else dir_path
     self.locale = locale
     self.pod = pod
     if self.locale is None:
-      self.pod_path = os.path.join('translations', basename)
-      self.is_template = True
+      self.pod_path = os.path.join(dir_path, basename)
+      is_template = True
     else:
-      self.pod_path = os.path.join('translations', str(locale), 'LC_MESSAGES',
+      self.pod_path = os.path.join(dir_path, str(locale), 'LC_MESSAGES',
                                    basename)
-      self.is_template = False
+      is_template = False
     super(Catalog, self).__init__(locale=self.locale)
-    if not self.is_template and self.exists:
+    if not is_template and self.exists:
       self.load()
 
   def __repr__(self):
@@ -91,23 +92,29 @@ class Catalog(catalog.Catalog):
     return catalog_message
 
   def save(self, ignore_obsolete=True, include_previous=True, width=80,
-           omit_header=True):
+           include_header=False):
     if not self.pod.file_exists(self.pod_path):
       self.pod.create_file(self.pod_path, None)
     outfile = self.pod.open_file(self.pod_path, mode='w')
-    pofile.write_po(outfile, self, omit_header=omit_header, sort_output=True,
-                    sort_by_file=True, ignore_obsolete=ignore_obsolete,
-                    include_previous=include_previous, width=width)
+    pofile.write_po(
+        outfile, self, omit_header=(not include_header), sort_output=True,
+        sort_by_file=True, ignore_obsolete=ignore_obsolete,
+        include_previous=include_previous, width=width)
     outfile.close()
 
-  def init(self, template_path):
+  def init(self, template_path, include_header=False):
     self.load(template_path)
     self.revision_date = datetime.now(util.LOCALTZ)
     self.fuzzy = False
-    self.save()
+    self.save(include_header=include_header)
 
-  def update(self, template_path=None, use_fuzzy=False, ignore_obsolete=True,
-             include_previous=True, width=80):
+  def update_using_catalog(self, catalog_to_merge, use_fuzzy_matching=False):
+    super(Catalog, self).update(
+        catalog_to_merge, no_fuzzy_matching=(not use_fuzzy_matching))
+
+  def update(self, template_path=None, use_fuzzy_matching=False,
+             ignore_obsolete=True, include_previous=True, width=80,
+             include_header=False):
     """Updates catalog with messages from a template."""
     if template_path is None:
       template_path = os.path.join('translations', 'messages.pot')
@@ -116,13 +123,15 @@ class Catalog(catalog.Catalog):
       return
     template_file = self.pod.open_file(template_path)
     template = pofile.read_po(template_file)
-    super(Catalog, self).update(template, use_fuzzy)
-
-    # Save the result.
+    super(Catalog, self).update(
+        template, no_fuzzy_matching=(not use_fuzzy_matching))
     self.save(ignore_obsolete=ignore_obsolete,
-              include_previous=include_previous, width=width)
+              include_previous=include_previous, width=width,
+              include_header=include_header)
 
-  def compile(self, use_fuzzy=False):
+  def compile(self):
+    localization = self.pod.podspec.localization
+    compile_fuzzy = localization.get('compile_fuzzy')
     mo_dirpath = os.path.dirname(self.pod_path)
     mo_filename = os.path.join(mo_dirpath, 'messages.mo')
 
@@ -147,7 +156,7 @@ class Catalog(catalog.Catalog):
 
     mo_file = self.pod.open_file(mo_filename, 'w')
     try:
-      mofile.write_mo(mo_file, self, use_fuzzy=use_fuzzy)
+      mofile.write_mo(mo_file, self, use_fuzzy=compile_fuzzy)
     finally:
       mo_file.close()
 
@@ -163,15 +172,16 @@ class Catalog(catalog.Catalog):
     # Get strings to translate.
     # TODO(jeremydw): Use actual string, not the msgid. Currently we assume
     # the msgid is the source string.
-    messages_to_translate = [message for message in babel_catalog if not message.string]
+    messages_to_translate = [message for message in babel_catalog
+                             if not message.string]
     strings_to_translate = [message.id for message in messages_to_translate]
     if not strings_to_translate:
       logging.info('No untranslated strings for {}, skipping.'.format(locale))
       return
 
-    # Convert Python-format named placeholders to numerical placeholders compatible
-    # with Google Translate. Ex: %(name)s => (O).
-    placeholders = []  # Lists a mapping of (#) placeholders to %(name)s placeholders.
+    # Convert Python-format named placeholders to numerical placeholders
+    # compatible with Google Translate. Ex: %(name)s => (O).
+    placeholders = []  # Lists (#) placeholders to %(name)s placeholders.
     for n, string in enumerate(strings_to_translate):
       match = re.search('(%\([^\)]*\)\w)', string)
       if not match:
@@ -200,7 +210,8 @@ class Catalog(catalog.Catalog):
       if isinstance(string, unicode):
         string = string.encode('utf-8')
       source = message.id
-      source = source.encode('utf-8') if isinstance(source, unicode) else source
+      source = (source.encode('utf-8')
+                if isinstance(source, unicode) else source)
 
     outfile = self.pod.open_file(self.pod_path, mode='w')
     try:
@@ -210,11 +221,21 @@ class Catalog(catalog.Catalog):
     text = 'Machine translated {} strings: {}'
     logging.info(text.format(len(strings_to_translate), self.pod_path))
 
-  def list_missing(self, use_fuzzy=False):
-    missing = []
+  def _message_in_paths(self, message, paths):
+    location_paths = set([path for path, unused_lineno in message.locations])
+    for path in paths:
+      if path in location_paths:
+        return True
+    return False
+
+  def list_untranslated(self, paths=None):
+    """Returns untranslated messages, including fuzzy translations."""
+    untranslated = []
     for message in self:
-      if not message.string or (not use_fuzzy and message.fuzzy):
-        message.string = ''
-        message.flags.discard('fuzzy')
-        missing.append(message)
-    return missing
+      if paths and not self._message_in_paths(message, paths):
+        continue
+      # Ensure fuzzy messages have a message.id otherwise we'd include
+      # the header as part of the results, which we don't want.
+      if not message.string or (message.fuzzy and message.id):
+        untranslated.append(message)
+    return untranslated

@@ -15,6 +15,17 @@ class FormatsTestCase(unittest.TestCase):
     self.assertEqual('<p>About page.</p>', doc.html)
     self.assertEqual('About page.', doc.body)
 
+  def test_locales(self):
+    path = '/content/localized/multiple-locales.yaml'
+    doc = self.pod.get_doc(path)
+    self.assertEqual('base', doc.foo)
+    de_doc = self.pod.get_doc(path, locale='de')
+    self.assertEqual('de', de_doc.foo)
+    it_doc = self.pod.get_doc(path, locale='it')
+    self.assertEqual('it_fr', it_doc.foo)
+    fr_doc = self.pod.get_doc(path, locale='fr')
+    self.assertEqual('it_fr', fr_doc.foo)
+
   def test_yaml(self):
     doc = self.pod.get_doc('/content/pages/home.yaml')
     self.assertEqual('bar', doc.fields['foo'])

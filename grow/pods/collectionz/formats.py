@@ -52,29 +52,31 @@ class Format(object):
   def load(self):
     raise NotImplementedError
 
-  def write(self, content):
-    self.content = content
-    self.pod.write_file(self.pod_path, content)
-
 
 class YamlFormat(Format):
 
   def load(self):
     try:
-      docs = list(utils.load_yaml_all(self.content, pod=self.doc.pod))
-      if len(docs) == 1:
-        self.fields = docs[0]
+      if not self.has_front_matter:
+        self.fields = utils.load_yaml(self.content, pod=self.doc.pod)
         self.body = self.content
         return
       locales_to_fields = {}
       locales_to_bodies = {}
       locale = self.doc._locale_kwarg
       default_locale = None
-      parts = Format.split_front_matter(self.content)
-      for i, fields in enumerate(docs):
-        doc_locale = fields.get('$locale', default_locale)
-        locales_to_fields[doc_locale] = fields
-        locales_to_bodies[doc_locale] = parts[i]
+      for part in Format.split_front_matter(self.content):
+        fields = utils.load_yaml(part, pod=self.doc.pod)
+        if '$locale' in fields and '$locales' in fields:
+          text = 'You must specify either $locale or $locales, not both.'
+          raise BadFormatError(text)
+        if '$locales' in fields:
+          doc_locales = fields['$locales']
+        else:
+          doc_locales = [fields.get('$locale', default_locale)]
+        for doc_locale in doc_locales:
+          locales_to_fields[doc_locale] = fields
+          locales_to_bodies[doc_locale] = part
       fields = locales_to_fields.get(default_locale)
       if locale in locales_to_fields:
         localized_fields = locales_to_fields[locale]
@@ -102,9 +104,16 @@ class HtmlFormat(YamlFormat):
       split_content = Format.split_front_matter(self.content)
       for part, body in utils.every_two(split_content):
         fields = utils.load_yaml(part, pod=self.doc.pod)
-        doc_locale = fields.get('$locale', default_locale)
-        locales_to_fields[doc_locale] = fields
-        locales_to_bodies[doc_locale] = body
+        if '$locale' in fields and '$locales' in fields:
+          text = 'You must specify either $locale or $locales, not both.'
+          raise BadFormatError(text)
+        if '$locales' in fields:
+          doc_locales = fields['$locales']
+        else:
+          doc_locales = [fields.get('$locale', default_locale)]
+        for doc_locale in doc_locales:
+          locales_to_fields[doc_locale] = fields
+          locales_to_bodies[doc_locale] = body
       fields = locales_to_fields.get(default_locale)
       if locale in locales_to_fields:
         localized_fields = locales_to_fields[locale]

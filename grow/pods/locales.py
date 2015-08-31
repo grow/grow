@@ -46,7 +46,6 @@ class Locales(object):
 
 
 class Locale(babel.Locale):
-
   RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
   _alias = None
 
@@ -74,6 +73,9 @@ class Locale(babel.Locale):
     if isinstance(other, basestring):
       return str(self).lower() == other.lower()
     return super(Locale, self).__eq__(other)
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
 
   @classmethod
   def parse_codes(cls, codes):

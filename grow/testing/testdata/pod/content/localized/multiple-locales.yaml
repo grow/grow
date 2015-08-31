@@ -1,0 +1,17 @@
+---
+$title: Multiple Locales
+$localization:
+  path: /intl/{locale}/multiple-locales/
+  locales:
+  - de
+  - it
+  - fr
+foo: base
+---
+$locale: de
+foo: de
+---
+$locales:
+- it
+- fr
+foo: it_fr

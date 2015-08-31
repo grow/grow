@@ -1,6 +1,7 @@
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
+import os
 import unittest
 
 
@@ -39,7 +40,7 @@ class CatalogTest(unittest.TestCase):
   def test_in(self):
     de_catalog = self.pod.catalogs.get('de')
     self.assertIn('AboutDE', de_catalog)
-    self.assertEqual(19, len(de_catalog))
+    self.assertEqual(21, len(de_catalog))
 
   def test_save(self):
     it_catalog = self.pod.catalogs.get('it')
@@ -55,12 +56,18 @@ class CatalogTest(unittest.TestCase):
     it_catalog = self.pod.catalogs.get('it')
     self.assertNotIn('foo', it_catalog)
 
-  def test_list_missing(self):
+  def test_list_untranslated(self):
     de_catalog = self.pod.catalogs.get('de')
-    de_catalog.list_missing()
-    de_catalog.list_missing(use_fuzzy=True)
+    untranslated = de_catalog.list_untranslated()
+    self.assertEqual(3, len(untranslated))
+    fr_catalog = self.pod.catalogs.get('fr')
+    untranslated = fr_catalog.list_untranslated()
+    self.assertEqual(14, len(untranslated))
 
   def test_machine_translate(self):
+    # Skip this test in Travis to avoid Google Translate 503s.
+    if os.getenv('TRAVIS'):
+      return
     de_catalog = self.pod.catalogs.get('de')
     de_catalog.machine_translate()
 

@@ -104,6 +104,10 @@ class Collection(object):
   def title(self):
     return self.yaml.get('title')
 
+  @property
+  def root(self):
+    return self.yaml.get('root')
+
   def delete(self):
     if len(self.list_docs(include_hidden=True)):
       text = 'Collections that are not empty cannot be deleted.'

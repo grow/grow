@@ -1,3 +1,4 @@
+from ..pods import errors
 from grow.common import utils
 from grow.pods import storage
 import jinja2
@@ -17,19 +18,28 @@ class BaseHandler(webapp2.RequestHandler):
 
   def handle_exception(self, exception, debug):
     pod = self.app.registry['pod']
-    log_func = logging.exception if debug else pod.logger.error
+    log_func = logging.exception if debug or not pod else pod.logger.error
     if isinstance(exception, webob.exc.HTTPException):
       status = exception.status_int
       log_func('{}: {}'.format(status, self.request.path))
     else:
       status = 500
       log_func('{}: {} - {}'.format(status, self.request.path, exception))
-    template = _env.get_template('error.html')
-    html = template.render({
+    kwargs = {
+        'exception_type': str(type(exception)),
         'exception': exception,
         'pod': pod,
         'status': status,
-    })
+    }
+    if (isinstance(exception, errors.BuildError)):
+      kwargs['build_error'] = exception.exception
+    if (isinstance(exception, errors.BuildError)
+       and isinstance(exception.exception, jinja2.TemplateSyntaxError)):
+      kwargs['template_exception'] = exception.exception
+    elif isinstance(exception, jinja2.TemplateSyntaxError):
+      kwargs['template_exception'] = exception
+    template = _env.get_template('error.html')
+    html = template.render(kwargs)
     self.response.set_status(status)
     self.response.write(html)
 

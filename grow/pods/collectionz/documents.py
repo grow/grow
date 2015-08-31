@@ -187,8 +187,7 @@ class Document(object):
           'format in either the blueprint or the document.'.format(self))
     path_format = (path_format
                    .replace('<grow:locale>', '{locale}')
-                   .replace('<grow:slug>', '{slug}')
-                   .replace('<grow:published_year>', '{published_year}'))
+                   .replace('<grow:slug>', '{slug}'))
 
     # Prevent double slashes when combining root path and path format.
     if path_format.startswith('/') and root_path.endswith('/'):
@@ -232,11 +231,12 @@ class Document(object):
     podspec = self.pod.get_podspec()
     locale = self.locale.alias if self.locale is not None else self.locale
     return path_format.format(**{
-        'base': os.path.splitext(os.path.basename(self.pod_path))[0],
+        'root': podspec.root,
+        'collection.root': self.collection.root,
+        'base': self.base,
         'date': self.date,
         'locale': locale,
         'parent': self.parent if self.parent else DummyDict(),
-        'podspec': podspec,
         'slug': self.slug,
     }).replace('//', '/')
 
@@ -245,9 +245,11 @@ class Document(object):
     return self.list_locales()
 
   def list_locales(self):
-    if ('$localization' in self.fields
-        and 'locales' in self.fields['$localization']):
+    localized = '$localization' in self.fields
+    if localized and 'locales' in self.fields['$localization']:
       codes = self.fields['$localization']['locales']
+      if codes is None:
+        return []
       return locales.Locale.parse_codes(codes)
     return self.collection.list_locales()
 

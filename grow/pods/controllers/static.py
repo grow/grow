@@ -6,7 +6,7 @@ import fnmatch
 import mimetypes
 import re
 import webob
-import webapp2
+import os
 
 mimetypes.add_type('application/font-woff', '.woff')
 mimetypes.add_type('image/svg+xml', '.svg')
@@ -16,6 +16,14 @@ mimetypes.add_type('text/css', '.css')
 SKIP_PATTERNS = [
     '**/.**',
 ]
+
+
+class Error(Exception):
+  pass
+
+
+class BadStaticFileError(Error):
+  pass
 
 
 class StaticFile(object):
@@ -29,11 +37,28 @@ class StaticFile(object):
     self.pod_path = pod_path
     self.serving_path = serving_path
     self.controller = controller
+    self.basename = os.path.basename(pod_path)
+    self.base, self.ext = os.path.splitext(self.basename)
 
   def __repr__(self):
     if self.locale:
       return "<StaticFile({}, locale='{}')>".format(self.pod_path, self.locale)
     return "<StaticFile({})>".format(self.pod_path)
+
+  def __eq__(self, other):
+    return (self.pod_path == other.pod_path and self.pod == other.pod
+            and other.locale == self.locale)
+
+  def __ne__(self, other):
+    return not self.__eq__(other)
+
+  @property
+  def exists(self):
+    return self.pod.file_exists(self.pod_path)
+
+  @property
+  def modified(self):
+    return self.pod.file_modified(self.pod_path)
 
   @property
   def url(self):
@@ -71,8 +96,8 @@ class StaticController(base.BaseController):
 
   def get_localized_pod_path(self):
     if (self.localization
-        and '{locale}' in self.localization['static_dir']
-        and 'locale' in self.route_params):
+       and '{locale}' in self.localization['static_dir']
+       and 'locale' in self.route_params):
       source_format = self.localization['serve_at']
       source_format += '/{filename}'
       source_format = source_format.replace('//', '/')
@@ -116,15 +141,20 @@ class StaticController(base.BaseController):
       return self.path_format
     tokens = re.findall('.?{([^>]+)}.?', self.path_format)
     if 'filename' in tokens:
-      source_regex = self.source_format.replace('{filename}', '(?P<filename>.*)')
+      source_regex = self.source_format.replace(
+          '{filename}', '(?P<filename>.*)')
       source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
+      source_regex = source_regex.replace('{locale}', '(?P<root>[^/])')
       match = re.match(source_regex, pod_path)
       if match:
         kwargs = match.groupdict()
+        kwargs['root'] = self.pod.podspec.root
         if 'locale' in kwargs:
-          kwargs['locale'] = str(
-              locales.Locale.from_alias(self.pod, kwargs['locale']))
-        return self.path_format.format(**kwargs)
+          locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
+          kwargs['locale'] = str(locale)
+        path = self.path_format.format(**kwargs)
+        path = path.replace('//', '/')
+        return path
 
   def list_concrete_paths(self):
     concrete_paths = set()
@@ -168,12 +198,14 @@ class StaticController(base.BaseController):
             continue
         if match:
           kwargs = match.groupdict()
+          kwargs['root'] = self.pod.podspec.root
           if 'locale' in kwargs:
             normalized_locale = self.pod.normalize_locale(kwargs['locale'])
             kwargs['locale'] = (
                 normalized_locale.alias if normalized_locale is not None
                 else normalized_locale)
           matched_path = self.path_format.format(**kwargs)
+          matched_path = matched_path.replace('//', '/')
           concrete_paths.add(matched_path)
 
     return list(concrete_paths)
