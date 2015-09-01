@@ -79,6 +79,14 @@ Once installed, you can...
     cd pygrow
     pip install -r requirements.txt
     python setup.py install
+    
+#### Gotchas (Mac)
+
+If you're having trouble installib libyaml, try the following:
+
+1. Install brew
+2. `brew install libyaml`
+3. From the virtualenv created in your repository, run `python -m easy_install pyyaml`
 
 #### Linux gotchas (Ubuntu)
 
