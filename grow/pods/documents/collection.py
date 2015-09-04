@@ -92,6 +92,8 @@ class Collection(object):
   @property
   @utils.memoize
   def yaml(self):
+    if not self.exists():
+      return {}
     result = utils.parse_yaml(self.pod.read_file(self._blueprint_path))
     if result is None:
       return {}
