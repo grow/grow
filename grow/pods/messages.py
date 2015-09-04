@@ -1,6 +1,6 @@
 from protorpc import messages
 from .controllers import messages as controller_messages
-from .collectionz import messages as collection_messages
+from .documents import messages as collection_messages
 
 
 class LocaleGroupMessage(messages.Message):

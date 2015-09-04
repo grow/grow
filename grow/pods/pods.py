@@ -34,11 +34,11 @@ from . import podspec
 from . import routes
 from . import storage
 from .catalogs import catalog_holder
-from .collectionz import collectionz
 from .controllers import jinja2htmlcompress
 from .controllers import messages as controller_messages
 from .controllers import static
 from .controllers import tags
+from .documents import collection
 from .preprocessors import preprocessors
 from .tests import tests
 from babel import dates as babel_dates
@@ -196,7 +196,7 @@ class Pod(object):
     return self.storage.move_to(source_path, dest_path)
 
   def list_collections(self):
-    return collectionz.Collection.list(self)
+    return collection.Collection.list(self)
 
   def get_file(self, pod_path):
     return files.File.get(pod_path, self)
@@ -228,7 +228,7 @@ class Pod(object):
     collection_path, unused_path = os.path.split(pod_path)
     if not collection_path or not unused_path:
       text = '"{}" is not a path to a document.'.format(pod_path)
-      raise collectionz.BadCollectionNameError(text)
+      raise collection.BadCollectionNameError(text)
     collection = self.get_collection(collection_path)
     return collection.get_doc(pod_path, locale=locale)
 
@@ -250,7 +250,7 @@ class Pod(object):
       Collection.
     """
     pod_path = os.path.join('/content', collection_path)
-    return collectionz.Collection.get(pod_path, _pod=self)
+    return collection.Collection.get(pod_path, _pod=self)
 
   def duplicate_to(self, other, exclude=None):
     """Duplicates this pod to another pod."""

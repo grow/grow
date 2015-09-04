@@ -1,7 +1,7 @@
 from grow.pods import locales
 from grow.pods import pods
 from grow.pods import storage
-from grow.pods.collectionz import collectionz
+from grow.pods.documents import collection
 from grow.testing import testing
 import unittest
 
@@ -16,7 +16,7 @@ class CollectionsTestCase(unittest.TestCase):
     self.pod.get_collection('/content/pages/')
 
   def test_list(self):
-    collectionz.Collection.list(self.pod)
+    collection.Collection.list(self.pod)
 
   def test_list_docs(self):
     # List documents where locale = fr.

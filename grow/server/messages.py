@@ -1,6 +1,6 @@
 from protorpc import messages
 from grow.pods import messages as pod_messages
-from grow.pods.collectionz import messages as collection_messages
+from grow.pods.documents import messages as collection_messages
 
 
 class OwnerMessage(messages.Message):

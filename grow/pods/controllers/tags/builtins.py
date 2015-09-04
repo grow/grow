@@ -1,7 +1,7 @@
 from datetime import datetime
 from grow.common import utils
 from grow.pods import locales as locales_lib
-from grow.pods.collectionz import collectionz
+from grow.pods.documents import collection
 import collections
 import csv as csv_lib
 import itertools
@@ -14,7 +14,7 @@ import re
 @utils.memoize_tag
 def categories(collection=None, collections=None, reverse=None, order_by=None,
                _pod=None):
-  if isinstance(collection, collectionz.Collection):
+  if isinstance(collection, collection.Collection):
     collection = collection
   elif isinstance(collection, basestring):
     collection = _pod.get_collection(collection)

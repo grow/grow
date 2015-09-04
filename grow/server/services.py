@@ -7,8 +7,8 @@ import httplib
 from protorpc import remote
 from grow.common import config
 from grow.server import messages
-from grow.pods.collectionz import collectionz
-from grow.pods.collectionz import documents
+from grow.pods.documents import collection
+from grow.pods.documents import documents
 from grow.pods import files
 from grow.pods import pods
 from grow.pods import commands
@@ -49,7 +49,7 @@ class PodService(remote.Service):
     try:
       collection = pod.get_collection(request.collection.collection_path)
       collection.create_from_message(request.collection)
-    except collectionz.Error as e:
+    except collection.Error as e:
       logging.exception(e)
       raise ServiceException(str(e))
     message = messages.CreateCollectionResponse()
@@ -106,7 +106,7 @@ class PodService(remote.Service):
     try:
       collection = pod.get_collection(request.collection.collection_path)
       docs = collection.search_documents()
-    except collectionz.CollectionDoesNotExistError as e:
+    except collection.CollectionDoesNotExistError as e:
       raise NotFoundException(str(e))
     except Exception as e:
       logging.exception(e)
