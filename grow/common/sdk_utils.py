@@ -64,10 +64,17 @@ def check_for_sdk_updates(auto_update_prompt=False):
       colorize(yours, ansi=226), colorize(theirs, ansi=82))
   if utils.is_packaged_app() and auto_update_prompt:
     # If the installation was successful, restart the process.
-    if (raw_input('Auto update now? [y/N]: ').lower() == 'y'
-        and subprocess.call(INSTALLER_COMMAND, shell=True) == 0):
-      logging.info('Restarting...')
-      os.execl(sys.argv[0], *sys.argv)
+    try:
+      if (raw_input('Auto update now? [y/N]: ').lower() == 'y'
+          and subprocess.call(INSTALLER_COMMAND, shell=True) == 0):
+        logging.info('Restarting...')
+        os.execl(sys.argv[0], *sys.argv)
+    except Exception as e:
+      text = (
+          'In-place update failed. Update manually or use:\n'
+          '  curl https://install.growsdk.org | bash')
+      logging.error(text)
+      sys.exit(-1)
   else:
     print '  Update using: ' + colorize('pip install --upgrade grow', ansi=200)
   print ''
