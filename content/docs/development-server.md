@@ -7,22 +7,24 @@ $category: Workflow
 
 [TOC]
 
-## Run Command
-Grow ships with a built-in development server to test your changes locally, which you can start using the run command:
+## Using the development server
 
-    grow run /path/to/project
+Grow comes with a built-in development server. The development server dynamically renders and builds pages when requested. This avoids the need to watch files for changes and allows you to iteratively develop without rebuilding your entire site.
 
+You can start the server with the `grow run` command:
 
-## Real Time Preview
-When you start the development server, Grow checks for updates to the SDK, tests your pod, compiles translations, and runs preprocessors. If any of these tasks fail, the test server will fail to start. Here's what it looks like when you start your development server:
+```
+grow run
+```
 
-    Checking for updates to the Grow SDK...
-    Your Grow SDK is the latest version: 0.X.X
-    Compiled /source/sass/main.sass -> /static/css/main.min.css
-    Serving pod /Users/me/git/growsdk.org => http://localhost:8080
+When you start the development server, Grow checks for updates to the SDK, compiles translation catalogs, and runs any preprocessors configured in `podspec.yaml`.
 
-Your development server is now running, and by default, your web browser will open to your project's root, ready for you to preview.
+The development server does not currently integrate with any other preprocessing systems, such as Gulp. You must execute those manually.
 
-Changes to content (in content), templates (in views), or static files are immediately reflected, and a quick refresh of any page allows you to see your changes immediately.
+## Remote access
 
-Grow watches for changes to files that require preprocessing (such as files in source or translations). Changes to those files will cause Grow to kick off a preprocessor to build the generated files, and your changes will be reflected in the live preview almost immediately.
+By default, the development server binds to `localhost` to avoid accidentally providing anyone from accessing your development server. If you need to access the development server from other devices on your local network, use the `--host` and `--port` flags to explicitly set the host and port parameters, respectively.
+
+```
+grow run --host=0.0.0.0 --port=8080
+```
