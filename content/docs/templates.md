@@ -186,6 +186,18 @@ Lastly, using `g.static` allows you to change the serving paths of static files 
 {{g.static('/static/example.png', locale='de')}}
 [/sourcecode]
 
+### g.statics
+
+`g.statics(<pod path>)`
+
+Returns a list of StaticFile objects from in a directory within your pod.
+
+[sourcecode:html+jinja]
+{% for static_file in g.statics('/source/images/') %}
+  <img src="{{static_file.url.path}}">
+{% endfor %}
+[/sourcecode]
+
 ### g.url
 
 `g.url(<document path>)`
