@@ -9,7 +9,7 @@ cache: pip
 install:
 - git clone --single-branch https://github.com/grow/pygrow.git
 - cd pygrow
-- travis_retry pip install -r --upgrade requirements.txt
+- travis_retry pip install --upgrade -r requirements.txt
 - python setup.py install
 - cd ..
 script: ./pygrow/bin/grow deploy --noconfirm growsdk.org
