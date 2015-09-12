@@ -26,17 +26,14 @@ grow init https://github.com/grow/growsdk.org growsdk.org
 
 You can use the `grow init <theme> <dir>` command to clone any of the below themes to your system.
 
-__* indicates not implemented__
-
-- [blank](https://github.com/growthemes/blank) *
-- [blog](https://github.com/growthemes/blog) *
 - [cards](https://github.com/growthemes/cards)
 - [codelab](https://github.com/growthemes/codelab)
-- [landing](https://github.com/growthemes/blog) *
+- [product](https://github.com/growthemes/product)
+- [scaffold](https://github.com/growthemes/scaffold)
 
-Want to contribute a theme to the `grow init` command? Send a pull request to growthemes on GitHub!
+To contribute to themes on the `grow init` command, send pull requests to GitHub.
 
-## Samples
+## Other samples
 
 - [growsdk.org](https://github.com/grow/growsdk.org) – This documentation site!
 - [Test data](https://github.com/grow/pygrow/tree/master/grow/pods/testdata/pod) – Pod used by the Grow SDK's unit tests (note: you cannot clone this using `grow init`).
