@@ -109,18 +109,12 @@ Parses a CSV file and returns a list of dictionaries mapping header rows to valu
 
 ### g.date
 
-`g.date(<DateTime|string>, from=<string>, to=<string>)`
+`g.date(<DateTime|string>, from=<string>)`
 
-Multipurpose date and time utility function. Capable of both formatting a DateTime as a string and/or parsing a string into a DateTime. Uses [Python date formatting directives](https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior).
+Parses a string into a Date object. Uses [Python date formatting directives](https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior).
 
     # Returns a DateTime given a string and a format.
     {{g.date('12/31/2000', from='%m/%d/%Y')}}
-
-    # Returns a formatted string given a DateTime.
-    {{g.date(date, to='%m')}}
-
-    # Returns a formatted string, given both a string and a format.
-    {{g.date('12/31/2000', from='%m/%d/%Y', to='%m')}}
 
 ### g.doc
 
@@ -213,3 +207,75 @@ Returns the URL object for a document, given a document's pod path. Access the `
 `g.yaml(<path to yaml>)`
 
 Returns a parsed yaml object, given a yaml file's pod path. Respects translation tagging.
+
+## Filters
+
+### date
+
+`date`
+
+Formats localized and non-localized dates. Use's [Babel's format_date](http://babel.pocoo.org/docs/api/dates/#babel.dates.format_date).
+
+[sourcecode:html+jinja]
+{{date_object|date(format='short')}}
+{{date_object|date(format='short', locale='ja_JP')}}
+{{date_object|date(format="yyyy.MM.dd G 'at' HH:mm:ss zzz")}}
+[/sourcecode]
+
+### datetime
+
+Formats localized and non-localized datetimes. Use's [Babel's format_datetime](http://babel.pocoo.org/docs/api/dates/#babel.dates.format_datetime).
+
+### deeptrans
+
+`deeptrans`
+
+Recursively applies the gettext translation function to strings within a dictionary.
+
+[sourcecode:html+jinja]
+{% set content = {
+  'key': 'String',
+  'item_list': [
+      'String 1',
+      'String 2'
+  ]
+} %}
+{{content|deeptrans}}
+[/sourcecode]
+
+### jsonify
+
+`jsonify`
+
+Converts a dictionary into JSON.
+
+[sourcecode:html+jinja]
+{{dict_object|jsonify}}
+[/sourcecode]
+
+### markdown
+
+`markdown`
+
+Renders Markdown content into HTML. Use in conjunction with the `safe` filter to render HTML to a page.
+
+[sourcecode:html+jinja]
+{{markdown_content|markdown}}
+{{markdown_content|markdown|safe}}
+[/sourcecode]
+
+### slug
+
+`slug`
+
+Creates a slug from text.
+
+[sourcecode:html+jinja]
+{{'Hello World'|slug}}
+[/sourcecode]
+
+### time
+
+`time`
+
+Formats localized and non-localized times. Use's [Babel's format_time](http://babel.pocoo.org/docs/api/dates/#babel.dates.format_time).
