@@ -123,7 +123,6 @@ def install(rc_path=None, bin_path=None, force=False):
     fp = open(temp_path, 'rb')
     zp = zipfile.ZipFile(fp)
     try:
-      raise IOError("Errno 26] Text file busy: 'REDACTED/bin/grow'")
       zp.extract('grow', os.path.dirname(bin_path))
     except IOError as e:
       if 'Text file busy' in str(e):

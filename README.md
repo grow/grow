@@ -63,13 +63,6 @@ Once installed, you can...
     ./scripts/test                                 # Runs tests.
     ./scripts/grow                                 # Runs `grow` command line program.
 
-#### Gotchas
-
-From a fresh system, you may need a few things to build a Grow release from scratch:
-
-    sudo apt-get install python-dev python-pip libffi-dev g++ git libxml2-dev libxslt-dev libssl-dev zip
-    sudo pip install pyinstaller
-
 #### Installation alternatives
 
     # Installs Grow in Python's site-packages directory.
@@ -86,6 +79,27 @@ From a fresh system, you may need a few things to build a Grow release from scra
     cd pygrow
     pip install -r requirements.txt
     python setup.py install
+    
+#### Gotchas (Mac)
+
+If you're having trouble installib libyaml, try the following:
+
+1. Install brew
+2. `brew install libyaml`
+3. From the virtualenv created in your repository, run `python -m easy_install pyyaml`
+
+#### Linux gotchas (Ubuntu)
+
+From a fresh system, you may need a few things to build a Grow release from scratch:
+
+```bash
+sudo apt-get install python python-pip build-essential python-all-dev zip \
+  libc6 libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev zip
+sudo pip install --upgrade pip
+sudo pip install --upgrade six
+
+sudo pip install grow
+```
 
 ### Running tests
 
