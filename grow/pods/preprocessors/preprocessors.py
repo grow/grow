@@ -23,13 +23,14 @@ def config_from_json(preprocessor_class, content):
 
 
 def make_preprocessor(name, config, pod):
+  autorun = config.pop('autorun', True)
   class_obj = _preprocessor_kinds_to_classes.get(name)
   if class_obj is None:
     raise ValueError('No preprocessor named "{}".'.format(name))
   if isinstance(config, dict):
     config = json.dumps(config)
     config = config_from_json(class_obj, config)
-  return class_obj(pod, config)
+  return class_obj(pod, config, autorun=autorun)
 
 
 def register_builtins():

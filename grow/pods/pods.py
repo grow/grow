@@ -361,7 +361,8 @@ class Pod(object):
   def preprocess(self):
     self.catalogs.compile()  # Preprocess translations.
     for preprocessor in self.list_preprocessors():
-      preprocessor.run()
+      if preprocessor.autorun:
+        preprocessor.run()
 
   def get_podspec(self):
     return self.podspec
