@@ -22,15 +22,16 @@ def config_from_json(preprocessor_class, content):
   return protojson.decode_message(config_class, content)
 
 
-def make_preprocessor(name, config, pod):
+def make_preprocessor(kind, config, pod):
   autorun = config.pop('autorun', True)
-  class_obj = _preprocessor_kinds_to_classes.get(name)
+  name = config.pop('name', None)
+  class_obj = _preprocessor_kinds_to_classes.get(kind)
   if class_obj is None:
-    raise ValueError('No preprocessor named "{}".'.format(name))
+    raise ValueError('No preprocessor for "{}".'.format(kind))
   if isinstance(config, dict):
     config = json.dumps(config)
     config = config_from_json(class_obj, config)
-  return class_obj(pod, config, autorun=autorun)
+  return class_obj(pod, config, autorun=autorun, name=name)
 
 
 def register_builtins():

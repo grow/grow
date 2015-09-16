@@ -358,10 +358,13 @@ class Pod(object):
       results.append(preprocessor)
     return results
 
-  def preprocess(self):
+  def preprocess(self, preprocessor_names=None):
     self.catalogs.compile()  # Preprocess translations.
     for preprocessor in self.list_preprocessors():
-      if preprocessor.autorun:
+      if preprocessor_names:
+        if preprocessor.name in preprocessor_names:
+          preprocessor.run()
+      elif preprocessor.autorun:
         preprocessor.run()
 
   def get_podspec(self):

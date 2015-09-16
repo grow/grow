@@ -2,9 +2,10 @@ from . import build
 from . import deploy
 from . import extract
 from . import filter
-from . import init
 from . import import_translations
+from . import init
 from . import machine_translate
+from . import preprocess
 from . import routes
 from . import run
 from . import stage
@@ -19,6 +20,7 @@ def add(group):
   group.add_command(import_translations.import_translations)
   group.add_command(init.init)
   group.add_command(machine_translate.machine_translate)
+  group.add_command(preprocess.preprocess)
   group.add_command(routes.routes)
   group.add_command(run.run)
   group.add_command(stage.stage)
