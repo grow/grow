@@ -21,6 +21,10 @@ There are three places URLs are configured: `podspec.yaml`, blueprints, and cont
 
 Use these formatters to configure serving paths for documents either in a content document or its blueprint.
 
+Setting `path` in *both* a collection's blueprint and in a content document is *optional*. You should only define a path in a content document if you need to *override* a content document's path from the one specified in its blueprint.
+
+__Remember: don't repeat yourself.__ If you can specify a path format in a collection's blueprint that generates the right path for all of its documents, then there is no need to also specify `$path` for each document. Only specify `$path` in a document for paths you need to override.
+
 | Path formatter
 |-|-|
 | `{base}` | The document's basename.
@@ -40,7 +44,7 @@ path: "{root}/pages/{base}/"
 localization:
   path: /{locale}/pages/{slug}/
 
-# In document.yaml (use '$path' instead of 'path')
+# In document.yaml (use '$path' instead of 'path' – and only specify document-level paths if you need to override the format set in the blueprint)
 $path: /pages/home/
 $localization:
   path: /{locale}/pages/home/
