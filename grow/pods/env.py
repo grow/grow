@@ -7,15 +7,19 @@ class EnvConfig(messages.Message):
   host = messages.StringField(1)
   scheme = messages.StringField(2)
   port = messages.IntegerField(3)
+  name = messages.StringField(4)
+  cached = messages.BooleanField(5, default=True)
 
 
 class Env(object):
 
   def __init__(self, config):
+    self.name = config.name
     self.config = config
     self.host = config.host
     self.port = config.port or 80
     self.scheme = config.scheme or 'http'
+    self.cached = config.cached
 
   def __repr__(self):
     return '<Env: {}>'.format(self.url)
@@ -57,11 +61,14 @@ class Env(object):
 
   @classmethod
   def from_wsgi_env(cls, wsgi_env):
-    config = EnvConfig()
-    config.host = wsgi_env.get('HTTP_HOST', wsgi_env.get('SERVER_NAME', 'localhost'))
-    config.scheme = wsgi_env['wsgi.url_scheme']
-    config.port = int(wsgi_env.get('SERVER_PORT', 80))
-    return cls(config)
+    env = cls()
+    env.update_from_wsgi_env(wsgi_env)
+    return env
+
+  def update_from_wsgi_env(self, wsgi_env):
+    self.host = wsgi_env.get('HTTP_HOST', wsgi_env.get('SERVER_NAME', 'localhost'))
+    self.scheme = wsgi_env['wsgi.url_scheme']
+    self.port = int(wsgi_env.get('SERVER_PORT', 80))
 
   def to_wsgi_env(self):
     return {

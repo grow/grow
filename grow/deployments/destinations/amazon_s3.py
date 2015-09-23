@@ -16,10 +16,15 @@ class Config(messages.Message):
   access_key = messages.StringField(2)
   access_secret = messages.StringField(3)
   env = messages.MessageField(env.EnvConfig, 4)
+  keep_control_dir = messages.BooleanField(5, default=False)
+  redirect_trailing_slashes = messages.BooleanField(6, default=True)
+  index_document = messages.StringField(7, default='index.html')
+  error_document = messages.StringField(8, default='404.html')
+
 
 
 class AmazonS3Destination(base.BaseDestination):
-  NAME = 's3'
+  KIND = 's3'
   Config = Config
 
   def __str__(self):
@@ -32,13 +37,21 @@ class AmazonS3Destination(base.BaseDestination):
         calling_format=connection.OrdinaryCallingFormat())
     return boto_connection.get_bucket(self.config.bucket)
 
+  def dump(self, pod):
+    pod.env = self.get_env()
+    return pod.dump(
+        suffix=self.config.index_document,
+        append_slashes=self.config.redirect_trailing_slashes)
+
   def prelaunch(self, dry_run=False):
     if dry_run:
       return
     logging.info('Configuring S3 bucket: {}'.format(self.config.bucket))
     self.bucket.set_acl('public-read')
     self.bucket.configure_versioning(False)
-    self.bucket.configure_website('index.html', '404.html')
+    self.bucket.configure_website(
+        self.config.index_document,
+        self.config.error_document)
 
   def write_control_file(self, path, content):
     path = os.path.join(self.control_dir, path.lstrip('/'))
@@ -61,17 +74,19 @@ class AmazonS3Destination(base.BaseDestination):
 
   def write_file(self, path, content, policy='public-read'):
     path = path.lstrip('/')
+    path = path if path != '' else self.config.index_document
     if isinstance(content, unicode):
       content = content.encode('utf-8')
     bucket_key = key.Key(self.bucket)
     bucket_key.key = path
     fp = cStringIO.StringIO()
     fp.write(content)
-    # TODO(jeremydw): Better headers.
     mimetype = mimetypes.guess_type(path)[0]
-    headers = {'Cache-Control': 'no-cache'}
-    if mimetype:
-      headers['Content-Type'] = mimetype
+    # TODO: Allow configurable headers.
+    headers = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': mimetype if mimetype else 'text/html',
+    }
     fp.seek(0)
     bucket_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy)
     fp.close()

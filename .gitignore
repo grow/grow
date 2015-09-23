@@ -3,6 +3,7 @@
 
 env
 htmlcov
+growsdk
 
 # C extensions
 *.so

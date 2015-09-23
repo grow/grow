@@ -4,11 +4,14 @@ werkzeug routing:
   http://werkzeug.pocoo.org/docs/routing/#werkzeug.routing.Map
 """
 
+from . import locales
+from . import messages
+from .controllers import rendered
+from .controllers import static
+from grow.common import utils
+import collections
 import webob
 import werkzeug
-from grow.common import utils
-from grow.pods import controllers
-from grow.pods import messages
 
 
 routing = werkzeug.routing
@@ -26,63 +29,99 @@ class GrowConverter(routing.PathConverter):
   pass
 
 
+class ValidationError(Error, ValueError):
+  pass
+
+
+class DuplicatePathsError(Error, ValueError):
+  pass
+
+
 class Routes(object):
   converters = {'grow': GrowConverter}
 
   def __init__(self, pod):
     self.pod = pod
+    self._paths_to_locales_to_docs = collections.defaultdict(dict)
+    self._routing_map = None
 
-  @property
-  def domains(self):
-    return self.pod.yaml.get('domains')
+  def __iter__(self):
+    return self.routing_map.iter_rules()
 
-  @property
-  @utils.memoize
-  def routing_map(self):
+  def reset_cache(self, rebuild=True):
+    if rebuild:
+      self._build_routing_map()
+
+  def get_doc(self, path, locale=None):
+    if isinstance(locale, basestring):
+      locale = locales.Locale(locale)
+    return self._paths_to_locales_to_docs.get(path, {}).get(locale)
+
+  def _build_routing_map(self):
+    new_paths_to_locales_to_docs = collections.defaultdict(dict)
     rules = []
-    podspec = self.pod.get_podspec()
-    podspec_config = podspec.get_config()
-
     # Content documents.
     for collection in self.pod.list_collections():
       for doc in collection.list_servable_documents(include_hidden=True):
-        controller = controllers.PageController(
+        controller = rendered.RenderedController(
             view=doc.get_view(),
             document=doc,
             _pod=self.pod)
         rule = routing.Rule(doc.get_serving_path(), endpoint=controller)
         rules.append(rule)
+        new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
+    # Static routes.
+    rules += self.list_static_routes()
+    self._routing_map = routing.Map(rules, converters=Routes.converters)
+    self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
+    return self._routing_map
 
-    # Extra routes.
-    extra_routes = self.pod.yaml.get('routes', [])
-    for route in extra_routes:
-      if route['kind'] == 'static':
-        controller = controllers.StaticController(
-            path_format=route['path'], source_format=route['source'], pod=self.pod)
-        rules.append(routing.Rule(route['path'], endpoint=controller))
-      elif route['kind'] == 'page':
-        controller = controllers.PageController(
-            view=route['view'], path=route['path'], _pod=self.pod)
-        rules.append(routing.Rule(route['path'], endpoint=controller))
+  @property
+  def routing_map(self):
+    if self._routing_map is None:
+      return self._build_routing_map()
+    return self._routing_map
 
+  def list_static_routes(self):
+    rules = []
+    podspec = self.pod.get_podspec()
+    podspec_config = podspec.get_config()
     # Auto-generated from flags.
     if 'static_dir' in self.pod.flags:
       path = self.pod.flags['static_dir'] + '<grow:filename>'
-      controller = controllers.StaticController(
+      controller = static.StaticController(
           path_format=path, source_format=path, pod=self.pod)
       rules.append(routing.Rule(path, endpoint=controller))
-
     if 'static_dirs' in podspec_config:
       for config in podspec_config['static_dirs']:
         static_dir = config['static_dir'] + '<grow:filename>'
         serve_at = config['serve_at'] + '<grow:filename>'
-        controller = controllers.StaticController(path_format=serve_at,
-                                                  source_format=static_dir,
-                                                  pod=self.pod)
+        if podspec.root:
+          serve_at = serve_at.replace('{root}', podspec.root)
+        serve_at = serve_at.replace('//', '/')
+        localization = config.get('localization')
+        controller = static.StaticController(path_format=serve_at,
+                                             source_format=static_dir,
+                                             localized=False,
+                                             localization=localization,
+                                             pod=self.pod)
         rules.append(routing.Rule(serve_at, endpoint=controller))
-
-    routing_map = routing.Map(rules, converters=Routes.converters)
-    return routing_map
+        if localization:
+          localized_serve_at = localization.get('serve_at') + '<grow:filename>'
+          static_dir = localization.get('static_dir')
+          localized_static_dir = static_dir + '<grow:filename>'
+          rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
+          if podspec.root:
+            rule_path = rule_path.replace('{root}', podspec.root)
+          rule_path = rule_path.replace('//', '/')
+          controller = static.StaticController(
+              path_format=localized_serve_at,
+              source_format=localized_static_dir,
+              localized=True,
+              localization=localization,
+              pod=self.pod)
+          rules.append(routing.Rule(rule_path, endpoint=controller))
+    return rules
 
   def match(self, path, env):
     """Matches a controller from the pod.
@@ -97,31 +136,42 @@ class Routes(object):
     try:
       controller, route_params = urls.match(path)
       controller.set_route_params(route_params)
-      # validate route_params here, raise NotFound if params are invalid
-      # controller.validate_route_params(route_params)
       return controller
     except routing.NotFound:
-      raise webob.exc.HTTPNotFound()
+      raise webob.exc.HTTPNotFound('{} not found.'.format(path))
 
-  def match_error(self, path, domain=None, status=404):
+  def match_error(self, path, status=404):
     if status == 404 and self.pod.error_routes:
       view = self.pod.error_routes.get('default')
-      return controllers.PageController(view=view, _pod=self.pod)
+      return rendered.RenderedController(view=view, _pod=self.pod)
 
-  def list_concrete_paths(self):
-    path_formats = []
-    for route in self.routing_map.iter_rules():
+  def get_locales_to_paths(self):
+    locales_to_paths = collections.defaultdict(list)
+    for route in self:
       controller = route.endpoint
-      path_formats.extend(controller.list_concrete_paths())
-    return path_formats
+      paths = controller.list_concrete_paths()
+      locale = controller.locale
+      locales_to_paths[locale] += paths
+    return locales_to_paths
+
+  @utils.memoize
+  def list_concrete_paths(self):
+    paths = set()
+    for route in self:
+      controller = route.endpoint
+      new_paths = set(controller.list_concrete_paths())
+      intersection = paths.intersection(new_paths)
+      if intersection:
+        text = '"{}" from {}'
+        error = text.format(', '.join(intersection), controller)
+        raise DuplicatePathsError(error)
+      paths.update(new_paths)
+    return list(paths)
 
   def to_message(self):
     message = messages.RoutesMessage()
-    if self.domains:
-      message.domains = self.domains
     message.routes = []
-    for path in self.list_concrete_paths():
-      route_message = messages.RouteMessage()
-      route_message.path = path
-      message.routes.append(route_message)
+    for route in self:
+      controller = route.endpoint
+      message.routes.extend(controller.to_route_messages())
     return message

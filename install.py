@@ -3,6 +3,7 @@
 
 """Standalone Grow SDK installer. Downloads Grow SDK and sets up command aliases."""
 
+import argparse
 import datetime
 import json
 import os
@@ -51,7 +52,20 @@ def orly(text):
   return resp.lower() == 'y'
 
 
-def install():
+def get_rc_path():
+  if PLATFORM == 'linux':
+    if os.path.exists(os.path.expanduser('~/.bash_profile')):
+      basename = '.bash_profile'
+    elif os.path.exists(os.path.expanduser('~/.profile')):
+      basename = '.profile'
+    else:
+      basename = '.bashrc'
+  elif PLATFORM == 'mac':
+    basename = '.bash_profile'
+  return '~/{}'.format(basename)
+
+
+def install(rc_path=None, bin_path=None, force=False):
   release = json.loads(urllib.urlopen(RELEASES_API).read())[0]
   version = release['tag_name']
 
@@ -67,26 +81,29 @@ def install():
 
   download_url = DOWNLOAD_URL_FORMAT.format(version=version, name=asset['name'])
 
-  bin_path = '{}/bin/grow'.format(os.getenv('HOME'))
-  profile_path = '{}/.bash_profile'.format(os.getenv('HOME'))
+  bin_path = os.path.expanduser(bin_path or '~/bin/grow')
+  rc_path = os.path.expanduser(rc_path or get_rc_path())
   alias_cmd = 'alias grow="{}"'.format(bin_path)
   alias_comment = '# Added by Grow SDK Installer ({})'.format(datetime.datetime.now())
 
   hai('{yellow}Welcome to the installer for Grow SDK v%s{/yellow}' % version)
+  hai('{yellow}Release notes: {/yellow}https://github.com/grow/pygrow/releases/tag/%s' % version)
   hai('{blue}==>{/blue} {green}This script will install:{/green} %s' % bin_path)
 
   has_alias = False
-  if os.path.exists(profile_path):
-    profile = open(profile_path).read()
+  if os.path.exists(rc_path):
+    profile = open(rc_path).read()
     has_alias = bool(re.search('^{}$'.format(alias_cmd), profile, re.MULTILINE))
   if has_alias:
-    hai('{blue}[✓]{/blue} {green}You already have an alias for "grow" in:{/green} %s' % profile_path)
+    hai('{blue}[✓]{/blue} {green}You already have an alias for "grow" in:{/green} %s' % rc_path)
   else:
-    hai('{blue}==>{/blue} {green}An alias for "grow" will be created in:{/green} %s' % profile_path)
-  result = orly('Continue? [y/N]: ')
-  if not result:
-    hai('Aborted installation.')
-    sys.exit(-1)
+    hai('{blue}==>{/blue} {green}An alias for "grow" will be created in:{/green} %s' % rc_path)
+
+  if not force:
+    result = orly('Continue? [y/N]: ')
+    if not result:
+      hai('Aborted installation.')
+      sys.exit(-1)
 
   remote = urllib2.urlopen(download_url)
   try:
@@ -105,7 +122,14 @@ def install():
     local.close()
     fp = open(temp_path, 'rb')
     zp = zipfile.ZipFile(fp)
-    zp.extract('grow', os.path.dirname(bin_path))
+    try:
+      zp.extract('grow', os.path.dirname(bin_path))
+    except IOError as e:
+      if 'Text file busy' in str(e):
+        hai('Unable to overwrite {}. Try closing Grow and installing again.'.format(bin_path))
+        hai('You can use the installer by running: curl https://install.growsdk.org | bash')
+        sys.exit(-1)
+      raise
     fp.close()
     hai('{blue}[✓]{/blue} {green}Installed Grow SDK to:{/green} %s' % bin_path)
     stat = os.stat(bin_path)
@@ -114,14 +138,32 @@ def install():
     os.remove(temp_path)
 
   if not has_alias:
-    fp = open(profile_path, 'a')
+    fp = open(rc_path, 'a')
     fp.write('\n' + alias_comment + '\n')
     fp.write(alias_cmd)
     fp.close()
-    hai('{blue}[✓]{/blue} {green}Created "grow" alias in:{/green} %s' % profile_path)
+    hai('{blue}[✓]{/blue} {green}Created "grow" alias in:{/green} %s' % rc_path)
+    hai('{green}All done. To use Grow SDK...{/green}')
+    hai(' ...reload your shell session OR use `source {}`,'.format(rc_path))
+    hai(' ...then type `grow` and press enter.')
 
-  hai(' 🚀  🚀  🚀   {green}All done! Now type "grow" and press enter to use the Grow SDK.{/green} 🚀  🚀  🚀 ')
+
+def parse_args():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--bin-path', default=None,
+                      help='Where to install `grow` executable.')
+  parser.add_argument('--force', dest='force', action='store_true',
+                      help='Whether to force install and bypass prompts.')
+  parser.add_argument('--rc-path', default=None,
+                      help='Profile to update with PATH.')
+  parser.set_defaults(force=False)
+  return parser.parse_args()
+
+
+def main():
+  args = parse_args()
+  install(rc_path=args.rc_path, bin_path=args.bin_path, force=args.force)
 
 
 if __name__ == '__main__':
-  install()
+  main()

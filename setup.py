@@ -1,25 +1,28 @@
+from pip import req
+import pip
 from setuptools import find_packages
 from setuptools import setup
+
+_install_requirements = req.parse_requirements(
+    'requirements.txt', session=pip.download.PipSession())
 
 
 setup(
     name='grow',
     version=open('grow/VERSION').read().strip(),
     description=(
-          'Develop everywhere and deploy anywhere: a declarative '
-          'static site generator/CMS for building high-quality web sites.'
+        'Develop everywhere and deploy anywhere: a declarative '
+        'static site generator/CMS for building high-quality web sites.'
     ),
     long_description=open('description.txt').read().strip(),
-    url='http://growsdk.org',
+    url='https://growsdk.org',
+    zip_safe=False,
     license='MIT',
     author='Grow SDK Authors',
     author_email='hello@grow.io',
     include_package_data=True,
-    packages=find_packages(
-        exclude=[
-            'grow/submodules',
-        ],
-    ),
+    install_requires=[str(ir.req) for ir in _install_requirements],
+    packages=find_packages(),
     scripts=[
         'bin/grow',
     ],

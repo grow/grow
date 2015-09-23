@@ -14,9 +14,7 @@ class TranslationPreprocessor(base.BasePreprocessor):
     self.pod = pod
 
   def first_run(self):
-    # Recompile MO files.
-    translations_obj = self.pod.get_translations()
-    translations_obj.recompile_mo_files()
+    self.pod.catalogs.compile()
 
   def run(self):
     # TODO(jeremydw): Ideally, this would be capable of flushing the gettext cache and

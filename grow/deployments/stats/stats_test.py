@@ -1,16 +1,15 @@
+from . import stats
 from grow.pods import pods
 from grow.pods import storage
-from . import stats
-import os
+from grow.testing import testing
 import unittest
-
-TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata', 'pod')
 
 
 class StatsTest(unittest.TestCase):
 
   def setUp(self):
-    self.pod = pods.Pod('grow/pods/testdata/pod/', storage=storage.FileStorage)
+    dir_path = testing.create_test_pod_dir()
+    self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
   def test_to_message(self):
     stat = stats.Stats(self.pod)

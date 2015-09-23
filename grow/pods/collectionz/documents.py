@@ -1,23 +1,20 @@
-from grow.common import markdown_extensions
-from grow.common import utils
-from grow.pods import urls
-from grow.pods import locales
+from . import formats
 from . import messages
+from grow.common import utils
+from grow.pods import locales
+from grow.pods import urls
 import json
 import logging
-import markdown
 import os
-import copy
 import re
-from markdown.extensions import tables
-from markdown.extensions import toc
+import webapp2
 
 
 class Error(Exception):
   pass
 
 
-class BadFormatError(Error, ValueError):
+class PathFormatError(Error, ValueError):
   pass
 
 
@@ -37,34 +34,15 @@ class DummyDict(object):
 
 class Document(object):
 
-  def __init__(self, pod_path, _pod, locale=None, _collection=None, body_format=None):
+  def __init__(self, pod_path, _pod, locale=None, _collection=None):
+    self._locale_kwarg = locale
     utils.validate_name(pod_path)
-    self._default_locale = _pod.podspec.default_locale
-    self.locale = locale or _pod.podspec.default_locale
     self.pod_path = pod_path
     self.basename = os.path.basename(pod_path)
     self.base, self.ext = os.path.splitext(self.basename)
-
     self.pod = _pod
     self.collection = _collection
-
-    self.format = messages.extensions_to_formats.get(self.ext)
-    if self.format == messages.Format.MARKDOWN:
-      self.doc_storage = MarkdownDocumentStorage(
-          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
-    elif self.format == messages.Format.YAML:
-      self.doc_storage = YamlDocumentStorage(
-          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
-    elif self.format == messages.Format.HTML:
-      self.doc_storage = HtmlDocumentStorage(
-          self.pod_path, self.pod, locale=locale, default_locale=self._default_locale)
-    else:
-      formats = messages.extensions_to_formats.keys()
-      text = 'Basename "{}" does not have a valid extension. Valid formats are: {}'
-      raise BadFormatError(text.format(self.basename, ', '.join(formats)))
-
-    self.fields = self.doc_storage.fields
-    self.tagged_fields = self.doc_storage.tagged_fields
+    self.locale = _pod.normalize_locale(locale, default=self.default_locale)
 
   def __repr__(self):
     if self.locale:
@@ -82,6 +60,37 @@ class Document(object):
       return self.fields[name]
     return object.__getattribute__(self, name)
 
+  @webapp2.cached_property
+  def default_locale(self):
+    if ('$localization' in self.fields
+        and 'default_locale' in self.fields['$localization']):
+      locale = self.fields['$localization']['default_locale']
+    elif (self.collection.localization
+          and 'default_locale' in self.collection.localization):
+      locale = self.collection.localization['default_locale']
+    else:
+      locale = self.pod.podspec.default_locale
+    locale = locales.Locale.parse(locale)
+    if locale:
+      locale.set_alias(self.pod)
+    return locale
+
+  @webapp2.cached_property
+  def fields(self):
+    tagged_fields = self.get_tagged_fields()
+    fields = utils.untag_fields(tagged_fields)
+    if fields is None:
+      return {}
+    return fields
+
+  @webapp2.cached_property
+  def format(self):
+    return formats.Format.get(self)
+
+  def get_tagged_fields(self):
+    format_obj = formats.Format.get(self)
+    return format_obj.fields
+
   @property
   def url(self):
     path = self.get_serving_path()
@@ -92,10 +101,6 @@ class Document(object):
     if '$slug' in self.fields:
       return self.fields['$slug']
     return utils.slugify(self.title) if self.title is not None else None
-
-  @property
-  def is_hidden(self):
-    return bool(self.fields.get('$hidden'))
 
   @property
   def order(self):
@@ -134,17 +139,17 @@ class Document(object):
   def has_collection(self):
     return self.collection.exists()
 
-  def has_url(self):
-    return True
-
   def get_view(self):
     view_format = self.fields.get('$view', self.collection.get_view())
     return self._format_path(view_format) if view_format is not None else None
 
   def get_path_format(self):
     val = None
-    if self.locale and self._default_locale and self.locale != self._default_locale:
-      if '$localization' in self.fields and 'path' in self.fields['$localization']:
+    if (self.locale
+        and self.default_locale
+        and self.locale != self.default_locale):
+      if ('$localization' in self.fields
+          and 'path' in self.fields['$localization']):
         val = self.fields['$localization']['path']
       elif self.collection.localization:
         val = self.collection.localization['path']
@@ -163,21 +168,30 @@ class Document(object):
     parent_pod_path = self.fields['$parent']
     return self.collection.get_doc(parent_pod_path, locale=self.locale)
 
+  @utils.memoize
+  def has_serving_path(self):
+    return bool(self.get_path_format())
+
+  @utils.memoize
   def get_serving_path(self):
     # Get root path.
     locale = str(self.locale)
     config = self.pod.get_podspec().get_config()
     root_path = config.get('flags', {}).get('root_path', '')
-    if locale == self._default_locale:
+    if locale == self.default_locale:
       root_path = config.get('localization', {}).get('root_path', root_path)
-    path_format = (self.get_path_format()
-        .replace('<grow:locale>', '{locale}')
-        .replace('<grow:slug>', '{slug}')
-        .replace('<grow:published_year>', '{published_year}'))
+    path_format = self.get_path_format()
+    if path_format is None:
+      raise PathFormatError(
+          'No path format found for {}. You must specify a path '
+          'format in either the blueprint or the document.'.format(self))
+    path_format = (path_format
+                   .replace('<grow:locale>', '{locale}')
+                   .replace('<grow:slug>', '{slug}'))
 
     # Prevent double slashes when combining root path and path format.
     if path_format.startswith('/') and root_path.endswith('/'):
-      root_path = root_path[0:len(root_path)-1]
+      root_path = root_path[0:len(root_path) - 1]
     path_format = root_path + path_format
 
     # Handle default date formatting in the url.
@@ -187,10 +201,11 @@ class Document(object):
       if match:
         formatted_date = self.date
         formatted_date = formatted_date.strftime(match.group('date_format'))
-        path_format = path_format[:match.start()] + formatted_date + path_format[match.end():]
+        path_format = (path_format[:match.start()] + formatted_date +
+                       path_format[match.end():])
       else:
         # Does not match expected format, let the normal format attempt it.
-        break;
+        break
 
     # Handle the special formatting of dates in the url.
     while '{dates.' in path_format:
@@ -198,11 +213,13 @@ class Document(object):
       match = re.search(re_dates, path_format)
       if match:
         formatted_date = self.dates(match.group('date_name'))
-        formatted_date = formatted_date.strftime(match.group('date_format') or '%Y-%m-%d')
-        path_format = path_format[:match.start()] + formatted_date + path_format[match.end():]
+        date_format = match.group('date_format') or '%Y-%m-%d'
+        formatted_date = formatted_date.strftime(date_format)
+        path_format = (path_format[:match.start()] + formatted_date +
+                       path_format[match.end():])
       else:
         # Does not match expected format, let the normal format attempt it.
-        break;
+        break
 
     try:
       return self._format_path(path_format)
@@ -211,43 +228,51 @@ class Document(object):
       raise
 
   def _format_path(self, path_format):
+    podspec = self.pod.get_podspec()
+    locale = self.locale.alias if self.locale is not None else self.locale
     return path_format.format(**{
-        'base': os.path.splitext(os.path.basename(self.pod_path))[0],
+        'root': podspec.root,
+        'collection.root': self.collection.root,
+        'base': self.base,
         'date': self.date,
-        'locale': str(self.locale),
+        'locale': locale,
         'parent': self.parent if self.parent else DummyDict(),
-        'podspec': self.pod.get_podspec(),
         'slug': self.slug,
     }).replace('//', '/')
 
-  @property
+  @webapp2.cached_property
   def locales(self):
     return self.list_locales()
 
   def list_locales(self):
-    if '$localization' in self.fields:
-      if 'locales' in self.fields['$localization']:
-        codes = self.fields['$localization']['locales']
-    codes = self.collection.list_locales()
-    return locales.Locale.parse_codes(codes)
+    localized = '$localization' in self.fields
+    if localized and 'locales' in self.fields['$localization']:
+      codes = self.fields['$localization']['locales']
+      if codes is None:
+        return []
+      return locales.Locale.parse_codes(codes)
+    return self.collection.list_locales()
 
   @property
   @utils.memoize
   def body(self):
-    body = self.doc_storage.body
+    body = self.format.body
     if body is None:
       return body
     return body.decode('utf-8')
 
   @property
   def content(self):
-    content = self.doc_storage.content
+    content = self.format.content
     return content.decode('utf-8')
 
   @property
   def html(self):
-    # TODO(jeremydw): Add ability to render HTML.
-    return self.doc_storage.html(self)
+    return self.format.html
+
+  @property
+  def hidden(self):
+    return self.fields.get('$hidden', False)
 
   def __eq__(self, other):
     return (isinstance(self, Document)
@@ -255,10 +280,11 @@ class Document(object):
             and self.pod_path == other.pod_path)
 
   def next(self, docs=None):
-    # TODO(jeremydw): Verify items is a list of docs.
     if docs is None:
-      docs = self.collection.search_docs()
+      docs = self.collection.list_docs()
     for i, doc in enumerate(docs):
+      if type(doc) != self.__class__:
+        raise ValueError('Usage: {{doc.next(<docs>)}}.')
       if doc == self:
         n = i + 1
         if n == len(docs):
@@ -266,10 +292,11 @@ class Document(object):
         return docs[i + 1]
 
   def prev(self, docs=None):
-    # TODO(jeremydw): Verify items is a list of docs.
     if docs is None:
-      docs = self.collection.search_docs()
+      docs = self.collection.list_docs()
     for i, doc in enumerate(docs):
+      if type(doc) != self.__class__:
+        raise ValueError('Usage: {{doc.prev(<docs>)}}.')
       if doc == self:
         n = i - 1
         if n < 0:
@@ -287,20 +314,16 @@ class Document(object):
         content = message.content.encode('utf-8')
       else:
         content = message.content
-      self.doc_storage.write(content)
+      self.format.write(content)
     elif message.fields is not None:
       content = '---\n{}\n---\n{}\n'.format(message.fields, message.body or '')
-      self.doc_storage.write(content)
-      self.doc_storage.fields = json.loads(message.fields)
-      self.doc_storage.body = message.body or ''
-      self.fields = self.doc_storage.fields
+      self.format.write(content)
+      self.fields = self.format.fields
     else:
       raise NotImplementedError()
 
   def to_message(self):
     message = messages.DocumentMessage()
-    message.builtins = messages.BuiltInFieldsMessage()
-    message.builtins.title = self.title
     message.basename = self.basename
     message.pod_path = self.pod_path
     message.collection_path = self.collection.collection_path
@@ -309,89 +332,3 @@ class Document(object):
     message.fields = json.dumps(self.fields, cls=utils.JsonEncoder)
     message.serving_path = self.get_serving_path()
     return message
-
-
-# TODO(jeremydw): This needs a lot of cleanup. :)
-
-class BaseDocumentStorage(object):
-
-  def __init__(self, pod_path, pod, locale=None, default_locale=None):
-    # TODO(jeremydw): Only accept Locale objects, not strings.
-    self.default_locale = default_locale
-    self.locale = str(locale) if isinstance(locale, basestring) else locale
-    self.pod_path = pod_path
-    self.pod = pod
-    self.content = None
-    self.fields = {}
-    self.tagged_fields = {}
-    self.builtins = None
-    self.body = None
-    try:
-      self.load()
-    except IOError:  # Document doesn't exist.
-      pass
-
-  def load(self):
-    raise NotImplementedError
-
-  def html(self, doc):
-    return self.body
-
-  def write(self, content):
-    self.content = content
-    self.pod.write_file(self.pod_path, content)
-
-
-class YamlDocumentStorage(BaseDocumentStorage):
-
-  def load(self):
-    path = self.pod_path
-    content = self.pod.read_file(path)
-    fields, body = utils.parse_yaml(content, path=path)
-    self.content = content
-    self.fields = fields or {}
-    self.tagged_fields = {}
-    self.body = body
-    self.tagged_fields = copy.deepcopy(fields)
-    fields = untag_fields(fields)
-
-
-class HtmlDocumentStorage(YamlDocumentStorage):
-  pass
-
-
-class MarkdownDocumentStorage(BaseDocumentStorage):
-
-  def load(self):
-    path = self.pod_path
-    content = self.pod.read_file(path)
-    fields, body = utils.parse_markdown(
-        content, path=path, locale=self.locale, default_locale=self.default_locale)
-    self.content = content
-    self.fields = fields or {}
-    self.body = body
-    self.tagged_fields = copy.deepcopy(fields)
-    fields = untag_fields(fields)
-
-  def html(self, doc):
-    val = self.body
-    if val is not None:
-      extensions = [
-        tables.TableExtension(),
-        toc.TocExtension(),
-        markdown_extensions.CodeBlockExtension(),
-        markdown_extensions.IncludeExtension(doc.pod),
-        markdown_extensions.UrlExtension(doc.pod),
-      ]
-      val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
-    return val
-
-
-def untag_fields(fields):
-  def callback(item, key, node):
-    if not isinstance(key, basestring):
-      return
-    if key.endswith('@'):
-      node[key[0:(len(key) - 1)]] = node.pop(key)
-  utils.walk(fields, callback)
-  return fields

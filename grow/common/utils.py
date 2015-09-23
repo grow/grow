@@ -1,14 +1,25 @@
-from bisect import bisect_left, bisect_right
 from grow.pods import errors
 import functools
+import gettext
+import git
 import json
 import logging
-import mimetypes
 import os
 import re
 import sys
+import cStringIO
 import time
+import translitcodec
 import yaml
+
+# The CLoader implementation of the PyYaml loader is orders of magnitutde
+# faster than the default pure Python loader. CLoader is available when
+# libyaml is installed on the system.
+try:
+  from yaml import CLoader as yaml_Loader
+except ImportError:
+  logging.warning('Warning: libyaml missing, using slower yaml parser.')
+  from yaml import Loader as yaml_Loader
 
 
 def is_packaged_app():
@@ -25,6 +36,17 @@ def get_grow_dir():
   return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
+def get_cacerts_path():
+  return os.path.join(get_grow_dir(), 'data', 'cacerts.txt')
+
+
+def get_git_repo(root):
+  try:
+    return git.Repo(root)
+  except git.exc.InvalidGitRepositoryError:
+    logging.info('Warning: {} is not a Git repository.'.format(root))
+
+
 def interactive_confirm(message, default=False):
   message = '{} [y/N]: '.format(message)
   choice = raw_input(message).lower()
@@ -33,21 +55,24 @@ def interactive_confirm(message, default=False):
   return False
 
 
-def walk(node, callback):
+def walk(node, callback, parent_key=None):
   if node is None:
     return
   for key in node:
-    item = node[key] if isinstance(node, dict) else key
-    if isinstance(item, (list, set, dict)):
-      walk(item, callback)
+    if isinstance(node, dict):
+      item = node[key]
     else:
+      item = key
+
+    if isinstance(node, (dict)) and isinstance(item, (list, set)):
+      parent_key = key
+
+    if isinstance(item, (list, set, dict)):
+      walk(item, callback, parent_key=parent_key)
+    else:
+      if isinstance(node, (list, set)):
+        key = parent_key
       callback(item, key, node)
-
-
-def apply_heaers(headers, path):
-  mimetype = mimetypes.guess_type(path)[0]
-  if mimetype:
-    headers['Content-Type'] = mimetype
 
 
 def validate_name(name):
@@ -56,7 +81,7 @@ def validate_name(name):
       or '..' in name
       or ' ' in name):
     raise errors.BadNameError(
-        'Name must be lowercase and only contain letters, numbers, '
+        'Names must be lowercase and only contain letters, numbers, '
         'backslashes, and dashes. Found: "{}"'.format(name))
 
 
@@ -66,15 +91,16 @@ class memoize(object):
     self.func = func
     self.cache = {}
 
-  def __call__(self, *args):
+  def __call__(self, *args, **kwargs):
+    key = (args, frozenset(kwargs.items()))
     try:
-      return self.cache[args]
+      return self.cache[key]
     except KeyError:
-      value = self.func(*args)
-      self.cache[args] = value
+      value = self.func(*args, **kwargs)
+      self.cache[key] = value
       return value
     except TypeError:
-      return self.func(*args)
+      return self.func(*args, **kwargs)
 
   def __repr__(self):
     return self.func.__doc__
@@ -88,60 +114,61 @@ class memoize(object):
     self.cache = {}
 
 
+class memoize_tag(memoize):
+
+  def __call__(self, *args, **kwargs):
+    use_cache = kwargs.pop('use_cache', False)
+    if use_cache is True:
+      return super(memoize_tag, self).__call__(*args, **kwargs)
+    return self.func(*args, **kwargs)
+
+
 def every_two(l):
   return zip(l[::2], l[1::2])
 
 
-def parse_markdown(content, path=None, locale=None, default_locale=None):
-  # TODO: better parsing + only accept Locale objects.
-  locale = str(locale) if locale is not None else locale
-  default_locale = str(default_locale) if default_locale is not None else default_locale
-  locales_to_contents = {}
+def make_yaml_loader(pod):
+  class YamlLoader(yaml_Loader):
 
-  parts = re.split('(?:^|[\n])---', content, re.DOTALL)
-  if len(parts) <= 1:
-    return None, content
+    def construct_gettext(self, node):
+      if isinstance(node, yaml.SequenceNode):
+        items = []
+        for i, each in enumerate(node.value):
+          items.append(gettext.gettext(node.value[i].value))
+        return items
+      return gettext.gettext(node.value)
 
-  parts = parts[1:]   # Strip off empty group.
-  for fields, content in every_two(parts):
-    fields = yaml.load(fields)
-    doc_locale = fields.get('$locale', default_locale)
-    locales_to_contents[doc_locale] = (fields, content)
+    def construct_doc(self, node):
+      if isinstance(node, yaml.SequenceNode):
+        items = []
+        for i, each in enumerate(node.value):
+          items.append(pod.get_doc(node.value[i].value))
+        return items
+      return pod.get_doc(node.value)
 
-  # TODO(jeremydw): Allow user to control cascading behavior, but for now,
-  # combine all fields between localized document and default document. The
-  # localized fields take precedence.
-  if default_locale in locales_to_contents:
-    fields, content = locales_to_contents[default_locale]
-  else:
-    fields, content = (None, None)
-  if locale in locales_to_contents:
-    localized_fields, localized_content = locales_to_contents[locale]
-    if not fields:
-      fields = {}
-    fields.update(localized_fields)
-    content = localized_content
-  return fields, (content.strip() if content else None)
+  YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
+  YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
+  return YamlLoader
 
 
-def parse_yaml(content, path=None):
-  try:
-    content = content.strip()
-    parts = re.split('---\n', content)
-    if len(parts) == 1:
-      return yaml.load(content), None
-    parts.pop(0)
-    front_matter, body = parts
-    parsed_yaml = yaml.load(front_matter)
-    body = str(body)
-    return parsed_yaml, body
-  except Exception as e:
-    if path:
-      text = 'Problem parsing YAML file "{}": {}'.format(path, str(e))
-    else:
-      text = 'Problem parsing YAML file: {}'.format(str(e))
-    logging.exception(e)
-    raise errors.BadYamlError(text)
+def load_yaml(*args, **kwargs):
+  pod = kwargs.pop('pod', None)
+  loader = make_yaml_loader(pod)
+  return yaml.load(*args, Loader=loader, **kwargs)
+
+
+def load_yaml_all(*args, **kwargs):
+  pod = kwargs.pop('pod', None)
+  fp = cStringIO.StringIO()
+  fp.write(args[0])
+  fp.seek(0)
+  loader = make_yaml_loader(pod)
+  return yaml.load_all(*args, Loader=loader, **kwargs)
+
+
+@memoize
+def parse_yaml(content, pod=None):
+  return load_yaml(content, pod=pod)
 
 
 def dump_yaml(obj):
@@ -149,10 +176,9 @@ def dump_yaml(obj):
 
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
-import translitcodec
-
-
 def slugify(text, delim=u'-'):
+  if not isinstance(text, basestring):
+    text = str(text)
   result = []
   for word in _slug_re.split(text.lower()):
     word = word.encode('translit/long')
@@ -169,194 +195,28 @@ class JsonEncoder(json.JSONEncoder):
     raise TypeError(repr(obj) + ' is not JSON serializable.')
 
 
-class SortedCollection(object):
-    '''Sequence sorted by a key function.
-
-    SortedCollection() is much easier to work with than using bisect() directly.
-    It supports key functions like those use in sorted(), min(), and max().
-    The result of the key function call is saved so that keys can be searched
-    efficiently.
-
-    Instead of returning an insertion-point which can be hard to interpret, the
-    five find-methods return a specific item in the sequence. They can scan for
-    exact matches, the last item less-than-or-equal to a key, or the first item
-    greater-than-or-equal to a key.
-
-    Once found, an item's ordinal position can be located with the index() method.
-    New items can be added with the insert() and insert_right() methods.
-    Old items can be deleted with the remove() method.
-
-    The usual sequence methods are provided to support indexing, slicing,
-    length lookup, clearing, copying, forward and reverse iteration, contains
-    checking, item counts, item removal, and a nice looking repr.
-
-    Finding and indexing are O(log n) operations while iteration and insertion
-    are O(n).  The initial sort is O(n log n).
-
-    The key function is stored in the 'key' attibute for easy introspection or
-    so that you can assign a new key function (triggering an automatic re-sort).
-
-    In short, the class was designed to handle all of the common use cases for
-    bisect but with a simpler API and support for key functions.
-
-    >>> from pprint import pprint
-    >>> from operator import itemgetter
-
-    >>> s = SortedCollection(key=itemgetter(2))
-    >>> for record in [
-    ...         ('roger', 'young', 30),
-    ...         ('angela', 'jones', 28),
-    ...         ('bill', 'smith', 22),
-    ...         ('david', 'thomas', 32)]:
-    ...     s.insert(record)
-
-    >>> pprint(list(s))         # show records sorted by age
-    [('bill', 'smith', 22),
-     ('angela', 'jones', 28),
-     ('roger', 'young', 30),
-     ('david', 'thomas', 32)]
-
-    >>> s.find_le(29)           # find oldest person aged 29 or younger
-    ('angela', 'jones', 28)
-    >>> s.find_lt(28)           # find oldest person under 28
-    ('bill', 'smith', 22)
-    >>> s.find_gt(28)           # find youngest person over 28
-    ('roger', 'young', 30)
-
-    >>> r = s.find_ge(32)       # find youngest person aged 32 or older
-    >>> s.index(r)              # get the index of their record
-    3
-    >>> s[3]                    # fetch the record at that index
-    ('david', 'thomas', 32)
-
-    >>> s.key = itemgetter(0)   # now sort by first name
-    >>> pprint(list(s))
-    [('angela', 'jones', 28),
-     ('bill', 'smith', 22),
-     ('david', 'thomas', 32),
-     ('roger', 'young', 30)]
-
-    '''
-
-    def __init__(self, iterable=(), key=None):
-        self._given_key = key
-        key = (lambda x: x) if key is None else key
-        decorated = sorted((key(item), item) for item in iterable)
-        self._keys = [k for k, item in decorated]
-        self._items = [item for k, item in decorated]
-        self._key = key
-
-    def _getkey(self):
-        return self._key
-
-    def _setkey(self, key):
-        if key is not self._key:
-            self.__init__(self._items, key=key)
-
-    def _delkey(self):
-        self._setkey(None)
-
-    key = property(_getkey, _setkey, _delkey, 'key function')
-
-    def clear(self):
-        self.__init__([], self._key)
-
-    def copy(self):
-        return self.__class__(self, self._key)
-
-    def __len__(self):
-        return len(self._items)
-
-    def __getitem__(self, i):
-        return self._items[i]
-
-    def __iter__(self):
-        return iter(self._items)
-
-    def __reversed__(self):
-        return reversed(self._items)
-
-    def __repr__(self):
-        return '%s(%r, key=%s)' % (
-            self.__class__.__name__,
-            self._items,
-            getattr(self._given_key, '__name__', repr(self._given_key))
-        )
-
-    def __reduce__(self):
-        return self.__class__, (self._items, self._given_key)
-
-    def __contains__(self, item):
-        k = self._key(item)
-        i = bisect_left(self._keys, k)
-        j = bisect_right(self._keys, k)
-        return item in self._items[i:j]
-
-    def index(self, item):
-        'Find the position of an item.  Raise ValueError if not found.'
-        k = self._key(item)
-        i = bisect_left(self._keys, k)
-        j = bisect_right(self._keys, k)
-        return self._items[i:j].index(item) + i
-
-    def count(self, item):
-        'Return number of occurrences of item'
-        k = self._key(item)
-        i = bisect_left(self._keys, k)
-        j = bisect_right(self._keys, k)
-        return self._items[i:j].count(item)
-
-    def insert(self, item):
-        'Insert a new item.  If equal keys are found, add to the left'
-        k = self._key(item)
-        i = bisect_left(self._keys, k)
-        self._keys.insert(i, k)
-        self._items.insert(i, item)
-
-    def insert_right(self, item):
-        'Insert a new item.  If equal keys are found, add to the right'
-        k = self._key(item)
-        i = bisect_right(self._keys, k)
-        self._keys.insert(i, k)
-        self._items.insert(i, item)
-
-    def remove(self, item):
-        'Remove first occurence of item.  Raise ValueError if not found'
-        i = self.index(item)
-        del self._keys[i]
-        del self._items[i]
-
-    def find(self, k):
-        'Return first item with a key == k.  Raise ValueError if not found.'
-        i = bisect_left(self._keys, k)
-        if i != len(self) and self._keys[i] == k:
-            return self._items[i]
-        raise ValueError('No item found with key equal to: %r' % (k,))
-
-    def find_le(self, k):
-        'Return last item with a key <= k.  Raise ValueError if not found.'
-        i = bisect_right(self._keys, k)
-        if i:
-            return self._items[i-1]
-        raise ValueError('No item found with key at or below: %r' % (k,))
-
-    def find_lt(self, k):
-        'Return last item with a key < k.  Raise ValueError if not found.'
-        i = bisect_left(self._keys, k)
-        if i:
-            return self._items[i-1]
-        raise ValueError('No item found with key below: %r' % (k,))
-
-    def find_ge(self, k):
-        'Return first item with a key >= equal to k.  Raise ValueError if not found'
-        i = bisect_left(self._keys, k)
-        if i != len(self):
-            return self._items[i]
-        raise ValueError('No item found with key at or above: %r' % (k,))
-
-    def find_gt(self, k):
-        'Return first item with a key > k.  Raise ValueError if not found'
-        i = bisect_right(self._keys, k)
-        if i != len(self):
-            return self._items[i]
-        raise ValueError('No item found with key above: %r' % (k,))
+@memoize
+def untag_fields(fields):
+  """Untags fields, handling translation priority."""
+  untagged_keys_to_add = {}
+  nodes_and_keys_to_add = []
+  nodes_and_keys_to_remove = []
+  def callback(item, key, node):
+    if not isinstance(key, basestring):
+      return
+    if key.endswith('@#'):
+      nodes_and_keys_to_remove.append((node, key))
+    if key.endswith('@'):
+      untagged_key = key.rstrip('@')
+      content = item
+      nodes_and_keys_to_remove.append((node, key))
+      untagged_keys_to_add[untagged_key] = True
+      nodes_and_keys_to_add.append((node, untagged_key, content))
+  walk(fields, callback)
+  for node, key in nodes_and_keys_to_remove:
+    if isinstance(node, dict):
+      del node[key]
+  for node, untagged_key, content in nodes_and_keys_to_add:
+    if isinstance(node, dict):
+      node[untagged_key] = content
+  return fields

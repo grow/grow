@@ -1,0 +1,10 @@
+$path: /intl/{locale}/localized/
+$localization:
+  path: /intl/{locale}/localized/
+  default_locale: en_GB
+  locales:
+  - en_GB
+  - hi_IN
+tagged_strings:
+- title@: "Tagged localized title."
+  body@: "Tagged localized body."

@@ -1,0 +1,5 @@
+doc: !g.doc /content/pages/home.yaml
+docs: !g.doc
+- /content/pages/home.yaml
+- /content/pages/about.yaml
+- /content/pages/home.yaml

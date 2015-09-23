@@ -31,11 +31,16 @@ def init(pod, theme_url, force=False):
   index.build_index_from_tree(local_repo.path, index_file, temp_repo.object_store, tree)
   shutil.rmtree(os.path.join(temp_root, '.git'))
 
+  # Automatically enable "force" for empty directories.
+  if pod.list_dir('/') == []:
+    force = True
+
   try:
     _copy_files_to_pod(temp_root, pod, force=force)
   except OSError as e:
     if 'File exists' in str(e):
-      text = '{} already exists. Delete the directory before proceeding or use --force.'
+      text = ('{} already exists and is not empty. Delete the directory before'
+              ' proceeding or use --force.')
       logging.info(text.format(pod.root))
       return
   logging.info('Pod ready to go: {}'.format(pod.root))
@@ -78,6 +83,7 @@ class MemoryRepo(repo.MemoryRepo):
     tree = self.get_object(commit.tree)
     blob = self.get_object(tree[filename][1])
     return blob.data
+
 
 def _copy_files_to_pod(temp_root, pod, force=False):
   """Copies all files from a temp directory into the pod root."""

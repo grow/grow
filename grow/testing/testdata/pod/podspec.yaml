@@ -1,0 +1,40 @@
+grow_version: ">=0.0.24"
+home: /content/pages/home.yaml
+root: /root/
+
+flags:
+  static_dir: /public/
+
+static_dirs:
+- static_dir: /static-root/
+  serve_at: "/{root}/static/"
+- static_dir: /static/
+  serve_at: /app/static/
+  localization:
+    static_dir: /static/intl/{locale}/
+    serve_at: /app/static/somepath/{locale}/
+
+localization:
+  default_locale: en
+  locales:
+  - de
+  - en
+  - fr
+  - it
+  aliases:
+    de_alias: DE  # Verify case sensitivity.
+
+deployments:
+  gcs:
+    destination: gcs
+    bucket: gcs.example.com
+  s3:
+    destination: gcs
+    bucket: s3.example.com
+  local:
+    destination: local
+    out_dir: dist/
+  scp:
+    destination: scp
+    host: localhost
+    root_dir: dist/
