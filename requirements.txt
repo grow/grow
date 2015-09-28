@@ -17,7 +17,6 @@ dulwich==0.9.6
 ez-setup==0.9
 gcloud==0.02.2
 git+git://github.com/bufordtaylor/python-texttable.git@master#egg=texttable
-git+git://github.com/grow/webreview-client@master#egg=webreview
 goslate==1.4.0
 httplib2==0.9.1
 libsass==0.6.2
@@ -33,6 +32,7 @@ semantic_version==2.4.1
 translitcodec==0.3
 watchdog==0.7.1
 webapp2==2.5.2
+webreview==0.0.54
 xtermcolor==1.3
 
 # Google API clients.
