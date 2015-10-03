@@ -1,7 +1,7 @@
 from datetime import datetime
 from grow.common import utils
 from grow.pods import locales as locales_lib
-from grow.pods.documents import collection
+from grow.pods.documents import collection as collection_lib
 import collections
 import csv as csv_lib
 import itertools
@@ -11,10 +11,9 @@ import markdown
 import re
 
 
-@utils.memoize_tag
 def categories(collection=None, collections=None, reverse=None, order_by=None,
-               _pod=None):
-  if isinstance(collection, collection.Collection):
+               _pod=None, use_cache=False):
+  if isinstance(collection, collection_lib.Collection):
     collection = collection
   elif isinstance(collection, basestring):
     collection = _pod.get_collection(collection)
@@ -63,6 +62,11 @@ def csv(path, locale=_no_locale, _pod=None):
 def docs(collection, locale=None, order_by=None, _pod=None):
   collection = _pod.get_collection(collection)
   return collection.list_docs(locale=locale, order_by=order_by)
+
+
+@utils.memoize_tag
+def collections(path, _pod=None):
+  return _pod.get_collection(collection)
 
 
 @utils.memoize_tag
