@@ -24,7 +24,10 @@ def categories(collection=None, collections=None, reverse=None, order_by=None,
   category_list = collection.list_categories()
 
   def order_func(doc):
-    return category_list.index(doc.category)
+    try:
+      return category_list.index(doc.category)
+    except ValueError:
+      return 0
 
   docs = [doc for doc in collection.list_docs(reverse=reverse)]
   docs = sorted(docs, key=order_func)
