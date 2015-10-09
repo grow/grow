@@ -62,12 +62,13 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
   class Config(messages.Message):
     path = messages.StringField(1)
     id = messages.StringField(2)
+    convert = messages.BooleanField(3)
 
   def download(self, config):
     doc_id = config.id
     path = config.path
     ext = os.path.splitext(config.path)[1]
-    convert_to_markdown = ext == '.md'
+    convert_to_markdown = ext == '.md' and config.convert is not False
     service = self._create_service()
     resp = service.files().get(fileId=doc_id).execute()
     for mimetype, url in resp['exportLinks'].iteritems():

@@ -1,4 +1,4 @@
-from grow.pods.preprocessors import google_sheets
+from grow.pods.preprocessors import google_drive
 from grow.pods.preprocessors import sass_preprocessor
 from protorpc import protojson
 import json
@@ -6,9 +6,9 @@ import json
 _preprocessor_kinds_to_classes = {}
 
 _builtins = (
+    google_drive.GoogleDocsPreprocessor,
+    google_drive.GoogleSheetsPreprocessor,
     sass_preprocessor.SassPreprocessor,
-    google_sheets.GoogleSheetsPreprocessor,
-    google_sheets.GoogleDocsPreprocessor,
 )
 
 
