@@ -19,10 +19,14 @@ localization:
   locales:
   - de
   - en
+  - fi
+  - fil
   - fr
   - it
   aliases:
     de_alias: DE  # Verify case sensitivity.
+    fi_ALL: fi
+    fil_ALL: fil
 
 deployments:
   gcs:

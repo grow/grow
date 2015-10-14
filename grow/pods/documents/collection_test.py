@@ -38,7 +38,14 @@ class CollectionsTestCase(unittest.TestCase):
   def test_list_locales(self):
     collection = self.pod.get_collection('pages')
     found_locales = collection.list_locales()
-    expected = locales.Locale.parse_codes(['de', 'en', 'fr', 'it'])
+    expected = locales.Locale.parse_codes([
+        'de',
+        'en',
+        'fi',
+        'fil',
+        'fr',
+        'it',
+    ])
     self.assertListEqual(expected, found_locales)
 
   def test_list_servable_documents(self):

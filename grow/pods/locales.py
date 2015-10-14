@@ -108,8 +108,9 @@ class Locale(babel.Locale):
       aliases = config['localization']['aliases']
       for custom_locale, babel_locale in aliases.iteritems():
         normalized_babel_locale = babel_locale.lower()
-        normalized_locale = normalized_locale.replace(
-            normalized_babel_locale, custom_locale)
+        if normalized_locale == normalized_babel_locale:
+          normalized_locale = normalized_locale.replace(
+              normalized_babel_locale, custom_locale)
     self._alias = normalized_locale
 
   @property
