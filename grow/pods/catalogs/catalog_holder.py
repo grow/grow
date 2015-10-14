@@ -52,12 +52,24 @@ class Catalogs(object):
         locales.add(parts[1])
     return list(locales)
 
+  def validate_locales(self, locales):
+    for locale in locales:
+      if '_' in locale:
+        parts = locale.split('_')
+        territory = parts[-1]
+        if territory != territory.upper():
+          parts[-1] = territory.upper()
+          correct_locale = '_'.join(parts)
+          text = 'WARNING: Translation directories are case sensitive (move {} -> {}).'
+          self.pod.logger.warning(text.format(locale, correct_locale))
+
   def __iter__(self):
     for locale in self.list_locales():
       yield self.get(locale)
 
   def compile(self):
     locales = self.list_locales()
+    self.validate_locales(locales)
     for locale in locales:
       catalog = self.get(locale)
       if not catalog.exists:
