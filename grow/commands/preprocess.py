@@ -9,7 +9,7 @@ import os
 
 @click.command()
 @click.argument('pod_path', default='.')
-@click.option('--preprocessor', type=str, multiple=True,
+@click.option('--preprocessor', '-p', type=str, multiple=True,
               help='Which preprocessor to run. Preprocessors controlled by'
                    ' the preprocess command must have names.')
 def preprocess(pod_path, preprocessor):
