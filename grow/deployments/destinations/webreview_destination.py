@@ -2,6 +2,7 @@ from . import base
 from .. import utils
 from grow.pods import env
 from protorpc import messages
+import logging
 import os
 import webreview
 
@@ -49,7 +50,10 @@ class WebReviewDestination(base.BaseDestination):
             'Cannot deploy to WebReview from a Git repository without a HEAD.'
             ' Commit first then deploy to WebReview.')
     result = super(WebReviewDestination, self).deploy(*args, **kwargs)
-    self.webreview.finalize()
+    finalize_response = self.webreview.finalize()
+    if 'fileset' in finalize_response:
+      url = finalize_response['fileset']['url']
+      logging.info('Staged: {}'.format(url))
     return result
 
   def login(self, account='default', reauth=False):
@@ -57,6 +61,9 @@ class WebReviewDestination(base.BaseDestination):
 
   def prelaunch(self, dry_run=False):
     super(WebReviewDestination, self).prelaunch(dry_run=dry_run)
+
+  def postlaunch(self, dry_run=False):
+    super(WebReviewDestination, self).postlaunch(dry_run=dry_run)
 
   def test(self):
     # Skip the default "can write files at destination" test.
