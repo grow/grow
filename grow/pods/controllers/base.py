@@ -21,9 +21,10 @@ class BaseController(object):
     return self.route_params
 
   def get_http_headers(self):
-    return {
-        'Content-Type': self.mimetype,
-    }
+    headers = {}
+    if self.mimetype:
+      headers['Content-Type'] = self.mimetype
+    return headers
 
   def to_route_messages(self):
     route_messages = []

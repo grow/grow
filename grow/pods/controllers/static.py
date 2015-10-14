@@ -9,6 +9,8 @@ import webob
 import os
 
 mimetypes.add_type('application/font-woff', '.woff')
+mimetypes.add_type('application/font-woff', '.woff')
+mimetypes.add_type('image/bmp', '.cur')
 mimetypes.add_type('image/svg+xml', '.svg')
 mimetypes.add_type('text/css', '.css')
 
