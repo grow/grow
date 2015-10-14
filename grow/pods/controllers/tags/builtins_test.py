@@ -21,6 +21,15 @@ class BuiltinsTestCase(unittest.TestCase):
     self.assertIn('key - value', html)
     self.assertIn('key2 - value2', html)
 
+  def test_collections(self):
+    collections = builtins.collections(_pod=self.pod)
+    self.assertEqual(4, len(collections))
+    paths = ['pages', 'posts']
+    collections = builtins.collections(paths, _pod=self.pod)
+    for collection in collections:
+      self.assertIn(collection.collection_path, paths)
+    self.assertEqual(len(paths), len(collections))
+
 
 if __name__ == '__main__':
   unittest.main()
