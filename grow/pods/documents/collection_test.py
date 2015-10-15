@@ -13,7 +13,8 @@ class CollectionsTestCase(unittest.TestCase):
     self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
   def test_get(self):
-    self.pod.get_collection('/content/pages/')
+    col = self.pod.get_collection('/content/pages/')
+    self.assertEqual('pages', col.collection_path)
 
   def test_list(self):
     collection.Collection.list(self.pod)

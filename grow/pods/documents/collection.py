@@ -8,6 +8,7 @@ from grow.pods import locales
 import json
 import operator
 import os
+import re
 
 _all = '__no-locale'
 
@@ -45,7 +46,7 @@ class Collection(object):
   def __init__(self, pod_path, _pod):
     utils.validate_name(pod_path)
     self.pod = _pod
-    self.collection_path = pod_path.lstrip('/content')
+    self.collection_path = re.sub('^/content/?', '', pod_path).strip('/')
     self.pod_path = pod_path
     self._default_locale = _pod.podspec.default_locale
     self._blueprint_path = os.path.join(self.pod_path, '_blueprint.yaml')
