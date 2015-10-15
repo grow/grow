@@ -10,6 +10,7 @@ class EnvConfig(messages.Message):
   port = messages.IntegerField(3)
   name = messages.StringField(4)
   cached = messages.BooleanField(5, default=True)
+  fingerprint = messages.StringField(6)
 
 
 class Env(object):
@@ -21,7 +22,7 @@ class Env(object):
     self.port = config.port or 80
     self.scheme = config.scheme or 'http'
     self.cached = config.cached
-    self.timestamp = str(int(time.time()))
+    self.fingerprint = config.fingerprint or str(int(time.time()))
 
   def __repr__(self):
     return '<Env: {}>'.format(self.url)
