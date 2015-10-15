@@ -98,6 +98,7 @@ class Routes(object):
         serve_at = config['serve_at'] + '<grow:filename>'
         if podspec.root:
           serve_at = serve_at.replace('{root}', podspec.root)
+        serve_at = serve_at.replace('{env.fingerprint}', self.pod.env.fingerprint)
         serve_at = serve_at.replace('//', '/')
         localization = config.get('localization')
         controller = static.StaticController(path_format=serve_at,
@@ -111,6 +112,7 @@ class Routes(object):
           static_dir = localization.get('static_dir')
           localized_static_dir = static_dir + '<grow:filename>'
           rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
+          rule_path = rule_path.replace('{env.fingerprint}', self.pod.env.fingerprint)
           if podspec.root:
             rule_path = rule_path.replace('{root}', podspec.root)
           rule_path = rule_path.replace('//', '/')

@@ -231,12 +231,13 @@ class Document(object):
     podspec = self.pod.get_podspec()
     locale = self.locale.alias if self.locale is not None else self.locale
     return path_format.format(**{
-        'root': podspec.root,
-        'collection.root': self.collection.root,
         'base': self.base,
+        'collection.root': self.collection.root,
         'date': self.date,
+        'env.fingerpint': self.pod.env.fingerprint,
         'locale': locale,
         'parent': self.parent if self.parent else DummyDict(),
+        'root': podspec.root,
         'slug': self.slug,
     }).replace('//', '/')
 
