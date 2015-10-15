@@ -69,12 +69,17 @@ class GoogleSheetsPreprocessor(base.BasePreprocessor):
       self.pod.write_file(path, content)
       self.logger.info('Downloaded Google Sheet -> {}'.format(path))
 
-  def _get_credentials(self, username='default'):
+  def _get_credentials(self):
+    username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
     storage = keyring_storage.Storage('Grow SDK', username)
     credentials = storage.get()
     if credentials is None:
       parser = tools.argparser
-      flags, _ = parser.parse_known_args(['--noauth_local_webserver'])
+      if os.getenv('INTERACTIVE_AUTH'):
+        args = []
+      else:
+        args = ['--noauth_local_webserver']
+      flags, _ = parser.parse_known_args(args)
       flow = client.OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, OAUTH_SCOPE,
                                         redirect_uri=REDIRECT_URI)
       credentials = tools.run_flow(flow, storage, flags)

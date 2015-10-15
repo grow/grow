@@ -12,14 +12,14 @@ import os
 @click.argument('pod_path', default='.')
 @click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
               help='Whether to run preprocessors.')
-@click.option('--auth', help='Authentication information used to '
-              'sign in to the deployment (such as an email address).')
 @click.option('--remote', required=True,
               help='WebReview remote address (example: '
                    ' example.com/owner/project).')
-def stage(pod_path, remote, auth, preprocess):
+@click.pass_context
+def stage(context, pod_path, remote, preprocess):
   """Stages a build on a WebReview server."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
+  auth = context.parent.params.get('auth')
   try:
     pod = pods.Pod(root, storage=storage.FileStorage)
     dest_class = webreview_destination.WebReviewDestination
