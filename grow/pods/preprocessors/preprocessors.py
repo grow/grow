@@ -1,4 +1,3 @@
-from grow.pods.preprocessors import closure_compiler
 from grow.pods.preprocessors import google_sheets
 from grow.pods.preprocessors import sass_preprocessor
 from protorpc import protojson
@@ -9,7 +8,6 @@ _preprocessor_kinds_to_classes = {}
 _builtins = (
     sass_preprocessor.SassPreprocessor,
     google_sheets.GoogleSheetsPreprocessor,
-    closure_compiler.ClosureCompilerPreprocessor,
 )
 
 
