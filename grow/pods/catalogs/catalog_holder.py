@@ -273,8 +273,9 @@ class Catalogs(object):
       for message in list(catalog_obj):
         catalog_obj.delete(message.id, context=message.context)
     for message in message_ids_to_messages.itervalues():
-      catalog_obj.add(message.id, None, locations=message.locations,
-                      auto_comments=message.auto_comments)
+      if message.id:
+        catalog_obj.add(message.id, None, locations=message.locations,
+                        auto_comments=message.auto_comments)
     return self.write_template(
         template_path, catalog_obj, include_obsolete=include_obsolete,
         include_header=include_header)
