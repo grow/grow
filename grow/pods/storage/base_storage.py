@@ -15,6 +15,10 @@ class BaseStorage(object):
     raise NotImplementedError
 
   @staticmethod
+  def size(filename):
+    raise NotImplementedError
+
+  @staticmethod
   def stat(filename):
     raise NotImplementedError
 

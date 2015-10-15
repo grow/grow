@@ -25,6 +25,10 @@ class FileStorage(base_storage.BaseStorage):
     return os.stat(filename).st_mtime
 
   @staticmethod
+  def size(filename):
+    return os.path.getsize(filename)
+
+  @staticmethod
   def stat(filename):
     return os.stat(filename)
 

@@ -63,6 +63,10 @@ class StaticFile(object):
     return self.pod.file_modified(self.pod_path)
 
   @property
+  def size(self):
+    return self.pod.file_size(self.pod_path)
+
+  @property
   def url(self):
     serving_path = self.serving_path
     path_format = self.controller.path_format.replace('{filename}', '')

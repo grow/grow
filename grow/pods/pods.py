@@ -182,6 +182,10 @@ class Pod(object):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     self.storage.write(path, content)
 
+  def file_size(self, pod_path):
+    path = os.path.join(self.root, pod_path.lstrip('/'))
+    return self.storage.size(path)
+
   def file_exists(self, pod_path):
     path = os.path.join(self.root, pod_path.lstrip('/'))
     return self.storage.exists(path)
