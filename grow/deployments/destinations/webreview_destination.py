@@ -50,10 +50,11 @@ class WebReviewDestination(base.BaseDestination):
             'Cannot deploy to WebReview from a Git repository without a HEAD.'
             ' Commit first then deploy to WebReview.')
     result = super(WebReviewDestination, self).deploy(*args, **kwargs)
-    finalize_response = self.webreview.finalize()
-    if 'fileset' in finalize_response:
-      url = finalize_response['fileset']['url']
-      logging.info('Staged: {}'.format(url))
+    if self.success:
+      finalize_response = self.webreview.finalize()
+      if 'fileset' in finalize_response:
+        url = finalize_response['fileset']['url']
+        logging.info('Staged: %s', url)
     return result
 
   def login(self, account='default', reauth=False):

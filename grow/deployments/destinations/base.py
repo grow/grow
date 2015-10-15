@@ -117,7 +117,7 @@ class BaseDestination(object):
   threaded = True
   batch_writes = False
   _control_dir = '/.grow/'
-  _success = False
+  success = False
 
   def __init__(self, config, name='default'):
     self.config = config
@@ -230,6 +230,7 @@ class BaseDestination(object):
       diff = indexes.Diff.create(new_index, deployed_index, repo=repo)
       self._diff = diff
       if indexes.Diff.is_empty(diff):
+        logging.info('Done! There were no diffs to deploy.')
         return
       if dry_run:
         return
@@ -250,7 +251,7 @@ class BaseDestination(object):
         self.delete_control_file(self.stats_basename)
       if diff:
         self.write_control_file(self.diff_basename, indexes.Diff.to_string(diff))
-      self._success = True
+      self.success = True
     finally:
       self.postlaunch()
     return diff
