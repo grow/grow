@@ -435,3 +435,6 @@ class Pod(object):
     if locale is not None:
       locale.set_alias(self)
     return locale
+
+  def load(self):
+    self.routes.routing_map

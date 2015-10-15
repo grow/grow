@@ -23,6 +23,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
   port = 8080 if port is None else int(port)
   host = 'localhost' if host is None else host
   port = find_port_and_start_server(pod, host, port, debug)
+  pod.load()
   url = print_server_ready_message(pod, host, port)
   if open_browser:
     start_browser(url)
