@@ -41,7 +41,6 @@ from watchdog.utils import unicode_paths
 unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
 from grow import commands
-from grow.commands import common
 from grow.common import utils
 
 _grow_dir = utils.get_grow_dir()
