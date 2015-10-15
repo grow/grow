@@ -52,9 +52,11 @@ class PodHandler(BaseHandler):
       controller = pod.routes.match(self.request.path, self.request.environ)
       controller.validate()
       headers = controller.get_http_headers()
-      self.response.headers.update(headers)
       if 'X-AppEngine-BlobKey' in self.response.headers:
         return
-      self.response.out.write(controller.render())
+      content = controller.render()
+      self.response.headers.update(headers)
+      self.response.out.write(content)
+
     except werkzeug.routing.RequestRedirect as e:
       self.redirect(e.new_url)

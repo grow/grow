@@ -12,8 +12,16 @@ from grow.server import handlers
 from grow.server import services
 
 
+class Response(webapp2.Response):
+  default_conditional_response = True
+
+
+class WSGIApplication(webapp2.WSGIApplication):
+  response_class = Response
+
+
 def CreateWSGIApplication(pod=None, debug=False):
-  podserver_app = webapp2.WSGIApplication([
+  podserver_app = WSGIApplication([
       ('/.*', handlers.PodHandler),
   ], debug=debug)
   podserver_app.registry['pod'] = pod
