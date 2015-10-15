@@ -51,6 +51,12 @@ class EnvTest(unittest.TestCase):
     environment = env.Env(config)
     self.assertEqual('http://localhost:8080/', environment.url)
 
+  def test_timestamp(self):
+    # May be used as {{env.timestamp}} in templates.
+    config = env.EnvConfig(host='localhost', scheme='http', port=8080)
+    environment = env.Env(config)
+    self.assertTrue(isinstance(environment.timestamp, str))
+
 
 if __name__ == '__main__':
   unittest.main()

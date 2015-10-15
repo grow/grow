@@ -1,5 +1,6 @@
 """An Env holds the environment context that a pod is running in."""
 
+import time
 from protorpc import messages
 
 
@@ -20,6 +21,7 @@ class Env(object):
     self.port = config.port or 80
     self.scheme = config.scheme or 'http'
     self.cached = config.cached
+    self.timestamp = str(int(time.time()))
 
   def __repr__(self):
     return '<Env: {}>'.format(self.url)
