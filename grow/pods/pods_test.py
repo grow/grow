@@ -79,6 +79,7 @@ class PodTest(unittest.TestCase):
         '/intl/de_alias/localized/index.html',
         '/intl/de_alias/multiple-locales/index.html',
         '/intl/en_gb/localized/index.html',
+        '/intl/fr/localized/index.html',
         '/intl/fr/multiple-locales/index.html',
         '/intl/hi_in/localized/index.html',
         '/intl/it/multiple-locales/index.html',

@@ -61,5 +61,23 @@ class DocumentsTestCase(unittest.TestCase):
     doc.prev(docs)
     self.assertRaises(ValueError, doc.prev, [1, 2, 3])
 
+  def test_default_locale(self):
+    doc = self.pod.get_doc('/content/localized/localized.yaml', locale='de')
+    self.assertEqual(locales.Locale('de'), doc.locale)
+    self.assertEqual('base', doc.foo)
+    self.assertEqual('baz', doc.bar)
+    doc = self.pod.get_doc('/content/localized/localized.yaml')
+    self.assertEqual(locales.Locale('ja'), doc.locale)
+    self.assertEqual('base_ja', doc.foo)
+    self.assertEqual('baz', doc.bar)
+    doc = self.pod.get_doc('/content/localized/localized.yaml', locale='ja')
+    self.assertEqual(locales.Locale('ja'), doc.locale)
+    self.assertEqual('base_ja', doc.foo)
+    self.assertEqual('baz', doc.bar)
+    doc = self.pod.get_doc('/content/localized/localized.yaml', locale='fr')
+    self.assertEqual(locales.Locale('fr'), doc.locale)
+    self.assertEqual('base', doc.foo)
+    self.assertEqual('baz', doc.bar)
+
 if __name__ == '__main__':
   unittest.main()

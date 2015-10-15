@@ -1,5 +1,16 @@
+---
 $title: Localized
 $localization:
   path: /intl/{locale}/localized/
+  default_locale: ja
   locales:
+  - ja
+  - fr
   - de
+foo: base
+bar: baz
+---
+$locale: ja
+foo: base_ja
+---
+$locale: fr

@@ -50,6 +50,7 @@ class RoutesTest(unittest.TestCase):
         '/intl/de_alias/localized/',
         '/intl/de_alias/multiple-locales/',
         '/intl/en_gb/localized/',
+        '/intl/fr/localized/',
         '/intl/fr/multiple-locales/',
         '/intl/hi_in/localized/',
         '/intl/it/multiple-locales/',
