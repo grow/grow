@@ -62,6 +62,11 @@ def csv(path, locale=_no_locale, _pod=None):
 
 
 @utils.memoize_tag
+def collection(collection, _pod=None):
+  return _pod.get_collection(collection)
+
+
+@utils.memoize_tag
 def docs(collection, locale=None, order_by=None, _pod=None):
   collection = _pod.get_collection(collection)
   return collection.list_docs(locale=locale, order_by=order_by)

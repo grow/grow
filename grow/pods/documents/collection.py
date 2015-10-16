@@ -54,6 +54,10 @@ class Collection(object):
   def __repr__(self):
     return '<Collection "{}">'.format(self.collection_path)
 
+  def __eq__(self, other):
+    return (isinstance(other, Collection)
+            and self.collection_path == other.collection_path)
+
   @classmethod
   def list(cls, pod):
     # TODO: Implement "depth" argument on pod.list_dir and use.

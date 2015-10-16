@@ -15,6 +15,10 @@ class CollectionsTestCase(unittest.TestCase):
   def test_get(self):
     col = self.pod.get_collection('/content/pages/')
     self.assertEqual('pages', col.collection_path)
+    col2 = self.pod.get_collection('pages')
+    docs = col2.list_docs()
+    self.assertEqual(col, col2)
+    self.assertEqual(col, docs[0].collection)
 
   def test_list(self):
     collection.Collection.list(self.pod)

@@ -69,6 +69,7 @@ class RenderedController(base.BaseController):
     template = self._template_env.get_template(self.view.lstrip('/'))
     g_tags = {
         'breadcrumb': self.__wrap(tags.breadcrumb),
+        'collection': self.__wrap(tags.collection),
         'collections': self.__wrap(tags.collections),
         'categories': self.__wrap(tags.categories),
         'csv': self.__wrap(tags.csv),
