@@ -199,8 +199,11 @@ class Pod(object):
     dest_path = os.path.join(self.root, destination_pod_path.lstrip('/'))
     return self.storage.move_to(source_path, dest_path)
 
-  def list_collections(self):
-    return collection.Collection.list(self)
+  def list_collections(self, paths=None):
+    cols = collection.Collection.list(self)
+    if paths:
+      return [col for col in cols if col.collection_path in paths]
+    return cols
 
   def get_file(self, pod_path):
     return files.File.get(pod_path, self)
@@ -362,13 +365,13 @@ class Pod(object):
       results.append(preprocessor)
     return results
 
-  def preprocess(self, preprocessor_names=None):
+  def preprocess(self, preprocessor_names=None, run_all=False):
     self.catalogs.compile()  # Preprocess translations.
     for preprocessor in self.list_preprocessors():
       if preprocessor_names:
         if preprocessor.name in preprocessor_names:
           preprocessor.run()
-      elif preprocessor.autorun:
+      elif preprocessor.autorun or run_all:
         preprocessor.run()
 
   def get_podspec(self):
@@ -381,7 +384,7 @@ class Pod(object):
     return jinja2.MemcachedBytecodeCache(client=client)
 
   @utils.memoize
-  def create_template_env(self, locale=None):
+  def create_template_env(self, locale=None, root=None):
     # NOTE: The template environment cannot be reused across locales, since
     # gettext translations can/should not be unintalled across locales. If the
     # environment is reused across locales, translation leakage can occur.
@@ -394,7 +397,7 @@ class Pod(object):
             'jinja2.ext.loopcontrols',
             'jinja2.ext.with_',
         ],
-        'loader': self.storage.JinjaLoader(self.root),
+        'loader': self.storage.JinjaLoader(self.root if root is None else root),
         'lstrip_blocks': True,
         'trim_blocks': True,
     }
