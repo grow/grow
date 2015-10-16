@@ -10,11 +10,12 @@ import webreview
 class Config(messages.Message):
   env = messages.MessageField(env.EnvConfig, 1)
   project = messages.StringField(2, required=True)
-  name = messages.StringField(3, required=True)
+  name = messages.StringField(3)
   server = messages.StringField(4, required=True)
   secure = messages.BooleanField(5, default=True)
   keep_control_dir = messages.BooleanField(6, default=False)
   remote = messages.StringField(8)
+  subdomain = messages.StringField(9)
 
 
 class WebReviewDestination(base.BaseDestination):
@@ -25,20 +26,31 @@ class WebReviewDestination(base.BaseDestination):
 
   def __init__(self, *args, **kwargs):
     super(WebReviewDestination, self).__init__(*args, **kwargs)
-    api_key = os.getenv('WEBREVIEW_API_KEY')
+    if self.config.name and not self.config.subdomain:
+      print ('WARNING: The "name" parameter for webreview deployments is '
+             'deprecated. Use "subdomain" instead, or use the "grow stage '
+             '--subdomain=<subdomain>" command.')
+      self.config.subdomain = self.config.name
     if self.config.remote:
       self.config.server, self.config.project = self.config.remote.split('/', 1)
     if self.config.server.startswith('localhost:'):
       self.config.secure = False
-    self.webreview = webreview.WebReview(
-        project=self.config.project,
-        name=self.config.name,
-        host=self.config.server,
-        secure=self.config.secure,
-        api_key=api_key)
+    self._webreview = None
 
   def __str__(self):
     return self.config.server
+
+  @property
+  def webreview(self):
+    if self._webreview is None:
+      api_key = os.getenv('WEBREVIEW_API_KEY')
+      self._webreview = webreview.WebReview(
+          project=self.config.project,
+          name=self.config.subdomain,
+          host=self.config.server,
+          secure=self.config.secure,
+          api_key=api_key)
+    return self._webreview
 
   def deploy(self, *args, **kwargs):
     repo = kwargs.get('repo')

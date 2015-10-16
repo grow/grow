@@ -230,7 +230,7 @@ class BaseDestination(object):
       diff = indexes.Diff.create(new_index, deployed_index, repo=repo)
       self._diff = diff
       if indexes.Diff.is_empty(diff):
-        logging.info('Done! There were no diffs to deploy.')
+        logging.info('Finished with no diffs since the last build.')
         return
       if dry_run:
         return

@@ -12,21 +12,24 @@ import os
 @click.argument('pod_path', default='.')
 @click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
               help='Whether to run preprocessors.')
-@click.option('--remote', required=True,
+@click.option('--remote',
               help='WebReview remote address (example: '
-                   ' example.com/owner/project).')
+                   ' example.com/owner/project). A remote must be specified'
+                   ' either using --remote or by configuring a deployment'
+                   ' named "webreview" in podspec.yaml.')
+@click.option('--subdomain', help='Assign a subdomain to this build.')
 @click.pass_context
-def stage(context, pod_path, remote, preprocess):
+def stage(context, pod_path, remote, preprocess, subdomain):
   """Stages a build on a WebReview server."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   auth = context.parent.params.get('auth')
   try:
     pod = pods.Pod(root, storage=storage.FileStorage)
-    dest_class = webreview_destination.WebReviewDestination
-    deployment = dest_class(dest_class.Config(remote=remote))
+    deployment = _get_deployment(pod, remote, subdomain)
     if auth:
       deployment.login(auth)
-    pod.preprocess()
+    if preprocess:
+      pod.preprocess()
     repo = utils.get_git_repo(pod.root)
     paths_to_contents = deployment.dump(pod)
     stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
@@ -36,3 +39,19 @@ def stage(context, pod_path, remote, preprocess):
     raise click.ClickException(str(e))
   except pods.Error as e:
     raise click.ClickException(str(e))
+
+
+def _get_deployment(pod, remote, subdomain):
+  if remote:
+    dest_class = webreview_destination.WebReviewDestination
+    return dest_class(dest_class.Config(remote=remote, name=subdomain))
+  else:
+    try:
+      deployment = pod.get_deployment('webreview')
+      if subdomain:
+        deployment.config.name = subdomain
+      return deployment
+    except ValueError:
+      text = ('Must provide --remote or specify a deployment named '
+              '"webreview" in podspec.yaml.')
+      raise click.ClickException(text)
