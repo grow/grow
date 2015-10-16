@@ -36,6 +36,16 @@ class CatalogsTest(unittest.TestCase):
     de_catalog = self.pod.catalogs.get('de')
     self.assertIn('German Translation', de_catalog)
 
+  def test_import_path_with_zip_file_and_identifier_mapping(self):
+    de_catalog = self.pod.catalogs.get('de')
+    self.assertNotIn('German Translation', de_catalog)
+
+    path = testing.get_testdata_dir()
+    po_path_to_import = os.path.join(path, 'external', 'messages.de_DE.zip')
+    self.pod.catalogs.import_translations(po_path_to_import)
+    de_catalog = self.pod.catalogs.get('de')
+    self.assertIn('German Translation', de_catalog)
+
 
 if __name__ == '__main__':
   unittest.main()

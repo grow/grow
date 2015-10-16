@@ -6,7 +6,7 @@ import tempfile
 import zipfile
 
 
-external_to_babel_locales = {
+default_external_to_babel_locales = {
     'en-GB': 'en_GB',
     'es-419': 'es_419',
     'fr-CA': 'fr_CA',
@@ -82,6 +82,17 @@ class Importer(object):
       raise Error('Must specify locale.')
     if not os.path.exists(po_path):
       raise Error('Couldn\'t find PO file: {}'.format(po_path))
+
+    # Leverage user-defined locale identifiers when importing translations.
+    external_to_babel_locales = {}
+    external_to_babel_locales.update(default_external_to_babel_locales)
+    if self.pod.podspec.localization:
+      if 'import_as' in self.pod.podspec.localization:
+        import_as = self.pod.podspec.localization['import_as']
+        for external_locale, babel_locales in import_as.iteritems():
+          for babel_locale in babel_locales:
+            external_to_babel_locales[external_locale] = babel_locale
+
     babel_locale = external_to_babel_locales.get(locale, locale)
     pod_translations_dir = os.path.join(
         'translations', babel_locale, 'LC_MESSAGES')

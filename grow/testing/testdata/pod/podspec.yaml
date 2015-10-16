@@ -27,6 +27,9 @@ localization:
     de_alias: DE  # Verify case sensitivity.
     fi_ALL: fi
     fil_ALL: fil
+  import_as:
+    de_DE:
+    - de
 
 deployments:
   gcs:
