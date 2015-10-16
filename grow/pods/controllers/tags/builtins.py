@@ -74,11 +74,7 @@ def docs(collection, locale=None, order_by=None, _pod=None):
 
 @utils.memoize_tag
 def collections(collection_paths=None, _pod=None):
-  collections = _pod.list_collections()
-  if collection_paths is not None:
-    return [collection for collection in collections
-            if collection.collection_path in collection_paths]
-  return collections
+  return _pod.list_collections(collection_paths)
 
 
 @utils.memoize_tag

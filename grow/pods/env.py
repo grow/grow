@@ -54,24 +54,11 @@ class Env(object):
   @property
   def url(self):
     url_port = ':{}'.format(self.port)
-
     # Do not show the port for default ports.
     if ((self.port == 80 and self.scheme == 'http')
         or (self.port == 443 and self.scheme == 'https')):
       url_port = ''
-
     return '{}://{}{}/'.format(self.scheme, self.host, url_port)
-
-  @classmethod
-  def from_wsgi_env(cls, wsgi_env):
-    env = cls()
-    env.update_from_wsgi_env(wsgi_env)
-    return env
-
-  def update_from_wsgi_env(self, wsgi_env):
-    self.host = wsgi_env.get('HTTP_HOST', wsgi_env.get('SERVER_NAME', 'localhost'))
-    self.scheme = wsgi_env['wsgi.url_scheme']
-    self.port = int(wsgi_env.get('SERVER_PORT', 80))
 
   def to_wsgi_env(self):
     return {

@@ -30,7 +30,7 @@ class Podspec(object):
 
   @property
   def root(self):
-    return self.fields.get('root')
+    return self.fields.get('root', '')
 
   @property
   def localization(self):

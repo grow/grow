@@ -4,6 +4,7 @@ from protorpc import messages
 class Kind(messages.Enum):
   RENDERED = 1
   STATIC = 2
+  SITEMAP = 3
 
 
 class RouteMessage(messages.Message):

@@ -94,7 +94,12 @@ class Document(object):
   @property
   def url(self):
     path = self.get_serving_path()
-    return urls.Url(path=path) if path else None
+    if path:
+      return urls.Url(
+          path=path,
+          host=self.pod.env.host,
+          port=self.pod.env.port,
+          scheme=self.pod.env.scheme)
 
   @property
   def slug(self):
@@ -105,6 +110,10 @@ class Document(object):
   @property
   def order(self):
     return self.fields.get('$order')
+
+  @property
+  def sitemap(self):
+    return self.fields.get('$sitemap')
 
   @property
   def title(self):

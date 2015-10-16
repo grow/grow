@@ -12,6 +12,8 @@ import threading
 @click.argument('pod_path', default='.')
 @click.option('--host', default='localhost')
 @click.option('--port', default=8080)
+@click.option('--https', default=False,
+              help='Whether to use "https" in the local environment.')
 @click.option('--debug/--no-debug', default=False, is_flag=True,
               help='Whether to run in debug mode and show internal tracebacks'
                    ' when encountering exceptions.')
@@ -21,7 +23,7 @@ import threading
               help='Whether to skip checking for updates to the Grow SDK.')
 @click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
               help='Whether to run preprocessors on server start.')
-def run(host, port, debug, browser, skip_sdk_update_check, preprocess,
+def run(host, port, https, debug, browser, skip_sdk_update_check, preprocess,
         pod_path):
   """Starts a development server for a single pod."""
   if not skip_sdk_update_check:
@@ -29,7 +31,9 @@ def run(host, port, debug, browser, skip_sdk_update_check, preprocess,
     thread = threading.Thread(target=update_func, args=(True,))
     thread.start()
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-  config = env.EnvConfig(host=host, port=port, name='dev', cached=False)
+  scheme = 'https' if https else 'http'
+  config = env.EnvConfig(host=host, port=port, name='dev',
+                         scheme=scheme, cached=False)
   environment = env.Env(config)
   pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
   try:
