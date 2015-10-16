@@ -7,6 +7,7 @@ werkzeug routing:
 from . import locales
 from . import messages
 from .controllers import rendered
+from .controllers import sitemap
 from .controllers import static
 from grow.common import utils
 import collections
@@ -87,6 +88,13 @@ class Routes(object):
     podspec = self.pod.get_podspec()
     podspec_config = podspec.get_config()
     # Auto-generated from flags.
+    if 'sitemap' in podspec_config:
+      controller = sitemap.SitemapController(
+          pod=self.pod,
+          path=podspec_config['sitemap'].get('paths'),
+          collections=podspec_config['sitemap'].get('collectionss'),
+          locales=podspec_config['sitemap'].get('locales'))
+      rules.append(routing.Rule(controller.path, endpoint=controller))
     if 'static_dir' in self.pod.flags:
       path = self.pod.flags['static_dir'] + '<grow:filename>'
       controller = static.StaticController(

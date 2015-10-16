@@ -39,3 +39,6 @@ class SitemapController(base.BaseController):
     for col in self.collections:
       docs += col.list_servable_documents()
     return list(docs)
+
+  def list_concrete_paths(self):
+    return [self.path]
