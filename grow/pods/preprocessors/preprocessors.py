@@ -8,6 +8,7 @@ _preprocessor_kinds_to_classes = {}
 _builtins = (
     sass_preprocessor.SassPreprocessor,
     google_sheets.GoogleSheetsPreprocessor,
+    google_sheets.GoogleDocsPreprocessor,
 )
 
 
