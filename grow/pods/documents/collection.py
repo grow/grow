@@ -162,11 +162,11 @@ class Collection(object):
           sorted_docs.insert(self.get_doc(pod_path, locale=each_locale))
     return reversed(sorted_docs) if reverse else sorted_docs
 
-  def list_servable_documents(self, include_hidden=False):
+  def list_servable_documents(self, include_hidden=False, locales=None):
     docs = []
     for doc in self.list_docs(include_hidden=include_hidden):
       if (self.yaml.get('draft') or not doc.has_serving_path()
-          or not doc.get_view()):
+          or not doc.get_view() or (locales and doc.locale not in locales)):
         continue
       docs.append(doc)
     return docs

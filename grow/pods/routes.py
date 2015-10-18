@@ -91,8 +91,8 @@ class Routes(object):
     if 'sitemap' in podspec_config:
       controller = sitemap.SitemapController(
           pod=self.pod,
-          path=podspec_config['sitemap'].get('paths'),
-          collections=podspec_config['sitemap'].get('collectionss'),
+          path=podspec_config['sitemap'].get('path'),
+          collections=podspec_config['sitemap'].get('collections'),
           locales=podspec_config['sitemap'].get('locales'))
       rules.append(routing.Rule(controller.path, endpoint=controller))
     if 'static_dir' in self.pod.flags:

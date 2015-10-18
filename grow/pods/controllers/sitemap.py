@@ -20,7 +20,13 @@ class SitemapController(base.BaseController):
     super(SitemapController, self).__init__(_pod=pod)
 
   def __repr__(self):
-    return '<Sitemap: {}>'.format(self.path)
+    col_paths = [col.collection_path for col in self.collections]
+    if self.locales:
+      locale_ids = [str(locale) for locale in self.locales]
+      return '<Sitemap(collections="{}", locales="{}")>'.format(
+          ', '.join(col_paths), ', '.join(locale_ids))
+    else:
+      return '<Sitemap(collections="{}")>'.format(', '.join(col_paths))
 
   @property
   def mimetype(self):
@@ -37,7 +43,7 @@ class SitemapController(base.BaseController):
   def _list_docs(self):
     docs = []
     for col in self.collections:
-      docs += col.list_servable_documents()
+      docs += col.list_servable_documents(locales=self.locales)
     return list(docs)
 
   def list_concrete_paths(self):
