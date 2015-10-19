@@ -26,7 +26,7 @@ def CreateWSGIApplication(pod=None, debug=False):
       ('/_grow/translations/(.*)', handlers.CatalogHandler),
       ('/_grow/translations', handlers.CatalogsHandler),
       ('/_grow/content', handlers.CollectionsHandler),
-      ('/_grow.*', handlers.ConsoleHandler),
+      ('/_grow', handlers.ConsoleHandler),
       ('/.*', handlers.PodHandler),
   ], debug=debug)
   podserver_app.registry['pod'] = pod

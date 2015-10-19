@@ -1,15 +1,16 @@
 {% extends "base.html" %}
+{% set title = "Translation Catalog" %}
 
 {% block main %}
 
 {% set catalog = pod.catalogs.get(args[0]) %}
 
-<h1>{{catalog}}</h1>
+<h3>{{catalog|length}} messages in {{catalog}}</h3>
 <table>
   <thead>
     <tr>
-      <td>String</td>
-      <td>Translation</td>
+      <th>String</th>
+      <th>Translation</th>
     </tr>
   </thead>
   {% for item in catalog %}

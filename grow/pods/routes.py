@@ -171,9 +171,10 @@ class Routes(object):
     controllers_to_paths = collections.defaultdict(list)
     for route in self:
       controller = route.endpoint
+      name = str(controller)
       paths = controller.list_concrete_paths()
-      controllers_to_paths[controller] += paths
-      controllers_to_paths[controller].sort()
+      controllers_to_paths[name] += paths
+      controllers_to_paths[name].sort()
     return controllers_to_paths
 
   @utils.memoize

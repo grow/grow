@@ -67,6 +67,9 @@ class Catalogs(object):
     for locale in self.list_locales():
       yield self.get(locale)
 
+  def __len__(self):
+    return len([catalog for catalog in self])
+
   def compile(self):
     locales = self.list_locales()
     self.validate_locales(locales)

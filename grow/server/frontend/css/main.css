@@ -1,28 +1,31 @@
-html, body {
+html,
+body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
-  margin: 0;
-  padding: 0;
 }
 
-.mdl-layout__tab-bar {
-  padding: 0;
-  padding-left: 16px;
-  box-sizing: border-box;
-  height: 100%;
-  width: 100%;
+ul ul {
+  margin: 10px 0;
 }
 
-.mdl-layout__tab-bar .mdl-layout__tab {
-  height: 64px;
-  line-height: 64px;
+header .title {
+  margin: 0 0 15px;
 }
 
-.mdl-layout__tab-bar .mdl-layout__tab.is-active::after {
-  background-color: white;
-  height: 4px;
+header nav {
+  margin-bottom: 15px;
 }
 
-main > .mdl-layout__tab-panel {
-  padding: 8px;
-  padding-top: 48px;
+table {
+  border-collapse: collapse;
+}
+
+table tr td,
+table tr th {
+  border: 1px solid #efefef;
+  padding: 5px 10px;
+}
+
+table tr th {
+  font-weight: bold;
+  text-align: left;
 }

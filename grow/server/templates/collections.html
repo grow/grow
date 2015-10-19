@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% set title = "Collections" %}
 
 {% block main %}
   {% for collection in pod.list_collections() %}
@@ -6,8 +7,8 @@
   <table>
     <thead>
       <tr>
-        <td>Catalog</td>
-        <td>Locales</td>
+        <th>Catalog</th>
+        <th>Locales</th>
       </tr>
     </thead>
     {% set docs = collection.list_docs()|groupby('pod_path') %}
