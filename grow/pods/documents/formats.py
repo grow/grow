@@ -125,7 +125,8 @@ class YamlFormat(_SplitDocumentFormat):
 class HtmlFormat(YamlFormat):
 
   def _iterate_content(self):
-    return [(part, body) for part, body in utils.every_two(Format.split_front_matter(self.content))]
+    pairs = utils.every_two(Format.split_front_matter(self.content))
+    return [(part, body) for part, body in pairs]
 
   def load(self):
     if not self.has_front_matter:

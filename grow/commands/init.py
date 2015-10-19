@@ -1,6 +1,6 @@
-from grow.pods import commands
 from grow.pods import pods
 from grow.pods import storage
+from grow.pods import themes
 import click
 import os
 
@@ -14,4 +14,4 @@ def init(theme, pod_path, force):
   """Initializes a pod with a theme."""
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
   pod = pods.Pod(root, storage=storage.FileStorage)
-  commands.init(pod, theme, force=force)
+  themes.init(pod, theme, force=force)

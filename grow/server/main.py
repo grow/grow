@@ -9,7 +9,6 @@ sys.path.extend([os.path.join(os.path.dirname(__file__), '..', '..')])
 import webapp2
 from protorpc.wsgi import service
 from grow.server import handlers
-from grow.server import services
 
 
 class Response(webapp2.Response):
@@ -25,9 +24,7 @@ def CreateWSGIApplication(pod=None, debug=False):
       ('/.*', handlers.PodHandler),
   ], debug=debug)
   podserver_app.registry['pod'] = pod
-  routes = [
-      ('/_api/pods.*', services.PodService),
-  ]
+  routes = []
   return service.service_mappings(
       routes,
       service_prefix='/_api',
