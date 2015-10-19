@@ -4,6 +4,7 @@ from grow.pods import storage
 import jinja2
 import logging
 import os
+import urllib
 import webapp2
 import webob
 import werkzeug
@@ -49,7 +50,8 @@ class PodHandler(BaseHandler):
   def get(self):
     pod = self.app.registry['pod']
     try:
-      controller = pod.routes.match(self.request.path, self.request.environ)
+      path = urllib.unquote(self.request.path)  # Support escaped paths.
+      controller = pod.routes.match(path, self.request.environ)
       controller.validate()
       headers = controller.get_http_headers()
       if 'X-AppEngine-BlobKey' in self.response.headers:

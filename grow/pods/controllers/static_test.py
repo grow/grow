@@ -23,6 +23,8 @@ class StaticTest(unittest.TestCase):
     self.assertIsNotNone(static.modified)
     self.assertTrue(static.exists)
     self.assertEqual('.txt', static.ext)
+    static = self.pod.get_static('/static/file with spaces.txt')
+    self.assertEqual('/app/static/file with spaces.txt', static.url.path)
 
 
 if __name__ == '__main__':

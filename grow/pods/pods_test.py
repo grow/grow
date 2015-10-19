@@ -51,6 +51,7 @@ class PodTest(unittest.TestCase):
     paths = [
         '/about/index.html',
         '/app/static/somepath/de_alias/test.txt',
+        '/app/static/file with spaces.txt',
         '/app/static/test.txt',
         '/de_alias/about/index.html',
         '/de_alias/contact-us/index.html',
