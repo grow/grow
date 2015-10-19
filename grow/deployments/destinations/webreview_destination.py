@@ -26,7 +26,7 @@ class WebReviewDestination(base.BaseDestination):
 
   def __init__(self, *args, **kwargs):
     super(WebReviewDestination, self).__init__(*args, **kwargs)
-    if self.config.name and not self.config.subdomain:
+    if self.config.name:
       print ('WARNING: The "name" parameter for webreview deployments is '
              'deprecated. Use "subdomain" instead, or use the "grow stage '
              '--subdomain=<subdomain>" command.')

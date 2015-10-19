@@ -49,7 +49,7 @@ def _get_deployment(pod, remote, subdomain):
     try:
       deployment = pod.get_deployment('webreview')
       if subdomain:
-        deployment.config.name = subdomain
+        deployment.config.subdomain = subdomain
       return deployment
     except ValueError:
       text = ('Must provide --remote or specify a deployment named '
