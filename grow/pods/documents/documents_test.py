@@ -11,6 +11,16 @@ class DocumentsTestCase(unittest.TestCase):
     dir_path = testing.create_test_pod_dir()
     self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
+  def test_eq(self):
+    doc1 = self.pod.get_doc('/content/pages/contact.yaml')
+    doc2 = self.pod.get_doc('/content/pages/contact.yaml')
+    self.assertEqual(doc1, doc2)
+    col = self.pod.get_collection('pages')
+    for doc in col:
+      if doc.pod_path == '/content/pages/contact.yaml':
+        self.assertEqual(doc1, doc)
+        self.assertEqual(doc2, doc)
+
   def test_doc_storage(self):
     # Because this test involves translation priority, ensure that we have
     # compiled the MO files before running the test.

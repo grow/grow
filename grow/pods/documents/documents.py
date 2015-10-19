@@ -55,6 +55,11 @@ class Document(object):
   def __ne__(self, other):
     return self.pod_path != other.pod_path or self.pod != other.pod
 
+  def __eq__(self, other):
+    return (isinstance(self, Document)
+            and isinstance(other, Document)
+            and self.pod_path == other.pod_path)
+
   def __getattr__(self, name):
     if name in self.fields:
       return self.fields[name]
@@ -283,11 +288,6 @@ class Document(object):
   @property
   def hidden(self):
     return self.fields.get('$hidden', False)
-
-  def __eq__(self, other):
-    return (isinstance(self, Document)
-            and isinstance(other, Document)
-            and self.pod_path == other.pod_path)
 
   def next(self, docs=None):
     if docs is None:

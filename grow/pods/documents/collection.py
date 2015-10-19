@@ -58,6 +58,10 @@ class Collection(object):
     return (isinstance(other, Collection)
             and self.collection_path == other.collection_path)
 
+  def __iter__(self):
+    for doc in self.list_docs():
+      yield doc
+
   @classmethod
   def list(cls, pod):
     # TODO: Implement "depth" argument on pod.list_dir and use.
