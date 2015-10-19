@@ -166,6 +166,15 @@ class Routes(object):
       locales_to_paths[locale] += paths
     return locales_to_paths
 
+  def get_controllers_to_paths(self):
+    controllers_to_paths = collections.defaultdict(list)
+    for route in self:
+      controller = route.endpoint
+      paths = controller.list_concrete_paths()
+      controllers_to_paths[controller] += paths
+      controllers_to_paths[controller].sort()
+    return controllers_to_paths
+
   @utils.memoize
   def list_concrete_paths(self):
     paths = set()

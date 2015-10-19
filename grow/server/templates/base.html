@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/_grow/static/css/main.css">
+    <title>Grow</title>
+  </head>
+  <body class="mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
+    <header class="mdl-layout__header mdl-color--primary">
+    <div class="mdl-layout__tab-bar mdl-color--primary-dark">
+      <a href="/_grow/" class="mdl-layout__tab">Routes</a>
+      <a href="/_grow/content" class="mdl-layout__tab">Content</a>
+      <a href="/_grow/translations" class="mdl-layout__tab">Translations</a>
+    </div>
+    </header>
+    <main class="mdl-layout__content">
+      {% block main %}
+      {% endblock %}
+    </main>
+    <footer class="mdl-mega-footer">
+    {{pod.root}}
+    </footer>
+  </body>

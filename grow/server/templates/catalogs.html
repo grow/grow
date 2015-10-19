@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block main %}
+<table>
+  <thead>
+    <tr>
+      <td>Catalog</td>
+      <td>Untranslated</td>
+      <td>Total</td>
+    </tr>
+  </thead>
+  {% for catalog in pod.catalogs %}
+  <tr>
+    <td>
+      <a href="/_grow/translations/{{catalog.locale}}">{{catalog}}</a>
+    </td>
+    <td>
+      {{catalog.list_untranslated()|length}}
+    <td>
+      {{catalog|length}}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
