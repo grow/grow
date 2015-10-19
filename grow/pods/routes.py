@@ -85,6 +85,7 @@ class Routes(object):
     return self._routing_map
 
   def format_path(self, path):
+    path = '' if path is None else path
     if 'root' in self.podspec:
       path = path.replace('{root}', self.podspec['root'])
     path = path.replace('{env.fingerprint}', self.pod.env.fingerprint)
