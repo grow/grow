@@ -43,12 +43,15 @@ class Routes(object):
 
   def __init__(self, pod):
     self.pod = pod
-    self.podspec = self.pod.get_podspec().get_config()
     self._paths_to_locales_to_docs = collections.defaultdict(dict)
     self._routing_map = None
 
   def __iter__(self):
     return self.routing_map.iter_rules()
+
+  @property
+  def podspec(self):
+    return self.pod.get_podspec().get_config()
 
   def reset_cache(self, rebuild=True):
     if rebuild:
