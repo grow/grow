@@ -28,3 +28,9 @@ By default, the development server binds to `localhost` to avoid accidentally pr
 ```
 grow run --host=0.0.0.0 --port=8080
 ```
+
+## Web console
+
+The development server includes a basic web console that provides information about your site. Use the console to quickly audit your site's routes, collections, and translations.
+
+Access the console by visiting `http://host:port/_grow`.
