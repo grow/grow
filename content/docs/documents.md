@@ -18,9 +18,9 @@ Documents optionally have a `path` property which allows the document to be expo
 
 Aside from the *_blueprint.yaml* folder, files in a content collection's directory are treated as a content documents. Grow accepts content documents in the following formats, indicated by their file extensions:
 
-  - HTML (.html)
-  - Markdown (.md)
-  - YAML (.yaml)
+  - HTML (`.html`)
+  - Markdown (`.md`)
+  - YAML (`.yaml`)
 
 ### Document path
 
@@ -37,6 +37,17 @@ As long as a blueprint specifies a document's `view` and its `path`, including Y
 ### Body
 
 A document's body is the stuff that comes after its YAML front matter. For Markdown-formatted documents, Grow provides a shortcut for accessing rendered HTML using `{{doc.html}}` (see the `html` API function below). The unprocessed body contents can be accessed with `{{doc.body}}`.
+
+### Rendering and serving
+
+Content documents are servable if they have a `path` (the URL path the document should be served at) and a `view` (the template used to render the document). By default, `path` and `view` are inherited from the document's blueprint.
+
+If the blueprint does not have a `path` and a `view` set, you may specify `$path` and `$view` at the document-level. This also means that you can override the `$path` and `$view` on a document-by-document basis.
+
+[sourcecode:yaml]
+$path: /about/              # Serves this document at /about/.
+$view: /views/base.html     # Renders this document with /views/base.html.
+[/sourcecode]
 
 ## Example documents
 
