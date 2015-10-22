@@ -1,9 +1,9 @@
 ---
-$title: Translations
+$title: Translation
 $category: Reference
 $order: 7
 ---
-# Translations
+# Translation
 
 [TOC]
 
