@@ -77,7 +77,7 @@ static_dirs:
     serve_at: /{locale}/static/images/
 [/sourcecode]
 
-### Specifying the site root
+### Specifying a site root
 
 You can specify the site root in `podspec.yaml` and then reference the root in path formats elsewhere. This provides flexibility should you need to change the site root later, and allows you to avoid repeating the site root throughout multiple configurations.
 
@@ -87,6 +87,17 @@ root: /my-site/
 
 # In a collection's _blueprint.yaml
 path: /{root}/pages/{base}/
+[/sourcecode]
+
+### Specifying the homepage
+
+Most sites have homepages. You can specify your site's homepage in `podspec.yaml`, which improves automation by providing you with a clickable link to your homepage when the development server starts up. Notifications may also contain links to your homepage, so it's always a good idea to set this.
+
+Note that the value of the homepage should point to a content document, not a URL path. Your homepage's URL will be derived from the content document's URL.
+
+[sourcecode:yaml]
+# In podspec.aml
+home: /content/pages/home.yaml
 [/sourcecode]
 
 ## URLs in templates

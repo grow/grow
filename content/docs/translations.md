@@ -47,9 +47,8 @@ Since Grow translations are opt-in instead of opt-out, it's possible to show tra
 Field names postfixed with an `@` symbol are translatable. Note that you should omit the `@` when referring to the field in a template. The @ is simply used to tag the field for translation in the YAML front matter.
 
 [sourcecode:yaml]
-# /content/pages/foo.md (YAML front matter)
+# /content/pages/page.yaml (content document)
 
-​---
 $title@: Hello World!
 
 sections:
@@ -63,7 +62,6 @@ sections:
 items@:                    # Tagged list of strings.
 - Item 1.
 - Item 2.
-​---
 [/sourcecode]
 
 [sourcecode:html]
@@ -73,6 +71,15 @@ items@:                    # Tagged list of strings.
   <li>{{_(doc.title)}}     <!-- Translated. -->
   <li>{{doc.content}}      <!-- Not translated. -->
 {% endfor %}
+[/sourcecode]
+
+### CSV files
+
+Messages can be extracted from CSV files by appending `@` to a header cell's value.
+
+[sourcecode:csv]
+header1,header2@,header3
+Not extracted,Extracted,Not Extracted
 [/sourcecode]
 
 ## Extracting translations
