@@ -10,7 +10,7 @@ cache:
   - $HOME/.cache/pip
   - $HOME/virtualenv
 install:
-- git clone --single-branch https://github.com/grow/pygrow.git
+- git clone --branch=develop --single-branch https://github.com/grow/pygrow.git
 - cd pygrow
 - travis_retry pip install --upgrade -r requirements.txt
 - python setup.py install
