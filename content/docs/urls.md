@@ -33,6 +33,7 @@ __Remember: don't repeat yourself.__ If you can specify a path format in a colle
 |-|-|
 | `{base}` | The document's basename.
 | `{collection.root}` | The document's collection's root.
+| `{env.fingerpint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerpint: <fingerprint>` in a deployment configuration.
 | `{date}` | The document's date.
 | ` {locale}` | The document's locale (or its alias, if one exists).
 | `{root}` | The pod's root as defined in podspec.yaml.
@@ -60,6 +61,7 @@ Use these formatters to configure serving paths for static files in `podspec.yam
 
 | Path formatters
 |-|-|
+| `{env.fingerpint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerpint: <fingerprint>` in a deployment configuration.
 | ` {locale}` | The static file's locale (or its alias, if one exists).
 | `{root}` | The pod's root as defined in podspec.yaml.
 
