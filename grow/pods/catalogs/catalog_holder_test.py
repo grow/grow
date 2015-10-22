@@ -18,7 +18,7 @@ class CatalogsTest(unittest.TestCase):
 
   def test_extract(self):
     template_catalog = self.pod.catalogs.extract()
-    self.assertEqual(19, len(template_catalog))
+    self.assertEqual(20, len(template_catalog))
     expected = [
         'Hello World!',
         'Hello World 2!',
@@ -41,6 +41,9 @@ class CatalogsTest(unittest.TestCase):
 
     template_catalog = self.pod.catalogs.extract(include_obsolete=False)
     self.assertNotIn('foo', template_catalog)
+
+    self.assertIn('string content tagged', template_catalog)
+    self.assertNotIn('string content untagged', template_catalog)
 
   def test_localized_extract(self):
     self.pod.catalogs.extract(localized=True)
