@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{{g.static('/static/css/main.min.css').url.path}}">
 <link rel="shortcut icon" href="{{g.static('/static/images/icon.png').url.path}}">
 <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic' rel='stylesheet'>
-<title>{{doc.title}} – {{podspec.title}}</title>
+<title>{% if doc.title %}{{doc.title}} – {% endif %}{{podspec.title}}{% if doc.title_suffix %} – {{doc.title_suffix}}{% endif %}</title>
 <body class="{{doc.class}}">
 <header class="cf">
   <div class="wrap">
