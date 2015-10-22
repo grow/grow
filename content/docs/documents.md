@@ -220,15 +220,17 @@ Returns the document's canonical title.
 
 The document's URL object.
 
+    {{doc.url}}            # The full URL to the document (based on the environment).
     {{doc.url.path}}       # The serving path to the document.
+    {{doc.url.host}}
+    {{doc.url.scheme}}
+    {{doc.url.port}}
 
 ## Built-in fields
 
 Built-in fields carry special meaning that can affect various aspects of building your site. The values of built-in fields can change things such as a tag's output in the template API or the routes served by your site.
 
 ### $category
-
-<div class="badge badge-not-implemented">Not implemented</div>
 
 The category the document falls into.
 

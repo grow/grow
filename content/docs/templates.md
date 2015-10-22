@@ -36,6 +36,7 @@ The rendering environment that exists when the page is being built or served.
     {{env.name}}
     {{env.port}}
     {{env.scheme}}
+    {{env.fingerprint}}
 
 ### podspec
 
@@ -60,23 +61,6 @@ The `_` tag is a special function used to tag strings in templates for both tran
     # A translation with a placeholder.
     {{_('Hello, %(name)s', name='Alice')}
 
-### g.breadcrumb
-
-`g.breadcrumb(<doc>)`
-
-<div class="badge badge-not-implemented">Not implemented</div>
-
-Returns a list of ancestor documents, in order from oldest to youngest, to produce a breadcrumb for the given document.
-
-[sourcecode:html+jinja]
-<!-- Produces a breadcrumb for the current page. -->
-<ul>
-  {% for item in g.breadcrumb(doc) %}
-    <li><a href="{{item.url.path}}">{{item.title('breadcrumb')}}</a>
-  {% endfor %}
-</ul>
-[/sourcecode]
-
 ### g.categories
 
 `g.categories(<collection>)`
@@ -84,7 +68,7 @@ Returns a list of ancestor documents, in order from oldest to youngest, to produ
 Lists content documents within a collection and groups them by their *$category*. Useful for generating navigation and categorized lists of documents.
 
 [sourcecode:html+jinja]
-{% for category, docs in g.docs('pages') %}
+{% for category, docs in g.categories('pages') %}
   <h3>{{category}}</h3>
   <ul>
     {% for doc in docs %}
@@ -92,6 +76,23 @@ Lists content documents within a collection and groups them by their *$category*
     {% endfor %}
   </ul>
 {% endfor %}
+[/sourcecode]
+
+### g.collection
+
+`g.collection(<collection>)`
+
+Returns a `Collection` object, given a collection path.
+
+### g.collections
+
+`g.collections(<optional list of collections>)`
+
+Returns a list of all `Collection` objects in the pod, or lists `Collection` objects given a list of collection paths.
+
+[sourcecode:html+jinja]
+{{g.collections()}}
+{{g.collections(['pages'])}}
 [/sourcecode]
 
 ### g.csv
@@ -143,6 +144,12 @@ Searches content documents within a collection.
   {% endfor %}
 </ul>
 [/sourcecode]
+
+### g.json
+
+`g.json(<path to json file>)`
+
+Returns a loaded JSON object, given a JSON file's pod path.
 
 ### g.locales
 
