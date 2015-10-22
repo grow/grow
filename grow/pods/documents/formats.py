@@ -98,7 +98,9 @@ class _SplitDocumentFormat(Format):
       self.body = locales_to_bodies.get(locale, default_body)
       self.body = self.body.strip() if self.body is not None else None
       self.fields = fields
-    except (yaml.composer.ComposerError, yaml.scanner.ScannerError) as e:
+    except (yaml.parser.ParserError,
+            yaml.composer.ComposerError,
+            yaml.scanner.ScannerError) as e:
       message = 'Error parsing {}: {}'.format(self.doc.pod_path, e)
       logging.exception(message)
       raise BadFormatError(message)
