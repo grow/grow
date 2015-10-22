@@ -25,6 +25,19 @@ A preprocessor with the above configuration will only be run when using `grow pr
 
 ## Kinds
 
+### Google Docs
+
+The Google Docs preprocessor downloads a Google Doc and saves it to a data file within your pod. It can optionally convert the Google Doc to Markdown, ready for use with the `markdown` filter in templates. Specifying an `.md` file extension for the `path` parameter will convert the output to Markdown.
+
+After enabling this preprocessor, when you run the `grow build` command, you will be prompted (once on the command line) to authorize Grow to read your Google Drive files.
+
+[sourcecode:yaml]
+preprocessors:
+- kind: google_docs
+  path: /data/filename.{html|md}                        # Where to save downloaded file.
+  id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI      # File ID.
+[/sourcecode]
+
 ### Google Sheets
 
 The Google Sheets preprocessor downloads data from a Google Sheet and saves it to a data file within your pod. The data can then be consumed by the `g.csv` tag, for example, in templates.
