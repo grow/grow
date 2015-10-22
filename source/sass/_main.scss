@@ -1,34 +1,40 @@
 body {
-  color: #394d54;
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
   background: #fff;
+  color: $color-dark;
+  font-family: $font-family-main;
+  font-size: 15px;
   margin: 0;
 }
 
 a {
-  color: #7e57c2;
+  color: inherit;
+  border-bottom: 1px dotted rgba(0, 0, 0, .5);
   text-decoration: none;
 }
 
 a:hover {
-  text-decoration: underline;
+  border-bottom: 1px solid rgba(0, 0, 0, .5);
 }
 
 code {
-  font-family: Monaco, Menlo, Consolas, 'Courier New', monospace;
+  background: #efefef;
+  border-radius: 3px;
+  font-family: Monaco,Menlo,Consolas,'Courier New',monospace;
+  font-size: 12px;
+  padding: 2px 4px;
 }
 
-p code,
-table code {
-  background: #e0f7fa;
-  border-radius: 3px;
-  font-size: .9em;
+pre code {
+  background: initial;
+  padding: 0;
 }
 
 h1,
 h2,
 h3 {
+  font-family: $font-family-main;
+  font-weight: 500;
   clear: both;
   letter-spacing: -0.01em;
 }
@@ -46,9 +52,13 @@ p {
   padding: 50px 15px;
 }
 
+.home .wrap {
+  max-width: 1000px;
+}
+
 .wrap {
   margin: 0 auto;
-  max-width: 1024px;
+  max-width: 1200px;
   padding: 15px;
 }
 
@@ -58,6 +68,9 @@ p {
 
 .flex {
   display: flex;
+}
+
+.panel a {
 }
 
 .panel {
@@ -83,7 +96,8 @@ p {
 }
 
 .panel.callouts summary {
-  padding: 0 50px 0 0;
+  padding: 0 50px 0;
+  text-align: center;
 }
 
 .panel.callouts .image {
@@ -105,7 +119,7 @@ p {
 }
 
 .panel section {
-  margin: 1em 0 2em;
+  margin: 10px 0 2em;
 }
 
 .panel section > h1 {
@@ -151,18 +165,19 @@ table tr th {
   padding: 20px;
 }
 
-.panel nav.side ul li a {
-  display: inline-block;
-  margin-bottom: 5px;
+.panel nav.side ul li {
+  margin-bottom: 8px;
 }
 
 .panel nav.side ul li.active a {
   color: inherit;
+  font-style: italic;
+  font-weight: bold;
 }
 
 .panel nav.side ul {
   list-style: none;
-  margin: 0;
+  margin: 0 0 20px;
   padding: 0;
 }
 
@@ -181,11 +196,17 @@ table tr th {
 
 .button {
   @include button();
-  text-transform: uppercase;
+  border: none !important;
+  font-weight: bold;
+}
+
+.button.button--inverted {
+  background: #fff;
+  color: $color-dark;
 }
 
 .button.button-primary {
-  background: #097be8;
+  background: $color-primary;
   color: #fff;
 }
 
@@ -224,7 +245,7 @@ section h3 {
 
 header {
   box-shadow: 0 2px 5px rgba(0,0,0,.1);
-  background: #7e57c2;
+  background: $color-primary;
   color: #fff;
   font-size: 18px;
   box-sizing: border-box;
@@ -240,11 +261,12 @@ header i {
 }
 
 .growlogo {
+  border: none !important;
   color: inherit;
   display: inline-block;
-  font-family: 'Dosis', 'Helvetica Neue', arial, sans-serif;
+  font-family: $font-family-brand;
   font-size: 25px;
-  font-weight: 300;
+  font-weight: 500;
   line-height: 40px;
   text-transform: uppercase;
 
@@ -330,6 +352,7 @@ nav.side h3:first-child {
 
 div.toc:before {
   content: 'In this document';
+  font-weight: bold;
 }
 
 pre {
@@ -362,9 +385,12 @@ div.toc ul {
   list-style: none;
 }
 
-div.toc ul a {
-  display: inline-block;
+div.toc li {
   margin-bottom: 5px;
+}
+
+div.toc li ul {
+  margin: 5px 0 15px;
 }
 
 div.toc > ul > li > a {
@@ -444,6 +470,7 @@ ul.codelab li {
 
 ul.codelab li a {
   color: inherit;
+  border: none !important;
   display: inline-block;
   padding: 10px 15px;
 }

@@ -3,6 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="stylesheet" href="{{g.static('/static/css/main.min.css').url.path}}">
 <link rel="shortcut icon" href="{{g.static('/static/images/icon.png').url.path}}">
+<link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic' rel='stylesheet'>
 <title>{{doc.title}} – {{podspec.title}}</title>
 <body class="{{doc.class}}">
 <header class="cf">
@@ -10,9 +11,8 @@
     {% set index_doc = g.doc('/content/pages/index.html') %}
     <a href="{{index_doc.url.path}}" class="growlogo">
       <img src="{{g.static('/static/images/grow.svg').url.path}}">
-      Grow SDK
+      Grow
     </a>
-    <i>Alpha</i>
     <nav class="navbar">
     <ul>
       <li><a href="{{g.url('/content/codelab/0.md').path}}">Start</a>
@@ -34,13 +34,12 @@
 <footer>
   <div class="flex wrap">
     <div class="col">
-      <p>The Grow SDK is released under the <a href="https://github.com/grow/pygrow/blob/master/LICENSE">MIT License</a>. Except otherwise noted, documentation is released under <a href="http://creativecommons.org/licenses/by/3.0/us/">CC 3.0</a>. Some icons are from <a href="http://flatties.uiparade.com">Flatties</a>.
+      <p>Grow SDK is released under the <a href="https://github.com/grow/pygrow/blob/master/LICENSE">MIT License</a>.<br>
+      Except otherwise noted, docs are released under <a href="http://creativecommons.org/licenses/by/3.0/us/">CC 3.0</a> and icons are from <a href="http://flatties.uiparade.com">Flatties</a>.
     </div>
     <div class="col">
       <p>
-        <i class="fa fa-chevron-left"></i><i class="fa fa-chevron-right"></i>
-        <a href="https://github.com/grow/pygrow/graphs/contributors">Made by the Grow SDK Authors</a>.
-        <a href="https://github.com/grow/growsdk.org/edit/master{{doc.pod_path}}">Edit this on GitHub</a>.
+      <a href="https://github.com/grow/growsdk.org/edit/master{{doc.pod_path}}">Edit on GitHub</a>
     </div>
   </div>
 </footer>

@@ -13,13 +13,17 @@
 }
 
 .hero {
-  background-image: url(../images/pattern.png), linear-gradient(45deg, #362d6c 0%,#0c5593 100%);
-  background-color: #362d6c;
+  background-color: $color-dark;
   color: #fff;
   padding: 0 0 30px;
   text-align: center;
 
   .growlogo {
     margin: 100px 0 15px;
+  }
+
+  h1 {
+    font-family: $font-family-main;
+    font-weight: 200;
   }
 }
