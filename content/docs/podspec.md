@@ -15,9 +15,8 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
     title: Project title.
     description: Project description.
 
-    flags:
-      root_path: /
-      static_dir: /media/
+    home: /content/pages/<home>.yaml
+    root: /url/path/to/site/root/
 
     static_dirs:
     - static_dir: /static/
@@ -25,9 +24,6 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
 
     error_routes:
       default: /views/error.html
-
-    content_security_policy:
-      required: yes
 
     localization:
       root_path: /{locale}/
@@ -37,6 +33,11 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
       - en
       - fr
       - it
+      aliases:
+        en_uk: en_GB
+      import_as:
+        en_uk:
+        - en_GB
 
     preprocessors:
     - kind: sass
@@ -48,14 +49,6 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
         destination: local
         out_dir: grow-codelab-build/
 
-### project
-
-A unique identifier for this pod, formatted by `<owner's nickname>/<pod's nickname>`. The project ID is primarily used to identify your pod at a launch destination. Destinations may implement features such as access control or deploy hooks using the project ID. Two different pods on the same server cannot have the same project ID.
-
-If you deploy a pod, subsequent deployments will use the pod's project ID to store a deployment history. If you change your project ID after deployment, unexpected things will happen.
-
-    project: john/example
-
 ### grow_version
 
 The version of the Grow SDK that works with this pod. Grow displays a warning if the version of the SDK does not match this specification in `podspec.yaml`.
@@ -65,24 +58,6 @@ Grow uses [semantic versioning](http://semver.org/) which helps you know which v
 This value must be a semantic version *specification*.
 
     grow_version: ">=0.0.1"       # At least SDK version 0.0.1.
-
-### flags
-
-#### root_path
-
-If specified, *root_path* is automatically prepended to all URLs for all files built by the pod. This can be useful if you deploy multiple pods to the same domain, and would like to encapsulate each pod within a specific *root_path*. *root_path* can include the `{locale}` variable.
-
-In other words, if you have a document whose path is `/foo/bar/` inside a pod whose *root_path* is `/about/`, the document is built to: `/about/foo/bar/`.
-
-    root_path: /                  # The site lives in the directory root.
-    root_path: /about/            # The site lives in the "/about/" top-level directory.
-    root_path: /{locale}/about/   # The site lives in the "/{locale}/about/" directory.
-
-#### static_dir
-
-Specifies a directory that contains static files. This flag is shorthand for a full entry in the `static_dirs` configuration. Files placed in this directory should be used in conjunction with the `g.static` template tag, which returns a URL object for files in this directory.
-
-    static_dir: /media/          # Files in /media/ will be served at /media/.
 
 ### static_dirs
 
@@ -116,28 +91,9 @@ Grow can build error pages for various error codes. The error page renders a vie
     bad_request: /views/errors/400.html
     im_a_teapot: /views/errors/418.html
 
-### content_security_policy
-
-<div class="badge badge-not-implemented">Not implemented</div>
-
-Allows you to enforce a pod-wide [content security policy](http://www.html5rocks.com/en/tutorials/security/content-security-policy/).
-
-#### required
-
-Whether the content security policy is required on all HTML pages. If `yes`, HTML files without a content security policy will result in build errors.
-
-    required: no
-    required: yes
-
 ### localization
 
 The default localization configuration for all content in the pod.
-
-#### root_path
-
-The root path to use for localized pages. Automatically prepended to the URL paths of all localized pages.
-
-    root_path: /{locale}/
 
 #### default_locale
 
@@ -165,6 +121,16 @@ A mapping of aliases to locale identifiers. This can be used to translate a Grow
 [sourcecode:yaml]
 aliases:
   en_uk: en_gb
+[/sourcecode]
+
+#### import_as
+
+A mapping of external locales to internal locales. This property is used when translations are imported. When translations are imported, Grow converts external locales to internal locales. This mapping can be useful if you are working with a translation provider that uses non-standard locales.
+
+[sourcecode:yaml]
+import_as:
+  en_uk:
+  - en_GB
 [/sourcecode]
 
 ### preprocessors
