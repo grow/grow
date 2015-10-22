@@ -15,12 +15,6 @@ preprocessors:
   - kind: sass
     sass_dir: /source/sass/
     out_dir: /static/css/
-  - kind: google_docs
-    id: 12LPeFzeuqD0GibLI-AuM4QZb5PVLviI2BGnxZBMu7HI
-    path: /content/docs/test.html
-  - kind: google_docs
-    id: 12LPeFzeuqD0GibLI-AuM4QZb5PVLviI2BGnxZBMu7HI
-    path: /content/docs/mike.md
 
 deployments:
   growsdk.org:
