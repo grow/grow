@@ -41,13 +41,11 @@ categories:                        # Content categories (unimplemented).
 
 ### path
 
-Specifies the URL path format for content in this collection. If `path` is omitted, content in this collection will not be generated into pages. If `path` is specified, `view` is a required field.
+Specifies the URL path format for all content in this collection. Documents inherit the `path` specified in the blueprint. If `path` is omitted, content in this collection will not be generated into pages, unless a document specifies its own `$path`. If `path` is specified, `view` is a required field. [See a list of path formatters]({{g.doc('/docs/urls/').url.path}}#content-document-path-formatters).
 
-  - {base}
-  - {date}
-  - {locale}
-  - {parent}
-  - {slug}
+[sourcecode:yaml]
+path: /{root}/{base}/
+[/sourcecode]
 
 ### view
 
