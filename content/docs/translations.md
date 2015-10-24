@@ -1,9 +1,9 @@
 ---
-$title: Translation
+$title: Translations
 $category: Reference
 $order: 7
 ---
-# Translation
+# Translations
 
 [TOC]
 
@@ -77,7 +77,7 @@ items@:                    # Tagged list of strings.
 
 Messages can be extracted from CSV files by appending `@` to a header cell's value.
 
-[sourcecode:csv]
+[sourcecode:text]
 header1,header2@,header3
 Not extracted,Extracted,Not Extracted
 [/sourcecode]

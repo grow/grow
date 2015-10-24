@@ -4,7 +4,7 @@
   <div class="wrap">
     <div class="panel">
       <nav class="side">
-        {% for category, docs in g.categories(doc.collection) %}
+        {% for category, docs in g.categories(g.collection('docs')) %}
           <h3>{{category}}</h3>
           <ul class="nav nav-stacked">
             {% for item in docs %}
@@ -15,7 +15,11 @@
         {% endfor %}
       </nav>
       <section>
-        {{doc.html|safe}}
+        {% block content %}
+          <div class="docs">
+          {{doc.html|safe}}
+          </div>
+        {% endblock %}
       </section>
     </div>
   </div>

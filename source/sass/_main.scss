@@ -126,33 +126,35 @@ p {
   margin-top: 0;
 }
 
-table {
-  margin: 40px 0;
-  width: 100%;
-}
+.docs {
+  table {
+    margin: 40px 0;
+    width: 100%;
+  }
 
-table,
-table tr td,
-table tr th {
-  @include frosted-background();
-  border-collapse: collapse;
-  border: 1px solid #dedede;
-}
+  table,
+  table tr td,
+  table tr th {
+    @include frosted-background();
+    border-collapse: collapse;
+    border: 1px solid #dedede;
+  }
 
-table thead {
-  font-size: .8em;
-  font-weight: bold;
-}
+  table thead {
+    font-size: .8em;
+    font-weight: bold;
+  }
 
-table tr td,
-table tr th {
-  padding: 9px;
-}
+  table tr td,
+  table tr th {
+    padding: 9px;
+  }
 
-table tr th {
-  background: #efefef;
-  font-weight: 300;
-  text-align: left;
+  table tr th {
+    background: #efefef;
+    font-weight: 300;
+    text-align: left;
+  }
 }
 
 .panel nav.side {

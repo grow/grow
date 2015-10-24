@@ -1,0 +1,34 @@
+.cse,
+.search {
+  padding: 0;
+
+  a {
+    border-bottom: initial;
+  }
+
+  .gcsc-branding {
+    display: none;
+  }
+
+  .gsc-control-cse {
+    padding: 0 !important;
+  }
+
+  .gsc-thinWrapper {
+    width: 100%;
+  }
+
+  .gsc-ad,
+  .gsc-adBlockVertical,
+  .gsc-adBlock {
+    display: none;
+  }
+
+  input.gsc-input, .gsc-input-box, .gsc-input-box-hover, .gsc-input-box-focus {
+    background: none !important;
+  }
+
+  .gsst_b {
+    transform: translateY(5px);
+  }
+}

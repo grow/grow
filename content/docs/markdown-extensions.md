@@ -17,7 +17,7 @@ These built-in extensions are enabled by default.
 
 Generates tables. [View documentation](http://pythonhosted.org/Markdown/extensions/tables.html).
 
-[sourcecode:markdown]
+[sourcecode:text]
 | Header 1 | Header 2
 |-|-|
 | Row 1 | Content
@@ -28,8 +28,8 @@ Generates tables. [View documentation](http://pythonhosted.org/Markdown/extensio
 
 Generates a table of contents based on the headings in a document. [View documentation](http://pythonhosted.org/Markdown/extensions/toc.html).
 
-[sourcecode:markdown]
-[TOC]
+[sourcecode:text]
+[​TOC]
 [/sourcecode]
 
 ## Custom extensions
