@@ -17,14 +17,9 @@ preprocessors:
     out_dir: /static/css/
 
 deployments:
+  grow.io:
+    destination: gcs
+    bucket: grow.io
   growsdk.org:
     destination: gcs
     bucket: growsdk.org
-  sandbox.growlaunches.com:
-    destination: gcs
-    bucket: sandbox.growlaunches.com
-  jetway:
-    destination: jetway
-    name: growsdk
-    project: jeremydw/test
-    server: grow-prod.appspot.com
