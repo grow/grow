@@ -83,7 +83,13 @@ class GoogleCloudStorageDestination(base.BaseDestination):
     else:
       gs_connection = storage.get_connection(
           self.config.project, self.config.email, self.config.key_path)
-    return gs_connection.get_bucket(self.config.bucket)
+    try:
+      return gs_connection.get_bucket(self.config.bucket)
+    except boto.exception.GSResponseError as e:
+      if e.status == 404:
+        logging.info('Creating bucket: {}'.format(self.config.bucket))
+        return gs_connection.create_bucket(self.config.bucket)
+      raise
 
   def dump(self, pod):
     pod.env = self.get_env()
@@ -119,7 +125,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
       file_key.key = path
       try:
         return file_key.get_contents_as_string()
-      except boto.exception.GSResponseError, e:
+      except boto.exception.GSResponseError as e:
         if e.status != 404:
           raise
         raise IOError('File not found: {}'.format(path))
