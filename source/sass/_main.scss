@@ -197,7 +197,7 @@ table tr th {
 .button {
   @include button();
   border: none !important;
-  font-weight: bold;
+  font-weight: 500;
 }
 
 .button.button--inverted {
