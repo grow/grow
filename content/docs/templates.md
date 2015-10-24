@@ -8,7 +8,7 @@ $order: 2
 
 [TOC]
 
-Grow templates are stored in a pod's */views/* directory. Templates are processed using the [Jinja2](http://jinja.pocoo.org/docs/) template language. Grow extends Jinja2 with a few variables and functions that make building content-rich web sites more convenient.
+Grow templates are stored in a pod's `/views/` directory. Templates are processed using the [Jinja2](http://jinja.pocoo.org/docs/) template language. Grow extends Jinja2 with a few variables and functions that make building content-rich web sites more convenient.
 
 Variables have no prefix and are part of the global template scope. Functions are prefixed into the `g` namespace, for example: `g.<function name>`.
 
@@ -167,11 +167,11 @@ Returns an object which can be used to create navigation.
 
 `g.static(<file path>)`
 
-Returns a StaticFile object corresponding to a static file contained within the pod. `<file path>` is the full pod path of the static file. Access the `path` property of the URL object to retrieve an absolute link to the static file. Resources must first be configured in the `static_dirs` option in `podspec.yaml` before they can be referred to by the `g.static` tag.
+Returns a `StaticFile` object corresponding to a static file contained within the pod. `<file path>` is the full pod path of the static file. You can access the `path` property of `StaticFile.url` to retrieve an absolute link to the file's serving path.
 
-It is a best practice to refer to static files using the `g.static` tag rather than referring to their URLs directly. This allows Grow to automatically implement efficient cache headers and cache-busting techniques for incremental static file deployments.
+It is a best practice to *always* refer to static files using the `g.static` tag rather than referring to their URLs directly. This has the benefit of making URL changes easy and Grow will catch broken links to static files at build time.
 
-Lastly, using `g.static` allows you to change the serving paths of static files without moving them internally – plus it catches broken links at build time.
+Prior to using `g.static`, routes must be configured in the `static_dirs` property of `podspec.yaml`.
 
 [sourcecode:html+jinja]
 <img src="{{g.static('/static/example.png').url.path}}">
