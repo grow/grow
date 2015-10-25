@@ -13,10 +13,9 @@ boto==2.22.1
 certifi==1.0.0
 click==4.0
 coverage==3.7.1
-dnspython==1.11.1
 dulwich==0.9.6
 ez-setup==0.9
-gcloud==0.02.2
+gcs-oauth2-boto-plugin==1.9
 goslate==1.4.0
 html2text==2015.6.21
 httplib2==0.9.1
