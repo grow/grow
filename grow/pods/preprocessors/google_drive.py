@@ -1,10 +1,8 @@
 from googleapiclient import discovery
 from googleapiclient import errors
+from grow.common import oauth
 from grow.common import utils
 from grow.pods.preprocessors import base
-from oauth2client import client
-from oauth2client import keyring_storage
-from oauth2client import tools
 from protorpc import messages
 import bs4
 import cStringIO
@@ -15,11 +13,7 @@ import json
 import logging
 import os
 
-# Google API details for a native/installed application for API project grow-prod.
-CLIENT_ID = '578372381550-jfl3hdlf1q5rgib94pqsctv1kgkflu1a.apps.googleusercontent.com'
-CLIENT_SECRET = 'XQKqbwTg88XVpaBNRcm_tYLf'  # Not so secret for installed apps.
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
-REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 # Silence extra logging from googleapiclient.
 discovery.logger.setLevel(logging.WARNING)
@@ -27,24 +21,9 @@ discovery.logger.setLevel(logging.WARNING)
 
 class BaseGooglePreprocessor(base.BasePreprocessor):
 
-  def _get_credentials(self):
-    username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
-    storage = keyring_storage.Storage('Grow SDK', username)
-    credentials = storage.get()
-    if credentials is None:
-      parser = tools.argparser
-      if os.getenv('INTERACTIVE_AUTH'):
-        args = []
-      else:
-        args = ['--noauth_local_webserver']
-      flags, _ = parser.parse_known_args(args)
-      flow = client.OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, OAUTH_SCOPE,
-                                        redirect_uri=REDIRECT_URI)
-      credentials = tools.run_flow(flow, storage, flags)
-    return credentials
-
   def _create_service(self):
-    credentials = self._get_credentials()
+    credentials = oauth.get_credentials(
+        scope=OAUTH_SCOPE, storage_key='Grow SDK')
     http = httplib2.Http(ca_certs=utils.get_cacerts_path())
     http = credentials.authorize(http)
     return discovery.build('drive', 'v2', http=http)

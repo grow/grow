@@ -138,6 +138,10 @@ class Document(object):
   def date(self):
     return self.fields.get('$date')
 
+  @property
+  def view(self):
+    return self.get_view()
+
   def dates(self, date_name=None):
     if date_name is None:
       return self.date

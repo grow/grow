@@ -66,9 +66,16 @@ def get_rc_path():
 
 
 def install(rc_path=None, bin_path=None, force=False):
-  release = json.loads(urllib.urlopen(RELEASES_API).read())[0]
-  version = release['tag_name']
+  resp = json.loads(urllib.urlopen(RELEASES_API).read())
+  try:
+    release = resp[0]
+  except KeyError:
+    print 'There was a problem accessing the GitHub Releases API.'
+    if 'message' in resp:
+      print resp['message']
+    sys.exit(-1)
 
+  version = release['tag_name']
   asset = None
   for each_asset in release['assets']:
     if PLATFORM in each_asset.get('name', '').lower():

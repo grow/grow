@@ -1,89 +1,64 @@
 from . import base
-from . import messages as deployment_messages
+from boto import auth_handler
 from boto.gs import key
 from boto.s3 import connection
-from gcloud import storage
+from gcs_oauth2_boto_plugin import oauth2_client
+from gcs_oauth2_boto_plugin import oauth2_helper
+from grow.common import oauth
 from grow.common import utils
 from grow.pods import env
 from protorpc import messages
 import boto
 import cStringIO
-import dns.resolver
+import gcs_oauth2_boto_plugin
 import logging
 import mimetypes
 import os
 import webapp2
 
 
-class TestCase(base.DestinationTestCase):
-
-  def test_domain_cname_is_gcs(self):
-    bucket_name = self.deployment.config.bucket
-    CNAME = 'c.storage.googleapis.com'
-
-    message = deployment_messages.TestResultMessage()
-    message.title = 'CNAME for {} is {}'.format(bucket_name, CNAME)
-
-    dns_resolver = dns.resolver.Resolver()
-    dns_resolver.nameservers = ['8.8.8.8']  # Use Google's DNS.
-
-    try:
-      content = str(dns_resolver.query(bucket_name, 'CNAME')[0])
-    except:
-      content = ''
-      text = "Can't verify CNAME for {} is mapped to {}"
-      message.result = deployment_messages.Result.WARNING
-      message.text = text.format(bucket_name, CNAME)
-    if not content.startswith(CNAME):
-      text = 'CNAME mapping for {} is not GCS! Found {}, expected {}'
-      message.result = deployment_messages.Result.WARNING
-      message.text = text.format(bucket_name, content, CNAME)
-    else:
-      text = 'CNAME for {} -> {}'.format(bucket_name, content, CNAME)
-      message.text = text.format(text, content, CNAME)
-    return message
+OAUTH_SCOPE = 'https://www.googleapis.com/auth/devstorage.full_control'
+STORAGE_KEY = 'Grow SDK - Google Cloud Storage'
 
 
 class Config(messages.Message):
   bucket = messages.StringField(1)
   access_key = messages.StringField(2)
   access_secret = messages.StringField(3)
-  project = messages.StringField(4)
-  email = messages.StringField(5)
-  key_path = messages.StringField(6)
   env = messages.MessageField(env.EnvConfig, 7)
   keep_control_dir = messages.BooleanField(8, default=False)
   redirect_trailing_slashes = messages.BooleanField(9, default=True)
   main_page_suffix = messages.StringField(10, default='index.html')
   not_found_page = messages.StringField(11, default='404.html')
+  oauth2 = messages.BooleanField(12, default=False)
+
 
 
 class GoogleCloudStorageDestination(base.BaseDestination):
   KIND = 'gcs'
-  TestCase = TestCase
   Config = Config
 
   def __str__(self):
     return 'gs://{}'.format(self.config.bucket)
 
-  @property
-  def use_interoperable_auth(self):
-    return self.config.email is None
-
   @webapp2.cached_property
   def bucket(self):
-    if self.use_interoperable_auth:
-      gs_connection = boto.connect_gs(
-          self.config.access_key, self.config.access_secret,
-          calling_format=connection.OrdinaryCallingFormat())
-      # Always use our internal cacerts.txt file. This fixes an issue with the
-      # PyInstaller-based frozen distribution, while allowing us to continue to
-      # verify certificates and use a secure connection.
-      gs_connection.ca_certificates_file = utils.get_cacerts_path()
-    else:
-      gs_connection = storage.get_connection(
-          self.config.project, self.config.email, self.config.key_path)
-    return gs_connection.get_bucket(self.config.bucket)
+    if self.config.oauth2:
+      enable_oauth2_auth_handler()
+    gs_connection = boto.connect_gs(
+        self.config.access_key, self.config.access_secret,
+        calling_format=connection.OrdinaryCallingFormat())
+    # Always use our internal cacerts.txt file. This fixes an issue with the
+    # PyInstaller-based frozen distribution, while allowing us to continue to
+    # verify certificates and use a secure connection.
+    gs_connection.ca_certificates_file = utils.get_cacerts_path()
+    try:
+      return gs_connection.get_bucket(self.config.bucket)
+    except boto.exception.GSResponseError as e:
+      if e.status == 404:
+        logging.info('Creating bucket: {}'.format(self.config.bucket))
+        return gs_connection.create_bucket(self.config.bucket)
+      raise
 
   def dump(self, pod):
     pod.env = self.get_env()
@@ -95,51 +70,30 @@ class GoogleCloudStorageDestination(base.BaseDestination):
     if dry_run:
       return
     logging.info('Configuring GCS bucket: {}'.format(self.config.bucket))
-    if self.use_interoperable_auth:
-      self.bucket.set_acl('public-read')
-      self.bucket.configure_versioning(False)
-      self.bucket.configure_website(
-          main_page_suffix=self.config.main_page_suffix,
-          error_key=self.config.not_found_page)
-    else:
-      acl = self.bucket.get_default_object_acl()
-      acl.all().grant_read().revoke_write()
-      acl.save()
-      self.bucket.configure_website(
-          main_page_suffix=self.config.main_page_suffix,
-          not_found_page=self.config.not_found_page)
+    self.bucket.set_acl('public-read')
+    self.bucket.configure_versioning(False)
+    self.bucket.configure_website(
+        main_page_suffix=self.config.main_page_suffix,
+        error_key=self.config.not_found_page)
 
   def write_control_file(self, path, content):
     path = os.path.join(self.control_dir, path.lstrip('/'))
     return self.write_file(path, content, policy='private')
 
   def read_file(self, path):
-    if self.use_interoperable_auth:
-      file_key = key.Key(self.bucket)
-      file_key.key = path
-      try:
-        return file_key.get_contents_as_string()
-      except boto.exception.GSResponseError, e:
-        if e.status != 404:
-          raise
-        raise IOError('File not found: {}'.format(path))
-    else:
-      try:
-        file_key = self.bucket.get_key(path)
-        if file_key is not None:
-          return file_key.get_contents_as_string()
-      except (storage.exceptions.NotFoundError,
-              AttributeError):  # Bug in current version of gcloud.
-        pass
+    file_key = key.Key(self.bucket)
+    file_key.key = path
+    try:
+      return file_key.get_contents_as_string()
+    except boto.exception.GSResponseError as e:
+      if e.status != 404:
+        raise
       raise IOError('File not found: {}'.format(path))
 
   def delete_file(self, path):
-    if self.use_interoperable_auth:
-      file_key = key.Key(self.bucket)
-      file_key.key = path.lstrip('/')
-      self.bucket.delete_key(file_key)
-    else:
-      self.bucket.delete_key(path)
+    file_key = key.Key(self.bucket)
+    file_key.key = path.lstrip('/')
+    self.bucket.delete_key(file_key)
 
   def write_file(self, path, content, policy='public-read'):
     if isinstance(content, unicode):
@@ -151,22 +105,78 @@ class GoogleCloudStorageDestination(base.BaseDestination):
     fp.write(content)
     size = fp.tell()
     try:
-      if self.use_interoperable_auth:
-        file_key = key.Key(self.bucket)
-        file_key.key = path
-        # TODO: Allow configurable headers.
-        headers = {
-            'Cache-Control': 'no-cache',
-            'Content-Type': mimetype,
-        }
-        file_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy,
-                                        size=size, rewind=True)
-      else:
-        file_key = self.bucket.new_key(path)
-        file_key.set_contents_from_file(fp, content_type=mimetype, size=size, rewind=True)
-        if policy == 'private':
-          acl = file_key.get_acl()
-          acl.all().revoke_read().revoke_write()
-          file_key.save_acl(acl)
+      file_key = key.Key(self.bucket)
+      file_key.key = path
+      # TODO: Allow configurable headers.
+      headers = {
+          'Cache-Control': 'no-cache',
+          'Content-Type': mimetype,
+      }
+      file_key.set_contents_from_file(
+          fp, headers=headers, replace=True, policy=policy, size=size,
+          rewind=True)
     finally:
       fp.close()
+
+
+# NOTE: Here be demons. We monkeypatch several methods in Google's oauth2 boto
+# plugin in order to leverage Grow's standard "OAuth2WebServerFlow". This permits
+# permits the user to grant Grow access to their Google Cloud Storage through the
+# oauth2 dance, rather than requiring the user to create a $HOME/.boto file and
+# copy and paste access keys and secrets or run "gsutil config" prior to performing
+# a GCS deployment. We may want to send a PR to
+# https://github.com/GoogleCloudPlatform/gcs-oauth2-boto-plugin to add an option
+# to permit this flow, since there's nothing special about the flow and Grow.
+
+
+def enable_oauth2_auth_handler():
+  # TODO: Monkeypatching to enable flow-based auth isn't threadsafe. This should
+  # be adjusted so each deployment can customize whether they want to use
+  # flow-based auth.
+  class PatchedOAuth2Auth(auth_handler.AuthHandler):
+
+    capability = ['google-oauth2', 's3']
+
+    def __init__(self, path, config, provider):
+      self.oauth2_client = None
+      if (provider.name == 'google'):
+        if config.has_option('GoogleCompute', 'service_account'):
+          self.oauth2_client = oauth2_client.CreateOAuth2GCEClient()
+        else:
+          self.oauth2_client = oauth2_helper.OAuth2ClientFromBotoConfig(config)
+          self.oauth2_client.cache_key_base = oauth.CLIENT_ID
+      if not self.oauth2_client:
+        raise auth_handler.NotReadyToAuthenticate()
+
+    def add_auth(self, http_request):
+      header = self.oauth2_client.GetAuthorizationHeader()
+      http_request.headers['Authorization'] = header
+
+  # Ensure our refresh token is set in the boto config.
+  if not boto.config.has_section('Credentials'):
+    boto.config.add_section('Credentials')
+  credentials = patched_get_credentials()
+  refresh_token = credentials.refresh_token
+  boto.config.set('Credentials', 'gs_oauth2_refresh_token', refresh_token)
+
+  # Do the monkeypatching.
+  Client = oauth2_client.OAuth2UserAccountClient
+  Client.GetCredentials = patched_get_credentials
+  Client.FetchAccessToken = patched_fetch_access_token
+  gcs_oauth2_boto_plugin.oauth2_plugin.OAuth2Auth = PatchedOAuth2Auth
+
+
+def patched_get_credentials(*args):
+  """Gets credentials from Grow's flow."""
+  return oauth.get_credentials(scope=OAUTH_SCOPE, storage_key=STORAGE_KEY)
+
+
+def patched_fetch_access_token(self):
+  """Uses credentials from Grow's flow to retrieve an access token."""
+  credentials = self.GetCredentials()
+  return oauth2_client.AccessToken(credentials.access_token,
+      credentials.token_expiry, datetime_strategy=self.datetime_strategy)
+
+
+gcs_oauth2_boto_plugin.SetFallbackClientIdAndSecret(
+  oauth.CLIENT_ID, oauth.CLIENT_SECRET)

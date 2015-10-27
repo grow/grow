@@ -123,7 +123,13 @@ class Catalogs(object):
     return catalog.add(string, None, auto_comments=comments, context=context,
                        flags=flags)
 
-  def _should_extract(self, given_paths, path):
+  def _should_extract_as_csv(self, given_paths, path):
+    ext = os.path.splitext(path)[-1]
+    if ext != '.csv':
+      return False
+    return given_paths is None or path in given_paths
+
+  def _should_extract_as_babel(self, given_paths, path):
     if os.path.splitext(path)[-1] not in _TRANSLATABLE_EXTENSIONS:
       return False
     return not given_paths or path in given_paths
@@ -145,11 +151,28 @@ class Catalogs(object):
         'silent': 'false',
     }
 
-    # Extract messages from content files.
+    # Extract from content files.
     def callback(doc, item, key, unused_node):
       # Verify that the fields we're extracting are fields for a document
       # that's in the default locale. If not, skip the document.
       _handle_field(doc.pod_path, item, key, unused_node)
+
+    def _add_existing_message(msgid, locations, auto_comments=None,
+                              context=None, path=None):
+      existing_message = message_ids_to_messages.get(msgid)
+      auto_comments = [] if auto_comments is None else auto_comments
+      if existing_message:
+        message_ids_to_messages[msgid].locations.extend(locations)
+        paths_to_messages[path].add(existing_message)
+      else:
+        message = catalog.Message(
+            msgid,
+            None,
+            auto_comments=auto_comments,
+            context=context,
+            locations=locations)
+        paths_to_messages[path].add(message)
+        message_ids_to_messages[message.id] = message
 
     def _handle_field(path, item, key, node):
       if not key.endswith('@') or not isinstance(item, basestring):
@@ -165,41 +188,51 @@ class Catalogs(object):
         if auto_comment:
           auto_comments.append(auto_comment)
       locations = [(path, 0)]
-      existing_message = message_ids_to_messages.get(item)
-      if existing_message:
-        message_ids_to_messages[item].locations.extend(locations)
-        paths_to_messages[path].add(existing_message)
-      else:
-        message = catalog.Message(item, None, auto_comments=auto_comments,
-                                  locations=locations)
-        message_ids_to_messages[message.id] = message
-        paths_to_messages[path].add(message)
+      _add_existing_message(
+          msgid=item,
+          auto_comments=auto_comments,
+          locations=locations,
+          path=path)
 
     for collection in self.pod.list_collections():
       text = 'Extracting collection: {}'.format(collection.pod_path)
       self.pod.logger.info(text)
       for doc in collection.list_docs(include_hidden=True):
-        if not self._should_extract(paths, doc.pod_path):
+        if not self._should_extract_as_babel(paths, doc.pod_path):
           continue
         tagged_fields = doc.get_tagged_fields()
         utils.walk(tagged_fields, lambda *args: callback(doc, *args))
         paths_to_locales[doc.pod_path].update(doc.locales)
         all_locales.update(doc.locales)
 
-    # Extract messages from podspec.
+    # Extract from podspec.
     config = self.pod.get_podspec().get_config()
     podspec_path = '/podspec.yaml'
-    if self._should_extract(paths, podspec_path):
+    if self._should_extract_as_babel(paths, podspec_path):
       self.pod.logger.info('Extracting podspec: {}'.format(podspec_path))
       utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
 
-    # Extract messages from content and views.
+    # Extract from content and views.
     pod_files = [os.path.join('/views', path)
                  for path in self.pod.list_dir('/views/')]
     pod_files += [os.path.join('/content', path)
                   for path in self.pod.list_dir('/content/')]
+    pod_files += [os.path.join('/data', path)
+                  for path in self.pod.list_dir('/data/')]
     for pod_path in pod_files:
-      if self._should_extract(paths, pod_path):
+      if self._should_extract_as_csv(paths, pod_path):
+        rows = utils.get_rows_from_csv(self.pod, pod_path)
+        for row in rows:
+          self.pod.logger.info('Extracting: {}'.format(pod_path))
+          for i, parts in enumerate(row.iteritems()):
+            key, val = parts
+            if key.endswith('@'):
+              locations = [(pod_path, i)]
+              _add_existing_message(
+                  msgid=val,
+                  locations=locations,
+                  path=pod_path)
+      elif self._should_extract_as_babel(paths, pod_path):
         pod_locales = paths_to_locales.get(pod_path)
         if pod_locales:
           text = 'Extracting: {} ({} locales)'
@@ -215,14 +248,12 @@ class Catalogs(object):
           for parts in all_parts:
             lineno, string, comments, context = parts
             locations = [(pod_path, lineno)]
-            existing_message = message_ids_to_messages.get(string)
-            if existing_message:
-              message_ids_to_messages[string].locations.extend(locations)
-            else:
-              message = catalog.Message(string, None, auto_comments=comments,
-                                        context=context, locations=locations)
-              paths_to_messages[pod_path].add(message)
-              message_ids_to_messages[message.id] = message
+            _add_existing_message(
+                msgid=string,
+                auto_comments=comments,
+                context=context,
+                locations=locations,
+                path=pod_path)
         except tokenize.TokenError:
           self.pod.logger.error('Problem extracting: {}'.format(pod_path))
           raise

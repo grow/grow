@@ -36,6 +36,13 @@ class AmazonS3Destination(base.BaseDestination):
         self.config.access_key, self.config.access_secret,
         calling_format=connection.OrdinaryCallingFormat())
     return boto_connection.get_bucket(self.config.bucket)
+    try:
+      return boto_connection.get_bucket(self.config.bucket)
+    except boto.exception.S3ResponseError as e:
+      if e.status == 404:
+        logging.info('Creating bucket: {}'.format(self.config.bucket))
+        return boto_connection.create_bucket(self.config.bucket)
+      raise
 
   def dump(self, pod):
     pod.env = self.get_env()

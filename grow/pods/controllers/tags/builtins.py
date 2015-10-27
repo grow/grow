@@ -3,7 +3,6 @@ from grow.common import utils
 from grow.pods import locales as locales_lib
 from grow.pods.documents import collection as collection_lib
 import collections
-import csv as csv_lib
 import itertools
 import jinja2
 import json as json_lib
@@ -35,30 +34,10 @@ def categories(collection=None, collections=None, reverse=None, order_by=None,
   return ((category_list[index], pages) for index, pages in items)
 
 
-def LocaleIterator(iterator, locale):
-  locale = str(locale)
-  for i, line in enumerate(iterator):
-    if i == 0 or line.startswith(locale):
-      yield line
-
-
 _no_locale = '__no_locale'
-
-
 @utils.memoize_tag
 def csv(path, locale=_no_locale, _pod=None):
-  fp = _pod.open_file(path)
-  if locale is not _no_locale:
-    fp = LocaleIterator(fp, locale=locale)
-  rows = []
-  for row in csv_lib.DictReader(fp):
-    data = {}
-    for header, cell in row.iteritems():
-      if cell is None:
-        cell = ''
-      data[header] = cell.decode('utf-8')
-    rows.append(data)
-  return rows
+  return utils.get_rows_from_csv(pod=_pod, path=path, locale=locale)
 
 
 @utils.memoize_tag

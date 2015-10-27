@@ -99,6 +99,7 @@ a.datas += [
 ]
 a.datas += glob_datas('grow/server/frontend')
 a.datas += glob_datas('grow/server/templates')
+a.datas += glob_datas('grow/pods/templates')
 
 
 # Crypto doesn't seem to be needed when building on Mac. TODO(jeremydw):

@@ -68,30 +68,31 @@ class ManagedObserver(observers.Observer):
     self.schedule(podspec_handler, path=self.pod.root, recursive=False)
 
   def schedule_builtins(self):
-    try:
-      preprocessor = routes_cache.RoutesCachePreprocessor(pod=self.pod)
-      self._schedule_preprocessor('/content/', preprocessor, patterns=['*'])
-      self._schedule_preprocessor('/static/', preprocessor, patterns=['*'])
-      preprocessor = translation.TranslationPreprocessor(pod=self.pod)
-      self._schedule_preprocessor('/translations/', preprocessor, patterns=['*.po'])
-    except OSError:
-      # No translations directory found.
-      pass
+    preprocessor = routes_cache.RoutesCachePreprocessor(pod=self.pod)
+    self._schedule_preprocessor('/content/', preprocessor, patterns=['*'])
+    self._schedule_preprocessor('/static/', preprocessor, patterns=['*'])
+    preprocessor = translation.TranslationPreprocessor(pod=self.pod)
+    self._schedule_preprocessor('/translations/', preprocessor, patterns=['*.po'])
 
   def schedule_preprocessors(self):
     self._preprocessor_watches = []
     for preprocessor in self.pod.list_preprocessors():
       for path in preprocessor.list_watched_dirs():
         watch = self._schedule_preprocessor(path, preprocessor)
-        self._preprocessor_watches.append(watch)
+        if watch:
+          self._preprocessor_watches.append(watch)
 
   def _schedule_preprocessor(self, path, preprocessor, **kwargs):
-    if 'ignore_directories' in kwargs:
-      kwargs['ignore_directories'] = [self.pod.abs_path(p)
-                                      for p in kwargs['ignore_directories']]
-    path = self.pod.abs_path(path)
-    handler = PreprocessorEventHandler(preprocessor, **kwargs)
-    return self.schedule(handler, path=path, recursive=True)
+    try:
+      if 'ignore_directories' in kwargs:
+        kwargs['ignore_directories'] = [self.pod.abs_path(p)
+                                        for p in kwargs['ignore_directories']]
+      path = self.pod.abs_path(path)
+      handler = PreprocessorEventHandler(preprocessor, **kwargs)
+      return self.schedule(handler, path=path, recursive=True)
+    except OSError:
+      # No directory found.
+      return None
 
   def reschedule_children(self):
     for observer in self._child_observers:

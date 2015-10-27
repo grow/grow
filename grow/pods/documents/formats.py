@@ -56,58 +56,66 @@ class Format(object):
 
 class _SplitDocumentFormat(Format):
 
-  def _handle_pairs_of_parts_and_bodies(self):
+  def _iterate_content(self):
+    return [(part, part) for part in Format.split_front_matter(self.content)]
+
+  def _validate_fields(self, fields):
+    if '$locale' in fields and '$locales' in fields:
+      text = 'You must specify either $locale or $locales, not both.'
+      raise BadFormatError(text)
+
+  def _get_locales_of_part(self, fields):
+    if '$locales' in fields:
+      return fields['$locales']
+    else:
+      return [fields.get('$locale')]  # None for base document.
+
+  def _get_base_default_locale(self, fields):
+      if '$localization' in fields:
+        if 'default_locale' in fields['$localization']:
+          return fields['$localization']['default_locale']
+
+  def _load_yaml(self, part):
     try:
-      locales_to_fields = collections.defaultdict(dict)
-      locales_to_bodies = {}
-      locale = self.doc._locale_kwarg
-      default_locale = None
-      document_level_default_locale = None
-      split_content = Format.split_front_matter(self.content)
-      for i, parts in enumerate(self._iterate_content()):
-        part, body = parts
-        fields = utils.load_yaml(part, pod=self.doc.pod)
-
-        # Acquires the default locale from the document.
-        if i == 0 and '$localization' in fields:
-          if 'default_locale' in fields['$localization']:
-            document_level_default_locale = fields['$localization']['default_locale']
-
-        if '$locale' in fields and '$locales' in fields:
-          text = 'You must specify either $locale or $locales, not both.'
-          raise BadFormatError(text)
-        if '$locales' in fields:
-          doc_locales = fields['$locales']
-        else:
-          doc_locales = [fields.get('$locale', default_locale)]
-        for doc_locale in doc_locales:
-          locales_to_fields[doc_locale] = fields
-          locales_to_bodies[doc_locale] = body
-      fields = locales_to_fields.get(default_locale)
-
-      # Support overriding the base document by specifying another document
-      # with the default locale's locale.
-      fields = locales_to_fields.get(default_locale)
-      if locale is None and document_level_default_locale:
-        locale = document_level_default_locale
-
-      if document_level_default_locale in locales_to_fields:
-        localized_fields = locales_to_fields[locale]
-        fields.update(localized_fields)
-      default_body = locales_to_bodies.get(default_locale)
-      self.body = locales_to_bodies.get(locale, default_body)
-      self.body = self.body.strip() if self.body is not None else None
-      self.fields = fields
-    except (yaml.composer.ComposerError, yaml.scanner.ScannerError) as e:
+      return utils.load_yaml(part, pod=self.doc.pod)
+    except (yaml.parser.ParserError,
+            yaml.composer.ComposerError,
+            yaml.scanner.ScannerError) as e:
       message = 'Error parsing {}: {}'.format(self.doc.pod_path, e)
-      logging.exception(message)
       raise BadFormatError(message)
+
+  def _handle_pairs_of_parts_and_bodies(self):
+    locales_to_fields = collections.defaultdict(dict)
+    locales_to_bodies = {}
+    locale = self.doc._locale_kwarg
+    base_default_locale = None
+
+    for i, parts in enumerate(self._iterate_content()):
+      part, body = parts
+      fields = self._load_yaml(part)
+      self._validate_fields(fields)
+      if i == 0:
+        base_default_locale = self._get_base_default_locale(fields)
+      for part_locale in self._get_locales_of_part(fields):
+        locales_to_fields[part_locale] = fields
+        locales_to_bodies[part_locale] = body
+
+    # Allow $locale to override base locale.
+    if locale is None and base_default_locale:
+      locale = base_default_locale
+
+    # Merge localized fields into base fields.
+    self.fields = locales_to_fields.get(None)
+    localized_fields = locales_to_fields.get(locale, {})
+    self.fields.update(localized_fields)
+
+    # Merge localized bodies into base body.
+    base_body = locales_to_bodies.get(None)
+    self.body = locales_to_bodies.get(locale, base_body)
+    self.body = self.body.strip() if self.body is not None else None
 
 
 class YamlFormat(_SplitDocumentFormat):
-
-  def _iterate_content(self):
-    return [(part, part) for part in Format.split_front_matter(self.content)]
 
   def load(self):
     try:

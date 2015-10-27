@@ -1,4 +1,6 @@
 from grow.pods import errors
+import cStringIO
+import csv as csv_lib
 import functools
 import gettext
 import git
@@ -7,7 +9,6 @@ import logging
 import os
 import re
 import sys
-import cStringIO
 import time
 import translitcodec
 import yaml
@@ -220,3 +221,28 @@ def untag_fields(fields):
     if isinstance(node, dict):
       node[untagged_key] = content
   return fields
+
+
+_no_locale = '__no_locale'
+
+
+def LocaleIterator(iterator, locale):
+  locale = str(locale)
+  for i, line in enumerate(iterator):
+    if i == 0 or line.startswith(locale):
+      yield line
+
+
+def get_rows_from_csv(pod, path, locale=_no_locale):
+  fp = pod.open_file(path)
+  if locale is not _no_locale:
+    fp = LocaleIterator(fp, locale=locale)
+  rows = []
+  for row in csv_lib.DictReader(fp):
+    data = {}
+    for header, cell in row.iteritems():
+      if cell is None:
+        cell = ''
+      data[header] = cell.decode('utf-8')
+    rows.append(data)
+  return rows

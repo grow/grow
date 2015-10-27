@@ -19,15 +19,15 @@ import os
 @click.option('--test_only', default=False, is_flag=True,
               help='Only run the deployment tests.')
 @click.option('--auth',
-              help='(deprecated) The --auth flag must now be specified'
-                    ' before "build", e.g.:'
-                    ' grow --auth=user@example.com build')
+              help='(deprecated) --auth must now be specified'
+                   ' before deploy. Usage: grow --auth=user@example.com deploy')
 @click.pass_context
-def deploy(context, deployment_name, pod_path, preprocess, confirm, test, test_only, auth):
+def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
+           test_only, auth):
   """Deploys a pod to a destination."""
   if auth:
-    text = ('--auth must be specified before "build", e.g.:'
-            ' grow --auth=user@example.com build')
+    text = ('--auth must now be specified before deploy. Usage:'
+            ' grow --auth=user@example.com deploy')
     raise click.ClickException(text)
   auth = context.parent.params.get('auth')
   root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
