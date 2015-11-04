@@ -29,6 +29,7 @@ class RoutesTest(unittest.TestCase):
         '/about/',
         '/app/static/file with spaces.txt',
         '/app/static/somepath/de_alias/test.txt',
+        '/app/static/sym/test_sym.txt',
         '/app/static/test.txt',
         '/de_alias/about/',
         '/de_alias/contact-us/',

@@ -35,7 +35,7 @@ class FileStorage(base_storage.BaseStorage):
   @staticmethod
   def listdir(dirpath):
     paths = []
-    for root, dirs, files in os.walk(dirpath):
+    for root, dirs, files in os.walk(dirpath, followlinks=True):
       for filename in files:
         path = os.path.join(root, filename)[len(dirpath):]
         paths.append(path)
