@@ -5,6 +5,11 @@ except ImportError:
   # Not running in GAE runtime.
   cloudstorage = None
 
+try:
+  from google.appengine.ext import blobstore
+except ImportError:
+  blobstore = None
+
 import os
 import jinja2
 import logging
@@ -97,6 +102,13 @@ class CloudStorage(base_storage.BaseStorage):
   def move_to(path, target_path):
     CloudStorage.copy_to(path, target_path)
     cloudstorage.delete(path)
+
+  @staticmethod
+  def update_headers(headers, path):
+    if blobstore is None:
+      raise Exception('Cannot use blobstore outside App Engine environment.')
+    blob_key = blobstore.create_gs_key('/gs' + path)
+    headers['X-AppEngine-BlobKey'] = blob_key
 
 
 class CloudStorageLoader(jinja2.BaseLoader):

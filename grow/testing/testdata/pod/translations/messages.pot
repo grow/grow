@@ -1,0 +1,78 @@
+#: /content/pages/about.yaml:0
+msgid "About"
+msgstr ""
+
+#: /content/pages/about.yaml:0
+msgid "About us"
+msgstr ""
+
+#: /content/pages/about.yaml:0
+msgid "AboutDE"
+msgstr ""
+
+#: /content/pages/intro.md:0
+msgid "Bar"
+msgstr ""
+
+#: /content/pages/contact.yaml:0
+msgid "Contact"
+msgstr ""
+
+#: /content/pages/intro.md:0
+msgid "Foo"
+msgstr ""
+
+#: /content/posts/newer.md:0
+msgid "Goodnight Moon!"
+msgstr ""
+
+#: /content/pages/html.html:0
+msgid "HTML Page"
+msgstr ""
+
+#. Main title 2.
+#: /views/home.html:10
+msgid "Hello World 2!"
+msgstr ""
+
+#: /content/posts/oldest.md:0 /content/posts/older.md:0 /views/home.html:8
+msgid "Hello World!"
+msgstr ""
+
+#: /content/pages/home.yaml:0
+msgid "Home page"
+msgstr ""
+
+#: /content/pages/intro.md:0
+msgid "Introduction"
+msgstr ""
+
+#: /content/posts/newest.md:0
+msgid "Newest!"
+msgstr ""
+
+#. Tagged String description.
+#: /content/pages/home.yaml:0
+msgid "Tagged String"
+msgstr ""
+
+#: /content/pages/home.yaml:0
+msgid "Tagged String in List 1"
+msgstr ""
+
+#: /content/pages/home.yaml:0
+msgid "Tagged String in List 2"
+msgstr ""
+
+#: /content/pages/localized.yaml:0
+msgid "Tagged localized body."
+msgstr ""
+
+#: /content/pages/localized.yaml:0 /content/pages/home.yaml:0
+msgid "Tagged localized title."
+msgstr ""
+
+#: /content/pages/yaml_test.html:0
+msgid "YAML Test"
+msgstr ""
+

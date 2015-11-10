@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for doc in docs %}
+  <url>
+    <loc>{{doc.url}}</loc>
+    {% if doc.modified %}
+    <lastmod>{{doc.modified|date("%Y-%M-%D")}}</lastmod>
+    {% endif %}
+    {% if doc.sitemap.changefreq %}
+    <changefreq>{{doc.sitemap.changefreq}}</changefreq>
+    {% endif %}
+    {% if doc.sitemap.priority %}
+    <priority>{{doc.sitemap.priority}}</priority>
+    {% endif %}
+  </url>
+  {% endfor %}
+</urlset> 

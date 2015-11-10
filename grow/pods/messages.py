@@ -1,5 +1,6 @@
 from protorpc import messages
-from grow.pods.collectionz import messages as collection_messages
+from .controllers import messages as controller_messages
+from .documents import messages as collection_messages
 
 
 class LocaleGroupMessage(messages.Message):
@@ -16,25 +17,20 @@ class MessageMessage(messages.Message):
   msgid = messages.StringField(1)
   msgstr = messages.StringField(2)
   description = messages.StringField(3)
+  flags = messages.StringField(4, repeated=True)
 
 
-class TranslationCatalogMessage(messages.Message):
+class CatalogMessage(messages.Message):
   locale = messages.StringField(1)
   messages = messages.MessageField(MessageMessage, 2, repeated=True)
 
 
-class TranslationsMessage(messages.Message):
-  catalogs = messages.MessageField(TranslationCatalogMessage, 1, repeated=True)
-
-
-class RouteMessage(messages.Message):
-  path = messages.StringField(1)
-  kind = messages.StringField(2)
+class CatalogsMessage(messages.Message):
+  catalogs = messages.MessageField(CatalogMessage, 1, repeated=True)
 
 
 class RoutesMessage(messages.Message):
-  domains = messages.StringField(1, repeated=True)
-  routes = messages.MessageField(RouteMessage, 2, repeated=True)
+  routes = messages.MessageField(controller_messages.RouteMessage, 1, repeated=True)
 
 
 class FileMessage(messages.Message):
@@ -46,15 +42,9 @@ class FileMessage(messages.Message):
 
 
 class PodMessage(messages.Message):
-  changeset = messages.StringField(1)
   collections = messages.MessageField(collection_messages.CollectionMessage, 2, repeated=True)
   files = messages.MessageField(FileMessage, 3, repeated=True)
   routes = messages.MessageField(RoutesMessage, 4)
-
-
-class FileTransferMessage(messages.Message):
-  pod_path = messages.StringField(1)
-  content_b64 = messages.StringField(2)
 
 
 class FileSearchMessage(messages.Message):

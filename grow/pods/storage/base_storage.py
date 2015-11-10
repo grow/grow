@@ -15,6 +15,10 @@ class BaseStorage(object):
     raise NotImplementedError
 
   @staticmethod
+  def size(filename):
+    raise NotImplementedError
+
+  @staticmethod
   def stat(filename):
     raise NotImplementedError
 
@@ -43,3 +47,7 @@ class BaseStorage(object):
     file_obj = cls.open(path, mode='w')
     file_obj.write(content)
     return file_obj
+
+  @classmethod
+  def update_headers(cls, headers, path):
+    pass

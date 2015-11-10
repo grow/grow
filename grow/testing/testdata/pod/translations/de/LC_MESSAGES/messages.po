@@ -1,0 +1,84 @@
+#: /content/pages/about.yaml:0
+msgid "About"
+msgstr "Über"
+
+#: /content/pages/about.yaml:0
+msgid "About us"
+msgstr "Über uns"
+
+#: /content/pages/about.yaml:0
+msgid "AboutDE"
+msgstr "AboutDE"
+
+#: /content/pages/intro.md:0
+msgid "Bar"
+msgstr "Bar"
+
+#: /content/pages/contact.yaml:0
+msgid "Contact"
+msgstr "Berührung"
+
+#: /content/pages/intro.md:0
+msgid "Foo"
+msgstr "Foo"
+
+#: /content/posts/newer.md:0
+msgid "Goodnight Moon!"
+msgstr "Gute Nacht Mond!"
+
+#: /content/pages/html.html:0
+msgid "HTML Page"
+msgstr "HTML-Seite"
+
+#. Main title 2.
+#: /views/home.html:10
+msgid "Hello World 2!"
+msgstr "Hallo Welt 2!"
+
+#: /content/posts/oldest.md:0 /content/posts/older.md:0 /views/home.html:8
+msgid "Hello World!"
+msgstr "Hallo Welt!"
+
+#: /content/pages/home.yaml:0
+msgid "Home page"
+msgstr "Startseite"
+
+#: /content/pages/intro.md:0
+msgid "Introduction"
+msgstr "Einbringen"
+
+#: /content/posts/newest.md:0
+msgid "Newest!"
+msgstr "Am neuesten!"
+
+#. Tagged String description.
+#: /content/pages/home.yaml:0
+msgid "Tagged String"
+msgstr "Stichwort String"
+
+#: /content/pages/home.yaml:0
+msgid "Tagged String in List 1"
+msgstr "Stichwort String in Liste 1"
+
+#: /content/pages/home.yaml:0
+msgid "Tagged String in List 2"
+msgstr "Stichwort String in Liste 2"
+
+#: /content/pages/localized.yaml:0
+msgid "Tagged localized body."
+msgstr "Stichwort lokalisierte Körper."
+
+#: /content/pages/localized.yaml:0 /content/pages/home.yaml:0
+msgid "Tagged localized title."
+msgstr "Stichwort lokalisierten Titel."
+
+#: /content/pages/yaml_test.html:0
+msgid "YAML Test"
+msgstr ""
+
+msgid "Missing 1"
+msgstr ""
+
+#, fuzzy
+msgid "Fuzzy string"
+msgstr "Fuzzy string translation"

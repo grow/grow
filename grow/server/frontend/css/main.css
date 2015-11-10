@@ -1,0 +1,31 @@
+html,
+body {
+  font-family: 'Roboto', 'Helvetica', sans-serif;
+}
+
+ul ul {
+  margin: 10px 0;
+}
+
+header .title {
+  margin: 0 0 15px;
+}
+
+header nav {
+  margin-bottom: 15px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table tr td,
+table tr th {
+  border: 1px solid #efefef;
+  padding: 5px 10px;
+}
+
+table tr th {
+  font-weight: bold;
+  text-align: left;
+}

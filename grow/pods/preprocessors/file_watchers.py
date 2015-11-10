@@ -1,7 +1,8 @@
-from grow.pods.preprocessors import translation as translation_preprocessor
-import threading
+from grow.pods.preprocessors import routes_cache
+from grow.pods.preprocessors import translation
 from watchdog import events
 from watchdog import observers
+from xtermcolor import colorize
 
 
 class PodspecFileEventHandler(events.PatternMatchingEventHandler):
@@ -15,6 +16,7 @@ class PodspecFileEventHandler(events.PatternMatchingEventHandler):
 
   def handle(self, event=None):
     self.pod.reset_yaml()
+    self.pod.routes.reset_cache(rebuild=True)
     self.managed_observer.reschedule_children()
 
   def on_created(self, event):
@@ -34,10 +36,16 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
   def handle(self, event=None):
     if event is not None and event.is_directory:
       return
-    if self.num_runs == 0:
-      self.preprocessor.first_run()
-    else:
-      self.preprocessor.run()
+    try:
+      if self.num_runs == 0:
+        self.preprocessor.first_run()
+      else:
+        self.preprocessor.run()
+    except Exception:
+      # Avoid an inconsistent state where preprocessor doesn't run again
+      # if it encounters an exception. https://github.com/grow/pygrow/issues/81
+      text = colorize('Preprocessor error.', ansi=197)
+      self.preprocessor.pod.logger.exception(text)
     self.num_runs += 1
 
   def on_created(self, event):
@@ -59,25 +67,32 @@ class ManagedObserver(observers.Observer):
     podspec_handler = PodspecFileEventHandler(self.pod, managed_observer=self)
     self.schedule(podspec_handler, path=self.pod.root, recursive=False)
 
-  def schedule_translation(self):
-    try:
-      preprocessor = translation_preprocessor.TranslationPreprocessor(pod=self.pod)
-      self._schedule_preprocessor('/translations/', preprocessor, patterns=['*.po'])
-    except OSError:
-      # No translations directory found.
-      pass
+  def schedule_builtins(self):
+    preprocessor = routes_cache.RoutesCachePreprocessor(pod=self.pod)
+    self._schedule_preprocessor('/content/', preprocessor, patterns=['*'])
+    self._schedule_preprocessor('/static/', preprocessor, patterns=['*'])
+    preprocessor = translation.TranslationPreprocessor(pod=self.pod)
+    self._schedule_preprocessor('/translations/', preprocessor, patterns=['*.po'])
 
   def schedule_preprocessors(self):
     self._preprocessor_watches = []
     for preprocessor in self.pod.list_preprocessors():
       for path in preprocessor.list_watched_dirs():
         watch = self._schedule_preprocessor(path, preprocessor)
-        self._preprocessor_watches.append(watch)
+        if watch:
+          self._preprocessor_watches.append(watch)
 
-  def _schedule_preprocessor(self, path, preprocessor, patterns=None):
-    path = self.pod.abs_path(path)
-    handler = PreprocessorEventHandler(preprocessor, patterns=patterns)
-    return self.schedule(handler, path=path, recursive=True)
+  def _schedule_preprocessor(self, path, preprocessor, **kwargs):
+    try:
+      if 'ignore_directories' in kwargs:
+        kwargs['ignore_directories'] = [self.pod.abs_path(p)
+                                        for p in kwargs['ignore_directories']]
+      path = self.pod.abs_path(path)
+      handler = PreprocessorEventHandler(preprocessor, **kwargs)
+      return self.schedule(handler, path=path, recursive=True)
+    except OSError:
+      # No directory found.
+      return None
 
   def reschedule_children(self):
     for observer in self._child_observers:
@@ -110,15 +125,13 @@ class ManagedObserver(observers.Observer):
         handler.handle()
 
 
-def create_dev_server_observer(pod):
+def create_dev_server_observers(pod):
   main_observer = ManagedObserver(pod)
-  main_observer.schedule_translation()
+  main_observer.schedule_builtins()
   main_observer.schedule_preprocessors()
-  thread = threading.Thread(target=main_observer.run_handlers)
-  thread.start()
 
   podspec_observer = ManagedObserver(pod)
   podspec_observer.schedule_podspec()
   podspec_observer.add_child(main_observer)
   podspec_observer.start()
-  return podspec_observer
+  return main_observer, podspec_observer

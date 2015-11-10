@@ -1,5 +1,6 @@
 """An Env holds the environment context that a pod is running in."""
 
+import time
 from protorpc import messages
 
 
@@ -7,15 +8,21 @@ class EnvConfig(messages.Message):
   host = messages.StringField(1)
   scheme = messages.StringField(2)
   port = messages.IntegerField(3)
+  name = messages.StringField(4)
+  cached = messages.BooleanField(5, default=True)
+  fingerprint = messages.StringField(6)
 
 
 class Env(object):
 
   def __init__(self, config):
+    self.name = config.name
     self.config = config
     self.host = config.host
     self.port = config.port or 80
     self.scheme = config.scheme or 'http'
+    self.cached = config.cached
+    self.fingerprint = config.fingerprint or str(int(time.time()))
 
   def __repr__(self):
     return '<Env: {}>'.format(self.url)
@@ -47,21 +54,11 @@ class Env(object):
   @property
   def url(self):
     url_port = ':{}'.format(self.port)
-
     # Do not show the port for default ports.
     if ((self.port == 80 and self.scheme == 'http')
         or (self.port == 443 and self.scheme == 'https')):
       url_port = ''
-
     return '{}://{}{}/'.format(self.scheme, self.host, url_port)
-
-  @classmethod
-  def from_wsgi_env(cls, wsgi_env):
-    config = EnvConfig()
-    config.host = wsgi_env.get('HTTP_HOST', wsgi_env.get('SERVER_NAME', 'localhost'))
-    config.scheme = wsgi_env['wsgi.url_scheme']
-    config.port = int(wsgi_env.get('SERVER_PORT', 80))
-    return cls(config)
 
   def to_wsgi_env(self):
     return {

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% set title = "Routes" %}
+
+{% block main %}
+{% for controller, paths in pod.routes.get_controllers_to_paths().iteritems() %}
+  <h3>{{controller}}</h3>
+  <ul>
+    {% for path in paths|sort %}
+    <li><a href="{{path}}">{{path}}</a></li>
+    {% endfor %}
+  </ul>
+{% endfor %}
+{% endblock %}

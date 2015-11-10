@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% set title = "Collections" %}
+
+{% block main %}
+  {% for collection in pod.list_collections() %}
+  <h3>{{collection}}</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Catalog</th>
+        <th>Locales</th>
+      </tr>
+    </thead>
+    {% set docs = collection.list_docs()|groupby('pod_path') %}
+    {% for group in docs %}
+    <tr>
+      <td>{{group.grouper}}</td>
+      <td>{{group.list|length}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endfor %}
+{% endblock %}

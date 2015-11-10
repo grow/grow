@@ -1,0 +1,11 @@
+$path: /{locale}/contact-us/
+$title@: "Contact & Us Test"  # Avoid regression r.t. https://github.com/grow/pygrow/issues/128
+$slug: "Contact & Us Test"
+$order: 2
+$localization:
+  path: /{locale}/contact-us/
+  default_locale: de
+  locales:
+  - de
+  - fr
+  - it

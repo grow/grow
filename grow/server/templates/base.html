@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% if title %}{{title}} – {% endif %}Grow</title>
+    <link rel="stylesheet" href="/_grow/static/css/main.css">
+    <link rel="shortcut icon" href="/_grow/static/favicon.png">
+  </head>
+  <body>
+    <header>
+      <div class="title">
+        {{pod.root}}
+      </div>
+      <nav>
+        <a href="/_grow">Routes</a>
+        <a href="/_grow/content">Content</a>
+        <a href="/_grow/translations">Translations</a>
+      </nav>
+    </header>
+    <main>
+      {% block main %}
+      {% endblock %}
+    </main>
+  </body>

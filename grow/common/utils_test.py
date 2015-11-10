@@ -1,5 +1,6 @@
+from grow.testing import testing
+from . import utils
 import unittest
-import utils
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -20,50 +21,19 @@ class UtilsTestCase(unittest.TestCase):
     expected = ['bar', 'bar2', 'bar3', 'bar4']
     self.assertItemsEqual(expected, actual)
 
-  def test_parse_markdown(self):
-    content = (
-        '---\n'
-        'foo: bar\n'
-        '---\n'
-        '# Bam\n'
-    )
-    fields, content = utils.parse_markdown(content)
-    self.assertEqual({'foo': 'bar'}, fields)
-    self.assertEqual('# Bam', content)
-
-    content = (
-        '---\n'
-        'foo: bar\n'
-        '---\n'
-    )
-    fields, content = utils.parse_markdown(content)
-    self.assertEqual({'foo': 'bar'}, fields)
-    self.assertEqual('', content)
-
-    content = (
-        '# Bam'
-    )
-    fields, content = utils.parse_markdown(content)
-    print fields, content
-    self.assertEqual(None, fields)
-    self.assertEqual('# Bam', content)
-
-    localized_content = (
-        '---\n'
-        'locale: foo\n'
-        '---\n'
-        '# Foo\n'
-        '---\n'
-        'locale: bar\n'
-        '---\n'
-        '# Bar\n'
-        '---\n'
-        'locale: qaz\n'
-        '---\n'
-        '# Qaz\n'
-    )
+  def test_parse_yaml(self):
+    pod = testing.create_test_pod()
+    content = pod.read_file('/data/constructors.yaml')
+    result = utils.parse_yaml(content, pod=pod)
+    doc = pod.get_doc('/content/pages/home.yaml')
+    self.assertEqual(doc, result['doc'])
+    expected_docs = [
+        pod.get_doc('/content/pages/home.yaml'),
+        pod.get_doc('/content/pages/about.yaml'),
+        pod.get_doc('/content/pages/home.yaml'),
+    ]
+    self.assertEqual(expected_docs, result['docs'])
 
 
 if __name__ == '__main__':
   unittest.main()
-

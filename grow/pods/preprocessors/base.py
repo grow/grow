@@ -1,4 +1,3 @@
-import logging
 import os
 
 
@@ -12,11 +11,13 @@ class PreprocessorError(Error):
 
 class BasePreprocessor(object):
 
-  def __init__(self, pod, config):
+  def __init__(self, pod, config, autorun=True, name=None):
     self.pod = pod
     self.root = pod.root
     self.config = config
-    self.logger = logging.getLogger('preprocessor')
+    self.logger = self.pod.logger
+    self.autorun = autorun
+    self.name = name
 
   def first_run(self):
     self.run()
@@ -28,4 +29,6 @@ class BasePreprocessor(object):
     return []
 
   def normalize_path(self, path):
-    return os.path.join(self.root, path.lstrip('/'))
+    if path.startswith('/'):
+      return os.path.join(self.root, path.lstrip('/'))
+    return path

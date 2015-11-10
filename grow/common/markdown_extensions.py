@@ -24,12 +24,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 from markdown import extensions
 from markdown import preprocessors
 from pygments import highlight
-from pygments import formatters
 from pygments import lexers
+from pygments.formatters.html import HtmlFormatter
+from pygments.lexers import TextLexer
+from pygments.lexers import get_lexer_by_name
+import re
 
 
 class IncludePreprocessor(preprocessors.Preprocessor):
@@ -105,7 +107,7 @@ class UrlExtension(extensions.Extension):
 
 class CodeBlockPreprocessor(preprocessors.Preprocessor):
   pattern = re.compile(r'\[sourcecode:(.+?)\](.+?)\[/sourcecode\]', re.S)
-  formatter = formatters.HtmlFormatter(noclasses=True)
+  formatter = HtmlFormatter(noclasses=True)
 
   def run(self, lines):
     def repl(m):
@@ -114,7 +116,6 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
       except ValueError:
         lexer = lexers.TextLexer()
       code = highlight(m.group(2), lexer, self.formatter)
-      code = code.replace('\n\n', '\n&nbsp;\n').replace('\n', '<br />')
       return '\n\n<div class="code">%s</div>\n\n' % code
     joined_lines = "\n".join(lines)
     joined_lines = self.pattern.sub(repl, joined_lines)

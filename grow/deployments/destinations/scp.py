@@ -12,10 +12,11 @@ class Config(messages.Message):
   root_dir = messages.StringField(3, default='')
   username = messages.StringField(4)
   env = messages.MessageField(env.EnvConfig, 5)
+  keep_control_dir = messages.BooleanField(6, default=False)
 
 
 class ScpDestination(base.BaseDestination):
-  NAME = 'scp'
+  KIND = 'scp'
   Config = Config
   threaded = False
 

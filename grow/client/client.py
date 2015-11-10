@@ -1,4 +1,3 @@
-from apiclient import discovery
 from apiclient import errors
 import httplib2
 import json
@@ -9,20 +8,6 @@ HOST = ''
 root_url_format = '{}://{}/_ah/api'
 api = 'grow'
 version = 'v0.1'
-errors = errors
-
-
-def get_service(host=None):
-  if host is None:
-    host = HOST
-  http_service = httplib2.Http()
-  http_service.disable_ssl_certificate_validation = True
-  scheme = 'http' if ':' in host else 'https'
-  url = root_url_format.format(scheme, host)
-  url += '/discovery/v1/apis/{api}/{apiVersion}/rest'
-  service = discovery.build(api, version, http=http_service,
-                            discoveryServiceUrl=url)
-  return service
 
 
 class Client(object):

@@ -8,10 +8,3 @@ class PathError(Error, ValueError):
 
 class NotFoundError(Error, IOError):
   pass
-
-
-#if cloudstorage:
-#  NotFoundError = cloudstorage.NotFoundError
-##  class NotFoundError(Error, IOError, cloudstorage.NotFoundError):
-##    pass
-#else:

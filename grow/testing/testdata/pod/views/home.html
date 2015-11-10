@@ -1,0 +1,35 @@
+{% extends "/views/base.html" %}
+
+{% block main %}
+  <header>
+    <h1>Homepage</h1>
+    {{doc.title}}
+    {#: Main title. #}
+    <h1>{{_('Hello World!')}}</h1>
+    {#: Main title 2. #}
+    <h1>{{_('Hello World 2!')}}</h1>
+    {{doc.html|safe}}
+  </header>
+  <p>
+    {% set static = g.static('/static/test.txt', locale=doc.locale) %}
+    Localized: {{static}} - {{static.url.path}}
+  </p>
+  <nav>
+    {% for page in g.docs('pages') %}
+      <li><a href="{{page.url.path}}">{{page.titles('nav')}}</a>
+    {% endfor %}
+  </nav>
+    <h2>g.docs('posts')</h2>
+    {% for post in g.docs('posts') %}
+      <article>
+        <h3><a href="{{post.url.path}}">{{post.title}}</a></h3>
+        {{post.html|safe}}
+      </article>
+    {% endfor %}
+    <h2>g.statics</h2>
+    <ul>
+    {% for static in g.statics('/static/') %}
+      <li>{{static}} - {{static.url.path}}
+    {% endfor %}
+    </ul>
+{% endblock %}

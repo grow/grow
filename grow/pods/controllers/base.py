@@ -1,22 +1,36 @@
+from . import messages
+
+
 class BaseController(object):
 
   def __init__(self, _pod):
     self.pod = _pod
     self.route_params = {}
 
+  @property
+  def locale(self):
+    return None
+
   def set_route_params(self, route_params):
     self.route_params = route_params
 
-  def validate_route_params(self, route_params):
+  def validate(self):
     pass
 
   def get_route_params(self):
     return self.route_params
 
-  def get_mimetype(self):
-    raise NotImplementedError
-
   def get_http_headers(self):
-    return {
-        'Content-Type': self.mimetype,
-    }
+    headers = {}
+    if self.mimetype:
+      headers['Content-Type'] = self.mimetype
+    return headers
+
+  def to_route_messages(self):
+    route_messages = []
+    for path in self.list_concrete_paths():
+      message = messages.RouteMessage()
+      message.path = path
+      message.kind = self.KIND
+      route_messages.append(message)
+    return route_messages
