@@ -6,6 +6,8 @@ flags:
   static_dir: /public/
 
 static_dirs:
+- static_dir: /static-fingerprint/
+  serve_at: "/static-fingerprint/{fingerprint}/"
 - static_dir: /static-root/
   serve_at: "/{root}/static/"
 - static_dir: /static/

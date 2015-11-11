@@ -5,6 +5,7 @@ from grow.pods import urls
 import fnmatch
 import mimetypes
 import re
+import hashlib
 import webob
 import os
 
@@ -67,10 +68,24 @@ class StaticFile(object):
     return self.pod.file_size(self.pod_path)
 
   @property
+  def fingerprint(self):
+    return StaticFile._create_fingerprint(self.pod, self.pod_path)
+
+  @staticmethod
+  def _create_fingerprint(pod, pod_path):
+    sha = hashlib.sha1()
+    with pod.open_file(pod_path, 'rb') as fp:
+      content = fp.read()
+      sha.update(content)
+    return sha.hexdigest()
+
+  @property
   def url(self):
     serving_path = self.serving_path
     path_format = self.controller.path_format.replace('{filename}', '')
     suffix = serving_path.replace(path_format, '')
+    if '{fingerprint}' in path_format:
+      path_format = path_format.replace('{fingerprint}', self.fingerprint)
     if self.localization:
       localized_pod_path = self.localization['static_dir'] + suffix
       localized_pod_path = localized_pod_path.format(locale=self.locale)
@@ -205,6 +220,7 @@ class StaticController(base.BaseController):
         if match:
           kwargs = match.groupdict()
           kwargs['root'] = self.pod.podspec.root
+          kwargs['fingerprint'] = 'foo'
           if 'locale' in kwargs:
             normalized_locale = self.pod.normalize_locale(kwargs['locale'])
             kwargs['locale'] = (

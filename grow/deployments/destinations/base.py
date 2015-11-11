@@ -124,6 +124,7 @@ class BaseDestination(object):
     self.name = name
     self.pod = None
     self._diff = None
+    self._confirm = None
 
   def __str__(self):
     return self.__class__.__name__
@@ -219,6 +220,7 @@ class BaseDestination(object):
 
   def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False, confirm=False,
              test=True):
+    self._confirm = confirm
     self.prelaunch(dry_run=dry_run)
     if test:
       self.test()

@@ -153,7 +153,8 @@ class Diff(object):
           and index.commit and index.commit.sha):
       diff.what_changed = repo.git.log(
           '--date=short',
-          '--pretty=format:[%h] %ad <%ae> %s').decode('utf-8')
+          '--pretty=format:[%h] %ad <%ae> %s')
+#      .decode('utf-8')
 
     return diff
 

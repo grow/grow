@@ -58,9 +58,10 @@ class WebReviewDestination(base.BaseDestination):
       try:
         self.webreview.commit = utils.create_commit_message(repo)
       except ValueError:
-        raise ValueError(
-            'Cannot deploy to WebReview from a Git repository without a HEAD.'
-            ' Commit first then deploy to WebReview.')
+        raise
+#        raise ValueError(
+#            'Cannot deploy to WebReview from a Git repository without a HEAD.'
+#            ' Commit first then deploy to WebReview.')
     result = super(WebReviewDestination, self).deploy(*args, **kwargs)
     if self.success:
       finalize_response = self.webreview.finalize()
