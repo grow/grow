@@ -75,11 +75,16 @@ class StaticFile(object):
       localized_pod_path = self.localization['static_dir'] + suffix
       localized_pod_path = localized_pod_path.format(locale=self.locale)
       if self.pod.file_exists(localized_pod_path):
+        # TODO(jeremydw): Centralize path formatting.
         # Internal paths use Babel locales, serving paths use aliases.
         locale = self.locale.alias if self.locale is not None else self.locale
         localized_serving_path = self.localization['serve_at'] + suffix
-        localized_serving_path = localized_serving_path.format(locale=locale)
-        serving_path = localized_serving_path
+        kwargs = {
+            'locale': locale,
+            'root': self.pod.podspec.root,
+        }
+        localized_serving_path = localized_serving_path.format(**kwargs)
+        serving_path = localized_serving_path.replace('//', '/')
     return urls.Url(path=serving_path) if serving_path else None
 
 
@@ -108,6 +113,7 @@ class StaticController(base.BaseController):
       source_format += '/{filename}'
       source_format = source_format.replace('//', '/')
       kwargs = self.route_params
+      kwargs['root'] = self.pod.podspec.root
       if 'locale' in kwargs:
         locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
         kwargs['locale'] = str(locale)

@@ -14,7 +14,7 @@ class StaticTest(unittest.TestCase):
     static = self.pod.get_static('/static/test.txt')
     self.assertEqual('/app/static/test.txt', static.url.path)
     static_de = self.pod.get_static('/static/test.txt', locale='de')
-    self.assertEqual('/app/static/somepath/de_alias/test.txt',
+    self.assertEqual('/app/root/static/somepath/de_alias/test.txt',
                      static_de.url.path)
     static_same = self.pod.get_static('/static/test.txt')
     self.assertEqual(static, static_same)

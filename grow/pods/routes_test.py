@@ -27,8 +27,8 @@ class RoutesTest(unittest.TestCase):
     expected = [
         '/',
         '/about/',
+        '/app/root/static/somepath/de_alias/test.txt',
         '/app/static/file with spaces.txt',
-        '/app/static/somepath/de_alias/test.txt',
         '/app/static/test.txt',
         '/de_alias/about/',
         '/de_alias/contact-us/',

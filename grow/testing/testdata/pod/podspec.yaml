@@ -12,7 +12,7 @@ static_dirs:
   serve_at: /app/static/
   localization:
     static_dir: /static/intl/{locale}/
-    serve_at: /app/static/somepath/{locale}/
+    serve_at: /app/{root}/static/somepath/{locale}/
 
 localization:
   default_locale: en
