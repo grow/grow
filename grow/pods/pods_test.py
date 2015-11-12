@@ -52,6 +52,7 @@ class PodTest(unittest.TestCase):
         '/about/index.html',
         '/app/root/static/somepath/de_alias/test.txt',
         '/app/static/file with spaces.txt',
+        '/app/static/sym/test_sym.txt',
         '/app/static/test.txt',
         '/de_alias/about/index.html',
         '/de_alias/contact-us/index.html',
