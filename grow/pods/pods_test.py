@@ -104,6 +104,7 @@ class PodTest(unittest.TestCase):
         '/public/main.min.js',
         '/root/base/index.html',
         '/root/static/file.txt',
+        '/static-fingerprint/961109f2e6cc139a8f6df6e3a307c247/fingerprinted.txt',
         '/yaml_test/index.html',
     ]
     result = self.pod.dump()

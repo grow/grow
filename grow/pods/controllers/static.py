@@ -73,11 +73,11 @@ class StaticFile(object):
 
   @staticmethod
   def _create_fingerprint(pod, pod_path):
-    sha = hashlib.sha1()
+    md5 = hashlib.md5()
     with pod.open_file(pod_path, 'rb') as fp:
       content = fp.read()
-      sha.update(content)
-    return sha.hexdigest()
+      md5.update(content)
+    return md5.hexdigest()
 
   @property
   def url(self):
@@ -220,7 +220,10 @@ class StaticController(base.BaseController):
         if match:
           kwargs = match.groupdict()
           kwargs['root'] = self.pod.podspec.root
-          kwargs['fingerprint'] = 'foo'
+          if 'fingerprint' in self.path_format:
+            pod_path = os.path.join(source, kwargs['filename'])
+            fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
+            kwargs['fingerprint'] = fingerprint
           if 'locale' in kwargs:
             normalized_locale = self.pod.normalize_locale(kwargs['locale'])
             kwargs['locale'] = (
