@@ -81,6 +81,8 @@ class RoutesTest(unittest.TestCase):
         '/public/main.min.js',
         '/root/base/',
         '/root/static/file.txt',
+        '/root/static-fingerprint/961109f2e6cc139a8f6df6e3a307c247/de_alias/fingerprinted.txt',
+        '/root/static-fingerprint/961109f2e6cc139a8f6df6e3a307c247/fingerprinted.txt',
         '/yaml_test/',
     ]
     result = self.pod.routes.list_concrete_paths()

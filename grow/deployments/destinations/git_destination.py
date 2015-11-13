@@ -6,6 +6,7 @@ import git
 import logging
 import os
 import shutil
+import subprocess
 import tempfile
 import webapp2
 
@@ -42,7 +43,10 @@ class GitDestination(base.BaseDestination):
 
   @webapp2.cached_property
   def repo_path(self):
-    return tempfile.mkdtemp() if self.is_remote else self.config.repo
+    if self.is_remote:
+      return tempfile.mkdtemp()
+    else:
+      return os.path.abspath(self.config.repo)
 
   @webapp2.cached_property
   def repo(self):
@@ -50,9 +54,17 @@ class GitDestination(base.BaseDestination):
       return git.Repo.init(self.repo_path)
     return git.Repo(self.repo_path)
 
+  def _checkout(self, branch=None):
+    branch = branch or self.config.branch
+    try:
+      self.repo.git.checkout(b=branch)
+    except git.exc.GitCommandError as e:
+      if e.status == 128:
+        self.repo.git.checkout(branch)
+
   def prelaunch(self, dry_run=False):
     self._original_branch_name = self.repo.active_branch.name
-    self.repo.git.checkout(b=self.config.branch)
+    self._checkout()
     if self.is_remote:
       self.remote = git.remote.Remote.add(self.repo, 'origin', self.config.repo)
       try:
@@ -62,6 +74,19 @@ class GitDestination(base.BaseDestination):
         # Pass on this error, which will create a new branch upon pushing.
         if "Couldn't find remote ref" not in e.stderr:
           raise
+
+  def create_commit_message(self):
+    editor = os.getenv('EDITOR')
+    commit_message_path = os.path.join(self.repo.git_dir, 'COMMIT_EDITMSG')
+    print self._diff.what_changed
+    raise
+    fp = open(commit_message_path, 'w')
+    fp.write(self._diff.what_changed)
+    fp.close()
+    if editor and self.confirm:
+      subprocess.call('{} {}', editor, commit_message_path, shell=True)
+    content = open(commit_message_path).read()
+    return content
 
   def postlaunch(self, dry_run=False):
     if dry_run:
@@ -79,14 +104,14 @@ class GitDestination(base.BaseDestination):
       return
 
     # TODO: Replace with a user-configurable launch message.
-    self.repo.index.commit('Commited by Grow SDK.')
+    self.repo.index.commit(self.create_commit_message())
 
     if self.is_remote:
       logging.info('Pushing to origin...')
       self.repo.git.push('origin', self.config.branch)
       shutil.rmtree(self.repo_path)
     elif self._original_branch_name is not None:
-      self.repo.git.checkout(b=self._original_branch_name)
+      self._checkout(self._original_branch_name)
 
   def read_file(self, path):
     path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),

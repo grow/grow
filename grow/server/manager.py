@@ -13,6 +13,10 @@ import twisted
 import webbrowser
 
 
+def shutdown(pod):
+  pod.logger.info('Goodbye. Shutting down.')
+
+
 def start(pod, host=None, port=None, open_browser=False, debug=False,
           preprocess=True):
   observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
@@ -27,8 +31,9 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
   url = print_server_ready_message(pod, host, port)
   if open_browser:
     start_browser(url)
+  shutdown_func = lambda *args: shutdown(pod)
+  reactor.addSystemEventTrigger('during', 'shutdown', shutdown_func)
   reactor.run()
-  pod.logger.info('Goodbye. Shutting down.')
 
 
 def find_port_and_start_server(pod, host, port, debug):

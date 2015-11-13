@@ -5,6 +5,7 @@ from grow.pods import urls
 import fnmatch
 import mimetypes
 import re
+import hashlib
 import webob
 import os
 
@@ -67,10 +68,24 @@ class StaticFile(object):
     return self.pod.file_size(self.pod_path)
 
   @property
+  def fingerprint(self):
+    return StaticFile._create_fingerprint(self.pod, self.pod_path)
+
+  @staticmethod
+  def _create_fingerprint(pod, pod_path):
+    md5 = hashlib.md5()
+    with pod.open_file(pod_path, 'rb') as fp:
+      content = fp.read()
+      md5.update(content)
+    return md5.hexdigest()
+
+  @property
   def url(self):
     serving_path = self.serving_path
     path_format = self.controller.path_format.replace('{filename}', '')
     suffix = serving_path.replace(path_format, '')
+    if '{fingerprint}' in path_format:
+      path_format = path_format.replace('{fingerprint}', self.fingerprint)
     if self.localization:
       localized_pod_path = self.localization['static_dir'] + suffix
       localized_pod_path = localized_pod_path.format(locale=self.locale)
@@ -117,6 +132,8 @@ class StaticController(base.BaseController):
       if 'locale' in kwargs:
         locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
         kwargs['locale'] = str(locale)
+      if '{root}' in source_format:
+        kwargs['root'] = self.pod.podspec.root
       pod_path = source_format.format(**kwargs)
       if self.pod.file_exists(pod_path):
         return pod_path
@@ -151,16 +168,20 @@ class StaticController(base.BaseController):
   def match_pod_path(self, pod_path):
     if self.path_format == pod_path:
       return self.path_format
-    tokens = re.findall('.?{([^>]+)}.?', self.path_format)
+    tokens = re.findall('.?{([^}]+)}.?', self.path_format)
     if 'filename' in tokens:
       source_regex = self.source_format.replace(
           '{filename}', '(?P<filename>.*)')
       source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
-      source_regex = source_regex.replace('{locale}', '(?P<root>[^/])')
+      source_regex = source_regex.replace('{fingerprint}', '(?P<fingerprint>[^/])')
+      source_regex = source_regex.replace('{root}', '(?P<root>[^/])')
       match = re.match(source_regex, pod_path)
       if match:
         kwargs = match.groupdict()
         kwargs['root'] = self.pod.podspec.root
+        if 'fingerprint' in tokens:
+          fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
+          kwargs['fingerprint'] = fingerprint
         if 'locale' in kwargs:
           locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
           kwargs['locale'] = str(locale)
@@ -211,6 +232,9 @@ class StaticController(base.BaseController):
         if match:
           kwargs = match.groupdict()
           kwargs['root'] = self.pod.podspec.root
+          if 'fingerprint' in self.path_format:
+            fingerprint = StaticFile._create_fingerprint(self.pod, path)
+            kwargs['fingerprint'] = fingerprint
           if 'locale' in kwargs:
             normalized_locale = self.pod.normalize_locale(kwargs['locale'])
             kwargs['locale'] = (

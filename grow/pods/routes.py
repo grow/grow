@@ -92,6 +92,7 @@ class Routes(object):
     if 'root' in self.podspec:
       path = path.replace('{root}', self.podspec['root'])
     path = path.replace('{env.fingerprint}', self.pod.env.fingerprint)
+    path = path.replace('{fingerprint}', '<grow:fingerprint>')
     path = path.replace('//', '/')
     return path
 
@@ -148,6 +149,8 @@ class Routes(object):
       routing.RequestRedirect: When the controller is a redirect.
       routing.NotFound: When no controller is found.
     """
+    if '/..' in path:
+      raise webob.exc.HTTPBadRequest('Invalid path.')
     urls = self.routing_map.bind_to_environ(env)
     try:
       controller, route_params = urls.match(path)
