@@ -221,8 +221,7 @@ class StaticController(base.BaseController):
           kwargs = match.groupdict()
           kwargs['root'] = self.pod.podspec.root
           if 'fingerprint' in self.path_format:
-            pod_path = os.path.join(source, kwargs['filename'])
-            fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
+            fingerprint = StaticFile._create_fingerprint(self.pod, path)
             kwargs['fingerprint'] = fingerprint
           if 'locale' in kwargs:
             normalized_locale = self.pod.normalize_locale(kwargs['locale'])
