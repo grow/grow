@@ -35,7 +35,7 @@ __Remember: don't repeat yourself.__ If you can specify a path format in a colle
 | `{collection.root}` | The document's collection's root.
 | `{env.fingerpint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerpint: <fingerprint>` in a deployment configuration.
 | `{date}` | The document's date.
-| ` {locale}` | The document's locale (or its alias, if one exists).
+| `{locale}` | The document's locale (or its alias, if one exists).
 | `{root}` | The pod's root as defined in podspec.yaml.
 | `{slug}` | The document's slug.
 
@@ -62,7 +62,8 @@ Use these formatters to configure serving paths for static files in `podspec.yam
 | Path formatters
 |-|-|
 | `{env.fingerpint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerpint: <fingerprint>` in a deployment configuration.
-| ` {locale}` | The static file's locale (or its alias, if one exists).
+| `{fingerpint}` | A fingerprint uniquely identifying a static file. The fingerprint is an md5 hash of the corresponding static file's contents. Can be used for cache-busting on a per-file basis.
+| `{locale}` | The static file's locale (or its alias, if one exists).
 | `{root}` | The pod's root as defined in podspec.yaml.
 
 #### Examples
