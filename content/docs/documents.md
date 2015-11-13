@@ -278,10 +278,10 @@ The serving path to make the document available at. By default, individual docum
     # In document /content/pages/foo.md
 
     # Makes the document available at /foo/bar/.
-    $view: /foo/bar/
+    $path: /foo/bar/
 
     # Makes the document available at /foo/.
-    $view: /{base}/
+    $path: /{base}/
 
 ### $slug
 
