@@ -126,6 +126,8 @@ class StaticController(base.BaseController):
       if 'locale' in kwargs:
         locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
         kwargs['locale'] = str(locale)
+      if '{root}' in source_format:
+        kwargs['root'] = self.pod.podspec.root
       pod_path = source_format.format(**kwargs)
       if self.pod.file_exists(pod_path):
         return pod_path
@@ -160,16 +162,20 @@ class StaticController(base.BaseController):
   def match_pod_path(self, pod_path):
     if self.path_format == pod_path:
       return self.path_format
-    tokens = re.findall('.?{([^>]+)}.?', self.path_format)
+    tokens = re.findall('.?{([^}]+)}.?', self.path_format)
     if 'filename' in tokens:
       source_regex = self.source_format.replace(
           '{filename}', '(?P<filename>.*)')
       source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
-      source_regex = source_regex.replace('{locale}', '(?P<root>[^/])')
+      source_regex = source_regex.replace('{fingerprint}', '(?P<fingerprint>[^/])')
+      source_regex = source_regex.replace('{root}', '(?P<root>[^/])')
       match = re.match(source_regex, pod_path)
       if match:
         kwargs = match.groupdict()
         kwargs['root'] = self.pod.podspec.root
+        if 'fingerprint' in tokens:
+          fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
+          kwargs['fingerprint'] = fingerprint
         if 'locale' in kwargs:
           locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
           kwargs['locale'] = str(locale)

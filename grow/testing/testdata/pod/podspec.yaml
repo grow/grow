@@ -7,7 +7,10 @@ flags:
 
 static_dirs:
 - static_dir: /static-fingerprint/
-  serve_at: "/static-fingerprint/{fingerprint}/"
+  serve_at: "/{root}/static-fingerprint/{fingerprint}/"
+  localization:
+    static_dir: /static-fingerprint/intl/{locale}/
+    serve_at: /{root}/static-fingerprint/{fingerprint}/{locale}/
 - static_dir: /static-root/
   serve_at: "/{root}/static/"
 - static_dir: /static/
