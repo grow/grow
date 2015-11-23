@@ -26,6 +26,18 @@ class StaticTest(unittest.TestCase):
     static = self.pod.get_static('/static/file with spaces.txt')
     self.assertEqual('/app/static/file with spaces.txt', static.url.path)
 
+    fingerprint = '961109f2e6cc139a8f6df6e3a307c247'
+    static = self.pod.get_static(
+        '/static-fingerprint/fingerprinted.txt')
+    self.assertEqual(
+        '/root/static-fingerprint/{}/fingerprinted.txt'.format(fingerprint),
+        static.url.path)
+    static = self.pod.get_static(
+        '/static-fingerprint/fingerprinted.txt', locale='de')
+    self.assertEqual(
+        '/root/static-fingerprint/{}/de_alias/fingerprinted.txt'.format(fingerprint),
+        static.url.path)
+
 
 if __name__ == '__main__':
   unittest.main()

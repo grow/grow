@@ -83,18 +83,21 @@ class StaticFile(object):
   def url(self):
     serving_path = self.serving_path
     path_format = self.controller.path_format.replace('{filename}', '')
-    suffix = serving_path.replace(path_format, '')
     if '{fingerprint}' in path_format:
       path_format = path_format.replace('{fingerprint}', self.fingerprint)
+    # Determine suffix only after all replacements are made.
+    suffix = serving_path.replace(path_format, '')
     if self.localization:
       localized_pod_path = self.localization['static_dir'] + suffix
       localized_pod_path = localized_pod_path.format(locale=self.locale)
+      localized_pod_path = localized_pod_path.replace('//', '/')
       if self.pod.file_exists(localized_pod_path):
         # TODO(jeremydw): Centralize path formatting.
         # Internal paths use Babel locales, serving paths use aliases.
         locale = self.locale.alias if self.locale is not None else self.locale
         localized_serving_path = self.localization['serve_at'] + suffix
         kwargs = {
+            'fingerprint': self.fingerprint,
             'locale': locale,
             'root': self.pod.podspec.root,
         }
