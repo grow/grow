@@ -81,7 +81,7 @@ class RoutesTest(unittest.TestCase):
         '/public/main.min.js',
         '/root/base/',
         '/root/static/file.txt',
-        '/root/static-fingerprint/961109f2e6cc139a8f6df6e3a307c247/de_alias/fingerprinted.txt',
+        '/root/static-fingerprint/bc20b3c9007842b8e1f3c640b07f4e74/de_alias/fingerprinted.txt',
         '/root/static-fingerprint/961109f2e6cc139a8f6df6e3a307c247/fingerprinted.txt',
         '/yaml_test/',
     ]
