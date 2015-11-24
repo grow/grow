@@ -97,10 +97,13 @@ class StaticFile(object):
         locale = self.locale.alias if self.locale is not None else self.locale
         localized_serving_path = self.localization['serve_at'] + suffix
         kwargs = {
-            'fingerprint': self.fingerprint,
             'locale': locale,
             'root': self.pod.podspec.root,
         }
+        if '{fingerprint}' in localized_serving_path:
+          fingerprint = StaticFile._create_fingerprint(
+              self.pod, localized_pod_path)
+          kwargs['fingerprint'] = fingerprint
         localized_serving_path = localized_serving_path.format(**kwargs)
         serving_path = localized_serving_path.replace('//', '/')
     return urls.Url(path=serving_path) if serving_path else None
