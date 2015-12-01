@@ -5,6 +5,7 @@ from grow.pods import locales
 class Podspec(object):
 
   def __init__(self, yaml, pod):
+    yaml = yaml or {}
     self.yaml = yaml
     self.flags = yaml.get('flags', {})
     self.pod = pod
