@@ -34,6 +34,7 @@ class StaticTest(unittest.TestCase):
         static.url.path)
     static = self.pod.get_static(
         '/static-fingerprint/fingerprinted.txt', locale='de')
+    fingerprint = 'bc20b3c9007842b8e1f3c640b07f4e74'
     self.assertEqual(
         '/root/static-fingerprint/{}/de_alias/fingerprinted.txt'.format(fingerprint),
         static.url.path)
