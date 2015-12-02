@@ -70,7 +70,7 @@ class Catalogs(object):
   def __len__(self):
     return len([catalog for catalog in self])
 
-  def compile(self):
+  def compile(self, force=False):
     locales = self.list_locales()
     self.validate_locales(locales)
     for locale in locales:
@@ -78,7 +78,8 @@ class Catalogs(object):
       if not catalog.exists:
         self.pod.logger.info('Does not exist: {}'.format(catalog))
         continue
-      catalog.compile()
+      if force or catalog.needs_compilation:
+        catalog.compile()
 
   def to_message(self):
     message = messages.CatalogsMessage()
