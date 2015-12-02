@@ -129,11 +129,33 @@ class Catalog(catalog.Catalog):
               include_previous=include_previous, width=width,
               include_header=include_header)
 
+  @property
+  def mo_path(self):
+    mo_dirpath = os.path.dirname(self.pod_path)
+    return os.path.join(mo_dirpath, 'messages.mo')
+
+  @property
+  def mo_modified(self):
+    try:
+      return self.pod.file_modified(self.mo_path)
+    except OSError:
+      return None
+
+  @property
+  def modified(self):
+    try:
+      return self.pod.file_modified(self.pod_path)
+    except OSError:
+      return None
+
+  @property
+  def needs_compilation(self):
+    return self.modified > self.mo_modified
+
   def compile(self):
     localization = self.pod.podspec.localization
     compile_fuzzy = localization.get('compile_fuzzy')
-    mo_dirpath = os.path.dirname(self.pod_path)
-    mo_filename = os.path.join(mo_dirpath, 'messages.mo')
+    mo_filename = self.mo_path
 
     num_translated = 0
     num_total = 0
