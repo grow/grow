@@ -119,10 +119,12 @@ class Routes(object):
         serve_at = config['serve_at'] + '<grow:filename>'
         serve_at = self.format_path(serve_at)
         localization = config.get('localization')
+        fingerprinted = config.get('fingerprinted', False)
         controller = static.StaticController(path_format=serve_at,
                                              source_format=static_dir,
                                              localized=False,
                                              localization=localization,
+                                             fingerprinted=fingerprinted,
                                              pod=self.pod)
         rules.append(routing.Rule(serve_at, endpoint=controller))
         if localization:
@@ -136,6 +138,7 @@ class Routes(object):
               source_format=localized_static_dir,
               localized=True,
               localization=localization,
+              fingerprinted=fingerprinted,
               pod=self.pod)
           rules.append(routing.Rule(rule_path, endpoint=controller))
     return rules
