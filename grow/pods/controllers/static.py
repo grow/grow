@@ -32,7 +32,7 @@ class BadStaticFileError(Error):
 class StaticFile(object):
 
   def __init__(self, pod_path, serving_path, locale=None, localization=None,
-               controller=None, pod=None):
+               controller=None, fingerprinted=False, pod=None):
     self.pod = pod
     self.default_locale = pod.podspec.default_locale
     self.locale = pod.normalize_locale(locale)
@@ -41,6 +41,7 @@ class StaticFile(object):
     self.serving_path = serving_path
     self.controller = controller
     self.basename = os.path.basename(pod_path)
+    self.fingerprinted = fingerprinted
     self.base, self.ext = os.path.splitext(self.basename)
 
   def __repr__(self):
@@ -79,6 +80,23 @@ class StaticFile(object):
       md5.update(content)
     return md5.hexdigest()
 
+  @staticmethod
+  def remove_fingerprint(path):
+    base, _ = os.path.splitext(path)
+    if base.endswith('.min'):
+      return re.sub('(.*)-([a-fA-F\d]{32})\.min\.(.*)', r'\g<1>.min.\g<3>', path)
+    return re.sub('(.*)-([a-fA-F\d]{32})\.(.*)', r'\g<1>.\g<3>', path)
+
+  @staticmethod
+  def apply_fingerprint(path, fingerprint):
+    base, ext = os.path.splitext(path)
+    # Special case to preserve ".min.<ext>" extension lockup.
+    if base.endswith('.min'):
+      base = base[:-4]
+      return '{}-{}.min{}'.format(base, fingerprint, ext)
+    else:
+      return '{}-{}{}'.format(base, fingerprint, ext)
+
   @property
   def url(self):
     serving_path = self.serving_path
@@ -88,6 +106,8 @@ class StaticFile(object):
     # Determine suffix only after all replacements are made.
     suffix = serving_path.replace(path_format, '')
     if self.localization:
+      if self.fingerprinted:
+        suffix = StaticFile.remove_fingerprint(suffix)
       localized_pod_path = self.localization['static_dir'] + suffix
       localized_pod_path = localized_pod_path.format(locale=self.locale)
       localized_pod_path = localized_pod_path.replace('//', '/')
@@ -105,6 +125,9 @@ class StaticFile(object):
               self.pod, localized_pod_path)
           kwargs['fingerprint'] = fingerprint
         localized_serving_path = localized_serving_path.format(**kwargs)
+        if self.fingerprinted and localized_serving_path:
+          fingerprint = StaticFile._create_fingerprint(self.pod, localized_pod_path)
+          localized_serving_path = StaticFile.apply_fingerprint(localized_serving_path, fingerprint)
         serving_path = localized_serving_path.replace('//', '/')
     return urls.Url(path=serving_path) if serving_path else None
 
@@ -113,7 +136,7 @@ class StaticController(base.BaseController):
   KIND = messages.Kind.STATIC
 
   def __init__(self, path_format, source_format=None, localized=False,
-               localization=None, pod=None):
+               localization=None, fingerprinted=False, pod=None):
     # path_format: "serve_at"
     # source_format: "static_dir"
     self.path_format = path_format.replace('<grow:', '{').replace('>', '}')
@@ -121,6 +144,7 @@ class StaticController(base.BaseController):
     self.pod = pod
     self.localized = localized
     self.localization = localization
+    self.fingerprinted = fingerprinted
     self.route_params = {}
 
   def __repr__(self):
@@ -141,13 +165,20 @@ class StaticController(base.BaseController):
       if '{root}' in source_format:
         kwargs['root'] = self.pod.podspec.root
       pod_path = source_format.format(**kwargs)
+      if self.fingerprinted:
+        pod_path = StaticFile.remove_fingerprint(pod_path)
       if self.pod.file_exists(pod_path):
         return pod_path
 
   def get_pod_path(self):
     # If a localized file exists, serve it. Otherwise, serve the base file.
-    return (self.get_localized_pod_path()
-            or self.source_format.format(**self.route_params))
+    pod_path = self.get_localized_pod_path()
+    if pod_path:
+      return pod_path
+    pod_path = self.source_format.format(**self.route_params)
+    if self.fingerprinted:
+      pod_path = StaticFile.remove_fingerprint(pod_path)
+    return pod_path
 
   def validate(self):
     if not self.pod.file_exists(self.get_pod_path()):
@@ -173,6 +204,9 @@ class StaticController(base.BaseController):
 
   def match_pod_path(self, pod_path):
     if self.path_format == pod_path:
+      if self.fingerprinted:
+        fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
+        return StaticFile.apply_fingerprint(self.path_format, fingerprint)
       return self.path_format
     tokens = re.findall('.?{([^}]+)}.?', self.path_format)
     if 'filename' in tokens:
@@ -193,6 +227,9 @@ class StaticController(base.BaseController):
           kwargs['locale'] = str(locale)
         path = self.path_format.format(**kwargs)
         path = path.replace('//', '/')
+        if self.fingerprinted:
+          fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
+          path = StaticFile.apply_fingerprint(path, fingerprint)
         return path
 
   def list_concrete_paths(self):
@@ -203,7 +240,12 @@ class StaticController(base.BaseController):
     source_regex = source_regex.replace('{locale}', '(?P<locale>[^/]*)')
 
     if '{' not in self.path_format:
-      concrete_paths.add(self.path_format)
+      if self.fingerprinted:
+        fingerprint = StaticFile._create_fingerprint(self.pod, self.path_format)
+        path = StaticFile.apply_fingerprint(self.path_format, fingerprint)
+        concrete_paths.add(path)
+      else:
+        concrete_paths.add(self.path_format)
 
     elif 'filename' in tokens:
       # NOTE: This should be updated to support globbing directories,
@@ -224,8 +266,8 @@ class StaticController(base.BaseController):
           paths = [path for path in paths
                    if path.replace(self.pod.root, '') not in skip_paths]
 
-      for path in paths:
-        match = re.match(source_regex, path)
+      for pod_path in paths:
+        match = re.match(source_regex, pod_path)
         # Skip adding localized paths in subfolders of other rules.
         if not self.localized and self.localization:
           localized_source_format = self.localization['static_dir']
@@ -233,13 +275,13 @@ class StaticController(base.BaseController):
               '{filename}', '(?P<filename>.*)')
           localized_source_regex = localized_source_regex.replace(
               '{locale}', '(?P<locale>[^/]*)')
-          if re.match(localized_source_regex, path):
+          if re.match(localized_source_regex, pod_path):
             continue
         if match:
           kwargs = match.groupdict()
           kwargs['root'] = self.pod.podspec.root
           if 'fingerprint' in self.path_format:
-            fingerprint = StaticFile._create_fingerprint(self.pod, path)
+            fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
             kwargs['fingerprint'] = fingerprint
           if 'locale' in kwargs:
             normalized_locale = self.pod.normalize_locale(kwargs['locale'])
@@ -248,6 +290,9 @@ class StaticController(base.BaseController):
                 else normalized_locale)
           matched_path = self.path_format.format(**kwargs)
           matched_path = matched_path.replace('//', '/')
+          if self.fingerprinted:
+            fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
+            matched_path = StaticFile.apply_fingerprint(matched_path, fingerprint)
           concrete_paths.add(matched_path)
 
     return list(concrete_paths)

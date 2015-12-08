@@ -225,6 +225,7 @@ class Pod(object):
         if serving_path:
           return static.StaticFile(pod_path, serving_path, locale=locale,
                                    pod=self, controller=controller,
+                                   fingerprinted=controller.fingerprinted,
                                    localization=controller.localization)
     text = ('Either no file exists at "{}" or the "static_dirs" setting was '
             'not configured for this path in podspec.yaml.'.format(pod_path))
