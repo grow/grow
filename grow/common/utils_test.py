@@ -1,6 +1,9 @@
 from grow.testing import testing
+from grow.common.sdk_utils import get_this_version, LatestVersionCheckError
 from . import utils
 import unittest
+import semantic_version
+import mock
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -33,6 +36,14 @@ class UtilsTestCase(unittest.TestCase):
         pod.get_doc('/content/pages/home.yaml'),
     ]
     self.assertEqual(expected_docs, result['docs'])
+
+  def test_version_enforcement(self):
+    with mock.patch('grow.pods.pods.Pod.grow_version', new_callable=mock.PropertyMock) as mock_version:
+        this_version = get_this_version()
+        gt_version = '>{0}'.format(semantic_version.Version(this_version))
+        mock_version.return_value = gt_version
+        with self.assertRaises(LatestVersionCheckError):
+            pod = testing.create_test_pod()
 
 
 if __name__ == '__main__':
