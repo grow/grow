@@ -9,117 +9,117 @@ import re
 
 class Locales(object):
 
-  def __init__(self, pod):
-    self.pod = pod
+    def __init__(self, pod):
+        self.pod = pod
 
-  def list_groups(self):
-    if 'locales' not in self.pod.yaml:
-      return []
-    return self.pod.yaml['locales'].keys()
+    def list_groups(self):
+        if 'locales' not in self.pod.yaml:
+            return []
+        return self.pod.yaml['locales'].keys()
 
-  def get_regions(self, group_name='default'):
-    if 'regions' not in self.pod.yaml:
-      return []
-    try:
-      return self.pod.yaml['locales'][group_name].get('regions', [])
-    except errors.PodConfigurationError:
-      return []
+    def get_regions(self, group_name='default'):
+        if 'regions' not in self.pod.yaml:
+            return []
+        try:
+            return self.pod.yaml['locales'][group_name].get('regions', [])
+        except errors.PodConfigurationError:
+            return []
 
-  def get_languages(self, group_name='default'):
-    if 'locales' not in self.pod.yaml:
-      return []
-    try:
-      return self.pod.yaml['locales'][group_name].get('languages', [])
-    except errors.PodConfigurationError:
-      return []
+    def get_languages(self, group_name='default'):
+        if 'locales' not in self.pod.yaml:
+            return []
+        try:
+            return self.pod.yaml['locales'][group_name].get('languages', [])
+        except errors.PodConfigurationError:
+            return []
 
-  def to_message(self):
-    message = messages.LocalesMessage()
-    message.groups = []
-    for group_name in self.list_groups():
-      group_message = messages.LocaleGroupMessage()
-      group_message.group_name = group_name
-      group_message.regions = self.get_regions(group_name)
-      group_message.languages = self.get_languages(group_name)
-      message.groups.append(group_message)
-    return message
+    def to_message(self):
+        message = messages.LocalesMessage()
+        message.groups = []
+        for group_name in self.list_groups():
+            group_message = messages.LocaleGroupMessage()
+            group_message.group_name = group_name
+            group_message.regions = self.get_regions(group_name)
+            group_message.languages = self.get_languages(group_name)
+            message.groups.append(group_message)
+        return message
 
 
 class Locale(babel.Locale):
-  RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
-  _alias = None
+    RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
+    _alias = None
 
-  def __init__(self, language, *args, **kwargs):
-    # Normalize from "de_de" to "de_DE" for case-sensitive filesystems.
-    parts = language.rsplit('_', 1)
-    if len(parts) > 1:
-      language = '{}_{}'.format(parts[0], parts[1].upper())
-    super(Locale, self).__init__(language, *args, **kwargs)
+    def __init__(self, language, *args, **kwargs):
+        # Normalize from "de_de" to "de_DE" for case-sensitive filesystems.
+        parts = language.rsplit('_', 1)
+        if len(parts) > 1:
+            language = '{}_{}'.format(parts[0], parts[1].upper())
+        super(Locale, self).__init__(language, *args, **kwargs)
 
-  @classmethod
-  def parse(cls, *args, **kwargs):
-    locale = super(Locale, cls).parse(*args, **kwargs)
-    # Weak attempt to permit fuzzy locales (locales for which we still have
-    # language and country information, but not a full localedata file for),
-    # but disallow completely invalid locales. See note at end of file.
-    if locale and locale.get_display_name() is None:
-      raise ValueError('{} is not a valid locale identifier'.format(args[0]))
-    return locale
+    @classmethod
+    def parse(cls, *args, **kwargs):
+        locale = super(Locale, cls).parse(*args, **kwargs)
+        # Weak attempt to permit fuzzy locales (locales for which we still have
+        # language and country information, but not a full localedata file for),
+        # but disallow completely invalid locales. See note at end of file.
+        if locale and locale.get_display_name() is None:
+            raise ValueError('{} is not a valid locale identifier'.format(args[0]))
+        return locale
 
-  def __hash__(self):
-    return hash(str(self))
+    def __hash__(self):
+        return hash(str(self))
 
-  def __eq__(self, other):
-    if isinstance(other, basestring):
-      return str(self).lower() == other.lower()
-    return super(Locale, self).__eq__(other)
+    def __eq__(self, other):
+        if isinstance(other, basestring):
+            return str(self).lower() == other.lower()
+        return super(Locale, self).__eq__(other)
 
-  def __ne__(self, other):
-    return not self.__eq__(other)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
-  @classmethod
-  def parse_codes(cls, codes):
-    return [cls.parse(code) for code in codes]
+    @classmethod
+    def parse_codes(cls, codes):
+        return [cls.parse(code) for code in codes]
 
-  @property
-  def is_rtl(self):
-    return Locale.RTL_REGEX.match(self.language)
+    @property
+    def is_rtl(self):
+        return Locale.RTL_REGEX.match(self.language)
 
-  @property
-  def direction(self):
-    return 'rtl' if self.is_rtl else 'ltr'
+    @property
+    def direction(self):
+        return 'rtl' if self.is_rtl else 'ltr'
 
-  @classmethod
-  def from_alias(cls, pod, alias):
-    podspec = pod.get_podspec()
-    config = podspec.get_config()
-    if 'localization' in config and 'aliases' in config['localization']:
-      aliases = config['localization']['aliases']
-      for custom_locale, babel_locale in aliases.iteritems():
-        if custom_locale == alias:
-          return cls.parse(babel_locale)
-    return cls.parse(alias)
+    @classmethod
+    def from_alias(cls, pod, alias):
+        podspec = pod.get_podspec()
+        config = podspec.get_config()
+        if 'localization' in config and 'aliases' in config['localization']:
+            aliases = config['localization']['aliases']
+            for custom_locale, babel_locale in aliases.iteritems():
+                if custom_locale == alias:
+                    return cls.parse(babel_locale)
+        return cls.parse(alias)
 
-  def set_alias(self, pod):
-    normalized_locale = str(self).lower()
-    podspec = pod.get_podspec()
-    config = podspec.get_config()
-    if 'localization' in config and 'aliases' in config['localization']:
-      aliases = config['localization']['aliases']
-      for custom_locale, babel_locale in aliases.iteritems():
-        normalized_babel_locale = babel_locale.lower()
-        if normalized_locale == normalized_babel_locale:
-          normalized_locale = normalized_locale.replace(
-              normalized_babel_locale, custom_locale)
-    self._alias = normalized_locale
+    def set_alias(self, pod):
+        normalized_locale = str(self).lower()
+        podspec = pod.get_podspec()
+        config = podspec.get_config()
+        if 'localization' in config and 'aliases' in config['localization']:
+            aliases = config['localization']['aliases']
+            for custom_locale, babel_locale in aliases.iteritems():
+                normalized_babel_locale = babel_locale.lower()
+                if normalized_locale == normalized_babel_locale:
+                    normalized_locale = normalized_locale.replace(
+                        normalized_babel_locale, custom_locale)
+        self._alias = normalized_locale
 
-  @property
-  def alias(self):
-    return self._alias
+    @property
+    def alias(self):
+        return self._alias
 
-  @alias.setter
-  def alias(self, alias):
-    self._alias = alias
+    @alias.setter
+    def alias(self, alias):
+        self._alias = alias
 
 
 # NOTE: Babel does not support "fuzzy" locales. A locale is considered "fuzzy"
@@ -148,36 +148,36 @@ class Locale(babel.Locale):
 
 
 def fuzzy_load(name, merge_inherited=True):
-  localedata._cache_lock.acquire()
-  try:
-    data = localedata._cache.get(name)
-    if not data:
-      # Load inherited data
-      if name == 'root' or not merge_inherited:
-        data = {}
-      else:
-        parts = name.split('_')
-        if len(parts) == 1:
-          parent = 'root'
-        else:
-          parent = '_'.join(parts[:-1])
-        data = fuzzy_load(parent).copy()
-      filename = os.path.join(localedata._dirname, '%s.dat' % name)
-      try:
-        fileobj = open(filename, 'rb')
-        try:
-          if name != 'root' and merge_inherited:
-            localedata.merge(data, pickle.load(fileobj))
-          else:
-            data = pickle.load(fileobj)
-          localedata._cache[name] = data
-        finally:
-          fileobj.close()
-      except IOError:
-        pass
-    return data
-  finally:
-    localedata._cache_lock.release()
+    localedata._cache_lock.acquire()
+    try:
+        data = localedata._cache.get(name)
+        if not data:
+            # Load inherited data
+            if name == 'root' or not merge_inherited:
+                data = {}
+            else:
+                parts = name.split('_')
+                if len(parts) == 1:
+                    parent = 'root'
+                else:
+                    parent = '_'.join(parts[:-1])
+                data = fuzzy_load(parent).copy()
+            filename = os.path.join(localedata._dirname, '%s.dat' % name)
+            try:
+                fileobj = open(filename, 'rb')
+                try:
+                    if name != 'root' and merge_inherited:
+                        localedata.merge(data, pickle.load(fileobj))
+                    else:
+                        data = pickle.load(fileobj)
+                    localedata._cache[name] = data
+                finally:
+                    fileobj.close()
+            except IOError:
+                pass
+        return data
+    finally:
+        localedata._cache_lock.release()
 
 
 localedata.exists = lambda name: True
