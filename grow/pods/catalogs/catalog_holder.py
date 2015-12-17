@@ -223,8 +223,8 @@ class Catalogs(object):
     for pod_path in pod_files:
       if self._should_extract_as_csv(paths, pod_path):
         rows = utils.get_rows_from_csv(self.pod, pod_path)
+        self.pod.logger.info('Extracting: {}'.format(pod_path))
         for row in rows:
-          self.pod.logger.info('Extracting: {}'.format(pod_path))
           for i, parts in enumerate(row.iteritems()):
             key, val = parts
             if key.endswith('@'):
