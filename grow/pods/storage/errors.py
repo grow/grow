@@ -1,10 +1,10 @@
 class Error(Exception):
-  pass
+    pass
 
 
 class PathError(Error, ValueError):
-  pass
+    pass
 
 
 class NotFoundError(Error, IOError):
-  pass
+    pass

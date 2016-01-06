@@ -11,7 +11,7 @@ import os
 @click.option('--force', default=False, is_flag=True,
               help='Whether to overwrite existing files.')
 def init(theme, pod_path, force):
-  """Initializes a pod with a theme."""
-  root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-  pod = pods.Pod(root, storage=storage.FileStorage)
-  themes.init(pod, theme, force=force)
+    """Initializes a pod with a theme."""
+    root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
+    pod = pods.Pod(root, storage=storage.FileStorage)
+    themes.init(pod, theme, force=force)

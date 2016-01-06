@@ -36,93 +36,93 @@ import re
 
 class IncludePreprocessor(preprocessors.Preprocessor):
 
-  REGEX = re.compile("^\[include\('([^')]*)'\)\]")
+    REGEX = re.compile("^\[include\('([^')]*)'\)\]")
 
-  def __init__(self, pod, markdown_instance):
-    self.pod = pod
-    self.markdown = markdown_instance
+    def __init__(self, pod, markdown_instance):
+        self.pod = pod
+        self.markdown = markdown_instance
 
-  def run(self, lines):
-    new_lines = []
-    for line in lines:
-      pod_paths = IncludePreprocessor.REGEX.findall(line)
-      if not pod_paths or line.startswith('    '):
-        new_lines.append(line)
-      for pod_path in pod_paths:
-        doc = self.pod.get_doc(pod_path)
-        included_lines = doc.body.split('\n')
-        new_lines.extend(included_lines)
-    return new_lines
+    def run(self, lines):
+        new_lines = []
+        for line in lines:
+            pod_paths = IncludePreprocessor.REGEX.findall(line)
+            if not pod_paths or line.startswith('    '):
+                new_lines.append(line)
+            for pod_path in pod_paths:
+                doc = self.pod.get_doc(pod_path)
+                included_lines = doc.body.split('\n')
+                new_lines.extend(included_lines)
+        return new_lines
 
 
 class IncludeExtension(extensions.Extension):
 
-  def __init__(self, pod):
-    self.pod = pod
+    def __init__(self, pod):
+        self.pod = pod
 
-  def extendMarkdown(self, md, md_globals):
-    md.registerExtension(self)
-    self.processor = IncludePreprocessor(self.pod, md)
-    self.processor.md = md
-    # Adds the "include" preprocessor to the beginning of the list of preprocessors.
-    # https://github.com/waylan/Python-Markdown/blob/master/markdown/odict.py#L7
-    md.preprocessors.add('include', self.processor, '_begin')
+    def extendMarkdown(self, md, md_globals):
+        md.registerExtension(self)
+        self.processor = IncludePreprocessor(self.pod, md)
+        self.processor.md = md
+        # Adds the "include" preprocessor to the beginning of the list of preprocessors.
+        # https://github.com/waylan/Python-Markdown/blob/master/markdown/odict.py#L7
+        md.preprocessors.add('include', self.processor, '_begin')
 
 
 class UrlPreprocessor(preprocessors.Preprocessor):
 
-  REGEX = re.compile("\[url\('([^')]*)'\)\]")
+    REGEX = re.compile("\[url\('([^')]*)'\)\]")
 
-  def __init__(self, pod, markdown_instance):
-    self.pod = pod
-    self.markdown = markdown_instance
+    def __init__(self, pod, markdown_instance):
+        self.pod = pod
+        self.markdown = markdown_instance
 
-  def run(self, lines):
-    new_lines = []
-    for line in lines:
-      pod_paths = UrlPreprocessor.REGEX.findall(line)
-      if not pod_paths or line.startswith('    '):
-        new_lines.append(line)
-      else:
-        for pod_path in pod_paths:
-          doc = self.pod.get_doc(pod_path)
-          line = re.sub(UrlPreprocessor.REGEX, doc.url.path, line)
-        new_lines.append(line)
-    return new_lines
+    def run(self, lines):
+        new_lines = []
+        for line in lines:
+            pod_paths = UrlPreprocessor.REGEX.findall(line)
+            if not pod_paths or line.startswith('    '):
+                new_lines.append(line)
+            else:
+                for pod_path in pod_paths:
+                    doc = self.pod.get_doc(pod_path)
+                    line = re.sub(UrlPreprocessor.REGEX, doc.url.path, line)
+                new_lines.append(line)
+        return new_lines
 
 
 class UrlExtension(extensions.Extension):
 
-  def __init__(self, pod):
-    self.pod = pod
+    def __init__(self, pod):
+        self.pod = pod
 
-  def extendMarkdown(self, md, md_globals):
-    md.registerExtension(self)
-    self.processor = UrlPreprocessor(self.pod, md)
-    self.processor.md = md
-    # Adds the "include" preprocessor to the beginning of the list of preprocessors.
-    # https://github.com/waylan/Python-Markdown/blob/master/markdown/odict.py#L7
-    md.preprocessors.add('url', self.processor, '_begin')
+    def extendMarkdown(self, md, md_globals):
+        md.registerExtension(self)
+        self.processor = UrlPreprocessor(self.pod, md)
+        self.processor.md = md
+        # Adds the "include" preprocessor to the beginning of the list of preprocessors.
+        # https://github.com/waylan/Python-Markdown/blob/master/markdown/odict.py#L7
+        md.preprocessors.add('url', self.processor, '_begin')
 
 
 class CodeBlockPreprocessor(preprocessors.Preprocessor):
-  pattern = re.compile(r'\[sourcecode:(.+?)\](.+?)\[/sourcecode\]', re.S)
-  formatter = HtmlFormatter(noclasses=True)
+    pattern = re.compile(r'\[sourcecode:(.+?)\](.+?)\[/sourcecode\]', re.S)
+    formatter = HtmlFormatter(noclasses=True)
 
-  def run(self, lines):
-    def repl(m):
-      try:
-        lexer = lexers.get_lexer_by_name(m.group(1))
-      except ValueError:
-        lexer = lexers.TextLexer()
-      code = highlight(m.group(2), lexer, self.formatter)
-      return '\n\n<div class="code">%s</div>\n\n' % code
-    joined_lines = "\n".join(lines)
-    joined_lines = self.pattern.sub(repl, joined_lines)
-    return joined_lines.split("\n")
+    def run(self, lines):
+        def repl(m):
+            try:
+                lexer = lexers.get_lexer_by_name(m.group(1))
+            except ValueError:
+                lexer = lexers.TextLexer()
+            code = highlight(m.group(2), lexer, self.formatter)
+            return '\n\n<div class="code">%s</div>\n\n' % code
+        joined_lines = "\n".join(lines)
+        joined_lines = self.pattern.sub(repl, joined_lines)
+        return joined_lines.split("\n")
 
 
 class CodeBlockExtension(extensions.Extension):
 
-  def extendMarkdown(self, md, md_globals):
-    md.preprocessors.add('CodeBlockPreprocessor', CodeBlockPreprocessor(), '_begin')
+    def extendMarkdown(self, md, md_globals):
+        md.preprocessors.add('CodeBlockPreprocessor', CodeBlockPreprocessor(), '_begin')

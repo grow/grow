@@ -2,33 +2,33 @@ import os
 
 
 class Error(Exception):
-  pass
+    pass
 
 
 class PreprocessorError(Error):
-  pass
+    pass
 
 
 class BasePreprocessor(object):
 
-  def __init__(self, pod, config, autorun=True, name=None):
-    self.pod = pod
-    self.root = pod.root
-    self.config = config
-    self.logger = self.pod.logger
-    self.autorun = autorun
-    self.name = name
+    def __init__(self, pod, config, autorun=True, name=None):
+        self.pod = pod
+        self.root = pod.root
+        self.config = config
+        self.logger = self.pod.logger
+        self.autorun = autorun
+        self.name = name
 
-  def first_run(self):
-    self.run()
+    def first_run(self):
+        self.run()
 
-  def run(self):
-    raise NotImplementedError
+    def run(self):
+        raise NotImplementedError
 
-  def list_watched_dirs(self):
-    return []
+    def list_watched_dirs(self):
+        return []
 
-  def normalize_path(self, path):
-    if path.startswith('/'):
-      return os.path.join(self.root, path.lstrip('/'))
-    return path
+    def normalize_path(self, path):
+        if path.startswith('/'):
+            return os.path.join(self.root, path.lstrip('/'))
+        return path

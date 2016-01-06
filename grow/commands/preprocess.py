@@ -14,7 +14,7 @@ import os
               help='Which preprocessor to run. Preprocessors controlled by'
                    ' the preprocess command must have names.')
 def preprocess(pod_path, preprocessor, run_all):
-  """Runs preprocessors."""
-  root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-  pod = pods.Pod(root, storage=storage.FileStorage)
-  pod.preprocess(preprocessor, run_all=run_all)
+    """Runs preprocessors."""
+    root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
+    pod = pods.Pod(root, storage=storage.FileStorage)
+    pod.preprocess(preprocessor, run_all=run_all)
