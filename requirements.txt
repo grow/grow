@@ -31,7 +31,7 @@ pytz==2014.4
 requests==2.3.0
 semantic_version==2.4.1
 texttable-fixed==0.8.3
-translitcodec==0.3
+translitcodec==0.4.0
 watchdog==0.7.1
 webapp2==2.5.2
 webreview==0.0.54
