@@ -10,17 +10,17 @@ REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 
 def get_credentials(scope, storage_key='Grow SDK'):
-  username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
-  storage = keyring_storage.Storage(storage_key, username)
-  credentials = storage.get()
-  if credentials is None:
-    parser = tools.argparser
-    if os.getenv('INTERACTIVE_AUTH'):
-      args = []
-    else:
-      args = ['--noauth_local_webserver']
-    flags, _ = parser.parse_known_args(args)
-    flow = client.OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, scope,
-                                      redirect_uri=REDIRECT_URI)
-    credentials = tools.run_flow(flow, storage, flags)
-  return credentials
+    username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
+    storage = keyring_storage.Storage(storage_key, username)
+    credentials = storage.get()
+    if credentials is None:
+        parser = tools.argparser
+        if os.getenv('INTERACTIVE_AUTH'):
+            args = []
+        else:
+            args = ['--noauth_local_webserver']
+        flags, _ = parser.parse_known_args(args)
+        flow = client.OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, scope,
+                                          redirect_uri=REDIRECT_URI)
+        credentials = tools.run_flow(flow, storage, flags)
+    return credentials

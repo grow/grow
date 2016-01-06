@@ -8,4 +8,4 @@ from . import utils
 
 
 def get():
-  return utils.get_cacerts_path()
+    return utils.get_cacerts_path()

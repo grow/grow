@@ -20,38 +20,38 @@ import os
 @click.option('--subdomain', help='Assign a subdomain to this build.')
 @click.pass_context
 def stage(context, pod_path, remote, preprocess, subdomain):
-  """Stages a build on a WebReview server."""
-  root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-  auth = context.parent.params.get('auth')
-  try:
-    pod = pods.Pod(root, storage=storage.FileStorage)
-    deployment = _get_deployment(pod, remote, subdomain)
-    if auth:
-      deployment.login(auth)
-    if preprocess:
-      pod.preprocess()
-    repo = utils.get_git_repo(pod.root)
-    paths_to_contents = deployment.dump(pod)
-    stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
-    deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
-                      confirm=False, test=False)
-  except base.Error as e:
-    raise click.ClickException(str(e))
-  except pods.Error as e:
-    raise click.ClickException(str(e))
+    """Stages a build on a WebReview server."""
+    root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
+    auth = context.parent.params.get('auth')
+    try:
+        pod = pods.Pod(root, storage=storage.FileStorage)
+        deployment = _get_deployment(pod, remote, subdomain)
+        if auth:
+            deployment.login(auth)
+        if preprocess:
+            pod.preprocess()
+        repo = utils.get_git_repo(pod.root)
+        paths_to_contents = deployment.dump(pod)
+        stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
+        deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
+                          confirm=False, test=False)
+    except base.Error as e:
+        raise click.ClickException(str(e))
+    except pods.Error as e:
+        raise click.ClickException(str(e))
 
 
 def _get_deployment(pod, remote, subdomain):
-  if remote:
-    dest_class = webreview_destination.WebReviewDestination
-    return dest_class(dest_class.Config(remote=remote, name=subdomain))
-  else:
-    try:
-      deployment = pod.get_deployment('webreview')
-      if subdomain:
-        deployment.config.subdomain = subdomain
-      return deployment
-    except ValueError:
-      text = ('Must provide --remote or specify a deployment named '
-              '"webreview" in podspec.yaml.')
-      raise click.ClickException(text)
+    if remote:
+        dest_class = webreview_destination.WebReviewDestination
+        return dest_class(dest_class.Config(remote=remote, name=subdomain))
+    else:
+        try:
+            deployment = pod.get_deployment('webreview')
+            if subdomain:
+                deployment.config.subdomain = subdomain
+            return deployment
+        except ValueError:
+            text = ('Must provide --remote or specify a deployment named '
+                    '"webreview" in podspec.yaml.')
+            raise click.ClickException(text)
