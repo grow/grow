@@ -384,6 +384,19 @@ class Pod(object):
         client = werkzeug_cache.SimpleCache()
         return jinja2.MemcachedBytecodeCache(client=client)
 
+    def list_jinja_extensions(self):
+        extensions = []
+        for name in self.yaml.get('extensions', {}).get('jinja2', []):
+            try:
+                value = utils.import_string(name, [self.root])
+            except:
+                raise PodSpecParseError(
+                    'Could not import {}: must use dot syntax relative to the pod root'
+                    .format(repr(name))
+                )
+            extensions.append(value)
+        return extensions
+
     @utils.memoize
     def create_template_env(self, locale=None, root=None):
         # NOTE: The template environment cannot be reused across locales, since
@@ -406,6 +419,7 @@ class Pod(object):
             kwargs['bytecode_cache'] = self._get_bytecode_cache()
         if self.podspec.flags.get('compress_html'):
             kwargs['extensions'].append(jinja2htmlcompress.HTMLCompress)
+        kwargs['extensions'].extend(self.list_jinja_extensions())
         env = jinja2.Environment(**kwargs)
         filters = (
             ('date', babel_dates.format_date),

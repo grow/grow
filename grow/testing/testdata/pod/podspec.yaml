@@ -52,3 +52,7 @@ deployments:
     destination: scp
     host: localhost
     root_dir: dist/
+
+extensions:
+  jinja2:
+  - extensions.triplicate.Triplicate

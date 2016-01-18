@@ -14,6 +14,9 @@
     {% set static = g.static('/static/test.txt', locale=doc.locale) %}
     Localized: {{static}} - {{static.url.path}}
   </p>
+  <p>
+    Custom Jinja Extension: {{'abc'|triplicate}}
+  </p>
   <nav>
     {% for page in g.docs('pages') %}
       <li><a href="{{page.url.path}}">{{page.titles('nav')}}</a>
