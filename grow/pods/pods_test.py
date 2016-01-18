@@ -2,6 +2,8 @@ from grow.pods import pods
 from grow.pods import storage
 from grow.pods.controllers import static
 from grow.testing import testing
+import jinja2
+import mock
 import os
 import unittest
 
@@ -142,6 +144,19 @@ class PodTest(unittest.TestCase):
         ]
         for item in items:
             self.assertIn(item, expected)
+
+    def test_list_jinja_extensions(self):
+        items = self.pod.list_jinja_extensions()
+        self.assertEqual(len(items), 1)
+        # Custom extension is called Triplicate (see podspec.yaml in test pod)
+        self.assertEqual(items[0].__name__, 'Triplicate')
+        self.assertTrue(issubclass(items[0], jinja2.ext.Extension))
+
+    def test_invalid_jinja_extension(self):
+        # Make sure an invalid jinja2 exensions config throws an error
+        with mock.patch.dict(self.pod.yaml, {'extensions': {'jinja2': ['invalid/path']}}):
+            with self.assertRaises(pods.PodSpecParseError):
+                self.pod.list_jinja_extensions()
 
 
 if __name__ == '__main__':

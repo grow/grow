@@ -32,6 +32,12 @@ class RenderedTest(unittest.TestCase):
         controller = self.pod.match('/fr/about/')
         controller.render()
 
+    def test_custom_jinja_extensions(self):
+        controller = self.pod.match('/')
+        result = controller.render()
+        # Test pod uses a custom `|triplicate` filter on 'abcabcabc'
+        self.assertIn('Custom Jinja Extension: abcabcabc', result)
+
     def test_list_concrete_paths(self):
         controller = self.pod.match('/')
         self.assertEqual(['/'], controller.list_concrete_paths())
