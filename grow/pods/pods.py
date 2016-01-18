@@ -359,6 +359,10 @@ class Pod(object):
 
     def list_preprocessors(self):
         results = []
+        preprocessors.register_extensions(
+            self.yaml.get('extensions', {}).get('preprocessors', []),
+            self.root,
+        )
         preprocessor_config = copy.deepcopy(self.yaml.get('preprocessors', []))
         for params in preprocessor_config:
             kind = params.pop('kind')
