@@ -1,3 +1,4 @@
+from grow.common import utils
 from grow.pods.preprocessors import google_drive
 from grow.pods.preprocessors import sass_preprocessor
 from protorpc import protojson
@@ -36,6 +37,12 @@ def make_preprocessor(kind, config, pod):
 def register_builtins():
     for builtin in _builtins:
         register_preprocessor(builtin)
+
+
+def register_extensions(extension_paths, pod_root):
+    for path in extension_paths:
+        cls = utils.import_string(path, [pod_root])
+        register_preprocessor(cls)
 
 
 register_builtins()

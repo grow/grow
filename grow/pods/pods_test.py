@@ -1,4 +1,6 @@
+from grow.common import utils
 from grow.pods import pods
+from grow.pods import preprocessors
 from grow.pods import storage
 from grow.pods.controllers import static
 from grow.testing import testing
@@ -157,6 +159,20 @@ class PodTest(unittest.TestCase):
         with mock.patch.dict(self.pod.yaml, {'extensions': {'jinja2': ['invalid/path']}}):
             with self.assertRaises(pods.PodSpecParseError):
                 self.pod.list_jinja_extensions()
+
+    def test_list_preprocessors(self):
+        items = self.pod.list_preprocessors()
+        self.assertEqual(len(items), 1)
+        # see podspec.yaml in test pod
+        self.assertEqual(items[0].__class__.__name__, 'CustomPreprocessor')
+        self.assertTrue(isinstance(items[0], preprocessors.base.BasePreprocessor))
+        # Calling again should get the same results (list is refreshed on each
+        # call, so want to make sure it isn't extended with duplicates)
+        self.assertEqual(len(self.pod.list_preprocessors()), 1)
+
+    def test_custom_preprocessor(self):
+        self.pod.preprocess(['custom'])
+        self.assertEqual(self.pod._custom_preprocessor_value, 'testing123')
 
 
 if __name__ == '__main__':
