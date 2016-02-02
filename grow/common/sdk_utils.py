@@ -56,11 +56,11 @@ def check_for_sdk_updates(auto_update_prompt=False):
     if theirs <= yours:
         return
     url = 'https://github.com/grow/pygrow/releases/tag/{}'.format(theirs)
-    print ''
-    print '  Please update to the newest version of the Grow SDK.'
-    print '  See release notes: {}'.format(url)
-    print '  Your version: {}, latest version: {}'.format(
-        colorize(yours, ansi=226), colorize(theirs, ansi=82))
+    logging.info('')
+    logging.info('  Please update to the newest version of the Grow SDK.')
+    logging.info('  See release notes: {}'.format(url))
+    logging.info('  Your version: {}, latest version: {}'.format(
+        colorize(yours, ansi=226), colorize(theirs, ansi=82)))
     if utils.is_packaged_app() and auto_update_prompt:
         # If the installation was successful, restart the process.
         try:
@@ -75,5 +75,5 @@ def check_for_sdk_updates(auto_update_prompt=False):
             logging.error(text)
             sys.exit(-1)
     else:
-        print '  Update using: ' + colorize('pip install --upgrade grow', ansi=200)
+        logging.info('  Update using: ' + colorize('pip install --upgrade grow', ansi=200))
     print ''

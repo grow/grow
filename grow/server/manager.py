@@ -64,9 +64,9 @@ def print_server_ready_message(pod, host, port):
     else:
         root_path = pod.get_root_path()
     url = 'http://{}:{}{}'.format(host, port, root_path)
-    print 'Pod: '.rjust(20) + pod.root
-    print 'Address: '.rjust(20) + url
-    print colorize('Server ready. '.rjust(20), ansi=47) + 'Press ctrl-c to quit.'
+    pod.logger.info('Pod: '.rjust(20) + pod.root)
+    pod.logger.info('Address: '.rjust(20) + url)
+    pod.logger.info(colorize('Server ready. '.rjust(20), ansi=47) + 'Press ctrl-c to quit.')
     return url
 
 
