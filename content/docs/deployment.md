@@ -153,7 +153,7 @@ Deployments can specify environment parameters – for access in the `{{env}}` c
 [sourcecode:yaml]
 env:
   name: prod
-  host: exmaple.com
-  por: 80
+  host: example.com
+  port: 80
   scheme: https
 [/sourcecode]
