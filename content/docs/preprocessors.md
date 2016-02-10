@@ -36,6 +36,7 @@ preprocessors:
 - kind: google_docs
   path: /data/filename.{html|md}                        # Where to save downloaded file.
   id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI      # File ID.
+  convert: true                                         # Whether to convert the file to Markdown.
 [/sourcecode]
 
 ### Google Sheets
