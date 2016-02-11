@@ -48,6 +48,11 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
       default:
         destination: local
         out_dir: grow-codelab-build/
+        env:
+          name: prod
+          host: example.com
+          port: 80
+          scheme: https
 
 ### grow_version
 
@@ -145,7 +150,7 @@ out_dir: /static/css/
 
 ### deployments
 
-A mapping of named deployments. The deployment destination is determined by the `destination` key. The remaining keys are configuration parameters for the deployment. The `default` name can be used to specify the pod's default deployment.
+A mapping of named deployments. The deployment destination is determined by the `destination` key. The remaining keys are configuration parameters for the deployment. The `default` name can be used to specify the pod's default deployment. An `env` can optionally be specified.
 
 [sourcecode:yaml]
 default:
