@@ -41,35 +41,35 @@ import os
                    ' provided.')
 def extract(pod_path, init, update, include_obsolete, localized,
             include_header, locale, fuzzy_matching):
-  """Extracts tagged messages from source files into a template catalog."""
-  root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-  pod = pods.Pod(root, storage=storage.FileStorage)
-  catalogs = pod.get_catalogs()
-  catalogs.extract(include_obsolete=include_obsolete, localized=localized,
-                   include_header=include_header,
-                   use_fuzzy_matching=fuzzy_matching)
-  if localized:
-    return
-  if init:
-    locales = validate_locales(pod.list_locales(), locale)
-    text = 'Initializing {} empty translation catalogs.'
-    pod.logger.info(text.format(len(locales)))
-    catalogs.init(locales=locales, include_header=include_header)
-    return
-  if update:
-    locales = validate_locales(catalogs.list_locales(), locale)
-    text = 'Updating {} catalogs with extracted messages.'
-    pod.logger.info(text.format(len(locales)))
-    catalogs.update(locales=locales, include_header=include_header,
-                    use_fuzzy_matching=fuzzy_matching)
+    """Extracts tagged messages from source files into a template catalog."""
+    root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
+    pod = pods.Pod(root, storage=storage.FileStorage)
+    catalogs = pod.get_catalogs()
+    catalogs.extract(include_obsolete=include_obsolete, localized=localized,
+                     include_header=include_header,
+                     use_fuzzy_matching=fuzzy_matching)
+    if localized:
+        return
+    if init:
+        locales = validate_locales(pod.list_locales(), locale)
+        text = 'Initializing {} empty translation catalogs.'
+        pod.logger.info(text.format(len(locales)))
+        catalogs.init(locales=locales, include_header=include_header)
+        return
+    if update:
+        locales = validate_locales(catalogs.list_locales(), locale)
+        text = 'Updating {} catalogs with extracted messages.'
+        pod.logger.info(text.format(len(locales)))
+        catalogs.update(locales=locales, include_header=include_header,
+                        use_fuzzy_matching=fuzzy_matching)
 
 
 def validate_locales(valid_locales, locales):
-  valid_locales = sorted(valid_locales)
-  for each in locales:
-    if each not in valid_locales:
-      text = ('{} is not a valid translation catalog locale. '
-              'Valid locales are: {}')
-      valid_locales = [str(locale) for locale in valid_locales]
-      raise ValueError(text.format(each, ', '.join(valid_locales)))
-  return locales or valid_locales
+    valid_locales = sorted(valid_locales)
+    for each in locales:
+        if each not in valid_locales:
+            text = ('{} is not a valid translation catalog locale. '
+                    'Valid locales are: {}')
+            valid_locales = [str(locale) for locale in valid_locales]
+            raise ValueError(text.format(each, ', '.join(valid_locales)))
+    return locales or valid_locales

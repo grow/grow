@@ -13,8 +13,10 @@ static_dirs:
     serve_at: /{root}/static-fingerprint/{fingerprint}/{locale}/
 - static_dir: /static-root/
   serve_at: "/{root}/static/"
+  fingerprinted: true
 - static_dir: /static/
   serve_at: /app/static/
+  fingerprinted: true
   localization:
     static_dir: /static/intl/{locale}/
     serve_at: /app/{root}/static/somepath/{locale}/
@@ -50,3 +52,14 @@ deployments:
     destination: scp
     host: localhost
     root_dir: dist/
+
+preprocessors:
+- name: custom
+  kind: custom_preprocessor
+  value: testing123
+
+extensions:
+  jinja2:
+  - extensions.triplicate.Triplicate
+  preprocessors:
+  - extensions.preprocessors.CustomPreprocessor

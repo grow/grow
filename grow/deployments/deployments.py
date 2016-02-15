@@ -20,29 +20,29 @@ _builtins = (
 
 
 def register_destination(class_obj):
-  _destination_kinds_to_classes[class_obj.KIND] = class_obj
+    _destination_kinds_to_classes[class_obj.KIND] = class_obj
 
 
 def register_builtins():
-  global _destination_kinds_to_classes
-  if _destination_kinds_to_classes is None:
-    _destination_kinds_to_classes = {}
-  for builtin in _builtins:
-    register_destination(builtin)
+    global _destination_kinds_to_classes
+    if _destination_kinds_to_classes is None:
+        _destination_kinds_to_classes = {}
+    for builtin in _builtins:
+        register_destination(builtin)
 
 
 def make_deployment(kind, config, name='default'):
-  if _destination_kinds_to_classes is None:
-    register_builtins()
-  class_obj = _destination_kinds_to_classes.get(kind)
-  if class_obj is None:
-    raise ValueError('No configuration exists for "{}".'.format(kind))
-  if isinstance(config, dict):
-    config = json.dumps(config)
-    config = config_from_json(class_obj, config)
-  return class_obj(config, name=name)
+    if _destination_kinds_to_classes is None:
+        register_builtins()
+    class_obj = _destination_kinds_to_classes.get(kind)
+    if class_obj is None:
+        raise ValueError('No configuration exists for "{}".'.format(kind))
+    if isinstance(config, dict):
+        config = json.dumps(config)
+        config = config_from_json(class_obj, config)
+    return class_obj(config, name=name)
 
 
 def config_from_json(deployment_class, content):
-  config_class = deployment_class.Config
-  return protojson.decode_message(config_class, content)
+    config_class = deployment_class.Config
+    return protojson.decode_message(config_class, content)

@@ -19,7 +19,7 @@ builtins = {
 
 
 class SecurityTestCase(base.RegExTestCase):
-  checks = [
-      builtins['avoid_eval'],
-      builtins['avoid_innerhtml'],
-  ]
+    checks = [
+        builtins['avoid_eval'],
+        builtins['avoid_innerhtml'],
+    ]
