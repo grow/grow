@@ -1,8 +1,8 @@
-from grow.pods.preprocessors import base
+from grow import Preprocessor
 from protorpc import messages
 
 
-class CustomPreprocessor(base.BasePreprocessor):
+class CustomPreprocessor(Preprocessor):
     KIND = 'custom_preprocessor'
 
     class Config(messages.Message):
