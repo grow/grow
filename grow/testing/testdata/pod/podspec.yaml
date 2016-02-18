@@ -52,3 +52,14 @@ deployments:
     destination: scp
     host: localhost
     root_dir: dist/
+
+preprocessors:
+- name: custom
+  kind: custom_preprocessor
+  value: testing123
+
+extensions:
+  jinja2:
+  - extensions.triplicate.Triplicate
+  preprocessors:
+  - extensions.preprocessors.CustomPreprocessor
