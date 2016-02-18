@@ -203,6 +203,9 @@ Returns the document's [Locale object](http://babel.edgewall.org/wiki/ApiDocs/ba
 
     # Display name of the document's locale in English.
     {{doc.get_display_name('en')}}
+    
+    # Whether the locale's language is RTL (right-to-left).
+    {{doc.locale.is_rtl}}
 
 ### locales
 
