@@ -36,7 +36,7 @@ class SassPreprocessor(base.BasePreprocessor):
         _root_css = css_path if _root_css is None else _root_css
         result = {}
         if not os.path.isdir(css_path):
-            os.mkdir(css_path)
+            os.makedirs(css_path)
         for name in os.listdir(sass_path):
             if not SUFFIX_PATTERN.search(name) or name.startswith('_'):
                 continue
