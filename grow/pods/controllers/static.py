@@ -129,7 +129,12 @@ class StaticFile(object):
                     fingerprint = StaticFile._create_fingerprint(self.pod, localized_pod_path)
                     localized_serving_path = StaticFile.apply_fingerprint(localized_serving_path, fingerprint)
                 serving_path = localized_serving_path.replace('//', '/')
-        return urls.Url(path=serving_path) if serving_path else None
+        if serving_path:
+            return urls.Url(
+                path=serving_path,
+                host=self.pod.env.host,
+                port=self.pod.env.port,
+                scheme=self.pod.env.scheme)
 
 
 class StaticController(base.BaseController):
