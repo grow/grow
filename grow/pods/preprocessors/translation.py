@@ -17,7 +17,8 @@ class TranslationPreprocessor(base.BasePreprocessor):
 
     def run(self):
         self.pod.logger.info('Detected changes to translations. Restarting.')
-        os.execl(sys.argv[0], *sys.argv)
+        args = [arg for arg in sys.argv if arg not in ['-b', '--browser']]
+        os.execl(args[0], *args)
 
     def list_watched_dirs(self):
         return ['/translations/']
