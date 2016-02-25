@@ -90,9 +90,9 @@ class Collection(object):
             raise CollectionDoesNotExistError(message)
         return collection
 
-    def get_doc(self, pod_path, locale=None):
+    def get_doc(self, pod_path, locale=None, relative_to=None):
         doc = documents.Document(pod_path, locale=locale, _pod=self.pod,
-                                 _collection=self)
+                                 _collection=self, relative_to=relative_to)
         if not doc.exists():
             message = '{} does not exist.'.format(doc)
             raise documents.DocumentDoesNotExistError(message)

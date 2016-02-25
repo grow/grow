@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <title>Hello World</title>
-<link rel="stylesheet" href="{{g.static('/public/main.css')}}">
+<link rel="stylesheet" href="{{g.static('/public/main.css').url.path}}">
+<!--{{g.static('/public/main.css').url.relative_path}} -->
 {% block main %}
   {% if doc.html %}
     {{doc.html|render|safe}}

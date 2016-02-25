@@ -32,7 +32,7 @@ class BadStaticFileError(Error):
 class StaticFile(object):
 
     def __init__(self, pod_path, serving_path, locale=None, localization=None,
-                 controller=None, fingerprinted=False, pod=None):
+                 controller=None, fingerprinted=False, pod=None, relative_to=None):
         self.pod = pod
         self.default_locale = pod.podspec.default_locale
         self.locale = pod.normalize_locale(locale)
@@ -43,6 +43,7 @@ class StaticFile(object):
         self.basename = os.path.basename(pod_path)
         self.fingerprinted = fingerprinted
         self.base, self.ext = os.path.splitext(self.basename)
+        self.relative_to = relative_to
 
     def __repr__(self):
         if self.locale:
@@ -134,7 +135,8 @@ class StaticFile(object):
                 path=serving_path,
                 host=self.pod.env.host,
                 port=self.pod.env.port,
-                scheme=self.pod.env.scheme)
+                scheme=self.pod.env.scheme,
+                relative_to=self.relative_to)
 
 
 class StaticController(base.BaseController):
