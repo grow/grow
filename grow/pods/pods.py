@@ -287,7 +287,11 @@ class Pod(object):
         bar.start()
         for path in paths:
             controller = self.match(path)
-            output[path] = controller.render()
+            try:
+              output[path] = controller.render()
+            except:
+              self.logger.error('Error building: {}'.format(controller))
+              raise
             bar.update(bar.currval + 1)
         error_controller = routes.match_error('/404.html')
         if error_controller:
