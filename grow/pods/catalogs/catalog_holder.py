@@ -176,7 +176,9 @@ class Catalogs(object):
                 message_ids_to_messages[message.id] = message
 
         def _handle_field(path, item, key, node):
-            if not key.endswith('@') or not isinstance(item, basestring):
+            if (not key
+                    or not key.endswith('@')
+                    or not isinstance(item, basestring)):
                 return
             # Support gettext "extracted comments" on tagged fields. This is
             # consistent with extracted comments in templates, which follow
@@ -234,6 +236,13 @@ class Catalogs(object):
                                 locations=locations,
                                 path=pod_path)
             elif self._should_extract_as_babel(paths, pod_path):
+                if pod_path.startswith('/data') and pod_path.endswith(('.yaml', '.yml')):
+                    self.pod.logger.info('Extracting: {}'.format(pod_path))
+                    content = self.pod.read_file(pod_path)
+                    fields = utils.load_yaml(content, pod=self.pod)
+                    utils.walk(fields, lambda *args: _handle_field(pod_path, *args))
+                    continue
+
                 pod_locales = paths_to_locales.get(pod_path)
                 if pod_locales:
                     text = 'Extracting: {} ({} locales)'
