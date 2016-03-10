@@ -15,7 +15,7 @@ class TranslationPreprocessor(base.BasePreprocessor):
     def __init__(self, pod):
         self.pod = pod
 
-    def run(self):
+    def run(self, build=True):
         self.pod.logger.info('Detected changes to translations. Restarting.')
         args = [arg for arg in sys.argv if arg not in ['-b', '--browser']]
         os.execl(args[0], *args)

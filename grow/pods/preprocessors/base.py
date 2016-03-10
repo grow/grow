@@ -23,7 +23,7 @@ class BasePreprocessor(object):
     def first_run(self):
         self.run()
 
-    def run(self):
+    def run(self, build=True):
         raise NotImplementedError
 
     def list_watched_dirs(self):

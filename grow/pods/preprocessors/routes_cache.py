@@ -7,7 +7,7 @@ class RoutesCachePreprocessor(base.BasePreprocessor):
     def __init__(self, pod):
         self.pod = pod
 
-    def run(self):
+    def run(self, build=True):
         self.pod.routes.reset_cache(rebuild=True)
 
     def list_watched_dirs(self):

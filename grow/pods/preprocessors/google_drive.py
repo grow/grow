@@ -28,7 +28,7 @@ class BaseGooglePreprocessor(base.BasePreprocessor):
         http = credentials.authorize(http)
         return discovery.build('drive', 'v2', http=http)
 
-    def run(self):
+    def run(self, build=True):
         try:
             self.download(self.config)
         except errors.HttpError as e:

@@ -22,7 +22,7 @@ class SassPreprocessor(base.BasePreprocessor):
     KIND = 'sass'
     Config = Config
 
-    def run(self):
+    def run(self, build=True):
         sass_dir = os.path.abspath(os.path.join(self.root, self.config.sass_dir.lstrip('/')))
         out_dir = os.path.abspath(os.path.join(self.root, self.config.out_dir.lstrip('/')))
         self.build_directory(sass_dir, out_dir)

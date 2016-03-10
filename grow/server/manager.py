@@ -22,7 +22,9 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
     if preprocess:
         # Run preprocessors for the first time in a thread.
-        thread = threading.Thread(target=pod.preprocess)
+        thread = threading.Thread(
+            target=pod.preprocess,
+            kwargs={'build': False})
         thread.start()
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
