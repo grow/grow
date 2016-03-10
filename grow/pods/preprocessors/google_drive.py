@@ -73,6 +73,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         path = messages.StringField(1)
         id = messages.StringField(2)
         gid = messages.IntegerField(3)
+        output_style = messages.StringField(4, default='compressed')
 
     def download(self, config):
         path = config.path
@@ -99,6 +100,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 fp.write(content)
                 fp.seek(0)
                 reader = csv.DictReader(fp)
-                content = json.dumps([row for row in reader])
+                kwargs = {}
+                if self.config.output_style == 'pretty':
+                    kwargs['indent'] = 2
+                    kwargs['separators'] = (',', ': ')
+                    kwargs['sort_keys'] = True
+                content = json.dumps([row for row in reader], **kwargs)
             self.pod.write_file(path, content)
             self.logger.info('Downloaded Google Sheet -> {}'.format(path))
