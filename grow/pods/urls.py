@@ -1,3 +1,6 @@
+import os
+
+
 class Url(object):
 
     def __init__(self, path, host=None, port=None, scheme=None, relative_to=None):
@@ -21,13 +24,10 @@ class Url(object):
     def format_path(path, pod):
         pass
 
-    @property
-    def relative_path(self):
-        if self.relative_to is None:
-            return self.path
-        path = self.relative_to
-        num_slashes = path.count('/')
-        if num_slashes == 1:
-          return './'
-        parts = ''.join(['../' for _ in range(path.count('/'))[1:]])
-        return parts + self.path[1:]
+    @staticmethod
+    def create_relative_path(path, relative_to):
+        result = os.path.relpath(path, relative_to)
+        if path.endswith('/'):
+          result = result + '/'
+        if not result.startswith(('/', '.')):
+          return './' + result

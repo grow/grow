@@ -2,6 +2,7 @@ from datetime import datetime
 from grow.common import utils
 from grow.pods import locales as locales_lib
 from grow.pods.documents import collection as collection_lib
+from grow.pods import urls
 import collections
 import itertools
 import jinja2
@@ -207,3 +208,10 @@ def date(datetime_obj=None, _pod=None, **kwargs):
 @utils.memoize_tag
 def locales(codes, _pod=None):
     return locales_lib.Locale.parse_codes(codes)
+
+
+@jinja2.contextfilter
+def relative_filter(ctx, path):
+    doc = ctx['doc']
+    return urls.Url.create_relative_path(
+        path, relative_to=doc.url.path)

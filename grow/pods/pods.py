@@ -441,6 +441,7 @@ class Pod(object):
             ('render', tags.render_filter),
             ('slug', tags.slug_filter),
             ('time', babel_dates.format_time),
+            ('relative', tags.relative_filter),
         )
         env.filters.update(filters)
         env.active_locale = '__unset'
