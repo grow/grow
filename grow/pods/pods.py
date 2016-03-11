@@ -377,7 +377,7 @@ class Pod(object):
     def preprocess(self, preprocessor_names=None, run_all=False, tags=None,
                    build=True):
         if not preprocessor_names:
-            self.catalogs.compile(force=run_all)  # Preprocess translations.
+            self.catalogs.compile()  # Preprocess translations.
         for preprocessor in self.list_preprocessors():
             if preprocessor_names:
                 if preprocessor.name in preprocessor_names:
