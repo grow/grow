@@ -31,3 +31,4 @@ class Url(object):
           result = result + '/'
         if not result.startswith(('/', '.')):
           return './' + result
+        return result

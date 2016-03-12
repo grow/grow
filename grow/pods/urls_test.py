@@ -12,29 +12,24 @@ class UrlTest(unittest.TestCase):
         self.pod = pods.Pod(dir_path)
 
     def test_relative_path(self):
-        relative_to = '/test/dir/'
         relative_path = urls.Url.create_relative_path(
-            '/foo/bar/baz/', relative_to=relative_to)
+            '/foo/bar/baz/', relative_to='/test/dir/')
         self.assertEqual('../../foo/bar/baz/', relative_path)
 
-        relative_to = '/test/dir/foo/'
         relative_path = urls.Url.create_relative_path(
-            '/foo/bar/baz/', relative_to=relative_to)
+            '/foo/bar/baz/', relative_to='/test/dir/foo/')
         self.assertEqual('../../../foo/bar/baz/', relative_path)
 
-        relative_to = '/test/dir/foo/'
         relative_path = urls.Url.create_relative_path(
-            '/', relative_to=relative_to)
+            '/', relative_to='/test/dir/foo/')
         self.assertEqual('../../../', relative_path)
 
-        relative_to = '/'
         relative_path = urls.Url.create_relative_path(
-            '/foo/bar/', relative_to=relative_to)
+            '/foo/bar/', relative_to='/')
         self.assertEqual('./foo/bar/', relative_path)
 
-        relative_to = '/foo/'
         relative_path = urls.Url.create_relative_path(
-            '/foo/bar/', relative_to=relative_to)
+            '/foo/bar/', relative_to='/foo/')
         self.assertEqual('./bar/', relative_path)
 
 

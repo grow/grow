@@ -34,14 +34,13 @@ class DummyDict(object):
 
 class Document(object):
 
-    def __init__(self, pod_path, _pod, locale=None, relative_to=None, _collection=None):
+    def __init__(self, pod_path, _pod, locale=None, _collection=None):
         self._locale_kwarg = locale
         utils.validate_name(pod_path)
         self.pod_path = pod_path
         self.basename = os.path.basename(pod_path)
         self.base, self.ext = os.path.splitext(self.basename)
         self.pod = _pod
-        self.relative_to = relative_to
         self.collection = _collection
         self.locale = _pod.normalize_locale(locale, default=self.default_locale)
 
@@ -105,8 +104,7 @@ class Document(object):
                 path=path,
                 host=self.pod.env.host,
                 port=self.pod.env.port,
-                scheme=self.pod.env.scheme,
-                relative_to=self.relative_to)
+                scheme=self.pod.env.scheme)
 
     @property
     def slug(self):
@@ -186,10 +184,7 @@ class Document(object):
         if '$parent' not in self.fields:
             return None
         parent_pod_path = self.fields['$parent']
-        return self.collection.get_doc(
-            parent_pod_path,
-            locale=self.locale,
-            relative_to=self.relative_to)
+        return self.collection.get_doc(parent_pod_path, locale=self.locale)
 
     @utils.memoize
     def has_serving_path(self):

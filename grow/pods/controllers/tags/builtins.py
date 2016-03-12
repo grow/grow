@@ -42,14 +42,12 @@ def csv(path, locale=_no_locale, _pod=None):
 
 
 @utils.memoize_tag
-def collection(collection, _pod=None, relative_to=None):
-    return _pod.get_collection(collection, relative_to=None)
+def collection(collection, _pod=None):
+    return _pod.get_collection(collection)
 
 
 @utils.memoize_tag
 def docs(collection, locale=None, order_by=None, _pod=None):
-    if not collection:
-        raise ValueError('Missing path for g.docs.')
     collection = _pod.get_collection(collection)
     return collection.list_docs(locale=locale, order_by=order_by)
 
@@ -61,8 +59,6 @@ def collections(collection_paths=None, _pod=None):
 
 @utils.memoize_tag
 def statics(pod_path, locale=None, _pod=None):
-    if not pod_path:
-        raise ValueError('Missing path for g.statics.')
     return _pod.list_statics(pod_path, locale=locale)
 
 
@@ -87,10 +83,8 @@ def slug_filter(value):
 
 
 @utils.memoize_tag
-def static(path, locale=None, _pod=None, relative_to=None):
-    if not path:
-        raise ValueError('Missing path for g.static.')
-    return _pod.get_static(path, locale=locale, relative_to=relative_to)
+def static(path, locale=None, _pod=None):
+    return _pod.get_static(path, locale=locale)
 
 
 class Menu(object):
@@ -126,14 +120,14 @@ def breadcrumb(doc, _pod=None):
 
 
 @utils.memoize_tag
-def url(pod_path, locale=None, _pod=None, relative_to=None):
-    doc = _pod.get_doc(pod_path, locale=locale, relative_to=relative_to)
+def url(pod_path, locale=None, _pod=None):
+    doc = _pod.get_doc(pod_path, locale=locale)
     return doc.url
 
 
 @utils.memoize_tag
-def get_doc(pod_path, locale=None, _pod=None, relative_to=None):
-    return _pod.get_doc(pod_path, locale=locale, relative_to=None)
+def get_doc(pod_path, locale=None, _pod=None):
+    return _pod.get_doc(pod_path, locale=locale)
 
 
 @jinja2.contextfilter

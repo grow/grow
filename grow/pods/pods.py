@@ -212,13 +212,11 @@ class Pod(object):
         """Creates a file inside the pod."""
         return files.File.create(pod_path, content, self)
 
-    def list_statics(self, pod_path, locale=None, relative_to=None):
+    def list_statics(self, pod_path, locale=None):
         for path in self.list_dir(pod_path):
-            yield self.get_static(pod_path + path,
-                                  locale=locale,
-                                  relative_to=relative_to)
+            yield self.get_static(pod_path + path, locale=locale)
 
-    def get_static(self, pod_path, locale=None, relative_to=None):
+    def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
         for route in self.routes:
             controller = route.endpoint
@@ -228,20 +226,19 @@ class Pod(object):
                     return static.StaticFile(pod_path, serving_path, locale=locale,
                                              pod=self, controller=controller,
                                              fingerprinted=controller.fingerprinted,
-                                             localization=controller.localization,
-                                             relative_to=relative_to)
+                                             localization=controller.localization)
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
                 'not configured for this path in podspec.yaml.'.format(pod_path))
         raise static.BadStaticFileError(text)
 
-    def get_doc(self, pod_path, locale=None, relative_to=None):
+    def get_doc(self, pod_path, locale=None):
         """Returns a document, given the document's pod path."""
         collection_path, unused_path = os.path.split(pod_path)
         if not collection_path or not unused_path:
             text = '"{}" is not a path to a document.'.format(pod_path)
             raise collection.BadCollectionNameError(text)
         collection = self.get_collection(collection_path)
-        return collection.get_doc(pod_path, locale=locale, relative_to=relative_to)
+        return collection.get_doc(pod_path, locale=locale)
 
     def get_home_doc(self):
         home = self.yaml.get('home')
