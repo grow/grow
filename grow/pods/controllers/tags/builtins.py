@@ -47,9 +47,10 @@ def collection(collection, _pod=None):
 
 
 @utils.memoize_tag
-def docs(collection, locale=None, order_by=None, _pod=None):
+def docs(collection, locale=None, order_by=None, hidden=False, _pod=None):
     collection = _pod.get_collection(collection)
-    return collection.list_docs(locale=locale, order_by=order_by)
+    return collection.list_docs(locale=locale, order_by=order_by,
+                                include_hidden=hidden)
 
 
 @utils.memoize_tag
