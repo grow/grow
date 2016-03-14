@@ -32,6 +32,29 @@ class UrlTest(unittest.TestCase):
             '/foo/bar/', relative_to='/foo/')
         self.assertEqual('./bar/', relative_path)
 
+        relative_path = urls.Url.create_relative_path(
+            'http://www.example.com/', relative_to='/foo/')
+        self.assertEqual('http://www.example.com/', relative_path)
+
+        relative_path = urls.Url.create_relative_path(
+            'https://www.example.com/', relative_to='/foo/')
+        self.assertEqual('https://www.example.com/', relative_path)
+
+        url = urls.Url('/foo/')
+        relative_path = urls.Url.create_relative_path(
+            url, relative_to='/foo/')
+        self.assertEqual('./', relative_path)
+
+        url = urls.Url('/foo/test.html')
+        relative_path = urls.Url.create_relative_path(
+            url, relative_to='/foo/')
+        self.assertEqual('./test.html', relative_path)
+
+        url = urls.Url('/test.html')
+        relative_path = urls.Url.create_relative_path(
+            url, relative_to='/foo/')
+        self.assertEqual('../test.html', relative_path)
+
 
 if __name__ == '__main__':
     unittest.main()
