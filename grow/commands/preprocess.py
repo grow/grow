@@ -11,10 +11,13 @@ import os
               help='Whether to run all preprocessors, even if a preprocessor'
                    ' has autorun disabled.')
 @click.option('--preprocessor', '-p', type=str, multiple=True,
-              help='Which preprocessor to run. Preprocessors controlled by'
-                   ' the preprocess command must have names.')
-def preprocess(pod_path, preprocessor, run_all):
+              help='Name of preprocessor to run. Preprocessors controlled by'
+                   ' the preprocess command must have names or tags.')
+@click.option('--tag', '-tag', type=str, multiple=True,
+              help='Tags of preprocessors to run. Preprocessors controlled by'
+                   ' the preprocess command must have names or tags.')
+def preprocess(pod_path, preprocessor, run_all, tag):
     """Runs preprocessors."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.preprocess(preprocessor, run_all=run_all)
+    pod.preprocess(preprocessor, run_all=run_all, tags=tag)

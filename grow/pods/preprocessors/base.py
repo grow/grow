@@ -11,13 +11,14 @@ class PreprocessorError(Error):
 
 class BasePreprocessor(object):
 
-    def __init__(self, pod, config, autorun=True, name=None):
+    def __init__(self, pod, config, autorun=True, name=None, tags=[]):
         self.pod = pod
         self.root = pod.root
         self.config = config
         self.logger = self.pod.logger
         self.autorun = autorun
         self.name = name
+        self.tags = tags or []
 
     def first_run(self):
         self.run()

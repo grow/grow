@@ -374,11 +374,14 @@ class Pod(object):
             results.append(preprocessor)
         return results
 
-    def preprocess(self, preprocessor_names=None, run_all=False):
+    def preprocess(self, preprocessor_names=None, run_all=False, tags=None):
         self.catalogs.compile(force=run_all)  # Preprocess translations.
         for preprocessor in self.list_preprocessors():
             if preprocessor_names:
                 if preprocessor.name in preprocessor_names:
+                    preprocessor.run()
+            elif tags:
+              if set(preprocessor.tags).intersection(tags):
                     preprocessor.run()
             elif preprocessor.autorun or run_all:
                 preprocessor.run()
