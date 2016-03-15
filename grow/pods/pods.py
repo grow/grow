@@ -106,6 +106,7 @@ class Pod(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    @property
     def exists(self):
         return self.file_exists('/podspec.yaml')
 
@@ -133,7 +134,7 @@ class Pod(object):
         except IOError as e:
             path = self.abs_path('/podspec.yaml')
             if e.args[0] == 2 and e.filename:
-                raise PodDoesNotExistError('Pod does not exist: {}'.format(path))
+                raise PodDoesNotExistError('Pod not found in: {}'.format(path))
             raise PodSpecParseError('Error parsing: {}'.format(path))
 
     @property

@@ -151,11 +151,9 @@ class Document(object):
     def delete(self):
         self.pod.delete_file(self.pod_path)
 
+    @property
     def exists(self):
         return self.pod.file_exists(self.pod_path)
-
-    def has_collection(self):
-        return self.collection.exists()
 
     def get_view(self):
         view_format = self.fields.get('$view', self.collection.get_view())
@@ -318,7 +316,7 @@ class Document(object):
                 return docs[i - 1]
 
     def create_from_message(self, message):
-        if self.exists():
+        if self.exists:
             raise DocumentExistsError('{} already exists.'.format(self))
         self.update_from_message(message)
 

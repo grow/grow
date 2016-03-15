@@ -73,35 +73,28 @@ class Collection(object):
                 clean_paths.add(os.path.join('/content', parts[0]))
         return [cls(pod_path, _pod=pod) for pod_path in clean_paths]
 
+    @property
     def exists(self):
         return self.pod.file_exists(self._blueprint_path)
 
     def create_from_message(self, message):
-        if self.exists():
+        if self.exists:
             raise CollectionExistsError('{} already exists.'.format(self))
         self.update_from_message(message)
         return self
 
     @classmethod
     def get(cls, collection_path, _pod):
-        collection = cls(collection_path, _pod)
-        if not collection.exists():
-            message = '{} does not exist.'.format(collection)
-            raise CollectionDoesNotExistError(message)
-        return collection
+        return cls(collection_path, _pod)
 
     def get_doc(self, pod_path, locale=None):
-        doc = documents.Document(pod_path, locale=locale, _pod=self.pod,
-                                 _collection=self)
-        if not doc.exists():
-            message = '{} does not exist.'.format(doc)
-            raise documents.DocumentDoesNotExistError(message)
-        return doc
+        return documents.Document(pod_path, locale=locale, _pod=self.pod,
+                                  _collection=self)
 
     @property
     @utils.memoize
     def yaml(self):
-        if not self.exists():
+        if not self.exists:
             return {}
         result = utils.parse_yaml(self.pod.read_file(self._blueprint_path))
         if result is None:
