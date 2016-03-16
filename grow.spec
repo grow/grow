@@ -1,11 +1,9 @@
 # -*- mode: python -*-
 
-# NOTE: Assumes PyInstaller==2.1.1.
-
 import os
 import glob
 import sys
-from PyInstaller.hooks.hookutils import collect_submodules
+from PyInstaller.utils.hooks import collect_submodules
 
 
 IS_DARWIN = sys.platform == 'darwin'
@@ -88,9 +86,9 @@ a = Analysis([
                 'bin/grow',
              ],
              pathex=[
+                # Longer paths precede shorter paths for path-stripping.
+                'env/lib/python2.7/site-packages/',
                 '.',
-                './env/lib/python2.7/site-packages/',
-                '/Library/Python/2.7/site-packages/PyInstaller/',
              ],
              hiddenimports=hiddenimports,
              hookspath=None,
