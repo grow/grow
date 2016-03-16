@@ -113,5 +113,15 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('/views/tr-specific-view.html', doc.view)
         self.assertEqual(locales.Locale.parse('tr_TR'), doc.locale)
 
+    def test_exists(self):
+        doc = self.pod.get_doc('/content/localized/localized.yaml')
+        self.assertTrue(doc.exists)
+        doc = self.pod.get_doc('/content/localized/localized.yaml', locale='ja')
+        self.assertTrue(doc.exists)
+        doc = self.pod.get_doc('/content/localized/localized.yaml', locale='de')
+        self.assertTrue(doc.exists)
+        doc = self.pod.get_doc('/content/localized/does-not-exist.yaml')
+        self.assertFalse(doc.exists)
+
 if __name__ == '__main__':
     unittest.main()

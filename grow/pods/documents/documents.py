@@ -42,7 +42,13 @@ class Document(object):
         self.base, self.ext = os.path.splitext(self.basename)
         self.pod = _pod
         self.collection = _collection
-        self.locale = _pod.normalize_locale(locale, default=self.default_locale)
+        try:
+            self.locale = _pod.normalize_locale(locale, default=self.default_locale)
+        except IOError as exc:  # Document does not exist.
+            if '[Errno 2] No such file or directory' in str(exc):
+                self.locale = None
+            else:
+                raise
 
     def __repr__(self):
         if self.locale:
