@@ -1,8 +1,8 @@
-from grow import Preprocessor
+import grow
 from protorpc import messages
 
 
-class CustomPreprocessor(Preprocessor):
+class CustomPreprocessor(grow.Preprocessor):
     KIND = 'custom_preprocessor'
 
     class Config(messages.Message):
