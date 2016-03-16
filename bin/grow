@@ -47,7 +47,7 @@ from grow.common import utils
 _grow_dir = utils.get_grow_dir()
 ver = open(os.path.join(_grow_dir, 'VERSION')).read().strip()
 text = ('Grow is a declarative file-based website generator. Read docs at '
-        'http://growsdk.org. This is version {}.'.format(ver))
+        'https://grow.io. This is version {}.'.format(ver))
 
 
 @click.group(help=text)
