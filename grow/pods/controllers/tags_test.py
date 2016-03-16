@@ -1,4 +1,4 @@
-from . import builtins
+from . import tags
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
@@ -13,7 +13,7 @@ class BuiltinsTestCase(unittest.TestCase):
 
     def test_slug_filter(self):
         words = 'Foo Bar Baz'
-        self.assertEqual('foo-bar-baz', builtins.slug_filter(words))
+        self.assertEqual('foo-bar-baz', tags.slug_filter(words))
 
     def test_json(self):
         controller = self.pod.match('/yaml_test/')
@@ -22,10 +22,10 @@ class BuiltinsTestCase(unittest.TestCase):
         self.assertIn('key2 - value2', html)
 
     def test_collections(self):
-        collections = builtins.collections(_pod=self.pod)
+        collections = tags.collections(_pod=self.pod)
         self.assertEqual(4, len(collections))
         paths = ['pages', 'posts']
-        collections = builtins.collections(paths, _pod=self.pod)
+        collections = tags.collections(paths, _pod=self.pod)
         for collection in collections:
             self.assertIn(collection.collection_path, paths)
         self.assertEqual(len(paths), len(collections))
