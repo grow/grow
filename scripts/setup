@@ -30,3 +30,8 @@ virtualenv env
 source env/bin/activate
 pip install -r requirements.txt
 deactivate
+
+# Avoid libyaml issues on Mac by explicitly reinstalling.
+source env/bin/activate
+pip install --upgrade PyYAML==3.10
+deactivate

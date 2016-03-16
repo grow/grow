@@ -3,7 +3,7 @@
 import os
 import glob
 import sys
-from PyInstaller.hooks.hookutils import collect_submodules
+from PyInstaller.utils.hooks import collect_submodules
 
 
 IS_DARWIN = sys.platform == 'darwin'
@@ -32,6 +32,7 @@ else:
 
 
 hiddenimports += [
+    'babel.dates',
     'babel.numbers',
     'babel.plural',
     'keyring',
