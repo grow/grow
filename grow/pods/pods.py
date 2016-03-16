@@ -163,41 +163,46 @@ class Pod(object):
         path = os.path.join(self.root, pod_path.lstrip('/'))
         return os.path.join(self.root, path)
 
+    def _normalize_path(self, pod_path):
+        if '..' in pod_path:
+          raise ValueError('.. not allowed in file paths.')
+        return os.path.join(self.root, pod_path.lstrip('/'))
+
     def list_dir(self, pod_path='/'):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
+        path = self._normalize_path(pod_path)
         return self.storage.listdir(path)
 
     def open_file(self, pod_path, mode=None):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
+        path = self._normalize_path(pod_path)
         return self.storage.open(path, mode=mode)
 
     def file_modified(self, pod_path):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
+        path = self._normalize_path(pod_path)
         return self.storage.modified(path)
 
     def read_file(self, pod_path):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
+        path = self._normalize_path(pod_path)
         return self.storage.read(path)
 
     def write_file(self, pod_path, content):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
+        path = self._normalize_path(pod_path)
         self.storage.write(path, content)
 
     def file_size(self, pod_path):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
+        path = self._normalize_path(pod_path)
         return self.storage.size(path)
 
     def file_exists(self, pod_path):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
+        path = self._normalize_path(pod_path)
         return self.storage.exists(path)
 
     def delete_file(self, pod_path):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
+        path = self._normalize_path(pod_path)
         return self.storage.delete(path)
 
     def move_file_to(self, source_pod_path, destination_pod_path):
-        source_path = os.path.join(self.root, source_pod_path.lstrip('/'))
-        dest_path = os.path.join(self.root, destination_pod_path.lstrip('/'))
+        source_path = self._normalize_path(source_pod_path)
+        dest_path = self._normalize_path(destination_pod_path)
         return self.storage.move_to(source_path, dest_path)
 
     def list_collections(self, paths=None):
