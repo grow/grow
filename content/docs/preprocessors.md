@@ -53,6 +53,20 @@ preprocessors:
   path: /data/filename.{csv|json}                       # Where to save downloaded file.
   id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI      # Spreadsheet ID.
   gid: 0                                                # Worksheet ID (optional).
+  pretty_print: false                                   # Whether to format the output with "pretty print". (optional)
+[/sourcecode]
+
+### Gulp
+
+The Gulp preprocessor simplifies using Gulp in conjunction with Grow. Instead of running Gulp and Grow separately, Grow can manage Gulp as a subprocess and run different Gulp tasks at build and run time.
+
+Typically, you would pair `grow run` with a Gulp task that watches for changes and rebuilds static assets; and you would pair `grow build` with a Gulp task that builds static assets for release. You can use the `build_task` and `run_task` options to control the Gulp task that is run for these two Grow commands.
+
+[sourcecode:yaml]
+preprocessors:
+- kind: gulp
+  build_task: "build"             # Task to run at build time (optional).
+  run_task: ""                    # Task to run when the development server runs (optional).
 [/sourcecode]
 
 ### Sass
