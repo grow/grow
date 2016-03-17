@@ -35,6 +35,7 @@ h2,
 h3 {
   font-family: $font-family-main;
   font-weight: 500;
+  color: black;
   clear: both;
   letter-spacing: -0.01em;
 }
@@ -96,7 +97,7 @@ p {
 }
 
 .panel.callouts summary {
-  padding: 0 50px 0;
+  padding: 0 45px 0;
   text-align: center;
 }
 
@@ -193,7 +194,7 @@ p {
 
 .panel nav.side h3 {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .toolbar {
@@ -221,7 +222,8 @@ p {
 }
 
 .button i {
-  margin: 0 7px 0 0;
+  margin: -2px 7px -2px -2px;
+  float: left;
 }
 
 .button:hover {
@@ -245,7 +247,7 @@ section h2 {
 }
 
 section h3 {
-  font-weight: 500;
+  font-weight: 600;
   margin-top: 2em;
 }
 
@@ -255,8 +257,9 @@ section h3 {
 
 header {
   box-shadow: 0 2px 5px rgba(0,0,0,.1);
-  background: $color-primary;
+  background-position: bottom;
   color: #fff;
+  background-image: url(../images/pattern.svg);
   font-size: 18px;
   box-sizing: border-box;
   margin: 0;
@@ -303,9 +306,8 @@ header i {
 }
 
 footer {
-  background: #fff;
+  background: #fafafa;
   font-size: 12px;
-  border-top: 1px solid #efefef;
 }
 
 footer p {
