@@ -169,6 +169,14 @@ p {
 
 .panel nav.side ul li {
   margin-bottom: 8px;
+
+  a {
+    border: none;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
 }
 
 .panel nav.side ul li.active a {
@@ -381,6 +389,14 @@ div.toc {
   margin: 0 0 30px 30px;
   padding: 20px;
   width: 230px;
+
+  a {
+    border: none;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
 }
 
 div.toc ul {

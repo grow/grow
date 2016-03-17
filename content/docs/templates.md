@@ -271,6 +271,16 @@ Renders Markdown content into HTML. Use in conjunction with the `safe` filter to
 {{markdown_content|markdown|safe}}
 [/sourcecode]
 
+### relative
+
+`relative`
+
+Generates a relative URL (from the perspective of the current document context) from an absolute URL path.
+
+[sourcecode:html+jinja]
+{{g.doc('/content/pages/home.yaml').url|relative}}
+[/sourcecode]
+
 ### slug
 
 `slug`

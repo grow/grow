@@ -107,12 +107,30 @@ Because you are provided with the freedom to change a serving path at any time, 
 
 In general, you should never refer to a linkable resource by its URL: you should refer to it by its internal pod path and leverage either `g.doc` or `g.static` to programmatically generate its URL. This technique provides you with flexibility to change URLs later without finding and replacing URLs in your site's code. Plus, it helps avoid broken links.
 
+### URL object
+
+Documents and static files both have `url` properties that return their corresponding `Url` object.
+
 [sourcecode:html+jinja]
 # The serving path for a content document.
 {{g.doc('/content/pages/home.yaml').url.path}}
 
 # The serving path for a static file.
 {{g.static('/source/images/image.png').url.path}}
+
+{{doc.url}}            # The full URL to the document (based on the environment).
+{{doc.url.path}}       # The serving path to the document.
+{{doc.url.host}}
+{{doc.url.scheme}}
+{{doc.url.port}}
+[/sourcecode]
+
+### Relative URLs
+
+All URLs generated from a `Url` object are absolute. However, if you'd like to generate relative URLs, you can use the `relative` template filter. The final URL generated is relative to the current document context.
+
+[sourcecode:html+jinja]
+{{g.doc('/content/pages/home.yaml').url|relative}}
 [/sourcecode]
 
 ## Checking routes
