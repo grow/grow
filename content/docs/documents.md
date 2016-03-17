@@ -191,7 +191,7 @@ A reference to the document's collection.
 Whether a document exists.
 
     {% set page = g.doc('/content/pages/home.yaml') %}
-    {{doc.exists}}
+    {{page.exists}}
 
 ### html
 
