@@ -186,6 +186,13 @@ A reference to the document's collection.
     # In document /content/pages/foo.md
     {{doc.collection}}  # <Collection (/content/pages/)>
 
+### exists
+
+Whether a document exists.
+
+    {% set page = g.doc('/content/pages/home.yaml') %}
+    {{doc.exists}}
+
 ### html
 
 Returns the document's body (for `.md` documents, the Markdown body) rendered as HTML.
@@ -203,7 +210,7 @@ Returns the document's [Locale object](http://babel.edgewall.org/wiki/ApiDocs/ba
 
     # Display name of the document's locale in English.
     {{doc.get_display_name('en')}}
-    
+
     # Whether the locale's language is RTL (right-to-left).
     {{doc.locale.is_rtl}}
 
