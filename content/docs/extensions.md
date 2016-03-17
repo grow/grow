@@ -23,7 +23,7 @@ extensions:
   - extensions.triplicate.Triplicate
 [/sourcecode]
 
-Define the extension in a corresponding `/extensions/` folder.
+Define the extension in a corresponding place in the `/extensions/` folder.
 
 [sourcecode:python]
 # /extensions/triplicate.py
@@ -54,37 +54,44 @@ Now you can use your custom `triplicate` filter in your Jinja2 templates.
 
 Sites can define custom preprocessors to do pretty much anything at build time and run time. Custom preprocessors can leverage all of the builtin preprocessor controls, such as the `grow preprocess` command, the `--preprocess` flag, and options like `name`, `autorun`, and `tags`.
 
-Specify and use your site-specific preprocessor in `podspec.yaml`:
+Specify and use your custom preprocessor in `podspec.yaml`:
 
 [sourcecode:yaml]
 # podspec.yaml
 
 extensions:
   preprocessors:
-  - extensions.preprocessors.print_color.PrintColorPreprocessor
+  - extensions.preprocessors.hello.HelloPreprocessor
 
 preprocessors:
-- kind: print_color
-  color: red
+- kind: hello
+  person: Zoey
 [/sourcecode]
 
-Define the preprocessor in a corresponding place in the `/extensions/` folder. Grow preprocessors should subclass the `grow.Preprocessor` class and use ProtoRPC Messages to define their configuration.
+Define the preprocessor in a corresponding place in the `/extensions/` folder. Grow preprocessors should subclass `grow.Preprocessor` and use ProtoRPC Messages to define their configuration.
 
 [sourcecode:python]
-# /extensions/preprocessors/print_color.py
+# /extensions/preprocessors/hello.py
 
 import grow
 from protorpc import messages
 
 
-class PrintColorPreprocessor(grow.Preprocessor):
-    """Prints a color defined by the user."""
+class HelloPreprocessor(grow.Preprocessor):
+    """Says hello to a person."""
 
-    KIND = 'print_color'
+    KIND = 'hello'
 
     class Config(messages.Message):
-        color = messages.StringField(1)
+        person = messages.StringField(1)
 
     def run(self, build=True):
-        print self.config.color
+        print 'Hello, {}!'.format(self.config.person)
+[/sourcecode]
+
+Now, you can use the preprocessor.
+
+[sourcecode:shell]
+$ grow preprocess
+Hello, Zoey!
 [/sourcecode]
