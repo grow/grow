@@ -7,7 +7,7 @@ $order: 1
 
 [TOC]
 
-The Grow SDK implements several commands to help you build and test your pod and its generated files.
+Grow implements several commands to help you build and test your pod and its generated files.
 
 ## Commands
 
@@ -23,18 +23,14 @@ grow build
 grow build --out_dir=<dir>
 [/sourcecode]
 
+### preprocess
+
+Runs preprocessors.
+
 ### routes
 
 Shows all routes built by your pod. Useful for testing and debugging.
 
 [sourcecode:bash]
 grow routes
-[/sourcecode]
-
-### test
-
-Runs tests.
-
-[sourcecode:bash]
-grow test
 [/sourcecode]
