@@ -18,7 +18,11 @@ By default, preprocessors run when the development server is started and when yo
 [sourcecode:yaml]
 preprocessors:
 - name: my_preprocessor
+  kind: <kind>
   autorun: false
+  tags:
+  - red
+  - blue
 [/sourcecode]
 
 A preprocessor with the above configuration will only be run when using `grow preprocess -A` or when using `grow preprocess -p my_preprocessor`. This can be handy to control how often a data-importing preprocessor (such as Google Sheets or Google Docs importers) run. You may not want to run those preprocessors each time your site is built.
