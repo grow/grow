@@ -11,7 +11,7 @@ Grow provides a flexible way to configure the URL serving paths for your site's 
 
 ## Philosophy
 
-Serving paths and filesystem paths do *not* need to match one-to-one. This is an explicit capability that exists to remove the need to need to name internal files a specific way. Because internal file paths do not need to match serving paths, you can change the URL of content at any time without renaming files or performing find and replace operations throughout your site.
+Serving paths and filesystem paths do *not* need to match one-to-one. This is an explicit capability that exists to remove the need to name internal files a specific way. Because internal file paths do not need to match serving paths, you can change the URL of content at any time without renaming files or performing find and replace operations throughout your site.
 
 ## Configuring URLs
 
@@ -97,7 +97,7 @@ Most sites have homepages. You can specify your site's homepage in `podspec.yaml
 Note that the value of the homepage should point to a content document, not a URL path. Your homepage's URL will be derived from the content document's URL.
 
 [sourcecode:yaml]
-# In podspec.aml
+# In podspec.yaml
 home: /content/pages/home.yaml
 [/sourcecode]
 
