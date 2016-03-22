@@ -12,6 +12,7 @@ import httplib2
 import json
 import logging
 import os
+import yaml
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
 
@@ -84,8 +85,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         ext = os.path.splitext(self.config.path)[1]
         convert_to = None
         if ext == '.json':
+            convert_to = ext
             ext = '.csv'
-            convert_to = '.json'
+        elif ext in ['.yaml', '.yml']:
+            convert_to = ext
+            ext = '.csv'
         for mimetype, url in resp['exportLinks'].iteritems():
             if not mimetype.endswith(ext[1:]):
                 continue
@@ -95,16 +99,21 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             if resp.status != 200:
                 self.logger.error('Error downloading Google Sheet: {}'.format(path))
                 break
-            if convert_to == '.json':
+            if convert_to in ['.json', '.yaml', '.yml']:
                 fp = cStringIO.StringIO()
                 fp.write(content)
                 fp.seek(0)
                 reader = csv.DictReader(fp)
                 kwargs = {}
-                if self.config.output_style == 'pretty':
-                    kwargs['indent'] = 2
-                    kwargs['separators'] = (',', ': ')
-                    kwargs['sort_keys'] = True
-                content = json.dumps([row for row in reader], **kwargs)
+                if convert_to == '.json':
+                    if self.config.output_style == 'pretty':
+                        kwargs['indent'] = 2
+                        kwargs['separators'] = (',', ': ')
+                        kwargs['sort_keys'] = True
+                    content = json.dumps([row for row in reader], **kwargs)
+                else:
+                    content = yaml.safe_dump(
+                        list(reader),
+                        default_flow_style=False)
             self.pod.write_file(path, content)
             self.logger.info('Downloaded Google Sheet -> {}'.format(path))
