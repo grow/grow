@@ -43,6 +43,18 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
     - kind: sass
       sass_dir: /source/sass/
       out_dir: /static/css/
+    
+    meta:
+      key: value
+    
+    sitemap:s
+      enabled: yes
+      path: /sitemap.xml
+      collections:
+      - pages
+      locales:
+      - en
+      - fr
 
     deployments:
       default:
@@ -148,6 +160,31 @@ sass_dir: /source/sass/
 out_dir: /static/css/
 [/sourcecode]
 
+### meta
+
+Metadata set at a level global to the pod. Metadata here is arbitrary, unstructured, and can be used by templates via `{{podspec.meta}}`. Typcal uses for metadata may be for setting analytics tracking IDs, site verification IDs, etc.
+
+[sourcecode:yaml]
+meta:
+  key: value
+  google_analytics: UA-12345
+[/sourecode]
+
+### sitemap
+
+Add `sitemap` to autogenerate a `sitemap.xml` file for your project.
+
+[sourcecode:yaml]
+sitemap:
+  enabled: yes
+  path: "/{root}/sitemap.xml"   # Optional.
+  collections:                  # Optional.
+  - pages
+  locales:                      # Optional.
+  - en
+  - fr
+[/sourcecode]
+
 ### deployments
 
 A mapping of named deployments. The deployment destination is determined by the `destination` key. The remaining keys are configuration parameters for the deployment. The `default` name can be used to specify the pod's default deployment. An `env` can optionally be specified.
@@ -160,4 +197,19 @@ default:
 production:
   destination: gcs
   bucket: example.com
+[/sourcecode]
+
+You can also specify the environment on a per-deployment basis. The environment properties are used in the `{{env}}` object, as well as used to derive the host, port, and scheme for the `url` properties of documents and static files. These are also used in sitemap generation.
+
+[sourcecode:yaml]
+deployments:
+  example:
+    destination: local
+    keep_control_dir: no
+    control_dir: ./private/my-project/
+    out_dir: ./www/html/
+    env:
+      host: example.com
+      scheme: https
+      port: 9000
 [/sourcecode]
