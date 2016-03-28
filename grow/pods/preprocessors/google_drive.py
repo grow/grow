@@ -55,7 +55,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             if mimetype.endswith('html'):
                 resp, content = service._http.request(url)
                 if resp.status != 200:
-                    self.logger.error('Error downloading Google Doc: {}'.format(path))
+                    self.logger.error('Error {} downloading Google Doc: {}'.format(resp.status, path))
                     break
                 soup = bs4.BeautifulSoup(content, 'html.parser')
                 content = unicode(soup.body)
@@ -97,7 +97,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 url += '&gid={}'.format(self.config.gid)
             resp, content = service._http.request(url)
             if resp.status != 200:
-                self.logger.error('Error downloading Google Sheet: {}'.format(path))
+                self.logger.error('Error {} downloading Google Sheet: {}'.format(resp.status, path))
                 break
             if convert_to in ['.json', '.yaml', '.yml']:
                 fp = cStringIO.StringIO()

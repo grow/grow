@@ -52,6 +52,7 @@ import logging
 import os
 import progressbar
 import re
+import time
 
 _handler = logging.StreamHandler()
 _formatter = logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S')
@@ -381,7 +382,7 @@ class Pod(object):
         return results
 
     def preprocess(self, preprocessor_names=None, run_all=False, tags=None,
-                   build=True):
+                   build=True, ratelimit=None):
         if not preprocessor_names:
             self.catalogs.compile()  # Preprocess translations.
         for preprocessor in self.list_preprocessors():
@@ -393,6 +394,8 @@ class Pod(object):
                     preprocessor.run(build=build)
             elif preprocessor.autorun or run_all:
                 preprocessor.run(build=build)
+            if ratelimit:
+              time.sleep(ratelimit)
 
     def get_podspec(self):
         return self.podspec
