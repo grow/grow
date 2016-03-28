@@ -24,6 +24,7 @@ class GulpPreprocessor(base.BasePreprocessor):
         node_modules_path = os.path.join(self.pod.root, 'node_modules', '.bin')
         path = os.environ['PATH'] + ':{}'.format(node_modules_path)
         args = {
+            'cwd': self.pod.root,
             'env': {
                 'PATH': path,
             },
