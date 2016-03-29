@@ -1,7 +1,9 @@
-import collections
-import os
-from protorpc import protojson
 from . import messages
+from protorpc import protojson
+import collections
+import logging
+import os
+import texttable
 
 
 class Stats(object):
@@ -36,3 +38,61 @@ class Stats(object):
 
     def to_string(self):
         return protojson.encode_message(self.to_message())
+
+    def to_tables(self):
+        results = []
+
+        table = texttable.Texttable(max_width=0)
+        table.set_deco(texttable.Texttable.HEADER)
+        rows = []
+        rows.append(['Resource', 'Count'])
+
+        all_collections = self.pod.list_collections()
+        rows.append(['Collections', len(all_collections)])
+        documents = []
+        for collection in all_collections:
+            documents += collection.list_docs()
+        rows.append(['Documents', len(documents)])
+        locales = self.pod.list_locales()
+        rows.append(['Locales', len(locales)])
+        routes = self.pod.routes
+        rows.append(['Routes', len(routes.list_concrete_paths())])
+        template = self.pod.catalogs.get_template()
+        template.load()
+        rows.append(['Messages', len(template)])
+        table.add_rows(rows)
+        content = table.draw()
+        results.append(content)
+
+        table = texttable.Texttable(max_width=0)
+        table.set_deco(texttable.Texttable.HEADER)
+        rows = []
+        rows.append(['File type', 'Count'])
+        exts_and_counts = self.get_num_files_per_type()
+        exts_and_counts = sorted(exts_and_counts,
+                                 key=lambda message: -message.count)
+        for message in exts_and_counts:
+            ext = message.ext or '.html'
+            rows.append([ext, message.count])
+        table.add_rows(rows)
+        content = table.draw()
+        results.append(content)
+
+        table = texttable.Texttable(max_width=0)
+        table.set_deco(texttable.Texttable.HEADER)
+        catalogs = sorted(self.pod.catalogs, key=str)
+        rows = []
+        rows.append(['Locales ({})'.format(len(catalogs)), 'Messages'])
+        for catalog in catalogs:
+            num_messages = len(catalog)
+            untranslated_messages = catalog.list_untranslated()
+            translated_messages = num_messages - len(untranslated_messages)
+            label = '{} / {}'.format(translated_messages, num_messages)
+            rows.append([str(catalog.locale), label])
+
+        table.add_rows(rows)
+        if catalogs:
+            content = table.draw()
+            results.append(content)
+
+        return results

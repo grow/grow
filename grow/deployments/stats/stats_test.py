@@ -16,6 +16,10 @@ class StatsTest(unittest.TestCase):
         stat.to_message()
         stat.to_string()
 
+    def test_to_tables(self):
+        stat = stats.Stats(self.pod)
+        stat.to_tables()
+
 
 if __name__ == '__main__':
     unittest.main()

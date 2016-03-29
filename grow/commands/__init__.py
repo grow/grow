@@ -9,6 +9,7 @@ from . import preprocess
 from . import routes
 from . import run
 from . import stage
+from . import stats
 from . import test
 
 
@@ -23,5 +24,6 @@ def add(group):
     group.add_command(preprocess.preprocess)
     group.add_command(routes.routes)
     group.add_command(run.run)
+    group.add_command(stats.stats)
     group.add_command(stage.stage)
     group.add_command(test.test)
