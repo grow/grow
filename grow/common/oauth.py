@@ -8,8 +8,10 @@ CLIENT_ID = '578372381550-jfl3hdlf1q5rgib94pqsctv1kgkflu1a.apps.googleuserconten
 CLIENT_SECRET = 'XQKqbwTg88XVpaBNRcm_tYLf'  # Not so secret for installed apps.
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
+DEFAULT_STORAGE_KEY = 'Grow SDK'
 
-def get_credentials(scope, storage_key='Grow SDK'):
+
+def get_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
     username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
     storage = keyring_storage.Storage(storage_key, username)
     credentials = storage.get()
@@ -24,3 +26,9 @@ def get_credentials(scope, storage_key='Grow SDK'):
                                           redirect_uri=REDIRECT_URI)
         credentials = tools.run_flow(flow, storage, flags)
     return credentials
+
+
+def clear_credentials(storage_key=DEFAULT_STORAGE_KEY):
+    username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
+    storage = keyring_storage.Storage(storage_key, username)
+    storage.delete()
