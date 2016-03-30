@@ -40,6 +40,14 @@ class WebReviewDestination(base.BaseDestination):
     def __str__(self):
         return self.config.server
 
+    def get_env(self):
+        """Returns an environment object based on the config."""
+        if self.config.env:
+            return env.Env(self.config.env)
+        host = '{}-dot-{}'.format(self.config.subdomain, self.config.server)
+        config = env.EnvConfig(name='webreview', host=host, scheme='https')
+        return env.Env(config)
+
     @property
     def webreview(self):
         if self._webreview is None:

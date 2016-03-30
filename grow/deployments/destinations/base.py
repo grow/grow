@@ -218,8 +218,8 @@ class BaseDestination(object):
         pod.env = self.get_env()
         return pod.dump()
 
-    def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False, confirm=False,
-               test=True):
+    def deploy(self, paths_to_contents, stats=None,
+               repo=None, dry_run=False, confirm=False, test=True):
         self._confirm = confirm
         self.prelaunch(dry_run=dry_run)
         if test:

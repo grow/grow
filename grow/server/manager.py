@@ -29,6 +29,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
     port = find_port_and_start_server(pod, host, port, debug)
+    pod.env.port = port
     pod.load()
     url = print_server_ready_message(pod, host, port)
     if open_browser:
@@ -46,8 +47,10 @@ def find_port_and_start_server(pod, host, port, debug):
     num_tries = 0
     while num_tries < 10:
         try:
-            wsgi_resource = wsgi.WSGIResource(reactor, reactor.getThreadPool(), app)
-            reactor.listenTCP(port, server.Site(wsgi_resource), interface=host)
+            thread_pool = reactor.getThreadPool()
+            wsgi_resource = wsgi.WSGIResource(reactor, thread_pool, app)
+            site = server.Site(wsgi_resource)
+            reactor.listenTCP(port, site, interface=host)
             return port
         except twisted.internet.error.CannotListenError as e:
             if 'Errno 48' in str(e):
@@ -68,7 +71,8 @@ def print_server_ready_message(pod, host, port):
     url = 'http://{}:{}{}'.format(host, port, root_path)
     logging.info('Pod: '.rjust(20) + pod.root)
     logging.info('Address: '.rjust(20) + url)
-    logging.info(colorize('Server ready. '.rjust(20), ansi=47) + 'Press ctrl-c to quit.')
+    ready_message = colorize('Server ready. '.rjust(20), ansi=47)
+    logging.info(ready_message + 'Press ctrl-c to quit.')
     return url
 
 
