@@ -1,6 +1,4 @@
-from grow.common import utils
-from grow.deployments.destinations import local as local_destination
-from grow.deployments.stats import stats as stats_lib
+from grow.deployments import stats as stats_lib
 from grow.pods import pods
 from grow.pods import storage
 import click

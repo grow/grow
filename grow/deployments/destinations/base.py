@@ -67,8 +67,8 @@ using deployments.register_destination.
 """
 
 from . import messages
+from .. import indexes
 from .. import tests
-from ..indexes import indexes
 from grow.common import utils
 from grow.pods import env
 import inspect

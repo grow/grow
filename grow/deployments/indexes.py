@@ -1,5 +1,5 @@
 from . import messages
-from .. import utils
+from . import utils
 from protorpc import protojson
 import ConfigParser
 import datetime

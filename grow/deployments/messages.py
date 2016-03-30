@@ -43,3 +43,20 @@ class DiffMessage(messages.Message):
     nochanges = messages.MessageField(FileMessage, 4, repeated=True)
     indexes = messages.MessageField(IndexMessage, 5, repeated=True)
     what_changed = messages.StringField(6)
+
+
+class FileCountMessage(messages.Message):
+    ext = messages.StringField(1)
+    count = messages.IntegerField(2)
+
+
+class StatsMessage(messages.Message):
+    num_collections = messages.IntegerField(101)
+    num_documents = messages.IntegerField(102)
+    num_static_files = messages.IntegerField(103)
+    num_files_per_type = messages.MessageField(FileCountMessage, 104, repeated=True)
+
+    locales = messages.StringField(123, repeated=True)
+    langs = messages.StringField(124, repeated=True)
+    num_messages = messages.IntegerField(125)
+    num_untranslated_messages = messages.IntegerField(126)

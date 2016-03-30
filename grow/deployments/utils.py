@@ -1,4 +1,4 @@
-from .indexes import messages
+from . import messages
 import git
 
 
