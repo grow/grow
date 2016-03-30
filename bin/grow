@@ -54,6 +54,8 @@ text = ('Grow is a declarative file-based website generator. Read docs at '
 @click.version_option(sdk_utils.get_this_version(), message='%(version)s')
 @click.option('--auth', help='Information used to sign in to services that'
               ' require authentication. --auth should be an email address.')
+@click.option('--clear-auth', default=False, is_flag=True,
+              help='Clears stored auth information.')
 @click.option(
     '--interactive-auth', default=False, is_flag=True,
     envvar='INTERACTIVE_AUTH',
@@ -63,11 +65,13 @@ text = ('Grow is a declarative file-based website generator. Read docs at '
          ' you may use --interactive-auth to automatically open the web'
          ' browser. By default, this option is turned off, requiring you to'
          ' manually copy and paste an authorization code.')
-def grow(auth, interactive_auth):
+def grow(auth, clear_auth, interactive_auth):
   if interactive_auth not in (None, False):
     os.environ['INTERACTIVE_AUTH'] = str(interactive_auth)
   if auth is not None:
     os.environ['AUTH_EMAIL_ADDRESS'] = str(auth)
+  if clear_auth:
+    os.environ['CLEAR_AUTH'] = '1'
 
 
 commands.add(grow)
