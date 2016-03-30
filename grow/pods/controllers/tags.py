@@ -35,12 +35,6 @@ def categories(collection=None, collections=None, reverse=None, order_by=None,
     return ((category_list[index], pages) for index, pages in items)
 
 
-_no_locale = '__no_locale'
-@utils.memoize_tag
-def csv(path, locale=_no_locale, _pod=None):
-    return utils.get_rows_from_csv(pod=_pod, path=path, locale=locale)
-
-
 @utils.memoize_tag
 def collection(collection, _pod=None):
     return _pod.get_collection(collection)
@@ -180,15 +174,18 @@ def _gettext_alias(__context, *args, **kwargs):
 
 
 @utils.memoize_tag
+def csv(path, locale='__no_locale', _pod=None):
+    return _pod.read_csv(path, locale=locale)
+
+
+@utils.memoize_tag
 def yaml(path, _pod):
-    fields = utils.parse_yaml(_pod.read_file(path), pod=_pod)
-    return utils.untag_fields(fields)
+    return _pod.read_yaml(path)
 
 
 @utils.memoize_tag
 def json(path, _pod):
-    fp = _pod.open_file(path)
-    return json_lib.load(fp)
+    return _pod.read_json(path)
 
 
 def date(datetime_obj=None, _pod=None, **kwargs):

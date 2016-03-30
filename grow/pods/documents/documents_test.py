@@ -34,13 +34,16 @@ class DocumentsTestCase(unittest.TestCase):
 
         doc = self.pod.get_doc('/content/pages/home.yaml')
         keys = [
+            '$localization',
+            '$order',
+            '$path',
             '$title',
             '$view',
-            '$path',
-            '$order',
-            '$localization',
+            'csv_data',
             'foo',
+            'json_data',
             'tagged_fields',
+            'yaml_data',
         ]
         self.assertItemsEqual(keys, doc.fields.keys())
         self.assertIsNone(doc.html)

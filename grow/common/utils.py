@@ -132,24 +132,34 @@ def every_two(l):
 def make_yaml_loader(pod):
     class YamlLoader(yaml_Loader):
 
-        def construct_gettext(self, node):
+        def _construct_func(self, node, func):
             if isinstance(node, yaml.SequenceNode):
                 items = []
                 for i, each in enumerate(node.value):
-                    items.append(gettext.gettext(node.value[i].value))
+                    items.append(func(node.value[i].value))
                 return items
-            return gettext.gettext(node.value)
+            return func(node.value)
+
+        def construct_csv(self, node):
+            return self._construct_func(node, pod.read_csv)
 
         def construct_doc(self, node):
-            if isinstance(node, yaml.SequenceNode):
-                items = []
-                for i, each in enumerate(node.value):
-                    items.append(pod.get_doc(node.value[i].value))
-                return items
-            return pod.get_doc(node.value)
+            return self._construct_func(node, pod.get_doc)
+
+        def construct_gettext(self, node):
+            return self._construct_func(node, gettext.gettext)
+
+        def construct_json(self, node):
+            return self._construct_func(node, pod.read_json)
+
+        def construct_yaml(self, node):
+            return self._construct_func(node, pod.read_yaml)
 
     YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
+    YamlLoader.add_constructor(u'!g.csv', YamlLoader.construct_csv)
     YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
+    YamlLoader.add_constructor(u'!g.json', YamlLoader.construct_json)
+    YamlLoader.add_constructor(u'!g.yaml', YamlLoader.construct_yaml)
     return YamlLoader
 
 

@@ -5,6 +5,10 @@ $order: 0
 $localization:
   path: /{locale}/home/
 
+csv_data: !g.csv /data/file.csv
+json_data: !g.json /data/file.json
+yaml_data: !g.yaml /data/file.yaml
+
 tagged_fields:
   title@: "Tagged localized title."
   tagged_string@: Tagged String
