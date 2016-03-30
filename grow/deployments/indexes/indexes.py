@@ -154,7 +154,6 @@ class Diff(object):
             diff.what_changed = repo.git.log(
                 '--date=short',
                 '--pretty=format:[%h] %ad <%ae> %s')
-#      .decode('utf-8')
 
         return diff
 
