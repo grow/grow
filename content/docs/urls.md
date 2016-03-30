@@ -138,3 +138,20 @@ All URLs generated from a `Url` object are absolute. However, if you'd like to g
 Use the `grow routes` command to quickly audit all of the routes that your site generates. You can use this command to avoid building the site and inspecting the generated fileset or saving and refreshing to check paths in the browser.
 
 Grow validates your URL path configuration and raises errors upon misconfiguration. For example, Grow will raise an error if you generate the same serving path for two different resources – no two resources may share the same serving path.
+
+## Sitemap
+
+Grow can autogenerate a [`sitemap.xml`](https://support.google.com/webmasters/answer/156184) file for your site, upon build. You can enable sitemap generation in `podspec.yaml` and, optionally, customize which pages and locales are included in the sitemap.
+
+[sourcecode:yaml]
+# podspec.yaml
+
+sitemap:
+  enabled: yes
+  path: "/{root}/sitemap.xml"   # Optional.
+  collections:                  # Optional.
+  - pages
+  locales:                      # Optional.
+  - en
+  - fr
+[/sourcecode]
