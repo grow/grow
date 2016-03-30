@@ -15,9 +15,7 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
     title: Project title.
     description: Project description.
 
-    home: /content/pages/<home>.yaml
-    root: /url/path/to/site/root/
-
+    home: /content/pages/<home>.yamls
     static_dirs:
     - static_dir: /static/
       serve_at: /site/files/
@@ -168,7 +166,7 @@ Metadata set at a level global to the pod. Metadata here is arbitrary, unstructu
 meta:
   key: value
   google_analytics: UA-12345
-[/sourecode]
+[/sourcecode]
 
 ### sitemap
 
