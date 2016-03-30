@@ -8,9 +8,10 @@ import texttable
 
 class Stats(object):
 
-    def __init__(self, pod, paths_to_contents=None):
+    def __init__(self, pod, paths_to_contents=None, full=True):
+        self.full = full
         self.pod = pod
-        if paths_to_contents is None:
+        if paths_to_contents is None and full:
             paths_to_contents = pod.export()
         self.paths_to_contents = paths_to_contents
 
@@ -65,25 +66,26 @@ class Stats(object):
         content = table.draw()
         results.append(content)
 
-        table = texttable.Texttable(max_width=0)
-        table.set_deco(texttable.Texttable.HEADER)
-        rows = []
-        rows.append(['File type', 'Count'])
-        exts_and_counts = self.get_num_files_per_type()
-        exts_and_counts = sorted(exts_and_counts,
-                                 key=lambda message: -message.count)
-        for message in exts_and_counts:
-            ext = message.ext or '.html'
-            rows.append([ext, message.count])
-        table.add_rows(rows)
-        content = table.draw()
-        results.append(content)
+        if self.full:
+            table = texttable.Texttable(max_width=0)
+            table.set_deco(texttable.Texttable.HEADER)
+            rows = []
+            rows.append(['File type', 'Count'])
+            exts_and_counts = self.get_num_files_per_type()
+            exts_and_counts = sorted(exts_and_counts,
+                                     key=lambda message: -message.count)
+            for message in exts_and_counts:
+                ext = message.ext or '.html'
+                rows.append([ext, message.count])
+            table.add_rows(rows)
+            content = table.draw()
+            results.append(content)
 
         table = texttable.Texttable(max_width=0)
         table.set_deco(texttable.Texttable.HEADER)
         catalogs = sorted(self.pod.catalogs, key=str)
         rows = []
-        rows.append(['Locales ({})'.format(len(catalogs)), 'Messages'])
+        rows.append(['Translations ({})'.format(len(catalogs)), 'Messages'])
         for catalog in catalogs:
             num_messages = len(catalog)
             untranslated_messages = catalog.list_untranslated()
