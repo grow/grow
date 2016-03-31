@@ -21,6 +21,16 @@ OAUTH_SCOPE = 'https://www.googleapis.com/auth/devstorage.full_control'
 STORAGE_KEY = 'Grow SDK - Google Cloud Storage'
 
 
+class FieldMessage(messages.Message):
+    name = messages.StringField(1)
+    value = messages.StringField(2)
+
+
+class HeaderMessage(messages.Message):
+    extensions = messages.StringField(1, repeated=True)
+    fields = messages.MessageField(FieldMessage, 2, repeated=True)
+
+
 class Config(messages.Message):
     bucket = messages.StringField(1)
     access_key = messages.StringField(2)
@@ -31,6 +41,7 @@ class Config(messages.Message):
     main_page_suffix = messages.StringField(10, default='index.html')
     not_found_page = messages.StringField(11, default='404.html')
     oauth2 = messages.BooleanField(12, default=False)
+    headers = messages.MessageField(HeaderMessage, 13, repeated=True)
 
 
 
@@ -100,23 +111,35 @@ class GoogleCloudStorageDestination(base.BaseDestination):
             content = content.encode('utf-8')
         path = path.lstrip('/')
         path = path if path != '' else self.config.main_page_suffix
-        mimetype = mimetypes.guess_type(path)[0] or 'text/html'
         fp = cStringIO.StringIO()
         fp.write(content)
         size = fp.tell()
         try:
             file_key = key.Key(self.bucket)
             file_key.key = path
-            # TODO: Allow configurable headers.
-            headers = {
-                'Cache-Control': 'no-cache',
-                'Content-Type': mimetype,
-            }
+            headers = self._get_headers_for_path(path)
             file_key.set_contents_from_file(
                 fp, headers=headers, replace=True, policy=policy, size=size,
                 rewind=True)
         finally:
             fp.close()
+
+    def _get_headers_for_path(self, path):
+        mimetype = mimetypes.guess_type(path)[0] or 'text/html'
+        ext = os.path.splitext(path)[-1] or '.html'
+        headers = {}
+        headers['Content-Type'] = mimetype
+        if self.config.headers and not path.startswith('.grow'):
+            for header in self.config.headers:
+                if (ext not in header.extensions
+                        and '*' not in header.extensions):
+                    continue
+                for field in header.fields:
+                    headers[field.name] = field.value
+        else:
+            # Use legacy default.
+            headers['Cache-Control'] = 'no-cache'
+        return headers
 
 
 # NOTE: Here be demons. We monkeypatch several methods in Google's oauth2 boto
