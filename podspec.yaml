@@ -20,6 +20,13 @@ deployments:
   grow.io:
     destination: gcs
     bucket: grow.io
+    headers:
+    - extensions:
+      - .png
+      - .svg
+      fields:
+      - name: Cache-Control
+        value: "max-age=60, must-revalidate"
   growsdk.org:
     destination: gcs
     bucket: growsdk.org
