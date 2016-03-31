@@ -1,4 +1,4 @@
-# Grow SDK [![Build Status](https://travis-ci.org/grow/pygrow.png?branch=master)](https://travis-ci.org/grow/grow)
+# Grow SDK [![Build Status](https://travis-ci.org/grow/grow.png?branch=master)](https://travis-ci.org/grow/grow)
 
 Grow is a declarative, file-based static site generator for building maintainable, high-quality websites.
 
