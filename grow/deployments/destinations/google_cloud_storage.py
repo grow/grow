@@ -11,6 +11,7 @@ from protorpc import messages
 import boto
 import cStringIO
 import gcs_oauth2_boto_plugin
+import httplib2
 import logging
 import mimetypes
 import os
@@ -179,6 +180,7 @@ def enable_oauth2_auth_handler():
     if not boto.config.has_section('Credentials'):
         boto.config.add_section('Credentials')
     credentials = patched_get_credentials()
+    credentials.refresh(httplib2.Http())  # Boto can't refresh this properly, so just do it every time.
     refresh_token = credentials.refresh_token
     boto.config.set('Credentials', 'gs_oauth2_refresh_token', refresh_token)
 
