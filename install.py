@@ -15,8 +15,8 @@ import urllib
 import urllib2
 import zipfile
 
-DOWNLOAD_URL_FORMAT = 'https://github.com/grow/pygrow/releases/download/{version}/{name}'
-RELEASES_API = 'https://api.github.com/repos/grow/pygrow/releases'
+DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
+RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 
 if 'Linux' in platform.system():
   PLATFORM = 'linux'
@@ -24,7 +24,7 @@ elif 'Darwin' in platform.system():
   PLATFORM = 'mac'
 else:
   print ('{} is not a supported platform. Please file an issue at '
-         'https://github.com/grow/pygrow/issues'.format(sys.platform))
+         'https://github.com/grow/grow/issues'.format(sys.platform))
   sys.exit(-1)
 
 
@@ -94,7 +94,7 @@ def install(rc_path=None, bin_path=None, force=False):
   alias_comment = '# Added by Grow SDK Installer ({})'.format(datetime.datetime.now())
 
   hai('{yellow}Welcome to the installer for Grow SDK v%s{/yellow}' % version)
-  hai('{yellow}Release notes: {/yellow}https://github.com/grow/pygrow/releases/tag/%s' % version)
+  hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/%s' % version)
   hai('{blue}==>{/blue} {green}This script will install:{/green} %s' % bin_path)
 
   has_alias = False

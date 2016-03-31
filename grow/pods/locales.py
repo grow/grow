@@ -144,7 +144,7 @@ class Locale(babel.Locale):
 # Optionally, we may want to provide users with more control over whether a
 # locale is valid or invalid, but we can revisit that later.
 
-# See: https://github.com/grow/pygrow/issues/93
+# See: https://github.com/grow/grow/issues/93
 
 
 def fuzzy_load(name, merge_inherited=True):

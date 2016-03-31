@@ -43,7 +43,7 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
                 self.preprocessor.run()
         except Exception:
             # Avoid an inconsistent state where preprocessor doesn't run again
-            # if it encounters an exception. https://github.com/grow/pygrow/issues/81
+            # if it encounters an exception. https://github.com/grow/grow/issues/81
             text = colorize('Preprocessor error.', ansi=197)
             self.preprocessor.pod.logger.exception(text)
         self.num_runs += 1

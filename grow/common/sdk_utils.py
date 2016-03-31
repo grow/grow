@@ -9,9 +9,9 @@ import subprocess
 import sys
 import urllib
 
-RELEASES_API = 'https://api.github.com/repos/grow/pygrow/releases'
+RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
-                     'https://raw.github.com/grow/pygrow/master/install.py)"')
+                     'https://raw.github.com/grow/grow/master/install.py)"')
 
 
 class Error(Exception):
@@ -55,7 +55,7 @@ def check_for_sdk_updates(auto_update_prompt=False):
         return
     if theirs <= yours:
         return
-    url = 'https://github.com/grow/pygrow/releases/tag/{}'.format(theirs)
+    url = 'https://github.com/grow/grow/releases/tag/{}'.format(theirs)
     logging.info('')
     logging.info('  Please update to the newest version of the Grow SDK.')
     logging.info('  See release notes: {}'.format(url))
