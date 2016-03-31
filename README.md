@@ -1,6 +1,7 @@
-# Grow SDK [![Build Status](https://travis-ci.org/grow/grow.png?branch=master)](https://travis-ci.org/grow/grow)
+# Grow SDK [![Build Status](https://travis-ci.org/grow/grow.png?branch=master)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases)
+A declarative, file-based website generator for maintainable, high-quality websites.
 
-Grow is a declarative, file-based static site generator for building maintainable, high-quality websites.
+[![Slack](https://growsdk.herokuapp.com/badge.svg)](https://growsdk.herokuapp.com)
 
 ## Quick start
 
@@ -22,7 +23,7 @@ By using the installer from `install.growsdk.org`, you can leverage the autoupda
 
 For contributors, Grow includes a setup script to help set up development environment for running the tests and executing the command line tools. The setup script installs `pip`, `virtualenv`, and all of the required libraries.
 
-    git clone git@github.com:grow/grow.git       # Clones this repo.
+    git clone git@github.com:grow/grow.git         # Clones this repo.
     cd grow
     ./scripts/setup                                # Runs setup script.
 
