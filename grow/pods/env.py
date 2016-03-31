@@ -11,6 +11,7 @@ class EnvConfig(messages.Message):
     name = messages.StringField(4)
     cached = messages.BooleanField(5, default=True)
     fingerprint = messages.StringField(6)
+    dev = messages.BooleanField(7, default=False)
 
 
 class Env(object):
@@ -50,6 +51,10 @@ class Env(object):
     @scheme.setter
     def scheme(self, value):
         self.config.scheme = value
+
+    @property
+    def dev(self):
+        return self.config.dev
 
     @property
     def url(self):

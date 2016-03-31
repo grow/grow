@@ -34,7 +34,7 @@ def run(host, port, https, debug, browser, skip_sdk_update_check, preprocess,
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     scheme = 'https' if https else 'http'
     config = env.EnvConfig(host=host, port=port, name='dev',
-                           scheme=scheme, cached=False)
+                           scheme=scheme, cached=False, dev=True)
     environment = env.Env(config)
     pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
     try:

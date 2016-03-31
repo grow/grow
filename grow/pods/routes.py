@@ -115,6 +115,8 @@ class Routes(object):
             rules.append(routing.Rule(path, endpoint=controller))
         if 'static_dirs' in self.podspec:
             for config in self.podspec['static_dirs']:
+                if config.get('dev') and not self.pod.env.dev:
+                    continue
                 static_dir = config['static_dir'] + '<grow:filename>'
                 serve_at = config['serve_at'] + '<grow:filename>'
                 serve_at = self.format_path(serve_at)
