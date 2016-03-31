@@ -1,15 +1,21 @@
-*This is an alpha pre-release made for distribution testing. Grow is not quite ready to use yet, stay tuned to our web site for updates!*
+Grow is a fresh, declarative, file-based static site generator for rapid
+microsite production. Learn more at https://grow.io.
 
-Grow is a modern, social, rapid, collaborative CMS and static site generator that helps teams build high-quality web sites. Grow's mission is to bring joy to building and launching web sites. This is the SDK. Thanks for checking it out.
+Key features:
 
-The best place to learn more about the project is http://growsdk.org.
+- Data-driven: All your content is stored in YAML or Markdown, keeping content
+  separate from presentation. Architect your site structure in YAML, then bind
+  data to HTML templates to build your pages entirely around data from data
+  files.
+- Flexible URLs: Grow supports an explicit, configurable way to generate URLs
+  for your site. Use template tags to keep your site maintainable and URL
+  changes easy.
+- Internationalization: Grow comes with flexible internationalization support
+  included. Tag strings for translation, localize your content, and easily
+  add/remove locales on a site-wide or per-document basis.
+- Deploy anywhere: Grow builds your site to a static fileset, which means you
+  can deploy pretty much anywhere. Grow comes built-in with deploy targets to
+  various services.
 
-Here are some of the key features:
-
-- portable: Sites are file-based and backed by Git, so they work with your favorite tools. The SDK runs on your machine and in the cloud.
-- content-friendly: Content files are managed separately from presentation. Architect your content structure, and write documents in Markdown and YAML.
-- fully international: Internationalization features come built-in.
-- flexible: The system is designed around launches. Launch on-demand, schedule launches, and have your whole team review them.
-- security-minded: Run "pre-launch" checks against your sites that automatically detect commoon web security issues.
-
-To learn about contributing and to see the source code: http://github.com/grow/pygrow.
+To learn about contributing and to see the source code:
+https://github.com/grow/grow.

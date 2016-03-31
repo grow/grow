@@ -22,8 +22,8 @@ By using the installer from `install.growsdk.org`, you can leverage the autoupda
 
 For contributors, Grow includes a setup script to help set up development environment for running the tests and executing the command line tools. The setup script installs `pip`, `virtualenv`, and all of the required libraries.
 
-    git clone git@github.com:grow/pygrow.git       # Clones this repo.
-    cd pygrow
+    git clone git@github.com:grow/grow.git       # Clones this repo.
+    cd grow
     ./scripts/setup                                # Runs setup script.
 
 Once installed, you can:
@@ -43,8 +43,8 @@ Once installed, you can:
     pip install --upgrade [--user] grow
 
     # Or, build from source.
-    git clone git@github.com:grow/pygrow.git
-    cd pygrow
+    git clone git@github.com:grow/grow.git
+    cd grow
     pip install -r requirements.txt
     python setup.py install
 
@@ -77,4 +77,4 @@ To run Grow's unit tests, run from the project's root directory:
 
 ## License
 
-The Grow SDK is released under the MIT License and it is lovingly maintained by the [core team](https://github.com/grow/pygrow/blob/master/LICENSE). Our mission is to bring joy to building and launching high-quality web sites.
+The Grow SDK is released under the MIT License and it is lovingly maintained by the [core team](https://github.com/grow/grow/blob/master/LICENSE). Our mission is to bring joy to building and launching high-quality web sites.
