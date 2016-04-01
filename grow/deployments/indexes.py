@@ -143,17 +143,18 @@ class Diff(object):
                 what_changed = repo.git.log(
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
-                    '{}..{}'.format(theirs.commit.sha, index.commit.sha)).decode('utf-8')
-                diff.what_changed = what_changed
+                    '{}..{}'.format(theirs.commit.sha, index.commit.sha))
+                diff.what_changed = what_changed.decode('utf-8')
             except git.exc.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
 
         # If on the original deploy show commit log messages only.
         elif (repo is not None
               and index.commit and index.commit.sha):
-            diff.what_changed = repo.git.log(
-                '--date=short',
-                '--pretty=format:[%h] %ad <%ae> %s')
+            what_changed = repo.git.log(
+                  '--date=short',
+                  '--pretty=format:[%h] %ad <%ae> %s')
+            diff.what_changed = what_changed.decode('utf-8')
 
         return diff
 
