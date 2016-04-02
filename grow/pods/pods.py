@@ -26,6 +26,7 @@ You can get a static file from the pod.
   file = pod.get_file('/podspec.yaml')
 """
 
+from . import catalog_holder
 from . import collection
 from . import env as environment
 from . import files
@@ -36,7 +37,6 @@ from . import routes
 from . import static
 from . import storage
 from . import tags
-from .catalogs import catalog_holder
 from .preprocessors import preprocessors
 from .tests import tests
 from babel import dates as babel_dates
