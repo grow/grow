@@ -1,11 +1,11 @@
-from . import base
+from . import controllers
 from . import messages
 from grow.common import utils
 import mimetypes
 import os
 
 
-class SitemapController(base.BaseController):
+class SitemapController(controllers.BaseController):
     KIND = messages.Kind.SITEMAP
 
     def __init__(self, pod, path=None, collections=None, locales=None):

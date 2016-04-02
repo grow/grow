@@ -1,4 +1,4 @@
-from .. import collection as collection_lib
+from . import collection as collection_lib
 from datetime import datetime
 from grow.common import utils
 from grow.pods import locales as locales_lib

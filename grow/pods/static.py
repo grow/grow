@@ -1,4 +1,4 @@
-from . import base
+from . import controllers
 from . import messages
 from grow.pods import locales
 from grow.pods import urls
@@ -137,7 +137,7 @@ class StaticFile(object):
                 scheme=self.pod.env.scheme)
 
 
-class StaticController(base.BaseController):
+class StaticController(controllers.BaseController):
     KIND = messages.Kind.STATIC
 
     def __init__(self, path_format, source_format=None, localized=False,

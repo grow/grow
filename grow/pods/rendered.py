@@ -1,4 +1,4 @@
-from . import base
+from . import controllers
 from . import messages
 from . import tags
 from grow.pods import errors
@@ -8,7 +8,7 @@ import mimetypes
 import webapp2
 
 
-class RenderedController(base.BaseController):
+class RenderedController(controllers.BaseController):
     KIND = messages.Kind.RENDERED
 
     def __init__(self, view=None, document=None, path=None, _pod=None):

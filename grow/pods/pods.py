@@ -33,11 +33,10 @@ from . import locales
 from . import messages
 from . import podspec
 from . import routes
+from . import static
 from . import storage
+from . import tags
 from .catalogs import catalog_holder
-from .controllers import messages as controller_messages
-from .controllers import static
-from .controllers import tags
 from .preprocessors import preprocessors
 from .tests import tests
 from babel import dates as babel_dates
@@ -227,7 +226,7 @@ class Pod(object):
         """Returns a StaticFile, given the static file's pod path."""
         for route in self.routes:
             controller = route.endpoint
-            if controller.KIND == controller_messages.Kind.STATIC:
+            if controller.KIND == messages.Kind.STATIC:
                 serving_path = controller.match_pod_path(pod_path)
                 if serving_path:
                     return static.StaticFile(pod_path, serving_path, locale=locale,

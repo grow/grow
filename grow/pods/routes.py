@@ -6,9 +6,9 @@ werkzeug routing:
 
 from . import locales
 from . import messages
-from .controllers import rendered
-from .controllers import sitemap
-from .controllers import static
+from . import rendered
+from . import sitemap
+from . import static
 from grow.common import utils
 import collections
 import webob

@@ -1,5 +1,16 @@
 from protorpc import messages
-from .controllers import messages as controller_messages
+
+
+class Kind(messages.Enum):
+    RENDERED = 1
+    STATIC = 2
+    SITEMAP = 3
+
+
+class RouteMessage(messages.Message):
+    path = messages.StringField(1)
+    kind = messages.EnumField(Kind, 2)
+    locale = messages.StringField(3)
 
 
 class Format(messages.Enum):
@@ -104,7 +115,7 @@ class CatalogsMessage(messages.Message):
 
 
 class RoutesMessage(messages.Message):
-    routes = messages.MessageField(controller_messages.RouteMessage, 1, repeated=True)
+    routes = messages.MessageField(RouteMessage, 1, repeated=True)
 
 
 class FileMessage(messages.Message):

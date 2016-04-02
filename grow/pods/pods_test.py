@@ -1,8 +1,8 @@
+from . import static
 from grow.common import utils
 from grow.pods import pods
 from grow.pods import preprocessors
 from grow.pods import storage
-from grow.pods.controllers import static
 from grow.testing import testing
 import jinja2
 import mock
