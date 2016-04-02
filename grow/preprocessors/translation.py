@@ -1,4 +1,4 @@
-from grow.pods.preprocessors import base
+from . import base
 from xtermcolor import colorize
 import os
 import re

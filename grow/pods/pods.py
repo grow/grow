@@ -7,7 +7,6 @@ used to do the following sorts of tasks:
   - manage pod files (any of the files contained in the pod)
   - list routes
   - building and deployment
-  - listing and running tests
 
 Pods are accessed using their root directory.
 
@@ -37,8 +36,7 @@ from . import routes
 from . import static
 from . import storage
 from . import tags
-from .preprocessors import preprocessors
-from .tests import tests
+from ..preprocessors import preprocessors
 from babel import dates as babel_dates
 from grow.common import sdk_utils
 from grow.common import utils
@@ -85,7 +83,6 @@ class Pod(object):
         self.env = (env if env
                     else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
-        self.tests = tests.Tests(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.logger = _logger
         self._routes = None
@@ -462,9 +459,6 @@ class Pod(object):
         if not path_format:
             return '/'
         return path_format.format(**{'locale': locale})
-
-    def test(self):
-        self.tests.run()
 
     def normalize_locale(self, locale, default=None):
         locale = locale or default or self.podspec.default_locale

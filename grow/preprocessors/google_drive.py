@@ -2,7 +2,7 @@ from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
-from grow.pods.preprocessors import base
+from . import base
 from protorpc import messages
 import bs4
 import cStringIO

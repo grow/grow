@@ -1,4 +1,4 @@
-from grow.pods.preprocessors import base
+from . import base
 
 
 class RoutesCachePreprocessor(base.BasePreprocessor):

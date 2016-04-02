@@ -1,5 +1,5 @@
-from grow.pods.preprocessors import routes_cache
-from grow.pods.preprocessors import translation
+from . import routes_cache
+from . import translation
 from watchdog import events
 from watchdog import observers
 from xtermcolor import colorize

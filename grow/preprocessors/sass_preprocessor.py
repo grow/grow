@@ -1,9 +1,9 @@
+from . import base
+from protorpc import messages
 import logging
 import os
 import re
 import sass
-from grow.pods.preprocessors import base
-from protorpc import messages
 
 SUFFIXES = frozenset(['sass', 'scss'])
 SUFFIX_PATTERN = re.compile('[.](' + '|'.join(map(re.escape, SUFFIXES)) + ')$')

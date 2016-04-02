@@ -1,4 +1,4 @@
-from grow.pods.preprocessors import base
+from . import base
 from protorpc import messages
 from xtermcolor import colorize
 import os

@@ -1,7 +1,7 @@
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-from grow.pods.preprocessors import file_watchers
+from grow.preprocessors import file_watchers
 from grow.server import main as main_lib
 from twisted.internet import reactor
 from twisted.web import server
