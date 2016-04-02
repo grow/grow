@@ -35,7 +35,6 @@ from . import podspec
 from . import routes
 from . import storage
 from .catalogs import catalog_holder
-from .controllers import jinja2htmlcompress
 from .controllers import messages as controller_messages
 from .controllers import static
 from .controllers import tags
@@ -440,8 +439,6 @@ class Pod(object):
         }
         if self.env.cached:
             kwargs['bytecode_cache'] = self._get_bytecode_cache()
-        if self.podspec.flags.get('compress_html'):
-            kwargs['extensions'].append(jinja2htmlcompress.HTMLCompress)
         kwargs['extensions'].extend(self.list_jinja_extensions())
         env = jinja2.Environment(**kwargs)
         filters = (
