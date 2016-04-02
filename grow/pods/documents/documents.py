@@ -67,6 +67,8 @@ class Document(object):
                 and self.pod_path == other.pod_path)
 
     def __getattr__(self, name):
+        if name == 'locale':
+            return self._locale_kwarg
         if name in self.fields:
             return self.fields[name]
         return object.__getattribute__(self, name)

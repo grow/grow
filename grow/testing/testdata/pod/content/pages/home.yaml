@@ -5,6 +5,7 @@ $order: 0
 $localization:
   path: /{locale}/home/
 
+doc_data: !g.doc /content/pages/about.yaml
 csv_data: !g.csv /data/file.csv
 json_data: !g.json /data/file.json
 yaml_data: !g.yaml /data/file.yaml

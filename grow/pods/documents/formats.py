@@ -34,11 +34,11 @@ class Format(object):
     def get(cls, doc):
         if doc.ext == '.html':
             return HtmlFormat(doc)
-        elif doc.ext == '.yaml':
+        elif doc.ext in ('.yaml', '.yml'):
             return YamlFormat(doc)
         elif doc.ext == '.md':
             return MarkdownFormat(doc)
-        text = 'Unsupported extension for content file: {}'
+        text = 'Unsupported extension for content document: {}'
         raise BadFormatError(text.format(doc.basename))
 
     @staticmethod
@@ -77,7 +77,10 @@ class _SplitDocumentFormat(Format):
 
     def _load_yaml(self, part):
         try:
-            return utils.load_yaml(part, pod=self.doc.pod)
+            return utils.load_yaml(
+                part,
+                doc=self.doc,
+                pod=self.doc.pod)
         except (yaml.parser.ParserError,
                 yaml.composer.ComposerError,
                 yaml.scanner.ScannerError) as e:
@@ -120,7 +123,10 @@ class YamlFormat(_SplitDocumentFormat):
     def load(self):
         try:
             if not self.has_front_matter:
-                self.fields = utils.load_yaml(self.content, pod=self.doc.pod)
+                self.fields = utils.load_yaml(
+                    self.content,
+                    doc=self.doc,
+                    pod=self.doc.pod)
                 self.body = self.content
                 return
             self._handle_pairs_of_parts_and_bodies()

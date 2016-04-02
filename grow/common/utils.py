@@ -129,7 +129,7 @@ def every_two(l):
     return zip(l[::2], l[1::2])
 
 
-def make_yaml_loader(pod):
+def make_yaml_loader(pod, doc=None):
     class YamlLoader(yaml_Loader):
 
         def _construct_func(self, node, func):
@@ -144,7 +144,9 @@ def make_yaml_loader(pod):
             return self._construct_func(node, pod.read_csv)
 
         def construct_doc(self, node):
-            return self._construct_func(node, pod.get_doc)
+            locale = doc.locale if doc else None
+            func = lambda path: pod.get_doc(path, locale=locale)
+            return self._construct_func(node, func)
 
         def construct_gettext(self, node):
             return self._construct_func(node, gettext.gettext)
@@ -165,7 +167,8 @@ def make_yaml_loader(pod):
 
 def load_yaml(*args, **kwargs):
     pod = kwargs.pop('pod', None)
-    loader = make_yaml_loader(pod)
+    doc = kwargs.pop('doc', None)
+    loader = make_yaml_loader(pod, doc=doc)
     return yaml.load(*args, Loader=loader, **kwargs)
 
 
@@ -184,7 +187,8 @@ def parse_yaml(content, pod=None):
 
 
 def dump_yaml(obj):
-    return yaml.safe_dump(obj, allow_unicode=True, width=800, default_flow_style=False)
+    return yaml.safe_dump(
+        obj, allow_unicode=True, width=800, default_flow_style=False)
 
 
 _slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
@@ -234,9 +238,6 @@ def untag_fields(fields):
     return fields
 
 
-_no_locale = '__no_locale'
-
-
 def LocaleIterator(iterator, locale):
     locale = str(locale)
     for i, line in enumerate(iterator):
@@ -244,9 +245,9 @@ def LocaleIterator(iterator, locale):
             yield line
 
 
-def get_rows_from_csv(pod, path, locale=_no_locale):
+def get_rows_from_csv(pod, path, locale='__no_locale'):
     fp = pod.open_file(path)
-    if locale is not _no_locale:
+    if locale is not '__no_locale':
         fp = LocaleIterator(fp, locale=locale)
     rows = []
     for row in csv_lib.DictReader(fp):

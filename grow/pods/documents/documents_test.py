@@ -39,6 +39,7 @@ class DocumentsTestCase(unittest.TestCase):
             '$path',
             '$title',
             '$view',
+            'doc_data',
             'csv_data',
             'foo',
             'json_data',
@@ -47,6 +48,9 @@ class DocumentsTestCase(unittest.TestCase):
         ]
         self.assertItemsEqual(keys, doc.fields.keys())
         self.assertIsNone(doc.html)
+
+        about = self.pod.get_doc('/content/pages/about.yaml')
+        self.assertEqual(doc.doc_data, about)
 
         default_doc = self.pod.get_doc('/content/pages/about.yaml')
         self.assertEqual('bar', default_doc.foo)
