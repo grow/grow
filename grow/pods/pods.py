@@ -26,6 +26,7 @@ You can get a static file from the pod.
   file = pod.get_file('/podspec.yaml')
 """
 
+from . import collection
 from . import env as environment
 from . import files
 from . import locales
@@ -38,7 +39,6 @@ from .controllers import jinja2htmlcompress
 from .controllers import messages as controller_messages
 from .controllers import static
 from .controllers import tags
-from .documents import collection
 from .preprocessors import preprocessors
 from .tests import tests
 from babel import dates as babel_dates

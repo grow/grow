@@ -1,7 +1,7 @@
-from grow.pods import locales
-from grow.pods import pods
-from grow.pods import storage
-from grow.pods.documents import collection
+from . import collection
+from . import locales
+from . import pods
+from . import storage
 from grow.testing import testing
 import unittest
 

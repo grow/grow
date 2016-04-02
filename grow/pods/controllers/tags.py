@@ -1,7 +1,7 @@
+from .. import collection as collection_lib
 from datetime import datetime
 from grow.common import utils
 from grow.pods import locales as locales_lib
-from grow.pods.documents import collection as collection_lib
 from grow.pods import urls
 import collections
 import itertools
