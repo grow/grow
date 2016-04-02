@@ -43,7 +43,7 @@ def check_sdk_version(pod):
         return
     if (semantic_version.Version(sdk_version)
         not in semantic_version.Spec(requires_version)):
-        text = 'WARNING! Pod requires Grow SDK version: {}'.format(requires_version)
+        text = 'ERROR! Pod requires Grow SDK version: {}'.format(requires_version)
         raise LatestVersionCheckError(colorize(text, ansi=197))
 
 

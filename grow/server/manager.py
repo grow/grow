@@ -1,6 +1,7 @@
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
+from grow.common import sdk_utils
 from grow.preprocessors import file_watchers
 from grow.server import main as main_lib
 from twisted.internet import reactor
@@ -18,14 +19,11 @@ def shutdown(pod):
 
 
 def start(pod, host=None, port=None, open_browser=False, debug=False,
-          preprocess=True):
+          preprocess=True, update_check=False):
     observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
     if preprocess:
         # Run preprocessors for the first time in a thread.
-        thread = threading.Thread(
-            target=pod.preprocess,
-            kwargs={'build': False})
-        thread.start()
+        reactor.callInThread(pod.preprocess, build=False)
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
     port = find_port_and_start_server(pod, host, port, debug)
@@ -36,13 +34,15 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
         start_browser(url)
     shutdown_func = lambda *args: shutdown(pod)
     reactor.addSystemEventTrigger('during', 'shutdown', shutdown_func)
+    if update_check:
+        reactor.callInThread(sdk_utils.check_for_sdk_updates, True)
+#    # Thread pool must be size 1 until a hard-to-pin down bug involving
+#    # thread safety and static asset responses is fixed.
+#    reactor.suggestThreadPoolSize(1)
     reactor.run()
 
 
 def find_port_and_start_server(pod, host, port, debug):
-    # Thread pool must be size 1 until a hard-to-pin down bug involving
-    # thread safety and static asset responses is fixed.
-    reactor.suggestThreadPoolSize(1)
     app = main_lib.CreateWSGIApplication(pod, debug=debug)
     num_tries = 0
     while num_tries < 10:
@@ -81,7 +81,5 @@ def start_browser(url):
         server_ready_event.wait()
         webbrowser.open(url)
     server_ready_event = threading.Event()
-    browser_thread = threading.Thread(
-        target=_start_browser, args=(server_ready_event,))
-    browser_thread.start()
+    reactor.callInThread(_start_browser, server_ready_event)
     server_ready_event.set()
