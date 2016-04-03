@@ -36,9 +36,6 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     reactor.addSystemEventTrigger('during', 'shutdown', shutdown_func)
     if update_check:
         reactor.callInThread(sdk_utils.check_for_sdk_updates, True)
-#    # Thread pool must be size 1 until a hard-to-pin down bug involving
-#    # thread safety and static asset responses is fixed.
-#    reactor.suggestThreadPoolSize(1)
     reactor.run()
 
 
