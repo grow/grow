@@ -16,8 +16,8 @@ class BuiltinsTestCase(unittest.TestCase):
         self.assertEqual('foo-bar-baz', tags.slug_filter(words))
 
     def test_json(self):
-        controller = self.pod.match('/yaml_test/')
-        html = controller.render()
+        controller, params = self.pod.match('/yaml_test/')
+        html = controller.render(params)
         self.assertIn('key - value', html)
         self.assertIn('key2 - value2', html)
 

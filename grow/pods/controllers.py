@@ -5,25 +5,19 @@ class BaseController(object):
 
     def __init__(self, _pod):
         self.pod = _pod
-        self.route_params = {}
 
     @property
     def locale(self):
         return None
 
-    def set_route_params(self, route_params):
-        self.route_params = route_params
-
-    def validate(self):
+    def validate(self, params):
         pass
 
-    def get_route_params(self):
-        return self.route_params
-
-    def get_http_headers(self):
+    def get_http_headers(self, params):
         headers = {}
-        if self.mimetype:
-            headers['Content-Type'] = self.mimetype
+        mimetype = self.get_mimetype(params)
+        if mimetype:
+            headers['Content-Type'] = mimetype
         return headers
 
     def to_route_messages(self):

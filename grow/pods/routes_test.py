@@ -13,15 +13,14 @@ class RoutesTest(unittest.TestCase):
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
     def test_match(self):
-        controller = self.pod.match('/')
-        controller.render()
-        controller = self.pod.match('/fr/about/')
-        controller.render()
-        controller = self.pod.match('/de_alias/about/')
-        controller.render()
+        controller, params = self.pod.match('/')
+        controller.render(params)
+        controller, params = self.pod.match('/fr/about/')
+        controller.render(params)
+        controller, params = self.pod.match('/de_alias/about/')
+        controller.render(params)
         self.assertRaises(webob.exc.HTTPNotFound, self.pod.match, '/dummy/')
-        controller = self.pod.match('/app/static/file with spaces.txt')
-        controller.render()
+        controller, params = self.pod.match('/app/static/file with spaces.txt')
 
     def test_list_concrete_paths(self):
         expected = [

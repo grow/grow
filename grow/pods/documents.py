@@ -181,9 +181,6 @@ class Document(object):
             return self.fields.get('$path', self.collection.get_path_format())
         return val
 
-    def validate_route_params(self, route_params):
-        pass
-
     @property
     @utils.memoize
     def parent(self):

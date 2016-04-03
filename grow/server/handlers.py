@@ -8,6 +8,7 @@ import urllib
 import webapp2
 import webob
 import werkzeug
+from werkzeug import wrappers
 
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
@@ -54,23 +55,17 @@ class BaseHandler(webapp2.RequestHandler):
         self.response.write(html)
 
 
-class PodHandler(BaseHandler):
-
-    def get(self):
-        pod = self.app.registry['pod']
-        try:
-            path = urllib.unquote(self.request.path)  # Support escaped paths.
-            controller = pod.routes.match(path, self.request.environ)
-            controller.validate()
-            headers = controller.get_http_headers()
-            if 'X-AppEngine-BlobKey' in self.response.headers:
-                return
-            content = controller.render()
-            self.response.headers.update(headers)
-            self.response.out.write(content)
-
-        except werkzeug.routing.RequestRedirect as e:
-            self.redirect(e.new_url)
+def respond(pod, request):
+    path = urllib.unquote(request.path)  # Support escaped paths.
+    controller, params = pod.routes.match(path, request.environ)
+    controller.validate(params)
+    headers = controller.get_http_headers(params)
+    content = controller.render(params)
+    response = wrappers.Response(content)
+    response.headers = headers
+    if 'X-AppEngine-BlobKey' in response.headers:
+        return
+    return response
 
 
 class BaseConsoleHandler(BaseHandler):

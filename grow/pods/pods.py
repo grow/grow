@@ -289,9 +289,9 @@ class Pod(object):
         bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
         bar.start()
         for path in paths:
-            controller = self.match(path)
+            controller, params = self.match(path)
             try:
-              output[path] = controller.render()
+              output[path] = controller.render(params)
             except:
               self.logger.error('Error building: {}'.format(controller))
               raise

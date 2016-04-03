@@ -158,9 +158,8 @@ class Routes(object):
             raise webob.exc.HTTPBadRequest('Invalid path.')
         urls = self.routing_map.bind_to_environ(env)
         try:
-            controller, route_params = urls.match(path)
-            controller.set_route_params(route_params)
-            return controller
+            controller, params = urls.match(path)
+            return controller, params
         except routing.NotFound:
             raise webob.exc.HTTPNotFound('{} not found.'.format(path))
 

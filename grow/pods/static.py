@@ -150,19 +150,18 @@ class StaticController(controllers.BaseController):
         self.localized = localized
         self.localization = localization
         self.fingerprinted = fingerprinted
-        self.route_params = {}
 
     def __repr__(self):
         return '<Static(format=\'{}\')>'.format(self.source_format)
 
-    def get_localized_pod_path(self):
+    def get_localized_pod_path(self, params):
         if (self.localization
            and '{locale}' in self.localization['static_dir']
-           and 'locale' in self.route_params):
+           and 'locale' in params):
             source_format = self.localization['serve_at']
             source_format += '/{filename}'
             source_format = source_format.replace('//', '/')
-            kwargs = self.route_params
+            kwargs = params
             kwargs['root'] = self.pod.podspec.root
             if 'locale' in kwargs:
                 locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
@@ -175,36 +174,40 @@ class StaticController(controllers.BaseController):
             if self.pod.file_exists(pod_path):
                 return pod_path
 
-    def get_pod_path(self):
+    def get_pod_path(self, params):
         # If a localized file exists, serve it. Otherwise, serve the base file.
-        pod_path = self.get_localized_pod_path()
+        pod_path = self.get_localized_pod_path(params)
         if pod_path:
             return pod_path
-        pod_path = self.source_format.format(**self.route_params)
+        pod_path = self.source_format.format(**params)
         if self.fingerprinted:
             pod_path = StaticFile.remove_fingerprint(pod_path)
         return pod_path
 
-    def validate(self):
-        if not self.pod.file_exists(self.get_pod_path()):
-            path = self.pod.abs_path(self.get_pod_path())
+    def validate(self, params):
+        pod_path = self.get_pod_path(params)
+        if not self.pod.file_exists(pod_path):
+            path = self.pod.abs_path(pod_path)
             message = '{} does not exist.'.format(path)
             raise webob.exc.HTTPNotFound(message)
 
-    def render(self):
-        return self.pod.read_file(self.get_pod_path())
+    def render(self, params):
+        pod_path = self.get_pod_path(params)
+        return self.pod.read_file(pod_path)
 
-    @property
-    def mimetype(self):
-        return mimetypes.guess_type(self.get_pod_path())[0]
+    def get_mimetype(self, params):
+        pod_path = self.get_pod_path(params)
+        return mimetypes.guess_type(pod_path)[0]
 
-    def get_http_headers(self):
-        path = self.pod.abs_path(self.get_pod_path())
-        headers = super(StaticController, self).get_http_headers()
+    def get_http_headers(self, params):
+        pod_path = self.get_pod_path(params)
+        path = self.pod.abs_path(pod_path)
+        headers = super(StaticController, self).get_http_headers(params)
         self.pod.storage.update_headers(headers, path)
         modified = str(self.pod.storage.modified(path))
-        headers['Last-Modified'] = modified.split('.')[0]
         headers['Cache-Control'] = 'max-age'
+        headers['Last-Modified'] = modified.split('.')[0]
+        headers['X-Grow-Pod-Path'] = pod_path
         return headers
 
     def match_pod_path(self, pod_path):

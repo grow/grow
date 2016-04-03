@@ -23,8 +23,7 @@ class RenderedController(controllers.BaseController):
         return '<Rendered(view=\'{}\', doc=\'{}\')>'.format(
             self.view, self.document.pod_path)
 
-    @property
-    def mimetype(self):
+    def get_mimetype(self, params):
         return mimetypes.guess_type(self.view)[0]
 
     @property
@@ -64,7 +63,7 @@ class RenderedController(controllers.BaseController):
         return lambda *args, **kwargs: func(
             *args, _pod=self.pod, use_cache=use_cache, **kwargs)
 
-    def render(self):
+    def render(self, params):
         self._install_translations(self.locale)
         template = self._template_env.get_template(self.view.lstrip('/'))
         g_tags = {
