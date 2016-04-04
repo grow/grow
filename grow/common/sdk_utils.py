@@ -1,9 +1,11 @@
+# coding: utf8
 from grow.common import config
 from grow.common import utils
 from xtermcolor import colorize
 import json
 import logging
 import os
+import platform
 import semantic_version
 import subprocess
 import sys
@@ -12,6 +14,12 @@ import urllib
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
                      'https://raw.github.com/grow/grow/master/install.py)"')
+
+PLATFORM = None
+if 'Linux' in platform.system():
+  PLATFORM = 'linux'
+elif 'Darwin' in platform.system():
+  PLATFORM = 'mac'
 
 
 class Error(Exception):
@@ -77,3 +85,107 @@ def check_for_sdk_updates(auto_update_prompt=False):
     else:
         logging.info('  Update using: ' + colorize('pip install --upgrade grow', ansi=200))
     print ''
+
+
+def get_popen_args(pod):
+    node_modules_path = os.path.join(pod.root, 'node_modules', '.bin')
+    path = os.environ['PATH'] + ':{}'.format(node_modules_path)
+    return {
+        'cwd': pod.root,
+        'env': {
+            'PATH': path,
+        },
+    }
+
+
+def install(pod, gerrit=False):
+    if gerrit:
+        install_gerrit_commit_hook(pod)
+    if pod.file_exists('/package.json'):
+        success = install_npm(pod)
+        if not success:
+          return
+    if pod.file_exists('/bower.json'):
+        success = install_bower(pod)
+        if not success:
+          return
+    if pod.file_exists('/gulpfile.js'):
+        success = install_gulp(pod)
+
+
+def install_gerrit_commit_hook(pod):
+    error_message = '[✘] There was an error installing the Gerrit commit hook.'
+    args = get_popen_args(pod)
+    curl_command = (
+        'curl -sLo '
+        '`git rev-parse --git-dir`/hooks/commit-msg '
+        'https://gerrit-review.googlesource.com/tools/hooks/commit-msg')
+    chmod_command = 'chmod +x `git rev-parse --git-dir`/hooks/commit-msg'
+    process = subprocess.Popen(curl_command, shell=True, **args)
+    code = process.wait()
+    if code:
+        pod.logger.error(error_message)
+        return False
+    process = subprocess.Popen(chmod_command, shell=True, **args)
+    code = process.wait()
+    if code:
+        pod.logger.error(error_message)
+        return False
+    pod.logger.info('[✓] Finished: Installed Gerrit Code Review commit hook.')
+    return True
+
+
+def install_npm(pod):
+    args = get_popen_args(pod)
+    npm_status_command = 'npm --version > /dev/null 2>&1'
+    npm_not_found = subprocess.call(npm_status_command, shell=True, **args) == 127
+    if npm_not_found:
+        if PLATFORM == 'linux':
+            pod.logger.error('[✘] The "npm" command was not found.')
+            pod.logger.error('    On Linux, you can install npm using: apt-get install nodejs')
+        elif PLATFORM == 'mac':
+            pod.logger.error('[✘] The "npm" command was not found.')
+            pod.logger.error('    Using brew (https://brew.sh), you can install using: brew install node')
+            pod.logger.error('    If you do not have brew, you can download Node.js from https://nodejs.org')
+        else:
+            pod.logger.error('[✘] The "npm" command was not found.')
+            pod.logger.error('    Download Node.js from https://nodejs.org')
+        return
+    pod.logger.info('[✓] "npm" is installed.')
+    npm_command = 'npm install'
+    process = subprocess.Popen(npm_command, shell=True, **args)
+    code = process.wait()
+    if not code:
+        pod.logger.info('[✓] Finished: npm install.')
+        return True
+    pod.logger.error('[✘] There was an error running "npm install".')
+
+
+def install_bower(pod):
+    args = get_popen_args(pod)
+    bower_status_command = 'bower --version > /dev/null 2>&1'
+    bower_not_found = subprocess.call(bower_status_command, shell=True, **args) == 127
+    if bower_not_found:
+        pod.logger.error('[✘] The "bower" command was not found.')
+        pod.logger.error('    Either add bower to package.json or install globally using: sudo npm install -g bower')
+        return
+    pod.logger.info('[✓] "bower" is installed.')
+    bower_command = 'bower install'
+    process = subprocess.Popen(bower_command, shell=True, **args)
+    code = process.wait()
+    if not code:
+        pod.logger.info('[✓] Finished: bower install.')
+        return True
+    pod.logger.error('[✘] There was an error running "bower install".')
+
+
+def install_gulp(pod):
+    args = get_popen_args(pod)
+    gulp_status_command = 'gulp --version > /dev/null 2>&1'
+    gulp_not_found = subprocess.call(gulp_status_command, shell=True, **args) == 127
+    if gulp_not_found:
+        pod.logger.error('[✘] The "gulp" command was not found.')
+        pod.logger.error('    Either add gulp to package.json or install globally using: sudo npm install -g gulp')
+        return
+    pod.logger.info('[✓] "gulp" is installed.')
+    return True

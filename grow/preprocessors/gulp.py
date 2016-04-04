@@ -1,10 +1,11 @@
 from . import base
+from grow.common import sdk_utils
 from protorpc import messages
 from xtermcolor import colorize
 import os
 import re
-import subprocess
 import shlex
+import subprocess
 import sys
 
 
@@ -21,14 +22,7 @@ class GulpPreprocessor(base.BasePreprocessor):
     Config = Config
 
     def run(self, build=True):
-        node_modules_path = os.path.join(self.pod.root, 'node_modules', '.bin')
-        path = os.environ['PATH'] + ':{}'.format(node_modules_path)
-        args = {
-            'cwd': self.pod.root,
-            'env': {
-                'PATH': path,
-            },
-        }
+        args = sdk_utils.get_popen_args(self.pod)
         task = self.config.build_task if build else self.config.run_task
         raw_command = '{} {}'.format(self.config.command, task)
         command = shlex.split(raw_command)

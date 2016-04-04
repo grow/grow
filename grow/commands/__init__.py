@@ -4,6 +4,7 @@ from . import extract
 from . import filter
 from . import import_translations
 from . import init
+from . import install
 from . import machine_translate
 from . import preprocess
 from . import routes
@@ -23,5 +24,6 @@ def add(group):
     group.add_command(preprocess.preprocess)
     group.add_command(routes.routes)
     group.add_command(run.run)
+    group.add_command(install.install)
     group.add_command(stats.stats)
     group.add_command(stage.stage)
