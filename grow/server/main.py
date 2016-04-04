@@ -10,6 +10,7 @@ import webob
 # Allows "import grow" and "from grow import <name>".
 sys.path.extend([os.path.join(os.path.dirname(__file__), '..', '..')])
 
+from grow.common import sdk_utils
 from grow.common import utils
 from grow.pods import errors
 from grow.pods import storage
@@ -56,11 +57,14 @@ def serve_pod(pod, request, values):
     controller, params = pod.routes.match(path, request.environ)
     controller.validate(params)
     headers = controller.get_http_headers(params)
+    request_etag = request.headers.get('If-None-Match')
+    if 'ETag' in headers and request_etag == headers['ETag']:
+        response = wrappers.Response(headers=headers, status=304)
+        return response
+    if 'X-AppEngine-BlobKey' in headers:
+        return wrappers.Response(headers=headers)
     content = controller.render(params)
-    response = wrappers.Response(content)
-    response.headers = headers
-    if 'X-AppEngine-BlobKey' in response.headers:
-        return
+    response = wrappers.Response(content, headers=headers)
     return response
 
 

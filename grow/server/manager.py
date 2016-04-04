@@ -47,6 +47,8 @@ def find_port_and_start_server(pod, host, port, debug):
             thread_pool = reactor.getThreadPool()
             wsgi_resource = wsgi.WSGIResource(reactor, thread_pool, app)
             site = server.Site(wsgi_resource)
+            version = sdk_utils.get_this_version()
+            server.version = 'Grow/{}'.format(version)
             reactor.listenTCP(port, site, interface=host)
             return port
         except twisted.internet.error.CannotListenError as e:

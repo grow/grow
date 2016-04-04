@@ -2,12 +2,14 @@ from . import controllers
 from . import messages
 from grow.pods import locales
 from grow.pods import urls
+from datetime import datetime
 import fnmatch
-import mimetypes
-import re
 import hashlib
-import webob
+import mimetypes
 import os
+import re
+import time
+import webob
 
 mimetypes.add_type('application/font-woff', '.woff')
 mimetypes.add_type('application/font-woff', '.woff')
@@ -204,9 +206,11 @@ class StaticController(controllers.BaseController):
         path = self.pod.abs_path(pod_path)
         headers = super(StaticController, self).get_http_headers(params)
         self.pod.storage.update_headers(headers, path)
-        modified = str(self.pod.storage.modified(path))
-        headers['Cache-Control'] = 'max-age'
-        headers['Last-Modified'] = modified.split('.')[0]
+        modified = self.pod.storage.modified(path)
+        time_obj = datetime.fromtimestamp(modified).timetuple()
+        time_format = '%a, %d %b %Y %H:%M:%S GMT'
+        headers['Last-Modified'] =  time.strftime(time_format, time_obj)
+        headers['ETag'] = '"{}"'.format(headers['Last-Modified'])
         headers['X-Grow-Pod-Path'] = pod_path
         return headers
 
