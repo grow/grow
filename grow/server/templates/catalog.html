@@ -3,7 +3,7 @@
 
 {% block main %}
 
-{% set catalog = pod.catalogs.get(args[0]) %}
+{% set catalog = pod.catalogs.get(locale) %}
 
 <h3>{{catalog|length}} messages in {{catalog}}</h3>
 <table>

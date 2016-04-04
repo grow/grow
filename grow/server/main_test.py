@@ -12,7 +12,7 @@ class PodHandlerTestCase(unittest.TestCase):
         pod = pods.Pod(self.dir_path)
 
         # When serving a pod, should 200.
-        app = main.CreateWSGIApplication(pod)
+        app = main.create_wsgi_app(pod)
         request = webapp2.Request.blank('/')
         response = request.get_response(app)
         self.assertEqual(response.status_int, 200)

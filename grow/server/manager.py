@@ -40,7 +40,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
 
 
 def find_port_and_start_server(pod, host, port, debug):
-    app = main_lib.CreateWSGIApplication(pod, debug=debug)
+    app = main_lib.create_wsgi_app(pod, debug=debug)
     num_tries = 0
     while num_tries < 10:
         try:

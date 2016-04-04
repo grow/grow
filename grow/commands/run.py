@@ -5,7 +5,6 @@ from grow.server import manager
 import click
 import os
 import threading
-import twisted
 
 
 @click.command()
@@ -33,12 +32,8 @@ def run(host, port, https, debug, browser, update_check, preprocess,
     environment = env.Env(config)
     pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
     try:
-        try:
-            manager.start(pod, host=host, port=port, open_browser=browser,
-                          debug=debug, preprocess=preprocess,
-                          update_check=update_check)
-        except pods.Error as e:
-            raise click.ClickException(str(e))
-    except twisted.internet.error.ReactorNotRunning:
-        # Swallow flaky error when quitting with ctrl+c.
-        pass
+        manager.start(pod, host=host, port=port, open_browser=browser,
+                      debug=debug, preprocess=preprocess,
+                      update_check=update_check)
+    except pods.Error as e:
+        raise click.ClickException(str(e))

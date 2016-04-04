@@ -1,9 +1,9 @@
-#!/usr/bin/python
-
 import logging
 import os
 import jinja2
+import re
 import sys
+import traceback
 import urllib
 import webob
 
@@ -15,10 +15,11 @@ from grow.common import utils
 from grow.pods import errors
 from grow.pods import storage
 from protorpc.wsgi import service
-from werkzeug import routing
 from werkzeug import exceptions
-from werkzeug import wsgi
+from werkzeug import routing
+from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
+from werkzeug import wsgi
 
 
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
@@ -37,16 +38,18 @@ _env = jinja2.Environment(
 
 
 def serve_console(pod, request, values):
-    logging.info(values)
+    kwargs = {'pod': pod}
     values_to_templates = {
         'content': 'collections.html',
         'translations': 'catalogs.html',
-        'translations/something': 'catalog.html',
     }
-    value = values.get('path')
+    value = values.get('page')
     template_path = values_to_templates.get(value, 'main.html')
+    if value == 'translations' and values.get('locale'):
+        kwargs['locale'] = values.get('locale')
+        template_path = 'catalog.html'
     template = _env.get_template(template_path)
-    content = template.render(pod=pod)
+    content = template.render(kwargs)
     response = wrappers.Response(content)
     response.headers['Content-Type'] = 'text/html'
     return response
@@ -76,8 +79,8 @@ class PodServer(object):
         self.debug = debug
         self.url_map = routing.Map([
             rule('/', endpoint=serve_pod),
-            rule('/_grow/<path:page>/<path:catalog>', endpoint=serve_console),
-            rule('/_grow/<path:path>', endpoint=serve_console),
+            rule('/_grow/<any("translations"):page>/<path:locale>', endpoint=serve_console),
+            rule('/_grow/<path:page>', endpoint=serve_console),
             rule('/_grow', endpoint=serve_console),
             rule('/<path:path>', endpoint=serve_pod),
         ], strict_slashes=False)
@@ -87,6 +90,8 @@ class PodServer(object):
         try:
             endpoint, values = adapter.match()
             return endpoint(self.pod, request, values)
+        except routing.RequestRedirect as e:
+            return werkzeug_utils.redirect(e.new_url)
         except Exception as e:
             return self.handle_exception(request, e)
 
@@ -107,10 +112,17 @@ class PodServer(object):
             status = 500
             log('{}: {} - {}'.format(status, request.path, exc))
         template = _env.get_template('error.html')
+        error_type, value, tb = sys.exc_info()
+        formatted_traceback = [
+            re.sub('^  ', '', line)
+            for line in traceback.format_tb(tb)]
+        formatted_traceback = '\n'.join(formatted_traceback)
         kwargs = {
+            'traceback': formatted_traceback,
             'exception': exc,
             'pod': self.pod,
             'status': status,
+            'is_web_exception': isinstance(exc, webob.exc.HTTPException),
         }
         if (isinstance(exc, errors.BuildError)):
             kwargs['build_error'] = exc.exception
@@ -125,8 +137,8 @@ class PodServer(object):
         return response
 
 
-def CreateWSGIApplication(pod, debug=False):
-    podserver_app = PodServer(pod)
+def create_wsgi_app(pod, debug=False):
+    podserver_app = PodServer(pod, debug=debug)
     static_path = os.path.join(utils.get_grow_dir(), 'server', 'frontend')
     return wsgi.SharedDataMiddleware(podserver_app, {
         '/_grow/static': static_path,

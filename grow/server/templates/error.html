@@ -1,7 +1,20 @@
 <!doctype html>
 <meta charset="utf-8">
+<link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABhQTFRFdHR0UFBQwsLCnZ2dCQkJ7+/vhoaG////U3R9JgAAAAh0Uk5T/////////wDeg71ZAAABrElEQVR42tyXgZKEIAiGwdR7/zc+QDT1FK3m2pmlbdtKPn/AtIUfww5HG5nVBqyb6n8f8FkF0nsmGBCweqftPiB5F//bCq4BgKyOP5A514YRIcISkHsfAcg/bihICXhXAZKBWo4/AzIEEJAV1CoaQCbk3nsArgArBeQP6h9NBfMQLICvFaQQ+Lcnq3MAOyFQazcCkD9GKwRqj5YC3K1CzsEohDnA1yG4g485iQy5XIURwK4CbihYVUEIaCkAowqDcXD5WYDvexZGOYC9+WAawrVn4XIS8dGUpjlgDjv0gEi2VYUFYDkO0AIsH6ZE8DdD8Fh6nwHEzCoUQJgC7BAeKvAaf7AApgJX2VSBUh4BplXQ/Mn+voLeYQbI5wYgPAXYOdgDXFUQOpsBXGf/CAhvKqgbj8wZJoPqCwDyck2GtfHy1k8ksmydG18rVegB3PQPQPzOzwjgdZfZuwfgvgJZ48rceIbQSmgAsqDGeIhDWkSBDpGHZKjeTvjIF9J5+nOSvuiu3KReZRWGci5C9BrEpg1Cq+CkR1VwOJUwVoAjBaG8B2RFdY+dSvH9FWAAf6hAHY0fB5IAAAAASUVORK5CYII=">
 <title>Error!!1</title>
 <style>
+  .hidden {
+    display: none;
+  }
+  a {
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    color: #46439B;
+  }
+  .sad {
+    width: 70px;
+  }
   code {
     font-family: 'Monaco', monospace;
     font-size: .8em;
@@ -12,21 +25,24 @@
     background-color: #e8ebef;
     background-repeat: no-repeat;
     font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
     font-weight: 200;
   }
-  footer {
-    text-align: center;
+  .aside {
     font-size: 12px;
+    float: right;
     color: #666;
-    font-weight: 400;
+    font-weight: bold;
   }
   body {
-    max-width: 700px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0;
   }
   h1 {
     font-weight: 200;
+    font-size: 30px;
+    margin-bottom: 0;
   }
   p, li {
     line-height: 1.4em;
@@ -34,33 +50,47 @@
   li {
     margin-bottom: 10px;
   }
+  .exception,
   pre {
     background: #fff;
-    box-shadow: rgba(0, 0, 0, 0.14902) 0px 1px 1px 0px, rgba(0, 0, 0, 0.09804) 0px 1px 2px 0px;
     color: #333;
     font-size: 14px;
-    margin: 20px 0;
-    padding: 30px;
+    margin: 0;
+    padding: 40px;
+    border-bottom: 1px solid #ddd;
+  }
+  .footnotes {
+    padding: 20px 40px;
+    max-width: 650px;
+  }
+  .traceback {
+    border-top: 1px solid #ddd;
+    margin-top: 10px;
+    font-size: 13px;
+    overflow: auto;
     word-wrap: break-word;
-    white-space: normal;
   }
   hr {
     border: 1px solid #ddd;
     margin: 30px 0;
   }
-  aside {
-    background: url(data:image/png;base64,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);
-    width: 150px;
-    background-size: 100%;
-    height: 83px;
-    margin: 20px auto;
+  header {
+    padding: 40px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
   }
 </style>
+<body>
+<header>
+<a class="aside" href="/_grow">{{pod.root}}</a>
+
+<img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCA2NS44IDc3IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA2NS44IDc3OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCS5zdDB7ZmlsbDojRkZGRkZGO30NCgkuc3Qxe2ZpbGw6I0M2QzZDNTt9DQoJLnN0MntmaWxsOiNDNEM0QzM7fQ0KCS5zdDN7ZmlsbDpub25lO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjEwO30NCjwvc3R5bGU+DQo8Zz4NCgk8Zz4NCgkJPGc+DQoJCQk8Zz4NCgkJCQk8cG9seWdvbiBjbGFzcz0ic3QwIiBwb2ludHM9IjEuOCw3My4xIDEuOCwxNC45IDE0LjksMS43IDYxLjgsMS43IDYxLjgsNzMuMSAJCQkJIi8+DQoJCQkJPHBhdGggY2xhc3M9InN0MSIgZD0iTTYxLjUsMnY3MC45SDJWMTVMMTUsMkg2MS41IE02MiwxLjVoLTAuNUgxNWgtMC4ybC0wLjEsMC4xbC0xMywxM2wtMC4xLDAuMVYxNXY1Ny44djAuNUgyaDU5LjVINjJ2LTAuNVYyDQoJCQkJCVYxLjVMNjIsMS41eiIvPg0KCQkJPC9nPg0KCQk8L2c+DQoJPC9nPg0KCTxwb2x5Z29uIGNsYXNzPSJzdDIiIHBvaW50cz0iMTUsMiAyLDE1IDE1LDE1IAkiLz4NCgk8Y2lyY2xlIGN4PSIxOS44IiBjeT0iMjguNCIgcj0iMy41Ii8+DQoJPGNpcmNsZSBjeD0iNDMuOCIgY3k9IjI4LjQiIHI9IjMuNSIvPg0KCTxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik00Ny4zLDQ4Yy0xLjctNS44LTcuNi0xMC4xLTE0LjYtMTAuMVMxOS44LDQyLjIsMTguMSw0OCIvPg0KPC9nPg0KPC9zdmc+DQo=" class="sad">
+
 <h1>Something went wrong while building this page.</h1>
-<pre>
+</header>
+<div class="exception">
   {% if build_error %}
     <span>An error occurred building <b>{{exception.controller}}</b></span>
-    <hr>
     <div>{{build_error}}</div>
   {% else %}
     <span>{{exception}}</span>
@@ -69,8 +99,8 @@
     <hr>
     <div>We think the problem is with <b>line {{template_exception.lineno}}</b> of <b>{{template_exception.filename}}</b>.</div>
   {% endif %}
-</pre>
-<aside></aside>
+</div>
+<div class="footnotes">
 {% if status == 404 %}
   <p>No resource matches the requested path. Here's what you can do:
     <ul>
@@ -82,5 +112,12 @@
   <ul>
     <li>Check the view, document, blueprint, or podspec for syntax errors.
   </ul>
+  {% if not is_web_exception %}
+  <a href="javascript:document.getElementById('traceback').classList.toggle('hidden')">Traceback</a>
+  {% endif %}
 {% endif %}
-<footer>{{pod.root}}</footer>
+</div>
+
+{% if not is_web_exception %}
+<pre id="traceback" class="traceback hidden">{{traceback}}</pre>
+{% endif %}

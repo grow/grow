@@ -212,6 +212,8 @@ class StaticController(controllers.BaseController):
         headers['Last-Modified'] =  time.strftime(time_format, time_obj)
         headers['ETag'] = '"{}"'.format(headers['Last-Modified'])
         headers['X-Grow-Pod-Path'] = pod_path
+        if self.locale:
+            headers['X-Grow-Locale'] = self.locale
         return headers
 
     def match_pod_path(self, pod_path):
