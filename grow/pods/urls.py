@@ -16,6 +16,14 @@ class Url(object):
         url += self.path
         return url
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, Url)
+            and self.path == other.path
+            and self.host == other.host
+            and self.port == other.port
+            and self.scheme == other.scheme)
+
     def __repr__(self):
         return '<Url: {}>'.format(str(self))
 

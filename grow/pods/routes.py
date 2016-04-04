@@ -1,36 +1,20 @@
-"""
-werkzeug routing:
-  http://www.pocoo.org/~blackbird/wzdoc/routing.html
-  http://werkzeug.pocoo.org/docs/routing/#werkzeug.routing.Map
-"""
-
 from . import locales
 from . import messages
 from . import rendered
 from . import sitemap
 from . import static
 from grow.common import utils
+from werkzeug import routing
 import collections
 import webob
 import werkzeug
-
-
-routing = werkzeug.routing
 
 
 class Error(Exception):
     pass
 
 
-class Errors(object):
-    Redirect = routing.RequestRedirect
-
-
 class GrowConverter(routing.PathConverter):
-    pass
-
-
-class ValidationError(Error, ValueError):
     pass
 
 
@@ -45,6 +29,7 @@ class Routes(object):
         self.pod = pod
         self._paths_to_locales_to_docs = collections.defaultdict(dict)
         self._routing_map = None
+        self._static_routing_map = None
 
     def __iter__(self):
         return self.routing_map.iter_rules()
@@ -76,10 +61,21 @@ class Routes(object):
                 rules.append(rule)
                 new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
         # Static routes.
-        rules += self.list_static_routes()
+        rules += self._build_static_routing_map_and_return_rules()
         self._routing_map = routing.Map(rules, converters=Routes.converters)
         self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
         return self._routing_map
+
+    def _build_static_routing_map_and_return_rules(self):
+        rules = self.list_static_routes()
+        self._static_routing_map = routing.Map(rules, converters=Routes.converters)
+        return [rule.empty() for rule in rules]
+
+    @property
+    def static_routing_map(self):
+        if self._static_routing_map is None:
+            self._build_static_routing_map_and_return_rules()
+        return self._static_routing_map
 
     @property
     def routing_map(self):

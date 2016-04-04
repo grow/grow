@@ -219,9 +219,16 @@ class Pod(object):
         for path in self.list_dir(pod_path):
             yield self.get_static(pod_path + path, locale=locale)
 
+    def get_url(self, pod_path, locale=None):
+        if pod_path.startswith('/content'):
+            doc = self.get_doc(pod_path, locale=locale)
+            return doc.url
+        static = self.get_static(pod_path, locale=locale)
+        return static.url
+
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
-        for route in self.routes:
+        for route in self.routes.static_routing_map.iter_rules():
             controller = route.endpoint
             if controller.KIND == messages.Kind.STATIC:
                 serving_path = controller.match_pod_path(pod_path)
@@ -298,7 +305,7 @@ class Pod(object):
             bar.update(bar.currval + 1)
         error_controller = routes.match_error('/404.html')
         if error_controller:
-            output['/404.html'] = error_controller.render()
+            output['/404.html'] = error_controller.render({})
         bar.finish()
         return output
 

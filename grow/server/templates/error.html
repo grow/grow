@@ -8,9 +8,11 @@
   }
   a {
     text-decoration: none;
-    font-size: 12px;
     font-weight: bold;
-    color: #46439B;
+    color: inherit;
+  }
+  .smaller {
+    font-size: 12px;
   }
   .sad {
     width: 70px;
@@ -50,6 +52,9 @@
   li {
     margin-bottom: 10px;
   }
+  .build-error {
+    margin-top: 20px;
+  }
   .exception,
   pre {
     background: #fff;
@@ -69,6 +74,16 @@
     font-size: 13px;
     overflow: auto;
     word-wrap: break-word;
+  }
+  a i {
+    display: inline-block;
+    height: 8px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-left: 5px;
+    width: 10px;
+    background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjE4cHgiIGhlaWdodD0iMTJweCIgdmlld0JveD0iMCAwIDE4IDEyIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCAzLjYuMSAoMjYzMTMpIC0gaHR0cDovL3d3dy5ib2hlbWlhbmNvZGluZy5jb20vc2tldGNoIC0tPgogICAgPHRpdGxlPlNoYXBlPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+PC9kZWZzPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CiAgICAgICAgPGcgaWQ9Ik91ci1UZWNobm9sb2d5LShEYXduKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU5MS4wMDAwMDAsIC0xNDA2LjAwMDAwMCkiIGZpbGw9IiMwMDAwMDAiPgogICAgICAgICAgICA8ZyBpZD0iQnVpbGRpbmctb3VyLXBsYW5lIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMzAuMDAwMDAwLCAxMDMwLjAwMDAwMCkiPgogICAgICAgICAgICAgICAgPGcgaWQ9Im1vcmUtKG5hdmlnYXRpb24pIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0NzAuMDAwMDAwLCAzODIuMDAwMDAwKSByb3RhdGUoLTI3MC4wMDAwMDApIHRyYW5zbGF0ZSgtNDcwLjAwMDAwMCwgLTM4Mi4wMDAwMDApIHRyYW5zbGF0ZSg0NTIuMDAwMDAwLCAzNjQuMDAwMDAwKSI+CiAgICAgICAgICAgICAgICAgICAgPGcgaWQ9Ikdyb3VwIj4KICAgICAgICAgICAgICAgICAgICAgICAgPHBhdGggZD0iTTE1LDkgTDEyLjg4NSwxMS4xMTUgTDE5Ljc1NSwxOCBMMTIuODg1LDI0Ljg4NSBMMTUsMjcgTDI0LDE4IEwxNSw5IFoiIGlkPSJTaGFwZSI+PC9wYXRoPgogICAgICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+);
   }
   hr {
     border: 1px solid #ddd;
@@ -90,8 +105,8 @@
 </header>
 <div class="exception">
   {% if build_error %}
-    <span>An error occurred building <b>{{exception.controller}}</b></span>
-    <div>{{build_error}}</div>
+    <div>An error occurred building <b>{{exception.controller}}</b></div>
+    <div class="build-error">{{build_error}}</div>
   {% else %}
     <span>{{exception}}</span>
   {% endif %}
@@ -102,22 +117,27 @@
 </div>
 <div class="footnotes">
 {% if status == 404 %}
-  <p>No resource matches the requested path. Here's what you can do:
-    <ul>
-      <li>If requesting a rendered page, ensure all path configurations in content documents, blueprints, and the podspec are correct.
-      <li>If requesting a static file, the file corresponding to this route could not be found. Ensure the file exists or check the directory configuration in the podspec.
-    </ul>
+  <p>No resource matches the requested path. Here's what you can do:</p>
+  <ul>
+    <li>If requesting a rendered page, ensure all path configurations in content documents, blueprints, and the podspec are correct.
+    <li>If requesting an asset, the file corresponding to this route could not be found. Ensure the file exists or check the directory configuration in the podspec.
+  </ul>
+  {% if home_url %}
+    <p>You can also go to the <a href="{{home_url}}">homepage</a> or <a href="/_grow">see all routes</a>.</p>
+  {% else %}
+    <p>You can also <a href="/_grow">see all routes</a>.</p>
+  {% endif %}
 {% else %}
   <p>This page failed to render. Here's what you can do:
   <ul>
     <li>Check the view, document, blueprint, or podspec for syntax errors.
   </ul>
   {% if not is_web_exception %}
-  <a href="javascript:document.getElementById('traceback').classList.toggle('hidden')">Traceback</a>
+  <a href="javascript:document.getElementById('traceback').classList.toggle('hidden')">Traceback<i></i></a>
   {% endif %}
 {% endif %}
 </div>
 
 {% if not is_web_exception %}
-<pre id="traceback" class="traceback hidden">{{traceback}}</pre>
+<pre id="traceback" class="smaller traceback hidden">{{traceback}}</pre>
 {% endif %}

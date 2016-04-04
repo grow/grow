@@ -154,6 +154,16 @@ def make_yaml_loader(pod, doc=None):
         def construct_json(self, node):
             return self._construct_func(node, pod.read_json)
 
+        def construct_static(self, node):
+            locale = doc.locale if doc else None
+            func = lambda path: pod.get_static(path, locale=locale)
+            return self._construct_func(node, func)
+
+        def construct_url(self, node):
+            locale = doc.locale if doc else None
+            func = lambda path: pod.get_url(path, locale=locale)
+            return self._construct_func(node, func)
+
         def construct_yaml(self, node):
             return self._construct_func(node, pod.read_yaml)
 
@@ -161,6 +171,8 @@ def make_yaml_loader(pod, doc=None):
     YamlLoader.add_constructor(u'!g.csv', YamlLoader.construct_csv)
     YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
     YamlLoader.add_constructor(u'!g.json', YamlLoader.construct_json)
+    YamlLoader.add_constructor(u'!g.static', YamlLoader.construct_static)
+    YamlLoader.add_constructor(u'!g.url', YamlLoader.construct_url)
     YamlLoader.add_constructor(u'!g.yaml', YamlLoader.construct_yaml)
     return YamlLoader
 

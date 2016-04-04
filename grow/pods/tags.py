@@ -116,8 +116,7 @@ def breadcrumb(doc, _pod=None):
 
 @utils.memoize_tag
 def url(pod_path, locale=None, _pod=None):
-    doc = _pod.get_doc(pod_path, locale=locale)
-    return doc.url
+    return _pod.get_url(pod_path, locale=locale)
 
 
 @utils.memoize_tag

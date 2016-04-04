@@ -112,18 +112,27 @@ class PodServer(object):
             status = 500
             log('{}: {} - {}'.format(status, request.path, exc))
         template = _env.get_template('error.html')
-        error_type, value, tb = sys.exc_info()
+        if (isinstance(exc, errors.BuildError)):
+            tb = exc.traceback
+        else:
+            unused_error_type, unused_value, tb = sys.exc_info()
         formatted_traceback = [
             re.sub('^  ', '', line)
             for line in traceback.format_tb(tb)]
         formatted_traceback = '\n'.join(formatted_traceback)
         kwargs = {
-            'traceback': formatted_traceback,
             'exception': exc,
+            'is_web_exception': isinstance(exc, webob.exc.HTTPException),
             'pod': self.pod,
             'status': status,
-            'is_web_exception': isinstance(exc, webob.exc.HTTPException),
+            'traceback': formatted_traceback,
         }
+        try:
+            home_doc = self.pod.get_home_doc()
+            if home_doc:
+                kwargs['home_url'] = home_doc.url.path
+        except:
+            pass
         if (isinstance(exc, errors.BuildError)):
             kwargs['build_error'] = exc.exception
         if (isinstance(exc, errors.BuildError)

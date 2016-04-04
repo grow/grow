@@ -39,10 +39,13 @@ class DocumentsTestCase(unittest.TestCase):
             '$path',
             '$title',
             '$view',
-            'doc_data',
             'csv_data',
+            'doc_data',
+            'doc_url_data',
             'foo',
             'json_data',
+            'static_data',
+            'static_url_data',
             'tagged_fields',
             'yaml_data',
         ]
@@ -51,6 +54,11 @@ class DocumentsTestCase(unittest.TestCase):
 
         about = self.pod.get_doc('/content/pages/about.yaml')
         self.assertEqual(doc.doc_data, about)
+        self.assertEqual(doc.doc_url_data, about.url)
+
+        static = self.pod.get_static('/static/test.txt')
+        self.assertEqual(doc.static_data, static)
+        self.assertEqual(doc.static_url_data, static.url)
 
         default_doc = self.pod.get_doc('/content/pages/about.yaml')
         self.assertEqual('bar', default_doc.foo)

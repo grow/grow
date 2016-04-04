@@ -5,7 +5,9 @@ from grow.pods import errors
 from grow.pods.storage import gettext_storage as gettext
 import logging
 import mimetypes
+import sys
 import webapp2
+
 
 
 class RenderedController(controllers.BaseController):
@@ -93,8 +95,8 @@ class RenderedController(controllers.BaseController):
             return template.render(kwargs).lstrip()
         except Exception as e:
             text = 'Error building {}: {}'
-            logging.exception(e)
             exception = errors.BuildError(text.format(self, e))
+            exception.traceback = sys.exc_info()[2]
             exception.controller = self
             exception.exception = e
             raise exception
