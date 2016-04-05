@@ -108,6 +108,7 @@ class PodTest(unittest.TestCase):
             '/public/main.css',
             '/public/main.min.js',
             '/root/base/index.html',
+            '/root/sitemap.xml',
             '/root/static/file-aa843134a2a113f7ebd5386c4d094a1a.min.js',
             '/root/static/file-d41d8cd98f00b204e9800998ecf8427e.txt',
             '/root/static-fingerprint/bc20b3c9007842b8e1f3c640b07f4e74/de_alias/fingerprinted.txt',

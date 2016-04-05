@@ -32,7 +32,7 @@ class SitemapController(controllers.BaseController):
     def mimetype(self):
         return mimetypes.guess_type(self.path)[0]
 
-    def render(self):
+    def render(self, params=None):
         root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
         env = self.pod.create_template_env(root=root)
         template = env.get_template('sitemap.xml')

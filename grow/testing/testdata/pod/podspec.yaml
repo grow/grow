@@ -5,6 +5,9 @@ root: /root/
 flags:
   static_dir: /public/
 
+sitemap:
+  enabled: true
+
 static_dirs:
 - static_dir: /static-fingerprint/
   serve_at: "/{root}/static-fingerprint/{fingerprint}/"
