@@ -6,11 +6,13 @@ from grow.common import structures
 from grow.common import utils
 from grow.pods import locales
 import json
+import logging
 import operator
 import os
 import re
 
-_all = '__no-locale'
+
+_sentinel = object()
 
 
 class Error(Exception):
@@ -131,7 +133,7 @@ class Collection(object):
     def get_path_format(self):
         return self.yaml.get('path')
 
-    def list_docs(self, order_by=None, locale=_all, reverse=None,
+    def list_docs(self, order_by=None, locale=_sentinel, reverse=None,
                   include_hidden=False):
         reverse = False if reverse is None else reverse
         order_by = 'order' if order_by is None else order_by
@@ -144,19 +146,23 @@ class Collection(object):
                     or ext not in messages.extensions_to_formats
                     or not pod_path):
                 continue
-            doc = self.get_doc(pod_path)
-            if not include_hidden and doc.hidden:
-                continue
-            if locale in [_all, None]:
-                sorted_docs.insert(doc)
-            if locale is None:
-                continue
-            for each_locale in doc.list_locales():
-                # TODO(jeremydw): Add test for listing documents at the default locale.
-                if each_locale == doc.default_locale and locale != each_locale:
+            try:
+                doc = self.get_doc(pod_path)
+                if not include_hidden and doc.hidden:
                     continue
-                if locale in [_all, each_locale]:
-                    sorted_docs.insert(self.get_doc(pod_path, locale=each_locale))
+                if locale in [_sentinel, None]:
+                    sorted_docs.insert(doc)
+                if locale is None:
+                    continue
+                for each_locale in doc.list_locales():
+                    # TODO(jeremydw): Add test for listing documents at the default locale.
+                    if each_locale == doc.default_locale and locale != each_locale:
+                        continue
+                    if locale in [_sentinel, each_locale]:
+                        sorted_docs.insert(self.get_doc(pod_path, locale=each_locale))
+            except Exception as e:
+                logging.error('Error loading doc: {}'.format(pod_path))
+                raise
         return reversed(sorted_docs) if reverse else sorted_docs
 
     def list_servable_documents(self, include_hidden=False, locales=None):

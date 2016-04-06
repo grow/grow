@@ -24,6 +24,9 @@ except ImportError:
     from yaml import Loader as yaml_Loader
 
 
+_sentinel = object()
+
+
 def is_packaged_app():
     try:
         sys._MEIPASS
@@ -257,9 +260,9 @@ def LocaleIterator(iterator, locale):
             yield line
 
 
-def get_rows_from_csv(pod, path, locale='__no_locale'):
+def get_rows_from_csv(pod, path, locale=_sentinel):
     fp = pod.open_file(path)
-    if locale is not '__no_locale':
+    if locale is not _sentinel:
         fp = LocaleIterator(fp, locale=locale)
     rows = []
     for row in csv_lib.DictReader(fp):

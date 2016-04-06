@@ -59,6 +59,9 @@ _logger.propagate = False
 _logger.addHandler(_handler)
 
 
+_sentinel = object()
+
+
 class Error(Exception):
     pass
 
@@ -478,16 +481,13 @@ class Pod(object):
     def load(self):
         self.routes.routing_map
 
-    @utils.memoize
     def read_yaml(self, path):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
         return utils.untag_fields(fields)
 
-    @utils.memoize
     def read_json(self, path):
         fp = self.open_file(path)
         return json.load(fp)
 
-    @utils.memoize
-    def read_csv(self, path, locale='__no_locale'):
+    def read_csv(self, path, locale=_sentinel):
         return utils.get_rows_from_csv(pod=self, path=path, locale=locale)
