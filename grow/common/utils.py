@@ -49,7 +49,7 @@ def get_git_repo(root):
     try:
         return git.Repo(root)
     except git.exc.InvalidGitRepositoryError:
-        logging.info('Warning: {} is not a Git repository.'.format(root))
+        logging.info('WARNING: No Git repository found in {}'.format(root))
 
 
 def interactive_confirm(message, default=False):

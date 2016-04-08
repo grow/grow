@@ -10,6 +10,8 @@ import semantic_version
 import subprocess
 import sys
 import urllib
+import urlparse
+
 
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
@@ -98,8 +100,8 @@ def get_popen_args(pod):
     }
 
 
-def install(pod, gerrit=False):
-    if gerrit:
+def install(pod, gerrit=None):
+    if gerrit or has_gerrit_remote(pod) and gerrit is not False:
         install_gerrit_commit_hook(pod)
     if pod.file_exists('/package.json'):
         success = install_npm(pod)
@@ -111,6 +113,20 @@ def install(pod, gerrit=False):
           return
     if pod.file_exists('/gulpfile.js'):
         success = install_gulp(pod)
+
+
+def has_gerrit_remote(pod):
+    KNOWN_GERRIT_HOSTS = (
+        'googlesource.com',
+    )
+    repo = utils.get_git_repo(pod.root)
+    if repo is None:
+        return False
+    for remote in repo.remotes:
+        url = remote.config_reader.get('url')
+        result = urlparse.urlparse(url)
+        if result.netloc.endswith(KNOWN_GERRIT_HOSTS):
+            return True
 
 
 def install_gerrit_commit_hook(pod):
