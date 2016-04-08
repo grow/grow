@@ -59,9 +59,6 @@ _logger.propagate = False
 _logger.addHandler(_handler)
 
 
-_sentinel = object()
-
-
 class Error(Exception):
     pass
 
@@ -489,5 +486,5 @@ class Pod(object):
         fp = self.open_file(path)
         return json.load(fp)
 
-    def read_csv(self, path, locale=_sentinel):
+    def read_csv(self, path, locale=utils.SENTINEL):
         return utils.get_rows_from_csv(pod=self, path=path, locale=locale)

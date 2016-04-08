@@ -11,9 +11,6 @@ import markdown
 import re
 
 
-_sentinel = object()
-
-
 def categories(collection=None, collections=None, reverse=None, order_by=None,
                _pod=None, use_cache=False):
     if isinstance(collection, collection_lib.Collection):
@@ -176,7 +173,7 @@ def _gettext_alias(__context, *args, **kwargs):
 
 
 @utils.memoize_tag
-def csv(path, locale=_sentinel, _pod=None):
+def csv(path, locale=utils.SENTINEL, _pod=None):
     return _pod.read_csv(path, locale=locale)
 
 

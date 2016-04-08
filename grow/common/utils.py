@@ -24,7 +24,7 @@ except ImportError:
     from yaml import Loader as yaml_Loader
 
 
-_sentinel = object()
+SENTINEL = object()
 
 
 def is_packaged_app():
@@ -260,9 +260,9 @@ def LocaleIterator(iterator, locale):
             yield line
 
 
-def get_rows_from_csv(pod, path, locale=_sentinel):
+def get_rows_from_csv(pod, path, locale=SENTINEL):
     fp = pod.open_file(path)
-    if locale is not _sentinel:
+    if locale is not SENTINEL:
         fp = LocaleIterator(fp, locale=locale)
     rows = []
     for row in csv_lib.DictReader(fp):

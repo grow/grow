@@ -12,9 +12,6 @@ import os
 import re
 
 
-_sentinel = object()
-
-
 class Error(Exception):
     pass
 
@@ -133,7 +130,7 @@ class Collection(object):
     def get_path_format(self):
         return self.yaml.get('path')
 
-    def list_docs(self, order_by=None, locale=_sentinel, reverse=None,
+    def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
                   include_hidden=False):
         reverse = False if reverse is None else reverse
         order_by = 'order' if order_by is None else order_by
@@ -150,7 +147,7 @@ class Collection(object):
                 doc = self.get_doc(pod_path)
                 if not include_hidden and doc.hidden:
                     continue
-                if locale in [_sentinel, None]:
+                if locale in [utils.SENTINEL, None]:
                     sorted_docs.insert(doc)
                 if locale is None:
                     continue
@@ -158,7 +155,7 @@ class Collection(object):
                     # TODO(jeremydw): Add test for listing documents at the default locale.
                     if each_locale == doc.default_locale and locale != each_locale:
                         continue
-                    if locale in [_sentinel, each_locale]:
+                    if locale in [utils.SENTINEL, each_locale]:
                         sorted_docs.insert(self.get_doc(pod_path, locale=each_locale))
             except Exception as e:
                 logging.error('Error loading doc: {}'.format(pod_path))
