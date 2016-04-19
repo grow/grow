@@ -23,7 +23,7 @@ extensions:
   - extensions.triplicate.Triplicate
 [/sourcecode]
 
-Define the extension in a corresponding place in the `/extensions/` folder.
+Define the extension in a corresponding place in the `/extensions/` folder and add an empty `__init__.py` in that folder.
 
 [sourcecode:python]
 # /extensions/triplicate.py
@@ -35,7 +35,7 @@ def do_triplicate(value):
     return value * 3
 
 
-class Triplicate(jinja2.Extension):
+class Triplicate(jinja2.ext.Extension):
 
     def __init__(self, environment):
         super(ClassName, self).__init__(environment)
