@@ -38,7 +38,7 @@ def do_triplicate(value):
 class Triplicate(jinja2.ext.Extension):
 
     def __init__(self, environment):
-        super(ClassName, self).__init__(environment)
+        super(Triplicate, self).__init__(environment)
         environment.filters['triplicate'] = do_triplicate
 [/sourcecode]
 
