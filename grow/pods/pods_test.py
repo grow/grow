@@ -158,7 +158,7 @@ class PodTest(unittest.TestCase):
     def test_invalid_jinja_extension(self):
         # Make sure an invalid jinja2 exensions config throws an error
         with mock.patch.dict(self.pod.yaml, {'extensions': {'jinja2': ['invalid/path']}}):
-            with self.assertRaises(pods.PodSpecParseError):
+            with self.assertRaises(ImportError):
                 self.pod.list_jinja_extensions()
 
     def test_list_preprocessors(self):

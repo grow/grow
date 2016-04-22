@@ -413,11 +413,11 @@ class Pod(object):
         for name in self.yaml.get('extensions', {}).get('jinja2', []):
             try:
                 value = utils.import_string(name, [self.root])
-            except:
-                raise PodSpecParseError(
-                    'Could not import {}: must use dot syntax relative to the pod root'
-                    .format(repr(name))
-                )
+            except ImportError:
+                logging.error(
+                    'Error importing %s. Module path must be relative to '
+                    'the pod root.', repr(name))
+                raise
             extensions.append(value)
         return extensions
 

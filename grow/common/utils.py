@@ -279,7 +279,8 @@ def import_string(import_name, paths):
     """ Imports & returns an object using dot notation, e.g. 'A.B.C' """
     # ASSUMPTION: import_name refers to a value in a module (i.e. must have at
     # least 2 parts)
-    assert '.' in import_name
+    if '.' not in import_name:
+        raise ImportError
     part1, part2 = import_name.split('.', 1)
     if '.' in part2:
         f, part1_path, desc = imp.find_module(part1, paths)
