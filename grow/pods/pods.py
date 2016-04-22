@@ -363,8 +363,7 @@ class Pod(object):
         except TypeError:
             logging.exception('Invalid deployment parameters.')
             raise
-        if deployment.config.keep_control_dir:
-            deployment.pod = self
+        deployment.pod = self
         return deployment
 
     def list_locales(self):

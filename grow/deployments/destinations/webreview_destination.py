@@ -4,6 +4,7 @@ from grow.pods import env
 from protorpc import messages
 import logging
 import os
+import urlparse
 import webreview
 
 
@@ -80,6 +81,11 @@ class WebReviewDestination(base.BaseDestination):
             finalize_response = self.webreview.finalize()
             if 'fileset' in finalize_response:
                 url = finalize_response['fileset']['url']
+                # Append the homepage path to the staging link.
+                result = urlparse.urlparse(url)
+                if not result.path and self.pod.get_home_doc():
+                  home_doc = self.pod.get_home_doc()
+                  url = url.rstrip('/') + home_doc.url.path
                 logging.info('Staged: %s', url)
         return result
 
