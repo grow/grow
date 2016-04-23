@@ -32,6 +32,10 @@ class Catalog(catalog.Catalog):
     def __repr__(self):
         return '<Catalog: {}>'.format(self.locale)
 
+    @property
+    def mimetype(self):
+        return 'text/x-gettext-translation'
+
     def load(self, pod_path=None):
         # Use the "pod_path" argument to load another catalog (such as a template
         # catalog) into this one.
@@ -66,6 +70,10 @@ class Catalog(catalog.Catalog):
     @property
     def exists(self):
         return self.pod.file_exists(self.pod_path)
+
+    @property
+    def content(self):
+        return self.pod.read_file(self.pod_path)
 
     @property
     def gettext_translations(self):

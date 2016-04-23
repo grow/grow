@@ -11,6 +11,7 @@ from . import routes
 from . import run
 from . import stage
 from . import stats
+from . import upload_translations
 
 
 def add(group):
@@ -27,3 +28,4 @@ def add(group):
     group.add_command(install.install)
     group.add_command(stats.stats)
     group.add_command(stage.stage)
+    group.add_command(upload_translations.upload_translations)
