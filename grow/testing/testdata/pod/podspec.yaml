@@ -41,6 +41,11 @@ localization:
     de_DE:
     - de
 
+translators:
+  gtt:
+    translator: google_translator_toolkit
+    project_title: "Test Project"
+
 deployments:
   gcs:
     destination: gcs

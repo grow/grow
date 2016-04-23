@@ -37,6 +37,7 @@ from . import static
 from . import storage
 from . import tags
 from ..preprocessors import preprocessors
+from ..translators import translators
 from babel import dates as babel_dates
 from grow.common import sdk_utils
 from grow.common import utils
@@ -369,6 +370,18 @@ class Pod(object):
     def list_locales(self):
         codes = self.yaml.get('localization', {}).get('locales', [])
         return locales.Locale.parse_codes(codes)
+
+    def get_translator(self, name):
+        if 'translators' not in self.yaml:
+            raise ValueError('No translators configured.')
+        translator_config = self.yaml['translators']
+        if name not in translator_config:
+            text = 'No translator named "{}". Valid translators: {}.'
+            keys = ', '.join(translator_config.keys())
+            raise ValueError(text.format(name, keys))
+        config = translator_config[name]
+        translator_kind = config.pop('translator')
+        return translators.create_translator(self, translator_kind, config)
 
     def list_preprocessors(self):
         results = []
