@@ -21,9 +21,12 @@ class TranslatorStat(messages.Message):
 class Translator(object):
     TRANSLATOR_STATS_PATH = '/translations/translators.yaml'
 
-    def __init__(self, pod, config=None):
+    def __init__(self, pod, config=None, project_title=None,
+                 instructions=None):
         self.pod = pod
         self.config = config or {}
+        self.project_title = project_title or 'Untitled Grow Website'
+        self.instructions = instructions
 
     def download(self, locales):
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
@@ -38,7 +41,7 @@ class Translator(object):
             content = self._download_content(stat)
             self.pod.catalogs.import_translations(locale=lang, content=content)
 
-    def upload(self, locales, force=True, save=True):
+    def upload(self, locales=None, force=True, save=True):
         # TODO: Upload progress and prompt.
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()

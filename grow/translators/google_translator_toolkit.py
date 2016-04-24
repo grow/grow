@@ -59,7 +59,8 @@ class Gtt(object):
             if user.get('emailId') == email:
                 return user
 
-    def update_acl(self, document_id, email, access_level, can_reshare=True, update=False):
+    def update_acl(self, document_id, email, access_level, can_reshare=True,
+                   update=False):
         acl_change_type = ChangeType.MODIFY if update else ChangeType.ADD
         body = {
             'gttAclChange': {
@@ -76,10 +77,12 @@ class Gtt(object):
         return self.service.documents().update(
             documentId=document_id, body=body).execute()
 
-    def share_document(self, document_id, email, access_level=AccessLevel.READ_AND_WRITE):
+    def share_document(self, document_id, email,
+                       access_level=AccessLevel.READ_AND_WRITE):
         in_acl = self.get_user_from_acl(document_id, email)
         update = True if in_acl else False
-        return self.update_acl(document_id, email, access_level=access_level, update=update)
+        return self.update_acl(document_id, email,
+                               access_level=access_level, update=update)
 
     def insert_document(self, name, content, source_lang, lang, mimetype,
                         acl=None):
@@ -104,7 +107,9 @@ class Gtt(object):
             'alt': 'media',
             'downloadContent': True,
         }
-        url = '{}/{}?{}'.format(GTT_DOCUMENTS_BASE_URL, urllib.quote(document_id), urllib.urlencode(params))
+        url = '{}/{}?{}'.format(
+            GTT_DOCUMENTS_BASE_URL,
+            urllib.quote(document_id), urllib.urlencode(params))
         response, content = self.http.request(url)
         # TODO: Create and use base error class.
         try:
@@ -134,7 +139,7 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
 
     def _upload_catalog(self, catalog, source_lang):
         gtt = Gtt()
-        project_title = self.config.get('project_title', 'Untitled Grow Project')
+        project_title = self.project_title
         name = '{} ({})'.format(project_title, str(catalog.locale))
         source_lang = self._normalize_source_lang(source_lang)
         acl = None

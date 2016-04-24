@@ -374,14 +374,20 @@ class Pod(object):
     def get_translator(self, name):
         if 'translators' not in self.yaml:
             raise ValueError('No translators configured.')
+        if 'services' not in self.yaml['translators']:
+            raise ValueError('No translator services configured.')
         translator_config = self.yaml['translators']
-        if name not in translator_config:
-            text = 'No translator named "{}". Valid translators: {}.'
-            keys = ', '.join(translator_config.keys())
+        service_config = translator_config['services']
+        if name not in service_config:
+            text = 'No translator service named "{}". Valid services: {}.'
+            keys = ', '.join(service_config.keys())
             raise ValueError(text.format(name, keys))
-        config = translator_config[name]
-        translator_kind = config.pop('translator')
-        return translators.create_translator(self, translator_kind, config)
+        config = service_config[name]
+        translator_kind = config.pop('service')
+        return translators.create_translator(
+            self, translator_kind, config,
+            project_title=translator_config.get('project_title'),
+            instructions=translator_config.get('instructions'))
 
     def list_preprocessors(self):
         results = []
