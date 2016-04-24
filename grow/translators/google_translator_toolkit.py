@@ -3,6 +3,7 @@ from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
+import datetime
 import base64
 import httplib2
 import json
@@ -80,13 +81,8 @@ class Gtt(object):
         update = True if in_acl else False
         return self.update_acl(document_id, email, access_level=access_level, update=update)
 
-    def insert_document(self, name, content, source_lang, lang, mimetype, acl_emails=None):
-        acl = None
-        if acl_emails:
-            acl = [{
-                'emailId': email,
-                'accessLevel': AccessLevel.READ_AND_WRITE,
-            } for email in acl_emails]
+    def insert_document(self, name, content, source_lang, lang, mimetype,
+                        acl=None):
         content = base64.urlsafe_b64encode(content)
         doc = {
             'displayName': name,
@@ -96,6 +92,8 @@ class Gtt(object):
             'sourceDocBytes': content,
             'sourceLang': source_lang,
         }
+        if acl:
+            doc['gttAcl'] = acl
         try:
             return self.service.documents().insert(body=doc).execute()
         except errors.HttpError as resp:
@@ -129,16 +127,41 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
             return 'en'
         return source_lang
 
+    def _download_content(self, stat):
+        gtt = Gtt()
+        content = gtt.download_document(stat.ident)
+        return content
+
     def _upload_catalog(self, catalog, source_lang):
         gtt = Gtt()
         project_title = self.config.get('project_title', 'Untitled Grow Project')
         name = '{} ({})'.format(project_title, str(catalog.locale))
         source_lang = self._normalize_source_lang(source_lang)
+        acl = None
+        if 'acl' in self.config:
+            acl = []
+            for item in self.config['acl']:
+                access_level = item.get('access_level',
+                                        AccessLevel.READ_AND_WRITE)
+                acl.append({
+                    'emailId': item['email'],
+                    'accessLevel': access_level
+                })
+        lang = str(catalog.locale)
         resp = gtt.insert_document(
             name=name,
             content=catalog.content,
             source_lang=str(source_lang),
-            lang=str(catalog.locale),
-            mimetype='text/x-gettext-translation')
-        # TODO: Create and use base UploadCatalogResponse class.
-        return resp
+            lang=lang,
+            mimetype='text/x-gettext-translation',
+            acl=acl)
+        edit_url = EDIT_URL_FORMAT.format(resp['id'])
+        stat = base.TranslatorStat(
+            edit_url=edit_url,
+            lang=lang,
+            num_words=resp['numWords'],
+            num_words_translated=resp['numWordsTranslated'],
+            source_lang=source_lang,
+            created=datetime.datetime.now(),
+            ident=resp['id'])
+        return stat

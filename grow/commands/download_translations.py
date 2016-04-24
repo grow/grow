@@ -9,13 +9,10 @@ import os
 @click.argument('translator_name', required=False, default='default')
 @click.argument('pod_path', default='.')
 @click.option('--locale', type=str, multiple=True,
-              help='Which locale(s) to upload. If unspecified,'
-                   ' translations for all catalogs will be uploaded.')
-@click.option('--force/--noforce', '-f', default=False, is_flag=True,
-              help='Whether to skip the prompt prior to uploading.')
-def upload_translations(translator_name, pod_path, locale, force):
+              help='Which locale(s) to download. If unspecified,'
+                   ' translations for all locales will be downloaded.')
+def download_translations(translator_name, pod_path, locale):
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     translator = pod.get_translator(translator_name)
-    stats = translator.upload(locales=locale, force=force)
-    translator.pretty_print_stats(stats)
+    translator.download(locales=locale)
