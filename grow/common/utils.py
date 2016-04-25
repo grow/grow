@@ -16,6 +16,7 @@ import logging
 import os
 import re
 import sys
+import threading
 import time
 import translitcodec
 import yaml
@@ -294,3 +295,16 @@ def import_string(import_name, paths):
     else:
         module = imp.load_module(part1, *imp.find_module(part1, paths))
         return getattr(module, part2)
+
+
+class ProgressBarThread(threading.Thread):
+
+    def __init__(self, bar, enabled, *args, **kwargs):
+        self.bar = bar
+        self.enabled = enabled
+        super(ProgressBarThread, self).__init__(*args, **kwargs)
+
+    def run(self):
+        super(ProgressBarThread, self).run()
+        if self.enabled:
+            self.bar.update(self.bar.currval + 1)

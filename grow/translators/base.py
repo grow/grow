@@ -1,9 +1,11 @@
 from protorpc import message_types
 from protorpc import messages
 from protorpc import protojson
+from grow.common import utils
 import copy
 import json
 import logging
+import progressbar
 import texttable
 import yaml
 
@@ -16,10 +18,25 @@ class TranslatorStat(messages.Message):
     ident = messages.StringField(5)
     edit_url = messages.StringField(6)
     created = message_types.DateTimeField(7)
+    service = messages.StringField(8)
+
+
+class TranslatorServiceError(Exception):
+
+    def __init__(self, message, ident=None, locale=None):
+        if locale:
+            new_message = 'Error for locale "{}" -> {}'.format(locale, message)
+        elif ident:
+            new_message = 'Error for resource "{}" -> {}'.format(ident, message)
+        else:
+            new_message = message
+        super(TranslatorServiceError, self).__init__(new_message)
 
 
 class Translator(object):
     TRANSLATOR_STATS_PATH = '/translations/translators.yaml'
+    KIND = None
+    has_immutable_translation_resources = False
 
     def __init__(self, pod, config=None, project_title=None,
                  instructions=None):
@@ -28,31 +45,91 @@ class Translator(object):
         self.project_title = project_title or 'Untitled Grow Website'
         self.instructions = instructions
 
+    def _download_content(self, stat):
+        raise NotImplementedError
+
+    def _upload_catalog(self, catalog, source_lang):
+        raise NotImplementedError
+
     def download(self, locales):
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
             self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))
             return
         stats = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
-        for lang, stat in stats['translators'].iteritems():
+        stats_to_download = [(lang, stat)
+                             for lang, stat in stats['translators'].iteritems()
+                             if stat['service'] == self.KIND]
+        num_files = len(stats_to_download)
+        text = 'Downloading translations: %(value)d/{} (in %(elapsed)s)'
+        widgets = [progressbar.FormatLabel(text.format(num_files))]
+        bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+        bar.start()
+        threads = []
+        langs_to_translations = {}
+        def _do_download(lang, stat):
+            content = self._download_content(stat)
+            langs_to_translations[lang] = content
+        for lang, stat in stats_to_download:
             stat['lang'] = lang
             stat = json.dumps(stat)
             stat = protojson.decode_message(TranslatorStat, stat)
-            content = self._download_content(stat)
-            self.pod.catalogs.import_translations(locale=lang, content=content)
+            thread = utils.ProgressBarThread(
+                bar, True, target=_do_download, args=(lang, stat))
+            threads.append(thread)
+            thread.start()
+        for thread in threads:
+            thread.join()
+        for lang, translations in langs_to_translations.iteritems():
+            self.pod.catalogs.import_translations(locale=lang, content=translations)
 
-    def upload(self, locales=None, force=True, save=True):
-        # TODO: Upload progress and prompt.
+
+    def upload(self, locales=None, force=True, verbose=False, save_stats=True):
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()
         stats = []
-        for locale in locales:
+        num_files = len(locales)
+        if not locales:
+            self.pod.logger.info('No locales to upload.')
+            return
+        if not force:
+            if (self.has_immutable_translation_resources
+                    and self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH)):
+                text = 'Found existing translator data in: {}'
+                self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))
+                text = 'This data will be replaced with new data after the upload is complete.'
+                self.pod.logger.info(text)
+            text = 'Proceed to upload {} translation catalogs?'
+            text = text.format(num_files)
+            if not utils.interactive_confirm(text):
+                self.pod.logger.info('Aborted.')
+                return
+        text = 'Uploading translations: %(value)d/{} (in %(elapsed)s)'
+        widgets = [progressbar.FormatLabel(text.format(num_files))]
+        bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+        bar.start()
+        threads = []
+        def _do_upload(locale):
             catalog = self.pod.catalogs.get(locale)
             stat = self._upload_catalog(catalog, source_lang)
             stats.append(stat)
-        if save:
+        for i, locale in enumerate(locales):
+            thread = utils.ProgressBarThread(
+                bar, True, target=_do_upload, args=(locale,))
+            threads.append(thread)
+            thread.start()
+            # Perform the first operation synchronously to avoid oauth2 refresh
+            # locking issues.
+            if i == 0:
+                thread.join()
+        for i, thread in enumerate(threads):
+            if i > 0:
+                thread.join()
+        stats = sorted(stats, key=lambda stat: stat.lang)
+        if verbose:
+            self.pretty_print_stats(stats)
+        if save_stats:
             self.save_stats(stats)
-        stat = sorted(stats, key=lambda stat: stat.lang)
         return stats
 
     def save_stats(self, stats):
@@ -73,7 +150,7 @@ class Translator(object):
         table = texttable.Texttable(max_width=0)
         table.set_deco(texttable.Texttable.HEADER)
         rows = []
-        rows.append(['Language', 'Edit URL', 'Wordcount'])
+        rows.append(['Language', 'URL', 'Wordcount'])
         for stat in stats:
             rows.append([stat.lang, stat.edit_url, stat.num_words])
         table.add_rows(rows)
