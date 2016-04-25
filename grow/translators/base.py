@@ -17,8 +17,9 @@ class TranslatorStat(messages.Message):
     source_lang = messages.StringField(4)
     ident = messages.StringField(5)
     edit_url = messages.StringField(6)
-    created = message_types.DateTimeField(7)
+    uploaded = message_types.DateTimeField(7)
     service = messages.StringField(8)
+    downloaded = message_types.DateTimeField(9)
 
 
 class TranslatorServiceError(Exception):
@@ -51,11 +52,12 @@ class Translator(object):
     def _upload_catalog(self, catalog, source_lang):
         raise NotImplementedError
 
-    def download(self, locales):
+    def download(self, locales, save_stats=True):
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
             self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))
             return
+        # stats maps a key "translators" to a mapping of languages to stats.
         stats = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
         stats_to_download = [(lang, stat)
                              for lang, stat in stats['translators'].iteritems()
@@ -71,9 +73,12 @@ class Translator(object):
         bar.start()
         threads = []
         langs_to_translations = {}
+        new_stats = []
         def _do_download(lang, stat):
-            content = self._download_content(stat)
+            new_stat, content = self._download_content(stat)
+            new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
             langs_to_translations[lang] = content
+            new_stats.append(new_stat)
         for lang, stat in stats_to_download:
             stat['lang'] = lang
             stat = json.dumps(stat)
@@ -86,7 +91,9 @@ class Translator(object):
             thread.join()
         for lang, translations in langs_to_translations.iteritems():
             self.pod.catalogs.import_translations(locale=lang, content=translations)
-
+        if save_stats:
+            self.save_stats(new_stats)
+        return new_stats
 
     def upload(self, locales=None, force=True, verbose=False, save_stats=True):
         source_lang = self.pod.podspec.default_locale
@@ -101,7 +108,7 @@ class Translator(object):
                     and self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH)):
                 text = 'Found existing translator data in: {}'
                 self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))
-                text = 'This data will be replaced with new data after the upload is complete.'
+                text = 'This will be updated with new data after the upload is complete.'
                 self.pod.logger.info(text)
             text = 'Proceed to upload {} translation catalogs?'
             text = text.format(num_files)
@@ -137,17 +144,23 @@ class Translator(object):
         return stats
 
     def save_stats(self, stats):
+        """Merges a list of stats into the translator stats file."""
         if self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             content = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
+            create = False
         else:
             content = {'translators': {}}
+            create = True
         for stat in copy.deepcopy(stats):
             stat_json = json.loads(protojson.encode_message(stat))
             lang = stat_json.pop('lang')
             content['translators'][lang] = stat_json
         yaml_content = yaml.safe_dump(content, default_flow_style=False)
         self.pod.write_file(Translator.TRANSLATOR_STATS_PATH, yaml_content)
-        self.pod.logger.info('Saved: {}'.format(Translator.TRANSLATOR_STATS_PATH))
+        if create:
+            self.pod.logger.info('Saved: {}'.format(Translator.TRANSLATOR_STATS_PATH))
+        else:
+            self.pod.logger.info('Updated: {}'.format(Translator.TRANSLATOR_STATS_PATH))
 
     @classmethod
     def pretty_print_stats(cls, stats):
