@@ -138,7 +138,27 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
     def _download_content(self, stat):
         gtt = Gtt()
         content = gtt.download_document(stat.ident)
-        return content
+        resp = gtt.get_document(stat.ident)
+        stat = self._create_stat_from_gtt_response(resp, downloaded=True)
+        return stat, content
+
+    def _create_stat_from_gtt_response(self, resp, downloaded=False):
+        edit_url = EDIT_URL_FORMAT.format(resp['id'])
+        lang = resp['language']
+        source_lang = resp['sourceLang']
+        stat = base.TranslatorStat(
+            edit_url=edit_url,
+            lang=lang,
+            num_words=resp['numWords'],
+            num_words_translated=resp['numWordsTranslated'],
+            source_lang=source_lang,
+            service=GoogleTranslatorToolkitTranslator.KIND,
+            ident=resp['id'])
+        if downloaded:
+            stat.downloaded = datetime.datetime.now()
+        else:
+            stat.uploaded = datetime.datetime.now()
+        return stat
 
     def _upload_catalog(self, catalog, source_lang):
         gtt = Gtt()
@@ -168,14 +188,4 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
             glossary_ids=glossary_ids,
             mimetype='text/x-gettext-translation',
             acl=acl)
-        edit_url = EDIT_URL_FORMAT.format(resp['id'])
-        stat = base.TranslatorStat(
-            edit_url=edit_url,
-            lang=lang,
-            num_words=resp['numWords'],
-            num_words_translated=resp['numWordsTranslated'],
-            source_lang=source_lang,
-            created=datetime.datetime.now(),
-            service=GoogleTranslatorToolkitTranslator.KIND,
-            ident=resp['id'])
-        return stat
+        return self._create_stat_from_gtt_response(resp)
