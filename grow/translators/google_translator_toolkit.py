@@ -84,7 +84,7 @@ class Gtt(object):
                                access_level=access_level, update=update)
 
     def insert_document(self, name, content, source_lang, lang, mimetype,
-                        acl=None):
+                        acl=None, tm_ids=None, glossary_ids=None):
         content = base64.urlsafe_b64encode(content)
         doc = {
             'displayName': name,
@@ -96,6 +96,10 @@ class Gtt(object):
         }
         if acl:
             doc['gttAcl'] = acl
+        if tm_ids:
+            doc['tmIds'] = tm_ids
+        if glossary_ids:
+            doc['glossaryIds'] = glossary_ids
         try:
             return self.service.documents().insert(body=doc).execute()
         except errors.HttpError as resp:
@@ -141,7 +145,10 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
         project_title = self.project_title
         name = '{} ({})'.format(project_title, str(catalog.locale))
         source_lang = self._normalize_source_lang(source_lang)
+        glossary_ids = None
         acl = None
+        tm_ids = self.config.get('tm_ids')
+        glossary_ids = self.config.get('glossary_ids')
         if 'acl' in self.config:
             acl = []
             for item in self.config['acl']:
@@ -157,6 +164,8 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
             content=catalog.content,
             source_lang=str(source_lang),
             lang=lang,
+            tm_ids=tm_ids,
+            glossary_ids=glossary_ids,
             mimetype='text/x-gettext-translation',
             acl=acl)
         edit_url = EDIT_URL_FORMAT.format(resp['id'])

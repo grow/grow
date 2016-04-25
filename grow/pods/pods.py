@@ -371,23 +371,40 @@ class Pod(object):
         codes = self.yaml.get('localization', {}).get('locales', [])
         return locales.Locale.parse_codes(codes)
 
-    def get_translator(self, name):
+    def get_translator(self, name=utils.SENTINEL):
         if 'translators' not in self.yaml:
             raise ValueError('No translators configured.')
-        if 'services' not in self.yaml['translators']:
+        if ('services' not in self.yaml['translators']
+                or not self.yaml['translators']['services']):
             raise ValueError('No translator services configured.')
         translator_config = self.yaml['translators']
-        service_config = translator_config['services']
-        if name not in service_config:
-            text = 'No translator service named "{}". Valid services: {}.'
-            keys = ', '.join(service_config.keys())
-            raise ValueError(text.format(name, keys))
-        config = service_config[name]
-        translator_kind = config.pop('service')
-        return translators.create_translator(
-            self, translator_kind, config,
-            project_title=translator_config.get('project_title'),
-            instructions=translator_config.get('instructions'))
+        translator_services = translator_config['services']
+        if name is not utils.SENTINEL:
+            valid_names = [service['name']
+                           for service in translator_services
+                           if 'name' in service]
+            if name not in valid_names and name is not None:
+                if valid_names:
+                    text = 'No translator service named "{}". Valid translators: {}.'
+                    keys = ', '.join(valid_names)
+                    raise ValueError(text.format(name, keys))
+                else:
+                    raise ValueError(
+                        'No translator names specified in podspec.yaml.'
+                        ' Either omit the translator name from your command'
+                        ' or add a name to the configuration in podspec.yaml.')
+        else:
+            if len(translator_services) > 1:
+                text = ('Must specify a translator name if more than one'
+                        ' translator service is configured.')
+                raise ValueError(text)
+        for service in translator_services:
+            if service.get('name') == name or len(translator_services) == 1:
+                translator_kind = service.pop('service')
+                return translators.create_translator(
+                    self, translator_kind, service,
+                    project_title=translator_config.get('project_title'),
+                    instructions=translator_config.get('instructions'))
 
     def list_preprocessors(self):
         results = []
