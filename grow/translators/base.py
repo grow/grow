@@ -60,6 +60,10 @@ class Translator(object):
         stats_to_download = [(lang, stat)
                              for lang, stat in stats['translators'].iteritems()
                              if stat['service'] == self.KIND]
+        if locales:
+            stats_to_download = [(lang, stat)
+                                 for (lang, stat) in stats_to_download
+                                 if lang in locales]
         num_files = len(stats_to_download)
         text = 'Downloading translations: %(value)d/{} (in %(elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
