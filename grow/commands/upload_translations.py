@@ -17,5 +17,4 @@ def upload_translations(translator_name, pod_path, locale, force):
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     translator = pod.get_translator(translator_name)
-    stats = translator.upload(locales=locale, force=force)
-    translator.pretty_print_stats(stats)
+    stats = translator.upload(locales=locale, force=force, verbose=True)

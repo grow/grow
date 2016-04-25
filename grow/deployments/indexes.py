@@ -1,5 +1,6 @@
 from . import messages
 from . import utils
+from grow.common import utils as common_utils
 from protorpc import protojson
 import ConfigParser
 import datetime
@@ -17,19 +18,6 @@ class Error(Exception):
 
 class CorruptIndexError(Error):
     pass
-
-
-class ProgressBarThread(threading.Thread):
-
-    def __init__(self, bar, enabled, *args, **kwargs):
-        self.bar = bar
-        self.enabled = enabled
-        super(ProgressBarThread, self).__init__(*args, **kwargs)
-
-    def run(self):
-        super(ProgressBarThread, self).run()
-        if self.enabled:
-            self.bar.update(self.bar.currval + 1)
 
 
 class Diff(object):
@@ -189,23 +177,26 @@ class Diff(object):
             bar.start()
             for file_message in diff.adds:
                 content = paths_to_content[file_message.path]
-                thread = ProgressBarThread(
-                    bar, True, target=write_func, args=(file_message.path, content))
+                thread = common_utils.ProgressBarThread(
+                    bar, True, target=write_func,
+                    args=(file_message.path, content))
                 threads.append(thread)
                 thread.start()
                 if not threaded:
                     thread.join()
             for file_message in diff.edits:
                 content = paths_to_content[file_message.path]
-                thread = ProgressBarThread(
-                    bar, True, target=write_func, args=(file_message.path, content))
+                thread = common_utils.ProgressBarThread(
+                    bar, True, target=write_func,
+                    args=(file_message.path, content))
                 threads.append(thread)
                 thread.start()
                 if not threaded:
                     thread.join()
             for file_message in diff.deletes:
-                thread = ProgressBarThread(
-                    bar, batch_writes, target=delete_func, args=(file_message.path,))
+                thread = common_utils.ProgressBarThread(
+                    bar, batch_writes, target=delete_func,
+                    args=(file_message.path,))
                 threads.append(thread)
                 thread.start()
                 if not threaded:

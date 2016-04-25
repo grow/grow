@@ -10,6 +10,7 @@ import json
 import logging
 import urllib
 
+
 EDIT_URL_FORMAT = 'https://translate.google.com/toolkit/workbench?did={}'
 GTT_DOCUMENTS_BASE_URL = 'https://www.googleapis.com/gte/v1/documents'
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/gte'
@@ -28,13 +29,11 @@ class ChangeType(object):
     ADD = 'ADD'
 
 
-def raise_api_error(resp):
-    # TODO: Create and use base error class.
-    resp = json.loads(resp.content)['error']
-    logging.error('GTT Request Error {}: {}'.format(resp['code'], resp['message']))
-    for each_error in resp['errors']:
-        logging.error('{}: {}'.format(each_error['message'], each_error['reason']))
-    raise
+def raise_service_error(http_error, locale=None, ident=None):
+    message = 'HttpError {} for {} returned "{}"'.format(
+        http_error.resp.status, http_error.uri,
+        http_error._get_reason().strip())
+    raise base.TranslatorServiceError(message=message, locale=locale, ident=ident)
 
 
 class Gtt(object):
@@ -100,7 +99,7 @@ class Gtt(object):
         try:
             return self.service.documents().insert(body=doc).execute()
         except errors.HttpError as resp:
-            raise_api_error(resp)
+            raise_service_error(locale=lang, http_error=resp)
 
     def download_document(self, document_id):
         params = {
@@ -111,17 +110,17 @@ class Gtt(object):
             GTT_DOCUMENTS_BASE_URL,
             urllib.quote(document_id), urllib.urlencode(params))
         response, content = self.http.request(url)
-        # TODO: Create and use base error class.
         try:
             if response.status >= 400:
                 raise errors.HttpError(response, content, uri=url)
         except errors.HttpError as resp:
-            raise_api_error(resp)
+            raise_service_error(ident=document_id, http_error=resp)
         return content
 
 
 class GoogleTranslatorToolkitTranslator(base.Translator):
     KIND = 'google_translator_toolkit'
+    has_immutable_translation_resources = True
 
     def _normalize_source_lang(self, source_lang):
         if source_lang is None:
@@ -168,5 +167,6 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
             num_words_translated=resp['numWordsTranslated'],
             source_lang=source_lang,
             created=datetime.datetime.now(),
+            service=GoogleTranslatorToolkitTranslator.KIND,
             ident=resp['id'])
         return stat
