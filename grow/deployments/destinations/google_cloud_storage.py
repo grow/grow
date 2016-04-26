@@ -193,7 +193,7 @@ def enable_oauth2_auth_handler():
 
 def patched_get_credentials(*args):
     """Gets credentials from Grow's flow."""
-    return oauth.get_credentials(scope=OAUTH_SCOPE, storage_key=STORAGE_KEY)
+    return oauth.get_or_create_credentials(scope=OAUTH_SCOPE, storage_key=STORAGE_KEY)
 
 
 def patched_fetch_access_token(self):

@@ -79,7 +79,7 @@ class Translator(object):
             new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
             langs_to_translations[lang] = content
             new_stats.append(new_stat)
-        for lang, stat in stats_to_download:
+        for i, (lang, stat) in enumerate(stats_to_download):
             stat['lang'] = lang
             stat = json.dumps(stat)
             stat = protojson.decode_message(TranslatorStat, stat)
@@ -87,8 +87,13 @@ class Translator(object):
                 bar, True, target=_do_download, args=(lang, stat))
             threads.append(thread)
             thread.start()
-        for thread in threads:
-            thread.join()
+            # Perform the first operation synchronously to avoid oauth2 refresh
+            # locking issues.
+            if i == 0:
+                thread.join()
+        for i, thread in enumerate(threads):
+            if i > 0:
+                thread.join()
         for lang, translations in langs_to_translations.iteritems():
             self.pod.catalogs.import_translations(locale=lang, content=translations)
         if save_stats:
