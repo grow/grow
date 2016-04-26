@@ -18,6 +18,8 @@ def get_credentials_and_storage(scope, storage_key=DEFAULT_STORAGE_KEY):
         clear_credentials(storage_key=storage_key)
     username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
     storage = keyring_storage.Storage(storage_key, username)
+    if 'CI' in os.environ:  # Avoid using keyring in CI/Travis.
+        return None, storage
     credentials = storage.get()
     return credentials, storage
 
