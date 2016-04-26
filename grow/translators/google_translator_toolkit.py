@@ -43,7 +43,7 @@ class Gtt(object):
 
     @property
     def http(self):
-        credentials = oauth.get_credentials(
+        credentials = oauth.get_or_create_credentials(
             scope=OAUTH_SCOPE, storage_key=STORAGE_KEY)
         http = httplib2.Http(ca_certs=utils.get_cacerts_path())
         http = credentials.authorize(http)
