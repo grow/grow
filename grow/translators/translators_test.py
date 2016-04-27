@@ -15,7 +15,9 @@ class TranslatorTestCase(unittest.TestCase):
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
     def test_upload_and_download_translations(self):
-        translator = self.pod.get_translator('gtt')
+        self.assertRaises(ValueError, self.pod.get_translator, 'gtt')
+        translator = self.pod.get_translator()
+        translator = self.pod.get_translator('google_translator_toolkit')
         credentials, _ = oauth.get_credentials_and_storage(
             scope=google_translator_toolkit.OAUTH_SCOPE,
             storage_key=google_translator_toolkit.STORAGE_KEY)
@@ -28,6 +30,8 @@ class TranslatorTestCase(unittest.TestCase):
         translator.upload(locales=['de'])
         time.sleep(2)  # Wait for the document to be ready in GTT.
         translator.download(locales=['de'])
+        translator.update_acl()
+        translator.update_acl(locales=['de'])
 
 
 if __name__ == '__main__':
