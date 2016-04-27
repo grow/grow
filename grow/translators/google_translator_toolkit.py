@@ -127,23 +127,6 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
             stat.uploaded = datetime.datetime.now()
         return stat
 
-    def _download_content(self, stat):
-        gtt = Gtt()
-        content = gtt.download_document(stat.ident)
-        resp = gtt.get_document(stat.ident)
-        stat = self._create_stat_from_gtt_response(resp, downloaded=True)
-        return stat, content
-
-    def _update_acl(self, stat, locale):
-        gtt = Gtt()
-        existing_doc = gtt.get_document(stat.ident)
-        existing_acl = existing_doc['gttAcl']
-        acl = self._create_acl_from_config(self.config, locale,
-                                           existing_acl=existing_acl)
-        if not acl:
-            return
-        gtt.update_acl(stat.ident, acl)
-
     def _create_acl_from_config(self, config, lang, existing_acl=None):
         acl = None
         if 'acl' in config:
@@ -169,6 +152,23 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
                     acl_item['canReshare'] = item['can_reshare']
                 acl.append(acl_item)
         return acl
+
+    def _download_content(self, stat):
+        gtt = Gtt()
+        content = gtt.download_document(stat.ident)
+        resp = gtt.get_document(stat.ident)
+        stat = self._create_stat_from_gtt_response(resp, downloaded=True)
+        return stat, content
+
+    def _update_acl(self, stat, locale):
+        gtt = Gtt()
+        existing_doc = gtt.get_document(stat.ident)
+        existing_acl = existing_doc['gttAcl']
+        acl = self._create_acl_from_config(self.config, locale,
+                                           existing_acl=existing_acl)
+        if not acl:
+            return
+        gtt.update_acl(stat.ident, acl)
 
     def _upload_catalog(self, catalog, source_lang):
         gtt = Gtt()

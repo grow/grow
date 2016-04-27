@@ -49,6 +49,7 @@ translators:
   - service: google_translator_toolkit
     acl:
     - email: user@example.com
+  - service: custom_translator
 
 deployments:
   gcs:
@@ -75,3 +76,5 @@ extensions:
   - extensions.triplicate.Triplicate
   preprocessors:
   - extensions.preprocessors.CustomPreprocessor
+  translators:
+  - extensions.translators.CustomTranslator
