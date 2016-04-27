@@ -52,36 +52,11 @@ class Gtt(object):
     def get_document(self, document_id):
         return self.service.documents().get(documentId=document_id).execute()
 
-    def get_user_from_acl(self, document_id, email):
-        document = self.get_document(document_id)
-        for user in document['gttAcl']:
-            if user.get('emailId') == email:
-                return user
-
-    def update_acl(self, document_id, email, access_level, can_reshare=True,
-                   update=False):
-        acl_change_type = ChangeType.MODIFY if update else ChangeType.ADD
-        body = {
-            'gttAclChange': {
-                [
-                    {
-                        'accessLevel': access_level,
-                        'canReshare': can_reshare,
-                        'emailId': email,
-                        'type': acl_change_type,
-                    }
-                ]
-            }
-        }
+    def update_acl(self, document_id, acl_change):
+        body = {}
+        body['gttAclChange'] = acl_change
         return self.service.documents().update(
             documentId=document_id, body=body).execute()
-
-    def share_document(self, document_id, email,
-                       access_level=AccessLevel.READ_AND_WRITE):
-        in_acl = self.get_user_from_acl(document_id, email)
-        update = True if in_acl else False
-        return self.update_acl(document_id, email,
-                               access_level=access_level, update=update)
 
     def insert_document(self, name, content, source_lang, lang, mimetype,
                         acl=None, tm_ids=None, glossary_ids=None):
@@ -135,24 +110,16 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
             return 'en'
         return source_lang
 
-    def _download_content(self, stat):
-        gtt = Gtt()
-        content = gtt.download_document(stat.ident)
-        resp = gtt.get_document(stat.ident)
-        stat = self._create_stat_from_gtt_response(resp, downloaded=True)
-        return stat, content
-
     def _create_stat_from_gtt_response(self, resp, downloaded=False):
-        edit_url = EDIT_URL_FORMAT.format(resp['id'])
+        url = EDIT_URL_FORMAT.format(resp['id'])
         lang = resp['language']
         source_lang = resp['sourceLang']
         stat = base.TranslatorStat(
-            edit_url=edit_url,
+            url=url,
             lang=lang,
             num_words=resp['numWords'],
             num_words_translated=resp['numWordsTranslated'],
             source_lang=source_lang,
-            service=GoogleTranslatorToolkitTranslator.KIND,
             ident=resp['id'])
         if downloaded:
             stat.downloaded = datetime.datetime.now()
@@ -160,25 +127,59 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
             stat.uploaded = datetime.datetime.now()
         return stat
 
+    def _download_content(self, stat):
+        gtt = Gtt()
+        content = gtt.download_document(stat.ident)
+        resp = gtt.get_document(stat.ident)
+        stat = self._create_stat_from_gtt_response(resp, downloaded=True)
+        return stat, content
+
+    def _update_acl(self, stat, locale):
+        gtt = Gtt()
+        existing_doc = gtt.get_document(stat.ident)
+        existing_acl = existing_doc['gttAcl']
+        acl = self._create_acl_from_config(self.config, locale,
+                                           existing_acl=existing_acl)
+        if not acl:
+            return
+        gtt.update_acl(stat.ident, acl)
+
+    def _create_acl_from_config(self, config, lang, existing_acl=None):
+        acl = None
+        if 'acl' in config:
+            acl = []
+            for item in config['acl']:
+                # Skip setting the ACL if it is localized and if its
+                # locale doesn't match the catalog's locale.
+                if 'locales' in item and lang not in item['locales']:
+                    continue
+                access_level = item.get('access_level',
+                                        AccessLevel.READ_AND_WRITE)
+                acl_item = {
+                    'emailId': item['email'],
+                    'accessLevel': access_level
+                }
+                if existing_acl:
+                    change_type = ChangeType.ADD
+                    for existing_item in existing_acl:
+                        if existing_item['emailId'] == item['email']:
+                            change_type = ChangeType.MODIFY
+                    acl_item['type'] = change_type
+                if 'can_reshare' in item:
+                    acl_item['canReshare'] = item['can_reshare']
+                acl.append(acl_item)
+        return acl
+
     def _upload_catalog(self, catalog, source_lang):
         gtt = Gtt()
         project_title = self.project_title
         name = '{} ({})'.format(project_title, str(catalog.locale))
         source_lang = self._normalize_source_lang(source_lang)
+        lang = str(catalog.locale)
         glossary_ids = None
-        acl = None
         tm_ids = self.config.get('tm_ids')
         glossary_ids = self.config.get('glossary_ids')
-        if 'acl' in self.config:
-            acl = []
-            for item in self.config['acl']:
-                access_level = item.get('access_level',
-                                        AccessLevel.READ_AND_WRITE)
-                acl.append({
-                    'emailId': item['email'],
-                    'accessLevel': access_level
-                })
-        lang = str(catalog.locale)
+        acl = self._create_acl_from_config(self.config, lang)
         resp = gtt.insert_document(
             name=name,
             content=catalog.content,

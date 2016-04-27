@@ -7,6 +7,7 @@ import json
 import logging
 import progressbar
 import texttable
+import threading
 import yaml
 
 
@@ -16,7 +17,7 @@ class TranslatorStat(messages.Message):
     num_words_translated = messages.IntegerField(3)
     source_lang = messages.StringField(4)
     ident = messages.StringField(5)
-    edit_url = messages.StringField(6)
+    url = messages.StringField(6)
     uploaded = message_types.DateTimeField(7)
     service = messages.StringField(8)
     downloaded = message_types.DateTimeField(9)
@@ -52,20 +53,35 @@ class Translator(object):
     def _upload_catalog(self, catalog, source_lang):
         raise NotImplementedError
 
+    def _update_acl(self, stat, locale):
+        raise NotImplementedError
+
+    def _get_stats_to_download(self, locales):
+        # 'stats' maps the service name to a mapping of languages to stats.
+        stats = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
+        if self.KIND not in stats:
+            self.pod.logger.info('Nothing found to download from {}'.format(self.KIND))
+            return
+        stats_to_download = stats[self.KIND]
+        if locales:
+            stats_to_download = dict([(lang, stat)
+                                      for (lang, stat) in stats_to_download.iteritems()
+                                      if lang in locales])
+        for lang, stat in stats_to_download.iteritems():
+            stat['lang'] = lang
+            stat = json.dumps(stat)
+            stat_message = protojson.decode_message(TranslatorStat, stat)
+            stats_to_download[lang] = stat_message
+        return stats_to_download
+
     def download(self, locales, save_stats=True):
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
             self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))
             return
-        # stats maps a key "translators" to a mapping of languages to stats.
-        stats = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
-        stats_to_download = [(lang, stat)
-                             for lang, stat in stats['translators'].iteritems()
-                             if stat['service'] == self.KIND]
-        if locales:
-            stats_to_download = [(lang, stat)
-                                 for (lang, stat) in stats_to_download
-                                 if lang in locales]
+        stats_to_download = self._get_stats_to_download(locales)
+        if not stats_to_download:
+            return
         num_files = len(stats_to_download)
         text = 'Downloading translations: %(value)d/{} (in %(elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
@@ -79,10 +95,7 @@ class Translator(object):
             new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
             langs_to_translations[lang] = content
             new_stats.append(new_stat)
-        for i, (lang, stat) in enumerate(stats_to_download):
-            stat['lang'] = lang
-            stat = json.dumps(stat)
-            stat = protojson.decode_message(TranslatorStat, stat)
+        for i, (lang, stat) in enumerate(stats_to_download.iteritems()):
             thread = utils.ProgressBarThread(
                 bar, True, target=_do_download, args=(lang, stat))
             threads.append(thread)
@@ -99,6 +112,27 @@ class Translator(object):
         if save_stats:
             self.save_stats(new_stats)
         return new_stats
+
+    def update_acl(self, locales=None):
+        locales = locales or self.pod.catalogs.list_locales()
+        if not locales:
+            self.pod.logger.info('No locales to found to update.')
+            return
+        stats_to_download = self._get_stats_to_download(locales)
+        if not stats_to_download:
+            self.pod.logger.info('No documents found to update.')
+            return
+        threads = []
+        for i, (locale, stat) in enumerate(stats_to_download.iteritems()):
+            thread = threading.Thread(target=self._update_acl, args=(stat, locale))
+            threads.append(thread)
+            thread.start()
+            if i == 0:
+                thread.join()
+            self.pod.logger.info('ACL updated ({}): {}'.format(stat.lang, stat.url))
+        for i, thread in enumerate(threads):
+            if i > 0:
+                thread.join()
 
     def upload(self, locales=None, force=True, verbose=False, save_stats=True):
         source_lang = self.pod.podspec.default_locale
@@ -154,12 +188,14 @@ class Translator(object):
             content = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
             create = False
         else:
-            content = {'translators': {}}
+            content = {}
             create = True
+        if self.KIND not in content:
+            content[self.KIND] = {}
         for stat in copy.deepcopy(stats):
             stat_json = json.loads(protojson.encode_message(stat))
             lang = stat_json.pop('lang')
-            content['translators'][lang] = stat_json
+            content[self.KIND][lang] = stat_json
         yaml_content = yaml.safe_dump(content, default_flow_style=False)
         self.pod.write_file(Translator.TRANSLATOR_STATS_PATH, yaml_content)
         if create:
@@ -174,6 +210,6 @@ class Translator(object):
         rows = []
         rows.append(['Language', 'URL', 'Wordcount'])
         for stat in stats:
-            rows.append([stat.lang, stat.edit_url, stat.num_words])
+            rows.append([stat.lang, stat.url, stat.num_words])
         table.add_rows(rows)
         logging.info('\n' + table.draw() + '\n')

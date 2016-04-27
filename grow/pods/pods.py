@@ -371,35 +371,30 @@ class Pod(object):
         codes = self.yaml.get('localization', {}).get('locales', [])
         return locales.Locale.parse_codes(codes)
 
-    def get_translator(self, name=utils.SENTINEL):
+    def get_translator(self, service=utils.SENTINEL):
         if 'translators' not in self.yaml:
             raise ValueError('No translators configured.')
         if ('services' not in self.yaml['translators']
                 or not self.yaml['translators']['services']):
             raise ValueError('No translator services configured.')
         translator_config = self.yaml['translators']
-        translator_services = translator_config['services']
-        if name is not utils.SENTINEL:
-            valid_names = [service['name']
-                           for service in translator_services
-                           if 'name' in service]
-            if name not in valid_names and name is not None:
-                if valid_names:
-                    text = 'No translator service named "{}". Valid translators: {}.'
-                    keys = ', '.join(valid_names)
-                    raise ValueError(text.format(name, keys))
-                else:
-                    raise ValueError(
-                        'No translator names specified in podspec.yaml.'
-                        ' Either omit the translator name from your command'
-                        ' or add a name to the configuration in podspec.yaml.')
+        translator_services = copy.deepcopy(translator_config['services'])
+        if service is not utils.SENTINEL:
+            valid_service_kinds = [each['service'] for each in translator_services]
+            if not valid_service_kinds:
+                text = 'Missing required "service" field in translator config.'
+                raise ValueError(text)
+            if service not in valid_service_kinds and service is not None:
+                text = 'No translator service "{}". Valid services: {}.'
+                keys = ', '.join(valid_service_kinds)
+                raise ValueError(text.format(service, keys))
         else:
             if len(translator_services) > 1:
                 text = ('Must specify a translator name if more than one'
                         ' translator service is configured.')
                 raise ValueError(text)
         for service in translator_services:
-            if service.get('name') == name or len(translator_services) == 1:
+            if service.get('service') == service or len(translator_services) == 1:
                 translator_kind = service.pop('service')
                 return translators.create_translator(
                     self, translator_kind, service,

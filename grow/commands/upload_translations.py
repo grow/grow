@@ -12,11 +12,17 @@ import os
                    ' translations for all catalogs will be uploaded.')
 @click.option('--force/--noforce', '-f', default=False, is_flag=True,
               help='Whether to skip the prompt prior to uploading.')
-@click.option('--translator', '-t', type=str,
-              help='Name of the translator to use. This option is only required'
-                   ' if more than one translator is configured.')
-def upload_translations(pod_path, locale, force, translator):
+@click.option('--service', '-s', type=str,
+              help='Name of the translator service to use. This option is'
+                   ' only required if more than one service is configured.')
+@click.option('--update-acl', default=False, is_flag=True,
+              help='Whether to update the ACL on uploaded resources'
+                   ' instead of uploading new translation files.')
+def upload_translations(pod_path, locale, force, service, update_acl):
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    translator_obj = pod.get_translator(translator)
-    stats = translator_obj.upload(locales=locale, force=force, verbose=True)
+    translator = pod.get_translator(service)
+    if update_acl:
+        translator.update_acl(locales=locale)
+    else:
+        translator.upload(locales=locale, force=force, verbose=True)

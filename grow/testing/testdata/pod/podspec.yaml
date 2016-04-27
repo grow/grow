@@ -47,7 +47,6 @@ translators:
       Instructions regarding translating the project.
   services:
   - service: google_translator_toolkit
-    name: gtt
     acl:
     - email: user@example.com
 
