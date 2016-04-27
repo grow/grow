@@ -134,7 +134,8 @@ class Translator(object):
             if i > 0:
                 thread.join()
 
-    def upload(self, locales=None, force=True, verbose=False, save_stats=True):
+    def upload(self, locales=None, force=True, verbose=False, save_stats=True,
+               download=False):
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()
         stats = []
@@ -142,6 +143,8 @@ class Translator(object):
         if not locales:
             self.pod.logger.info('No locales to upload.')
             return
+        if download and self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
+            self.download(locales=locales, save_stats=save_stats)
         if not force:
             if (self.has_immutable_translation_resources
                     and self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH)):
