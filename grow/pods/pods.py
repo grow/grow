@@ -378,6 +378,10 @@ class Pod(object):
                 or not self.yaml['translators']['services']):
             raise ValueError('No translator services configured.')
         translator_config = self.yaml['translators']
+        translators.register_extensions(
+            self.yaml.get('extensions', {}).get('translators', []),
+            self.root,
+        )
         translator_services = copy.deepcopy(translator_config['services'])
         if service is not utils.SENTINEL:
             valid_service_kinds = [each['service'] for each in translator_services]
@@ -393,13 +397,14 @@ class Pod(object):
                 text = ('Must specify a translator name if more than one'
                         ' translator service is configured.')
                 raise ValueError(text)
-        for service in translator_services:
-            if service.get('service') == service or len(translator_services) == 1:
-                translator_kind = service.pop('service')
+        for service_config in translator_services:
+            if service_config.get('service') == service or len(translator_services) == 1:
+                translator_kind = service_config.pop('service')
                 return translators.create_translator(
-                    self, translator_kind, service,
+                    self, translator_kind, service_config,
                     project_title=translator_config.get('project_title'),
                     instructions=translator_config.get('instructions'))
+        raise ValueError('No translator service found: {}'.format(service))
 
     def list_preprocessors(self):
         results = []
