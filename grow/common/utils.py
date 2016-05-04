@@ -1,5 +1,11 @@
 from grow.pods import errors
-import cStringIO
+try:
+    import cStringIO as StringIO
+except ImportError:
+    try:
+        import StringIO
+    except ImportError:
+        from io import StringIO
 import csv as csv_lib
 import functools
 import gettext
@@ -189,7 +195,7 @@ def load_yaml(*args, **kwargs):
 
 def load_yaml_all(*args, **kwargs):
     pod = kwargs.pop('pod', None)
-    fp = cStringIO.StringIO()
+    fp = StringIO.StringIO()
     fp.write(args[0])
     fp.seek(0)
     loader = make_yaml_loader(pod)
