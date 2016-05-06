@@ -14,7 +14,7 @@ from grow.common import sdk_utils
 from grow.common import utils
 from grow.pods import errors
 from grow.pods import storage
-from protorpc.wsgi import service
+
 from werkzeug import exceptions
 from werkzeug import routing
 from werkzeug import utils as werkzeug_utils

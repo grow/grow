@@ -24,7 +24,7 @@ paramiko==1.15.1
 polib==1.0.4
 premailer==1.13
 progressbar2==2.6.2
-protorpc-standalone==0.9.1
+protorpc==0.11.1
 pycrypto==2.6.1
 pygments==2.0.2
 pytz==2014.4
