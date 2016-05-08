@@ -144,6 +144,8 @@ class Diff(object):
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
                     '{}..{}'.format(theirs.commit.sha, index.commit.sha))
+                if isinstance(what_changed, unicode):
+                  what_changed = what_changed.encode('utf-8')
                 diff.what_changed = what_changed.decode('utf-8')
             except git.exc.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
@@ -154,6 +156,8 @@ class Diff(object):
             what_changed = repo.git.log(
                   '--date=short',
                   '--pretty=format:[%h] %ad <%ae> %s')
+            if isinstance(what_changed, unicode):
+              what_changed = what_changed.encode('utf-8')
             diff.what_changed = what_changed.decode('utf-8')
 
         return diff
