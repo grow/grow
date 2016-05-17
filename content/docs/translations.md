@@ -82,6 +82,24 @@ header1,header2@,header3
 Not extracted,Extracted,Not Extracted
 [/sourcecode]
 
+## Translator comments
+
+You can provide clarifying details about strings to translators by using translator comments. Upon extraction, translator comments appear alongside their corresponding messages in message catalogs. Translators may then reference the comment in order to produce a more accurate translation.
+
+Translator comments are particularly useful to convey restrictions about a string (such as its length) or to clarify context when a string may be ambiguous.
+
+[sourcecode:yaml]
+# Translator comments in YAML.
+prop@: Text to translate
+prop@#: Comment for translator.
+[/sourcecode]
+
+[sourcecode:html+jinja]
+# Translator comments in templates.
+{#: Comment for translator. #}
+<h1>{{_('Text to translate')}}</h1>
+[/sourcecode]
+
 ## Extracting translations
 
 To extract translations into a message catalog, tag all translatable items as explained above, and then use the `grow extract` command. Messages will be extracted to a file `/translations/messages.pot`. The message catalog (__messages.pot__) contains all of your pod's extracted messages.
