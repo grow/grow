@@ -82,8 +82,6 @@ class GoogleCloudStorageDestination(base.BaseDestination):
         if dry_run:
             return
         logging.info('Configuring GCS bucket: {}'.format(self.config.bucket))
-        self.bucket.set_acl('public-read')
-        self.bucket.configure_versioning(False)
         self.bucket.configure_website(
             main_page_suffix=self.config.main_page_suffix,
             error_key=self.config.not_found_page)
