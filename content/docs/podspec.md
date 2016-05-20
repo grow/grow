@@ -94,6 +94,17 @@ A list of directories in the pod to treat as servable static files. Unlike the `
 
 If you do not wish to use Grow's content management or templating features, you can leverage the other features of the system (such as testing, building, and deployment) by simply creating a `podspec.yaml` file and following the last above example. This can be a good way to migrate an existing site into Grow and slowly add new site sections leveraging Grow's content and templating features.
 
+#### Fingerprints
+
+Grow can rewrite static file paths with fingerprints.
+
+    static_dirs:
+    - static_dir: /source/
+      serve_at: /static/
+      fingerprinted: true
+      
+In the above example, a file at `/source/images/file.png` would be served at `/static/images/file-<fingerprint>.png` where `<fingerprint>` is an md5 hash of the file's contents.
+
 ### error_routes
 
 Grow can build error pages for various error codes. The error page renders a view, which can leverage the template variable `{{error}}` to gain additional information about the error. To specify a generic error page, use "default". When a pod is built and deployed to a storage provider such as Amazon S3 or Google Cloud Storage, the storage provider will be configured to use these error pages.
