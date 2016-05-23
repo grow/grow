@@ -9,6 +9,7 @@ import goslate
 import logging
 import os
 import re
+import textwrap
 
 
 class Catalog(catalog.Catalog):
@@ -31,6 +32,10 @@ class Catalog(catalog.Catalog):
 
     def __repr__(self):
         return '<Catalog: {}>'.format(self.locale)
+
+    @property
+    def mimetype(self):
+        return 'text/x-gettext-translation'
 
     def load(self, pod_path=None):
         # Use the "pod_path" argument to load another catalog (such as a template
@@ -68,6 +73,10 @@ class Catalog(catalog.Catalog):
         return self.pod.file_exists(self.pod_path)
 
     @property
+    def content(self):
+        return self.pod.read_file(self.pod_path)
+
+    @property
     def gettext_translations(self):
         locale = str(self.locale)
         try:
@@ -96,6 +105,7 @@ class Catalog(catalog.Catalog):
         if not self.pod.file_exists(self.pod_path):
             self.pod.create_file(self.pod_path, None)
         outfile = self.pod.open_file(self.pod_path, mode='w')
+        Catalog.set_header_comment(self.pod, self)
         pofile.write_po(
             outfile, self, omit_header=(not include_header), sort_output=True,
             sort_by_file=True, ignore_obsolete=ignore_obsolete,
@@ -216,25 +226,20 @@ class Catalog(catalog.Catalog):
                 replaced_string = string.replace(group, num_placeholder)
                 placeholders.append(nums_to_names)
                 strings_to_translate[n] = replaced_string
-
         machine_translator = goslate.Goslate()
         results = machine_translator.translate(strings_to_translate, locale)
-
         for i, string in enumerate(results):
             message = messages_to_translate[i]
-
             # Replace numerical placeholders with named placeholders.
             if placeholders[i]:
                 for num_placeholder, name_placeholder in placeholders[i].iteritems():
                     string = string.replace(num_placeholder, name_placeholder)
-
             message.string = string
             if isinstance(string, unicode):
                 string = string.encode('utf-8')
             source = message.id
             source = (source.encode('utf-8')
                       if isinstance(source, unicode) else source)
-
         outfile = self.pod.open_file(self.pod_path, mode='w')
         try:
             pofile.write_po(outfile, babel_catalog, width=80)
@@ -261,3 +266,34 @@ class Catalog(catalog.Catalog):
             if not message.string or (message.fuzzy and message.id):
                 untranslated.append(message)
         return untranslated
+
+    @staticmethod
+    def set_header_comment(pod, catalog):
+        project_title = (
+            pod.yaml.get('translators', {})
+            .get('project_title', 'Untitled Grow Website'))
+        instructions = (
+            pod.yaml.get('translators', {}).get('instructions'))
+        comment = ''
+        if catalog.locale:
+            lang_display_name = catalog.locale.language
+            comment += """
+            PROJECT TITLE:
+            {} ({})
+            """.format(project_title, lang_display_name)
+        else:
+            comment += """
+            PROJECT TITLE:
+            {}
+            """.format(project_title)
+        comment = textwrap.dedent(comment)
+        if instructions:
+            instructions = textwrap.dedent(instructions)
+            comment += """
+            PROJECT INSTRUCTIONS:
+            {}
+            """.format(instructions)
+        comment += ''
+        comment = ['# {}'.format(line.lstrip()) for line in comment.split('\n')]
+        comment = comment[1:]  # Strip the first blank line.
+        catalog.header_comment = '\n'.join(comment)

@@ -37,6 +37,7 @@ from . import static
 from . import storage
 from . import tags
 from ..preprocessors import preprocessors
+from ..translators import translators
 from babel import dates as babel_dates
 from grow.common import sdk_utils
 from grow.common import utils
@@ -369,6 +370,41 @@ class Pod(object):
     def list_locales(self):
         codes = self.yaml.get('localization', {}).get('locales', [])
         return locales.Locale.parse_codes(codes)
+
+    def get_translator(self, service=utils.SENTINEL):
+        if 'translators' not in self.yaml:
+            raise ValueError('No translators configured.')
+        if ('services' not in self.yaml['translators']
+                or not self.yaml['translators']['services']):
+            raise ValueError('No translator services configured.')
+        translator_config = self.yaml['translators']
+        translators.register_extensions(
+            self.yaml.get('extensions', {}).get('translators', []),
+            self.root,
+        )
+        translator_services = copy.deepcopy(translator_config['services'])
+        if service is not utils.SENTINEL:
+            valid_service_kinds = [each['service'] for each in translator_services]
+            if not valid_service_kinds:
+                text = 'Missing required "service" field in translator config.'
+                raise ValueError(text)
+            if service not in valid_service_kinds and service is not None:
+                text = 'No translator service "{}". Valid services: {}.'
+                keys = ', '.join(valid_service_kinds)
+                raise ValueError(text.format(service, keys))
+        else:
+            if len(translator_services) > 1:
+                text = ('Must specify a translator name if more than one'
+                        ' translator service is configured.')
+                raise ValueError(text)
+        for service_config in translator_services:
+            if service_config.get('service') == service or len(translator_services) == 1:
+                translator_kind = service_config.pop('service')
+                return translators.create_translator(
+                    self, translator_kind, service_config,
+                    project_title=translator_config.get('project_title'),
+                    instructions=translator_config.get('instructions'))
+        raise ValueError('No translator service found: {}'.format(service))
 
     def list_preprocessors(self):
         results = []

@@ -1,5 +1,6 @@
 from . import build
 from . import deploy
+from . import download_translations
 from . import extract
 from . import filter
 from . import import_translations
@@ -11,11 +12,13 @@ from . import routes
 from . import run
 from . import stage
 from . import stats
+from . import upload_translations
 
 
 def add(group):
     group.add_command(build.build)
     group.add_command(deploy.deploy)
+    group.add_command(download_translations.download_translations)
     group.add_command(extract.extract)
     group.add_command(filter.filter)
     group.add_command(import_translations.import_translations)
@@ -27,3 +30,4 @@ def add(group):
     group.add_command(install.install)
     group.add_command(stats.stats)
     group.add_command(stage.stage)
+    group.add_command(upload_translations.upload_translations)

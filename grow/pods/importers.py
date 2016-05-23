@@ -1,4 +1,5 @@
 from babel.messages import pofile
+import cStringIO
 import errno
 import os
 import shutil
@@ -78,10 +79,14 @@ class Importer(object):
                     self.pod.logger.warning('Skipping: {}'.format(po_path))
 
     def import_file(self, locale, po_path):
-        if locale is None:
-            raise Error('Must specify locale.')
         if not os.path.exists(po_path):
             raise Error('Couldn\'t find PO file: {}'.format(po_path))
+        content = open(po_path).read()
+        return self.import_content(locale, content)
+
+    def import_content(self, locale, content):
+        if locale is None:
+            raise Error('Must specify locale.')
 
         # Leverage user-defined locale identifiers when importing translations.
         external_to_babel_locales = {}
@@ -100,7 +105,9 @@ class Importer(object):
         if self.pod.file_exists(pod_po_path):
             existing_po_file = self.pod.open_file(pod_po_path)
             existing_catalog = pofile.read_po(existing_po_file, babel_locale)
-            po_file_to_merge = open(po_path)
+            po_file_to_merge = cStringIO.StringIO()
+            po_file_to_merge.write(content)
+            po_file_to_merge.seek(0)
             catalog_to_merge = pofile.read_po(po_file_to_merge, babel_locale)
             for message in catalog_to_merge:
                 if message.id not in existing_catalog:
@@ -109,12 +116,9 @@ class Importer(object):
                     existing_catalog[message.id].string = message.string
             existing_po_file = self.pod.open_file(pod_po_path, mode='w')
             pofile.write_po(existing_po_file, existing_catalog, width=80,
-                            omit_header=True, sort_output=True, sort_by_file=True)
+                            sort_output=True, sort_by_file=True)
             text = 'Imported {} translations: {}'
             self.pod.logger.info(text.format(len(catalog_to_merge), babel_locale))
         else:
-            abs_po_path = self.pod.abs_path(pod_po_path)
-            abs_po_dir = os.path.dirname(abs_po_path)
-            _mkdir(abs_po_dir)
-            shutil.copyfile(po_path, abs_po_path)
+            self.pod.write_file(pod_po_path, content)
             self.pod.logger.info('Imported new catalog: {}'.format(babel_locale))

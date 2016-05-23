@@ -2,6 +2,7 @@ from . import catalogs
 from . import importers
 from babel import util as babel_util
 from babel.messages import catalog
+from babel.messages import catalog as babel_catalog
 from babel.messages import extract
 from babel.messages import pofile
 from grow.common import utils
@@ -103,9 +104,12 @@ class Catalogs(object):
                            use_fuzzy_matching=use_fuzzy_matching,
                            include_header=include_header)
 
-    def import_translations(self, path, locale=None):
+    def import_translations(self, path=None, locale=None, content=None):
         importer = importers.Importer(self.pod)
-        importer.import_path(path, locale=locale)
+        if path:
+            importer.import_path(path, locale=locale)
+        if content:
+            importer.import_content(content=content, locale=locale)
 
     def _get_or_create_catalog(self, template_path):
         exists = True
@@ -327,6 +331,7 @@ class Catalogs(object):
     def write_template(self, template_path, catalog, include_obsolete=False,
                        include_header=False):
         template_file = self.pod.open_file(template_path, mode='w')
+        catalogs.Catalog.set_header_comment(self.pod, catalog)
         pofile.write_po(
             template_file, catalog, width=80, omit_header=(not include_header),
             sort_output=True, sort_by_file=True,
@@ -360,7 +365,8 @@ class Catalogs(object):
                     filtered_catalog[message.id] = message
                 if len(filtered_catalog):
                     text = 'Saving: {} ({} missing of {})'
-                    text = text.format(filtered_catalog.pod_path, num_missing, num_total)
+                    text = text.format(filtered_catalog.pod_path, num_missing,
+                                       num_total)
                     self.pod.logger.info(text)
                     filtered_catalog.save(include_header=include_header)
                 else:
@@ -375,5 +381,6 @@ class Catalogs(object):
         babel_catalog = pofile.read_po(self.pod.open_file(out_path))
         for message in messages_to_locales.keys():
             babel_catalog[message.id] = message
-        self.write_template(out_path, babel_catalog, include_header=include_header)
+        self.write_template(out_path, babel_catalog,
+                            include_header=include_header)
         return [babel_catalog]

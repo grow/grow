@@ -23,7 +23,7 @@ discovery.logger.setLevel(logging.WARNING)
 class BaseGooglePreprocessor(base.BasePreprocessor):
 
     def _create_service(self):
-        credentials = oauth.get_credentials(
+        credentials = oauth.get_or_create_credentials(
             scope=OAUTH_SCOPE, storage_key='Grow SDK')
         http = httplib2.Http(ca_certs=utils.get_cacerts_path())
         http = credentials.authorize(http)
