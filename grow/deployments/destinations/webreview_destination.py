@@ -4,6 +4,7 @@ from grow.pods import env
 from protorpc import messages
 import logging
 import os
+import urlparse
 import webreview
 
 
@@ -16,7 +17,7 @@ class Config(messages.Message):
     keep_control_dir = messages.BooleanField(6, default=False)
     remote = messages.StringField(8)
     subdomain = messages.StringField(9)
-    suffix_branch_to_subdomain = messages.BooleanField(10, default=False)
+    add_branch_to_subdomain = messages.BooleanField(10, default=False)
 
 
 class WebReviewDestination(base.BaseDestination):
@@ -64,7 +65,7 @@ class WebReviewDestination(base.BaseDestination):
     def deploy(self, *args, **kwargs):
         repo = kwargs.get('repo')
         if repo:
-            if self.config.suffix_branch_to_subdomain:
+            if self.config.add_branch_to_subdomain:
                 token = repo.active_branch.name.split('/')[-1]
                 if token != 'master':
                     subdomain = self.config.subdomain + '-{}'.format(token)
@@ -80,6 +81,11 @@ class WebReviewDestination(base.BaseDestination):
             finalize_response = self.webreview.finalize()
             if 'fileset' in finalize_response:
                 url = finalize_response['fileset']['url']
+                # Append the homepage path to the staging link.
+                result = urlparse.urlparse(url)
+                if not result.path and self.pod.get_home_doc():
+                  home_doc = self.pod.get_home_doc()
+                  url = url.rstrip('/') + home_doc.url.path
                 logging.info('Staged: %s', url)
         return result
 

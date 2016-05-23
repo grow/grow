@@ -91,12 +91,11 @@ def check_for_sdk_updates(auto_update_prompt=False):
 
 def get_popen_args(pod):
     node_modules_path = os.path.join(pod.root, 'node_modules', '.bin')
-    path = os.environ['PATH'] + ':{}'.format(node_modules_path)
+    env = os.environ.copy()
+    env['PATH'] = env['PATH'] + ':{}'.format(node_modules_path)
     return {
         'cwd': pod.root,
-        'env': {
-            'PATH': path,
-        },
+        'env': env,
     }
 
 

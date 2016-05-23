@@ -54,8 +54,6 @@ class AmazonS3Destination(base.BaseDestination):
         if dry_run:
             return
         logging.info('Configuring S3 bucket: {}'.format(self.config.bucket))
-        self.bucket.set_acl('public-read')
-        self.bucket.configure_versioning(False)
         self.bucket.configure_website(
             self.config.index_document,
             self.config.error_document)

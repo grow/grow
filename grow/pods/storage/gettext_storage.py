@@ -45,7 +45,7 @@ internationalized, to the local language and cultural habits.
 # - Support Solaris .mo file formats.  Unfortunately, we've been unable to
 #   find this format documented anywhere.
 
-
+import six
 import locale, copy, os, re, struct, sys
 from errno import ENOENT
 
@@ -89,11 +89,11 @@ def c2py(plural):
     try:
         danger = [x for x in tokens if x[0] == token.NAME and x[1] != 'n']
     except tokenize.TokenError:
-        raise ValueError, \
-              'plural forms expression error, maybe unbalanced parenthesis'
+        raise ValueError(
+              'plural forms expression error, maybe unbalanced parenthesis')
     else:
         if danger:
-            raise ValueError, 'plural forms expression could be dangerous'
+            raise ValueError('plural forms expression could be dangerous')
 
     # Replace some C operators by their Python equivalents
     plural = plural.replace('&&', ' and ')
@@ -119,7 +119,7 @@ def c2py(plural):
                 # Actually, we never reach this code, because unbalanced
                 # parentheses get caught in the security check at the
                 # beginning.
-                raise ValueError, 'unbalanced parenthesis in plural form'
+                raise ValueError('unbalanced parenthesis in plural form')
             s = expr.sub(repl, stack.pop())
             stack[-1] += '(%s)' % s
         else:
@@ -259,8 +259,12 @@ class NullTranslations:
 
 class GNUTranslations(NullTranslations):
     # Magic number of .mo files
-    LE_MAGIC = 0x950412deL
-    BE_MAGIC = 0xde120495L
+    if six.PY2:
+        LE_MAGIC = long(0x950412de)
+        BE_MAGIC = long(0xde120495)
+    else:
+        LE_MAGIC = 0x950412de
+        BE_MAGIC = 0xde120495
 
     def _parse(self, fp):
         """Override this method to support alternative .mo formats."""
