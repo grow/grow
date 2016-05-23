@@ -9,6 +9,18 @@ $order: 100
 
 Grow has a powerful and simple extension system that enables you to extend the functionality of Grow with plugins.
 
+Extensions are standard Python modules, so your site's `extensions` folder must be set up appropriately, with `__init__.py` files:
+
+[sourcecode:bash]
+├──  /extensions*                  # All your extensions
+|    ├──  /__init__.py*            # Empty file, required by Python
+|    ├──  /triplicate.py           # An example of a Jinja2 extension
+|    └──  /preprocessors*          # Subfolder for preprocessor extensions
+|         ├──  /__init__.py*       # Empty file, required by Python
+|         ├──  /hello.py           # An example of a preprocessor extension
+[/sourcecode]
+
+
 ## Jinja2 extensions
 
 Sites can directly extend Grow's Jinja2 rendering environment by including custom Jinja2 extensions. Jinja2 extensions can add site-specific filters, tests, globals, and extend the template parser. [See Jinja2's documentation on extensions](http://jinja.pocoo.org/docs/extensions/).
@@ -23,7 +35,7 @@ extensions:
   - extensions.triplicate.Triplicate
 [/sourcecode]
 
-Define the extension in a corresponding place in the `/extensions/` folder and add an empty `__init__.py` in that folder.
+Define the extension in a corresponding place in the `/extensions/` folder.
 
 [sourcecode:python]
 # /extensions/triplicate.py
