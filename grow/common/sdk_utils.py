@@ -92,13 +92,13 @@ def check_for_sdk_updates(auto_update_prompt=False):
 def get_popen_args(pod):
     node_modules_path = os.path.join(pod.root, 'node_modules', '.bin')
     env = os.environ.copy()
-    env["PATH"] = str(os.environ['PATH'] + os.path.pathsep + node_modules_path)
+    env['PATH'] = str(os.environ['PATH'] + os.path.pathsep + node_modules_path)
     args = {
         'cwd': pod.root,
         'env': env,
     }
     if os.name == 'nt':
-        args["shell"] = True
+        args['shell'] = True
     return args
 
 
