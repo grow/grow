@@ -2,4 +2,4 @@
 $localization:
   locales:
   - it
-foo@: Localized yaml doc in unlocalized collection in localized pod
+foo@: Localized yaml doc in unlocalized collection in localized pöd
