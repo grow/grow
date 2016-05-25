@@ -1,0 +1,5 @@
+---
+$localization:
+  locales:
+  - it
+foo@: Localized yaml doc in localized collection in unlocalized pod
