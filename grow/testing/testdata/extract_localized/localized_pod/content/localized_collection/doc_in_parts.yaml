@@ -3,6 +3,12 @@ $localization:
   locales:
   - it
   - ja
+  - sv
 ---
 $locale: ja
-foo@: Localized yaml doc part in localized doc in localized collection in localized pod
+foo@: Localized yaml doc part in localized doc in localized collection in localized pöd
+---
+$locales:
+- it
+- sv
+foo@: Multi-locale yaml doc part in localized doc in localized collection in localized pöd
