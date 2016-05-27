@@ -3,8 +3,7 @@ branches:
   - master
 sudo: false
 language: python
-python:
-- 2.7
+python: 2.7
 cache: pip
 install: pip install grow
 script: grow deploy --noconfirm grow.io
