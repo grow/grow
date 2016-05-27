@@ -28,11 +28,7 @@ python:
 branches:
   only:
   - master
-install:
-- git clone https://github.com/grow/pygrow.git
-- cd pygrow
-- travis_retry pip install -r requirements.txt
-- python setup.py install
-- cd ..
-script: ./pygrow/bin/grow deploy --noconfirm growsdk.org
+cache: pip
+install: pip install grow
+script: grow deploy --noconfirm grow.io
 [/sourcecode]
