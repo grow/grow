@@ -5,14 +5,6 @@ sudo: false
 language: python
 python:
 - 2.7
-cache:
-  directories:
-  - $HOME/.cache/pip
-  - $HOME/virtualenv
-install:
-- git clone --single-branch https://github.com/grow/grow.git
-- cd grow
-- travis_retry pip install --upgrade -r requirements.txt
-- python setup.py install
-- cd ..
-script: ./grow/bin/grow deploy --noconfirm grow.io
+cache: pip
+install: pip install grow
+script: grow deploy --noconfirm grow.io
