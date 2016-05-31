@@ -1,8 +1,8 @@
+from . import base
 from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
-from . import base
 from protorpc import messages
 import bs4
 import cStringIO
@@ -12,6 +12,8 @@ import httplib2
 import json
 import logging
 import os
+import re
+import urllib
 import yaml
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
@@ -44,6 +46,22 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         id = messages.StringField(2)
         convert = messages.BooleanField(3)
 
+    def _process_google_hrefs(self, soup):
+        for tag in soup.find_all('a'):
+            if tag.attrs.get('href'):
+                tag['href'] = self._clean_google_href(tag['href'])
+
+    def _clean_google_href(self, href):
+        regex = ('^'
+                 + re.escape('https://www.google.com/url?q=')
+                 + '(.*?)'
+                 + re.escape('&'))
+        match = re.match(regex, href)
+        if match:
+            encoded_url = match.group(1)
+            return urllib.unquote(encoded_url)
+        return href
+
     def download(self, config):
         doc_id = config.id
         path = config.path
@@ -55,9 +73,11 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             if mimetype.endswith('html'):
                 resp, content = service._http.request(url)
                 if resp.status != 200:
-                    self.logger.error('Error {} downloading Google Doc: {}'.format(resp.status, path))
+                    text = 'Error {} downloading Google Doc: {}'
+                    self.logger.error(text.format(resp.status, path))
                     break
                 soup = bs4.BeautifulSoup(content, 'html.parser')
+                self._process_google_hrefs(soup)
                 content = unicode(soup.body)
                 if convert_to_markdown:
                     h2t = html2text.HTML2Text()
@@ -79,7 +99,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     def download(self, config):
         path = config.path
         sheet_id = config.id
-        sheet_gid = config.gid
         service = self._create_service()
         resp = service.files().get(fileId=sheet_id).execute()
         ext = os.path.splitext(self.config.path)[1]
@@ -97,7 +116,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 url += '&gid={}'.format(self.config.gid)
             resp, content = service._http.request(url)
             if resp.status != 200:
-                self.logger.error('Error {} downloading Google Sheet: {}'.format(resp.status, path))
+                text = 'Error {} downloading Google Sheet: {}'
+                self.logger.error(text.format(resp.status, path))
                 break
             if convert_to in ['.json', '.yaml', '.yml']:
                 fp = cStringIO.StringIO()
