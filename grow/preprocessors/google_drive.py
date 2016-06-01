@@ -95,6 +95,35 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         id = messages.StringField(2)
         gid = messages.IntegerField(3)
         output_style = messages.StringField(4, default='compressed')
+        format = messages.StringField(5, default='list')
+        preserve = messages.StringField(6, default='builtins')
+
+    @staticmethod
+    def format_as_map(fp):
+        reader = csv.reader(fp)
+        results = {}
+
+        def _update_node(root, part):
+            if part not in root:
+                root[part] = {}
+
+        for row in reader:
+            key = row[0]
+            value = row[1]
+            if key.startswith('#'):
+                continue
+            if '.' in key:
+                parts = key.split('.')
+                parent = results
+                for i, part in enumerate(parts):
+                    _update_node(parent, part)
+                    if i + 1 < len(parts):
+                        parent = parent[part]
+                parent[part] = value
+            else:
+                results[key] = value
+
+        return results
 
     def download(self, config):
         path = config.path
@@ -109,6 +138,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         elif ext in ['.yaml', '.yml']:
             convert_to = ext
             ext = '.csv'
+        if 'exportLinks' not in resp:
+            text = 'Unable to export Google Sheet: {}'
+            self.logger.error(text.format(path))
+            self.logger.error('Received: {}'.format(resp))
+            return
         for mimetype, url in resp['exportLinks'].iteritems():
             if not mimetype.endswith(ext[1:]):
                 continue
@@ -123,17 +157,31 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 fp = cStringIO.StringIO()
                 fp.write(content)
                 fp.seek(0)
-                reader = csv.DictReader(fp)
                 kwargs = {}
+                if self.config.format == 'map':
+                    formatted_data = GoogleSheetsPreprocessor.format_as_map(fp)
+                else:
+                    reader = csv.DictReader(fp)
+                    formatted_data = list(reader)
+                if (path.endswith(('.yaml', '.yml'))
+                        and self.config.preserve
+                        and self.pod.file_exists(path)):
+                    existing_data = self.pod.read_yaml(path)
+                    if self.config.preserve == 'builtins':
+                        for key in existing_data.keys():
+                            if not key.startswith('$'):
+                                del existing_data[key]
+                    existing_data.update(formatted_data)
+                    formatted_data = existing_data
                 if convert_to == '.json':
                     if self.config.output_style == 'pretty':
                         kwargs['indent'] = 2
                         kwargs['separators'] = (',', ': ')
                         kwargs['sort_keys'] = True
-                    content = json.dumps([row for row in reader], **kwargs)
+                    content = json.dumps(formatted_data, **kwargs)
                 else:
                     content = yaml.safe_dump(
-                        list(reader),
+                        formatted_data,
                         default_flow_style=False)
             self.pod.write_file(path, content)
             self.logger.info('Downloaded Google Sheet -> {}'.format(path))
