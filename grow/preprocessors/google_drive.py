@@ -24,6 +24,7 @@ discovery.logger.setLevel(logging.WARNING)
 
 class BaseGooglePreprocessor(base.BasePreprocessor):
 
+    @utils.memoize
     def _create_service(self):
         credentials = oauth.get_or_create_credentials(
             scope=OAUTH_SCOPE, storage_key='Grow SDK')
@@ -97,6 +98,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         output_style = messages.StringField(4, default='compressed')
         format = messages.StringField(5, default='list')
         preserve = messages.StringField(6, default='builtins')
+        schedule = messages.StringField(7)
 
     @staticmethod
     def format_as_map(fp):
