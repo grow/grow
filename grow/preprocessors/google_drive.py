@@ -26,6 +26,7 @@ import yaml
 
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
+STORAGE_KEY = 'Grow SDK'
 
 
 # Silence extra logging from googleapiclient.
@@ -33,7 +34,6 @@ discovery.logger.setLevel(logging.WARNING)
 
 
 class BaseGooglePreprocessor(base.BasePreprocessor):
-    scheduleable = True
 
     @staticmethod
     def create_service():
