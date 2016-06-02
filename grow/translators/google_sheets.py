@@ -28,11 +28,11 @@ class AccessLevel(object):
     READ_ONLY = 'READ_ONLY'
 
 
-def raise_service_error(http_error, locale=None, ident=None):
+def raise_service_error(http_error, ident=None):
     message = 'HttpError {} for {} returned "{}"'.format(
         http_error.resp.status, http_error.uri,
         http_error._get_reason().strip())
-    raise base.TranslatorServiceError(message=message, locale=locale, ident=ident)
+    raise base.TranslatorServiceError(message=message, ident=ident)
 
 
 
@@ -56,6 +56,31 @@ class GoogleSheetsTranslator(base.Translator):
         else:
             stat.uploaded = datetime.datetime.now()
         return stat
+
+    def _download_content(self, stat):
+        sheet_id = stat.ident
+        gid = None
+        service = google_drive.create_service()
+        resp = service.files().get(fileId=sheet_id).execute()
+        source_lang = None
+        lang = None
+        for mimetype, url in resp['exportLinks'].iteritems():
+            if not mimetype.endswith('csv'):
+                continue
+            url += '&gid={}'.format(gid) if gid else ''
+            resp, content = service._http.request(url)
+            if resp.status != 200:
+                raise_service_error(http_error=resp)
+            fp = StringIO.StringIO()
+            fp.write(content)
+            fp.seek(0)
+            reader = csv.DictReader(fp)
+            # TODO(jeremydw): Implement me.
+#            for row in reader:
+#                row[0]
+        stat = self._create_stat_from_response(
+            resp, source_lang, lang, downloaded=True)
+        return stat, content
 
     def _upload_catalog(self, catalog, source_lang):
         project_title = self.project_title
