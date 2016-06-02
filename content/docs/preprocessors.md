@@ -54,10 +54,10 @@ Grow will export data from Google Sheets as either JSON or CSV, depending on the
 [sourcecode:yaml]
 preprocessors:
 - kind: google_sheets
-  path: /data/filename.{csv|json}                       # Where to save downloaded file.
+  path: /data/filename.{csv|json|yaml}                  # Where to save downloaded file.
   id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI      # Spreadsheet ID.
   gid: 0                                                # Worksheet ID (optional).
-  pretty_print: false                                   # Whether to format the output with "pretty print". (optional)
+  output_style: {compressed|pretty}                     # Whether to compress or pretty print JSON-formatted docs (default: compressed).
 [/sourcecode]
 
 ### Gulp
