@@ -70,6 +70,11 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         convert_to_markdown = ext == '.md' and config.convert is not False
         service = self._create_service()
         resp = service.files().get(fileId=doc_id).execute()
+        if 'exportLinks' not in resp:
+            text = 'Unable to export Google Doc: {}'
+            self.logger.error(text.format(path))
+            self.logger.error('Received: {}'.format(resp))
+            return
         for mimetype, url in resp['exportLinks'].iteritems():
             if mimetype.endswith('html'):
                 resp, content = service._http.request(url)
