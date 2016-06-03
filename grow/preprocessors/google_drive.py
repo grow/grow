@@ -23,6 +23,7 @@ discovery.logger.setLevel(logging.WARNING)
 
 
 class BaseGooglePreprocessor(base.BasePreprocessor):
+    scheduleable = True
 
     @utils.memoize
     def _create_service(self):
@@ -98,15 +99,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         output_style = messages.StringField(4, default='compressed')
         format = messages.StringField(5, default='list')
         preserve = messages.StringField(6, default='builtins')
-        schedule = messages.StringField(7)
 
     @staticmethod
-    def format_as_map(fp):
-        reader = csv.reader(fp)
+    def _convert_rows_to_mapping(reader):
         results = {}
 
         def _update_node(root, part):
-            if part not in root:
+            if isinstance(root, dict) and part not in root:
                 root[part] = {}
 
         for row in reader:
@@ -121,10 +120,16 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     _update_node(parent, part)
                     if i + 1 < len(parts):
                         parent = parent[part]
-                parent[part] = value
+                if isinstance(parent, dict):
+                    parent[part] = value
             else:
                 results[key] = value
+        return results
 
+    @staticmethod
+    def format_as_map(fp):
+        reader = csv.reader(fp)
+        results = GoogleSheetsPreprocessor._convert_rows_to_mapping(reader)
         return results
 
     def download(self, config):
