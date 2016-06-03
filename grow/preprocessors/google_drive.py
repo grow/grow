@@ -25,7 +25,6 @@ discovery.logger.setLevel(logging.WARNING)
 class BaseGooglePreprocessor(base.BasePreprocessor):
     scheduleable = True
 
-    @utils.memoize
     def _create_service(self):
         credentials = oauth.get_or_create_credentials(
             scope=OAUTH_SCOPE, storage_key='Grow SDK')

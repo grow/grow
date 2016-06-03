@@ -420,11 +420,10 @@ class Pod(object):
         return results
 
     def preprocess(self, preprocessor_names=None, run_all=False, tags=None,
-                   build=True, ratelimit=None, use_schedule=False):
+                   build=True, ratelimit=None):
         if not preprocessor_names:
             self.catalogs.compile()  # Preprocess translations.
-        listed_preprocessors = self.list_preprocessors()
-        for preprocessor in listed_preprocessors:
+        for preprocessor in self.list_preprocessors():
             if preprocessor_names:
                 if preprocessor.name in preprocessor_names:
                     preprocessor.run(build=build)
@@ -435,10 +434,6 @@ class Pod(object):
                 preprocessor.run(build=build)
             if ratelimit:
               time.sleep(ratelimit)
-        if use_schedule:
-           for preprocessor in listed_preprocessors:
-              if preprocessor.schedule:
-                  preprocessor.run_with_schedule()
 
     def get_podspec(self):
         return self.podspec
