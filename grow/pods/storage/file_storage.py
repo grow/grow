@@ -39,7 +39,7 @@ class FileStorage(base_storage.BaseStorage):
             for filename in files:
                 path = os.path.join(root, filename)[len(dirpath):]
                 paths.append(path)
-            # If not recursive, break after walking top-level dir.
+            # if not recursive, break after walking top-level dir
             if not recursive:
                 break
         return paths
