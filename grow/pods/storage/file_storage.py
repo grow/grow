@@ -33,12 +33,15 @@ class FileStorage(base_storage.BaseStorage):
         return os.stat(filename)
 
     @staticmethod
-    def listdir(dirpath):
+    def listdir(dirpath, recursive=True):
         paths = []
-        for root, _, files in os.walk(dirpath, followlinks=True):
+        for root, _, files in os.walk(dirpath, topdown=True, followlinks=True):
             for filename in files:
                 path = os.path.join(root, filename)[len(dirpath):]
                 paths.append(path)
+            # if not recursive, break after walking top-level dir
+            if not recursive:
+                break
         return paths
 
     @staticmethod

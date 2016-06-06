@@ -47,14 +47,15 @@ class CloudStorage(base_storage.BaseStorage):
             raise IOError('File {} not found.'.format(filename))
 
     @staticmethod
-    def listdir(filename):
+    def listdir(filename, recursive=True):
         bucket, prefix = filename[1:].split('/', 1)
         bucket = '/' + bucket
         names = set()
         for item in cloudstorage.listbucket(bucket, prefix=prefix):
             name = item.filename[len(bucket) + len(prefix) + 1:]
             if name:
-                names.add(name)
+                if recursive or '/' not in name:
+                    names.add(name)
         return list(names)
 
     @staticmethod

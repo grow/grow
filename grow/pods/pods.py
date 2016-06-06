@@ -166,9 +166,9 @@ class Pod(object):
           raise ValueError('.. not allowed in file paths.')
         return os.path.join(self.root, pod_path.lstrip('/'))
 
-    def list_dir(self, pod_path='/'):
+    def list_dir(self, pod_path='/', recursive=True):
         path = self._normalize_path(pod_path)
-        return self.storage.listdir(path)
+        return self.storage.listdir(path, recursive)
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
