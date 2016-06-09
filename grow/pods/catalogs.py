@@ -2,6 +2,7 @@ from babel import util
 from babel.messages import catalog
 from babel.messages import mofile
 from babel.messages import pofile
+from babel.util import odict
 from datetime import datetime
 from grow.pods import messages
 from grow.pods.storage import gettext_storage as gettext
@@ -125,8 +126,11 @@ class Catalog(catalog.Catalog):
                              include_obsolete=False):
         super(Catalog, self).update(
             catalog_to_merge, no_fuzzy_matching=(not use_fuzzy_matching))
+        # Don't use gettext's obsolete functionality as it polutes files: merge
+        # into main translations if anything
         if include_obsolete:
             self.merge_obsolete()
+        self.obsolete = odict()
 
     def update(self, template_path=None, use_fuzzy_matching=False,
                include_obsolete=False, include_header=False):
@@ -140,8 +144,11 @@ class Catalog(catalog.Catalog):
         template = pofile.read_po(template_file)
         super(Catalog, self).update(
             template, no_fuzzy_matching=(not use_fuzzy_matching))
+        # Don't use gettext's obsolete functionality as it polutes files: merge
+        # into main translations if anything
         if include_obsolete:
             self.merge_obsolete()
+        self.obsolete = odict()
         self.save(include_header=include_header)
 
     def merge_obsolete(self):
