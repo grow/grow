@@ -225,6 +225,12 @@ def slugify(text, delim=u'-'):
     return unicode(delim.join(result))
 
 
+class DummyDict(object):
+
+    def __getattr__(self, name):
+        return ''
+
+
 class JsonEncoder(json.JSONEncoder):
 
     def default(self, obj):

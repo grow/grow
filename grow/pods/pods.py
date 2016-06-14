@@ -182,6 +182,10 @@ class Pod(object):
         path = self._normalize_path(pod_path)
         return self.storage.read(path)
 
+    def walk(self, pod_path):
+        path = self._normalize_path(pod_path)
+        return self.storage.walk(path)
+
     def write_file(self, pod_path, content):
         path = self._normalize_path(pod_path)
         self.storage.write(path, content)
@@ -260,6 +264,10 @@ class Pod(object):
     def get_catalogs(self, template_path=None):
         return catalog_holder.Catalogs(pod=self, template_path=template_path)
 
+    def create_collection(self, collection_path, fields):
+        pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
+        return collection.Collection.create(pod_path, fields, pod=self)
+
     def get_collection(self, collection_path):
         """Returns a collection.
 
@@ -268,7 +276,7 @@ class Pod(object):
         Returns:
           Collection.
         """
-        pod_path = os.path.join('/content', collection_path)
+        pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
         return collection.Collection.get(pod_path, _pod=self)
 
     def duplicate_to(self, other, exclude=None):

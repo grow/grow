@@ -35,11 +35,15 @@ class FileStorage(base_storage.BaseStorage):
     @staticmethod
     def listdir(dirpath):
         paths = []
-        for root, dirs, files in os.walk(dirpath, followlinks=True):
+        for root, _, files in os.walk(dirpath, followlinks=True):
             for filename in files:
                 path = os.path.join(root, filename)[len(dirpath):]
                 paths.append(path)
         return paths
+
+    @staticmethod
+    def walk(dirpath):
+        return os.walk(dirpath, followlinks=True)
 
     @staticmethod
     def JinjaLoader(path):

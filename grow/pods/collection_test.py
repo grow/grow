@@ -42,7 +42,7 @@ class CollectionsTestCase(unittest.TestCase):
 
     def test_list_locales(self):
         collection = self.pod.get_collection('pages')
-        found_locales = collection.list_locales()
+        found_locales = collection.locales
         expected = locales.Locale.parse_codes([
             'de',
             'en',
@@ -69,6 +69,15 @@ class CollectionsTestCase(unittest.TestCase):
         path = '/content/empty-front-matter/empty-front-matter.html'
         expected_doc = self.pod.get_doc(path)
         self.assertEqual(expected_doc, docs[0])
+
+    def test_collections(self):
+        collection = self.pod.create_collection('new', {})
+        self.assertEqual([], collection.collections)
+        sub_collection = self.pod.create_collection('new/sub', {})
+        self.assertEqual([sub_collection], collection.collections)
+        sub_sub_collection = self.pod.create_collection('new/sub/sub', {})
+        self.assertEqual([sub_collection], collection.collections)
+        self.assertEqual([sub_sub_collection], sub_collection.collections)
 
 
 if __name__ == '__main__':

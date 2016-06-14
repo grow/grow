@@ -27,6 +27,10 @@ class BaseStorage(object):
         raise NotImplementedError
 
     @staticmethod
+    def walk(dirpath):
+        raise NotImplementedError
+
+    @staticmethod
     def delete_dir(dirpath):
         raise NotImplementedError
 
