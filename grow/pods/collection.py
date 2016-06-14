@@ -48,11 +48,13 @@ class Collection(object):
 
     def __init__(self, pod_path, _pod):
         utils.validate_name(pod_path)
+        regex = Collection._content_path_regex
         self.pod = _pod
-        self.collection_path = Collection._content_path_regex.sub('', pod_path).strip('/')
+        self.collection_path = regex.sub('', pod_path).strip('/')
         self.pod_path = pod_path
         self._default_locale = _pod.podspec.default_locale
-        self._blueprint_path = os.path.join(self.pod_path, Collection.BLUEPRINT_PATH)
+        self._blueprint_path = os.path.join(
+            self.pod_path, Collection.BLUEPRINT_PATH)
 
     def __repr__(self):
         return '<Collection "{}">'.format(self.collection_path)
@@ -76,22 +78,24 @@ class Collection(object):
                 clean_paths.add(os.path.join(cls.CONTENT_PATH, parts[0]))
         return [cls(pod_path, _pod=pod) for pod_path in clean_paths]
 
-    @property
     def collections(self):
-        results = []
-        for root, dirs, files in self.pod.walk(self.pod_path):
+        """Returns collections contained within this collection. Implemented
+        as a function to allow future implementation of arguments."""
+        for root, dirs, _ in self.pod.walk(self.pod_path):
             if root == self.pod.abs_path(self.pod_path):
                 for dir_name in dirs:
                     pod_path = os.path.join(self.pod_path, dir_name)
-                    results.append(self.pod.get_collection(pod_path))
-        return results
+                    yield self.pod.get_collection(pod_path)
 
     @property
     def exists(self):
+        """Returns whether the collection exists, as determined by whether
+        the collection's blueprint exists."""
         return self.pod.file_exists(self._blueprint_path)
 
     @classmethod
     def create(cls, collection_path, fields, pod):
+        """Creates a new collection by writing a blueprint."""
         collection = cls.get(collection_path, pod)
         if collection.exists:
             raise CollectionExistsError('{} already exists.'.format(collection))
@@ -101,9 +105,11 @@ class Collection(object):
 
     @classmethod
     def get(cls, collection_path, _pod):
+        """Returns a collection object."""
         return cls(collection_path, _pod)
 
     def get_doc(self, pod_path, locale=None):
+        """Returns a document contained in this collection."""
         return documents.Document(pod_path, locale=locale, _pod=self.pod,
                                   _collection=self)
 
@@ -141,7 +147,7 @@ class Collection(object):
         return self.yaml.get('path')
 
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
-                  include_hidden=False):
+                  include_hidden=False, recursive=False):
         reverse = False if reverse is None else reverse
         order_by = 'order' if order_by is None else order_by
         key = operator.attrgetter(order_by)
@@ -153,6 +159,8 @@ class Collection(object):
                     or ext not in messages.extensions_to_formats
                     or not pod_path):
                 continue
+            if not recursive and self.pod_path != os.path.dirname(pod_path):
+                continue
             try:
                 doc = self.get_doc(pod_path)
                 if not include_hidden and doc.hidden:
@@ -163,10 +171,12 @@ class Collection(object):
                     continue
                 for each_locale in doc.locales:
                     # TODO(jeremydw): Add test for listing documents at the default locale.
-                    if each_locale == doc.default_locale and locale != each_locale:
+                    if (each_locale == doc.default_locale
+                            and locale != each_locale):
                         continue
                     if locale in [utils.SENTINEL, each_locale]:
-                        sorted_docs.insert(self.get_doc(pod_path, locale=each_locale))
+                        new_doc = self.get_doc(pod_path, locale=each_locale)
+                        sorted_docs.insert(new_doc)
             except Exception as e:
                 logging.error('Error loading doc: {}'.format(pod_path))
                 raise
@@ -175,8 +185,10 @@ class Collection(object):
     def list_servable_documents(self, include_hidden=False, locales=None):
         docs = []
         for doc in self.list_docs(include_hidden=include_hidden):
-            if (self.yaml.get('draft') or not doc.has_serving_path()
-                or not doc.get_view() or (locales and doc.locale not in locales)):
+            if (self.yaml.get('draft')
+                    or not doc.has_serving_path()
+                    or not doc.get_view()
+                    or (locales and doc.locale not in locales)):
                 continue
             docs.append(doc)
         return docs
@@ -196,8 +208,10 @@ class Collection(object):
                 # Locales inherited from podspec.
                 podspec = self.pod.get_podspec()
                 config = podspec.get_config()
-                if 'localization' in config and 'locales' in config['localization']:
-                    return locales.Locale.parse_codes(config['localization']['locales'])
+                if ('localization' in config
+                        and 'locales' in config['localization']):
+                    identifiers = config['localization']['locales']
+                    return locales.Locale.parse_codes(identifiers)
                 raise NoLocalesError('{} has no locales.')
         return []
 

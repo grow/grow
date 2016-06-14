@@ -72,12 +72,16 @@ class CollectionsTestCase(unittest.TestCase):
 
     def test_collections(self):
         collection = self.pod.create_collection('new', {})
-        self.assertEqual([], collection.collections)
+        self.assertEqual([],
+              [col for col in collection.collections()])
         sub_collection = self.pod.create_collection('new/sub', {})
-        self.assertEqual([sub_collection], collection.collections)
+        self.assertEqual([sub_collection],
+              [col for col in collection.collections()])
         sub_sub_collection = self.pod.create_collection('new/sub/sub', {})
-        self.assertEqual([sub_collection], collection.collections)
-        self.assertEqual([sub_sub_collection], sub_collection.collections)
+        self.assertEqual([sub_collection],
+              [col for col in collection.collections()])
+        self.assertEqual([sub_sub_collection],
+              [col for col in sub_collection.collections()])
 
 
 if __name__ == '__main__':
