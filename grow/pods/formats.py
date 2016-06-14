@@ -1,3 +1,9 @@
+"""
+    Consolidates operations related to dealing with content that has both
+    frontmatter and body content. Supports documents formatted in various ways
+    (yaml, html, markdown, etc.).
+"""
+
 from grow.common import markdown_extensions
 from grow.common import utils
 from markdown.extensions import tables
@@ -7,6 +13,7 @@ import logging
 import markdown
 import re
 import yaml
+
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
 
@@ -26,7 +33,7 @@ class Format(object):
         self.pod = doc.pod
         self.body = None
         self.content = self.pod.read_file(self.doc.pod_path)
-        self.has_front_matter = self.content.startswith('---')
+        self._has_front_matter = Format.has_front_matter(self.content)
         self.fields = {}
         self.load()
 
@@ -40,6 +47,10 @@ class Format(object):
             return MarkdownFormat(doc)
         text = 'Unsupported extension for content document: {}'
         raise BadFormatError(text.format(doc.basename))
+
+    @staticmethod
+    def has_front_matter(content):
+        return content.startswith('---')
 
     @staticmethod
     def split_front_matter(content):
@@ -134,7 +145,7 @@ class YamlFormat(_SplitDocumentFormat):
 
     def load(self):
         try:
-            if not self.has_front_matter:
+            if not self._has_front_matter:
                 self.fields = utils.load_yaml(
                     self.content,
                     doc=self.doc,
@@ -155,7 +166,7 @@ class HtmlFormat(YamlFormat):
         return [(part, body) for part, body in pairs]
 
     def load(self):
-        if not self.has_front_matter:
+        if not self._has_front_matter:
             self.fields = {}
             self.body = self.content
             return

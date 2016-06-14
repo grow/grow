@@ -1,8 +1,20 @@
+"""
+    Google Drive (Sheets and Docs) preprocessors allow you to store content in
+    Google Drive and bring it into Grow. Grow will authenticate to the Google
+    Drive API using OAuth2 and then download content as specified in
+    `podspec.yaml`.
+
+    Grow supports various ways to transform the content, e.g. Sheets can be
+    downloaded and converted to yaml, and Docs can be downloaded and converted
+    to markdown.
+"""
+
 from . import base
 from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
+from grow.pods import formats
 from protorpc import messages
 import bs4
 import cStringIO
@@ -16,7 +28,9 @@ import re
 import urllib
 import yaml
 
+
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
+
 
 # Silence extra logging from googleapiclient.
 discovery.logger.setLevel(logging.WARNING)
@@ -89,6 +103,12 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
                     h2t = html2text.HTML2Text()
                     content = h2t.handle(content)
                 content = content.encode('utf-8')
+                # Preserve any existing frontmatter.
+                if self.pod.file_exists(path):
+                    existing_content = self.pod.read_file(path)
+                    if formats.Format.has_front_matter(existing_content):
+                        content = formats.Format.update(
+                            existing_content, body=content)
                 self.pod.write_file(path, content)
                 self.logger.info('Downloaded Google Doc -> {}'.format(path))
 
