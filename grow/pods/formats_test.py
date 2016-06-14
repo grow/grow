@@ -1,3 +1,4 @@
+from . import formats
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
@@ -53,6 +54,36 @@ class FormatsTestCase(unittest.TestCase):
             '<div>HTML Content.</div>\n'
         )
         self.assertEqual(content, doc.content)
+
+    def test_update(self):
+        content = (
+            '---\n'
+            'foo: bar\n'
+            '---\n'
+            'Body\n'
+        )
+        new_content = formats.Format.update(content)
+        self.assertEqual(content, new_content)
+
+        fields = {'qaz': 'qux'}
+        expected = (
+            '---\n'
+            'qaz: qux\n'
+            '---\n'
+            'Body\n'
+        )
+        new_content = formats.Format.update(content, fields=fields)
+        self.assertEqual(expected, new_content)
+
+        body = 'Updated body\n'
+        expected = (
+            '---\n'
+            'foo: bar\n'
+            '---\n'
+            'Updated body\n'
+        )
+        new_content = formats.Format.update(content, body=body)
+        self.assertEqual(expected, new_content)
 
 
 if __name__ == '__main__':

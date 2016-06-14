@@ -8,7 +8,7 @@ import markdown
 import re
 import yaml
 
-BOUNDARY = re.compile(r'^-{3,}$', re.MULTILINE)
+BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
 
 
 class Error(Exception):
@@ -43,8 +43,20 @@ class Format(object):
 
     @staticmethod
     def split_front_matter(content):
-        parts = BOUNDARY.split(content)
+        parts = BOUNDARY_REGEX.split(content)
         return parts[1:]
+
+    @staticmethod
+    def update(content, fields=utils.SENTINEL, body=utils.SENTINEL):
+        """Updates content with frontmatter. The existing fields and the
+        existing body are preserved if they are not specified in arguments."""
+        parts = Format.split_front_matter(content)
+        if fields is not utils.SENTINEL:
+            fields = '\n' + utils.dump_yaml(fields)
+            parts[0] = fields
+        if body is not utils.SENTINEL:
+            parts[1] = '\n' + body
+        return '---' + '---'.join(parts)
 
     @property
     def html(self):
