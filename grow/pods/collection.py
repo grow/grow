@@ -118,6 +118,11 @@ class Collection(object):
         return documents.Document(pod_path, locale=locale, _pod=self.pod,
                                   _collection=self)
 
+    def create_doc(self, basename, fields=utils.SENTINEL, body=utils.SENTINEL):
+        """Creates a document within the collection."""
+        doc_pod_path = os.path.join(self.pod_path, basename)
+        self.pod.write_file(doc_pod_path, content)
+
     @property
     @utils.memoize
     def yaml(self):

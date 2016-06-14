@@ -12,7 +12,7 @@ import re
 
 
 def categories(collection=None, collections=None, reverse=None, order_by=None,
-               _pod=None, use_cache=False):
+               locale=utils.SENTINEL, _pod=None, use_cache=False):
     if isinstance(collection, collection_lib.Collection):
         collection = collection
     elif isinstance(collection, basestring):
@@ -20,16 +20,13 @@ def categories(collection=None, collections=None, reverse=None, order_by=None,
     else:
         text = '{} must be a Collection instance or a collection path, found: {}.'
         raise ValueError(text.format(collection, type(collection)))
-
     category_list = collection.list_categories()
-
     def order_func(doc):
         try:
             return category_list.index(doc.category)
         except ValueError:
             return 0
-
-    docs = [doc for doc in collection.list_docs(reverse=reverse)]
+    docs = [doc for doc in collection.list_docs(reverse=reverse, locale=locale)]
     docs = sorted(docs, key=order_func)
     items = itertools.groupby(docs, key=order_func)
     return ((category_list[index], pages) for index, pages in items)

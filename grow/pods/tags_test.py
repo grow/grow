@@ -30,6 +30,10 @@ class BuiltinsTestCase(unittest.TestCase):
             self.assertIn(collection.collection_path, paths)
         self.assertEqual(len(paths), len(collections))
 
+    def test_categories(self):
+        collection = self.pod.create_collection('category-test', {})
+        collection.create_doc('foo.yaml', {'path': 'bar'})
+
 
 if __name__ == '__main__':
     unittest.main()
