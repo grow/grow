@@ -22,6 +22,10 @@ class GulpPreprocessor(base.BasePreprocessor):
     Config = Config
 
     def run(self, build=True):
+        # Avoid restarting the Gulp subprocess if the preprocessor is
+        # being run as a result of restarting the server.
+        if 'RESTARTED' in os.environ:
+            return
         args = sdk_utils.get_popen_args(self.pod)
         task = self.config.build_task if build else self.config.run_task
         raw_command = '{} {}'.format(self.config.command, task)
@@ -31,4 +35,5 @@ class GulpPreprocessor(base.BasePreprocessor):
             return
         code = process.wait()
         if code != 0:
-            raise base.PreprocessorError('Failed to run: {}'.format(raw_command))
+            text = 'Failed to run: {}'.format(raw_command)
+            raise base.PreprocessorError(text)
