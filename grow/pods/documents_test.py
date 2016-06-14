@@ -75,7 +75,7 @@ class DocumentsTestCase(unittest.TestCase):
             'fr',
             'it',
         ])
-        self.assertEqual(expected, doc.list_locales())
+        self.assertEqual(expected, doc.locales)
 
     def test_next_prev(self):
         collection = self.pod.get_collection('pages')

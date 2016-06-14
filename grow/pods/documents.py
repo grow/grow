@@ -26,12 +26,6 @@ class DocumentExistsError(Error, ValueError):
     pass
 
 
-class DummyDict(object):
-
-    def __getattr__(self, name):
-        return ''
-
-
 class Document(object):
 
     def __init__(self, pod_path, _pod, locale=None, _collection=None):
@@ -257,36 +251,29 @@ class Document(object):
             'date': self.date,
             'env.fingerpint': self.pod.env.fingerprint,
             'locale': locale,
-            'parent': self.parent if self.parent else DummyDict(),
+            'parent': self.parent if self.parent else utils.DummyDict(),
             'root': podspec.root,
             'slug': self.slug,
         }).replace('//', '/')
 
     @webapp2.cached_property
     def locales(self):
-        return self.list_locales()
-
-    def list_locales(self):
         localized = '$localization' in self.fields
         if localized and 'locales' in self.fields['$localization']:
             codes = self.fields['$localization']['locales']
             if codes is None:
                 return []
             return locales.Locale.parse_codes(codes)
-        return self.collection.list_locales()
+        return self.collection.locales
 
     @property
     @utils.memoize
     def body(self):
-        body = self.format.body
-        if body is None:
-            return body
-        return body.decode('utf-8')
+        return self.format.body.decode('utf-8') if self.format.body else None
 
     @property
     def content(self):
-        content = self.format.content
-        return content.decode('utf-8')
+        return self.format.content.decode('utf-8')
 
     @property
     def html(self):
@@ -319,25 +306,6 @@ class Document(object):
                 if n < 0:
                     return None
                 return docs[i - 1]
-
-    def create_from_message(self, message):
-        if self.exists:
-            raise DocumentExistsError('{} already exists.'.format(self))
-        self.update_from_message(message)
-
-    def update_from_message(self, message):
-        if message.content is not None:
-            if isinstance(message.content, unicode):
-                content = message.content.encode('utf-8')
-            else:
-                content = message.content
-            self.format.write(content)
-        elif message.fields is not None:
-            content = '---\n{}\n---\n{}\n'.format(message.fields, message.body or '')
-            self.format.write(content)
-            self.fields = self.format.fields
-        else:
-            raise NotImplementedError()
 
     def to_message(self):
         message = messages.DocumentMessage()

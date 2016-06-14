@@ -10,6 +10,7 @@ import logging
 import operator
 import os
 import re
+import webapp2
 
 
 class Error(Exception):
@@ -41,14 +42,17 @@ class NoLocalesError(Error):
 
 
 class Collection(object):
+    CONTENT_PATH = '/content'
+    BLUEPRINT_PATH = '_blueprint.yaml'
+    _content_path_regex = re.compile('^' + CONTENT_PATH + '/?')
 
     def __init__(self, pod_path, _pod):
         utils.validate_name(pod_path)
         self.pod = _pod
-        self.collection_path = re.sub('^/content/?', '', pod_path).strip('/')
+        self.collection_path = Collection._content_path_regex.sub('', pod_path).strip('/')
         self.pod_path = pod_path
         self._default_locale = _pod.podspec.default_locale
-        self._blueprint_path = os.path.join(self.pod_path, '_blueprint.yaml')
+        self._blueprint_path = os.path.join(self.pod_path, Collection.BLUEPRINT_PATH)
 
     def __repr__(self):
         return '<Collection "{}">'.format(self.collection_path)
@@ -64,23 +68,36 @@ class Collection(object):
     @classmethod
     def list(cls, pod):
         # TODO: Implement "depth" argument on pod.list_dir and use.
-        paths = pod.list_dir('/content/')
+        paths = pod.list_dir(cls.CONTENT_PATH + '/')
         clean_paths = set()
         for path in paths:
             parts = path.split('/')
             if len(parts) >= 2:  # Disallow files in root-level /content/ dir.
-                clean_paths.add(os.path.join('/content', parts[0]))
+                clean_paths.add(os.path.join(cls.CONTENT_PATH, parts[0]))
         return [cls(pod_path, _pod=pod) for pod_path in clean_paths]
+
+    @property
+    def collections(self):
+        results = []
+        for root, dirs, files in self.pod.walk(self.pod_path):
+            if root == self.pod.abs_path(self.pod_path):
+                for dir_name in dirs:
+                    pod_path = os.path.join(self.pod_path, dir_name)
+                    results.append(self.pod.get_collection(pod_path))
+        return results
 
     @property
     def exists(self):
         return self.pod.file_exists(self._blueprint_path)
 
-    def create_from_message(self, message):
-        if self.exists:
-            raise CollectionExistsError('{} already exists.'.format(self))
-        self.update_from_message(message)
-        return self
+    @classmethod
+    def create(cls, collection_path, fields, pod):
+        collection = cls.get(collection_path, pod)
+        if collection.exists:
+            raise CollectionExistsError('{} already exists.'.format(collection))
+        fields = utils.dump_yaml(fields)
+        pod.write_file(collection._blueprint_path, fields)
+        return collection
 
     @classmethod
     def get(cls, collection_path, _pod):
@@ -117,13 +134,6 @@ class Collection(object):
             raise CollectionNotEmptyError(text)
         self.pod.delete_file(self._blueprint_path)
 
-    def update_from_message(self, message):
-        if not message.fields:
-            raise BadFieldsError('Fields are required to create a collection.')
-        fields = json.loads(message.fields)
-        fields = utils.dump_yaml(fields)
-        self.pod.write_file(self._blueprint_path, fields)
-
     def get_view(self):
         return self.yaml.get('view')
 
@@ -151,7 +161,7 @@ class Collection(object):
                     sorted_docs.insert(doc)
                 if locale is None:
                     continue
-                for each_locale in doc.list_locales():
+                for each_locale in doc.locales:
                     # TODO(jeremydw): Add test for listing documents at the default locale.
                     if each_locale == doc.default_locale and locale != each_locale:
                         continue
@@ -175,7 +185,8 @@ class Collection(object):
     def localization(self):
         return self.yaml.get('localization')
 
-    def list_locales(self):
+    @webapp2.cached_property
+    def locales(self):
         if 'localization' in self.yaml:
             if self.yaml['localization'].get('use_podspec_locales'):
                 return self.pod.list_locales()
