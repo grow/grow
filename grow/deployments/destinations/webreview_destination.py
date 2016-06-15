@@ -17,7 +17,7 @@ class Config(messages.Message):
     keep_control_dir = messages.BooleanField(6, default=False)
     remote = messages.StringField(8)
     subdomain = messages.StringField(9)
-    add_branch_to_subdomain = messages.BooleanField(10, default=False)
+    subdomain_prefix = messages.StringField(10)
 
 
 class WebReviewDestination(base.BaseDestination):
@@ -65,10 +65,10 @@ class WebReviewDestination(base.BaseDestination):
     def deploy(self, *args, **kwargs):
         repo = kwargs.get('repo')
         if repo:
-            if self.config.add_branch_to_subdomain:
+            if self.config.subdomain_prefix and not self.config.subdomain:
                 token = repo.active_branch.name.split('/')[-1]
                 if token != 'master':
-                    subdomain = self.config.subdomain + '-{}'.format(token)
+                    subdomain = self.config.subdomain_prefix + '-{}'.format(token)
                 self.webreview.name = subdomain
             try:
                 self.webreview.commit = utils.create_commit_message(repo)
