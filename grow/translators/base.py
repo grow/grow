@@ -36,7 +36,7 @@ class TranslatorServiceError(Exception):
 
 
 class Translator(object):
-    TRANSLATOR_STATS_PATH = '/translations/translators.yaml'
+    TRANSLATOR_STATS_PATH = '/translators.yaml'
     KIND = None
     has_immutable_translation_resources = False
 
