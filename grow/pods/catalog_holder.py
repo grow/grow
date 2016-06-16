@@ -221,6 +221,7 @@ class Catalogs(object):
         # Extract from collections in /content/:
         # Strings only extracted for relevant locales, determined by locale
         # scope (pod > collection > document > document part)
+        last_pod_path = None
         for collection in self.pod.list_collections():
             text = 'Extracting collection: {}'.format(collection.pod_path)
             self.pod.logger.info(text)
@@ -231,6 +232,16 @@ class Catalogs(object):
                 if not self._should_extract_as_babel(paths, doc.pod_path):
                     continue
 
+            for doc in collection.list_docs(include_hidden=True):
+                if doc.pod_path != last_pod_path:
+                    self.pod.logger.info(
+                        'Extracting: {} ({} locale{})'.format(
+                            doc.pod_path,
+                            len(doc.locales),
+                            's' if len(doc.locales) > 1 else '',
+                        )
+                    )
+                    last_pod_path = doc.pod_path
                 # If doc.locale is set, this is a doc part: only extract for
                 # its own locales (not those of base doc).
                 if doc.locale:
