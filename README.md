@@ -1,4 +1,4 @@
-# Grow SDK [![Build Status](https://travis-ci.org/grow/grow.png?branch=master)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![Slack](https://growsdk.herokuapp.com/badge.svg)](https://growsdk.herokuapp.com)
+# Grow SDK [![Build Status](https://api.travis-ci.org/grow/grow.svg)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![Slack](https://growsdk.herokuapp.com/badge.svg)](https://growsdk.herokuapp.com)
 
 A declarative, file-based tool for rapidly building maintainable websites.
 
