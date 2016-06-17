@@ -16,6 +16,7 @@ import yaml
 
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
+PATH_LOCALE_REGEX = re.compile('(.*)@([^\.]*)\.(.*)')
 
 
 class Error(Exception):
@@ -32,10 +33,47 @@ class Format(object):
         self.doc = doc
         self.pod = doc.pod
         self.body = None
-        self.content = self.pod.read_file(self.doc.pod_path)
+        self.pod_path = self.doc.pod_path
+        self.locale_from_path = None
+        self.content = self._read_content(self.pod_path)
         self._has_front_matter = Format.has_front_matter(self.content)
         self.fields = {}
         self.load()
+
+    @staticmethod
+    def _normalize_frontmatter(pod_path, content, locale=None):
+        if Format.has_front_matter(content):
+            if locale:
+                fields, body = Format.split_front_matter(content)
+                fields += '\n$locale: {}\n'.format(locale)
+                return '---\n{}\n---\n{}'.format(fields, body)
+            return content
+        if pod_path.endswith('.md'):
+            if locale:
+                return '---\n$locale: {}\n---\n{}'.format(locale, content)
+            else:
+                return '---\n\n---\n{}'.format(content)
+        if locale:
+            return '---\n$locale: {}\n{}'.format(locale, content)
+        else:
+            return '---\n{}'.format(content)
+
+    def _read_content(self, pod_path):
+        locale_match = PATH_LOCALE_REGEX.match(pod_path)
+        if locale_match:
+            groups = locale_match.groups()
+            root_pod_path = '{}.{}'.format(groups[0], groups[2])
+            root_content = self.pod.read_file(root_pod_path)
+            localized_content = self.pod.read_file(pod_path)
+            self.locale_from_path = groups[1]
+            root_content_with_frontmatter = Format._normalize_frontmatter(
+                root_pod_path, root_content)
+            localized_content_with_frontmatter = Format._normalize_frontmatter(
+                pod_path, localized_content, locale=self.locale_from_path)
+            return '{}\n{}'.format(
+                root_content_with_frontmatter,
+                localized_content_with_frontmatter)
+        return self.pod.read_file(pod_path)
 
     @classmethod
     def get(cls, doc):
@@ -118,7 +156,7 @@ class _SplitDocumentFormat(Format):
 
         for i, parts in enumerate(self._iterate_content()):
             part, body = parts
-            fields = self._load_yaml(part)
+            fields = self._load_yaml(part) or {}
             self._validate_fields(fields)
             if i == 0:
                 base_default_locale = self._get_base_default_locale(fields)
@@ -149,7 +187,7 @@ class YamlFormat(_SplitDocumentFormat):
                 self.fields = utils.load_yaml(
                     self.content,
                     doc=self.doc,
-                    pod=self.doc.pod)
+                    pod=self.doc.pod) or {}
                 self.body = self.content
                 return
             self._handle_pairs_of_parts_and_bodies()
