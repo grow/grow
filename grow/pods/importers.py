@@ -106,7 +106,6 @@ class Importer(object):
 
         babel_locales = external_to_babel_locales.get(locale, [locale])
         for babel_locale in babel_locales:
-          print 'babel locale', babel_locale
           pod_translations_dir = os.path.join(
               'translations', babel_locale, 'LC_MESSAGES')
           pod_po_path = os.path.join(pod_translations_dir, 'messages.po')
