@@ -10,6 +10,9 @@ import re
 import webapp2
 
 
+PATH_LOCALE_REGEX = formats.PATH_LOCALE_REGEX
+
+
 class Error(Exception):
     pass
 
@@ -32,17 +35,11 @@ class Document(object):
         self._locale_kwarg = locale
         utils.validate_name(pod_path)
         self.pod_path = pod_path
-        self.basename = os.path.basename(pod_path)
+        self.basename = Document._clean_basename(pod_path)
         self.base, self.ext = os.path.splitext(self.basename)
         self.pod = _pod
         self.collection = _collection
-        try:
-            self.locale = _pod.normalize_locale(locale, default=self.default_locale)
-        except IOError as exc:  # Document does not exist.
-            if '[Errno 2] No such file or directory' in str(exc):
-                self.locale = None
-            else:
-                raise
+        self.locale = self._init_locale(locale, pod_path)
 
     def __repr__(self):
         if self.locale:
@@ -55,6 +52,19 @@ class Document(object):
     def __ne__(self, other):
         return self.pod_path != other.pod_path or self.pod != other.pod
 
+    def _init_locale(self, locale, pod_path):
+        try:
+            locale_match = PATH_LOCALE_REGEX.match(pod_path)
+            if locale_match:
+                locale = locale_match.groups()[1]
+            return self.pod.normalize_locale(
+                locale, default=self.default_locale)
+        except IOError as exc:  # Document does not exist.
+            if '[Errno 2] No such file or directory' in str(exc):
+                return None
+            else:
+                raise
+
     def __eq__(self, other):
         return (isinstance(self, Document)
                 and isinstance(other, Document)
@@ -63,9 +73,18 @@ class Document(object):
     def __getattr__(self, name):
         if name == 'locale':
             return self._locale_kwarg
-        if name in self.fields:
+        try:
             return self.fields[name]
-        return object.__getattribute__(self, name)
+        except KeyError:
+            return object.__getattribute__(self, name)
+
+    @classmethod
+    def _clean_basename(cls, pod_path):
+        locale_match = PATH_LOCALE_REGEX.match(pod_path)
+        if locale_match:
+            groups = locale_match.groups()
+            pod_path = '{}.{}'.format(groups[0], groups[2])
+        return os.path.basename(pod_path)
 
     @webapp2.cached_property
     def default_locale(self):
@@ -84,19 +103,14 @@ class Document(object):
 
     @webapp2.cached_property
     def fields(self):
-        tagged_fields = self.get_tagged_fields()
+        format_obj = formats.Format.get(self)
+        tagged_fields = format_obj.fields
         fields = utils.untag_fields(tagged_fields)
-        if fields is None:
-            return {}
-        return fields
+        return {} if not fields else fields
 
     @webapp2.cached_property
     def format(self):
         return formats.Format.get(self)
-
-    def get_tagged_fields(self):
-        format_obj = formats.Format.get(self)
-        return format_obj.fields
 
     @property
     def url(self):

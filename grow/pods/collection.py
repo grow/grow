@@ -13,6 +13,9 @@ import re
 import webapp2
 
 
+PATH_LOCALE_REGEX = documents.PATH_LOCALE_REGEX
+
+
 class Error(Exception):
     pass
 
@@ -110,6 +113,11 @@ class Collection(object):
 
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
+        if locale is not None:
+            base, ext = os.path.splitext(pod_path)
+            localized_path = '{}@{}{}'.format(base, locale, ext)
+            if self.pod.file_exists(localized_path):
+                pod_path = localized_path
         return documents.Document(pod_path, locale=locale, _pod=self.pod,
                                   _collection=self)
 
@@ -162,6 +170,17 @@ class Collection(object):
             if not recursive and self.pod_path != os.path.dirname(pod_path):
                 continue
             try:
+                locale_match = PATH_LOCALE_REGEX.match(pod_path)
+                if locale_match:
+                    groups = locale_match.groups()
+                    locale_from_path = groups[1]
+                    if (locale is not None
+                            and locale in [utils.SENTINEL, locale_from_path]):
+                        new_doc = self.get_doc(pod_path, locale=locale_from_path)
+                        if not include_hidden and new_doc.hidden:
+                            continue
+                        sorted_docs.insert(new_doc)
+                    continue
                 doc = self.get_doc(pod_path)
                 if not include_hidden and doc.hidden:
                     continue
@@ -169,18 +188,22 @@ class Collection(object):
                     sorted_docs.insert(doc)
                 if locale is None:
                     continue
-                for each_locale in doc.locales:
-                    # TODO(jeremydw): Add test for listing documents at the default locale.
-                    if (each_locale == doc.default_locale
-                            and locale != each_locale):
-                        continue
-                    if locale in [utils.SENTINEL, each_locale]:
-                        new_doc = self.get_doc(pod_path, locale=each_locale)
-                        sorted_docs.insert(new_doc)
+                self._add_localized_docs(sorted_docs, pod_path, locale, doc)
             except Exception as e:
                 logging.error('Error loading doc: {}'.format(pod_path))
                 raise
         return reversed(sorted_docs) if reverse else sorted_docs
+
+    def _add_localized_docs(self, sorted_docs, pod_path, locale, doc):
+        for each_locale in doc.locales:
+            if each_locale == doc.default_locale and locale != each_locale:
+                continue
+            base, ext = os.path.splitext(pod_path)
+            localized_file_path = '{}@{}{}'.format(base, each_locale, ext)
+            if (locale in [utils.SENTINEL, each_locale]
+                    and not self.pod.file_exists(localized_file_path)):
+                new_doc = self.get_doc(pod_path, locale=each_locale)
+                sorted_docs.insert(new_doc)
 
     def list_servable_documents(self, include_hidden=False, locales=None):
         docs = []
