@@ -271,7 +271,7 @@ class Catalogs(object):
                     rows = self.pod.read_csv(pod_path)
                     for i, row in enumerate(rows):
                         for key, msgid in row.iteritems():
-                            _handle_field(pod_path, collection.list_locales(), msgid, key, row)
+                            _handle_field(pod_path, collection.locales, msgid, key, row)
 
         # Extract from root of /content/:
         for path in self.pod.list_dir('/content/', recursive=False):
