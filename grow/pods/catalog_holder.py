@@ -235,7 +235,7 @@ class Catalogs(object):
 
         # Extract from root of /content/:
         for path in self.pod.list_dir('/content/', recursive=False):
-            if path.endswith('.yaml') or path.endswith('.yml'):
+            if path.endswith(('.yaml', '.yml')):
                 pod_path = os.path.join('/content/', path)
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
                 utils.walk(
