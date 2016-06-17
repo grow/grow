@@ -103,10 +103,13 @@ class Document(object):
 
     @webapp2.cached_property
     def fields(self):
-        format_obj = formats.Format.get(self)
-        tagged_fields = format_obj.fields
+        tagged_fields = self.get_tagged_fields()
         fields = utils.untag_fields(tagged_fields)
         return {} if not fields else fields
+
+    def get_tagged_fields(self):
+        format_obj = formats.Format.get(self)
+        return format_obj.fields
 
     @webapp2.cached_property
     def format(self):
