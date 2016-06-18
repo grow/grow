@@ -35,7 +35,8 @@ class Format(object):
         self.body = None
         self.pod_path = self.doc.pod_path
         self.locale_from_path = None
-        self.content = self._read_content(self.pod_path)
+        self.root_pod_path = None
+        self.content = self._init_content(self.pod_path)
         self._has_front_matter = Format.has_front_matter(self.content)
         self.fields = {}
         self.load()
@@ -58,16 +59,16 @@ class Format(object):
         else:
             return '---\n{}'.format(content)
 
-    def _read_content(self, pod_path):
+    def _init_content(self, pod_path):
         locale_match = PATH_LOCALE_REGEX.match(pod_path)
         if locale_match:
             groups = locale_match.groups()
-            root_pod_path = '{}.{}'.format(groups[0], groups[2])
-            root_content = self.pod.read_file(root_pod_path)
+            self.root_pod_path = '{}.{}'.format(groups[0], groups[2])
+            root_content = self.pod.read_file(self.root_pod_path)
             localized_content = self.pod.read_file(pod_path)
             self.locale_from_path = groups[1]
             root_content_with_frontmatter = Format._normalize_frontmatter(
-                root_pod_path, root_content)
+                self.root_pod_path, root_content)
             localized_content_with_frontmatter = Format._normalize_frontmatter(
                 pod_path, localized_content, locale=self.locale_from_path)
             return '{}\n{}'.format(
