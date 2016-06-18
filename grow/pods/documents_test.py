@@ -141,6 +141,12 @@ class DocumentsTestCase(unittest.TestCase):
     def test_multi_file_localization(self):
         doc = self.pod.get_doc('/content/pages/intro.md', locale='fr')
         self.assertEqual(locales.Locale('fr'), doc.locale)
+        self.assertEqual('/content/pages/intro@fr.md', doc.pod_path)
+        self.assertEqual('/content/pages/intro.md', doc.root_pod_path)
+        self.assertIn('French About page.', doc.html)
+        de_doc = self.pod.get_doc('/content/pages/intro.md', locale='de')
+        de_doc_from_fr_doc = doc.localize('de')
+        self.assertEqual(de_doc, de_doc_from_fr_doc)
 
 if __name__ == '__main__':
     unittest.main()
