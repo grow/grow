@@ -54,9 +54,7 @@ class Routes(object):
         for collection in self.pod.list_collections():
             for doc in collection.list_servable_documents(include_hidden=True):
                 controller = rendered.RenderedController(
-                    view=doc.get_view(),
-                    document=doc,
-                    _pod=self.pod)
+                    view=doc.view, document=doc, _pod=self.pod)
                 rule = routing.Rule(doc.get_serving_path(), endpoint=controller)
                 rules.append(rule)
                 new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc

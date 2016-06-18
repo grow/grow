@@ -161,7 +161,9 @@ class Document(object):
 
     @property
     def view(self):
-        return self.get_view()
+        view_format = self.fields.get('$view', self.collection.view)
+        if view_format is not None:
+            return self._format_path(view_format)
 
     def dates(self, date_name=None):
         if date_name is None:
@@ -175,10 +177,6 @@ class Document(object):
     @property
     def exists(self):
         return self.pod.file_exists(self.pod_path)
-
-    def get_view(self):
-        view_format = self.fields.get('$view', self.collection.get_view())
-        return self._format_path(view_format) if view_format is not None else None
 
     def get_path_format(self):
         val = None
