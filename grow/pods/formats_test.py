@@ -85,6 +85,22 @@ class FormatsTestCase(unittest.TestCase):
         new_content = formats.Format.update(content, body=body)
         self.assertEqual(expected, new_content)
 
+    def test_parse_localized_path(self):
+        path = '/content/pages/file@locale.ext'
+        expected = ('/content/pages/file.ext', 'locale')
+        self.assertEqual(expected, formats.Format.parse_localized_path(path))
+        path = '/content/pages/file.ext'
+        expected = ('/content/pages/file.ext', None)
+        self.assertEqual(expected, formats.Format.parse_localized_path(path))
+
+    def test_localize_path(self):
+        path = '/content/pages/file.ext'
+        locale = 'locale'
+        expected = '/content/pages/file@locale.ext'
+        self.assertEqual(
+            expected, formats.Format.localize_path(path, locale=locale))
+
+
 
 if __name__ == '__main__':
     unittest.main()
