@@ -101,6 +101,5 @@ class FormatsTestCase(unittest.TestCase):
             expected, formats.Format.localize_path(path, locale=locale))
 
 
-
 if __name__ == '__main__':
     unittest.main()
