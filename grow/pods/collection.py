@@ -142,14 +142,15 @@ class Collection(object):
     def root(self):
         return self.yaml.get('root')
 
+    @property
+    def view(self):
+        return self.yaml.get('view')
+
     def delete(self):
         if len(self.list_docs(include_hidden=True)):
             text = 'Collections that are not empty cannot be deleted.'
             raise CollectionNotEmptyError(text)
         self.pod.delete_file(self._blueprint_path)
-
-    def get_view(self):
-        return self.yaml.get('view')
 
     def get_path_format(self):
         return self.yaml.get('path')
@@ -210,7 +211,7 @@ class Collection(object):
         for doc in self.list_docs(include_hidden=include_hidden):
             if (self.yaml.get('draft')
                     or not doc.has_serving_path()
-                    or not doc.get_view()
+                    or not doc.view
                     or (locales and doc.locale not in locales)):
                 continue
             docs.append(doc)
