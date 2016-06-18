@@ -56,7 +56,9 @@ class Document(object):
         try:
             locale_match = PATH_LOCALE_REGEX.match(pod_path)
             if locale_match:
-                locale = locale_match.groups()[1]
+                groups = locale_match.groups()
+                locale = groups[1]
+                self.pod_path = '{}.{}'.format(groups[0], groups[2])
             return self.pod.normalize_locale(
                 locale, default=self.default_locale)
         except IOError as exc:  # Document does not exist.
@@ -108,8 +110,8 @@ class Document(object):
         return {} if not fields else fields
 
     def get_tagged_fields(self):
-        format_obj = formats.Format.get(self)
-        return format_obj.fields
+        format = formats.Format.get(self)
+        return format.fields
 
     @webapp2.cached_property
     def format(self):

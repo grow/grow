@@ -138,5 +138,9 @@ class DocumentsTestCase(unittest.TestCase):
         doc = self.pod.get_doc('/content/localized/does-not-exist.yaml')
         self.assertFalse(doc.exists)
 
+    def test_multi_file_localization(self):
+        doc = self.pod.get_doc('/content/pages/intro.md', locale='fr')
+        self.assertEqual(locales.Locale('fr'), doc.locale)
+
 if __name__ == '__main__':
     unittest.main()
