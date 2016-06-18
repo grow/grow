@@ -10,9 +10,6 @@ import re
 import webapp2
 
 
-PATH_LOCALE_REGEX = formats.PATH_LOCALE_REGEX
-
-
 class Error(Exception):
     pass
 
@@ -55,11 +52,10 @@ class Document(object):
 
     def _init_locale(self, locale, pod_path):
         try:
-            locale_match = PATH_LOCALE_REGEX.match(pod_path)
-            if locale_match:
-                groups = locale_match.groups()
-                locale = groups[1]
-                self.root_pod_path = '{}.{}'.format(groups[0], groups[2])
+            self.root_pod_path, locale_from_path = \
+                formats.Format.parse_localized_path(pod_path)
+            if locale_from_path:
+                locale = locale_from_path
             return self.pod.normalize_locale(
                 locale, default=self.default_locale)
         except IOError as exc:  # Document does not exist.
@@ -83,10 +79,7 @@ class Document(object):
 
     @classmethod
     def _clean_basename(cls, pod_path):
-        locale_match = PATH_LOCALE_REGEX.match(pod_path)
-        if locale_match:
-            groups = locale_match.groups()
-            pod_path = '{}.{}'.format(groups[0], groups[2])
+        pod_path, _ = formats.Format.parse_localized_path(pod_path)
         return os.path.basename(pod_path)
 
     @webapp2.cached_property

@@ -11,6 +11,7 @@ from markdown.extensions import toc
 import collections
 import logging
 import markdown
+import os
 import re
 import yaml
 
@@ -34,8 +35,8 @@ class Format(object):
         self.pod = doc.pod
         self.body = None
         self.pod_path = self.doc.pod_path
+        self.root_pod_path = self.pod_path
         self.locale_from_path = None
-        self.root_pod_path = None
         self.content = self._init_content(self.pod_path)
         self._has_front_matter = Format.has_front_matter(self.content)
         self.fields = {}
@@ -59,14 +60,33 @@ class Format(object):
         else:
             return '---\n{}'.format(content)
 
-    def _init_content(self, pod_path):
+    @classmethod
+    def parse_localized_path(cls, pod_path):
+        """Returns a tuple containing the root pod path and the locale, parsed
+        from a localized pod path (formatted <base>@<locale>.<ext>). If the
+        supplied pod path does not contain a locale, the pod path is returned
+        along with None."""
         locale_match = PATH_LOCALE_REGEX.match(pod_path)
         if locale_match:
             groups = locale_match.groups()
-            self.root_pod_path = '{}.{}'.format(groups[0], groups[2])
+            locale = groups[1]
+            root_pod_path = '{}.{}'.format(groups[0], groups[2])
+            return root_pod_path, locale
+        return pod_path, None
+
+    @classmethod
+    def localize_path(cls, pod_path, locale):
+        """Returns a localized path (formatted <base>@<locale>.<ext>) for
+        multi-file localization."""
+        base, ext = os.path.splitext(pod_path)
+        return '{}@{}{}'.format(base, locale, ext)
+
+    def _init_content(self, pod_path):
+        self.root_pod_path, self.locale_from_path = \
+            Format.parse_localized_path(pod_path)
+        if self.locale_from_path:
             root_content = self.pod.read_file(self.root_pod_path)
             localized_content = self.pod.read_file(pod_path)
-            self.locale_from_path = groups[1]
             root_content_with_frontmatter = Format._normalize_frontmatter(
                 self.root_pod_path, root_content)
             localized_content_with_frontmatter = Format._normalize_frontmatter(

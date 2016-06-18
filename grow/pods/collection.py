@@ -1,6 +1,7 @@
 """Collections contain content documents and blueprints."""
 
 from . import documents
+from . import formats
 from . import messages
 from grow.common import structures
 from grow.common import utils
@@ -11,9 +12,6 @@ import operator
 import os
 import re
 import webapp2
-
-
-PATH_LOCALE_REGEX = documents.PATH_LOCALE_REGEX
 
 
 class Error(Exception):
@@ -114,8 +112,7 @@ class Collection(object):
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
         if locale is not None:
-            base, ext = os.path.splitext(pod_path)
-            localized_path = '{}@{}{}'.format(base, locale, ext)
+            localized_path = formats.Format.localize_path(pod_path, locale)
             if self.pod.file_exists(localized_path):
                 pod_path = localized_path
         return documents.Document(pod_path, locale=locale, _pod=self.pod,
@@ -171,10 +168,9 @@ class Collection(object):
             if not recursive and self.pod_path != os.path.dirname(pod_path):
                 continue
             try:
-                locale_match = PATH_LOCALE_REGEX.match(pod_path)
-                if locale_match:
-                    groups = locale_match.groups()
-                    locale_from_path = groups[1]
+                _, locale_from_path = \
+                    formats.Format.parse_localized_path(pod_path)
+                if locale_from_path:
                     if (locale is not None
                             and locale in [utils.SENTINEL, locale_from_path]):
                         new_doc = self.get_doc(pod_path, locale=locale_from_path)
