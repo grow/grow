@@ -35,6 +35,7 @@ class Document(object):
         self._locale_kwarg = locale
         utils.validate_name(pod_path)
         self.pod_path = pod_path
+        self.root_pod_path = pod_path  # For multi-file localization.
         self.basename = Document._clean_basename(pod_path)
         self.base, self.ext = os.path.splitext(self.basename)
         self.pod = _pod
@@ -58,7 +59,7 @@ class Document(object):
             if locale_match:
                 groups = locale_match.groups()
                 locale = groups[1]
-                self.pod_path = '{}.{}'.format(groups[0], groups[2])
+                self.root_pod_path = '{}.{}'.format(groups[0], groups[2])
             return self.pod.normalize_locale(
                 locale, default=self.default_locale)
         except IOError as exc:  # Document does not exist.
@@ -177,6 +178,9 @@ class Document(object):
     @property
     def exists(self):
         return self.pod.file_exists(self.pod_path)
+
+    def localize(self, locale):
+        return self.collection.get_doc(self.root_pod_path, locale=locale)
 
     def get_path_format(self):
         val = None
