@@ -29,10 +29,26 @@ class CollectionsTestCase(unittest.TestCase):
         documents = collection.list_docs(locale='fr')
         for doc in documents:
             self.assertEqual('fr', doc.locale)
+
+        # Verify list behavior with multi-file localized documents.
+        expected_docs = [
+            self.pod.get_doc(pod_path, locale='fr')
+            for pod_path in [
+                '/content/pages/yaml_test.html',
+                '/content/pages/home.yaml',
+                '/content/pages/intro@fr.md',
+                '/content/pages/about.yaml',
+                '/content/pages/contact.yaml',
+            ]
+        ]
+        for i, doc in enumerate(expected_docs):
+            self.assertEqual(doc, documents[i])
+
         # List unhidden documents.
         documents = collection.list_docs()
         for doc in documents:
             self.assertFalse(doc.hidden)
+
         # List all documents.
         documents = collection.list_docs(include_hidden=True)
         collection = self.pod.get_collection('posts')

@@ -29,7 +29,7 @@ class DocumentsTestCase(unittest.TestCase):
         doc = self.pod.get_doc('/content/pages/intro.md')
         self.assertEqual('About page.', doc.body)
         self.assertEqual('<p>About page.</p>', doc.html)
-        keys = ['$title', '$order', '$titles']
+        keys = ['$title', '$order', '$titles', 'key']
         self.assertItemsEqual(keys, doc.fields.keys())
 
         doc = self.pod.get_doc('/content/pages/home.yaml')
@@ -139,14 +139,16 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertFalse(doc.exists)
 
     def test_multi_file_localization(self):
-        doc = self.pod.get_doc('/content/pages/intro.md', locale='fr')
-        self.assertEqual(locales.Locale('fr'), doc.locale)
-        self.assertEqual('/content/pages/intro@fr.md', doc.pod_path)
-        self.assertEqual('/content/pages/intro.md', doc.root_pod_path)
-        self.assertIn('French About page.', doc.html)
+        fr_doc = self.pod.get_doc('/content/pages/intro.md', locale='fr')
+        self.assertEqual(locales.Locale('fr'), fr_doc.locale)
+        self.assertEqual('/content/pages/intro@fr.md', fr_doc.pod_path)
+        self.assertEqual('/content/pages/intro.md', fr_doc.root_pod_path)
+        self.assertIn('French About page.', fr_doc.html)
         de_doc = self.pod.get_doc('/content/pages/intro.md', locale='de')
-        de_doc_from_fr_doc = doc.localize('de')
+        de_doc_from_fr_doc = fr_doc.localize('de')
         self.assertEqual(de_doc, de_doc_from_fr_doc)
+        self.assertEqual('root_value', de_doc.key)
+        self.assertEqual('fr_value', fr_doc.key)
 
 if __name__ == '__main__':
     unittest.main()
