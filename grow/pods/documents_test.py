@@ -29,7 +29,7 @@ class DocumentsTestCase(unittest.TestCase):
         doc = self.pod.get_doc('/content/pages/intro.md')
         self.assertEqual('About page.', doc.body)
         self.assertEqual('<p>About page.</p>', doc.html)
-        keys = ['$title', '$order', '$titles', 'key']
+        keys = ['$title', '$order', '$titles', 'key', 'root_key']
         self.assertItemsEqual(keys, doc.fields.keys())
 
         doc = self.pod.get_doc('/content/pages/home.yaml')
@@ -149,6 +149,12 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(de_doc, de_doc_from_fr_doc)
         self.assertEqual('root_value', de_doc.key)
         self.assertEqual('fr_value', fr_doc.key)
+        self.assertEqual('root_key_value', de_doc.root_key)
+        self.assertEqual('root_key_value', fr_doc.root_key)
+        # Verify '$locale' is appended.
+        keys = ['$title', '$order', '$titles', 'key', 'root_key', '$locale']
+        self.assertItemsEqual(keys, fr_doc.fields.keys())
+
 
 if __name__ == '__main__':
     unittest.main()

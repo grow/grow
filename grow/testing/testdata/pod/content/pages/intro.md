@@ -5,5 +5,6 @@ $titles:
   breadcrumb@: Bar
 $order: 1
 key: root_value
+root_key: root_key_value
 ---
 About page.
