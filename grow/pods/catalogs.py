@@ -138,7 +138,7 @@ class Catalog(catalog.Catalog):
         self.save(include_header=include_header)
 
     def merge_obsolete(self):
-        """ Copy obsolete terms into the main catalog """
+        """Copy obsolete terms into the main catalog."""
         for msgid, message in self.obsolete.iteritems():
             self[msgid] = message
 
