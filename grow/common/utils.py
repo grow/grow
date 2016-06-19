@@ -280,7 +280,7 @@ def get_rows_from_csv(pod, path, locale=SENTINEL):
 
 
 def import_string(import_name, paths):
-    """ Imports & returns an object using dot notation, e.g. 'A.B.C' """
+    """Imports & returns an object using dot notation, e.g. 'A.B.C'"""
     # ASSUMPTION: import_name refers to a value in a module (i.e. must have at
     # least 2 parts)
     if '.' not in import_name:
