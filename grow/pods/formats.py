@@ -80,7 +80,10 @@ class Format(object):
 class _SplitDocumentFormat(Format):
 
     def _iterate_content(self):
-        return [(part, part) for part in Format.split_front_matter(self.content)]
+        parts = [(part, part) for part in Format.split_front_matter(self.content)]
+        if not parts[-1][0].strip():
+            parts.pop()
+        return parts
 
     def _validate_fields(self, fields):
         if '$locale' in fields and '$locales' in fields:
