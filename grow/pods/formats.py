@@ -162,7 +162,7 @@ class _SplitDocumentFormat(Format):
         # Any additional parts after base part MUST declare one or more locales
         # (otherwise there's no point)
         if '$locale' not in fields and '$locales' not in fields:
-            text = 'You must specify either $locale or $locales.'
+            text = 'You must specify either $locale or $locales for each document part.'
             raise BadFormatError(text)
         self._validate_fields(fields)
 
