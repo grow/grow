@@ -144,7 +144,7 @@ class DocumentsTestCase(unittest.TestCase):
             ))
 
         with self.assertRaises(formats.BadFormatError):
-            self.pod.get_doc('/content/localized/part-with-no-locale.yaml')
+            self.pod.get_doc('/' + doc_pod_path)
 
         # This should be fine:
         with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
@@ -162,10 +162,27 @@ class DocumentsTestCase(unittest.TestCase):
                 foo: bar
                 """
             ))
-        de_doc = self.pod.get_doc('/content/localized/part-with-no-locale.yaml', locale='de')
-        fr_doc = self.pod.get_doc('/content/localized/part-with-no-locale.yaml', locale='fr')
+        de_doc = self.pod.get_doc('/' + doc_pod_path, locale='de')
+        fr_doc = self.pod.get_doc('/' + doc_pod_path, locale='fr')
         self.assertEqual(de_doc.fields['foo'], 'bar')
         self.assertNotIn('foo', fr_doc.fields)
+
+    def test_dont_treat_trailing_dashes_as_a_new_part(self):
+        doc_pod_path = 'content/localized/part-with-trailing-dashes.yaml'
+        with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
+            f.write(dedent(
+                """\
+                ---
+                root_doc_part: true
+                ---
+                $locale: de
+                subsequent_doc_part: true
+                ---
+                """
+            ))
+
+        doc = self.pod.get_doc('/' + doc_pod_path)
+        self.assertEqual(len(doc.format._iterate_content()), 2)
 
     def test_view_override(self):
         doc = self.pod.get_doc('/content/localized/localized-view-override.yaml')
