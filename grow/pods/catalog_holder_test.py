@@ -407,6 +407,24 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
             u'Localized yaml doc part in localized doc in unlocalized collection in unlocalized pöd',
             'ja')
 
+    def test_yaml_part_in_unlocalized_doc_extracted_for_own_locales(self):
+        self.assertExtractedFor(
+            self.localized_pod,
+            u'Localized doc part in unlocalized doc in localized collection in localized pöd',
+            'ja')
+        self.assertExtractedFor(
+            self.localized_pod,
+            u'Localized doc part in unlocalized doc in unlocalized collection in localized pöd',
+            'ja')
+        self.assertExtractedFor(
+            self.unlocalized_pod,
+            u'Localized doc part in unlocalized doc in localized collection in unlocalized pöd',
+            'ja')
+        self.assertExtractedFor(
+            self.unlocalized_pod,
+            u'Localized doc part in unlocalized doc in unlocalized collection in unlocalized pöd',
+            'ja')
+
     def test_multilocale_yaml_part_extracted_for_own_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
@@ -452,11 +470,23 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
             self.unlocalized_pod,
             u'Unlocalized yaml doc in localized collection in unlocalized pöd',
             'fr')
+        self.assertExtractedFor(
+            self.localized_pod,
+            u'Unlocalized base doc part in localized collection in localized pöd',
+            'fr')
+        self.assertExtractedFor(
+            self.unlocalized_pod,
+            u'Unlocalized base doc part in localized collection in unlocalized pöd',
+            'fr')
 
     def test_yaml_doc_extracted_for_podspec_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             u'Unlocalized yaml doc in unlocalized collection in localized pöd',
+            'de')
+        self.assertExtractedFor(
+            self.localized_pod,
+            u'Unlocalized base doc part in unlocalized collection in localized pöd',
             'de')
 
     def test_yaml_doc_extracted_for_no_locales(self):
@@ -464,6 +494,10 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
             self.unlocalized_pod,
             u'Unlocalized yaml doc in unlocalized collection in unlocalized pöd',
             [])
+        self.assertExtractedFor(
+            self.localized_pod,
+            u'Unlocalized base doc part in unlocalized collection in unlocalized pöd',
+            'de')
 
     # ------------------------------------------------
     # YAML files in /content/ root
