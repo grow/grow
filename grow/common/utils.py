@@ -34,11 +34,28 @@ except ImportError:
 SENTINEL = object()
 
 
+class Error(Exception):
+    """Base error class."""
+
+
+class UnavailableError(Error):
+    """Raised when a feature is not available."""
+
+
 def is_packaged_app():
     try:
         sys._MEIPASS
         return True
     except AttributeError:
+        return False
+
+
+def is_appengine():
+    """Returns whether the environment is Google App Engine."""
+    try:
+        import google.appengine
+        return True
+    except ImportError:
         return False
 
 

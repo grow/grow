@@ -1,5 +1,5 @@
+from . import utils
 from oauth2client import client
-from oauth2client import keyring_storage
 from oauth2client import tools
 import logging
 import os
@@ -13,11 +13,23 @@ DEFAULT_STORAGE_KEY = 'Grow SDK'
 _CLEARED_AUTH_KEYS = {}
 
 
+def get_storage():
+    """Returns the Storage class compatible with the current environment."""
+    if utils.is_appengine():
+        from oauth2client import appengine
+        return appengine.StorageByKeyName
+    from oauth2client.contrib import keyring_storage
+    return keyring_storage.Storage
+
+
+Storage = get_storage()
+
+
 def get_credentials_and_storage(scope, storage_key=DEFAULT_STORAGE_KEY):
     if os.getenv('CLEAR_AUTH') and storage_key not in _CLEARED_AUTH_KEYS:
         clear_credentials(storage_key=storage_key)
     username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
-    storage = keyring_storage.Storage(storage_key, username)
+    storage = Storage(storage_key, username)
     if 'CI' in os.environ:  # Avoid using keyring in CI/Travis.
         return None, storage
     credentials = storage.get()
@@ -43,6 +55,6 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
 
 def clear_credentials(storage_key=DEFAULT_STORAGE_KEY):
     username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
-    storage = keyring_storage.Storage(storage_key, username)
+    storage = Storage(storage_key, username)
     storage.delete()
     _CLEARED_AUTH_KEYS[storage_key] = True

@@ -1,9 +1,14 @@
 from . import base
+from grow.common import utils
 from protorpc import messages
 import logging
 import os
 import re
-import sass
+try:
+    import sass
+except ImportError:
+    sass = None  # Unavailable on Google App Engine.
+
 
 SUFFIXES = frozenset(['sass', 'scss'])
 SUFFIX_PATTERN = re.compile('[.](' + '|'.join(map(re.escape, SUFFIXES)) + ')$')
@@ -28,6 +33,8 @@ class SassPreprocessor(base.BasePreprocessor):
         self.build_directory(sass_dir, out_dir)
 
     def build_directory(self, sass_path, css_path, _root_sass=None, _root_css=None):
+        if sass is None:
+            raise utils.UnavailableError('The Sass compiler is not available in this environment.')
         if self.config.image_path:
             image_path = os.path.abspath(os.path.join(self.root, self.config.image_path.lstrip('/')))
         else:

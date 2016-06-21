@@ -15,7 +15,7 @@ click==4.0
 coverage==3.7.1
 dulwich==0.13.0
 ez-setup==0.9
-gcs-oauth2-boto-plugin==1.9
+gcs-oauth2-boto-plugin==1.14
 goslate==1.4.0
 html2text==2015.6.21
 httplib2==0.9.1
@@ -34,12 +34,12 @@ texttable-fixed==0.8.3
 translitcodec==0.4.0
 watchdog==0.7.1
 webapp2==2.5.2
-webreview==0.0.57
+webreview==0.0.58
 xtermcolor==1.3
 
 # Google API clients.
 google-api-python-client==1.3.1
-oauth2client==1.4.12
+oauth2client==2.1.0
 pyasn1==0.1.8
 keyring==8.7
 
