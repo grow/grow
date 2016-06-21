@@ -1,11 +1,17 @@
 from . import base
 from .. import utils
+from grow.common import utils
 from grow.pods import env
 from protorpc import messages
 import logging
 import os
 import urlparse
-import webreview
+
+
+if utils.is_appengine():
+    webreview = None
+else:
+    import webreview
 
 
 class Config(messages.Message):
@@ -28,6 +34,8 @@ class WebReviewDestination(base.BaseDestination):
 
     def __init__(self, *args, **kwargs):
         super(WebReviewDestination, self).__init__(*args, **kwargs)
+        if webreview is None:
+            raise utils.UnavailableError('WebReview deployments are not available in this environment.')
         if self.config.name:
             print ('WARNING: The "name" parameter for webreview deployments is '
                    'deprecated. Use "subdomain" instead, or use the "grow stage '

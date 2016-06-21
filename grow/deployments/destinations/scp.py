@@ -1,9 +1,15 @@
 from . import base
+from grow.common import utils
 from grow.pods import env
 from protorpc import messages
 import errno
 import os
-import paramiko
+try:
+    import paramiko
+except ImportError:
+    # Unavailable on Google App Engine.
+    # https://github.com/paramiko/paramiko/pull/334
+    paramiko = None
 
 
 class Config(messages.Message):
@@ -22,6 +28,8 @@ class ScpDestination(base.BaseDestination):
 
     def __init__(self, *args, **kwargs):
         super(ScpDestination, self).__init__(*args, **kwargs)
+        if paramiko is None:
+            raise utils.UnavailableError('SCP deployments are not available in this environment.')
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.host = self.config.host
