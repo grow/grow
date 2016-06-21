@@ -4,7 +4,6 @@ from grow.common import utils as common_utils
 from protorpc import protojson
 import ConfigParser
 import datetime
-import git
 import hashlib
 import logging
 import progressbar
@@ -83,6 +82,7 @@ class Diff(object):
 
     @classmethod
     def create(cls, index, theirs, repo=None):
+        git = common_utils.get_git()
         diff = messages.DiffMessage()
         diff.indexes = []
         diff.indexes.append(theirs or messages.IndexMessage())

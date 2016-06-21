@@ -9,7 +9,6 @@ except ImportError:
 import csv as csv_lib
 import functools
 import gettext
-import git
 import imp
 import json
 import logging
@@ -59,6 +58,14 @@ def is_appengine():
         return False
 
 
+def get_git():
+    """Returns the git module if it is available."""
+    if not is_appengine():
+        import git
+        return git
+    raise UnavailableError('Git is not available in this environment.')
+
+
 def get_grow_dir():
     if is_packaged_app():
         return os.path.join(sys._MEIPASS)
@@ -70,6 +77,7 @@ def get_cacerts_path():
 
 
 def get_git_repo(root):
+    git = get_git()
     try:
         return git.Repo(root)
     except git.exc.InvalidGitRepositoryError:

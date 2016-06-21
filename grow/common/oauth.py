@@ -4,6 +4,12 @@ from oauth2client import tools
 import logging
 import os
 
+try:
+    from oauth2client import appengine
+except ImportError:
+    appengine = None
+
+
 # Google API details for a native/installed application for API project grow-prod.
 CLIENT_ID = '578372381550-jfl3hdlf1q5rgib94pqsctv1kgkflu1a.apps.googleusercontent.com'
 CLIENT_SECRET = 'XQKqbwTg88XVpaBNRcm_tYLf'  # Not so secret for installed apps.
@@ -15,8 +21,7 @@ _CLEARED_AUTH_KEYS = {}
 
 def get_storage():
     """Returns the Storage class compatible with the current environment."""
-    if utils.is_appengine():
-        from oauth2client import appengine
+    if appengine:
         return appengine.StorageByKeyName
     from oauth2client.contrib import keyring_storage
     return keyring_storage.Storage
@@ -37,6 +42,8 @@ def get_credentials_and_storage(scope, storage_key=DEFAULT_STORAGE_KEY):
 
 
 def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
+    if appengine:
+        return appengine.AppAssertionCredentials(scope)
     credentials, storage = get_credentials_and_storage(scope, storage_key=storage_key)
     if credentials is None:
         parser = tools.argparser
