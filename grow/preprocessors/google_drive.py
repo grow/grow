@@ -53,6 +53,9 @@ class BaseGooglePreprocessor(base.BasePreprocessor):
         except errors.HttpError as e:
             self.logger.error(str(e))
 
+    def execute(self, config):
+        raise NotImplementedError
+
 
 class GoogleDocsPreprocessor(BaseGooglePreprocessor):
     KIND = 'google_docs'
@@ -62,12 +65,14 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         id = messages.StringField(2)
         convert = messages.BooleanField(3)
 
-    def _process_google_hrefs(self, soup):
+    @classmethod
+    def _process_google_hrefs(cls, soup):
         for tag in soup.find_all('a'):
             if tag.attrs.get('href'):
-                tag['href'] = self._clean_google_href(tag['href'])
+                tag['href'] = cls._clean_google_href(tag['href'])
 
-    def _clean_google_href(self, href):
+    @classmethod
+    def _clean_google_href(cls, href):
         regex = ('^'
                  + re.escape('https://www.google.com/url?q=')
                  + '(.*?)'
@@ -78,40 +83,62 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             return urllib.unquote(encoded_url)
         return href
 
-    def execute(self, config):
-        doc_id = config.id
-        path = config.path
-        ext = os.path.splitext(config.path)[1]
-        convert_to_markdown = ext == '.md' and config.convert is not False
+    @classmethod
+    def download(cls, path, doc_id, logger=None, raise_errors=False):
+        logger = logger or logging
         service = BaseGooglePreprocessor.create_service()
         resp = service.files().get(fileId=doc_id).execute()
         if 'exportLinks' not in resp:
             text = 'Unable to export Google Doc: {}'
-            self.logger.error(text.format(path))
-            self.logger.error('Received: {}'.format(resp))
+            logger.error(text.format(path))
+            logger.error('Received: {}'.format(resp))
             return
         for mimetype, url in resp['exportLinks'].iteritems():
-            if mimetype.endswith('html'):
-                resp, content = service._http.request(url)
-                if resp.status != 200:
-                    text = 'Error {} downloading Google Doc: {}'
-                    self.logger.error(text.format(resp.status, path))
-                    break
-                soup = bs4.BeautifulSoup(content, 'html.parser')
-                self._process_google_hrefs(soup)
-                content = unicode(soup.body)
-                if convert_to_markdown:
-                    h2t = html2text.HTML2Text()
-                    content = h2t.handle(content)
-                content = content.encode('utf-8')
-                # Preserve any existing frontmatter.
-                if self.pod.file_exists(path):
-                    existing_content = self.pod.read_file(path)
-                    if formats.Format.has_front_matter(existing_content):
-                        content = formats.Format.update(
-                            existing_content, body=content)
-                self.pod.write_file(path, content)
-                self.logger.info('Downloaded Google Doc -> {}'.format(path))
+            if not mimetype.endswith('html'):
+                continue
+            resp, content = service._http.request(url)
+            if resp.status != 200:
+                text = 'Error {} downloading Google Doc: {}'
+                text = text.format(resp.status, path)
+                if raise_errors:
+                    raise base.PreprocessorError(text)
+                logger.error(text)
+            return content
+        if raise_errors:
+            text = 'No file to export from Google Docs: {}'.format(path)
+            raise base.PreprocessorError(text)
+
+    @classmethod
+    def format_content(cls, path, content, convert=True, existing_data=None):
+        ext = os.path.splitext(path)[1]
+        convert_to_markdown = ext == '.md' and convert is not False
+        soup = bs4.BeautifulSoup(content, 'html.parser')
+        GoogleDocsPreprocessor._process_google_hrefs(soup)
+        content = unicode(soup.body)
+        if convert_to_markdown:
+            h2t = html2text.HTML2Text()
+            content = h2t.handle(content)
+        content = content.encode('utf-8')
+        # Preserve any existing frontmatter.
+        if existing_data:
+            if formats.Format.has_front_matter(existing_data):
+                content = formats.Format.update(
+                    existing_data, body=content)
+        return content
+
+    def execute(self, config):
+        doc_id = config.id
+        path = config.path
+        convert = config.convert is not False
+        content = GoogleDocsPreprocessor.download(
+            path, doc_id=doc_id, logger=self.pod.logger)
+        existing_data = None
+        if self.pod.file_exists(path):
+            existing_data = self.pod.read_file(path)
+        content = GoogleDocsPreprocessor.format_content(
+            path, content, convert=convert, existing_data=existing_data)
+        self.pod.write_file(path, content)
+        self.logger.info('Downloaded Google Doc -> {}'.format(path))
 
 
 class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
@@ -128,11 +155,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     @staticmethod
     def _convert_rows_to_mapping(reader):
         results = {}
-
         def _update_node(root, part):
             if isinstance(root, dict) and part not in root:
                 root[part] = {}
-
         for row in reader:
             key = row[0]
             value = row[1]
@@ -183,14 +208,16 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 if raise_errors:
                     raise base.PreprocessorError(text)
             return content
-        raise base.PreprocessorError('No file to export.')
+        if raise_errors:
+            text = 'No file to export from Google Sheets: {}'.format(path)
+            raise base.PreprocessorError(text)
 
     def execute(self, config):
         path = config.path
         sheet_id = config.id
         gid = config.gid
         content = GoogleSheetsPreprocessor.download(
-            path=path, sheet_id=sheet_id, gid=gid)
+            path=path, sheet_id=sheet_id, gid=gid, logger=self.pod.logger)
         existing_data = None
         if (path.endswith(('.yaml', '.yml'))
                 and self.config.preserve
@@ -199,27 +226,31 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         content = GoogleSheetsPreprocessor.format_content(
             content=content, path=path, format_as=self.config.format,
             preserve=self.config.preserve,
-            output_style=self.config.output_style,
             existing_data=existing_data)
+        content = GoogleSheetsPreprocessor.serialize_content(
+            formatted_data=content, path=path,
+            output_style=self.config.output_style)
         self.pod.write_file(path, content)
         self.logger.info('Downloaded Google Sheet -> {}'.format(path))
 
     @classmethod
-    def format_content(cls, content, path, format_as=None, preserve=None,
-                       output_style=None, existing_data=None):
+    def get_convert_to(cls, path):
         ext = os.path.splitext(path)[1]
         convert_to = None
         if ext == '.json':
-            convert_to = ext
-            ext = '.csv'
+            return ext
         elif ext in ['.yaml', '.yml']:
-            convert_to = ext
-            ext = '.csv'
+            return ext
+        return convert_to
+
+    @classmethod
+    def format_content(cls, content, path, format_as=None, preserve=None,
+                       existing_data=None):
+        convert_to = cls.get_convert_to(path)
         if convert_to in ['.json', '.yaml', '.yml']:
             fp = cStringIO.StringIO()
             fp.write(content)
             fp.seek(0)
-            kwargs = {}
             if format_as == 'map':
                 formatted_data = GoogleSheetsPreprocessor.format_as_map(fp)
             else:
@@ -232,14 +263,20 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             del existing_data[key]
                 existing_data.update(formatted_data)
                 formatted_data = existing_data
-            if convert_to == '.json':
-                if output_style == 'pretty':
-                    kwargs['indent'] = 2
-                    kwargs['separators'] = (',', ': ')
-                    kwargs['sort_keys'] = True
-                return json.dumps(formatted_data, **kwargs)
-            else:
-                return yaml.safe_dump(
-                    formatted_data,
-                    default_flow_style=False)
+            return formatted_data
         return content
+
+    @classmethod
+    def serialize_content(cls, formatted_data, path, output_style=None):
+        kwargs = {}
+        convert_to = cls.get_convert_to(path)
+        if convert_to == '.json':
+            if output_style == 'pretty':
+                kwargs['indent'] = 2
+                kwargs['separators'] = (',', ': ')
+                kwargs['sort_keys'] = True
+            return json.dumps(formatted_data, **kwargs)
+        else:
+            return yaml.safe_dump(
+                formatted_data,
+                default_flow_style=False)
