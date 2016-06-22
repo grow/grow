@@ -5,7 +5,7 @@
 import os
 import glob
 import sys
-from PyInstaller.hooks.hookutils import collect_submodules
+from PyInstaller.utils.hooks import collect_submodules
 
 
 IS_DARWIN = sys.platform == 'darwin'
@@ -82,6 +82,8 @@ hiddenimports += [
     'werkzeug.wrappers',
     'werkzeug.wsgi',
 ]
+
+hiddenimports += collect_submodules('pkg_resources._vendor')
 
 
 a = Analysis([
