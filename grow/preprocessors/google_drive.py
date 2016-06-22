@@ -158,27 +158,32 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return results
 
     @classmethod
-    def download(cls, path, sheet_id, gid=None, logger=None):
+    def download(cls, path, sheet_id, gid=None, logger=None,
+                 raise_errors=False):
         logger = logger or logging
         ext = os.path.splitext(path)[1]
         service = BaseGooglePreprocessor.create_service()
         resp = service.files().get(fileId=sheet_id).execute()
         if 'exportLinks' not in resp:
-            text = 'Unable to export Google Sheet: {}'
-            logger.error(text.format(path))
-            logger.error('Received: {}'.format(resp))
+            text = 'Unable to export Google Sheet: {} / Received: {}'
+            logger.error(text.format(path, resp))
+            if raise_errors:
+                raise base.PreprocessorError(text)
             return
         for mimetype, url in resp['exportLinks'].iteritems():
-            if not mimetype.endswith(ext[1:]):
+            if not mimetype.endswith('csv'):
                 continue
             if gid:
                 url += '&gid={}'.format(gid)
             resp, content = service._http.request(url)
             if resp.status != 200:
                 text = 'Error {} downloading Google Sheet: {}'
-                logger.error(text.format(resp.status, path))
-                break
+                text = text.format(resp.status, path)
+                logger.error(text)
+                if raise_errors:
+                    raise base.PreprocessorError(text)
             return content
+        raise base.PreprocessorError('No file to export.')
 
     def execute(self, config):
         path = config.path
