@@ -1,4 +1,4 @@
-""" Example (but pointless) custom Jinja Extension """
+"""Example (but pointless) custom Jinja Extension."""
 from jinja2.ext import Extension
 
 

@@ -1,0 +1,2 @@
+msgid "Existing message in localized pöd"
+msgstr "Existing FR translation in localized pöd"

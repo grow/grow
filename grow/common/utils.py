@@ -216,16 +216,7 @@ def load_yaml(*args, **kwargs):
     pod = kwargs.pop('pod', None)
     doc = kwargs.pop('doc', None)
     loader = make_yaml_loader(pod, doc=doc)
-    return yaml.load(*args, Loader=loader, **kwargs)
-
-
-def load_yaml_all(*args, **kwargs):
-    pod = kwargs.pop('pod', None)
-    fp = StringIO.StringIO()
-    fp.write(args[0])
-    fp.seek(0)
-    loader = make_yaml_loader(pod)
-    return yaml.load_all(*args, Loader=loader, **kwargs)
+    return yaml.load(*args, Loader=loader, **kwargs) or {}
 
 
 @memoize
@@ -314,7 +305,7 @@ def get_rows_from_csv(pod, path, locale=SENTINEL):
 
 
 def import_string(import_name, paths):
-    """ Imports & returns an object using dot notation, e.g. 'A.B.C' """
+    """Imports & returns an object using dot notation, e.g. 'A.B.C'"""
     # ASSUMPTION: import_name refers to a value in a module (i.e. must have at
     # least 2 parts)
     if '.' not in import_name:

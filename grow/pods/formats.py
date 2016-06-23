@@ -80,12 +80,26 @@ class Format(object):
 class _SplitDocumentFormat(Format):
 
     def _iterate_content(self):
-        return [(part, part) for part in Format.split_front_matter(self.content)]
+        parts = [(part, part) for part in Format.split_front_matter(self.content)]
+        if not parts[-1][0].strip():
+            parts.pop()
+        return parts
 
     def _validate_fields(self, fields):
         if '$locale' in fields and '$locales' in fields:
             text = 'You must specify either $locale or $locales, not both.'
             raise BadFormatError(text)
+
+    def _validate_base_part(self, fields):
+        self._validate_fields(fields)
+
+    def _validate_non_base_part(self, fields):
+        # Any additional parts after base part MUST declare one or more locales
+        # (otherwise there's no point)
+        if '$locale' not in fields and '$locales' not in fields:
+            text = 'You must specify either $locale or $locales for each document part.'
+            raise BadFormatError(text)
+        self._validate_fields(fields)
 
     def _get_locales_of_part(self, fields):
         if '$locales' in fields:
@@ -119,9 +133,11 @@ class _SplitDocumentFormat(Format):
         for i, parts in enumerate(self._iterate_content()):
             part, body = parts
             fields = self._load_yaml(part)
-            self._validate_fields(fields)
             if i == 0:
+                self._validate_base_part(fields)
                 base_default_locale = self._get_base_default_locale(fields)
+            else:
+                self._validate_non_base_part(fields)
             for part_locale in self._get_locales_of_part(fields):
                 locales_to_fields[part_locale] = fields
                 locales_to_bodies[part_locale] = body
