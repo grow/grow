@@ -297,6 +297,7 @@ class Document(object):
         if self.format.has_localized_parts:
             codes = self.format._locales_from_parts
             codes += self.collection.locales
+            codes = list(set(codes))
             return locales.Locale.parse_codes(codes)
         return self.collection.locales
 
