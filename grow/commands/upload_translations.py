@@ -23,6 +23,7 @@ import os
                    ' to uploading.')
 def upload_translations(pod_path, locale, force, service, update_acl,
                         download):
+    """Uploads translations to a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     translator = pod.get_translator(service)

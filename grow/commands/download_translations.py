@@ -14,6 +14,7 @@ import os
               help='Name of the translator service to use. This option is'
                    ' only required if more than one service is configured.')
 def download_translations(pod_path, locale, service):
+    """Downloads translations from a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     translator = pod.get_translator(service)
