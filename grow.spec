@@ -1,11 +1,14 @@
 # -*- mode: python -*-
 
-# Assumes PyInstaller==2.1.1.
-
 import os
 import glob
 import sys
-from PyInstaller.utils.hooks import collect_submodules
+try:
+    # PyInstaller==3.1
+    from PyInstaller.utils.hooks import collect_submodules
+except:
+    # PyInstaller==2.1.1
+    from PyInstaller.hooks.hookutils import collect_submodules
 
 
 IS_DARWIN = sys.platform == 'darwin'
