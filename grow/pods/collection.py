@@ -147,7 +147,7 @@ class Collection(object):
         return self.yaml.get('path')
 
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
-                  include_hidden=False, recursive=False):
+                  include_hidden=False, recursive=True):
         reverse = False if reverse is None else reverse
         order_by = 'order' if order_by is None else order_by
         key = operator.attrgetter(order_by)

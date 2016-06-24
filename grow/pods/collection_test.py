@@ -83,6 +83,31 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual([sub_sub_collection],
               [col for col in sub_collection.collections()])
 
+    def test_nested_collections(self):
+        # While it was undefined behavior before, projects relied on the
+        # ability to place documents in subfolders inside collections without
+        # explicit _blueprint.yaml files inside those folders. Verify that
+        # paths are still generated for those documents.
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_file('/views/base.html', '')
+        fields = {
+            'path': '/{base}/',
+            'view': '/views/base.html',
+        }
+        pod.write_yaml('/content/collection/_blueprint.yaml', fields)
+        pod.write_yaml('/content/collection/root.yaml', {})
+        pod.write_yaml('/content/collection/folder/folder.yaml', {})
+        pod.write_yaml('/content/collection/folder/subfolder/subfolder.yaml', {})
+        pod.write_yaml('/content/collection/folder2/subfolder2/subfolder2.yaml', {})
+        expected = [
+            '/root/',
+            '/folder/',
+            '/subfolder/',
+            '/subfolder2/',
+        ]
+        self.assertItemsEqual(expected, pod.routes.list_concrete_paths())
+
 
 if __name__ == '__main__':
     unittest.main()

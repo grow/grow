@@ -525,6 +525,10 @@ class Pod(object):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
         return utils.untag_fields(fields)
 
+    def write_yaml(self, path, content):
+        content = utils.dump_yaml(content)
+        self.write_file(path, content)
+
     def read_json(self, path):
         fp = self.open_file(path)
         return json.load(fp)

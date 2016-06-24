@@ -19,5 +19,10 @@ def create_test_pod():
     return pods.Pod(create_test_pod_dir())
 
 
+def create_pod():
+    root = tempfile.mkdtemp()
+    return pods.Pod(root)
+
+
 def get_testdata_dir():
     return TESTDATA_DIR
