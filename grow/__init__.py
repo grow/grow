@@ -1,6 +1,9 @@
 import os
 import sys
 
+# Allow `import grow; grow.Pod`.
+from .pods.pods import Pod
+
 # Allow `import grow; grow.Preprocessor` for custom preprocessors.
 from .preprocessors.base import BasePreprocessor as Preprocessor
 

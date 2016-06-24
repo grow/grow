@@ -86,8 +86,10 @@ hiddenimports += [
     'werkzeug.wsgi',
 ]
 
-hiddenimports += collect_submodules('pkg_resources._vendor')
-
+try:
+  hiddenimports += collect_submodules('pkg_resources._vendor')
+except AssertionError:
+  pass  # Environment doesn't need this to be collected.
 
 a = Analysis([
                 'bin/grow',
