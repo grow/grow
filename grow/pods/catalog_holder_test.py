@@ -265,19 +265,19 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
         self.assertExtractedFor(
             self.localized_pod,
             u'Localized multipart doc base part body in localized collection in localized pöd',
-            ['it', 'ja', 'sv'])
+            ['ko'])
         self.assertExtractedFor(
             self.localized_pod,
             u'Localized multipart doc base part body in unlocalized collection in localized pöd',
-            ['it', 'ja', 'sv'])
+            ['ko'])
         self.assertExtractedFor(
             self.unlocalized_pod,
             u'Localized multipart doc base part body in localized collection in unlocalized pöd',
-            ['it', 'ja', 'sv'])
+            ['ko'])
         self.assertExtractedFor(
             self.unlocalized_pod,
             u'Localized multipart doc base part body in unlocalized collection in unlocalized pöd',
-            ['it', 'ja', 'sv'])
+            ['ko'])
 
     def test_body_of_doc_extracted_for_collection_locales(self):
         self.assertExtractedFor(
@@ -301,22 +301,15 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
             u'Unlocalized doc body in unlocalized collection in unlocalized pöd',
             [])
 
-    # ------------------------------------------------
-    # Markdown document body
-    # > should NEVER be extracted: template tags in MD
-    #   don't work so the term would never be rendered
-    # ------------------------------------------------
-    @unittest.expectedFailure
-    # TODO: Currently extracting from MD is erroneously allowed
-    def test_body_of_md_doc_never_extracted(self):
+    def test_body_of_md_doc_extracted(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Untranslatable MD doc body',
-            [])
+            ['it'])
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Untranslatable MD doc body',
-            [])
+            ['it'])
 
     # ------------------------------------------------
     # YAML front matter of HTML/MD docs
@@ -362,19 +355,19 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
         self.assertExtractedFor(
             self.localized_pod,
             u'Localized base doc front matter in localized collection in localized pöd',
-            ['it', 'ja', 'sv'])
+            ['ko'])
         self.assertExtractedFor(
             self.localized_pod,
             u'Localized base doc front matter in unlocalized collection in localized pöd',
-            ['it', 'ja', 'sv'])
+            ['ko'])
         self.assertExtractedFor(
             self.unlocalized_pod,
             u'Localized base doc front matter in localized collection in unlocalized pöd',
-            ['it', 'ja', 'sv'])
+            ['ko'])
         self.assertExtractedFor(
             self.unlocalized_pod,
             u'Localized base doc front matter in unlocalized collection in unlocalized pöd',
-            ['it', 'ja', 'sv'])
+            ['ko'])
 
     def test_doc_front_matter_extracted_for_doc_locales(self):
         self.assertExtractedFor(
@@ -528,7 +521,7 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
         self.assertExtractedFor(
             self.localized_pod,
             u'Unlocalized base doc part in unlocalized collection in unlocalized pöd',
-            'de')
+            [])
 
     # ------------------------------------------------
     # YAML files in /content/ root

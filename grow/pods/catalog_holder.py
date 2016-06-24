@@ -194,7 +194,6 @@ class Catalogs(object):
                 msgid,
                 None,
                 auto_comments=auto_comments,
-                # TODO: line numbers
                 locations=[(path, 0)])
 
             _add_to_catalog(message, locales)
@@ -238,7 +237,7 @@ class Catalogs(object):
                         'Extracting: {} ({} locale{})'.format(
                             doc.pod_path,
                             len(doc.locales),
-                            's' if len(doc.locales) > 1 else '',
+                            's' if len(doc.locales) != 1 else '',
                         )
                     )
                     last_pod_path = doc.pod_path
@@ -254,6 +253,7 @@ class Catalogs(object):
                 else:
                     doc_locales = [None]
 
+                doc_locales = [doc.locale]
                 # Extract yaml fields: `foo@: Extract me`
                 # ("tagged" = prior to stripping `@` suffix from field names)
                 tagged_fields = doc.get_tagged_fields()
@@ -261,7 +261,8 @@ class Catalogs(object):
                            lambda *args: _handle_field(doc.pod_path, doc_locales, *args))
 
                 # Extract body: {{_('Extract me')}}
-                _babel_extract(StringIO.StringIO(doc.body.encode('utf-8')), doc_locales, doc.pod_path)
+                doc_body = StringIO.StringIO(doc.body.encode('utf-8'))
+                _babel_extract(doc_body, doc_locales, doc.pod_path)
 
             # Extract from CSVs for this collection's locales
             for filepath in self.pod.list_dir(collection.pod_path):
