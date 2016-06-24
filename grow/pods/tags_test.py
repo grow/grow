@@ -31,8 +31,58 @@ class BuiltinsTestCase(unittest.TestCase):
         self.assertEqual(len(paths), len(collections))
 
     def test_categories(self):
-        collection = self.pod.create_collection('category-test', {})
-        collection.create_doc('foo.yaml', {'path': 'bar'})
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        fields = {
+            'path': '/{base}/',
+            'view': '/views/base.html',
+            'categories': [
+                'Category1',
+                'Category2',
+                'Category3',
+                'Category4',
+                'Category5',
+            ],
+        }
+
+        # Verify default behavior.
+        pod.write_yaml('/content/collection/_blueprint.yaml', fields)
+        pod.write_yaml('/content/collection/doc1.yaml', {
+            '$category': 'Category1',
+        })
+        pod.write_yaml('/content/collection/doc2.yaml', {
+            '$category': 'Category1',
+        })
+        pod.write_yaml('/content/collection/doc3.yaml', {
+            '$category': 'Category2',
+        })
+        result = tags.categories(collection='collection', _pod=pod)
+        result = [item[0] for item in result]
+        expected = ['Category1', 'Category2']
+        self.assertEqual(expected, result)
+
+        # Verify localized behavior.
+        fields.update({
+            'localization': {
+                'locales': [
+                    'en',
+                ],
+            }
+        })
+        pod.write_yaml('/content/collection/_blueprint.yaml', fields)
+        pod.write_yaml('/content/collection/doc1@de.yaml', {
+            '$category': 'Category3',
+        })
+        pod.write_yaml('/content/collection/doc2@de.yaml', {
+            '$category': 'Category3',
+        })
+        pod.write_yaml('/content/collection/doc4@de.yaml', {
+            '$category': 'Category6',
+        })
+        result = tags.categories(collection='collection', locale='de', _pod=pod)
+        result = [item[0] for item in result]
+        expected = ['Category3', 'Category6',]
+        self.assertEqual(expected, result)
 
 
 if __name__ == '__main__':

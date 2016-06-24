@@ -134,7 +134,7 @@ class Collection(object):
         return result
 
     def list_categories(self):
-        return self.yaml.get('categories')
+        return self.yaml.get('categories', [])
 
     @property
     def title(self):

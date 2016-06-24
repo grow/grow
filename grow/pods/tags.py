@@ -9,6 +9,7 @@ import jinja2
 import json as json_lib
 import markdown
 import re
+import sys
 
 
 def categories(collection=None, collections=None, reverse=None, order_by=None,
@@ -20,16 +21,19 @@ def categories(collection=None, collections=None, reverse=None, order_by=None,
     else:
         text = '{} must be a Collection instance or a collection path, found: {}.'
         raise ValueError(text.format(collection, type(collection)))
-    category_list = collection.list_categories()
-    def order_func(doc):
+    # Collection's categories are only used for sort order.
+    def sort_func(grouped_item):
+        category = grouped_item[0]
         try:
-            return category_list.index(doc.category)
+            return category_list.index(category)
         except ValueError:
-            return 0
-    docs = [doc for doc in collection.list_docs(reverse=reverse, locale=locale)]
-    docs = sorted(docs, key=order_func)
-    items = itertools.groupby(docs, key=order_func)
-    return ((category_list[index], pages) for index, pages in items)
+            return sys.maxint  # Unspecified items go to the end.
+    category_list = collection.list_categories()
+    docs = collection.list_docs(reverse=reverse, locale=locale)
+    grouped_items = itertools.groupby(docs, key=lambda doc: doc.category)
+    grouped_items = list(grouped_items)
+    grouped_items.sort(key=sort_func)
+    return grouped_items
 
 
 @utils.memoize_tag

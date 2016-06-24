@@ -85,7 +85,10 @@ class Format(object):
         self.root_pod_path, self.locale_from_path = \
             Format.parse_localized_path(pod_path)
         if self.locale_from_path:
-            root_content = self.pod.read_file(self.root_pod_path)
+            if self.pod.file_exists(self.root_pod_path):
+                root_content = self.pod.read_file(self.root_pod_path)
+            else:
+                root_content = ''
             localized_content = self.pod.read_file(pod_path)
             root_content_with_frontmatter = Format._normalize_frontmatter(
                 self.root_pod_path, root_content)
