@@ -5,7 +5,7 @@ import logging
 import os
 
 try:
-    from oauth2client import appengine
+    from oauth2client.contrib import appengine
 except ImportError:
     appengine = None
 
