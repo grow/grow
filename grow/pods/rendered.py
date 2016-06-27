@@ -1,13 +1,13 @@
 from . import controllers
 from . import messages
 from . import tags
+from babel import support
+from grow.common import utils
 from grow.pods import errors
-from grow.pods.storage import gettext_storage as gettext
 import logging
 import mimetypes
 import sys
 import webapp2
-
 
 
 class RenderedController(controllers.BaseController):
@@ -33,26 +33,6 @@ class RenderedController(controllers.BaseController):
         if self.document:
             return self.document.locale
 
-    @webapp2.cached_property
-    def _template_env(self):
-        # NOTE: The same template environment can be reused within a controller
-        # since a single controller's locale never changes.
-        return self.pod.create_template_env(self.locale)
-
-    def _install_translations(self, locale):
-        active_locale = self._template_env.active_locale
-        if locale == active_locale and active_locale != '__unset':
-            return
-        if locale is None:
-            gettext_translations = gettext.NullTranslations()
-        else:
-            catalog = self.pod.catalogs.get(locale)
-            gettext_translations = catalog.gettext_translations
-        self._template_env.uninstall_gettext_translations(None)
-        self._template_env.install_gettext_translations(gettext_translations,
-                                                        newstyle=True)
-        self._template_env.active_locale = locale
-
     def list_concrete_paths(self):
         if self.path:
             return [self.path]
@@ -66,8 +46,8 @@ class RenderedController(controllers.BaseController):
             *args, _pod=self.pod, use_cache=use_cache, **kwargs)
 
     def render(self, params):
-        self._install_translations(self.locale)
-        template = self._template_env.get_template(self.view.lstrip('/'))
+        env = self.pod.get_jinja_env(self.locale)
+        template = env.get_template(self.view.lstrip('/'))
         g_tags = {
             'breadcrumb': self.__wrap(tags.breadcrumb),
             'collection': self.__wrap(tags.collection),

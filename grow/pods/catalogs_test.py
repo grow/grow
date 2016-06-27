@@ -15,10 +15,6 @@ class CatalogTest(unittest.TestCase):
         de_catalog = self.pod.catalogs.get('de')
         de_catalog.to_message()
 
-    def test_gettext_translations(self):
-        de_catalog = self.pod.catalogs.get('de')
-        de_catalog.gettext_translations
-
     def test_init(self):
         de_catalog = self.pod.catalogs.get('de')
         de_catalog.init('translations/messages.pot')

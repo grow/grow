@@ -331,3 +331,16 @@ class Document(object):
         message.fields = json.dumps(self.fields, cls=utils.JsonEncoder)
         message.serving_path = self.get_serving_path()
         return message
+
+    def install_translations(self, env, fp=None):
+#        if (self.locale == getattr(env, '_active_locale', utils.SENTINEL)
+#                and self.pod.env.cached):
+#            return
+        if fp:
+            from babel import support
+            trans = support.Translations(fp, domain='messages')
+        else:
+            trans = self.pod.catalogs.get_gettext_translations(self.locale)
+        env.uninstall_gettext_translations(None)
+        env.install_gettext_translations(trans, newstyle=True)
+        setattr(env, '_active_locale', self.locale)

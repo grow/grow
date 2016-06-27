@@ -87,7 +87,6 @@ class Pod(object):
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.logger = _logger
         self._routes = None
-        self._template_env = None
         try:
             sdk_utils.check_sdk_version(self)
         except PodDoesNotExistError:
@@ -110,7 +109,7 @@ class Pod(object):
 
     @property
     def yaml(self):
-        return self._parse_yaml()
+        return self._parse_yaml() or {}
 
     @property
     def routes(self):
@@ -466,10 +465,7 @@ class Pod(object):
         return extensions
 
     @utils.memoize
-    def create_template_env(self, locale=None, root=None):
-        # NOTE: The template environment cannot be reused across locales, since
-        # gettext translations can/should not be unintalled across locales. If the
-        # environment is reused across locales, translation leakage can occur.
+    def get_jinja_env(self, locale='', root=None):
         kwargs = {
             'autoescape': True,
             'extensions': [
@@ -499,7 +495,11 @@ class Pod(object):
             ('relative', tags.relative_filter),
         )
         env.filters.update(filters)
-        env.active_locale = '__unset'
+        get_gettext_func = self.catalogs.get_gettext_translations
+        env.install_gettext_callables(
+            lambda x: get_gettext_func(locale).ugettext(x),
+            lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n),
+            newstyle=True)
         return env
 
     def get_root_path(self, locale=None):

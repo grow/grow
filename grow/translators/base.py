@@ -75,6 +75,7 @@ class Translator(object):
         return stats_to_download
 
     def download(self, locales, save_stats=True):
+        # TODO: Rename to `download_and_import`.
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
             self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))

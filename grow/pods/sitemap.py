@@ -34,7 +34,7 @@ class SitemapController(controllers.BaseController):
 
     def render(self, params=None):
         root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
-        env = self.pod.create_template_env(root=root)
+        env = self.pod.get_jinja_env(root=root)
         template = env.get_template('sitemap.xml')
         return template.render({
             'docs': self._list_docs(),

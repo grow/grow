@@ -1,10 +1,10 @@
+from babel import support
 from babel import util
 from babel.messages import catalog
 from babel.messages import mofile
 from babel.messages import pofile
 from datetime import datetime
 from grow.pods import messages
-from grow.pods.storage import gettext_storage as gettext
 import goslate
 import logging
 import os
@@ -75,20 +75,6 @@ class Catalog(catalog.Catalog):
     @property
     def content(self):
         return self.pod.read_file(self.pod_path)
-
-    @property
-    def gettext_translations(self):
-        locale = str(self.locale)
-        try:
-            path = self.pod.abs_path(os.path.join('translations', locale))
-            dir_path = os.path.dirname(path)
-            translations = gettext.translation('messages', dir_path, [locale],
-                                               storage=self.pod.storage)
-        except IOError:
-            # TODO(jeremydw): If translation mode is strict, raise an error here if
-            # no translation file is found.
-            translations = gettext.NullTranslations()
-        return translations
 
     def to_message(self):
         catalog_message = messages.CatalogMessage()
@@ -166,14 +152,12 @@ class Catalog(catalog.Catalog):
         localization = self.pod.podspec.localization
         compile_fuzzy = localization.get('compile_fuzzy')
         mo_filename = self.mo_path
-
         num_translated = 0
         num_total = 0
         for message in list(self)[1:]:
             if message.string:
                 num_translated += 1
             num_total += 1
-
         try:
             for message, errors in self.check():
                 for error in errors:
@@ -182,10 +166,8 @@ class Catalog(catalog.Catalog):
                     self.pod.logger.error(message)
         except IOError:
             self.pod.logger.info('Skipped catalog check for: {}'.format(self))
-
         text = 'Compiled: {} ({}/{})'
         self.pod.logger.info(text.format(self.locale, num_translated, num_total))
-
         mo_file = self.pod.open_file(mo_filename, 'w')
         try:
             mofile.write_mo(mo_file, self, use_fuzzy=compile_fuzzy)

@@ -129,6 +129,10 @@ class CatalogsTest(unittest.TestCase):
         self.assertEqual(3, len(localized_de_catalog))
         self.assertEqual(14, len(localized_fr_catalog))
 
+    def test_get_gettext_translations(self):
+        self.pod.catalogs.get_gettext_translations('de')
+        self.pod.catalogs.get_gettext_translations('it')
+
 
 if __name__ == '__main__':
     unittest.main()

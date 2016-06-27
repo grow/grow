@@ -38,7 +38,8 @@ class LocalDestination(base.BaseDestination):
         if isinstance(content, unicode):
             content = content.encode('utf-8')
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
-        self.storage.write(out_path, content)
+        fp = self.storage.write(out_path, content)
+        fp.close()
 
     def prelaunch(self, dry_run=False):
         for command in self.config.before_deploy:

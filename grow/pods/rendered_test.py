@@ -42,6 +42,47 @@ class RenderedTest(unittest.TestCase):
         controller, params = self.pod.match('/')
         self.assertEqual(['/'], controller.list_concrete_paths())
 
+    def test_translation_recompilation(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': ['ja'],
+            },
+        })
+        pod.write_file('/views/base.html', '{{_("Hello")}}')
+        fields = {
+            'path': '/{base}/',
+            'view': '/views/base.html',
+            'localization': {
+                'path': '/{locale}/{base}/',
+            },
+        }
+        expected = 'Hello'
+        translation = 'Translation'
+        pod.write_yaml('/content/collection/_blueprint.yaml', fields)
+        pod.write_file('/content/collection/test.yaml', '')
+        pod.catalogs.extract()
+        pod.catalogs.init(['ja'])
+        ja_catalog = pod.catalogs.get('ja')
+        self.assertIn(expected, pod.catalogs.get('ja'))
+        ja_catalog[expected].string = translation
+
+        # Verify untranslated.
+        controller, params = pod.match('/ja/test/')
+        content = controller.render(params)
+        self.assertEqual(content, content)
+
+        controller, params = pod.match('/test/')
+        content = controller.render(params)
+        self.assertEqual(expected, content)
+
+        # Verify translated.
+        ja_catalog.compile()
+        controller, params = pod.match('/ja/test/')
+        content = controller.render(params)
+        self.assertEqual(translation, content)
+
 
 if __name__ == '__main__':
     unittest.main()

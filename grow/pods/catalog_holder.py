@@ -1,5 +1,6 @@
 from . import catalogs
 from . import importers
+from babel import support
 from babel import util as babel_util
 from babel.messages import catalog
 from babel.messages import catalog as babel_catalog
@@ -9,6 +10,7 @@ from grow.common import utils
 from grow.pods import messages
 import click
 import collections
+import gettext
 import os
 import tokenize
 
@@ -141,7 +143,7 @@ class Catalogs(object):
 
     def extract(self, include_obsolete=False, localized=False, paths=None,
                 include_header=False, locales=None, use_fuzzy_matching=False):
-        env = self.pod.create_template_env()
+        env = self.pod.get_jinja_env()
 
         all_locales = set(list(self.pod.list_locales()))
         message_ids_to_messages = {}
@@ -340,6 +342,25 @@ class Catalogs(object):
         self.pod.logger.info(text.format(template_path, len(catalog)))
         template_file.close()
         return catalog
+
+    def find_mo_file(self, locale):
+        identifiers = gettext._expand_lang(str(locale))
+        for identifier in identifiers:
+            path = os.path.join(
+                '/translations', identifier, 'LC_MESSAGES',
+                'messages.mo')
+            try:
+                return self.pod.open_file(path)
+            except IOError:
+                pass
+
+    # TODO: Cache the result based on the modified time of the MO file.
+    @utils.memoize
+    def get_gettext_translations(self, locale):
+        fp = self.find_mo_file(locale)
+        if fp:
+            return support.Translations(fp, domain='messages')
+        return support.NullTranslations()
 
     def filter(self, out_path=None, out_dir=None,
                include_obsolete=True, localized=False,
