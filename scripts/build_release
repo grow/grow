@@ -18,8 +18,9 @@ if [ -d env ]; then
   cd dist
   zip -r $FILENAME grow
   cd ..
-  echo "Built: dist/${FILENAME}"
   ./dist/grow
+  ./dist/grow build ./grow/testing/testdata/pod/
+  echo "Built: dist/${FILENAME}"
 
   deactivate
 else
