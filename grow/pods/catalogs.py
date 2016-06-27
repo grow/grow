@@ -149,6 +149,7 @@ class Catalog(catalog.Catalog):
         return self.modified > self.mo_modified
 
     def compile(self):
+        self.pod.catalogs.clear_gettext_cache()
         localization = self.pod.podspec.localization
         compile_fuzzy = localization.get('compile_fuzzy')
         mo_filename = self.mo_path

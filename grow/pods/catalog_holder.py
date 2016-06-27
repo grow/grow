@@ -36,6 +36,7 @@ class Catalogs(object):
 
     def __init__(self, pod, template_path=None):
         self.pod = pod
+        self._gettext_translations = {}
         if template_path:
             self.template_path = template_path
         else:
@@ -74,6 +75,7 @@ class Catalogs(object):
         return len([catalog for catalog in self])
 
     def compile(self, force=False):
+        self.clear_gettext_cache()
         locales = self.list_locales()
         self.validate_locales(locales)
         for locale in locales:
@@ -350,17 +352,24 @@ class Catalogs(object):
                 '/translations', identifier, 'LC_MESSAGES',
                 'messages.mo')
             try:
-                return self.pod.open_file(path)
+                return path, self.pod.open_file(path)
             except IOError:
                 pass
+        return None, None
 
-    # TODO: Cache the result based on the modified time of the MO file.
-    @utils.memoize
+    def clear_gettext_cache(self):
+        self._gettext_translations = {}
+
     def get_gettext_translations(self, locale):
-        fp = self.find_mo_file(locale)
+        if locale in self._gettext_translations:
+            return self._gettext_translations[locale]
+        path, fp = self.find_mo_file(locale)
         if fp:
-            return support.Translations(fp, domain='messages')
-        return support.NullTranslations()
+            trans = support.Translations(fp, domain='messages')
+        else:
+            trans = support.NullTranslations()
+        self._gettext_translations[locale] = trans
+        return trans
 
     def filter(self, out_path=None, out_dir=None,
                include_obsolete=True, localized=False,
