@@ -2,13 +2,13 @@ from . import messages
 from . import utils
 from grow.common import utils as common_utils
 from protorpc import protojson
+from multiprocessing import pool
 import ConfigParser
 import datetime
 import hashlib
 import logging
 import progressbar
 import texttable
-import threading
 
 
 class Error(Exception):
@@ -20,6 +20,7 @@ class CorruptIndexError(Error):
 
 
 class Diff(object):
+    POOL_SIZE = 100  # Thread pool size for applying a diff.
 
     @classmethod
     def is_empty(cls, diff):
@@ -155,60 +156,58 @@ class Diff(object):
         return protojson.encode_message(message)
 
     @classmethod
-    def apply(cls, message, paths_to_content, write_func, delete_func, threaded=True,
-              batch_writes=False):
-        # TODO(jeremydw): Thread pool for the threaded operation.
+    def apply(cls, message, paths_to_content, write_func, delete_func,
+              threaded=True, batch_writes=False):
+        thread_pool = pool.ThreadPool(cls.POOL_SIZE)
         diff = message
-        threads = []
         num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
         text = 'Deploying: %(value)d/{} (in %(elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
         bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
 
+        def run_with_progress(func, *args):
+            func(*args)
+            bar.update(bar.currval + 1)
+
         if batch_writes:
             writes_paths_to_contents = {}
             for file_message in diff.adds:
-                writes_paths_to_contents[file_message.path] = paths_to_content[file_message.path]
+                writes_paths_to_contents[file_message.path] = \
+                    paths_to_content[file_message.path]
             for file_message in diff.edits:
-                writes_paths_to_contents[file_message.path] = paths_to_content[file_message.path]
+                writes_paths_to_contents[file_message.path] = \
+                    paths_to_content[file_message.path]
             deletes_paths = [file_message.path for file_message in diff.deletes]
             if writes_paths_to_contents:
                 write_func(writes_paths_to_contents)
             if deletes_paths:
                 delete_func(deletes_paths)
-
         else:
             bar.start()
             for file_message in diff.adds:
                 content = paths_to_content[file_message.path]
-                thread = common_utils.ProgressBarThread(
-                    bar, True, target=write_func,
-                    args=(file_message.path, content))
-                threads.append(thread)
-                thread.start()
-                if not threaded:
-                    thread.join()
+                if threaded:
+                    args = (write_func, file_message.path, content)
+                    thread_pool.apply_async(run_with_progress, args=args)
+                else:
+                    run_with_progress(write_func, file_message.path, content)
             for file_message in diff.edits:
                 content = paths_to_content[file_message.path]
-                thread = common_utils.ProgressBarThread(
-                    bar, True, target=write_func,
-                    args=(file_message.path, content))
-                threads.append(thread)
-                thread.start()
-                if not threaded:
-                    thread.join()
+                if threaded:
+                    args = (write_func, file_message.path, content)
+                    thread_pool.apply_async(run_with_progress, args=args)
+                else:
+                    run_with_progress(write_func, file_message.path, content)
             for file_message in diff.deletes:
-                thread = common_utils.ProgressBarThread(
-                    bar, batch_writes, target=delete_func,
-                    args=(file_message.path,))
-                threads.append(thread)
-                thread.start()
-                if not threaded:
-                    thread.join()
+                if threaded:
+                    args = (delete_func, file_message.path)
+                    thread_pool.apply_async(run_with_progress, args=args)
+                else:
+                    run_with_progress(delete_func, file_message.path)
 
         if threaded:
-            for thread in threads:
-                thread.join()
+            thread_pool.close()
+            thread_pool.join()
         if not batch_writes:
             bar.finish()
 
