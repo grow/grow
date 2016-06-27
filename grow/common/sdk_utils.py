@@ -72,13 +72,12 @@ def check_for_sdk_updates(auto_update_prompt=False):
     logging.info('  Your version: {}, latest version: {}'.format(
         colorize(yours, ansi=226), colorize(theirs, ansi=82)))
     if utils.is_packaged_app() and auto_update_prompt:
-        # If the installation was successful, restart the process.
-        try:
-            if (raw_input('Auto update now? [y/N]: ').lower() == 'y'
-                and subprocess.call(INSTALLER_COMMAND, shell=True) == 0):
-                logging.info('Restarting...')
-                os.execl(sys.argv[0], *sys.argv)
-        except Exception as e:
+        if raw_input('Auto update now? [y/N]: ').lower() != 'y':
+            return
+        if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
+            logging.info('Restarting...')
+            os.execl(sys.argv[0], *sys.argv)  # Restart on successful install.
+        else:
             text = (
                 'In-place update failed. Update manually or use:\n'
                 '  curl https://install.growsdk.org | bash')
