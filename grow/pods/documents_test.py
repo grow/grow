@@ -77,6 +77,14 @@ class DocumentsTestCase(unittest.TestCase):
         ])
         self.assertEqual(expected, doc.locales)
 
+        # Currently, when requesting a document with a locale that is not
+        # specified, we return a path that is unmatchable. TBD whether we want
+        # to change this in a future version.
+        ko_doc = self.pod.get_doc('/content/pages/contact.yaml', locale='ko')
+        expected = '/ko/contact-us/'
+        self.assertEqual(expected, ko_doc.url.path)
+        self.assertTrue(ko_doc.exists)
+
     def test_next_prev(self):
         collection = self.pod.get_collection('pages')
         docs = collection.list_docs()
