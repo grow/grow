@@ -2,7 +2,10 @@ from . import messages
 from . import utils
 from grow.common import utils as common_utils
 from protorpc import protojson
-from multiprocessing import pool
+if common_utils.is_appengine():
+    from multiprocessing import pool
+else:
+    pool = None
 import ConfigParser
 import datetime
 import hashlib
@@ -158,6 +161,9 @@ class Diff(object):
     @classmethod
     def apply(cls, message, paths_to_content, write_func, delete_func,
               threaded=True, batch_writes=False):
+        if pool is None:
+            text = 'Deployment is unavailable in this environment.'
+            raise common_utils.UnavailableError(text)
         thread_pool = pool.ThreadPool(cls.POOL_SIZE)
         diff = message
         num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
