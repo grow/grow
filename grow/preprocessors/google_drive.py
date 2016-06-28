@@ -246,6 +246,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     @classmethod
     def format_content(cls, content, path, format_as=None, preserve=None,
                        existing_data=None):
+        """Formats content into either a CSV (text), list, or dictionary."""
         convert_to = cls.get_convert_to(path)
         if convert_to in ['.json', '.yaml', '.yml']:
             fp = cStringIO.StringIO()
@@ -268,6 +269,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
     @classmethod
     def serialize_content(cls, formatted_data, path, output_style=None):
+        """Serializes an object into a string as JSON, YAML, or a CSV
+        (default)."""
         kwargs = {}
         convert_to = cls.get_convert_to(path)
         if convert_to == '.json':
@@ -276,7 +279,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 kwargs['separators'] = (',', ': ')
                 kwargs['sort_keys'] = True
             return json.dumps(formatted_data, **kwargs)
-        else:
-            return yaml.safe_dump(
-                formatted_data,
-                default_flow_style=False)
+        elif convert_to in ('.yaml', '.yml'):
+            return yaml.safe_dump(formatted_data, default_flow_style=False)
+        return formatted_data

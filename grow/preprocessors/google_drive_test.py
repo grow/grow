@@ -69,6 +69,27 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         expected = json.dumps(content_dict)
         self.assertEqual(expected, serialized_result)
 
+    def test_serialize_content(self):
+        path = '/content/pages/test.json'
+        formatted_data = {'key': 'value'}
+        expected = json.dumps(formatted_data)
+        result = google_drive.GoogleSheetsPreprocessor.serialize_content(
+            formatted_data=formatted_data, path=path)
+        self.assertEqual(expected, result)
+
+        path = '/content/pages/test.yaml'
+        formatted_data = {'key': 'value'}
+        expected = yaml.safe_dump(formatted_data, default_flow_style=False)
+        result = google_drive.GoogleSheetsPreprocessor.serialize_content(
+            formatted_data=formatted_data, path=path)
+        self.assertEqual(expected, result)
+
+        path = '/content/pages/test.csv'
+        formatted_data = 'key,value\n1,2\n'
+        result = google_drive.GoogleSheetsPreprocessor.serialize_content(
+            formatted_data=formatted_data, path=path)
+        self.assertEqual(formatted_data, result)
+
 
 if __name__ == '__main__':
     unittest.main()
