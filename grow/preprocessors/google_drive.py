@@ -198,7 +198,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         for mimetype, url in resp['exportLinks'].iteritems():
             if not mimetype.endswith('csv'):
                 continue
-            if gid:
+            if gid is not None:
                 url += '&gid={}'.format(gid)
             resp, content = service._http.request(url)
             if resp.status != 200:
