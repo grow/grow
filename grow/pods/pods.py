@@ -38,7 +38,6 @@ from . import storage
 from . import tags
 from ..preprocessors import preprocessors
 from ..translators import translators
-from babel import dates as babel_dates
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.deployments import deployments
@@ -447,7 +446,6 @@ class Pod(object):
 
     @utils.memoize
     def _get_bytecode_cache(self):
-        # NOTE: It is safe to reuse the same bytecode cache across locales.
         client = werkzeug_cache.SimpleCache()
         return jinja2.MemcachedBytecodeCache(client=client)
 
@@ -483,18 +481,8 @@ class Pod(object):
             kwargs['bytecode_cache'] = self._get_bytecode_cache()
         kwargs['extensions'].extend(self.list_jinja_extensions())
         env = jinja2.Environment(**kwargs)
-        filters = (
-            ('date', babel_dates.format_date),
-            ('datetime', babel_dates.format_datetime),
-            ('deeptrans', tags.deeptrans),
-            ('jsonify', tags.jsonify),
-            ('markdown', tags.markdown_filter),
-            ('render', tags.render_filter),
-            ('slug', tags.slug_filter),
-            ('time', babel_dates.format_time),
-            ('relative', tags.relative_filter),
-        )
-        env.filters.update(filters)
+        env.globals.update({'g': tags.create_builtin_tags(self, use_cache=self.env.cached)})
+        env.filters.update(tags.create_builtin_filters())
         get_gettext_func = self.catalogs.get_gettext_translations
         env.install_gettext_callables(
             lambda x: get_gettext_func(locale).ugettext(x),

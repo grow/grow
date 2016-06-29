@@ -40,35 +40,11 @@ class RenderedController(controllers.BaseController):
             raise
         return [self.document.get_serving_path()]
 
-    def __wrap(self, func):
-        use_cache = self.pod.env.cached
-        return lambda *args, **kwargs: func(
-            *args, _pod=self.pod, use_cache=use_cache, **kwargs)
-
     def render(self, params):
         env = self.pod.get_jinja_env(self.locale)
         template = env.get_template(self.view.lstrip('/'))
-        g_tags = {
-            'breadcrumb': self.__wrap(tags.breadcrumb),
-            'collection': self.__wrap(tags.collection),
-            'collections': self.__wrap(tags.collections),
-            'categories': self.__wrap(tags.categories),
-            'csv': self.__wrap(tags.csv),
-            'date': self.__wrap(tags.date),
-            'doc': self.__wrap(tags.get_doc),
-            'docs': self.__wrap(tags.docs),
-            'json': self.__wrap(tags.json),
-            'locale': self.__wrap(tags.locale),
-            'locales': self.__wrap(tags.locales),
-            'nav': self.__wrap(tags.nav),
-            'static': self.__wrap(tags.static),
-            'statics': self.__wrap(tags.statics),
-            'url': self.__wrap(tags.url),
-            'yaml': self.__wrap(tags.yaml),
-        }
         try:
             kwargs = {
-                'g': g_tags,
                 'doc': self.document,
                 'env': self.pod.env,
                 'podspec': self.pod.get_podspec(),

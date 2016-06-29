@@ -3,9 +3,9 @@ from . import utils
 from grow.common import utils as common_utils
 from protorpc import protojson
 if common_utils.is_appengine():
-    from multiprocessing import pool
-else:
     pool = None
+else:
+    from multiprocessing import pool
 import ConfigParser
 import datetime
 import hashlib

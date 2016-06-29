@@ -1,4 +1,5 @@
 from . import collection as collection_lib
+from babel import dates as babel_dates
 from datetime import datetime
 from grow.common import utils
 from grow.pods import locales as locales_lib
@@ -212,3 +213,42 @@ def relative_filter(ctx, path):
     doc = ctx['doc']
     return urls.Url.create_relative_path(
         path, relative_to=doc.url.path)
+
+
+@utils.memoize
+def create_builtin_tags(pod, use_cache=False):
+    def wrap(func):
+        return lambda *args, **kwargs: func(
+            *args, _pod=pod, use_cache=use_cache, **kwargs)
+    return {
+        'breadcrumb': wrap(breadcrumb),
+        'collection': wrap(collection),
+        'collections': wrap(collections),
+        'categories': wrap(categories),
+        'csv': wrap(csv),
+        'date': wrap(date),
+        'doc': wrap(get_doc),
+        'docs': wrap(docs),
+        'json': wrap(json),
+        'locale': wrap(locale),
+        'locales': wrap(locales),
+        'nav': wrap(nav),
+        'static': wrap(static),
+        'statics': wrap(statics),
+        'url': wrap(url),
+        'yaml': wrap(yaml),
+    }
+
+
+def create_builtin_filters():
+    return (
+        ('date', babel_dates.format_date),
+        ('datetime', babel_dates.format_datetime),
+        ('deeptrans', deeptrans),
+        ('jsonify', jsonify),
+        ('markdown', markdown_filter),
+        ('render', render_filter),
+        ('slug', slug_filter),
+        ('time', babel_dates.format_time),
+        ('relative', relative_filter),
+    )
