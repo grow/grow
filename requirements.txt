@@ -15,7 +15,7 @@ click==4.0
 coverage==3.7.1
 dulwich==0.13.0
 ez-setup==0.9
-gcs-oauth2-boto-plugin==1.8
+gcs-oauth2-boto-plugin==1.14
 goslate==1.4.0
 html2text==2015.6.21
 httplib2==0.9.1
