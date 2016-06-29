@@ -202,6 +202,11 @@ def locales(codes, _pod=None):
     return locales_lib.Locale.parse_codes(codes)
 
 
+@utils.memoize_tag
+def locale(code, _pod=None):
+    return locales_lib.Locale.parse(code)
+
+
 @jinja2.contextfilter
 def relative_filter(ctx, path):
     doc = ctx['doc']

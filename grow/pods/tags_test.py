@@ -1,4 +1,5 @@
 from . import tags
+from grow.pods import locales
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
@@ -14,6 +15,16 @@ class BuiltinsTestCase(unittest.TestCase):
     def test_slug_filter(self):
         words = 'Foo Bar Baz'
         self.assertEqual('foo-bar-baz', tags.slug_filter(words))
+
+    def test_locale(self):
+        identifier = 'de'
+        expected = locales.Locale.parse(identifier)
+        self.assertEqual(expected, tags.locale(identifier))
+
+    def test_locales(self):
+        identifiers = ['de']
+        expected = locales.Locale.parse_codes(identifiers)
+        self.assertEqual(expected, tags.locales(identifiers))
 
     def test_json(self):
         controller, params = self.pod.match('/yaml_test/')

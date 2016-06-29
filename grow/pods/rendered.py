@@ -58,6 +58,7 @@ class RenderedController(controllers.BaseController):
             'doc': self.__wrap(tags.get_doc),
             'docs': self.__wrap(tags.docs),
             'json': self.__wrap(tags.json),
+            'locale': self.__wrap(tags.locale),
             'locales': self.__wrap(tags.locales),
             'nav': self.__wrap(tags.nav),
             'static': self.__wrap(tags.static),
