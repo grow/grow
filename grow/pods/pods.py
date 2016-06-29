@@ -277,20 +277,6 @@ class Pod(object):
         pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
         return collection.Collection.get(pod_path, _pod=self)
 
-    def duplicate_to(self, other, exclude=None):
-        """Duplicates this pod to another pod."""
-        if not isinstance(other, self.__class__):
-            raise ValueError('{} is not a pod.'.format(other))
-        source_paths = self.list_dir('/')
-        for path in source_paths:
-            if exclude:
-                patterns = '|'.join(['({})'.format(pattern) for pattern in exclude])
-                if re.match(patterns, path) or 'theme/' in path:
-                    continue
-            content = self.read_file(path)
-            other.write_file(path, content)
-        # TODO: Handle same-storage copying more elegantly.
-
     def export(self):
         """Builds the pod, returning a mapping of paths to content."""
         output = {}
