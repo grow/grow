@@ -86,6 +86,19 @@ class CollectionsTestCase(unittest.TestCase):
         expected_doc = self.pod.get_doc(path)
         self.assertEqual(expected_doc, docs[0])
 
+    def test_fields(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        fields = {
+            'path': '/{base}/',
+            'view': '/views/base.html',
+            'user_field': 'foo',
+        }
+        pod.write_yaml('/content/collection/_blueprint.yaml', fields)
+        collection = pod.get_collection('collection')
+        self.assertEqual(collection.user_field, 'foo')
+        self.assertRaises(AttributeError, lambda: collection.bad_field)
+
     def test_collections(self):
         collection = self.pod.create_collection('new', {})
         self.assertEqual([],

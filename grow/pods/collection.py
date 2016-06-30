@@ -68,6 +68,18 @@ class Collection(object):
         for doc in self.list_docs():
             yield doc
 
+    def __getattr__(self, name):
+        try:
+            return self.fields[name]
+        except KeyError:
+            return object.__getattribute__(self, name)
+
+    @webapp2.cached_property
+    def fields(self):
+        tagged_fields = self.yaml
+        fields = utils.untag_fields(tagged_fields)
+        return {} if not fields else fields
+
     @classmethod
     def list(cls, pod):
         # TODO: Implement "depth" argument on pod.list_dir and use.
