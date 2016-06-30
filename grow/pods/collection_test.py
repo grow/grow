@@ -141,14 +141,16 @@ class CollectionsTestCase(unittest.TestCase):
         pod.write_yaml('/podspec.yaml', {})
         pod.write_file('/views/base.html', '')
         fields = {
-            'path': '/{base}/',
-            'view': '/views/base.html',
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
         }
         pod.write_yaml('/content/collection/_blueprint.yaml', fields)
         pod.write_yaml('/content/collection/root.yaml', {})
         pod.write_yaml('/content/collection/folder/folder.yaml', {})
-        pod.write_yaml('/content/collection/folder/subfolder/subfolder.yaml', {})
-        pod.write_yaml('/content/collection/folder2/subfolder2/subfolder2.yaml', {})
+        pod.write_yaml(
+            '/content/collection/folder/subfolder/subfolder.yaml', {})
+        pod.write_yaml(
+            '/content/collection/folder2/subfolder2/subfolder2.yaml', {})
         expected = [
             '/root/',
             '/folder/',
@@ -156,6 +158,27 @@ class CollectionsTestCase(unittest.TestCase):
             '/subfolder2/',
         ]
         self.assertItemsEqual(expected, pod.routes.list_concrete_paths())
+
+        # Blueprints one level deep.
+        fields = {
+            '$path': '/subfolder-one-level/{base}/',
+            '$view': '/views/base.html',
+        }
+        pod.write_yaml('/content/collection/folder/_blueprint.yaml', fields)
+        doc = pod.get_doc('/content/collection/folder/folder.yaml')
+        self.assertEqual('/subfolder-one-level/folder/', doc.get_serving_path())
+
+        # Blueprints two levels deep.
+        fields = {
+            '$path': '/subfolder-two-levels/{base}/',
+            '$view': '/views/base.html',
+        }
+        pod.write_yaml(
+            '/content/collection/folder/subfolder/_blueprint.yaml', fields)
+        doc = pod.get_doc(
+            '/content/collection/folder/subfolder/subfolder.yaml')
+        self.assertEqual(
+            '/subfolder-two-levels/subfolder/', doc.get_serving_path())
 
 
 if __name__ == '__main__':
