@@ -145,29 +145,40 @@ class Collection(object):
             return {}
         return result
 
+    def _get_builtin_field(self, name):
+        """Returns a builtin field, which is a field prefixed with a `$`. To be
+        backwards compatible with the legacy recommendation, we return the
+        field unprefixed with `$` if a prefixed field cannot be found."""
+        return self.fields.get('${}'.format(name), self.fields.get(name))
+
     def list_categories(self):
-        return self.yaml.get('categories', [])
+        return self._get_builtin_field('categories') or []
 
     @property
     def title(self):
-        return self.yaml.get('title')
+        return self._get_builtin_field('title')
 
     @property
     def root(self):
-        return self.yaml.get('root')
+        return self._get_builtin_field('root')
 
     @property
     def view(self):
-        return self.yaml.get('view')
+        return self._get_builtin_field('view')
+
+    @property
+    def localization(self):
+        return self._get_builtin_field('localization')
+
+    @property
+    def path_format(self):
+        return self._get_builtin_field('path')
 
     def delete(self):
         if len(self.list_docs(include_hidden=True)):
             text = 'Collections that are not empty cannot be deleted.'
             raise CollectionNotEmptyError(text)
         self.pod.delete_file(self._blueprint_path)
-
-    def get_path_format(self):
-        return self.yaml.get('path')
 
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
                   include_hidden=False, recursive=True):
@@ -222,17 +233,13 @@ class Collection(object):
     def list_servable_documents(self, include_hidden=False, locales=None):
         docs = []
         for doc in self.list_docs(include_hidden=include_hidden):
-            if (self.yaml.get('draft')
+            if (self._get_builtin_field('draft')
                     or not doc.has_serving_path()
                     or not doc.view
                     or (locales and doc.locale not in locales)):
                 continue
             docs.append(doc)
         return docs
-
-    @property
-    def localization(self):
-        return self.yaml.get('localization')
 
     @webapp2.cached_property
     def locales(self):

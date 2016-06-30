@@ -99,6 +99,26 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(collection.user_field, 'foo')
         self.assertRaises(AttributeError, lambda: collection.bad_field)
 
+        # Verify backwards-compatible builtin behavior.
+        fields = {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+        }
+        pod.write_yaml('/content/test/_blueprint.yaml', fields)
+        pod.write_yaml('/content/test/file.yaml', {})
+        doc = pod.get_doc('/content/test/file.yaml')
+        self.assertEqual('/file/', doc.get_serving_path())
+
+        fields = {
+            'path': '/old/{base}/',
+            'view': '/views/base.html',
+        }
+        pod.write_yaml('/content/old/_blueprint.yaml', fields)
+        pod.write_yaml('/content/old/file.yaml', {})
+        doc = pod.get_doc('/content/old/file.yaml')
+        self.assertEqual('/old/file/', doc.get_serving_path())
+
+
     def test_collections(self):
         collection = self.pod.create_collection('new', {})
         self.assertEqual([],

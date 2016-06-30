@@ -175,7 +175,9 @@ class Document(object):
     def localize(self, locale):
         return self.collection.get_doc(self.root_pod_path, locale=locale)
 
-    def get_path_format(self):
+    @property
+    @utils.memoize
+    def path_format(self):
         val = None
         if (self.locale
             and self.default_locale
@@ -186,7 +188,7 @@ class Document(object):
             elif self.collection.localization:
                 val = self.collection.localization['path']
         if val is None:
-            return self.fields.get('$path', self.collection.get_path_format())
+            return self.fields.get('$path', self.collection.path_format)
         return val
 
     @property
@@ -199,7 +201,7 @@ class Document(object):
 
     @utils.memoize
     def has_serving_path(self):
-        return bool(self.get_path_format())
+        return bool(self.path_format)
 
     @utils.memoize
     def get_serving_path(self):
@@ -209,7 +211,7 @@ class Document(object):
         root_path = config.get('flags', {}).get('root_path', '')
         if locale == self.default_locale:
             root_path = config.get('localization', {}).get('root_path', root_path)
-        path_format = self.get_path_format()
+        path_format = self.path_format
         if path_format is None:
             raise PathFormatError(
                 'No path format found for {}. You must specify a path '
