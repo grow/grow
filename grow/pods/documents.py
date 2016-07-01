@@ -337,3 +337,11 @@ class Document(object):
         content = self.content if self.exists else ''
         new_content = formats.Format.update(content, fields=fields, body=body)
         self.pod.write_file(self.pod_path, new_content)
+
+    def inject(self, fields=utils.SENTINEL, body=utils.SENTINEL):
+        """Injects without updating the copy on the filesystem."""
+        if fields != utils.SENTINEL:
+            self.fields.update(fields)
+        if body != utils.SENTINEL:
+            self.format.body = body
+        self.pod.logger.info('Injected -> {}'.format(self.pod_path))

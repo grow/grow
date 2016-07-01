@@ -24,16 +24,21 @@ class ContentfulPreprocessor(base.BasePreprocessor):
         keys = messages.MessageField(KeyMessage, 3)
         bind = messages.MessageField(BindingMessage, 4, repeated=True)
 
-    def parse_entry(self, entry):
+    def _parse_field(self, field):
+        if isinstance(field, resources.Asset):
+            return field.url
+        elif isinstance(field, resources.Entry):
+            return field.sys['id']
+        elif isinstance(field, list):
+            return [self._parse_field(sub_field) for sub_field in field]
+        return field
+
+    def _parse_entry(self, entry):
+        """Parses an entry from Contentful."""
         body = entry.fields.pop('body', None)
         fields = entry.fields
-        for key, value in entry.fields.iteritems():
-            if isinstance(value, resources.Asset):
-                entry.fields[key] = value.url
-            elif isinstance(value, resources.Entry):
-                entry.fields[key] = value.sys['id']
-            if key == 'resources':
-                entry.fields[key] = [item.sys['id'] for item in value]
+        for key, field in entry.fields.iteritems():
+          entry.fields[key] = self._parse_field(field)
         if body:
             body = body.encode('utf-8')
             ext = 'md'
@@ -47,14 +52,15 @@ class ContentfulPreprocessor(base.BasePreprocessor):
         return fields, body, basename
 
     def bind_collection(self, entries, collection_pod_path, contentful_type):
+        """Binds a Grow collection to a Contentful collection."""
         collection = self.pod.get_collection(collection_pod_path)
         existing_pod_paths = [
-            doc.pod_path for doc in collection.list_docs()]
+            doc.pod_path for doc in collection.list_docs(recursive=False)]
         new_pod_paths = []
         for i, entry in enumerate(entries):
             if entry.sys['contentType']['sys']['id'] != contentful_type:
                 continue
-            fields, body, basename = self.parse_entry(entry)
+            fields, body, basename = self._parse_entry(entry)
             doc = collection.create_doc(basename, fields=fields, body=body)
             new_pod_paths.append(doc.pod_path)
             self.pod.logger.info('Saved -> {}'.format(doc.pod_path))
@@ -70,17 +76,16 @@ class ContentfulPreprocessor(base.BasePreprocessor):
 
     @webapp2.cached_property
     def cda(self):
-        token = self.config.keys.preview
+        """Contentful API client."""
         token = self.config.keys.production
         return client.Client(self.config.space, token)
 
     def inject(self, doc):
+        """Injects data into a document without updating the filesystem."""
         query = {'sys.id': doc.base}
         entry = self.cda.fetch(resources.Entry).where(query).first()
         if not entry:
             return
-        fields, body, basename = self.parse_entry(entry)
-        doc.fields.update(fields)
-        doc.format.body = body.decode('utf-8')
-        doc.pod.logger.info('Injected -> {}'.format(doc.pod_path))
-        return
+        fields, body, basename = self._parse_entry(entry)
+        body = body.decode('utf-8')
+        doc.inject(fields=fields, body=body)

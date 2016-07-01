@@ -282,3 +282,20 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         elif convert_to in ('.yaml', '.yml'):
             return yaml.safe_dump(formatted_data, default_flow_style=False)
         return formatted_data
+
+    def inject(self, doc):
+        path = doc.pod_path
+        try:
+            content = GoogleSheetsPreprocessor.download(
+                path=path, sheet_id=self.config.id, gid=self.config.gid,
+                raise_errors=True)
+        except (errors.HttpError, base.PreprocessorError):
+            doc.pod.logger.error('Error downloading sheet -> %s', path)
+            raise
+        if not content:
+            return
+        existing_data = doc.pod.read_yaml(doc.pod_path)
+        fields = GoogleSheetsPreprocessor.format_content(
+            content, path=path, format_as=self.config.format,
+            preserve=self.config.preserve, existing_data=existing_data)
+        doc.inject(fields=fields)
