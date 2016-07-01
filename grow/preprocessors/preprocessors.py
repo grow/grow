@@ -1,3 +1,4 @@
+from . import contentful_preprocessor
 from . import google_drive
 from . import gulp
 from . import sass_preprocessor
@@ -8,6 +9,7 @@ import json
 _preprocessor_kinds_to_classes = {}
 
 _builtins = (
+    contentful_preprocessor.ContentfulPreprocessor,
     google_drive.GoogleDocsPreprocessor,
     google_drive.GoogleSheetsPreprocessor,
     gulp.GulpPreprocessor,

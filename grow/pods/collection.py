@@ -132,7 +132,9 @@ class Collection(object):
     def create_doc(self, basename, fields=utils.SENTINEL, body=utils.SENTINEL):
         """Creates a document within the collection."""
         doc_pod_path = os.path.join(self.pod_path, basename)
-        self.pod.write_file(doc_pod_path, content)
+        doc = self.get_doc(doc_pod_path)
+        doc.write(fields=fields, body=body)
+        return doc
 
     @property
     @utils.memoize

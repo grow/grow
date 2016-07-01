@@ -125,7 +125,7 @@ class Format(object):
     def update(content, fields=utils.SENTINEL, body=utils.SENTINEL):
         """Updates content with frontmatter. The existing fields and the
         existing body are preserved if they are not specified in arguments."""
-        parts = Format.split_front_matter(content)
+        parts = Format.split_front_matter(content) or ['', '']
         if fields is not utils.SENTINEL:
             fields = '\n' + utils.dump_yaml(fields)
             parts[0] = fields
@@ -164,10 +164,7 @@ class _SplitDocumentFormat(Format):
 
     def _load_yaml(self, part):
         try:
-            return utils.load_yaml(
-                part,
-                doc=self.doc,
-                pod=self.doc.pod)
+            return utils.load_yaml(part, doc=self.doc, pod=self.doc.pod)
         except (yaml.parser.ParserError,
                 yaml.composer.ComposerError,
                 yaml.scanner.ScannerError) as e:

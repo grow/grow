@@ -12,6 +12,7 @@ beautifulsoup4==4.4.0
 boto==2.40.0
 certifi==1.0.0
 click==4.0
+contentful.py==0.9.3
 coverage==3.7.1
 dulwich==0.13.0
 ez-setup==0.9
