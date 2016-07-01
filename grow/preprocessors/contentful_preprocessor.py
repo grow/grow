@@ -1,3 +1,4 @@
+import webapp2
 from . import base
 from grow.common import utils
 from contentful.cda import client
@@ -23,6 +24,26 @@ class ContentfulPreprocessor(base.BasePreprocessor):
         keys = messages.MessageField(KeyMessage, 3)
         bind = messages.MessageField(BindingMessage, 4, repeated=True)
 
+    def parse_entry(self, entry):
+        body = entry.fields.pop('body', None)
+        fields = entry.fields
+        for key, value in entry.fields.iteritems():
+            if isinstance(value, resources.Asset):
+                entry.fields[key] = value.url
+            elif isinstance(value, resources.Entry):
+                entry.fields[key] = value.sys['id']
+        if body:
+            body = body.encode('utf-8')
+            ext = 'md'
+        else:
+            body = ''
+            ext = 'yaml'
+        if 'title' in entry.fields:
+            title = entry.fields.pop('title')
+            entry.fields['$title'] = title
+        basename = '{}.{}'.format(entry.sys['id'], ext)
+        return fields, body, basename
+
     def bind_collection(self, entries, collection_pod_path, contentful_type):
         collection = self.pod.get_collection(collection_pod_path)
         existing_pod_paths = [
@@ -31,24 +52,7 @@ class ContentfulPreprocessor(base.BasePreprocessor):
         for i, entry in enumerate(entries):
             if entry.sys['contentType']['sys']['id'] != contentful_type:
                 continue
-            body = entry.fields.pop('body', None)
-            fields = entry.fields
-            for key, value in entry.fields.iteritems():
-                if isinstance(value, resources.Asset):
-                    entry.fields[key] = value.url
-                elif isinstance(value, resources.Entry):
-                    entry.fields[key] = value.sys['id']
-            if body:
-                body = body.encode('utf-8')
-                ext = 'md'
-            else:
-                body = ''
-                ext = 'yaml'
-            if 'title' in entry.fields:
-                title = entry.fields.pop('title')
-                entry.fields['$title'] = title
-            entry.fields['$order'] = i
-            basename = '{}.{}'.format(entry.sys['id'], ext)
+            fields, body, basename = self.parse_entry(entry)
             doc = collection.create_doc(basename, fields=fields, body=body)
             new_pod_paths.append(doc.pod_path)
             self.pod.logger.info('Saved -> {}'.format(doc.pod_path))
@@ -58,9 +62,23 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             self.pod.logger.info('Deleted -> {}'.format(pod_path))
 
     def run(self, *args, **kwargs):
-        token = self.config.keys.preview
-        token = self.config.keys.production
-        cda = client.Client(self.config.space, token)
-        entries = cda.fetch(resources.Entry).all()
+        entries = self.cda.fetch(resources.Entry).all()
         for binding in self.config.bind:
             self.bind_collection(entries, binding.collection, binding.type)
+
+    @webapp2.cached_property
+    def cda(self):
+        token = self.config.keys.preview
+        token = self.config.keys.production
+        return client.Client(self.config.space, token)
+
+    def inject(self, doc):
+        query = {'sys.id': doc.base}
+        entry = self.cda.fetch(resources.Entry).where(query).first()
+        if not entry:
+            return
+        fields, body, basename = self.parse_entry(entry)
+        doc.fields.update(fields)
+        doc.format.body = body
+        doc.pod.logger.info('Injected -> {}'.format(doc.pod_path))
+        return
