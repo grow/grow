@@ -398,6 +398,7 @@ class Pod(object):
                     instructions=translator_config.get('instructions'))
         raise ValueError('No translator service found: {}'.format(service))
 
+    @utils.memoize
     def list_preprocessors(self):
         results = []
         preprocessors.register_extensions(
@@ -410,6 +411,12 @@ class Pod(object):
             preprocessor = preprocessors.make_preprocessor(kind, params, self)
             results.append(preprocessor)
         return results
+
+    def inject_preprocessors(self, doc):
+        """Conditionally injects data into documents from preprocessors."""
+        for preprocessor in self.list_preprocessors():
+            if preprocessor.can_inject(doc):
+                preprocessor.inject(doc)
 
     def preprocess(self, preprocessor_names=None, run_all=False, tags=None,
                    build=True, ratelimit=None):

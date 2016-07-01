@@ -40,6 +40,7 @@ class RenderedController(controllers.BaseController):
         return [self.document.get_serving_path()]
 
     def render(self, params):
+        self.pod.inject_preprocessors(self.document)
         env = self.pod.get_jinja_env(self.locale)
         template = env.get_template(self.view.lstrip('/'))
         try:

@@ -80,12 +80,21 @@ class ContentfulPreprocessor(base.BasePreprocessor):
         token = self.config.keys.production
         return client.Client(self.config.space, token)
 
+    def can_inject(self, doc):
+        if not self.injected:
+            return False
+        for binding in self.config.bind:
+            if doc.pod_path.startswith(binding.collection):
+                return True
+        return False
+
     def inject(self, doc):
         """Injects data into a document without updating the filesystem."""
         query = {'sys.id': doc.base}
         entry = self.cda.fetch(resources.Entry).where(query).first()
         if not entry:
-            return
+            self.pod.logger.info('Contentful entry not found: {}'.format(query))
+            return  # Corresponding doc not found in Contentful.
         fields, body, basename = self._parse_entry(entry)
         body = body.decode('utf-8')
         doc.inject(fields=fields, body=body)
