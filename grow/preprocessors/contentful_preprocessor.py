@@ -32,6 +32,8 @@ class ContentfulPreprocessor(base.BasePreprocessor):
                 entry.fields[key] = value.url
             elif isinstance(value, resources.Entry):
                 entry.fields[key] = value.sys['id']
+            if key == 'resources':
+                entry.fields[key] = [item.sys['id'] for item in value]
         if body:
             body = body.encode('utf-8')
             ext = 'md'
@@ -79,6 +81,6 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             return
         fields, body, basename = self.parse_entry(entry)
         doc.fields.update(fields)
-        doc.format.body = body
+        doc.format.body = body.decode('utf-8')
         doc.pod.logger.info('Injected -> {}'.format(doc.pod_path))
         return

@@ -129,9 +129,12 @@ class Format(object):
         if fields is not utils.SENTINEL:
             fields = '\n' + utils.dump_yaml(fields)
             parts[0] = fields
-        if body is not utils.SENTINEL:
+        if body is not utils.SENTINEL and len(parts) > 1:
             parts[1] = '\n' + body
-        return '---' + '---'.join(parts)
+        result = '---' + '---'.join(parts)
+        if result.endswith('---\n'):
+            return result[:-5]
+        return result
 
     @property
     def html(self):
