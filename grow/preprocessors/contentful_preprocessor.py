@@ -13,7 +13,7 @@ class KeyMessage(messages.Message):
 
 class BindingMessage(messages.Message):
     collection = messages.StringField(1)
-    type = messages.StringField(2)
+    contentModel = messages.StringField(2)
 
 
 class ContentfulPreprocessor(base.BasePreprocessor):
@@ -51,14 +51,14 @@ class ContentfulPreprocessor(base.BasePreprocessor):
         basename = '{}.{}'.format(entry.sys['id'], ext)
         return fields, body, basename
 
-    def bind_collection(self, entries, collection_pod_path, contentful_type):
+    def bind_collection(self, entries, collection_pod_path, contentful_model):
         """Binds a Grow collection to a Contentful collection."""
         collection = self.pod.get_collection(collection_pod_path)
         existing_pod_paths = [
             doc.pod_path for doc in collection.list_docs(recursive=False)]
         new_pod_paths = []
         for i, entry in enumerate(entries):
-            if entry.sys['contentType']['sys']['id'] != contentful_type:
+            if entry.sys['contentType']['sys']['id'] != contentful_model:
                 continue
             fields, body, basename = self._parse_entry(entry)
             doc = collection.create_doc(basename, fields=fields, body=body)
@@ -72,7 +72,8 @@ class ContentfulPreprocessor(base.BasePreprocessor):
     def run(self, *args, **kwargs):
         entries = self.cda.fetch(resources.Entry).all()
         for binding in self.config.bind:
-            self.bind_collection(entries, binding.collection, binding.type)
+            self.bind_collection(entries, binding.collection,
+                                 binding.contentModel)
 
     @webapp2.cached_property
     def cda(self):
