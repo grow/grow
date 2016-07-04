@@ -97,7 +97,9 @@ class Format(object):
             return '{}\n{}'.format(
                 root_content_with_frontmatter,
                 localized_content_with_frontmatter)
-        return self.pod.read_file(pod_path)
+        if self.pod.file_exists(pod_path):
+            return self.pod.read_file(pod_path)
+        return ''
 
     @classmethod
     def get(cls, doc):

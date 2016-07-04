@@ -63,6 +63,7 @@ def markdown_filter(value):
     try:
         if isinstance(value, unicode):
             value = value.decode('utf-8')
+        value = value or ''
         return markdown.markdown(value)
     except UnicodeEncodeError:
         return markdown.markdown(value)

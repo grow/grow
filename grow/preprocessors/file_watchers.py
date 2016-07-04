@@ -70,7 +70,6 @@ class ManagedObserver(observers.Observer):
     def schedule_builtins(self):
         preprocessor = routes_cache.RoutesCachePreprocessor(pod=self.pod)
         self._schedule_preprocessor('/content/', preprocessor, patterns=['*'])
-        self._schedule_preprocessor('/static/', preprocessor, patterns=['*'])
         preprocessor = translation.TranslationPreprocessor(pod=self.pod)
         self._schedule_preprocessor('/translations/', preprocessor, patterns=['*.po'])
 

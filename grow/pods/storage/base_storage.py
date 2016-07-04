@@ -23,7 +23,7 @@ class BaseStorage(object):
         raise NotImplementedError
 
     @staticmethod
-    def listdir(dirpath):
+    def listdir(dirpath, recursive=True):
         raise NotImplementedError
 
     @staticmethod
