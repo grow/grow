@@ -28,13 +28,16 @@ class BasePreprocessor(object):
     def run(self, build=True):
         raise NotImplementedError
 
-    def can_inject(self, doc=None):
+    def can_inject(self, doc=None, collection=None):
         """Returns whether the preprocessor can inject data into a doc."""
         return False
 
     def inject(self, doc=None):
         """Injects data into a doc without modifying the filesystem."""
         pass
+
+    def docs(self, collection):
+        raise NotImplementedError
 
     def list_watched_dirs(self):
         return []

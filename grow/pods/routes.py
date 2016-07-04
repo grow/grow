@@ -38,21 +38,21 @@ class Routes(object):
     def podspec(self):
         return self.pod.get_podspec().get_config()
 
-    def reset_cache(self, rebuild=True):
+    def reset_cache(self, rebuild=True, inject=False):
         if rebuild:
-            self._build_routing_map()
+            self._build_routing_map(inject=False)
 
     def get_doc(self, path, locale=None):
         if isinstance(locale, basestring):
             locale = locales.Locale(locale)
         return self._paths_to_locales_to_docs.get(path, {}).get(locale)
 
-    def _build_routing_map(self):
+    def _build_routing_map(self, inject=False):
         new_paths_to_locales_to_docs = collections.defaultdict(dict)
         rules = []
         # Content documents.
         for collection in self.pod.list_collections():
-            for doc in collection.list_servable_documents(include_hidden=True):
+            for doc in collection.list_servable_documents(include_hidden=True, inject=inject):
                 controller = rendered.RenderedController(
                     view=doc.view, document=doc, _pod=self.pod)
                 rule = routing.Rule(doc.get_serving_path(), endpoint=controller)

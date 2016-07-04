@@ -1,4 +1,5 @@
 import webapp2
+import os
 from . import base
 from grow.common import utils
 from contentful.cda import client
@@ -40,7 +41,7 @@ class ContentfulPreprocessor(base.BasePreprocessor):
         for key, field in entry.fields.iteritems():
           entry.fields[key] = self._parse_field(field)
         if body:
-            body = body.encode('utf-8')
+            body = body
             ext = 'md'
         else:
             body = ''
@@ -49,13 +50,15 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             title = entry.fields.pop('title')
             entry.fields['$title'] = title
         basename = '{}.{}'.format(entry.sys['id'], ext)
+        if isinstance(body, unicode):
+            body = body.encode('utf-8')
         return fields, body, basename
 
     def bind_collection(self, entries, collection_pod_path, contentful_model):
         """Binds a Grow collection to a Contentful collection."""
         collection = self.pod.get_collection(collection_pod_path)
         existing_pod_paths = [
-            doc.pod_path for doc in collection.list_docs(recursive=False)]
+            doc.pod_path for doc in collection.list_docs(recursive=False, inject=False)]
         new_pod_paths = []
         for i, entry in enumerate(entries):
             if entry.sys['contentType']['sys']['id'] != contentful_model:
@@ -79,14 +82,18 @@ class ContentfulPreprocessor(base.BasePreprocessor):
     def cda(self):
         """Contentful API client."""
         token = self.config.keys.production
-        return client.Client(self.config.space, token)
+        endpoint = 'preview.contentful.com'
+        token = self.config.keys.preview
+        return client.Client(self.config.space, token, endpoint=endpoint)
 
-    def can_inject(self, doc):
+    def can_inject(self, doc=None, collection=None):
         if not self.injected:
             return False
         for binding in self.config.bind:
-            if doc.pod_path.startswith(binding.collection):
-                return True
+            if doc and doc.pod_path.startswith(binding.collection):
+                  return True
+            if collection and collection.pod_path.rstrip('/') == binding.collection.rstrip('/'):
+                  return True
         return False
 
     def inject(self, doc):
@@ -97,5 +104,28 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             self.pod.logger.info('Contentful entry not found: {}'.format(query))
             return  # Corresponding doc not found in Contentful.
         fields, body, basename = self._parse_entry(entry)
-        body = body.decode('utf-8')
+        if isinstance(body, unicode):
+            body = body.encode('utf-8')
         doc.inject(fields=fields, body=body)
+
+    def docs(self, collection):
+        entries = self.cda.fetch(resources.Entry).all()
+        docs = []
+        for binding in self.config.bind:
+            if collection.pod_path.rstrip('/') != binding.collection.rstrip('/'):
+                continue
+            docs += self.create_doc_instances(
+                entries, collection, binding.contentModel)
+        return docs
+
+    def create_doc_instances(self, entries, collection, contentful_model):
+        docs = []
+        for i, entry in enumerate(entries):
+            if entry.sys['contentType']['sys']['id'] != contentful_model:
+                continue
+            fields, body, basename = self._parse_entry(entry)
+            pod_path = os.path.join(collection.pod_path, basename)
+            doc = collection.get_doc(pod_path)
+            doc.inject(fields=fields, body=body)
+            docs.append(doc)
+        return docs

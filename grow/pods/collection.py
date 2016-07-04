@@ -81,14 +81,13 @@ class Collection(object):
 
     @classmethod
     def list(cls, pod):
-        # TODO: Implement "depth" argument on pod.list_dir and use.
-        paths = pod.list_dir(cls.CONTENT_PATH + '/')
-        clean_paths = set()
-        for path in paths:
-            parts = path.split('/')
-            if len(parts) >= 2:  # Disallow files in root-level /content/ dir.
-                clean_paths.add(os.path.join(cls.CONTENT_PATH, parts[0]))
-        return [cls(pod_path, _pod=pod) for pod_path in clean_paths]
+        for root, dirs, _ in pod.walk(cls.CONTENT_PATH + '/'):
+            for dir_name in dirs:
+                pod_path = os.path.join(root, dir_name)
+                pod_path = pod_path.replace(pod.root, '')
+                col_path = os.path.join(pod_path, '_blueprint.yaml')
+                if pod.file_exists(col_path):
+                    yield pod.get_collection(pod_path)
 
     def collections(self):
         """Returns collections contained within this collection. Implemented
@@ -182,19 +181,23 @@ class Collection(object):
         self.pod.delete_file(self._blueprint_path)
 
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
-                  include_hidden=False, recursive=True):
+                  include_hidden=False, recursive=True, inject=False):
         reverse = False if reverse is None else reverse
         order_by = 'order' if order_by is None else order_by
         key = operator.attrgetter(order_by)
         sorted_docs = structures.SortedCollection(key=key)
-        for path in self.pod.list_dir(self.pod_path):
+        if inject:
+            injected_docs = self.pod.docs_from_preprocessors(collection=self)
+            if injected_docs is not None:
+                sorted_docs = injected_docs
+                self.pod.logger.info('Injected collection -> {}'.format(self.pod_path))
+            return reversed(sorted_docs) if reverse else sorted_docs
+        for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
             slug, ext = os.path.splitext(os.path.basename(pod_path))
             if (slug.startswith('_')
                     or ext not in messages.extensions_to_formats
                     or not pod_path):
-                continue
-            if not recursive and self.pod_path != os.path.dirname(pod_path):
                 continue
             try:
                 _, locale_from_path = \
@@ -231,9 +234,10 @@ class Collection(object):
                 new_doc = self.get_doc(pod_path, locale=each_locale)
                 sorted_docs.insert(new_doc)
 
-    def list_servable_documents(self, include_hidden=False, locales=None):
+    def list_servable_documents(self, include_hidden=False, locales=None, inject=None):
         docs = []
-        for doc in self.list_docs(include_hidden=include_hidden):
+        inject = False if inject is None else inject
+        for doc in self.list_docs(include_hidden=include_hidden, inject=inject):
             if (self._get_builtin_field('draft')
                     or not doc.has_serving_path()
                     or not doc.view

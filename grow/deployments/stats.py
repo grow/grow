@@ -27,10 +27,9 @@ class Stats(object):
 
     def to_message(self):
         message = messages.StatsMessage()
-
-        message.num_collections = len(self.pod.list_collections())
+        collections = list(self.pod.list_collections())
+        message.num_collections = len(collections)
         message.num_files_per_type = self.get_num_files_per_type()
-
         message.locales = [str(locale) for locale in self.pod.list_locales()]
         message.langs = self.pod.catalogs.list_locales()
         catalog = self.pod.catalogs.get_template()

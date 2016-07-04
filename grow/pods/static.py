@@ -193,7 +193,7 @@ class StaticController(controllers.BaseController):
             message = '{} does not exist.'.format(path)
             raise webob.exc.HTTPNotFound(message)
 
-    def render(self, params):
+    def render(self, params, inject=False):
         pod_path = self.get_pod_path(params)
         return self.pod.read_file(pod_path)
 

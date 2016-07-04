@@ -85,7 +85,7 @@ class Pod(object):
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.logger = _logger
-        self._routes = None
+        self.routes = routes.Routes(pod=self)
         try:
             sdk_utils.check_sdk_version(self)
         except PodDoesNotExistError:
@@ -109,12 +109,6 @@ class Pod(object):
     @property
     def yaml(self):
         return self._parse_yaml() or {}
-
-    @property
-    def routes(self):
-        if self._routes is None:
-            self._routes = routes.Routes(pod=self)
-        return self._routes
 
     def reset_yaml(self):
         self._parse_yaml.reset()
@@ -164,9 +158,9 @@ class Pod(object):
           raise ValueError('.. not allowed in file paths.')
         return os.path.join(self.root, pod_path.lstrip('/'))
 
-    def list_dir(self, pod_path='/'):
+    def list_dir(self, pod_path='/', recursive=True):
         path = self._normalize_path(pod_path)
-        return self.storage.listdir(path)
+        return self.storage.listdir(path, recursive=recursive)
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
@@ -291,7 +285,7 @@ class Pod(object):
         for path in paths:
             controller, params = self.match(path)
             try:
-              output[path] = controller.render(params)
+              output[path] = controller.render(params, inject=False)
             except:
               self.logger.error('Error building: {}'.format(controller))
               raise
@@ -412,11 +406,17 @@ class Pod(object):
             results.append(preprocessor)
         return results
 
-    def inject_preprocessors(self, doc):
+    def inject_preprocessors(self, doc=None):
         """Conditionally injects data into documents from preprocessors."""
         for preprocessor in self.list_preprocessors():
-            if preprocessor.can_inject(doc):
-                preprocessor.inject(doc)
+            if doc is not None:
+                if preprocessor.can_inject(doc=doc):
+                    preprocessor.inject(doc=doc)
+
+    def docs_from_preprocessors(self, collection):
+        for preprocessor in self.list_preprocessors():
+            if preprocessor.can_inject(collection=collection):
+                return preprocessor.docs(collection=collection)
 
     def preprocess(self, preprocessor_names=None, run_all=False, tags=None,
                    build=True, ratelimit=None):
