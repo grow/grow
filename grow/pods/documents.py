@@ -7,7 +7,6 @@ import json
 import logging
 import os
 import re
-import webapp2
 
 
 class Error(Exception):
@@ -82,7 +81,7 @@ class Document(object):
         pod_path, _ = formats.Format.parse_localized_path(pod_path)
         return os.path.basename(pod_path)
 
-    @webapp2.cached_property
+    @utils.cached_property
     def default_locale(self):
         if ('$localization' in self.fields
             and 'default_locale' in self.fields['$localization']):
@@ -97,7 +96,7 @@ class Document(object):
             locale.set_alias(self.pod)
         return locale
 
-    @webapp2.cached_property
+    @utils.cached_property
     def fields(self):
         tagged_fields = self.get_tagged_fields()
         fields = utils.untag_fields(tagged_fields)
@@ -107,7 +106,7 @@ class Document(object):
         format = formats.Format.get(self)
         return format.fields
 
-    @webapp2.cached_property
+    @utils.cached_property
     def format(self):
         return formats.Format.get(self)
 
@@ -272,7 +271,7 @@ class Document(object):
             'slug': self.slug,
         }).replace('//', '/')
 
-    @webapp2.cached_property
+    @utils.cached_property
     def locales(self):
         localized = '$localization' in self.fields
         if localized and 'locales' in self.fields['$localization']:

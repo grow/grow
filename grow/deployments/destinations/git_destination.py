@@ -8,7 +8,6 @@ import os
 import shutil
 import subprocess
 import tempfile
-import webapp2
 
 
 class Config(messages.Message):
@@ -38,18 +37,18 @@ class GitDestination(base.BaseDestination):
             prefix = 'git:{}'.format(self.config.repo)
         return '{}@{}:{}'.format(prefix, self.config.branch, self.config.root_dir)
 
-    @webapp2.cached_property
+    @common_utils.cached_property
     def is_remote(self):
         return self.config.repo.startswith(('https://', 'http://', 'git://'))
 
-    @webapp2.cached_property
+    @common_utils.cached_property
     def repo_path(self):
         if self.is_remote:
             return tempfile.mkdtemp()
         else:
             return os.path.abspath(self.config.repo)
 
-    @webapp2.cached_property
+    @common_utils.cached_property
     def repo(self):
         if self.is_remote:
             return self._git.Repo.init(self.repo_path)

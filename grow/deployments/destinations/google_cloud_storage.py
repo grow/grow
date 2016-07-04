@@ -15,7 +15,6 @@ import httplib2
 import logging
 import mimetypes
 import os
-import webapp2
 
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/devstorage.full_control'
@@ -53,7 +52,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
     def __str__(self):
         return 'gs://{}'.format(self.config.bucket)
 
-    @webapp2.cached_property
+    @utils.cached_property
     def bucket(self):
         if self.config.oauth2:
             enable_oauth2_auth_handler()

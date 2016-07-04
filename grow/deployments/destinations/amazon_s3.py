@@ -1,4 +1,5 @@
 from . import base
+from grow.common import utils as common_utils
 from boto.s3 import connection
 from boto.s3 import key
 from grow.pods import env
@@ -8,7 +9,6 @@ import cStringIO
 import logging
 import os
 import mimetypes
-import webapp2
 
 
 class Config(messages.Message):
@@ -30,7 +30,7 @@ class AmazonS3Destination(base.BaseDestination):
     def __str__(self):
         return 's3://{}'.format(self.config.bucket)
 
-    @webapp2.cached_property
+    @common_utils.cached_property
     def bucket(self):
         boto_connection = boto.connect_s3(
             self.config.access_key, self.config.access_secret,

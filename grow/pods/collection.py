@@ -11,7 +11,6 @@ import logging
 import operator
 import os
 import re
-import webapp2
 
 
 class Error(Exception):
@@ -74,7 +73,7 @@ class Collection(object):
         except KeyError:
             return object.__getattribute__(self, name)
 
-    @webapp2.cached_property
+    @utils.cached_property
     def fields(self):
         tagged_fields = self.yaml
         fields = utils.untag_fields(tagged_fields)
@@ -241,7 +240,7 @@ class Collection(object):
             docs.append(doc)
         return docs
 
-    @webapp2.cached_property
+    @utils.cached_property
     def locales(self):
         if 'localization' in self.yaml:
             if self.yaml['localization'].get('use_podspec_locales'):

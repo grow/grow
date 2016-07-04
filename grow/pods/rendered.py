@@ -7,7 +7,6 @@ from grow.pods import errors
 import logging
 import mimetypes
 import sys
-import webapp2
 
 
 class RenderedController(controllers.BaseController):
