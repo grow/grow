@@ -48,6 +48,7 @@ class Stats(object):
         rows.append(['Resource', 'Count'])
 
         all_collections = self.pod.list_collections()
+        all_collections = list(all_collections)
         rows.append(['Collections', len(all_collections)])
         documents = []
         for collection in all_collections:
