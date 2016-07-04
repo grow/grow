@@ -283,6 +283,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             return yaml.safe_dump(formatted_data, default_flow_style=False)
         return formatted_data
 
+    def can_inject(self, doc=None, collection=None):
+        if not self.injected:
+            return False
+        if doc and doc.pod_path == self.config.path:
+            return True
+        return False
+
     def inject(self, doc):
         path = doc.pod_path
         try:
@@ -298,4 +305,5 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         fields = GoogleSheetsPreprocessor.format_content(
             content, path=path, format_as=self.config.format,
             preserve=self.config.preserve, existing_data=existing_data)
+        fields = utils.untag_fields(fields)
         doc.inject(fields=fields)
