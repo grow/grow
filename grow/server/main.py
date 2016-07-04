@@ -6,6 +6,7 @@ import sys
 import traceback
 import urllib
 import webob
+import werkzeug
 
 # Allows "import grow" and "from grow import <name>".
 sys.path.extend([os.path.join(os.path.dirname(__file__), '..', '..')])
@@ -20,6 +21,7 @@ from werkzeug import routing
 from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
 from werkzeug import wsgi
+from twisted.web import static
 
 
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
@@ -35,6 +37,14 @@ _env = jinja2.Environment(
         'jinja2.ext.loopcontrols',
         'jinja2.ext.with_',
     ])
+
+
+class Request(werkzeug.BaseRequest):
+    pass
+
+
+class Response(webob.Response):
+    default_conditional_response = True
 
 
 def serve_console(pod, request, values):
@@ -60,14 +70,11 @@ def serve_pod(pod, request, values):
     controller, params = pod.routes.match(path, request.environ)
     controller.validate(params)
     headers = controller.get_http_headers(params)
-    request_etag = request.headers.get('If-None-Match')
-    if 'ETag' in headers and request_etag == headers['ETag']:
-        response = wrappers.Response(headers=headers, status=304)
-        return response
     if 'X-AppEngine-BlobKey' in headers:
-        return wrappers.Response(headers=headers)
+        return Response(headers=headers)
     content = controller.render(params)
-    response = wrappers.Response(content, headers=headers)
+    response = Response(body=content)
+    response.headers.update(headers)
     return response
 
 
@@ -96,7 +103,7 @@ class PodServer(object):
             return self.handle_exception(request, e)
 
     def wsgi_app(self, environ, start_response):
-        request = wrappers.Request(environ)
+        request = Request(environ)
         response = self.dispatch_request(request)
         return response(environ, start_response)
 
