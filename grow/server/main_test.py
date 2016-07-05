@@ -42,14 +42,15 @@ class PodHandlerTestCase(unittest.TestCase):
         self.assertEqual('Hello World!\n', response.body)
 
         # Verify 304.
-        modified = 'Tue, 17 Nov 2015 15:17:06 GMT'
-        headers = {'If-None-Match': modified}
-        request = webapp2.Request.blank('/public/file.txt', headers=headers)
+        url_path = '/public/file.txt'
+        controller, params = pod.match(url_path)
+        response_headers = controller.get_http_headers(params)
+        headers = {'If-None-Match': response_headers['Last-Modified']}
+        request = webapp2.Request.blank(url_path, headers=headers)
         response = request.get_response(app)
         self.assertEqual(304, response.status_int)
         self.assertEqual('', response.body)
 
-        headers = {'If-Modified-Since': modified}
         response = request.get_response(app)
         self.assertEqual(304, response.status_int)
         self.assertEqual('', response.body)
