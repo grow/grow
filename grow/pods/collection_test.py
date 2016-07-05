@@ -19,6 +19,7 @@ class CollectionsTestCase(unittest.TestCase):
         docs = col2.list_docs()
         self.assertEqual(col, col2)
         self.assertEqual(col, docs[0].collection)
+        self.assertEqual('pages', docs[0].collection.basename)
 
     def test_list(self):
         collection.Collection.list(self.pod)

@@ -52,6 +52,7 @@ class Collection(object):
         self.pod = _pod
         self.collection_path = regex.sub('', pod_path).strip('/')
         self.pod_path = pod_path
+        self.basename = os.path.basename(self.collection_path)
         self._default_locale = _pod.podspec.default_locale
         self._blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
@@ -187,7 +188,7 @@ class Collection(object):
         key = operator.attrgetter(order_by)
         sorted_docs = structures.SortedCollection(key=key)
         if inject:
-            injected_docs = self.pod.docs_from_preprocessors(collection=self)
+            injected_docs = self.pod.inject_preprocessors(collection=self)
             if injected_docs is not None:
                 sorted_docs = injected_docs
                 self.pod.logger.info('Injected collection -> {}'.format(self.pod_path))
@@ -222,6 +223,11 @@ class Collection(object):
                 logging.error('Error loading doc: {}'.format(pod_path))
                 raise
         return reversed(sorted_docs) if reverse else sorted_docs
+
+    # Aliases `collection.docs` to `collection.list_docs`. `collection.docs`
+    # should be the public and supported way to retrieve documents from a
+    # collection.
+    docs = list_docs
 
     def _add_localized_docs(self, sorted_docs, pod_path, locale, doc):
         for each_locale in doc.locales:

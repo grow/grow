@@ -406,17 +406,17 @@ class Pod(object):
             results.append(preprocessor)
         return results
 
-    def inject_preprocessors(self, doc=None):
-        """Conditionally injects data into documents from preprocessors."""
+    def inject_preprocessors(self, doc=None, collection=None):
+        """Conditionally injects or creates data from preprocessors. If a doc
+        is provided, preprocessors inject data to doc fields. If a collection
+        is provided, the first matching preprocessor returns a list of docs."""
         for preprocessor in self.list_preprocessors():
             if doc is not None:
                 if preprocessor.can_inject(doc=doc):
                     preprocessor.inject(doc=doc)
-
-    def docs_from_preprocessors(self, collection):
-        for preprocessor in self.list_preprocessors():
-            if preprocessor.can_inject(collection=collection):
-                return preprocessor.docs(collection=collection)
+            if collection is not None:
+                if preprocessor.can_inject(collection=collection):
+                    return preprocessor.inject(collection=collection)
 
     def preprocess(self, preprocessor_names=None, run_all=False, tags=None,
                    build=True, ratelimit=None):

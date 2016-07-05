@@ -260,8 +260,10 @@ class Document(object):
     def _format_path(self, path_format):
         podspec = self.pod.get_podspec()
         locale = self.locale.alias if self.locale is not None else self.locale
-        return path_format.format(**{
+        formatters = {
             'base': self.base,
+            'category': self.category,
+            'collection.basename': self.collection.basename,
             'collection.root': self.collection.root,
             'date': self.date,
             'env.fingerpint': self.pod.env.fingerprint,
@@ -269,7 +271,12 @@ class Document(object):
             'parent': self.parent if self.parent else utils.DummyDict(),
             'root': podspec.root,
             'slug': self.slug,
-        }).replace('//', '/')
+        }
+        if '|lower' in path_format:
+            for key, value in formatters.items():
+                if isinstance(value, basestring):
+                    formatters['{}|lower'.format(key)] = value.lower()
+        return path_format.format(**formatters).replace('//', '/')
 
     @utils.cached_property
     def locales(self):

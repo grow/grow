@@ -49,6 +49,9 @@ class ContentfulPreprocessor(base.BasePreprocessor):
         if 'title' in entry.fields:
             title = entry.fields.pop('title')
             entry.fields['$title'] = title
+        if 'category' in entry.fields:
+            category = entry.fields.pop('category')
+            entry.fields['$category'] = category
         basename = '{}.{}'.format(entry.sys['id'], ext)
         if isinstance(body, unicode):
             body = body.encode('utf-8')
@@ -91,32 +94,38 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             return False
         for binding in self.config.bind:
             if doc and doc.pod_path.startswith(binding.collection):
-                  return True
-            if collection and collection.pod_path.rstrip('/') == binding.collection.rstrip('/'):
-                  return True
+                return True
+            if (collection and
+                    self._normalize_path(collection.pod_path)
+                    == self._normalize_path(binding.collection)):
+                return True
         return False
 
-    def inject(self, doc):
-        """Injects data into a document without updating the filesystem."""
-        query = {'sys.id': doc.base}
-        entry = self.cda.fetch(resources.Entry).where(query).first()
-        if not entry:
-            self.pod.logger.info('Contentful entry not found: {}'.format(query))
-            return  # Corresponding doc not found in Contentful.
-        fields, body, basename = self._parse_entry(entry)
-        if isinstance(body, unicode):
-            body = body.encode('utf-8')
-        doc.inject(fields=fields, body=body)
-
-    def docs(self, collection):
-        entries = self.cda.fetch(resources.Entry).all()
-        docs = []
-        for binding in self.config.bind:
-            if collection.pod_path.rstrip('/') != binding.collection.rstrip('/'):
-                continue
-            docs += self.create_doc_instances(
-                entries, collection, binding.contentModel)
-        return docs
+    def inject(self, doc=None, collection=None):
+        """Conditionally injects data into documents or a collection, without
+        updating the filesystem. If doc is provided, the document's fields are
+        injected. If collection is provided, returns a list of injected
+        document instances."""
+        if doc is not None:
+            query = {'sys.id': doc.base}
+            entry = self.cda.fetch(resources.Entry).where(query).first()
+            if not entry:
+                self.pod.logger.info('Contentful entry not found: {}'.format(query))
+                return  # Corresponding doc not found in Contentful.
+            fields, body, basename = self._parse_entry(entry)
+            if isinstance(body, unicode):
+                body = body.encode('utf-8')
+            doc.inject(fields=fields, body=body)
+            return doc
+        elif collection is not None:
+            entries = self.cda.fetch(resources.Entry).all()
+            docs = []
+            for binding in self.config.bind:
+                if self._normalize_path(collection.pod_path) != self._normalize_path(binding.collection):
+                    continue
+                docs += self.create_doc_instances(
+                    entries, collection, binding.contentModel)
+            return docs
 
     def create_doc_instances(self, entries, collection, contentful_model):
         docs = []
@@ -129,3 +138,7 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             doc.inject(fields=fields, body=body)
             docs.append(doc)
         return docs
+
+    def _normalize_path(self, path):
+        """Normalizes a collection path."""
+        return path.rstrip('/')
