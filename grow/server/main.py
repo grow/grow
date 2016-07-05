@@ -21,7 +21,6 @@ from werkzeug import routing
 from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
 from werkzeug import wsgi
-from twisted.web import static
 
 
 _root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
