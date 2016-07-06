@@ -28,17 +28,6 @@ class BasePreprocessor(object):
     def run(self, build=True):
         raise NotImplementedError
 
-    def can_inject(self, doc=None, collection=None):
-        """Returns whether the preprocessor can inject data into a doc."""
-        return False
-
-    def inject(self, doc=None):
-        """Injects data into a doc without modifying the filesystem."""
-        pass
-
-    def docs(self, collection):
-        raise NotImplementedError
-
     def list_watched_dirs(self):
         return []
 
@@ -46,3 +35,14 @@ class BasePreprocessor(object):
         if path.startswith('/'):
             return os.path.join(self.root, path.lstrip('/'))
         return path
+
+    def can_inject(self, doc=None, collection=None):
+        """Returns whether the preprocessor can inject data into a doc."""
+        return False
+
+    def inject(self, doc=None, collection=None):
+        """Injects data into a doc without modifying the filesystem."""
+
+    def get_edit_url(self, doc=None):
+        """Returns the URL to edit a document in an external editor. Only
+        applicable for preprocessors that inject data."""

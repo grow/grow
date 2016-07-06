@@ -90,6 +90,40 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
             formatted_data=formatted_data, path=path)
         self.assertEqual(formatted_data, result)
 
+    def test_get_edit_url(self):
+        pod = testing.create_pod()
+        path = '/content/pages/home.yaml'
+        pod.write_yaml(path, {})
+
+        # Verify Google Sheets URLs.
+        fields = {
+            'preprocessors': [{
+                'kind': 'google_sheets',
+                'path': path,
+                'id': '012345',
+                'gid': '987654',
+            }],
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        doc = pod.get_doc(path)
+        preprocessor = pod.list_preprocessors()[0]
+        self.assertEqual('https://docs.google.com/spreadsheets/d/012345/edit#gid=987654',
+                         preprocessor.get_edit_url(doc))
+
+        # Verify Google Docs URLs.
+        fields = {
+            'preprocessors': [{
+                'kind': 'google_docs',
+                'path': path,
+                'id': '012345',
+            }],
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        pod = pods.Pod(pod.root)  # Reset pod.list_preprocessors.
+        preprocessor = pod.list_preprocessors()[0]
+        self.assertEqual('https://docs.google.com/document/d/012345/edit',
+                         preprocessor.get_edit_url(doc))
+
 
 if __name__ == '__main__':
     unittest.main()

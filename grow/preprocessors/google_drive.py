@@ -59,6 +59,7 @@ class BaseGooglePreprocessor(base.BasePreprocessor):
 
 class GoogleDocsPreprocessor(BaseGooglePreprocessor):
     KIND = 'google_docs'
+    _edit_url_format = 'https://docs.google.com/document/d/{id}/edit'
 
     class Config(messages.Message):
         path = messages.StringField(1)
@@ -140,9 +141,14 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         self.pod.write_file(path, content)
         self.logger.info('Downloaded Google Doc -> {}'.format(path))
 
+    def get_edit_url(self, doc=None):
+        """Returns the URL to edit in Google Docs."""
+        return GoogleDocsPreprocessor._edit_url_format.format(id=self.config.id)
+
 
 class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     KIND = 'google_sheets'
+    _edit_url_format = 'https://docs.google.com/spreadsheets/d/{id}/edit#gid={gid}'
 
     class Config(messages.Message):
         path = messages.StringField(1)
@@ -307,3 +313,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             preserve=self.config.preserve, existing_data=existing_data)
         fields = utils.untag_fields(fields)
         doc.inject(fields=fields)
+
+    def get_edit_url(self, doc=None):
+        """Returns the URL to edit in Google Sheets."""
+        gid = self.config.gid or '0'
+        return GoogleSheetsPreprocessor._edit_url_format.format(
+            id=self.config.id, gid=gid)

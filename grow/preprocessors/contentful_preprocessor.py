@@ -19,6 +19,9 @@ class BindingMessage(messages.Message):
 
 class ContentfulPreprocessor(base.BasePreprocessor):
     KIND = 'contentful'
+    _edit_entry_url_format = 'https://app.contentful.com/spaces/{space}/entries/{entry}'
+    _edit_space_url_format = 'https://app.contentful.com/spaces/{space}/entries'
+    _preview_endpoint = 'preview.contentful.com'
 
     class Config(messages.Message):
         space = messages.StringField(2)
@@ -85,8 +88,8 @@ class ContentfulPreprocessor(base.BasePreprocessor):
     def cda(self):
         """Contentful API client."""
         token = self.config.keys.production
-        endpoint = 'preview.contentful.com'
         token = self.config.keys.preview
+        endpoint = ContentfulPreprocessor._preview_endpoint
         return client.Client(self.config.space, token, endpoint=endpoint)
 
     def can_inject(self, doc=None, collection=None):
@@ -142,3 +145,11 @@ class ContentfulPreprocessor(base.BasePreprocessor):
     def _normalize_path(self, path):
         """Normalizes a collection path."""
         return path.rstrip('/')
+
+    def get_edit_url(self, doc=None):
+        """Returns the URL to edit in Contentful."""
+        if doc:
+            return ContentfulPreprocessor._edit_entry_url_format.format(
+                space=self.config.space, entry=doc.base)
+        return ContentfulPreprocessor._edit_space_url_format.format(
+            space=self.config.space)
