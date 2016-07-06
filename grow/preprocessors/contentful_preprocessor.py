@@ -1,10 +1,10 @@
-import webapp2
-import os
 from . import base
-from grow.common import utils
 from contentful.cda import client
 from contentful.cda import resources
+from grow.common import utils
 from protorpc import messages
+import os
+import webapp2
 
 
 class KeyMessage(messages.Message):
@@ -87,9 +87,12 @@ class ContentfulPreprocessor(base.BasePreprocessor):
     @webapp2.cached_property
     def cda(self):
         """Contentful API client."""
+        endpoint = None
         token = self.config.keys.production
-        token = self.config.keys.preview
-        endpoint = ContentfulPreprocessor._preview_endpoint
+        # Use preview endpoint if preview key is provided.
+        if self.config.keys.preview:
+            token = self.config.keys.preview
+            endpoint = ContentfulPreprocessor._preview_endpoint
         return client.Client(self.config.space, token, endpoint=endpoint)
 
     def can_inject(self, doc=None, collection=None):
@@ -124,7 +127,8 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             entries = self.cda.fetch(resources.Entry).all()
             docs = []
             for binding in self.config.bind:
-                if self._normalize_path(collection.pod_path) != self._normalize_path(binding.collection):
+                if (self._normalize_path(collection.pod_path)
+                        != self._normalize_path(binding.collection)):
                     continue
                 docs += self.create_doc_instances(
                     entries, collection, binding.contentModel)
