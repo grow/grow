@@ -7,6 +7,6 @@ if [ -d $HERE/../env ]; then
   $HERE/../bin/grow ${@}
   deactivate
 else
-  echo 'Run ./scripts/setup first.'
+  echo 'Run make develop first.'
   exit 1
 fi

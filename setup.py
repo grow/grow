@@ -3,13 +3,16 @@ import pip
 from setuptools import find_packages
 from setuptools import setup
 
+_install_requirements = req.parse_requirements(
+        'requirements.txt', session=pip.download.PipSession())
+
 
 setup(
     name='grow',
     version=open('grow/VERSION').read().strip(),
     description=(
         'Develop everywhere and deploy anywhere: a declarative '
-        'static site generator/CMS for building high-quality web sites.'
+        'site generator for rapid, high-quality web site production.'
     ),
     long_description=open('description.txt').read().strip(),
     url='https://grow.io',
@@ -19,6 +22,7 @@ setup(
     author_email='code@grow.io',
     include_package_data=True,
     packages=find_packages(),
+    install_requires=[str(ir.req) for ir in _install_requirements],
     scripts=[
         'bin/grow',
     ],
@@ -39,52 +43,4 @@ setup(
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
-    tests_require=[
-        'coverage==3.7.1',
-        'ez-setup==0.9',
-        'mock==1.3.0',
-        'nose==1.3.1',
-        'rednose==0.4.1',
-        'setuptools==19.2',
-        'webapp2==2.5.2',
-    ],
-    install_requires=[
-        'Babel==2.2.0',
-        'GitPython==1.0.1',
-        'GoogleAppEngineCloudStorageClient==1.9.5.0',
-        'Jinja2==2.8',
-        'Markdown==2.4',
-        'MarkupSafe==0.19',
-        'PyYAML==3.11',
-        'Twisted==16.0.0',
-        'WebOb==1.3.1',
-        'Werkzeug==0.9.4',
-        'beautifulsoup4==4.4.0',
-        'boto==2.40.0',
-        'certifi==1.0.0',
-        'click==4.0',
-        'dulwich==0.13.0',
-        'gcs-oauth2-boto-plugin==1.14',
-        'google-api-python-client==1.3.1',
-        'goslate==1.4.0',
-        'html2text==2015.6.21',
-        'httplib2==0.9.1',
-        'keyring==8.7',
-        'libsass==0.6.2',
-        'oauth2client==2.1.0',
-        'paramiko==1.15.1',
-        'progressbar2==2.6.2',
-        'protorpc==0.11.1',
-        'pyasn1==0.1.8',
-        'pycrypto==2.6.1',
-        'pygments==2.0.2',
-        'pytz==2014.4',
-        'requests==2.3.0',
-        'semantic_version==2.4.1',
-        'texttable-fixed==0.8.3',
-        'translitcodec==0.4.0',
-        'watchdog==0.7.1',
-        'webreview==0.0.60',
-        'xtermcolor==1.3',
     ])
