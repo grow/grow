@@ -75,6 +75,17 @@ test:
 	  --cover-package=grow \
 	  grow/
 
+nosetest:
+	nosetests \
+	  -v \
+	  --rednose \
+	  --with-coverage \
+	  --cover-erase \
+	  --cover-html \
+	  --cover-html-dir=htmlcov \
+	  --cover-package=grow \
+	  grow/
+
 upload-pypi: clean
 	. env/bin/activate
 	$(MAKE) ensure-master
@@ -132,4 +143,4 @@ ensure-master:
 install: clean
 	python setup.py install
 
-.PHONY: clean develop develop-linux test upload-pypi upload-github ensure-master
+.PHONY: clean develop develop-linux test nosetests upload-pypi upload-github ensure-master

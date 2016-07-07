@@ -1,4 +1,5 @@
-# Grow SDK [![Build Status](https://api.travis-ci.org/grow/grow.svg)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![Slack](https://growsdk.herokuapp.com/badge.svg)](https://growsdk.herokuapp.com)
+# Grow
+[![Build Status](https://api.travis-ci.org/grow/grow.svg)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![https://img.shields.io/pypi/v/grow.svg](https://pypi.python.org/pypi/grow)] [![Slack](https://growsdk.herokuapp.com/badge.svg)](https://growsdk.herokuapp.com)
 
 Grow is a declarative tool for rapidly building high-quality, maintainable
 websites.
@@ -6,7 +7,8 @@ websites.
 ## Quick start
 
 Install Grow quickly by downloading a version built for your system using the
-commands below. [See docs from the documentation site] for full instructions.
+commands below. [See docs from the documentation site](https://grow.io/docs/)
+for full instructions.
 
 ```
 curl https://install.growsdk.org | bash
