@@ -12,13 +12,11 @@ export GOPATH := $(HOME)/go/
 export PATH := $(HOME)/go/bin/:$(PATH)
 
 clean:
-	rm -rf build/
 	rm -rf .eggs/
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -rf {} +
 
 develop:
@@ -75,6 +73,26 @@ test:
 	  --cover-package=grow \
 	  grow/
 
+test-gae:
+	virtualenv gaenv --distribute
+	. gaenv/bin/activate
+	./gaenv/bin/pip install -r requirements-dev.txt
+	./gaenv/bin/pip install NoseGAE==0.3.0
+	gaenv --lib lib --no-import .
+	./gaenv/bin/nosetests \
+	  -v \
+	  --rednose \
+	  --with-gae \
+	  --nocapture \
+	  --nologcapture \
+	  --with-coverage \
+	  --cover-erase \
+	  --cover-html \
+	  --cover-html-dir=htmlcov \
+	  --cover-package=app \
+	  --gae-application=./grow/testing/testdata/pod/ \
+	  grow
+
 nosetest:
 	nosetests \
 	  -v \
@@ -92,7 +110,7 @@ upload-pypi: clean
 	$(MAKE) test
 	git pull origin master
 	python setup.py sdist upload
-	$(MAKE) clean-build
+	$(MAKE) clean
 
 upload-github:
 	@github-release > /dev/null || { \
@@ -143,4 +161,4 @@ ensure-master:
 install: clean
 	python setup.py install
 
-.PHONY: clean develop develop-linux test nosetests upload-pypi upload-github ensure-master
+.PHONY: clean develop develop-linux test nosetest upload-pypi upload-github ensure-master
