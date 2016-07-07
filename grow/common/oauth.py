@@ -19,22 +19,20 @@ DEFAULT_STORAGE_KEY = 'Grow SDK'
 _CLEARED_AUTH_KEYS = {}
 
 
-def get_storage():
+def get_storage(key, username):
     """Returns the Storage class compatible with the current environment."""
     if appengine:
-        return appengine.StorageByKeyName
+        return appengine.StorageByKeyName(
+            appengine.CredentialsModel, username, 'credentials')
     from oauth2client.contrib import keyring_storage
-    return keyring_storage.Storage
-
-
-Storage = get_storage()
+    return keyring_storage.Storage(key, username)
 
 
 def get_credentials_and_storage(scope, storage_key=DEFAULT_STORAGE_KEY):
     if os.getenv('CLEAR_AUTH') and storage_key not in _CLEARED_AUTH_KEYS:
         clear_credentials(storage_key=storage_key)
     username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
-    storage = Storage(storage_key, username)
+    storage = get_storage(storage_key, username)
     if 'CI' in os.environ:  # Avoid using keyring in CI/Travis.
         return None, storage
     credentials = storage.get()
@@ -62,6 +60,6 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
 
 def clear_credentials(storage_key=DEFAULT_STORAGE_KEY):
     username = os.getenv('AUTH_EMAIL_ADDRESS', 'default')
-    storage = Storage(storage_key, username)
+    storage = get_storage(storage_key, username)
     storage.delete()
     _CLEARED_AUTH_KEYS[storage_key] = True

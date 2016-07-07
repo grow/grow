@@ -73,27 +73,30 @@ test:
 	  --cover-package=grow \
 	  grow/
 
+test-all:
+	$(MAKE) test-nose
+	$(MAKE) test-gae
+
 test-gae:
 	virtualenv gaenv --distribute
 	. gaenv/bin/activate
 	./gaenv/bin/pip install -r requirements-dev.txt
-	./gaenv/bin/pip install NoseGAE==0.3.0
-	gaenv --lib lib --no-import .
-	./gaenv/bin/nosetests \
+	./gaenv/bin/pip install gaenv
+	./gaenv/bin/pip install NoseGAE==0.5.8
+	# https://github.com/faisalraja/gaenv/issues/11
+	cat requirements.txt > ./gaenv/requirements-gae.txt
+	echo "pyasn1-modules>=0.0.5" >> ./gaenv/requirements-gae.txt
+	./gaenv/bin/gaenv -r ./gaenv/requirements-gae.txt --lib lib --no-import .
+	NOSEGAE=1 ./gaenv/bin/nosetests \
 	  -v \
 	  --rednose \
 	  --with-gae \
 	  --nocapture \
 	  --nologcapture \
-	  --with-coverage \
-	  --cover-erase \
-	  --cover-html \
-	  --cover-html-dir=htmlcov \
-	  --cover-package=app \
 	  --gae-application=./grow/testing/testdata/pod/ \
 	  grow
 
-nosetest:
+test-nosetests:
 	nosetests \
 	  -v \
 	  --rednose \
@@ -102,7 +105,7 @@ nosetest:
 	  --cover-html \
 	  --cover-html-dir=htmlcov \
 	  --cover-package=grow \
-	  grow/
+	  grow
 
 upload-pypi: clean
 	. env/bin/activate
@@ -161,4 +164,4 @@ ensure-master:
 install: clean
 	python setup.py install
 
-.PHONY: clean develop develop-linux test nosetest upload-pypi upload-github ensure-master
+.PHONY: clean develop develop-linux test test-all test-gae test-nosetests upload-pypi upload-github ensure-master
