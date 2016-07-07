@@ -1,15 +1,6 @@
 sudo: false
 language: python
-python:
-- 2.7
+python: 2.7
 cache: pip
-script: |
-    nosetests \
-      -v \
-      --rednose \
-      --with-coverage \
-      --cover-erase \
-      --cover-html \
-      --cover-html-dir=htmlcov \
-      --cover-package=grow \
-      grow/
+before_script: pip install -r requirements-dev.txt
+script: make nosetest

@@ -13,19 +13,19 @@ boto==2.40.0
 certifi==1.0.0
 click==4.0
 contentful.py==0.9.3
-coverage==3.7.1
 dulwich==0.13.0
-ez-setup==0.9
 gcs-oauth2-boto-plugin==1.14
+google-api-python-client==1.3.1
 goslate==1.4.0
 html2text==2015.6.21
 httplib2==0.9.1
+keyring==8.7
 libsass==0.6.2
+oauth2client==2.1.0
 paramiko==1.15.1
-polib==1.0.4
-premailer==1.13
 progressbar2==2.6.2
 protorpc==0.11.1
+pyasn1==0.1.8
 pycrypto==2.6.1
 pygments==2.0.2
 pytz==2014.4
@@ -34,20 +34,5 @@ semantic_version==2.4.1
 texttable-fixed==0.8.3
 translitcodec==0.4.0
 watchdog==0.7.1
-webapp2==2.5.2
 webreview==0.0.60
 xtermcolor==1.3
-
-# Google API clients.
-google-api-python-client==1.3.1
-oauth2client==2.1.0
-pyasn1==0.1.8
-keyring==8.7
-
-# Testing.
-nose==1.3.1
-rednose==0.4.1
-mock==1.3.0
-
-# Code freezing.
-setuptools==19.2
