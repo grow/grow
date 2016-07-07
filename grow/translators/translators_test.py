@@ -8,11 +8,12 @@ import time
 import unittest
 
 
-class TranslatorTestCase(unittest.TestCase):
+class TranslatorTestCase(testing.TestCase):
 
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
+        super(TranslatorTestCase, self).setUp()
 
     def test_upload_and_download_translations(self):
         self.assertRaises(ValueError, self.pod.get_translator, 'gtt')

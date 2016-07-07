@@ -8,11 +8,12 @@ import time
 import unittest
 
 
-class GoogleTranslatorToolkitTestCase(unittest.TestCase):
+class GoogleTranslatorToolkitTestCase(testing.TestCase):
 
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
+        super(GoogleTranslatorToolkitTestCase, self).setUp()
 
     def test_insert_document(self):
         catalog = self.pod.catalogs.get('de')

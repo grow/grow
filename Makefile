@@ -73,9 +73,16 @@ test:
 	  --cover-package=grow \
 	  grow/
 
-test-all:
-	$(MAKE) test-nose
-	$(MAKE) test-gae
+test-nosetests:
+	nosetests \
+	  -v \
+	  --rednose \
+	  --with-coverage \
+	  --cover-erase \
+	  --cover-html \
+	  --cover-html-dir=htmlcov \
+	  --cover-package=grow \
+	  grow
 
 test-gae:
 	virtualenv gaenv --distribute
@@ -96,16 +103,9 @@ test-gae:
 	  --gae-application=./grow/testing/testdata/pod/ \
 	  grow
 
-test-nosetests:
-	nosetests \
-	  -v \
-	  --rednose \
-	  --with-coverage \
-	  --cover-erase \
-	  --cover-html \
-	  --cover-html-dir=htmlcov \
-	  --cover-package=grow \
-	  grow
+test-ci:
+	$(MAKE) test-nosetests
+	$(MAKE) test-gae
 
 upload-pypi: clean
 	. env/bin/activate
@@ -164,4 +164,4 @@ ensure-master:
 install: clean
 	python setup.py install
 
-.PHONY: clean develop develop-linux test test-all test-gae test-nosetests upload-pypi upload-github ensure-master
+.PHONY: clean develop develop-linux test test-ci test-gae test-nosetests upload-pypi upload-github ensure-master
