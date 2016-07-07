@@ -1,5 +1,6 @@
 from . import indexes
 from . import messages
+from grow.common import utils
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
@@ -35,8 +36,12 @@ class IndexTest(unittest.TestCase):
             deletes=[messages.FileMessage(path='/bar/new.txt')],
             nochanges=[messages.FileMessage(path='/foo/file.txt')],
         )
-        diff = indexes.Diff.create(my_index, their_index)
-        self.assertFilePathsEqual(expected.adds, diff.adds)
+        if utils.is_appengine():
+            self.assertRaises(utils.UnavailableError,
+                              indexes.Diff.create, my_index, their_index)
+        else:
+            diff = indexes.Diff.create(my_index, their_index)
+            self.assertFilePathsEqual(expected.adds, diff.adds)
 
 
 if __name__ == '__main__':

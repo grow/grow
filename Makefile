@@ -12,13 +12,11 @@ export GOPATH := $(HOME)/go/
 export PATH := $(HOME)/go/bin/:$(PATH)
 
 clean:
-	rm -rf build/
 	rm -rf .eggs/
 	find . -name '*.egg-info' -exec rm -rf {} +
 	find . -name '*.egg' -exec rm -rf {} +
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -rf {} +
 
 develop:
@@ -75,7 +73,7 @@ test:
 	  --cover-package=grow \
 	  grow/
 
-nosetest:
+test-nosetests:
 	nosetests \
 	  -v \
 	  --rednose \
@@ -84,7 +82,31 @@ nosetest:
 	  --cover-html \
 	  --cover-html-dir=htmlcov \
 	  --cover-package=grow \
-	  grow/
+	  grow
+
+test-gae:
+	virtualenv gaenv --distribute
+	. gaenv/bin/activate
+	./gaenv/bin/pip install -r requirements-dev.txt
+	./gaenv/bin/pip install gaenv
+	./gaenv/bin/pip install NoseGAE==0.5.8
+	# https://github.com/faisalraja/gaenv/issues/11
+	cat requirements.txt > ./gaenv/requirements-gae.txt
+	echo "pyasn1-modules>=0.0.5" >> ./gaenv/requirements-gae.txt
+	./gaenv/bin/gaenv -r ./gaenv/requirements-gae.txt --lib lib --no-import .
+	NOSEGAE=1 ./gaenv/bin/nosetests \
+	  -v \
+	  --rednose \
+	  --with-gae \
+	  --nocapture \
+	  --nologcapture \
+	  --gae-application=./grow/testing/testdata/pod/ \
+	  --gae-lib-root=$(HOME)/google_appengine/ \
+	  grow
+
+test-ci:
+	$(MAKE) test-nosetests
+	$(MAKE) test-gae
 
 upload-pypi: clean
 	. env/bin/activate
@@ -92,7 +114,7 @@ upload-pypi: clean
 	$(MAKE) test
 	git pull origin master
 	python setup.py sdist upload
-	$(MAKE) clean-build
+	$(MAKE) clean
 
 upload-github:
 	@github-release > /dev/null || { \
@@ -143,4 +165,4 @@ ensure-master:
 install: clean
 	python setup.py install
 
-.PHONY: clean develop develop-linux test nosetests upload-pypi upload-github ensure-master
+.PHONY: clean develop develop-linux test test-ci test-gae test-nosetests upload-pypi upload-github ensure-master
