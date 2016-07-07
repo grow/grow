@@ -101,6 +101,7 @@ test-gae:
 	  --nocapture \
 	  --nologcapture \
 	  --gae-application=./grow/testing/testdata/pod/ \
+	  --gae-lib-root=$(HOME)/google_appengine/ \
 	  grow
 
 test-ci:
