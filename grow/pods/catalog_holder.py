@@ -118,7 +118,7 @@ class Catalogs(object):
     def _get_or_create_catalog(self, template_path):
         exists = True
         if not self.pod.file_exists(template_path):
-            self.pod.create_file(template_path, None)
+            self.pod.write_file(template_path, '')
             exists = False
         catalog = pofile.read_po(self.pod.open_file(template_path))
         return catalog, exists
@@ -407,7 +407,7 @@ class Catalogs(object):
         if localized:
             return filtered_catalogs
         # Generate a single catalog template.
-        self.pod.create_file(out_path, None)
+        self.pod.write_file(out_path, '')
         babel_catalog = pofile.read_po(self.pod.open_file(out_path))
         for message in messages_to_locales.keys():
             babel_catalog[message.id] = message

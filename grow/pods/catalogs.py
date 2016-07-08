@@ -89,7 +89,7 @@ class Catalog(catalog.Catalog):
     def save(self, ignore_obsolete=True, include_previous=True, width=80,
              include_header=False):
         if not self.pod.file_exists(self.pod_path):
-            self.pod.create_file(self.pod_path, None)
+            self.pod.write_file(self.pod_path, '')
         outfile = self.pod.open_file(self.pod_path, mode='w')
         Catalog.set_header_comment(self.pod, self)
         pofile.write_po(

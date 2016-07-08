@@ -1,34 +1,8 @@
-"""A pod encapsulates all files used to build a web site.
-
-Pods are the main interface to everything in a web site. Specifically, pods are
-used to do the following sorts of tasks:
-
-  - manage content (collections, blueprints, and documents)
-  - manage pod files (any of the files contained in the pod)
-  - list routes
-  - building and deployment
-
-Pods are accessed using their root directory.
-
-  pod = pods.Pod('/home/growler/my-site/')
-
-You can get a content collection from the pod.
-
-  collection = pod.get_collection('/content/pages/')
-
-You can get a content document from the pod.
-
-  document = pod.get_doc('/content/pages/index.md')
-
-You can get a static file from the pod.
-
-  file = pod.get_file('/podspec.yaml')
-"""
+"""A pod encapsulates all files used to build a site."""
 
 from . import catalog_holder
 from . import collection
 from . import env as environment
-from . import files
 from . import locales
 from . import messages
 from . import podspec
@@ -204,13 +178,6 @@ class Pod(object):
         if paths:
             return [col for col in cols if col.collection_path in paths]
         return cols
-
-    def get_file(self, pod_path):
-        return files.File.get(pod_path, self)
-
-    def create_file(self, pod_path, content):
-        """Creates a file inside the pod."""
-        return files.File.create(pod_path, content, self)
 
     def list_statics(self, pod_path, locale=None):
         for path in self.list_dir(pod_path):
