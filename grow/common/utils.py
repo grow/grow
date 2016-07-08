@@ -6,14 +6,17 @@ except ImportError:
         import StringIO
     except ImportError:
         from io import StringIO
+import bs4
 import csv as csv_lib
 import functools
 import gettext
+import html2text
 import imp
 import json
 import logging
 import os
 import re
+import urllib
 import sys
 import threading
 import time
@@ -376,3 +379,43 @@ class ProgressBarThread(threading.Thread):
         super(ProgressBarThread, self).run()
         if self.enabled:
             self.bar.update(self.bar.currval + 1)
+
+
+def clean_html(content, convert_to_markdown=False):
+    soup = bs4.BeautifulSoup(content, 'html.parser')
+    _process_google_hrefs(soup)
+    # Support HTML fragments without body tags.
+    content = unicode(soup.body or soup)
+    if convert_to_markdown:
+        h2t = html2text.HTML2Text()
+        content = h2t.handle(content)
+    return content.encode('utf-8')
+
+
+def _process_google_hrefs(soup):
+    for tag in soup.find_all('a'):
+        if tag.attrs.get('href'):
+            tag['href'] = _clean_google_href(tag['href'])
+
+
+def _clean_google_href(href):
+    regex = ('^'
+             + re.escape('https://www.google.com/url?q=')
+             + '(.*?)'
+             + re.escape('&'))
+    match = re.match(regex, href)
+    if match:
+        encoded_url = match.group(1)
+        return urllib.unquote(encoded_url)
+    return href
+
+
+def format_existing_data(old_data, new_data, preserve=None):
+    if old_data:
+        if preserve == 'builtins':
+            for key in old_data.keys():
+                if not key.startswith('$'):
+                    del old_data[key]
+        old_data.update(new_data)
+        return old_data
+    return new_data

@@ -16,16 +16,12 @@ from grow.common import oauth
 from grow.common import utils
 from grow.pods import formats
 from protorpc import messages
-import bs4
 import cStringIO
 import csv
-import html2text
 import httplib2
 import json
 import logging
 import os
-import re
-import urllib
 import yaml
 
 
@@ -67,24 +63,6 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         convert = messages.BooleanField(3)
 
     @classmethod
-    def _process_google_hrefs(cls, soup):
-        for tag in soup.find_all('a'):
-            if tag.attrs.get('href'):
-                tag['href'] = cls._clean_google_href(tag['href'])
-
-    @classmethod
-    def _clean_google_href(cls, href):
-        regex = ('^'
-                 + re.escape('https://www.google.com/url?q=')
-                 + '(.*?)'
-                 + re.escape('&'))
-        match = re.match(regex, href)
-        if match:
-            encoded_url = match.group(1)
-            return urllib.unquote(encoded_url)
-        return href
-
-    @classmethod
     def download(cls, path, doc_id, logger=None, raise_errors=False):
         logger = logger or logging
         service = BaseGooglePreprocessor.create_service()
@@ -113,13 +91,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
     def format_content(cls, path, content, convert=True, existing_data=None):
         ext = os.path.splitext(path)[1]
         convert_to_markdown = ext == '.md' and convert is not False
-        soup = bs4.BeautifulSoup(content, 'html.parser')
-        GoogleDocsPreprocessor._process_google_hrefs(soup)
-        content = unicode(soup.body)
-        if convert_to_markdown:
-            h2t = html2text.HTML2Text()
-            content = h2t.handle(content)
-        content = content.encode('utf-8')
+        content = utils.clean_html(content, convert_to_markdown=convert_to_markdown)
         # Preserve any existing frontmatter.
         if existing_data:
             if formats.Format.has_front_matter(existing_data):
@@ -263,13 +235,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             else:
                 reader = csv.DictReader(fp)
                 formatted_data = list(reader)
-            if existing_data:
-                if preserve == 'builtins':
-                    for key in existing_data.keys():
-                        if not key.startswith('$'):
-                            del existing_data[key]
-                existing_data.update(formatted_data)
-                formatted_data = existing_data
+            formatted_data = utils.format_existing_data(
+                old_data=existing_data, new_data=formatted_data,
+                preserve=preserve)
             return formatted_data
         return content
 

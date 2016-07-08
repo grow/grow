@@ -11,6 +11,9 @@ GITHUB_REPO="grow"
 export GOPATH := $(HOME)/go/
 export PATH := $(HOME)/go/bin/:$(PATH)
 
+# Default test target for "make test". Allows "make target=grow.pods.pods_test test"
+target ?= 'grow/'
+
 clean:
 	rm -rf .eggs/
 	find . -name '*.egg-info' -exec rm -rf {} +
@@ -71,7 +74,7 @@ test:
 	  --cover-html \
 	  --cover-html-dir=htmlcov \
 	  --cover-package=grow \
-	  grow/
+	  $(target)
 
 test-nosetests:
 	nosetests \
