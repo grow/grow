@@ -4,6 +4,7 @@ from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
 from protorpc import messages
+import datetime
 import httplib2
 import logging
 
@@ -24,27 +25,31 @@ class BloggerPreprocessor(base.BasePreprocessor):
         collection = messages.StringField(2)
         preserve = messages.StringField(3, default='builtins')
         markdown = messages.BooleanField(4, default=False)
+        authenticated = messages.BooleanField(5, default=True)
 
     @staticmethod
-    def create_service():
-        credentials = oauth.get_or_create_credentials(
-            scope=OAUTH_SCOPE, storage_key='Grow SDK')
+    def create_service(authenticated=True):
         http = httplib2.Http(ca_certs=utils.get_cacerts_path())
-        http = credentials.authorize(http)
-        return discovery.build('blogger', 'v3', http=http)
+        if authenticated:
+            credentials = oauth.get_or_create_credentials(
+                scope=OAUTH_SCOPE, storage_key='Grow SDK')
+            http = credentials.authorize(http)
+        key = None if authenticated else oauth.BROWSER_API_KEY
+        return discovery.build('blogger', 'v3', http=http, developerKey=key)
 
     def get_edit_url(self, doc=None):
         """Returns the URL to edit in Blogger."""
-        return BloggerPreprocessor._edit_url_format.format(blog_id=self.config.blog_id)
+        return BloggerPreprocessor._edit_url_format.format(
+            blog_id=self.config.blog_id)
 
     def run(self, build=True):
-        try:
-            self.execute()
-        except errors.HttpError as e:
-            self.logger.error(str(e))
+        self.execute()
 
     def execute(self):
-        items = self.download_items(blog_id=self.config.blog_id, logger=self.pod.logger)
+        items = BloggerPreprocessor.download_items(
+            blog_id=self.config.blog_id,
+            logger=self.pod.logger,
+            authenticated=self.config.authenticated)
         self.bind_collection(items, self.config.collection)
 
     def _parse_item(self, item):
@@ -53,25 +58,30 @@ class BloggerPreprocessor(base.BasePreprocessor):
         basename = '{}.{}'.format(item_id, ext)
         body = item.pop('content').encode('utf-8')
         fields = item
+        # Formatted like: 2011-05-20T11:45:23-07:00
+        published = fields['published'][:-6]
+        published_dt = datetime.datetime.strptime(published, '%Y-%m-%dT%H:%M:%S')
+        fields['$date'] = published_dt
+        if 'title' in fields:
+            fields['$title'] = fields.pop('title')
         if self.config.markdown:
             body = utils.clean_html(body, convert_to_markdown=True)
         return fields, body, basename
 
     @classmethod
-    def download_items(cls, blog_id, logger=None):
+    def download_items(cls, blog_id, logger=None, authenticated=True):
         logger = logger or logging
-        service = cls.create_service()
+        service = cls.create_service(authenticated=authenticated)
         resp = service.posts().list(blogId=blog_id).execute()
         if 'items' not in resp:
-            text = 'Unable to download Blogger blog: {}'
-            logger.error(text.format(blog_id))
             logger.error('Received: {}'.format(resp))
-            return
+            text = 'Unable to download Blogger blog: {}'
+            raise base.PreprocessorError(text.format(blog_id))
         return resp['items']
 
     @classmethod
-    def download_item(cls, blog_id, post_id):
-        service = cls.create_service()
+    def download_item(cls, blog_id, post_id, authenticated=True):
+        service = cls.create_service(authenticated=authenticated)
         resp = service.posts().get(blogId=blog_id, postId=post_id).execute()
         return resp
 
@@ -110,14 +120,19 @@ class BloggerPreprocessor(base.BasePreprocessor):
         post_id = doc.base
         try:
             item = BloggerPreprocessor.download_item(
-                blog_id=self.config.id, post_id=post_id)
+                blog_id=self.config.blog_id,
+                post_id=post_id,
+                authenticated=self.config.authenticated)
         except (errors.HttpError, base.PreprocessorError):
-            doc.pod.logger.error('Error downloading Blogger post -> %s', path)
-            raise
+            text = 'Error downloading Blogger post -> {}'.format(path)
+            raise base.PreprocessorError(text)
         if not item:
             return
         fields, body, _ = self._parse_item(item)
-        existing_data = doc.pod.read_yaml(doc.pod_path)
+        if doc.exists:
+            existing_data = doc.get_tagged_fields()
+        else:
+            existing_data = {}
         fields = utils.format_existing_data(
             old_data=existing_data, new_data=fields,
             preserve=self.config.preserve)

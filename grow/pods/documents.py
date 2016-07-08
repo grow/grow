@@ -3,6 +3,7 @@ from . import messages
 from grow.common import utils
 from grow.pods import locales
 from grow.pods import urls
+import datetime
 import json
 import logging
 import os
@@ -265,13 +266,17 @@ class Document(object):
             'category': self.category,
             'collection.basename': self.collection.basename,
             'collection.root': self.collection.root,
-            'date': self.date,
             'env.fingerpint': self.pod.env.fingerprint,
             'locale': locale,
             'parent': self.parent if self.parent else utils.DummyDict(),
             'root': podspec.root,
             'slug': self.slug,
         }
+        if '{date' in path_format:
+            if isinstance(self.date, datetime.datetime):
+                formatters['date'] = self.date.date()
+            else:
+                formatters['date'] = self.date
         if '|lower' in path_format:
             for key, value in formatters.items():
                 if isinstance(value, basestring):

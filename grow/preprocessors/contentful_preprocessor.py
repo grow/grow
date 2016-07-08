@@ -50,8 +50,7 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             body = ''
             ext = 'yaml'
         if 'title' in entry.fields:
-            title = entry.fields.pop('title')
-            entry.fields['$title'] = title
+            entry.fields['$title'] = entry.fields.pop('title')
         if 'category' in entry.fields:
             category = entry.fields.pop('category')
             entry.fields['$category'] = category
