@@ -23,7 +23,7 @@ from werkzeug import wrappers
 from werkzeug import wsgi
 
 
-_root = os.path.join(utils.get_grow_dir(), 'server', 'templates')
+_root = os.path.join(utils.get_grow_dir(), 'ui', 'templates')
 _loader = storage.FileStorage.JinjaLoader(_root)
 _env = jinja2.Environment(
     loader=_loader,
