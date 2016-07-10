@@ -43,10 +43,10 @@ def collection(collection, _pod=None):
 
 
 @utils.memoize_tag
-def docs(collection, locale=None, order_by=None, hidden=False, _pod=None):
+def docs(collection, locale=None, order_by=None, hidden=False, recursive=True, _pod=None):
     collection = _pod.get_collection(collection)
-    return collection.list_docs(locale=locale, order_by=order_by,
-                                include_hidden=hidden)
+    return collection.docs(locale=locale, order_by=order_by, include_hidden=hidden,
+                           recursive=recursive)
 
 
 @utils.memoize_tag
