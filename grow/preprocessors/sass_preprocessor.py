@@ -4,10 +4,10 @@ from protorpc import messages
 import logging
 import os
 import re
-try:
-    import sass
-except ImportError:
+if utils.is_appengine():
     sass = None  # Unavailable on Google App Engine.
+else:
+    import sass
 
 
 SUFFIXES = frozenset(['sass', 'scss'])
