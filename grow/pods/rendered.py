@@ -2,6 +2,7 @@ from . import controllers
 from . import messages
 from . import tags
 from babel import support
+from grow.pods import ui
 from grow.common import utils
 from grow.pods import errors
 import logging
@@ -24,7 +25,7 @@ class RenderedController(controllers.BaseController):
         return '<Rendered(view=\'{}\', doc=\'{}\')>'.format(
             self.view, self.document.pod_path)
 
-    def get_mimetype(self, params):
+    def get_mimetype(self, params=None):
         return mimetypes.guess_type(self.view)[0]
 
     @property
@@ -40,8 +41,9 @@ class RenderedController(controllers.BaseController):
         return [self.document.get_serving_path()]
 
     def render(self, params, inject=True):
+        preprocessor = None
         if inject:
-            self.pod.inject_preprocessors(doc=self.document)
+            preprocessor = self.pod.inject_preprocessors(doc=self.document)
         env = self.pod.get_jinja_env(self.locale)
         template = env.get_template(self.view.lstrip('/'))
         try:
@@ -50,7 +52,13 @@ class RenderedController(controllers.BaseController):
                 'env': self.pod.env,
                 'podspec': self.pod.get_podspec(),
             }
-            return template.render(kwargs).lstrip()
+            content = template.render(kwargs).lstrip()
+            if preprocessor and self.get_mimetype().endswith('html'):
+                content += '\n' + ui.overlay.render({
+                    'doc': self.document,
+                    'preprocessor': preprocessor,
+                })
+            return content
         except Exception as e:
             text = 'Error building {}: {}'
             exception = errors.BuildError(text.format(self, e))

@@ -1,0 +1,12 @@
+{
+  "name": "grow-ui",
+  "version": "0.0.0",
+  "description": "Grow UI",
+  "private": true,
+  "dependencies": {
+    "airkit": "github:grow/airkit",
+    "gulp": "^3.9.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.3.1"
+  }
+}

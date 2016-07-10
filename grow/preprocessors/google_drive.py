@@ -283,6 +283,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             key_to_update=key_to_update)
         fields = utils.untag_fields(fields)
         doc.inject(fields=fields)
+        return self
 
     def get_edit_url(self, doc=None):
         """Returns the URL to edit in Google Sheets."""
