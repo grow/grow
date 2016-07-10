@@ -1,5 +1,6 @@
 # Grow
-[![Build Status](https://api.travis-ci.org/grow/grow.svg)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow) [![Slack](https://growsdk.herokuapp.com/badge.svg)](https://growsdk.herokuapp.com)
+[![Build Status](https://api.travis-ci.org/grow/grow.svg)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow) 
+[![Gitter](https://badges.gitter.im/grow/grow.svg)](https://gitter.im/grow/grow)
 
 Grow is a declarative tool for rapidly building, launching, and maintaining high-quality websites.
 
