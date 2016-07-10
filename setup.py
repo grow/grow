@@ -21,7 +21,7 @@ setup(
     author='Grow SDK Authors',
     author_email='code@grow.io',
     include_package_data=True,
-    packages=find_packages(),
+    packages=find_packages(exclude=['lib*']),
     install_requires=[str(ir.req) for ir in _install_requirements],
     scripts=[
         'bin/grow',
