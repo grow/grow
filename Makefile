@@ -44,8 +44,13 @@ develop:
 	else \
 	  echo " You must install libyaml from source: http://pyyaml.org/wiki/LibYAML"; \
 	fi
+	$MAKE(build-ui)
 	./env/bin/pip install -r requirements-dev.txt
 	./env/bin/pip install --upgrade PyYAML==3.10
+
+build-ui:
+	@cd grow/ui; npm install  .
+	@cd grow/ui; gulp build
 
 develop-linux:
 	sudo apt-get install \
@@ -111,11 +116,15 @@ test-ci:
 	$(MAKE) test-nosetests
 	$(MAKE) test-gae
 
+prep-release:
+	$(MAKE) build-ui
+	$(MAKE) test
+
 upload-pypi: clean
 	. env/bin/activate
 	$(MAKE) ensure-master
-	$(MAKE) test
 	git pull origin master
+	$(MAKE) prep-release
 	python setup.py sdist upload
 	$(MAKE) clean
 
@@ -126,7 +135,7 @@ upload-github:
 	. env/bin/activate
 	$(MAKE) ensure-master
 	git pull origin master
-	$(MAKE) test
+	$(MAKE) prep-release
 	$(MAKE) release
 	@if [ github-release info -u $(USER) -r $(REPO) -t $(VERSION) ]; then \
 	  echo "Using existing release."; \
