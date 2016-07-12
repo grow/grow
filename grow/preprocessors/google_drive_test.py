@@ -3,6 +3,7 @@ from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
 import cStringIO
+import copy
 import csv
 import json
 import unittest
@@ -58,11 +59,29 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         expected = yaml.safe_dump(content_dict, default_flow_style=False)
         self.assertEqual(expected, serialized_result)
 
+        # Verify key_to_update.
+        path = '/content/pages/test.yaml'
+        existing_data = copy.deepcopy(content_dict)
+        result = google_drive.GoogleSheetsPreprocessor.format_content(
+            content=content, path=path, existing_data=existing_data,
+            format_as='map', key_to_update='address')
+        serialized_result = \
+            google_drive.GoogleSheetsPreprocessor.serialize_content(
+                formatted_data=result, path=path)
+        expected = copy.deepcopy(content_dict)
+        expected['address'] = {
+            'color': 'red',
+            'key': 'value',
+            'name': 'alice',
+        }
+        self.assertDictEqual(expected, result)
+
         # Verify json.
         path = '/content/pages/test.json'
         result = google_drive.GoogleSheetsPreprocessor.format_content(
             content=content, path=path, format_as='map')
         self.assertEqual(content_dict, result)
+
         serialized_result = \
             google_drive.GoogleSheetsPreprocessor.serialize_content(
                 formatted_data=result, path=path)

@@ -38,7 +38,8 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(expected_docs, result['docs'])
 
     def test_version_enforcement(self):
-        with mock.patch('grow.pods.pods.Pod.grow_version', new_callable=mock.PropertyMock) as mock_version:
+        with mock.patch('grow.pods.pods.Pod.grow_version',
+                        new_callable=mock.PropertyMock) as mock_version:
             this_version = get_this_version()
             gt_version = '>{0}'.format(semantic_version.Version(this_version))
             mock_version.return_value = gt_version

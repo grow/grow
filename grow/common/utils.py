@@ -410,12 +410,15 @@ def _clean_google_href(href):
     return href
 
 
-def format_existing_data(old_data, new_data, preserve=None):
+def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
     if old_data:
         if preserve == 'builtins':
             for key in old_data.keys():
                 if not key.startswith('$'):
                     del old_data[key]
-        old_data.update(new_data)
+        if key_to_update:
+            old_data[key_to_update] = new_data
+        else:
+            old_data.update(new_data)
         return old_data
     return new_data

@@ -190,8 +190,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             text = 'No file to export from Google Sheets: {}'.format(path)
             raise base.PreprocessorError(text)
 
+    def _parse_path(self, path):
+        if ':' in path:
+            return path.rsplit(':', 1)
+        return path, None
+
     def execute(self, config):
-        path = config.path
+        path, key_to_update = self._parse_path(config.path)
         sheet_id = config.id
         gid = config.gid
         content = GoogleSheetsPreprocessor.download(
@@ -204,7 +209,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         content = GoogleSheetsPreprocessor.format_content(
             content=content, path=path, format_as=self.config.format,
             preserve=self.config.preserve,
-            existing_data=existing_data)
+            existing_data=existing_data, key_to_update=key_to_update)
         content = GoogleSheetsPreprocessor.serialize_content(
             formatted_data=content, path=path,
             output_style=self.config.output_style)
@@ -223,7 +228,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
     @classmethod
     def format_content(cls, content, path, format_as=None, preserve=None,
-                       existing_data=None):
+                       existing_data=None, key_to_update=None):
         """Formats content into either a CSV (text), list, or dictionary."""
         convert_to = cls.get_convert_to(path)
         if convert_to in ['.json', '.yaml', '.yml']:
@@ -237,7 +242,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 formatted_data = list(reader)
             formatted_data = utils.format_existing_data(
                 old_data=existing_data, new_data=formatted_data,
-                preserve=preserve)
+                preserve=preserve, key_to_update=key_to_update)
             return formatted_data
         return content
 
@@ -260,12 +265,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     def can_inject(self, doc=None, collection=None):
         if not self.injected:
             return False
-        if doc and doc.pod_path == self.config.path:
+        path, key_to_update = self._parse_path(self.config.path)
+        if doc and doc.pod_path == path:
             return True
         return False
 
     def inject(self, doc):
-        path = doc.pod_path
+        path, key_to_update = self._parse_path(self.config.path)
         try:
             content = GoogleSheetsPreprocessor.download(
                 path=path, sheet_id=self.config.id, gid=self.config.gid,
@@ -278,7 +284,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         existing_data = doc.pod.read_yaml(doc.pod_path)
         fields = GoogleSheetsPreprocessor.format_content(
             content, path=path, format_as=self.config.format,
-            preserve=self.config.preserve, existing_data=existing_data)
+            preserve=self.config.preserve, existing_data=existing_data,
+            key_to_update=key_to_update)
         fields = utils.untag_fields(fields)
         doc.inject(fields=fields)
 
