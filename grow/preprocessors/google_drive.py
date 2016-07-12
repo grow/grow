@@ -190,13 +190,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             text = 'No file to export from Google Sheets: {}'.format(path)
             raise base.PreprocessorError(text)
 
-    def _parse_path(self, path):
-        if ':' in path:
-            return path.rsplit(':', 1)
-        return path, None
-
     def execute(self, config):
-        path, key_to_update = self._parse_path(config.path)
+        path, key_to_update = config.path.rsplit(':', 1)
         sheet_id = config.id
         gid = config.gid
         content = GoogleSheetsPreprocessor.download(
@@ -265,13 +260,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     def can_inject(self, doc=None, collection=None):
         if not self.injected:
             return False
-        path, key_to_update = self._parse_path(self.config.path)
+        path, _ = self.config.path.rsplit(':', 1)
         if doc and doc.pod_path == path:
             return True
         return False
 
     def inject(self, doc):
-        path, key_to_update = self._parse_path(self.config.path)
+        path, key_to_update = self.config.path.rsplit(':', 1)
         try:
             content = GoogleSheetsPreprocessor.download(
                 path=path, sheet_id=self.config.id, gid=self.config.gid,
