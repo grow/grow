@@ -190,8 +190,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             text = 'No file to export from Google Sheets: {}'.format(path)
             raise base.PreprocessorError(text)
 
+    def _parse_path(self, path):
+        if ':' in path:
+            return path.rsplit(':', 1)
+        return path, None
+
     def execute(self, config):
-        path, key_to_update = config.path.rsplit(':', 1)
+        path, key_to_update = self._parse_path(config.path)
         sheet_id = config.id
         gid = config.gid
         content = GoogleSheetsPreprocessor.download(
@@ -260,13 +265,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     def can_inject(self, doc=None, collection=None):
         if not self.injected:
             return False
-        path, _ = self.config.path.rsplit(':', 1)
+        path, key_to_update = self._parse_path(self.config.path)
         if doc and doc.pod_path == path:
             return True
         return False
 
     def inject(self, doc):
-        path, key_to_update = self.config.path.rsplit(':', 1)
+        path, key_to_update = self._parse_path(self.config.path)
         try:
             content = GoogleSheetsPreprocessor.download(
                 path=path, sheet_id=self.config.id, gid=self.config.gid,
@@ -283,7 +288,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             key_to_update=key_to_update)
         fields = utils.untag_fields(fields)
         doc.inject(fields=fields)
-        return self
 
     def get_edit_url(self, doc=None):
         """Returns the URL to edit in Google Sheets."""
