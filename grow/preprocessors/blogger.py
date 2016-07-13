@@ -137,3 +137,4 @@ class BloggerPreprocessor(base.BasePreprocessor):
             old_data=existing_data, new_data=fields,
             preserve=self.config.preserve)
         doc.inject(fields=fields, body=body)
+        return self

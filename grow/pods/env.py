@@ -4,6 +4,10 @@ import time
 from protorpc import messages
 
 
+class Name(object):
+    DEV = 'dev'
+
+
 class EnvConfig(messages.Message):
     host = messages.StringField(1)
     scheme = messages.StringField(2)

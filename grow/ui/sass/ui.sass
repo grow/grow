@@ -1,0 +1,35 @@
+@import '_config';
+
+#grow
+  all: revert
+  z-index: 9999
+
+  .grow__buttons
+    bottom: 0
+    padding: 40px
+    position: fixed
+    right: 0
+
+    .grow__buttons__button
+      background-color: $color-primary
+      background-position: center
+      background-repeat: no-repeat
+      background-size: 30px
+      border-radius: 100%
+      box-shadow: 0px 3px 5px rgba(0, 0, 0, .25)
+      color: $color-on-primary
+      display: block
+      height: 60px
+      margin: 7px 0 0
+      transition: box-shadow 200ms ease
+      width: 60px
+
+      &:hover
+        box-shadow: 0px 5px 12px rgba(0, 0, 0, .4)
+        cursor: pointer
+
+      &:active
+        box-shadow: 0px 10px 12px rgba(0, 0, 0, .4)
+
+      &--icon-edit
+        background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRkZGRkZGIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxwYXRoIGQ9Ik0zIDE3LjI1VjIxaDMuNzVMMTcuODEgOS45NGwtMy43NS0zLjc1TDMgMTcuMjV6TTIwLjcxIDcuMDRjLjM5LS4zOS4zOS0xLjAyIDAtMS40MWwtMi4zNC0yLjM0Yy0uMzktLjM5LTEuMDItLjM5LTEuNDEgMGwtMS44MyAxLjgzIDMuNzUgMy43NSAxLjgzLTEuODN6Ii8+CiAgICA8cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==)

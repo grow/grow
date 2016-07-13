@@ -27,7 +27,7 @@ def run(host, port, https, debug, browser, update_check, preprocess,
     """Starts a development server for a single pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     scheme = 'https' if https else 'http'
-    config = env.EnvConfig(host=host, port=port, name='dev',
+    config = env.EnvConfig(host=host, port=port, name=env.Name.DEV,
                            scheme=scheme, cached=False, dev=True)
     environment = env.Env(config)
     pod = pods.Pod(root, storage=storage.FileStorage, env=environment)

@@ -55,6 +55,24 @@ class PodHandlerTestCase(unittest.TestCase):
         self.assertEqual(304, response.status_int)
         self.assertEqual('', response.body)
 
+    def test_ui(self):
+        dir_path = testing.create_test_pod_dir()
+        pod = pods.Pod(dir_path)
+        app = main.create_wsgi_app(pod)
+
+        # Verify JS and CSS are served.
+        request = webapp2.Request.blank('/_grow/ui/js/ui.min.js')
+        response = request.get_response(app)
+        self.assertEqual(200, response.status_int)
+        js_sentinel = '!function'
+        self.assertIn(js_sentinel, response.body)
+
+        request = webapp2.Request.blank('/_grow/ui/css/ui.min.css')
+        response = request.get_response(app)
+        self.assertEqual(200, response.status_int)
+        css_sentinel = '#grow'
+        self.assertIn(css_sentinel, response.body)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -381,9 +381,11 @@ class Pod(object):
             if doc is not None:
                 if preprocessor.can_inject(doc=doc):
                     preprocessor.inject(doc=doc)
+                    return preprocessor
             if collection is not None:
                 if preprocessor.can_inject(collection=collection):
-                    return preprocessor.inject(collection=collection)
+                    preprocessor.inject(collection=collection)
+                    return preprocessor
 
     def preprocess(self, preprocessor_names=None, run_all=False, tags=None,
                    build=True, ratelimit=None):
