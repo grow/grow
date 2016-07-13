@@ -33,15 +33,6 @@ develop:
 	  echo "virtualenv not installed. Trying to install virtualenv..."; \
 	  sudo pip install virtualenv; \
 	}
-	@npm --version > /dev/null || { \
-	  if [ $(APT_GET) ]; then \
-	    echo "npm not installed. Trying to install npm..."; \
-	    apt-get install -y --no-install-recommends nodejs npm; \
-	  else \
-	    echo "npm not installed. You must install npm."; \
-	    exit 1; \
-	  fi \
-	}
 	@echo "Trying to install libyaml..."
 	@if [ $(BREW) ]; then \
 	  brew install libyaml || { \
@@ -58,6 +49,15 @@ develop:
 	./env/bin/pip install --upgrade PyYAML==3.10
 
 build-ui:
+	@npm --version > /dev/null || { \
+	  if [ $(APT_GET) ]; then \
+	    echo "npm not installed. Trying to install npm..."; \
+	    apt-get install -y --no-install-recommends nodejs npm; \
+	  else \
+	    echo "npm not installed. You must install npm."; \
+	    exit 1; \
+	  fi \
+	}
 	@cd grow/ui; npm install  .
 	@cd grow/ui; gulp build
 
