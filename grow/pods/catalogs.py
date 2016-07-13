@@ -31,7 +31,7 @@ class Catalog(catalog.Catalog):
             self.load()
 
     def __repr__(self):
-        return '<Catalog: {}>'.format(self.locale)
+        return '<Catalog: {}>'.format(self.pod_path)
 
     @property
     def mimetype(self):

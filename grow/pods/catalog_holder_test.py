@@ -133,6 +133,25 @@ class CatalogsTest(unittest.TestCase):
         self.pod.catalogs.get_gettext_translations('de')
         self.pod.catalogs.get_gettext_translations('it')
 
+    def test_key_types(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        fields = {
+            '$view': '/views/base.html',
+            '$path': '/{base}/',
+        }
+        pod.write_yaml('/content/pages/_blueprint.yaml', fields)
+        fields = {
+            0: True,
+            'key@': 'value',
+        }
+        pod.write_yaml('/content/pages/index.yaml', fields)
+        pod.catalogs.extract()
+        template = pod.catalogs.get_template()
+        template.load()
+        self.assertIn('value', template)
+        self.assertNotIn(True, template)
+
 
 if __name__ == '__main__':
     unittest.main()

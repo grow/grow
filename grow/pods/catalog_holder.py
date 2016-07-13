@@ -185,8 +185,9 @@ class Catalogs(object):
 
         def _handle_field(path, item, key, node):
             if (not key
-                    or not key.endswith('@')
-                    or not isinstance(item, basestring)):
+                    or not isinstance(item, basestring)
+                    or not isinstance(key, basestring)
+                    or not key.endswith('@')):
                 return
             # Support gettext "extracted comments" on tagged fields. This is
             # consistent with extracted comments in templates, which follow
