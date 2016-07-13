@@ -4,7 +4,7 @@
   "description": "Grow UI",
   "private": true,
   "dependencies": {
-    "airkit": "github:grow/airkit",
+    "airkit": "git://github.com/grow/airkit",
     "gulp": "^3.9.1",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.3.1"
