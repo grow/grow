@@ -122,6 +122,7 @@ test-gae:
 	  $(target)
 
 test-ci:
+	$(MAKE) build-ui
 	$(MAKE) test-nosetests
 	$(MAKE) test-gae
 
@@ -182,8 +183,5 @@ ensure-master:
 	  echo 'Releases must be uploaded from "master".'; \
 	  exit 1; \
 	fi
-
-install: clean
-	python setup.py install
 
 .PHONY: clean develop develop-linux test test-ci test-gae test-nosetests upload-pypi upload-github ensure-master
