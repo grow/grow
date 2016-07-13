@@ -55,6 +55,13 @@ class PodHandlerTestCase(unittest.TestCase):
         self.assertEqual(304, response.status_int)
         self.assertEqual('', response.body)
 
+        # Verify sitemap on server.
+        path = '/root/sitemap.xml'
+        request = webapp2.Request.blank(path, headers=headers)
+        response = request.get_response(app)
+        self.assertEqual(200, response.status_int)
+        self.assertEqual('application/xml', response.headers['Content-Type'])
+
     def test_ui(self):
         dir_path = testing.create_test_pod_dir()
         pod = pods.Pod(dir_path)

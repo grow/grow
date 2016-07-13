@@ -32,6 +32,9 @@ class SitemapController(controllers.BaseController):
     def mimetype(self):
         return mimetypes.guess_type(self.path)[0]
 
+    def get_mimetype(self, params=None):
+        return self.mimetype
+
     def render(self, params=None, inject=False):
         root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
         env = self.pod.get_jinja_env(root=root)

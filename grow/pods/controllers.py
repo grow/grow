@@ -13,6 +13,9 @@ class BaseController(object):
     def validate(self, params):
         pass
 
+    def get_mimetype(self, params):
+        raise NotImplementedError
+
     def get_http_headers(self, params):
         headers = {}
         mimetype = self.get_mimetype(params)
