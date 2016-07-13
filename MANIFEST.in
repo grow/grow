@@ -1,5 +1,9 @@
 recursive-include grow *
-recrusive-exclude grow *.pyc
-recursive-exclude grow *_test.py
+recursive-exclude * *.pyc *.pyo
+recursive-exclude * *_test.py
 recursive-exclude grow/testing *
 prune grow/ui/node_modules
+prune grow/ui/sass
+prune grow/ui/js
+exclude grow/ui/package.json
+exclude grow/ui/gulpfile.js
