@@ -1,8 +1,9 @@
 from . import controllers
 from . import messages
-from grow.pods import ui
 from grow.common import utils
+from grow.pods import env
 from grow.pods import errors
+from grow.pods import ui
 import mimetypes
 import sys
 
@@ -60,10 +61,12 @@ class RenderedController(controllers.BaseController):
             raise exception
 
     def _inject_ui(self, content, preprocessor):
-        show_ui = (self.pod.env.name == 'dev' and preprocessor
+        show_ui = (self.pod.env.name == env.Name.DEV and preprocessor
                    and self.get_mimetype().endswith('html'))
         if show_ui:
-            content += '\n' + ui.overlay.render({
+            jinja_env = ui.create_jinja_env()
+            ui_template = jinja_env.get_template('ui.html')
+            content += '\n' + ui_template.render({
                 'doc': self.doc,
                 'preprocessor': preprocessor,
             })

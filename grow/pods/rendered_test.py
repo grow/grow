@@ -1,7 +1,9 @@
+from grow.pods import env
 from grow.pods import locales
 from grow.pods import pods
-from grow.pods import storage
+from grow.preprocessors import base
 from grow.testing import testing
+from protorpc import messages
 import unittest
 
 
@@ -9,7 +11,7 @@ class RenderedTest(unittest.TestCase):
 
     def setUp(self):
         self.dir_path = testing.create_test_pod_dir()
-        self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
+        self.pod = pods.Pod(self.dir_path)
 
     def test_locale(self):
         controller, params = self.pod.match('/fr/about/')
@@ -82,6 +84,46 @@ class RenderedTest(unittest.TestCase):
         controller, params = pod.match('/ja/test/')
         content = controller.render(params)
         self.assertEqual(translation, content)
+
+    def test_inject_ui(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/index.yaml', {})
+        fields = {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+        }
+        pod.write_yaml('/content/pages/_blueprint.yaml', fields)
+        content = 'Test'
+        pod.write_file('/views/base.html', content)
+        ui_sentinel = '<script src="/_grow/ui/js/ui.min.js"></script>'
+
+        # Verify UI not injected for normal pages.
+        controller, params = pod.match('/index/')
+        result = controller.render(params)
+        self.assertNotIn(ui_sentinel, result)
+
+        # Verify UI not injected unless injectable preprocessor is present.
+        pod.env.name = env.Name.DEV
+        controller, params = pod.match('/index/')
+        result = controller.render(params)
+        self.assertNotIn(ui_sentinel, result)
+
+        class DummyPreprocessor(base.BasePreprocessor):
+
+            class Config(messages.Message):
+                pass
+
+            def get_edit_url(self, doc):
+                return 'https://example.com'
+
+        config = DummyPreprocessor.Config()
+        dummy_preprocessor = DummyPreprocessor(pod=pod, config=config)
+
+        # Verify UI injected when preprocessor is present.
+        controller, _ = pod.match('/index/')
+        result = controller._inject_ui(content, dummy_preprocessor)
+        self.assertIn(ui_sentinel, result)
 
 
 if __name__ == '__main__':

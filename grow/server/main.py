@@ -15,27 +15,13 @@ from grow.common import sdk_utils
 from grow.common import utils
 from grow.pods import errors
 from grow.pods import storage
+from grow.pods import ui
 
 from werkzeug import exceptions
 from werkzeug import routing
 from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
 from werkzeug import wsgi
-
-
-_root = os.path.join(utils.get_grow_dir(), 'ui', 'templates')
-_loader = storage.FileStorage.JinjaLoader(_root)
-_env = jinja2.Environment(
-    loader=_loader,
-    autoescape=True,
-    trim_blocks=True,
-    extensions=[
-        'jinja2.ext.autoescape',
-        'jinja2.ext.do',
-        'jinja2.ext.i18n',
-        'jinja2.ext.loopcontrols',
-        'jinja2.ext.with_',
-    ])
 
 
 class Request(werkzeug.BaseRequest):
@@ -57,7 +43,8 @@ def serve_console(pod, request, values):
     if value == 'translations' and values.get('locale'):
         kwargs['locale'] = values.get('locale')
         template_path = 'catalog.html'
-    template = _env.get_template(template_path)
+    env = ui.create_jinja_env()
+    template = env.get_template(template_path)
     content = template.render(kwargs)
     response = wrappers.Response(content)
     response.headers['Content-Type'] = 'text/html'
@@ -117,7 +104,8 @@ class PodServer(object):
         else:
             status = 500
             log('{}: {} - {}'.format(status, request.path, exc))
-        template = _env.get_template('error.html')
+        env = ui.create_jinja_env()
+        template = env.get_template('error.html')
         if (isinstance(exc, errors.BuildError)):
             tb = exc.traceback
         else:
