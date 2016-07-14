@@ -76,9 +76,12 @@ class Collection(object):
 
     @utils.cached_property
     def fields(self):
-        tagged_fields = self.yaml
-        fields = utils.untag_fields(tagged_fields)
+        fields = utils.untag_fields(self.tagged_fields)
         return {} if not fields else fields
+
+    @utils.cached_property
+    def tagged_fields(self):
+        return self.yaml
 
     @classmethod
     def list(cls, pod):

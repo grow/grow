@@ -137,6 +137,7 @@ class CatalogsTest(unittest.TestCase):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})
         fields = {
+            '$title@': 'Title',
             '$view': '/views/base.html',
             '$path': '/{base}/',
         }
@@ -149,8 +150,15 @@ class CatalogsTest(unittest.TestCase):
         pod.catalogs.extract()
         template = pod.catalogs.get_template()
         template.load()
+
+        # Verify 'value' is added.
         self.assertIn('value', template)
+
+        # Verify untagged non-sring isn't added.
         self.assertNotIn(True, template)
+
+        # Verify tagged string in blueprint is added.
+        self.assertIn('Title', template)
 
 
 if __name__ == '__main__':

@@ -209,7 +209,10 @@ class Catalogs(object):
         for collection in self.pod.list_collections():
             text = 'Extracting collection: {}'.format(collection.pod_path)
             self.pod.logger.info(text)
-            for doc in collection.list_docs(include_hidden=True):
+            # Extract from blueprint.
+            utils.walk(collection.tagged_fields, lambda *args: callback(collection, *args))
+            # Extract from docs in collection.
+            for doc in collection.docs(include_hidden=True):
                 if not self._should_extract_as_babel(paths, doc.pod_path):
                     continue
                 tagged_fields = doc.get_tagged_fields()
