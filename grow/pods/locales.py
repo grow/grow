@@ -77,6 +77,9 @@ class Locale(babel.Locale):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __repr__(self):
+        return '<Locale: "{}">'.format(str(self))
+
     @classmethod
     def parse_codes(cls, codes):
         return [cls.parse(code) for code in codes]

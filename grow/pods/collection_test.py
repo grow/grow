@@ -16,7 +16,7 @@ class CollectionsTestCase(unittest.TestCase):
         col = self.pod.get_collection('/content/pages/')
         self.assertEqual('pages', col.collection_path)
         col2 = self.pod.get_collection('pages')
-        docs = col2.list_docs()
+        docs = col2.docs()
         self.assertEqual(col, col2)
         self.assertEqual(col, docs[0].collection)
         self.assertEqual('pages', docs[0].collection.basename)
@@ -24,10 +24,10 @@ class CollectionsTestCase(unittest.TestCase):
     def test_list(self):
         collection.Collection.list(self.pod)
 
-    def test_list_docs(self):
+    def test_docs(self):
         # List documents where locale = fr.
         collection = self.pod.get_collection('pages')
-        documents = collection.list_docs(locale='fr')
+        documents = collection.docs(locale='fr')
         for doc in documents:
             self.assertEqual('fr', doc.locale)
 
@@ -46,14 +46,14 @@ class CollectionsTestCase(unittest.TestCase):
             self.assertEqual(doc, documents[i])
 
         # List unhidden documents.
-        documents = collection.list_docs()
+        documents = collection.docs()
         for doc in documents:
             self.assertFalse(doc.hidden)
 
         # List all documents.
-        documents = collection.list_docs(include_hidden=True)
+        documents = collection.docs(include_hidden=True)
         collection = self.pod.get_collection('posts')
-        documents = collection.list_docs(order_by='$published', reverse=True)
+        documents = collection.docs(order_by='$published', reverse=True)
         expected = ['newest', 'newer', 'older', 'oldest']
         self.assertListEqual(expected, [doc.base for doc in documents])
 
@@ -82,7 +82,7 @@ class CollectionsTestCase(unittest.TestCase):
 
     def test_empty_front_matter(self):
         collection = self.pod.get_collection('empty-front-matter')
-        docs = collection.list_docs()
+        docs = collection.docs()
         path = '/content/empty-front-matter/empty-front-matter.html'
         expected_doc = self.pod.get_doc(path)
         self.assertEqual(expected_doc, docs[0])
@@ -180,6 +180,36 @@ class CollectionsTestCase(unittest.TestCase):
             '/content/collection/folder/subfolder/subfolder.yaml')
         self.assertEqual(
             '/subfolder-two-levels/subfolder/', doc.get_serving_path())
+
+    def test_docs_with_localization(self):
+        pod = testing.create_pod()
+        fields = {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'de',
+                    'fr',
+                    'it',
+                ]
+            }
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        fields = {
+            '$view': '/views/base.html',
+            '$path': '/{base}/',
+            'localization': {
+                'path': '/{locale}/{base}/',
+            }
+        }
+        pod.write_yaml('/content/pages/_blueprint.yaml', fields)
+        pod.write_yaml('/content/pages/foo.yaml', {})
+        pod.write_yaml('/content/pages/bar.yaml', {})
+        pod.write_yaml('/content/pages/baz.yaml', {})
+        pod.write_yaml('/content/pages/foo@de.yaml', {})
+
+        collection = pod.get_collection('pages')
+        self.assertEqual(3, len(collection.docs(locale='en')))
+        self.assertEqual(3, len(collection.docs(locale='de')))
 
 
 if __name__ == '__main__':

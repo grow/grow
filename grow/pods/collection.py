@@ -218,7 +218,10 @@ class Collection(object):
                     sorted_docs.insert(doc)
                 if locale is None:
                     continue
-                self._add_localized_docs(sorted_docs, pod_path, locale, doc)
+                if locale == doc.default_locale:
+                    sorted_docs.insert(doc)
+                else:
+                    self._add_localized_docs(sorted_docs, pod_path, locale, doc)
             except Exception as e:
                 logging.error('Error loading doc: {}'.format(pod_path))
                 raise
@@ -237,7 +240,7 @@ class Collection(object):
             localized_file_path = '{}@{}{}'.format(base, each_locale, ext)
             if (locale in [utils.SENTINEL, each_locale]
                     and not self.pod.file_exists(localized_file_path)):
-                new_doc = self.get_doc(pod_path, locale=each_locale)
+                new_doc = doc.localize(each_locale)
                 sorted_docs.insert(new_doc)
 
     def list_servable_documents(self, include_hidden=False, locales=None, inject=None):
@@ -254,8 +257,8 @@ class Collection(object):
 
     @utils.cached_property
     def locales(self):
-        if 'localization' in self.yaml:
-            if self.yaml['localization'].get('use_podspec_locales'):
+        if self.localization:
+            if self.localization.get('use_podspec_locales'):
                 return self.pod.list_locales()
             try:
                 return locales.Locale.parse_codes(self.localization['locales'])

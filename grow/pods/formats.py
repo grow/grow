@@ -44,19 +44,20 @@ class Format(object):
 
     @staticmethod
     def _normalize_frontmatter(pod_path, content, locale=None):
+        content = '' if content == '{}\n' else content  # Hack for JSON-formatted YAML.
         if Format.has_front_matter(content):
             if locale:
                 fields, body = Format.split_front_matter(content)
-                fields += '\n$locale: {}\n'.format(locale)
+                fields += '\n"$locale": "{}"\n'.format(locale)
                 return '---\n{}\n---\n{}'.format(fields, body)
             return content
         if pod_path.endswith('.md'):
             if locale:
-                return '---\n$locale: {}\n---\n{}'.format(locale, content)
+                return '---\n"$locale": "{}"\n---\n{}'.format(locale, content)
             else:
                 return '---\n\n---\n{}'.format(content)
         if locale:
-            return '---\n$locale: {}\n{}'.format(locale, content)
+            return '---\n"$locale": "{}"\n{}'.format(locale, content)
         else:
             return '---\n{}'.format(content)
 
