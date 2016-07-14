@@ -25,6 +25,9 @@ class Podspec(object):
             return self.fields['{}@'.format(name)]
         return object.__getattribute__(self, name)
 
+    def __iter__(self):
+        return self.yaml.__iter__()
+
     @property
     def home(self):
         return self.pod.get_home_doc()

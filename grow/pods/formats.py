@@ -252,7 +252,7 @@ class MarkdownFormat(HtmlFormat):
             extensions = [
                 tables.TableExtension(),
                 toc.TocExtension(),
-                markdown_extensions.CodeBlockExtension(),
+                markdown_extensions.CodeBlockExtension(self.doc.pod),
                 markdown_extensions.IncludeExtension(self.doc.pod),
                 markdown_extensions.UrlExtension(self.doc.pod),
             ]
