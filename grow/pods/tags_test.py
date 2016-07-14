@@ -60,16 +60,24 @@ class BuiltinsTestCase(unittest.TestCase):
         pod.write_yaml('/content/collection/_blueprint.yaml', fields)
         pod.write_yaml('/content/collection/doc1.yaml', {
             '$category': 'Category1',
+            '$order': 1,
         })
         pod.write_yaml('/content/collection/doc2.yaml', {
             '$category': 'Category1',
+            '$order': 2,
         })
         pod.write_yaml('/content/collection/doc3.yaml', {
             '$category': 'Category2',
         })
         result = tags.categories(collection='collection', _pod=pod)
-        result = [item[0] for item in result]
-        expected = ['Category1', 'Category2']
+
+        doc1 = pod.get_doc('/content/collection/doc1.yaml')
+        doc2 = pod.get_doc('/content/collection/doc2.yaml')
+        doc3 = pod.get_doc('/content/collection/doc3.yaml')
+        expected = [
+            ('Category1', [doc1, doc2]),
+            ('Category2', [doc3]),
+        ]
         self.assertEqual(expected, result)
 
         # Verify localized behavior.

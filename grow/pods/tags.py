@@ -30,11 +30,12 @@ def categories(collection=None, collections=None, reverse=None, order_by=None,
         except ValueError:
             return sys.maxint  # Unspecified items go to the end.
     category_list = collection.list_categories()
-    docs = collection.list_docs(reverse=reverse, locale=locale)
-    grouped_items = itertools.groupby(docs, key=lambda doc: doc.category)
-    grouped_items = list(grouped_items)
-    grouped_items.sort(key=sort_func)
-    return grouped_items
+    docs = collection.docs(reverse=reverse, locale=locale, order_by='category')
+    result = []
+    for category, unsorted_docs in itertools.groupby(docs, key=lambda doc: doc.category):
+        sorted_docs = sorted(unsorted_docs, key=lambda doc: doc.order)
+        result.append((category, sorted_docs))
+    return result
 
 
 @utils.memoize_tag
@@ -106,7 +107,7 @@ class Menu(object):
 @utils.memoize_tag
 def nav(collection=None, locale=None, _pod=None):
     collection_obj = _pod.get_collection('/content/' + collection)
-    results = collection_obj.list_docs(order_by='order', locale=locale)
+    results = collection_obj.docs(order_by='order', locale=locale)
     menu = Menu()
     menu.build(results)
     return menu
