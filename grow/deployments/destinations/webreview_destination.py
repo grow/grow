@@ -75,7 +75,9 @@ class WebReviewDestination(base.BaseDestination):
         if repo:
             if self.config.subdomain_prefix and not self.config.subdomain:
                 token = repo.active_branch.name.split('/')[-1]
-                if token != 'master':
+                if token == 'master':
+                    subdomain = self.config.subdomain_prefix
+                else:
                     subdomain = self.config.subdomain_prefix + '-{}'.format(token)
                 self.webreview.name = subdomain
             try:
