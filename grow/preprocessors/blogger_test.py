@@ -17,7 +17,7 @@ class BloggerTestCase(testing.TestCase):
             'preprocessors': [{
                 'name': 'blogger',
                 'kind': 'blogger',
-                'blog_id': '10861780',  # Official Google blog.
+                'blog_id': '4154157974596966834',
                 'collection': '/content/posts/',
                 'markdown': True,
                 'authenticated': False,
