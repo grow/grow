@@ -14,14 +14,6 @@ export PATH := $(HOME)/go/bin/:$(PATH)
 # Default test target for "make test". Allows "make target=grow.pods.pods_test test"
 target ?= 'grow/'
 
-clean:
-	rm -rf .eggs/
-	find . -name '*.egg-info' -exec rm -rf {} +
-	find . -name '*.egg' -exec rm -rf {} +
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -rf {} +
-
 develop:
 	virtualenv env --distribute
 	. env/bin/activate
@@ -130,13 +122,12 @@ prep-release:
 	$(MAKE) build-ui
 	$(MAKE) test
 
-upload-pypi: clean
+upload-pypi:
 	. env/bin/activate
 	$(MAKE) ensure-master
 	git pull origin master
 	$(MAKE) prep-release
 	python setup.py sdist upload
-	$(MAKE) clean
 
 upload-github:
 	@github-release > /dev/null || { \
@@ -184,4 +175,4 @@ ensure-master:
 	  exit 1; \
 	fi
 
-.PHONY: clean develop develop-linux test test-ci test-gae test-nosetests upload-pypi upload-github ensure-master
+.PHONY: develop develop-linux test test-ci test-gae test-nosetests upload-pypi upload-github ensure-master
