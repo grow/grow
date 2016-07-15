@@ -2,11 +2,11 @@ APT_GET := $(shell command -v apt-get 2> /dev/null)
 BREW := $(shell command -v brew 2> /dev/null)
 
 PLATFORM = $(shell uname -s | sed -e 's/Darwin/Mac/')
-VERSION=`cat grow/VERSION`
-FILENAME="Grow-SDK-$(PLATFORM)-$(VERSION).zip"
+VERSION = $(shell cat grow/VERSION)
+FILENAME = "Grow-SDK-$(PLATFORM)-$(VERSION).zip"
 
-GITHUB_USER="grow"
-GITHUB_REPO="grow"
+GITHUB_USER = "grow"
+GITHUB_REPO = "grow"
 
 export GOPATH := $(HOME)/go/
 export PATH := $(HOME)/go/bin/:$(PATH)
