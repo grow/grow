@@ -52,14 +52,14 @@ build-ui:
 	@npm --version > /dev/null || { \
 	  if [ $(APT_GET) ]; then \
 	    echo "npm not installed. Trying to install npm..."; \
-	    apt-get install -y --no-install-recommends nodejs npm; \
+	    sudo apt-get -f install -y --no-install-recommends nodejs-legacy npm; \
 	  else \
 	    echo "npm not installed. You must install npm."; \
 	    exit 1; \
 	  fi \
 	}
 	@cd grow/ui; npm install  .
-	@cd grow/ui; gulp build
+	@cd grow/ui; ./node_modules/gulp/bin/gulp.js build
 
 develop-linux:
 	sudo apt-get install \
