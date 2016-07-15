@@ -2,9 +2,9 @@ from . import base
 from contentful.cda import client
 from contentful.cda import resources
 from grow.common import utils
+from grow.common import utils
 from protorpc import messages
 import os
-import webapp2
 
 
 class KeyMessage(messages.Message):
@@ -83,7 +83,8 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             self.bind_collection(entries, binding.collection,
                                  binding.contentModel)
 
-    @webapp2.cached_property
+    @property
+    @utils.memoize
     def cda(self):
         """Contentful API client."""
         endpoint = None
