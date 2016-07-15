@@ -147,11 +147,11 @@ upload-github:
 	git pull origin master
 	$(MAKE) prep-release
 	$(MAKE) release
-	@if [ github-release info -u $(GITHUB_USER) -r $(GITHUB_REPO) -t $(VERSION) ]; then \
+	@if github-release info -u $(GITHUB_USER) -r $(GITHUB_REPO) -t $(VERSION); then \
 	  echo "Using existing release."; \
 	else \
 	  echo "Creating new release."; \
-	  git tag $(VERSION) && git push --tags;\
+	  git tag $(VERSION) && git push --tags; \
 	  github-release \
 	    release \
 	    -u $(GITHUB_USER) \
