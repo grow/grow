@@ -109,8 +109,9 @@ a.datas += [
     ('data/cacerts.txt', 'grow/data/cacerts.txt', 'DATA'),
     ('httplib2/cacerts.txt', 'grow/data/cacerts.txt', 'DATA'),
 ]
-a.datas += glob_datas('grow/server/frontend')
-a.datas += glob_datas('grow/server/templates')
+a.datas += glob_datas('grow/ui/assets')
+a.datas += glob_datas('grow/ui/dist')
+a.datas += glob_datas('grow/ui/templates')
 a.datas += glob_datas('grow/pods/templates')
 
 

@@ -85,22 +85,26 @@ class Collection(object):
 
     @classmethod
     def list(cls, pod):
+        items = []
         for root, dirs, _ in pod.walk(cls.CONTENT_PATH + '/'):
             for dir_name in dirs:
                 pod_path = os.path.join(root, dir_name)
                 pod_path = pod_path.replace(pod.root, '')
                 col_path = os.path.join(pod_path, '_blueprint.yaml')
                 if pod.file_exists(col_path):
-                    yield pod.get_collection(pod_path)
+                    items.append(pod.get_collection(pod_path))
+        return items
 
     def collections(self):
         """Returns collections contained within this collection. Implemented
         as a function to allow future implementation of arguments."""
+        items = []
         for root, dirs, _ in self.pod.walk(self.pod_path):
             if root == self.pod.abs_path(self.pod_path):
                 for dir_name in dirs:
                     pod_path = os.path.join(self.pod_path, dir_name)
-                    yield self.pod.get_collection(pod_path)
+                    items.append(self.pod.get_collection(pod_path))
+        return items
 
     @property
     def exists(self):

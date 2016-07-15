@@ -15,7 +15,7 @@ class SitemapController(controllers.BaseController):
         else:
             self.path = (self.pod.podspec.root + '/sitemap.xml').replace('//', '/')
         self.path = '/' + self.path.lstrip('/')
-        self.collections = pod.list_collections(collections)
+        self.collections = list(pod.list_collections(collections))
         self.locales = locales
         super(SitemapController, self).__init__(_pod=pod)
 
@@ -39,8 +39,9 @@ class SitemapController(controllers.BaseController):
         root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
         env = self.pod.get_jinja_env(root=root)
         template = env.get_template('sitemap.xml')
+        docs = self._list_docs()
         return template.render({
-            'docs': self._list_docs(),
+            'docs': docs,
         }).strip()
 
     def _list_docs(self):

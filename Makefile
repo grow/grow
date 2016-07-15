@@ -169,7 +169,7 @@ upload-github:
 	  -n "$(FILENAME)" \
 	  --file dist/$(FILENAME)
 
-release: clean
+release:
 	. env/bin/activate
 	pyinstaller grow.spec
 	chmod +x dist/grow

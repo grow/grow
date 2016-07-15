@@ -34,12 +34,12 @@ class BuiltinsTestCase(unittest.TestCase):
 
     def test_collections(self):
         collections = tags.collections(_pod=self.pod)
-        self.assertEqual(4, len(list(collections)))
+        self.assertEqual(4, len(collections))
         paths = ['pages', 'posts']
         collections = tags.collections(paths, _pod=self.pod)
         for collection in collections:
             self.assertIn(collection.collection_path, paths)
-        self.assertEqual(len(paths), len(list(collections)))
+        self.assertEqual(len(paths), len(collections))
 
     def test_categories(self):
         pod = testing.create_pod()

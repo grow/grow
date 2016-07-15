@@ -27,7 +27,7 @@ class Stats(object):
 
     def to_message(self):
         message = messages.StatsMessage()
-        collections = list(self.pod.list_collections())
+        collections = self.pod.list_collections()
         message.num_collections = len(collections)
         message.num_files_per_type = self.get_num_files_per_type()
         message.locales = [str(locale) for locale in self.pod.list_locales()]
@@ -48,7 +48,6 @@ class Stats(object):
         rows.append(['Resource', 'Count'])
 
         all_collections = self.pod.list_collections()
-        all_collections = list(all_collections)
         rows.append(['Collections', len(all_collections)])
         documents = []
         for collection in all_collections:

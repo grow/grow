@@ -142,9 +142,9 @@ class PodServer(object):
 
 def create_wsgi_app(pod, debug=False):
     podserver_app = PodServer(pod, debug=debug)
-    static_path = os.path.join(utils.get_grow_dir(), 'server', 'frontend')
+    assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'assets')
     ui_path = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
     return wsgi.SharedDataMiddleware(podserver_app, {
         '/_grow/ui': ui_path,
-        '/_grow/static': static_path,
+        '/_grow/assets': assets_path,
     })
