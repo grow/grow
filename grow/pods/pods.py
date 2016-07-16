@@ -5,6 +5,7 @@ from . import collection
 from . import env as environment
 from . import locales
 from . import messages
+from . import partial
 from . import podspec
 from . import routes
 from . import static
@@ -179,6 +180,12 @@ class Pod(object):
             return [col for col in cols if col.collection_path in paths]
         return cols
 
+    def list_partials(self, paths=None):
+        parts = partial.Partial.list(self)
+        if paths:
+            return [part for part in parts if part.partial_path in paths]
+        return parts
+
     def list_statics(self, pod_path, locale=None):
         for path in self.list_dir(pod_path):
             yield self.get_static(pod_path + path, locale=locale)
@@ -237,6 +244,22 @@ class Pod(object):
         """
         pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
         return collection.Collection.get(pod_path, _pod=self)
+
+    def get_partials(self, partial_path):
+        """Returns a partial.
+
+        Args:
+          partial_path: A partial's path relative to the /partial/ directory.
+        Returns:
+          Partial.
+        """
+        pod_path = os.path.join(partial.Partial.CONTENT_PATH, partial_path)
+        return partial.Partial.get(pod_path, _pod=self)
+
+    def create_partial(self, partial_path, fields, pod=self):
+        pod_path = os.path.join(partial.Partial.CONTENT_PATH, partial_path)
+        return partial.Partial.create(pod_path, fields, pod=self)
+
 
     def export(self):
         """Builds the pod, returning a mapping of paths to content."""
