@@ -39,3 +39,6 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Vim
+*.sw[o|p]
