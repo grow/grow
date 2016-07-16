@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {% for doc in docs %}
+  {% for doc in docs if not doc.sitemap.enabled is sameas false %}
   <url>
     <loc>{{doc.url}}</loc>
     {% if doc.modified %}
