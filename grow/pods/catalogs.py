@@ -43,6 +43,8 @@ class Catalog(catalog.Catalog):
         # catalog) into this one.
         if pod_path is None:
             pod_path = self.pod_path
+        if not self.pod.file_exists(pod_path):
+            self.pod.write_file(pod_path, '')
         po_file = self.pod.open_file(pod_path)
         try:
             babel_catalog = pofile.read_po(po_file, self.locale)

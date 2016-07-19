@@ -629,12 +629,10 @@ class ExtractLocalizedWithExistingTest(_BaseExtractLocalizedTest):
 
         message = u'Existing message in localized pöd'
         translation = u'Existing FR translation in localized pöd'
+        catalog = pod.catalogs.get('fr')
 
         self.assertExtractedFor(pod, message, ['fr'])
-        self.assertEqual(
-            pod.catalogs.get('fr').gettext_translations.gettext(message),
-            translation.encode('utf-8')
-        )
+        self.assertEqual(catalog[message].string, translation)
 
         # we don't use gettext syntax for obsolete translations
         for locale in self.ALL_LOCALES:
