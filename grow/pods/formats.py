@@ -39,6 +39,7 @@ class Format(object):
         self.locale_from_path = None
         self.content = self._init_content(self.pod_path)
         self._has_front_matter = Format.has_front_matter(self.content)
+        self._locales_from_base = []
         self._locales_from_parts = []
         self.fields = {}
         self.load()
@@ -172,6 +173,11 @@ class _SplitDocumentFormat(Format):
         if '$locale' not in fields and '$locales' not in fields:
             text = 'You must specify either $locale or $locales for each document part.'
             raise BadFormatError(text)
+        invalid_locales = set(self._locales_from_parts) - set(self._locales_from_base + self.doc.collection.locales)
+        if invalid_locales:
+            text = ('You must specify $locales in either the base '
+                    'part of the document or in the blueprint.')
+            raise BadFormatError(text)
         self._validate_fields(fields)
 
     def _get_locales_of_part(self, fields):
@@ -207,6 +213,10 @@ class _SplitDocumentFormat(Format):
             if i == 0:
                 self._validate_base_part(fields)
                 base_default_locale = self._get_base_default_locale(fields)
+                if '$localization' in fields:
+                    if 'locales' in fields['$localization']:
+                        self._locales_from_base += \
+                            fields['$localization']['locales']
             else:
                 self._validate_non_base_part(fields)
             for part_locale in self._get_locales_of_part(fields):

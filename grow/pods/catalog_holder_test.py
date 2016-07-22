@@ -494,14 +494,15 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
             self.unlocalized_pod,
             u'Unlocalized yaml doc in localized collection in unlocalized pöd',
             'fr')
+        # Document is base + JA only.
         self.assertExtractedFor(
             self.localized_pod,
             u'Unlocalized base doc part in localized collection in localized pöd',
-            'fr')
+            'ja')
         self.assertExtractedFor(
             self.unlocalized_pod,
             u'Unlocalized base doc part in localized collection in unlocalized pöd',
-            'fr')
+            'ja')
 
     def test_yaml_doc_extracted_for_podspec_locales(self):
         self.assertExtractedFor(

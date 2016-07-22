@@ -1,4 +1,7 @@
 ---
+$localization:
+  locales:
+  - ja
 foo@: Unlocalized base doc part in localized collection in unlocalized pöd
 ---
 $locale: ja

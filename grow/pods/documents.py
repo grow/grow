@@ -294,11 +294,11 @@ class Document(object):
         # If `$localization` is missing, use locales inferred from document
         # parts and append those to locales explicitly set in
         # `_blueprint.yaml`.
-        if self.format.has_localized_parts:
-            codes = self.format._locales_from_parts
-            codes += self.collection.locales
-            codes = list(set(codes))
-            return locales.Locale.parse_codes(codes)
+#        if self.format.has_localized_parts:
+#            codes = self.format._locales_from_parts
+#            codes += self.collection.locales
+#            codes = list(set(codes))
+#            return locales.Locale.parse_codes(codes)
         return self.collection.locales
 
     @property
