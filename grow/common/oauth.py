@@ -1,7 +1,11 @@
+# Silence "Loading" messages from keyring.
+import logging
+log = logging.getLogger('keyring.backend')
+log.setLevel(logging.WARNING)
+
 from . import utils
 from oauth2client import client
 from oauth2client import tools
-import logging
 import os
 
 try:
