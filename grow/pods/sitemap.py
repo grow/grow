@@ -48,7 +48,7 @@ class SitemapController(controllers.BaseController):
         docs = []
         for col in self.collections:
             docs += col.list_servable_documents(locales=self.locales)
-        return list(docs)
+        return sorted(docs, key=lambda doc: doc.url)
 
     def list_concrete_paths(self):
         return [self.path]
