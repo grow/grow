@@ -63,6 +63,5 @@ class SitemapTest(unittest.TestCase):
             self.assertIn(letter, doc.url.path)
 
 
-
 if __name__ == '__main__':
     unittest.main()
