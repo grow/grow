@@ -41,6 +41,27 @@ class SitemapTest(unittest.TestCase):
         self.assertIn('/foo/', content)
         self.assertNotIn('/bar/', content)
 
+    def test_sitemap_sorted(self):
+        letters = ('alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta')
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'sitemap': {
+                'enabled': True,
+            },
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+        })
+        for letter in letters:
+            pod.write_yaml('/content/pages/{0}.yaml'.format(letter), {
+                '$title': letter,
+            })
+        controller, params = pod.match('/sitemap.xml')
+        docs = controller._list_docs()
+        for letter, doc in zip(sorted(letters), docs):
+            self.assertIn(letter, doc.url.path)
+
 
 if __name__ == '__main__':
     unittest.main()
