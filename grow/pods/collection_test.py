@@ -35,6 +35,19 @@ class CollectionsTestCase(unittest.TestCase):
         collection_objs = collection.Collection.list(pod)
         self.assertEqual(['col1', 'col2'], [col.basename for col in collection_objs])
 
+    def test_order(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/col-a/_blueprint.yaml', {'$order': 2})
+        pod.write_yaml('/content/col-b/_blueprint.yaml', {'$order': 1})
+        pod.write_yaml('/content/col-c/_blueprint.yaml', {})
+        collection_objs = pod.list_collections()
+        expected_unsorted = ['col-a', 'col-b', 'col-c']
+        expected_sorted = ['col-b', 'col-a', 'col-c']
+        self.assertEqual(expected_unsorted, [col.basename for col in collection_objs])
+        collection_objs.sort(key=lambda col: col.order)
+        self.assertEqual(expected_sorted, [col.basename for col in collection_objs])
+
     def test_title(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})

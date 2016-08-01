@@ -12,6 +12,7 @@ import logging
 import operator
 import os
 import re
+import sys
 
 
 class Error(Exception):
@@ -184,6 +185,11 @@ class Collection(object):
     @property
     def localization(self):
         return self._get_builtin_field('localization')
+
+    @property
+    def order(self):
+        # Default to maxint so unordered collections go to the end.
+        return self.fields.get('$order', sys.maxint)
 
     @property
     def path_format(self):
