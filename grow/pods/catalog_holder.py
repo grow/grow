@@ -47,7 +47,10 @@ class Catalogs(object):
         return catalogs.Catalog(basename, locale, pod=self.pod, dir_path=dir_path)
 
     def get_template(self, basename='messages.pot'):
-        return catalogs.Catalog(basename, None, pod=self.pod)
+        template_catalog = catalogs.Catalog(basename, None, pod=self.pod)
+        if template_catalog.exists:
+            template_catalog.load()
+        return template_catalog
 
     def list_locales(self):
         locales = set()
@@ -326,7 +329,6 @@ class Catalogs(object):
         else:
             # --localized omitted / --no-localized
             template_catalog = self.get_template()
-            template_catalog.load()
             template_catalog.update_using_catalog(
                 unlocalized_catalog,
                 include_obsolete=include_obsolete)

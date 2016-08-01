@@ -47,6 +47,34 @@ class CatalogsTest(unittest.TestCase):
         self.assertIn('string content tagged', template_catalog)
         self.assertNotIn('string content untagged', template_catalog)
 
+    def test_extract_podspec(self):
+        # Verify global extract.
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'meta': {
+                'title@': 'Test Title',
+                'description@': 'Test Description',
+            }
+        })
+        pod.catalogs.extract()
+        self.assertIn('Test Title', pod.catalogs.get_template())
+        self.assertIn('Test Description', pod.catalogs.get_template())
+        # Verify localized extract.
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'meta': {
+                'title@': 'Test Title',
+                'description@': 'Test Description',
+            },
+            'localization': {
+                'locales': [
+                    'de',
+                ],
+            },
+        })
+        pod.catalogs.extract(localized=True)
+        self.assertIn('Test Title', pod.catalogs.get('de'))
+
     def test_localized_extract(self):
         self.pod.catalogs.extract(localized=True)
         fr_catalog = self.pod.catalogs.get('fr')
@@ -151,7 +179,6 @@ class CatalogsTest(unittest.TestCase):
         pod.write_yaml('/content/pages/index.yaml', fields)
         pod.catalogs.extract()
         template = pod.catalogs.get_template()
-        template.load()
 
         # Verify 'value' is added.
         self.assertIn('value', template)
@@ -577,22 +604,6 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
         self.assertExtractedFor(
             self.unlocalized_pod,
             u'CSV in unlocalized collection in unlocalized pöd',
-            [])
-
-    # ================================================================
-    # In podspec.yaml
-    # ================================================================
-
-    def test_podspec_extracted_for_own_locales(self):
-        self.assertExtractedFor(
-            self.localized_pod,
-            'Localized podspec',
-            'de')
-
-    def test_podspec_extracted_for_no_locales(self):
-        self.assertExtractedFor(
-            self.unlocalized_pod,
-            u'Unlocalized pödspec',
             [])
 
     # ================================================================

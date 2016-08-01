@@ -58,8 +58,6 @@ class Stats(object):
         routes = self.pod.routes
         rows.append(['Routes', len(routes.list_concrete_paths())])
         template = self.pod.catalogs.get_template()
-        if template.exists:
-            template.load()
         rows.append(['Messages', len(template)])
         table.add_rows(rows)
         content = table.draw()
