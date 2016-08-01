@@ -54,10 +54,32 @@ Grow will export data from Google Sheets as either JSON or CSV, depending on the
 [sourcecode:yaml]
 preprocessors:
 - kind: google_sheets
-  path: /data/filename.{csv|json|yaml}                  # Where to save downloaded file.
+  path: /content/data/filename.{csv|json|yaml}          # Where to save the downloaded file.
   id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI      # Spreadsheet ID.
   gid: 0                                                # Worksheet ID (optional).
   output_style: {compressed|pretty}                     # Whether to compress or pretty print JSON-formatted docs (default: compressed).
+[/sourcecode]
+
+By default, Grow treats Google Sheets data as a list. Optionally, the data can be treated as a map and reformatted appropriately. This can be useful for binding a Google Sheet to a content document. Field names beginning with `#` are ignored when downloaded.
+
+The `preserve` option can be set to `builtins` to preserve any existing builtin fields in the document (fields whose names begin with `$`).
+
+[sourcecode:yaml]
+preprocessors:
+- kind: google_sheets
+  path: /content/pages/file.yaml
+  id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI
+  format: map
+  preserve: builtins
+[/sourcecode]
+
+Optionally, data can be saved to a specific key within a YAML document, rather than overwriting an entire document. In the following example, a Google Sheet is downloaded and the `faq` key within `/content/pages/page.yaml` is updated with a list of data.
+
+[sourcecode:yaml]
+preprocessors:
+- kind: google_sheets
+  path: /content/pages/page.yaml:faq
+  id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI
 [/sourcecode]
 
 ### Gulp
