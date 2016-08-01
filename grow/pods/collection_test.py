@@ -24,6 +24,31 @@ class CollectionsTestCase(unittest.TestCase):
     def test_list(self):
         collection.Collection.list(self.pod)
 
+        # Verify empty collection behavior.
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/col1/_blueprint.yaml', {})
+        pod.write_yaml('/content/col2/doc1.yaml', {})
+        collection_objs = collection.Collection.list(pod)
+        self.assertEqual(['col1'], [col.basename for col in collection_objs])
+        pod.write_yaml('/content/col2/_blueprint.yaml', {})
+        collection_objs = collection.Collection.list(pod)
+        self.assertEqual(['col1', 'col2'], [col.basename for col in collection_objs])
+
+    def test_title(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$title@': 'Base Title',
+            '$titles': {
+                'nav@': 'Nav Title',
+            },
+        })
+        col = pod.get_collection('pages')
+        self.assertEqual('Base Title', col.title)
+        self.assertEqual('Base Title', col.titles('none'))
+        self.assertEqual('Nav Title', col.titles('nav'))
+
     def test_docs(self):
         # List documents where locale = fr.
         collection = self.pod.get_collection('pages')

@@ -167,6 +167,12 @@ class Collection(object):
     def title(self):
         return self._get_builtin_field('title')
 
+    def titles(self, title_name=None):
+        if title_name is None:
+            return self.title
+        titles = self.fields.get('$titles', {})
+        return titles.get(title_name, self.title)
+
     @property
     def root(self):
         return self._get_builtin_field('root')
