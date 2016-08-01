@@ -1,4 +1,5 @@
 localization:
   locales:
   - de
+  - pl
 foo@: Localized podspec

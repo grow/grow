@@ -1,5 +1,6 @@
----
+#---
 foo@: Unlocalized base doc part in unlocalized collection in unlocalized pöd
----
-$locale: ja
-foo@: Localized doc part in unlocalized doc in unlocalized collection in unlocalized pöd
+#---
+## Since $locales: ja is not specified anywhere, this fails to extract.
+#$locale: ja
+#foo@: Localized doc part in unlocalized doc in unlocalized collection in unlocalized pöd

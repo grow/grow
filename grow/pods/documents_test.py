@@ -2,10 +2,11 @@ import os
 from textwrap import dedent
 import unittest
 
-from grow.pods import formats
-from grow.pods import locales
-from grow.pods import pods
-from grow.pods import storage
+from . import documents
+from . import formats
+from . import locales
+from . import pods
+from . import storage
 from grow.testing import testing
 
 
@@ -88,6 +89,32 @@ class DocumentsTestCase(unittest.TestCase):
         expected = '/ko/contact-us/'
         self.assertEqual(expected, ko_doc.url.path)
         self.assertTrue(ko_doc.exists)
+
+    def test_valid_locales(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'locales': [
+                    'de',
+                    'fr',
+                ]
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+            }
+        })
+        pod.write_file('/content/pages/page.yaml',
+            '---\n'
+            'foo: bar\n'
+            '---\n'
+            '$locale: ja\n'
+            'foo: bar')
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertRaises(documents.BadLocalesError, lambda: doc.locales)
 
     def test_next_prev(self):
         collection = self.pod.get_collection('pages')

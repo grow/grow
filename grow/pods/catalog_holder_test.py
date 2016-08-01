@@ -175,14 +175,23 @@ class _BaseExtractLocalizedTest(unittest.TestCase):
 
     # Assert `message` appears in catalogs for all `locales`, and does NOT
     # appear in other catalogs in ALL_LOCALES
-    def assertExtractedFor(self, pod, message, locales):
+    def assertExtractedFor(self, pod, message, locales, inverse=False):
         # If `locales` is a string, assume single locale & coerce to iterable
         locales = (locales,) if isinstance(locales, basestring) else locales
         for locale in self.ALL_LOCALES:
             if locale in locales:
-                self.assertIn(message, pod.catalogs.get(locale))
+                if inverse:
+                    self.assertNotIn(message, pod.catalogs.get(locale))
+                else:
+                    self.assertIn(message, pod.catalogs.get(locale))
             else:
-                self.assertNotIn(message, pod.catalogs.get(locale))
+                if inverse:
+                    self.assertNotIn(message, pod.catalogs.get(locale))
+                else:
+                    self.assertNotIn(message, pod.catalogs.get(locale))
+
+    def assertNotExtractedFor(self, pod, message, locales):
+        return self.assertExtractedFor(pod, message, locales, inverse=True)
 
 
 class ExtractLocalizedTest(_BaseExtractLocalizedTest):
@@ -439,12 +448,12 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
         self.assertExtractedFor(
             self.localized_pod,
             u'Localized doc part in unlocalized doc in unlocalized collection in localized pöd',
-            'ja')
+            'pk')
         self.assertExtractedFor(
             self.unlocalized_pod,
             u'Localized doc part in unlocalized doc in localized collection in unlocalized pöd',
             'ja')
-        self.assertExtractedFor(
+        self.assertNotExtractedFor(
             self.unlocalized_pod,
             u'Localized doc part in unlocalized doc in unlocalized collection in unlocalized pöd',
             'ja')
@@ -495,24 +504,29 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
             u'Unlocalized yaml doc in localized collection in unlocalized pöd',
             'fr')
         # Document is base + JA only.
-        self.assertExtractedFor(
+        self.assertNotExtractedFor(
             self.localized_pod,
             u'Unlocalized base doc part in localized collection in localized pöd',
             'ja')
-        self.assertExtractedFor(
-            self.unlocalized_pod,
-            u'Unlocalized base doc part in localized collection in unlocalized pöd',
-            'ja')
+        self.assertNotExtractedFor(
+            self.localized_pod,
+            u'Unlocalized base doc part in localized collection in localized pöd',
+            'fr')
 
     def test_yaml_doc_extracted_for_podspec_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             u'Unlocalized yaml doc in unlocalized collection in localized pöd',
             'de')
+        # Document only specifies base doc part and $locale: ja, no $localization.
         self.assertExtractedFor(
             self.localized_pod,
             u'Unlocalized base doc part in unlocalized collection in localized pöd',
-            'de')
+            ['de', 'pl'])
+        self.assertExtractedFor(
+            self.localized_pod,
+            u'Localized doc part in unlocalized doc in unlocalized collection in localized pöd',
+            'pl')
 
     def test_yaml_doc_extracted_for_no_locales(self):
         self.assertExtractedFor(

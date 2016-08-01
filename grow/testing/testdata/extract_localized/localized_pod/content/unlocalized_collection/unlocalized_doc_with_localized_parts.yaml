@@ -1,5 +1,5 @@
 ---
 foo@: Unlocalized base doc part in unlocalized collection in localized pöd
 ---
-$locale: ja
+$locale: pl
 foo@: Localized doc part in unlocalized doc in unlocalized collection in localized pöd

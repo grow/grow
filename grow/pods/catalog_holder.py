@@ -263,8 +263,9 @@ class Catalogs(object):
                            lambda *args: _handle_field(doc.pod_path, doc_locales, *args))
 
                 # Extract body: {{_('Extract me')}}
-                doc_body = StringIO.StringIO(doc.body.encode('utf-8'))
-                _babel_extract(doc_body, doc_locales, doc.pod_path)
+                if doc.body:
+                    doc_body = StringIO.StringIO(doc.body.encode('utf-8'))
+                    _babel_extract(doc_body, doc_locales, doc.pod_path)
 
             # Extract from CSVs for this collection's locales
             for filepath in self.pod.list_dir(collection.pod_path):
