@@ -39,6 +39,8 @@ class Format(object):
         self.locale_from_path = None
         self.content = self._init_content(self.pod_path)
         self._has_front_matter = Format.has_front_matter(self.content)
+        self._locales_from_base = []
+        self._locales_from_parts = []
         self.fields = {}
         self.load()
 
@@ -144,16 +146,39 @@ class Format(object):
     def load(self):
         raise NotImplementedError
 
+    @property
+    def has_localized_parts(self):
+        return bool(self._locales_from_parts)
+
 
 class _SplitDocumentFormat(Format):
 
     def _iterate_content(self):
-        return [(part, part) for part in Format.split_front_matter(self.content)]
+        parts = [(part, part) for part in Format.split_front_matter(self.content)]
+        if not parts[-1][0].strip():
+            parts.pop()
+        return parts
 
     def _validate_fields(self, fields):
         if '$locale' in fields and '$locales' in fields:
             text = 'You must specify either $locale or $locales, not both.'
             raise BadFormatError(text)
+
+    def _validate_base_part(self, fields):
+        self._validate_fields(fields)
+
+    def _validate_non_base_part(self, fields):
+        # Any additional parts after base part MUST declare one or more locales
+        # (otherwise there's no point)
+        if '$locale' not in fields and '$locales' not in fields:
+            text = 'You must specify either $locale or $locales for each document part.'
+            raise BadFormatError(text)
+        invalid_locales = set(self._locales_from_parts) - set(self._locales_from_base + self.doc.collection.locales)
+        if invalid_locales:
+            text = ('You must specify $locales in either the base '
+                    'part of the document or in the blueprint.')
+            raise BadFormatError(text)
+        self._validate_fields(fields)
 
     def _get_locales_of_part(self, fields):
         if '$locales' in fields:
@@ -186,10 +211,19 @@ class _SplitDocumentFormat(Format):
             fields = self._load_yaml(part) or {}
             self._validate_fields(fields)
             if i == 0:
+                self._validate_base_part(fields)
                 base_default_locale = self._get_base_default_locale(fields)
+                if '$localization' in fields:
+                    if 'locales' in fields['$localization']:
+                        self._locales_from_base += \
+                            fields['$localization']['locales']
+            else:
+                self._validate_non_base_part(fields)
             for part_locale in self._get_locales_of_part(fields):
                 locales_to_fields[part_locale] = fields
                 locales_to_bodies[part_locale] = body
+                if part_locale:
+                    self._locales_from_parts.append(part_locale)
 
         # Allow $locale to override base locale.
         if locale is None and base_default_locale:

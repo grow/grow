@@ -12,6 +12,7 @@ import click
 import collections
 import gettext
 import os
+import StringIO
 import tokenize
 
 
@@ -147,10 +148,14 @@ class Catalogs(object):
                 include_header=False, locales=None, use_fuzzy_matching=False):
         env = self.pod.get_jinja_env()
 
-        all_locales = set(list(self.pod.list_locales()))
-        message_ids_to_messages = {}
-        paths_to_messages = collections.defaultdict(set)
-        paths_to_locales = collections.defaultdict(set)
+        # {
+        #    locale1: locale1_catalog,
+        #    locale2: locale2_catalog,
+        #    ...
+        # }
+        # This is built up as we extract
+        localized_catalogs = {}
+        unlocalized_catalog = catalogs.Catalog()  # for localized=False case
 
         comment_tags = [
             ':',
@@ -160,38 +165,24 @@ class Catalogs(object):
             'silent': 'false',
         }
 
-        # Extract from content files.
-        def callback(doc, item, key, unused_node):
-            # Verify that the fields we're extracting are fields for a document
-            # that's in the default locale. If not, skip the document.
-            _handle_field(doc.pod_path, item, key, unused_node)
+        def _add_to_catalog(message, locales):
+            # Add to all relevant catalogs
+            for locale in locales:
+                if locale not in localized_catalogs:
+                    # Start with a new catalog so we can track what's obsolete:
+                    # we'll merge it with existing translations later.
+                    # *NOT* setting `locale` kwarg here b/c that will load existing
+                    # translations.
+                    localized_catalogs[locale] = catalogs.Catalog(pod=self.pod)
+                localized_catalogs[locale][message.id] = message
+            unlocalized_catalog[message.id] = message
 
-        def _add_existing_message(msgid, locations, auto_comments=None,
-                                  context=None, path=None):
-            existing_message = message_ids_to_messages.get(msgid)
-            auto_comments = [] if auto_comments is None else auto_comments
-            if existing_message:
-                message_ids_to_messages[msgid].locations.extend(locations)
-                paths_to_messages[path].add(existing_message)
-            else:
-                message = catalog.Message(
-                    msgid,
-                    None,
-                    auto_comments=auto_comments,
-                    context=context,
-                    locations=locations)
-                paths_to_messages[path].add(message)
-                message_ids_to_messages[message.id] = message
-
-        def _handle_field(path, item, key, node):
+        def _handle_field(path, locales, msgid, key, node):
             if (not key
-                    or not isinstance(item, basestring)
                     or not isinstance(key, basestring)
                     or not key.endswith('@')):
                 return
-            # Support gettext "extracted comments" on tagged fields. This is
-            # consistent with extracted comments in templates, which follow
-            # the format "{#: Extracted comment. #}". An example:
+            # Support gettext "extracted comments" on tagged fields:
             #   field@: Message.
             #   field@#: Extracted comment for field@.
             auto_comments = []
@@ -199,142 +190,152 @@ class Catalogs(object):
                 auto_comment = node.get('{}#'.format(key))
                 if auto_comment:
                     auto_comments.append(auto_comment)
-            locations = [(path, 0)]
-            _add_existing_message(
-                msgid=item,
+            message = catalog.Message(
+                msgid,
+                None,
                 auto_comments=auto_comments,
-                locations=locations,
-                path=path)
+                locations=[(path, 0)])
 
+            _add_to_catalog(message, locales)
+
+        def _babel_extract(fp, locales, path):
+            try:
+                all_parts = extract.extract(
+                    'jinja2.ext.babel_extract',
+                    fp,
+                    options=options,
+                    comment_tags=comment_tags)
+                for parts in all_parts:
+                    lineno, msgid, comments, context = parts
+                    message = catalog.Message(
+                        msgid,
+                        None,
+                        auto_comments=comments,
+                        locations=[(path, lineno)])
+                    _add_to_catalog(message, locales)
+            except tokenize.TokenError:
+                self.pod.logger.error('Problem extracting body: {}'.format(path))
+                raise
+
+        # Extract from collections in /content/:
+        # Strings only extracted for relevant locales, determined by locale
+        # scope (pod > collection > document > document part)
+        last_pod_path = None
         for collection in self.pod.list_collections():
             text = 'Extracting collection: {}'.format(collection.pod_path)
             self.pod.logger.info(text)
             # Extract from blueprint.
-            utils.walk(collection.tagged_fields, lambda *args: callback(collection, *args))
+            utils.walk(collection.tagged_fields,
+                       lambda *args: _handle_field(collection.pod_path,
+                                                   collection.locales, *args))
             # Extract from docs in collection.
             for doc in collection.docs(include_hidden=True):
                 if not self._should_extract_as_babel(paths, doc.pod_path):
                     continue
-                tagged_fields = doc.get_tagged_fields()
-                utils.walk(tagged_fields, lambda *args: callback(doc, *args))
-                paths_to_locales[doc.pod_path].update(doc.locales)
-                all_locales.update(doc.locales)
 
-        # Extract from podspec.
-        config = self.pod.get_podspec().get_config()
-        podspec_path = '/podspec.yaml'
-        if self._should_extract_as_babel(paths, podspec_path):
-            self.pod.logger.info('Extracting podspec: {}'.format(podspec_path))
-            utils.walk(config, lambda *args: _handle_field(podspec_path, *args))
-
-        # Extract from content and views.
-        pod_files = [os.path.join('/views', path)
-                     for path in self.pod.list_dir('/views/')]
-        pod_files += [os.path.join('/content', path)
-                      for path in self.pod.list_dir('/content/')]
-        pod_files += [os.path.join('/data', path)
-                      for path in self.pod.list_dir('/data/')]
-        for pod_path in pod_files:
-            if self._should_extract_as_csv(paths, pod_path):
-                rows = utils.get_rows_from_csv(self.pod, pod_path)
-                self.pod.logger.info('Extracting: {}'.format(pod_path))
-                for row in rows:
-                    for i, parts in enumerate(row.iteritems()):
-                        key, val = parts
-                        if key.endswith('@'):
-                            locations = [(pod_path, i)]
-                            _add_existing_message(
-                                msgid=val,
-                                locations=locations,
-                                path=pod_path)
-            elif self._should_extract_as_babel(paths, pod_path):
-                if pod_path.startswith('/data') and pod_path.endswith(('.yaml', '.yml')):
-                    self.pod.logger.info('Extracting: {}'.format(pod_path))
-                    content = self.pod.read_file(pod_path)
-                    fields = utils.load_yaml(content, pod=self.pod)
-                    utils.walk(fields, lambda *args: _handle_field(pod_path, *args))
-                    continue
-
-                pod_locales = paths_to_locales.get(pod_path)
-                if pod_locales:
-                    text = 'Extracting: {} ({} locales)'
-                    text = text.format(pod_path, len(pod_locales))
-                    self.pod.logger.info(text)
+            for doc in collection.list_docs(include_hidden=True):
+                if doc.pod_path != last_pod_path:
+                    self.pod.logger.info(
+                        'Extracting: {} ({} locale{})'.format(
+                            doc.pod_path,
+                            len(doc.locales),
+                            's' if len(doc.locales) != 1 else '',
+                        )
+                    )
+                    last_pod_path = doc.pod_path
+                # If doc.locale is set, this is a doc part: only extract for
+                # its own locales (not those of base doc).
+                if doc.locale:
+                    doc_locales = [doc.locale]
+                # If not is set, this is a base doc (1st or only part): extract
+                # for all locales declared for this doc
+                elif doc.locales:
+                    doc_locales = doc.locales
+                # Otherwise only include in template (--no-localized)
                 else:
-                    self.pod.logger.info('Extracting: {}'.format(pod_path))
-                fp = self.pod.open_file(pod_path)
-                try:
-                    all_parts = extract.extract(
-                        'jinja2.ext.babel_extract', fp, options=options,
-                        comment_tags=comment_tags)
-                    for parts in all_parts:
-                        lineno, string, comments, context = parts
-                        locations = [(pod_path, lineno)]
-                        _add_existing_message(
-                            msgid=string,
-                            auto_comments=comments,
-                            context=context,
-                            locations=locations,
-                            path=pod_path)
-                except tokenize.TokenError:
-                    self.pod.logger.error('Problem extracting: {}'.format(pod_path))
-                    raise
+                    doc_locales = [None]
 
-        # Localized message catalogs.
+                doc_locales = [doc.locale]
+                # Extract yaml fields: `foo@: Extract me`
+                # ("tagged" = prior to stripping `@` suffix from field names)
+                tagged_fields = doc.get_tagged_fields()
+                utils.walk(tagged_fields,
+                           lambda *args: _handle_field(doc.pod_path, doc_locales, *args))
+
+                # Extract body: {{_('Extract me')}}
+                if doc.body:
+                    doc_body = StringIO.StringIO(doc.body.encode('utf-8'))
+                    _babel_extract(doc_body, doc_locales, doc.pod_path)
+
+            # Extract from CSVs for this collection's locales
+            for filepath in self.pod.list_dir(collection.pod_path):
+                if filepath.endswith('.csv'):
+                    pod_path = os.path.join(collection.pod_path, filepath.lstrip('/'))
+                    self.pod.logger.info('Extracting: {}'.format(pod_path))
+                    rows = self.pod.read_csv(pod_path)
+                    for i, row in enumerate(rows):
+                        for key, msgid in row.iteritems():
+                            _handle_field(pod_path, collection.locales, msgid, key, row)
+
+        # Extract from root of /content/:
+        for path in self.pod.list_dir('/content/', recursive=False):
+            if path.endswith(('.yaml', '.yml')):
+                pod_path = os.path.join('/content/', path)
+                self.pod.logger.info('Extracting: {}'.format(pod_path))
+                utils.walk(
+                    self.pod.get_doc(pod_path).get_tagged_fields(),
+                    lambda *args: _handle_field(pod_path, self.pod.list_locales(), *args)
+                )
+
+        # Extract from /views/:
+        # Not discriminating by file extension, because people use all sorts
+        # (htm, html, tpl, dtml, jtml, ...)
+        for path in self.pod.list_dir('/views/'):
+            pod_path = os.path.join('/views/', path)
+            self.pod.logger.info('Extracting: {}'.format(pod_path))
+            with self.pod.open_file(pod_path) as f:
+                _babel_extract(f, self.pod.list_locales(), pod_path)
+
+        # Extract from podspec.yaml:
+        self.pod.logger.info('Extracting: podspec.yaml')
+        utils.walk(
+            self.pod.get_podspec().get_config(),
+            lambda *args: _handle_field('/podspec.yaml', self.pod.list_locales(), *args)
+        )
+
+        # Save it out: behavior depends on --localized and --locale flags
         if localized:
-            for locale in all_locales:
+            # Save each localized catalog
+            for locale, new_catalog in localized_catalogs.items():
+                # Skip if `locales` defined but doesn't include this locale
                 if locales and locale not in locales:
                     continue
-                localized_catalog = self.get(locale)
-                if not include_obsolete:
-                    localized_catalog.obsolete = babel_util.odict()
-                    for message in list(localized_catalog):
-                        if message.id not in message_ids_to_messages:
-                            localized_catalog.delete(message.id, context=message.context)
-
-                catalog_to_merge = catalog.Catalog()
-                for path, message_items in paths_to_messages.iteritems():
-                    locales_with_this_path = paths_to_locales.get(path)
-                    if locales_with_this_path and locale not in locales_with_this_path:
-                        continue
-                    for message in message_items:
-                        translation = None
-                        existing_message = localized_catalog.get(message.id)
-                        if existing_message:
-                            translation = existing_message.string
-                        catalog_to_merge.add(
-                            message.id, translation, locations=message.locations,
-                            auto_comments=message.auto_comments, flags=message.flags,
-                            user_comments=message.user_comments, context=message.context,
-                            lineno=message.lineno, previous_id=message.previous_id)
-
-                localized_catalog.update_using_catalog(
-                    catalog_to_merge, use_fuzzy_matching=use_fuzzy_matching)
-                localized_catalog.save(include_header=include_header)
-                missing = localized_catalog.list_untranslated()
-                num_messages = len(localized_catalog)
-                num_translated = num_messages - len(missing)
-                text = 'Saved: /{path} ({num_translated}/{num_messages})'
+                existing_catalog = self.get(locale)
+                existing_catalog.update_using_catalog(
+                    new_catalog,
+                    include_obsolete=include_obsolete)
+                existing_catalog.save(include_header=include_header)
+                missing = existing_catalog.list_untranslated()
+                num_messages = len(existing_catalog)
                 self.pod.logger.info(
-                    text.format(path=localized_catalog.pod_path,
-                                num_translated=num_translated,
-                                num_messages=num_messages))
-            return
-
-        # Global (or missing, specified by -o) message catalog.
-        template_path = self.template_path
-        catalog_obj, _ = self._get_or_create_catalog(template_path)
-        if not include_obsolete:
-            catalog_obj.obsolete = babel_util.odict()
-            for message in list(catalog_obj):
-                catalog_obj.delete(message.id, context=message.context)
-        for message in message_ids_to_messages.itervalues():
-            if message.id:
-                catalog_obj.add(message.id, None, locations=message.locations,
-                                auto_comments=message.auto_comments)
-        return self.write_template(
-            template_path, catalog_obj, include_obsolete=include_obsolete,
-            include_header=include_header)
+                    'Saved: /{path} ({num_translated}/{num_messages})'.format(
+                        path=existing_catalog.pod_path,
+                        num_translated=num_messages - len(missing),
+                        num_messages=num_messages)
+                    )
+        else:
+            # --localized omitted / --no-localized
+            template_catalog = self.get_template()
+            template_catalog.load()
+            template_catalog.update_using_catalog(
+                unlocalized_catalog,
+                include_obsolete=include_obsolete)
+            template_catalog.save(include_header=include_header)
+            text = 'Saved: {} ({} messages)'
+            self.pod.logger.info(
+                text.format(template_catalog.pod_path, len(template_catalog))
+            )
+            return template_catalog
 
     def write_template(self, template_path, catalog, include_obsolete=False,
                        include_header=False):

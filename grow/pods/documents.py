@@ -26,6 +26,10 @@ class DocumentExistsError(Error, ValueError):
     pass
 
 
+class BadLocalesError(Error, ValueError):
+    pass
+
+
 class Document(object):
 
     def __init__(self, pod_path, _pod, locale=None, _collection=None):
@@ -291,6 +295,13 @@ class Document(object):
             if codes is None:
                 return []
             return locales.Locale.parse_codes(codes)
+        if self.format.has_localized_parts:
+            document_codes = self.format._locales_from_parts
+            diff = set(document_codes) - set(self.collection.locales)
+            if diff:
+                text = '{} specified content for unconfigured locales: {}'
+                text = text.format(self, diff)
+                raise BadLocalesError(text)
         return self.collection.locales
 
     @property

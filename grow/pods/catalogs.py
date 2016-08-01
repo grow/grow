@@ -3,6 +3,7 @@ from babel import util
 from babel.messages import catalog
 from babel.messages import mofile
 from babel.messages import pofile
+from babel.util import odict
 from datetime import datetime
 from grow.pods import messages
 import goslate
@@ -42,6 +43,8 @@ class Catalog(catalog.Catalog):
         # catalog) into this one.
         if pod_path is None:
             pod_path = self.pod_path
+        if not self.pod.file_exists(pod_path):
+            self.pod.write_file(pod_path, '')
         po_file = self.pod.open_file(pod_path)
         try:
             babel_catalog = pofile.read_po(po_file, self.locale)
@@ -86,16 +89,19 @@ class Catalog(catalog.Catalog):
             catalog_message.messages.append(message_message)
         return catalog_message
 
-    def save(self, ignore_obsolete=True, include_previous=True, width=80,
-             include_header=False):
+    def save(self, include_header=False):
         if not self.pod.file_exists(self.pod_path):
             self.pod.write_file(self.pod_path, '')
         outfile = self.pod.open_file(self.pod_path, mode='w')
         Catalog.set_header_comment(self.pod, self)
         pofile.write_po(
-            outfile, self, omit_header=(not include_header), sort_output=True,
-            sort_by_file=True, ignore_obsolete=ignore_obsolete,
-            include_previous=include_previous, width=width)
+            outfile,
+            self,
+            omit_header=(not include_header),
+            sort_output=True,
+            sort_by_file=True,
+            include_previous=True,
+            width=80)
         outfile.close()
 
     def init(self, template_path, include_header=False):
@@ -104,13 +110,18 @@ class Catalog(catalog.Catalog):
         self.fuzzy = False
         self.save(include_header=include_header)
 
-    def update_using_catalog(self, catalog_to_merge, use_fuzzy_matching=False):
+    def update_using_catalog(self, catalog_to_merge, use_fuzzy_matching=False,
+                             include_obsolete=False):
         super(Catalog, self).update(
             catalog_to_merge, no_fuzzy_matching=(not use_fuzzy_matching))
+        # Don't use gettext's obsolete functionality as it polutes files: merge
+        # into main translations if anything
+        if include_obsolete:
+            self.merge_obsolete()
+        self.obsolete = odict()
 
     def update(self, template_path=None, use_fuzzy_matching=False,
-               ignore_obsolete=True, include_previous=True, width=80,
-               include_header=False):
+               include_obsolete=False, include_header=False):
         """Updates catalog with messages from a template."""
         if template_path is None:
             template_path = os.path.join('translations', 'messages.pot')
@@ -121,9 +132,17 @@ class Catalog(catalog.Catalog):
         template = pofile.read_po(template_file)
         super(Catalog, self).update(
             template, no_fuzzy_matching=(not use_fuzzy_matching))
-        self.save(ignore_obsolete=ignore_obsolete,
-                  include_previous=include_previous, width=width,
-                  include_header=include_header)
+        # Don't use gettext's obsolete functionality as it polutes files: merge
+        # into main translations if anything
+        if include_obsolete:
+            self.merge_obsolete()
+        self.obsolete = odict()
+        self.save(include_header=include_header)
+
+    def merge_obsolete(self):
+        """Copy obsolete terms into the main catalog."""
+        for msgid, message in self.obsolete.iteritems():
+            self[msgid] = message
 
     @property
     def mo_path(self):

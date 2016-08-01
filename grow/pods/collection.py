@@ -6,6 +6,7 @@ from . import messages
 from grow.common import structures
 from grow.common import utils
 from grow.pods import locales
+import copy
 import json
 import logging
 import operator
@@ -79,9 +80,9 @@ class Collection(object):
         fields = utils.untag_fields(self.tagged_fields)
         return {} if not fields else fields
 
-    @utils.cached_property
+    @property
     def tagged_fields(self):
-        return self.yaml
+        return copy.deepcopy(self.yaml)
 
     @classmethod
     def list(cls, pod):
