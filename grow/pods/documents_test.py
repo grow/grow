@@ -253,6 +253,42 @@ class DocumentsTestCase(unittest.TestCase):
         keys = ['$title', '$order', '$titles', 'key', 'root_key', '$locale']
         self.assertItemsEqual(keys, fr_doc.fields.keys())
 
+    def test_locale_override(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'de',
+                    'fr',
+                ]
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+            },
+        })
+        pod.write_yaml('/content/pages/a.yaml', {
+            'foo': 'bar-base',
+            'foo@de': 'bar-de',
+            'foo@fr': 'bar-fr',
+            'nested': {
+                'nested': 'nested-base',
+                'nested@fr': 'nested-fr',
+            },
+        })
+        doc = pod.get_doc('/content/pages/a.yaml')
+        self.assertEqual(doc.foo, 'bar-base')
+        de_doc = doc.localize('de')
+        self.assertEqual(de_doc.foo, 'bar-de')
+        self.assertEqual(de_doc.nested['nested'], 'nested-base')
+        fr_doc = doc.localize('fr')
+        self.assertEqual(fr_doc.foo, 'bar-fr')
+        self.assertEqual(fr_doc.nested['nested'], 'nested-fr')
+
 
 if __name__ == '__main__':
     unittest.main()

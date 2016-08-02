@@ -104,7 +104,7 @@ class Document(object):
     @utils.cached_property
     def fields(self):
         tagged_fields = self.get_tagged_fields()
-        fields = utils.untag_fields(tagged_fields)
+        fields = utils.untag_fields(tagged_fields, locale=str(self.locale))
         return {} if not fields else fields
 
     def get_tagged_fields(self):

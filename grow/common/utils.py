@@ -300,7 +300,7 @@ class JsonEncoder(json.JSONEncoder):
 @memoize
 def untag_fields(fields, locale=None):
     """Untags fields, handling translation priority."""
-    keys_to_drop = set()
+    paths_to_keys_to_update = {}
 
     def visit(path, key, value):
         if not isinstance(key, basestring):
@@ -310,9 +310,9 @@ def untag_fields(fields, locale=None):
         if key.endswith('@'):
             key = key[:-1]
         match = LOCALIZED_KEY_REGEX.match(key)
+        if paths_to_keys_to_update.get(path) == key:
+            return False
         if not match:
-            if key in keys_to_drop:
-                return False
             return key, value
         untagged_key, locale_from_key = match.groups()
         if locale_from_key != locale:
@@ -327,12 +327,11 @@ def untag_fields(fields, locale=None):
             return iterutils.default_enter(path, key, value)
         untagged_key, locale_from_key = match.groups()
         if locale == locale_from_key:
-            keys_to_drop.add(untagged_key)
+            paths_to_keys_to_update[path] = untagged_key
         new_parent, items = iterutils.default_enter(path, key, value)
         return new_parent, items
 
-    fields = iterutils.remap(fields, visit=visit, enter=enter)
-    return fields
+    return iterutils.remap(fields, visit=visit, enter=enter)
 
 
 def LocaleIterator(iterator, locale):
