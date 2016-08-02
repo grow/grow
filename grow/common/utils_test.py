@@ -124,6 +124,59 @@ class UtilsTestCase(unittest.TestCase):
             },
         }, utils.untag_fields(fields, locale='de'))
 
+        fields_to_test = {
+            'list': [
+                {
+                    'item': 'value-1',
+                    'item@de': 'value-1-de',
+                    'item@fr': 'value-1-fr',
+                },
+                {
+                    'item': 'value-2',
+                },
+                {
+                    'item@fr': 'value-3-fr',
+                },
+            ]
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'list': [
+                {
+                    'item': 'value-1-fr',
+                },
+                {
+                    'item': 'value-2',
+                },
+                {
+                    'item': 'value-3-fr',
+                },
+            ]
+        }, utils.untag_fields(fields, locale='fr'))
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'list': [
+                {
+                    'item': 'value-1-de',
+                },
+                {
+                    'item': 'value-2',
+                },
+                {},
+            ]
+        }, utils.untag_fields(fields, locale='de'))
+        self.assertDictEqual({
+            'list': [
+                {
+                    'item': 'value-1',
+                },
+                {
+                    'item': 'value-2',
+                },
+                {},
+            ]
+        }, utils.untag_fields(fields, locale='ja'))
+
 
 if __name__ == '__main__':
     unittest.main()
