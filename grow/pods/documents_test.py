@@ -376,9 +376,9 @@ class DocumentsTestCase(unittest.TestCase):
             '$path': '/{base}/',
         })
         collection = pod.get_collection('/content/pages/')
-        self.assertEqual([], collection.locales)
+        self.assertEqual(['de'], collection.locales)
         doc = pod.get_doc('/content/pages/page.yaml')
-        self.assertEqual([], doc.locales)
+        self.assertEqual(['de'], doc.locales)
 
         # Localized podspec ($localization in blueprint).
         pod = testing.create_pod()
@@ -416,7 +416,6 @@ class DocumentsTestCase(unittest.TestCase):
         })
         pod.write_yaml('/content/pages/_blueprint.yaml', {
             '$path': '/{base}/',
-            '$localization': {},
         })
         pod.write_yaml('/content/pages/page.yaml', {})
         doc = pod.get_doc('/content/pages/page.yaml')

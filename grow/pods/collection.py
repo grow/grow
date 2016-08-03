@@ -287,13 +287,10 @@ class Collection(object):
 
     @utils.cached_property
     def locales(self):
-        # Require $localization in blueprint for localization.
-        if self.localization is not None:
-            if 'locales' in self.localization:
-                identifiers = self.localization['locales'] or []
-                return locales.Locale.parse_codes(identifiers)
-            return self.pod.list_locales()
-        return []
+        if self.localization and 'locales' in self.localization:
+            codes = self.localization['locales'] or []
+            return locales.Locale.parse_codes(codes)
+        return self.pod.list_locales()
 
     def to_message(self):
         message = messages.CollectionMessage()

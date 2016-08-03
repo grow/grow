@@ -1,5 +1,7 @@
 path: /post/{base}/
 view: /views/posts.html
+localization:
+  locales: []
 
 fields:
 
