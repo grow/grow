@@ -425,7 +425,7 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('/{base}/', de_doc.path_format)
         self.assertEqual('/page/', de_doc.url.path)
 
-        # Override localized collection with "$localization:locales:[]".
+        # Override collection with "$localization:locales:[]" in doc.
         pod.write_yaml('/content/pages/page.yaml', {
             '$localization': {
                 'locales': [],
@@ -433,6 +433,39 @@ class DocumentsTestCase(unittest.TestCase):
         })
         doc = pod.get_doc('/content/pages/page.yaml')
         self.assertEqual([], doc.locales)
+
+        # Override podspec with "$localization:locales:[]" in blueprint.
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'locales': [
+                    'de',
+                ],
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$localization': {
+                'locales': [],
+            },
+        })
+        pod.write_yaml('/content/pages/page.yaml', {})
+        doc = pod.get_doc('/content/pages/page.yaml')
+        collection = pod.get_collection('/content/pages/')
+        self.assertEqual([], collection.locales)
+        self.assertEqual([], doc.locales)
+
+        # Override the overridden podspec.
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$localization': {
+                'locales': [
+                    'de',
+                    'ja',
+                ],
+            },
+        })
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertEqual(['de', 'ja'], doc.locales)
 
 
 if __name__ == '__main__':
