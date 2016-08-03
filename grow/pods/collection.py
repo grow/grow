@@ -55,7 +55,6 @@ class Collection(object):
         self.collection_path = regex.sub('', pod_path).strip('/')
         self.pod_path = pod_path
         self.basename = os.path.basename(self.collection_path)
-        self._default_locale = _pod.podspec.default_locale
         self._blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
 
@@ -84,6 +83,17 @@ class Collection(object):
     @property
     def tagged_fields(self):
         return copy.deepcopy(self.yaml)
+
+    @utils.cached_property
+    def default_locale(self):
+        if self.localization and 'default_locale' in self.localization:
+            locale = self.localization['default_locale']
+        else:
+            locale = self.pod.podspec.default_locale
+        locale = locales.Locale.parse(locale)
+        if locale:
+            locale.set_alias(self.pod)
+        return locale
 
     @classmethod
     def list(cls, pod):

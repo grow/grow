@@ -253,6 +253,59 @@ class DocumentsTestCase(unittest.TestCase):
         keys = ['$title', '$order', '$titles', 'key', 'root_key', '$locale']
         self.assertItemsEqual(keys, fr_doc.fields.keys())
 
+    def test_locale_override(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'de',
+                    'fr',
+                    'it',
+                ]
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+            },
+        })
+        pod.write_yaml('/content/pages/a.yaml', {
+            '$view': '/views/base.html',
+            '$view@fr': '/views/base-fr.html',
+            'qaz': 'qux',
+            'qaz@fr': 'qux-fr',
+            'qaz@de': 'qux-de',
+            'qaz@fr': 'qux-fr',
+            'foo': 'bar-base',
+            'foo@en': 'bar-en',
+            'foo@de': 'bar-de',
+            'foo@fr': 'bar-fr',
+            'nested': {
+                'nested': 'nested-base',
+                'nested@fr': 'nested-fr',
+            },
+        })
+        doc = pod.get_doc('/content/pages/a.yaml')
+        self.assertEqual('en', doc.locale)
+        self.assertEqual('bar-en', doc.foo)
+        self.assertEqual('qux', doc.qaz)
+        de_doc = doc.localize('de')
+        self.assertEqual('bar-de', de_doc.foo)
+        self.assertEqual('/views/base.html', de_doc.view)
+        self.assertEqual('nested-base', de_doc.nested['nested'])
+        self.assertEqual('qux-de', de_doc.qaz)
+        fr_doc = doc.localize('fr')
+        self.assertEqual('bar-fr', fr_doc.foo)
+        self.assertEqual('/views/base-fr.html', fr_doc.view)
+        self.assertEqual('nested-fr', fr_doc.nested['nested'])
+        self.assertEqual('qux-fr', fr_doc.qaz)
+        it_doc = doc.localize('it')
+        self.assertEqual('bar-base', it_doc.foo)
+        self.assertEqual('qux', it_doc.qaz)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -6,6 +6,7 @@ except ImportError:
         import StringIO
     except ImportError:
         from io import StringIO
+from boltons import iterutils
 import bs4
 import csv as csv_lib
 import functools
@@ -16,11 +17,11 @@ import json
 import logging
 import os
 import re
-import urllib
 import sys
 import threading
 import time
 import translitcodec
+import urllib
 import yaml
 
 # The CLoader implementation of the PyYaml loader is orders of magnitutde
@@ -33,7 +34,9 @@ except ImportError:
     from yaml import Loader as yaml_Loader
 
 
+LOCALIZED_KEY_REGEX = re.compile('(.*)@([\w|-]+)$')
 SENTINEL = object()
+SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 
 
 class Error(Exception):
@@ -269,12 +272,11 @@ def dump_yaml(obj):
         obj, allow_unicode=True, width=800, default_flow_style=False)
 
 
-_slug_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 def slugify(text, delim=u'-'):
     if not isinstance(text, basestring):
         text = str(text)
     result = []
-    for word in _slug_re.split(text.lower()):
+    for word in SLUG_REGEX.split(text.lower()):
         word = word.encode('translit/long')
         if word:
             result.append(word)
@@ -296,30 +298,30 @@ class JsonEncoder(json.JSONEncoder):
 
 
 @memoize
-def untag_fields(fields):
+def untag_fields(fields, locale=None):
     """Untags fields, handling translation priority."""
-    untagged_keys_to_add = {}
-    nodes_and_keys_to_add = []
-    nodes_and_keys_to_remove = []
-    def callback(item, key, node):
+
+    updated_localized_paths = set()
+
+    def visit(path, key, value):
+        if (path, key) in updated_localized_paths:
+            return False
         if not isinstance(key, basestring):
-            return
+            return key, value
         if key.endswith('@#'):
-            nodes_and_keys_to_remove.append((node, key))
+            return False
         if key.endswith('@'):
-            untagged_key = key.rstrip('@')
-            content = item
-            nodes_and_keys_to_remove.append((node, key))
-            untagged_keys_to_add[untagged_key] = True
-            nodes_and_keys_to_add.append((node, untagged_key, content))
-    walk(fields, callback)
-    for node, key in nodes_and_keys_to_remove:
-        if isinstance(node, dict):
-            del node[key]
-    for node, untagged_key, content in nodes_and_keys_to_add:
-        if isinstance(node, dict):
-            node[untagged_key] = content
-    return fields
+            key = key[:-1]
+        match = LOCALIZED_KEY_REGEX.match(key)
+        if not match:
+            return key, value
+        untagged_key, locale_from_key = match.groups()
+        if locale_from_key != locale:
+            return False
+        updated_localized_paths.add((path, untagged_key))
+        return untagged_key, value
+
+    return iterutils.remap(fields, visit=visit)
 
 
 def LocaleIterator(iterator, locale):
