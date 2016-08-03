@@ -177,6 +177,41 @@ class UtilsTestCase(unittest.TestCase):
             ]
         }, utils.untag_fields(fields, locale='ja'))
 
+        fields_to_test = {
+            '$view': '/views/base.html',
+            '$view@ja': '/views/base-ja.html',
+            'qaz': 'qux',
+            'qaz@ja': 'qux-ja',
+            'qaz@de': 'qux-de',
+            'qaz@ja': 'qux-ja',
+            'foo': 'bar-base',
+            'foo@en': 'bar-en',
+            'foo@de': 'bar-de',
+            'foo@ja': 'bar-ja',
+            'nested': {
+                'nested': 'nested-base',
+                'nested@ja': 'nested-ja',
+            },
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            '$view': '/views/base-ja.html',
+            'qaz': 'qux-ja',
+            'foo': 'bar-ja',
+            'nested': {
+                'nested': 'nested-ja',
+            },
+        }, utils.untag_fields(fields, locale='ja'))
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            '$view': '/views/base.html',
+            'qaz': 'qux-de',
+            'foo': 'bar-de',
+            'nested': {
+                'nested': 'nested-base',
+            },
+        }, utils.untag_fields(fields, locale='de'))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -90,21 +90,18 @@ class Document(object):
     def default_locale(self):
         if ('$localization' in self.fields
             and 'default_locale' in self.fields['$localization']):
-            locale = self.fields['$localization']['default_locale']
-        elif (self.collection.localization
-              and 'default_locale' in self.collection.localization):
-            locale = self.collection.localization['default_locale']
-        else:
-            locale = self.pod.podspec.default_locale
-        locale = locales.Locale.parse(locale)
-        if locale:
-            locale.set_alias(self.pod)
-        return locale
+            identifier = self.fields['$localization']['default_locale']
+            locale = locales.Locale.parse(identifier)
+            if locale:
+                locale.set_alias(self.pod)
+            return locale
+        return self.collection.default_locale
 
     @utils.cached_property
     def fields(self):
+        identifier = self.locale or self.collection.default_locale
         tagged_fields = self.get_tagged_fields()
-        fields = utils.untag_fields(tagged_fields, locale=str(self.locale))
+        fields = utils.untag_fields(tagged_fields, locale=str(identifier))
         return {} if not fields else fields
 
     def get_tagged_fields(self):

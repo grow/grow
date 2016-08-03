@@ -261,6 +261,7 @@ class DocumentsTestCase(unittest.TestCase):
                 'locales': [
                     'de',
                     'fr',
+                    'it',
                 ]
             }
         })
@@ -272,7 +273,14 @@ class DocumentsTestCase(unittest.TestCase):
             },
         })
         pod.write_yaml('/content/pages/a.yaml', {
+            '$view': '/views/base.html',
+            '$view@fr': '/views/base-fr.html',
+            'qaz': 'qux',
+            'qaz@fr': 'qux-fr',
+            'qaz@de': 'qux-de',
+            'qaz@fr': 'qux-fr',
             'foo': 'bar-base',
+            'foo@en': 'bar-en',
             'foo@de': 'bar-de',
             'foo@fr': 'bar-fr',
             'nested': {
@@ -281,13 +289,22 @@ class DocumentsTestCase(unittest.TestCase):
             },
         })
         doc = pod.get_doc('/content/pages/a.yaml')
-        self.assertEqual(doc.foo, 'bar-base')
+        self.assertEqual('en', doc.locale)
+        self.assertEqual('bar-en', doc.foo)
+        self.assertEqual('qux', doc.qaz)
         de_doc = doc.localize('de')
-        self.assertEqual(de_doc.foo, 'bar-de')
-        self.assertEqual(de_doc.nested['nested'], 'nested-base')
+        self.assertEqual('bar-de', de_doc.foo)
+        self.assertEqual('/views/base.html', de_doc.view)
+        self.assertEqual('nested-base', de_doc.nested['nested'])
+        self.assertEqual('qux-de', de_doc.qaz)
         fr_doc = doc.localize('fr')
-        self.assertEqual(fr_doc.foo, 'bar-fr')
-        self.assertEqual(fr_doc.nested['nested'], 'nested-fr')
+        self.assertEqual('bar-fr', fr_doc.foo)
+        self.assertEqual('/views/base-fr.html', fr_doc.view)
+        self.assertEqual('nested-fr', fr_doc.nested['nested'])
+        self.assertEqual('qux-fr', fr_doc.qaz)
+        it_doc = doc.localize('it')
+        self.assertEqual('bar-base', it_doc.foo)
+        self.assertEqual('qux', it_doc.qaz)
 
 
 if __name__ == '__main__':
