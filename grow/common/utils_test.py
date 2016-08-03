@@ -212,6 +212,21 @@ class UtilsTestCase(unittest.TestCase):
             },
         }, utils.untag_fields(fields, locale='de'))
 
+        fields_to_test = {
+            'foo@': 'bar',
+            'foo@fr@': 'bar-fr',
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'bar',
+        }, utils.untag_fields(fields))
+        self.assertDictEqual({
+            'foo': 'bar',
+        }, utils.untag_fields(fields, locale='de'))
+        self.assertDictEqual({
+            'foo': 'bar-fr',
+        }, utils.untag_fields(fields, locale='fr'))
+
 
 if __name__ == '__main__':
     unittest.main()
