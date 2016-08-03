@@ -1,5 +1,5 @@
 import os
-from textwrap import dedent
+import textwrap
 import unittest
 
 from . import documents
@@ -90,32 +90,6 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(expected, ko_doc.url.path)
         self.assertTrue(ko_doc.exists)
 
-    def test_valid_locales(self):
-        pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'localization': {
-                'locales': [
-                    'de',
-                    'fr',
-                ]
-            }
-        })
-        pod.write_yaml('/content/pages/_blueprint.yaml', {
-            '$path': '/{base}/',
-            '$view': '/views/base.html',
-            '$localization': {
-                'path': '/{locale}/{base}/',
-            }
-        })
-        pod.write_file('/content/pages/page.yaml',
-            '---\n'
-            'foo: bar\n'
-            '---\n'
-            '$locale: ja\n'
-            'foo: bar')
-        doc = pod.get_doc('/content/pages/page.yaml')
-        self.assertRaises(documents.BadLocalesError, lambda: doc.locales)
-
     def test_next_prev(self):
         collection = self.pod.get_collection('pages')
         docs = collection.list_docs()
@@ -157,7 +131,7 @@ class DocumentsTestCase(unittest.TestCase):
         # Add test file dynamically, otherwise it'll error when other tests run
         doc_pod_path = 'content/localized/part-with-no-locale.yaml'
         with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
-            f.write(dedent(
+            f.write(textwrap.dedent(
                 """\
                 ---
                 $title: Multiple Locales
@@ -170,12 +144,12 @@ class DocumentsTestCase(unittest.TestCase):
                 """
             ))
 
-        with self.assertRaises(formats.BadFormatError):
+        with self.assertRaises(formats.BadLocalesError):
             self.pod.get_doc('/' + doc_pod_path)
 
         # This should be fine:
         with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
-            f.write(dedent(
+            f.write(textwrap.dedent(
                 """\
                 ---
                 $title: Multiple Locales
@@ -197,9 +171,12 @@ class DocumentsTestCase(unittest.TestCase):
     def test_dont_treat_trailing_dashes_as_a_new_part(self):
         doc_pod_path = 'content/localized/part-with-trailing-dashes.yaml'
         with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
-            f.write(dedent(
+            f.write(textwrap.dedent(
                 """\
                 ---
+                $localization:
+                    locales:
+                    - de
                 root_doc_part: true
                 ---
                 $locale: de
@@ -305,6 +282,158 @@ class DocumentsTestCase(unittest.TestCase):
         it_doc = doc.localize('it')
         self.assertEqual('bar-base', it_doc.foo)
         self.assertEqual('qux', it_doc.qaz)
+
+    def test_localized_part_overrides(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'fr',
+                    'ja',
+                ],
+            },
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+            }
+        })
+        pod.write_file('/content/pages/page.yaml', textwrap.dedent(
+            """\
+            ---
+            foo: bar
+            ---
+            $locale: en
+            foo: bar-en
+            ---
+            $locale: fr
+            foo: bar-fr
+            """
+        ))
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertEqual('bar-en', doc.foo)
+        fr_doc = doc.localize('fr')
+        self.assertEqual('bar-fr', fr_doc.foo)
+        ja_doc = doc.localize('ja')
+        self.assertEqual('bar', ja_doc.foo)
+
+    def test_localization(self):
+        # Localized document.
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {})
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$path': '/{base}/',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+                'locales': [
+                    'de',
+                ]
+            }
+        })
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertIsNone(doc.default_locale)
+        self.assertEqual(['de'], doc.locales)
+        self.assertEqual('/{base}/', doc.path_format)
+        self.assertEqual('/page/', doc.url.path)
+        de_doc = doc.localize('de')
+        self.assertEqual('/{locale}/{base}/', de_doc.path_format)
+        self.assertEqual('/de/page/', de_doc.url.path)
+
+        # Localized collection.
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+                'locales': [
+                    'de',
+                ],
+            }
+        })
+        pod.write_yaml('/content/pages/page.yaml', {})
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertIsNone(doc.default_locale)
+        self.assertEqual(['de'], doc.locales)
+        self.assertEqual('/{base}/', doc.path_format)
+        de_doc = doc.localize('de')
+        self.assertEqual('/{locale}/{base}/', de_doc.path_format)
+        self.assertEqual('/de/page/', de_doc.url.path)
+
+        # Localized podspec (no $localization in blueprint or doc).
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'locales': [
+                    'de',
+                ],
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+        })
+        collection = pod.get_collection('/content/pages/')
+        self.assertEqual([], collection.locales)
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertEqual([], doc.locales)
+
+        # Localized podspec ($localization in blueprint).
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'locales': [
+                    'de',
+                ],
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+            },
+        })
+        pod.write_yaml('/content/pages/page.yaml', {})
+        collection = pod.get_collection('/content/pages/')
+        self.assertEqual(['de'], collection.locales)
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertEqual(['de'], doc.locales)
+        self.assertEqual('/{base}/', doc.path_format)
+        de_doc = doc.localize('de')
+        self.assertEqual('/{locale}/{base}/', de_doc.path_format)
+        self.assertEqual('/de/page/', de_doc.url.path)
+
+        # Localized podspec ($localization in blueprint, no localized path).
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'locales': [
+                    'de',
+                ],
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$localization': {},
+        })
+        pod.write_yaml('/content/pages/page.yaml', {})
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertEqual(['de'], doc.locales)
+        self.assertEqual('/{base}/', doc.path_format)
+        de_doc = doc.localize('de')
+        self.assertEqual('/{base}/', de_doc.path_format)
+        self.assertEqual('/page/', de_doc.url.path)
+
+        # Override localized collection with "$localization:locales:[]".
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$localization': {
+                'locales': [],
+            },
+        })
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertEqual([], doc.locales)
 
 
 if __name__ == '__main__':
