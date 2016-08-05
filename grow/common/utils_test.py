@@ -227,6 +227,35 @@ class UtilsTestCase(unittest.TestCase):
             'foo': 'bar-fr',
         }, utils.untag_fields(fields, locale='fr'))
 
+        fields_to_test = {
+            'list@': [
+                'value1',
+                'value2',
+                'value3',
+            ],
+            'list@fr': [
+                'value1-fr',
+                'value2-fr',
+                'value3-fr',
+            ],
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'list': [
+                'value1',
+                'value2',
+                'value3',
+            ],
+        }, utils.untag_fields(fields, locale='de'))
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'list': [
+                'value1-fr',
+                'value2-fr',
+                'value3-fr',
+            ],
+        }, utils.untag_fields(fields, locale='fr'))
+
 
 if __name__ == '__main__':
     unittest.main()
