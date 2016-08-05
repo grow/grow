@@ -1,13 +1,55 @@
 from . import utils
 from markdown import extensions
 from markdown import preprocessors
+from markdown.extensions import toc
 from protorpc import messages
+from protorpc import protojson
 from pygments import highlight
 from pygments import lexers
 from pygments.formatters import html
 from pygments.lexers import TextLexer
 from pygments.lexers import get_lexer_by_name
+import json
 import re
+
+
+def config_from_json(config_class, config):
+    config = json.dumps(config)
+    return protojson.decode_message(config_class, config)
+
+
+def get_config(kind, config_class, pod):
+    config = config_class()
+    if 'markdown' in pod.podspec:
+        markdown = pod.podspec.markdown
+        if 'extensions' in markdown:
+            for extension in markdown['extensions']:
+                if extension.get('kind', '') != kind:
+                    continue
+                return config_from_json(config_class, extension)
+    return config
+
+
+class TocExtension(toc.TocExtension):
+    KIND = 'toc'
+
+    class Config(messages.Message):
+        marker = messages.StringField(1)
+        title = messages.StringField(2)
+        baselevel = messages.IntegerField(3)
+        anchorlink = messages.BooleanField(4)
+        permalink = messages.BooleanField(5)
+        separator = messages.StringField(6)
+
+    def __init__(self, pod):
+        config = get_config(TocExtension.KIND, TocExtension.Config, pod)
+        config_kwargs = {}
+        for item in config.all_fields():
+            val = config.get_assigned_value(item.name)
+            if val is not None:
+                config_kwargs[item.name] = val
+        configs = config_kwargs.items()
+        super(TocExtension, self).__init__ (configs=configs)
 
 
 class IncludePreprocessor(preprocessors.Preprocessor):
@@ -104,19 +146,9 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
     @property
     @utils.memoize
     def config(self):
-        # TODO: Replace with a default config parser.
-        config = CodeBlockPreprocessor.Config()
-        if 'markdown' in self.pod.podspec:
-            markdown = self.pod.podspec.markdown
-            if 'extensions' in markdown:
-                for extension in markdown['extensions']:
-                    if extension.get('kind') != CodeBlockPreprocessor.KIND:
-                        continue
-                    if 'classes' in extension:
-                        config.classes = extension['classes']
-                    if 'class_name' in extension:
-                        config.class_name = extension['class_name']
-        return config
+        return get_config(
+            CodeBlockPreprocessor.KIND,
+            CodeBlockPreprocessor.Config, self.pod)
 
     def run(self, lines):
         class_name = self.config.class_name

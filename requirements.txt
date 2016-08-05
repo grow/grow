@@ -2,7 +2,7 @@ Babel==2.2.0
 GitPython==1.0.1
 GoogleAppEngineCloudStorageClient==1.9.5.0
 Jinja2==2.8
-Markdown==2.4
+Markdown==2.6.6
 MarkupSafe==0.19
 PyYAML==3.11
 Twisted==16.0.0
