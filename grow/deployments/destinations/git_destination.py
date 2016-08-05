@@ -78,12 +78,10 @@ class GitDestination(base.BaseDestination):
     def create_commit_message(self):
         editor = os.getenv('EDITOR')
         commit_message_path = os.path.join(self.repo.git_dir, 'COMMIT_EDITMSG')
-        print self._diff.what_changed
-        raise
         fp = open(commit_message_path, 'w')
-        fp.write(self._diff.what_changed)
+        fp.write(self._diff.what_changed or '')
         fp.close()
-        if editor and self.confirm:
+        if editor and self._confirm:
             subprocess.call('{} {}', editor, commit_message_path, shell=True)
         content = open(commit_message_path).read()
         return content
