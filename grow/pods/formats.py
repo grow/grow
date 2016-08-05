@@ -7,7 +7,6 @@
 from grow.common import markdown_extensions
 from grow.common import utils
 from markdown.extensions import tables
-from markdown.extensions import toc
 import collections
 import logging
 import markdown
@@ -285,7 +284,7 @@ class MarkdownFormat(HtmlFormat):
         if val is not None:
             extensions = [
                 tables.TableExtension(),
-                toc.TocExtension(),
+                markdown_extensions.TocExtension(pod=self.doc.pod),
                 markdown_extensions.CodeBlockExtension(self.doc.pod),
                 markdown_extensions.IncludeExtension(self.doc.pod),
                 markdown_extensions.UrlExtension(self.doc.pod),
