@@ -27,6 +27,9 @@ class GitDestinationTestCase(unittest.TestCase):
             '$view': '/views/base.html',
         })
         pod.write_file('/views/base.html', str(random.randint(0, 999)))
+        if utils.is_appengine():
+            text = 'Skipping Git destination test on GAE.'
+            raise skip.SkipTest(text)
         deployment = pod.get_deployment('git')
         paths_to_contents = deployment.dump(pod)
         repo = utils.get_git_repo(pod.root)
