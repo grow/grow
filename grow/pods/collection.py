@@ -287,21 +287,10 @@ class Collection(object):
 
     @utils.cached_property
     def locales(self):
-        if self.localization:
-            if self.localization.get('use_podspec_locales'):
-                return self.pod.list_locales()
-            try:
-                return locales.Locale.parse_codes(self.localization['locales'])
-            except KeyError:
-                # Locales inherited from podspec.
-                podspec = self.pod.get_podspec()
-                config = podspec.get_config()
-                if ('localization' in config
-                        and 'locales' in config['localization']):
-                    identifiers = config['localization']['locales']
-                    return locales.Locale.parse_codes(identifiers)
-                raise NoLocalesError('{} has no locales.')
-        return []
+        if self.localization and 'locales' in self.localization:
+            codes = self.localization['locales'] or []
+            return locales.Locale.parse_codes(codes)
+        return self.pod.list_locales()
 
     def to_message(self):
         message = messages.CollectionMessage()

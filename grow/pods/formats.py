@@ -27,6 +27,10 @@ class BadFormatError(Error, ValueError):
     pass
 
 
+class BadLocalesError(BadFormatError):
+    pass
+
+
 class Format(object):
 
     def __init__(self, doc):
@@ -161,7 +165,7 @@ class _SplitDocumentFormat(Format):
     def _validate_fields(self, fields):
         if '$locale' in fields and '$locales' in fields:
             text = 'You must specify either $locale or $locales, not both.'
-            raise BadFormatError(text)
+            raise BadLocalesError(text)
 
     def _validate_base_part(self, fields):
         self._validate_fields(fields)
@@ -171,12 +175,7 @@ class _SplitDocumentFormat(Format):
         # (otherwise there's no point)
         if '$locale' not in fields and '$locales' not in fields:
             text = 'You must specify either $locale or $locales for each document part.'
-            raise BadFormatError(text)
-        invalid_locales = set(self._locales_from_parts) - set(self._locales_from_base + self.doc.collection.locales)
-        if invalid_locales:
-            text = ('You must specify $locales in either the base '
-                    'part of the document or in the blueprint.')
-            raise BadFormatError(text)
+            raise BadLocalesError(text)
         self._validate_fields(fields)
 
     def _get_locales_of_part(self, fields):
@@ -189,6 +188,7 @@ class _SplitDocumentFormat(Format):
         if '$localization' in fields:
             if 'default_locale' in fields['$localization']:
                 return fields['$localization']['default_locale']
+        return self.doc.collection.default_locale
 
     def _load_yaml(self, part):
         try:

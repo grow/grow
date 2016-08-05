@@ -26,10 +26,6 @@ class DocumentExistsError(Error, ValueError):
     pass
 
 
-class BadLocalesError(Error, ValueError):
-    pass
-
-
 class Document(object):
 
     def __init__(self, pod_path, _pod, locale=None, _collection=None):
@@ -181,7 +177,6 @@ class Document(object):
     def path_format(self):
         val = None
         if (self.locale
-            and self.default_locale
             and self.locale != self.default_locale):
             if ('$localization' in self.fields
                 and 'path' in self.fields['$localization']):
@@ -286,19 +281,11 @@ class Document(object):
 
     @utils.cached_property
     def locales(self):
+        # Use $localization:locales if present, else use collection's locales.
         localized = '$localization' in self.fields
         if localized and 'locales' in self.fields['$localization']:
-            codes = self.fields['$localization']['locales']
-            if codes is None:
-                return []
+            codes = self.fields['$localization']['locales'] or []
             return locales.Locale.parse_codes(codes)
-        if self.format.has_localized_parts:
-            document_codes = self.format._locales_from_parts
-            diff = set(document_codes) - set(self.collection.locales)
-            if diff:
-                text = '{} specified content for unconfigured locales: {}'
-                text = text.format(self, diff)
-                raise BadLocalesError(text)
         return self.collection.locales
 
     @property
