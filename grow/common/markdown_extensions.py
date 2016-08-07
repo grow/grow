@@ -128,7 +128,8 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
         src/e79a7126551c39d5f8c1b83a79c14e86992155a4/external/markdown-processor.py
     """
     KIND = 'sourcecode'
-    pattern = re.compile(r'\[sourcecode:(.+?)\](.+?)\[/sourcecode\]', re.S)
+    pattern_tag = re.compile(r'\[sourcecode:(.+?)\](.+?)\[/sourcecode\]', re.S)
+    pattern_ticks = re.compile(r'```(.+?)\n(.+?)\n```', re.S)
 
     class Config(messages.Message):
         classes = messages.BooleanField(1, default=False)
@@ -160,7 +161,8 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
             code = highlight(m.group(2), lexer, self.formatter)
             return '\n\n<div class="%s">%s</div>\n\n' % (class_name, code)
         content = '\n'.join(lines)
-        content = self.pattern.sub(repl, content)
+        content = self.pattern_tag.sub(repl, content)
+        content = self.pattern_ticks.sub(repl, content)
         return content.split('\n')
 
 

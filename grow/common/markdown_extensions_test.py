@@ -98,6 +98,21 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
+        # Verify ticks.
+        content = textwrap.dedent(
+            """
+            ```html
+            <div class="test">
+              Hello World
+            </div>
+            ```
+            """)
+        pod.write_file('/content/pages/test.md', content)
+        controller, params = pod.match('/test/')
+        result = controller.render(params)
+        style_sentinel = 'style="background: #f8f8f8"'
+        self.assertIn(style_sentinel, result)
+
         fields = {
             'markdown': {
                 'extensions': [{
