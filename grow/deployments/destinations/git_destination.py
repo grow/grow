@@ -5,9 +5,14 @@ from grow.pods.storage import storage as storage_lib
 from protorpc import messages
 import logging
 import os
+import re
 import shutil
 import subprocess
 import tempfile
+
+
+ONLINE_REPO_REGEX = \
+    '((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)(/)?'
 
 
 class Config(messages.Message):
@@ -39,7 +44,7 @@ class GitDestination(base.BaseDestination):
 
     @common_utils.cached_property
     def is_remote(self):
-        return self.config.repo.startswith(('https://', 'http://', 'git://'))
+        return re.match(ONLINE_REPO_REGEX, self.config.repo)
 
     @common_utils.cached_property
     def repo_path(self):
