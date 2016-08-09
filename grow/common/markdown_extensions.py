@@ -134,6 +134,7 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
     class Config(messages.Message):
         classes = messages.BooleanField(1, default=False)
         class_name = messages.StringField(2, default='code')
+        highlighter = messages.StringField(3, default='pygments')
 
     def __init__(self, pod, markdown_instance):
         self.pod = pod
@@ -154,12 +155,20 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
     def run(self, lines):
         class_name = self.config.class_name
         def repl(m):
-            try:
-                lexer = lexers.get_lexer_by_name(m.group(1))
-            except ValueError:
-                lexer = lexers.TextLexer()
-            code = highlight(m.group(2), lexer, self.formatter)
-            return '\n\n<div class="%s">%s</div>\n\n' % (class_name, code)
+            language = m.group(1)
+            content = m.group(2)
+            if self.config.highlighter == 'pygments':
+                try:
+                    lexer = lexers.get_lexer_by_name(language)
+                except ValueError:
+                    lexer = lexers.TextLexer()
+                code = highlight(content, lexer, self.formatter)
+                return '\n\n<div class="%s">%s</div>\n\n' % (class_name, code)
+            elif self.config.highlighter == 'plain':
+                return '\n\n<pre><code class="%s">%s</code></pre>\n\n' \
+                    % (language, content)
+            text = '{} is an invalid highlighter. Valid choices are: pygments, plain.'
+            raise ValueError(text.format(self.config.highlighter))
         content = '\n'.join(lines)
         content = self.pattern_tag.sub(repl, content)
         content = self.pattern_ticks.sub(repl, content)

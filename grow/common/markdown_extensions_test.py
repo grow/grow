@@ -128,6 +128,22 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         class_sentinel = '<span class="nt">'
         self.assertIn(class_sentinel, result)
 
+        fields = {
+            'markdown': {
+                'extensions': [{
+                    'kind': 'sourcecode',
+                    'highlighter': 'plain',
+                    'classes': True,
+                }],
+            }
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        pod = pods.Pod(pod.root)
+        controller, params = pod.match('/test/')
+        result = controller.render(params)
+        code_sentinel = '<pre><code class="html">'
+        self.assertIn(code_sentinel, result)
+
 
 if __name__ == '__main__':
     unittest.main()
