@@ -302,15 +302,20 @@ def untag_fields(fields, locale=None):
     """Untags fields, handling translation priority."""
 
     updated_localized_paths = set()
+    paths_to_keep_tagged = set()
 
     def visit(path, key, value):
         if (path, key) in updated_localized_paths:
             return False
         if not isinstance(key, basestring):
             return key, value
+        if (path, key.rstrip('@')) in updated_localized_paths:
+            return False
         if key.endswith('@#'):
             return False
         if key.endswith('@'):
+            if isinstance(value, list):
+                paths_to_keep_tagged.add((path, key))
             key = key[:-1]
         match = LOCALIZED_KEY_REGEX.match(key)
         if not match:
@@ -318,10 +323,21 @@ def untag_fields(fields, locale=None):
         untagged_key, locale_from_key = match.groups()
         if locale_from_key != locale:
             return False
-        updated_localized_paths.add((path, untagged_key))
+        updated_localized_paths.add((path, untagged_key.rstrip('@')))
         return untagged_key, value
 
-    return iterutils.remap(fields, visit=visit)
+    # Backwards compatibility for https://github.com/grow/grow/issues/95
+    def exit(path, key, old_parent, new_parent, new_items):
+        resp = iterutils.default_exit(path, key, old_parent,
+                                      new_parent, new_items)
+        if paths_to_keep_tagged and isinstance(resp, dict):
+            for key, value in resp.items():
+                new_key = '{}@'.format(key)
+                resp[new_key] = value
+            paths_to_keep_tagged.clear()
+        return resp
+
+    return iterutils.remap(fields, visit=visit, exit=exit)
 
 
 def LocaleIterator(iterator, locale):
