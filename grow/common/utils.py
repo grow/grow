@@ -393,6 +393,7 @@ class ProgressBarThread(threading.Thread):
 def clean_html(content, convert_to_markdown=False):
     soup = bs4.BeautifulSoup(content, 'html.parser')
     _process_google_hrefs(soup)
+    _process_google_comments(soup)
     # Support HTML fragments without body tags.
     content = unicode(soup.body or soup)
     if convert_to_markdown:
@@ -405,6 +406,18 @@ def _process_google_hrefs(soup):
     for tag in soup.find_all('a'):
         if tag.attrs.get('href'):
             tag['href'] = _clean_google_href(tag['href'])
+
+
+def _process_google_comments(soup):
+    for el in soup.find_all('a'):
+        id_attribute = el.get('id')
+        if id_attribute and id_attribute.startswith(('cmnt', 'ftnt')):
+            footer_parent = el.find_parent('div')
+            if footer_parent:
+                footer_parent.decompose()
+            sup_parent = el.find_parent('sup')
+            if sup_parent:
+                sup_parent.decompose()
 
 
 def _clean_google_href(href):
