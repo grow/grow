@@ -5,14 +5,15 @@ from babel import util as babel_util
 from babel.messages import catalog
 from babel.messages import catalog as babel_catalog
 from babel.messages import extract
+from babel.messages import mofile
 from babel.messages import pofile
 from grow.common import utils
 from grow.pods import messages
+import cStringIO
 import click
 import collections
 import gettext
 import os
-import StringIO
 import tokenize
 
 
@@ -267,7 +268,7 @@ class Catalogs(object):
 
                 # Extract body: {{_('Extract me')}}
                 if doc.body:
-                    doc_body = StringIO.StringIO(doc.body.encode('utf-8'))
+                    doc_body = cStringIO.StringIO(doc.body.encode('utf-8'))
                     _babel_extract(doc_body, doc_locales, doc.pod_path)
 
             # Extract from CSVs for this collection's locales
@@ -366,6 +367,18 @@ class Catalogs(object):
 
     def clear_gettext_cache(self):
         self._gettext_translations = {}
+
+    def inject_translations(self, locale, content):
+        po_file_to_merge = cStringIO.StringIO()
+        po_file_to_merge.write(content)
+        po_file_to_merge.seek(0)
+        catalog_to_merge = pofile.read_po(po_file_to_merge, locale)
+        mo_fp = cStringIO.StringIO()
+        mofile.write_mo(mo_fp, catalog_to_merge)
+        mo_fp.seek(0)
+        translation_obj = support.Translations(mo_fp, domain='messages')
+        self._gettext_translations[locale] = translation_obj
+        self.pod.logger.info('Injected translations -> {}'.format(locale))
 
     def get_gettext_translations(self, locale):
         if locale in self._gettext_translations:

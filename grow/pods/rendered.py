@@ -39,8 +39,10 @@ class RenderedController(controllers.BaseController):
 
     def render(self, params, inject=True):
         preprocessor = None
+        translator = None
         if inject:
             preprocessor = self.pod.inject_preprocessors(doc=self.doc)
+            translator = self.pod.inject_translators(doc=self.doc)
         env = self.pod.get_jinja_env(self.locale)
         template = env.get_template(self.view.lstrip('/'))
         try:
@@ -50,7 +52,7 @@ class RenderedController(controllers.BaseController):
                 'podspec': self.pod.get_podspec(),
             }
             content = template.render(kwargs).lstrip()
-            content = self._inject_ui(content, preprocessor)
+            content = self._inject_ui(content, preprocessor, translator)
             return content
         except Exception as e:
             text = 'Error building {}: {}'
@@ -60,8 +62,9 @@ class RenderedController(controllers.BaseController):
             exception.exception = e
             raise exception
 
-    def _inject_ui(self, content, preprocessor):
-        show_ui = (self.pod.env.name == env.Name.DEV and preprocessor
+    def _inject_ui(self, content, preprocessor, translator):
+        show_ui = (self.pod.env.name == env.Name.DEV
+                   and (preprocessor or translator)
                    and self.get_mimetype().endswith('html'))
         if show_ui:
             jinja_env = ui.create_jinja_env()
@@ -69,5 +72,6 @@ class RenderedController(controllers.BaseController):
             content += '\n' + ui_template.render({
                 'doc': self.doc,
                 'preprocessor': preprocessor,
+                'translator': translator,
             })
         return content

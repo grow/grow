@@ -41,11 +41,12 @@ class Translator(object):
     has_immutable_translation_resources = False
 
     def __init__(self, pod, config=None, project_title=None,
-                 instructions=None):
+                 instructions=None, inject=False):
         self.pod = pod
         self.config = config or {}
         self.project_title = project_title or 'Untitled Grow Website'
         self.instructions = instructions
+        self._inject = inject
 
     def _download_content(self, stat):
         raise NotImplementedError
@@ -58,10 +59,12 @@ class Translator(object):
 
     def _get_stats_to_download(self, locales):
         # 'stats' maps the service name to a mapping of languages to stats.
+        if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
+            return {}
         stats = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
         if self.KIND not in stats:
             self.pod.logger.info('Nothing found to download from {}'.format(self.KIND))
-            return
+            return {}
         stats_to_download = stats[self.KIND]
         if locales:
             stats_to_download = dict([(lang, stat)
@@ -74,7 +77,7 @@ class Translator(object):
             stats_to_download[lang] = stat_message
         return stats_to_download
 
-    def download(self, locales, save_stats=True):
+    def download(self, locales, save_stats=True, inject=False):
         # TODO: Rename to `download_and_import`.
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
@@ -86,8 +89,9 @@ class Translator(object):
         num_files = len(stats_to_download)
         text = 'Downloading translations: %(value)d/{} (in %(elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
-        bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
-        bar.start()
+        if not inject:
+            bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+            bar.start()
         threads = []
         langs_to_translations = {}
         new_stats = []
@@ -97,8 +101,12 @@ class Translator(object):
             langs_to_translations[lang] = content
             new_stats.append(new_stat)
         for i, (lang, stat) in enumerate(stats_to_download.iteritems()):
-            thread = utils.ProgressBarThread(
-                bar, True, target=_do_download, args=(lang, stat))
+            if inject:
+                thread = threading.Thread(
+                    target=_do_download, args=(lang, stat))
+            else:
+                thread = utils.ProgressBarThread(
+                    bar, True, target=_do_download, args=(lang, stat))
             threads.append(thread)
             thread.start()
             # Perform the first operation synchronously to avoid oauth2 refresh
@@ -108,8 +116,13 @@ class Translator(object):
         for i, thread in enumerate(threads):
             if i > 0:
                 thread.join()
+        if not inject:
+            bar.finish()
         for lang, translations in langs_to_translations.iteritems():
-            self.pod.catalogs.import_translations(locale=lang, content=translations)
+            if inject:
+                self.pod.catalogs.inject_translations(locale=lang, content=translations)
+            else:
+                self.pod.catalogs.import_translations(locale=lang, content=translations)
         if save_stats:
             self.save_stats(new_stats)
         return new_stats
@@ -179,6 +192,7 @@ class Translator(object):
         for i, thread in enumerate(threads):
             if i > 0:
                 thread.join()
+        bar.finish()
         stats = sorted(stats, key=lambda stat: stat.lang)
         if verbose:
             self.pretty_print_stats(stats)
@@ -217,3 +231,18 @@ class Translator(object):
             rows.append([stat.lang, stat.url, stat.num_words])
         table.add_rows(rows)
         logging.info('\n' + table.draw() + '\n')
+
+    def get_edit_url(self, doc):
+        if not doc.locale:
+            return
+        stats = self._get_stats_to_download([doc.locale])
+        if doc.locale not in stats:
+            return
+        stat = stats[doc.locale]
+        return stat.url
+
+    def inject(self, doc):
+        if not self._inject or not doc.locale:
+            return
+        self.download(locales=[doc.locale], save_stats=False, inject=True)
+        return self

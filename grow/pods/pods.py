@@ -324,13 +324,15 @@ class Pod(object):
         codes = self.yaml.get('localization', {}).get('locales', [])
         return locales.Locale.parse_codes(codes)
 
+    @utils.memoize
     def get_translator(self, service=utils.SENTINEL):
         if 'translators' not in self.yaml:
-            raise ValueError('No translators configured.')
+            return None
         if ('services' not in self.yaml['translators']
                 or not self.yaml['translators']['services']):
-            raise ValueError('No translator services configured.')
+            return None
         translator_config = self.yaml['translators']
+        inject_name = translator_config.get('inject')
         translators.register_extensions(
             self.yaml.get('extensions', {}).get('translators', []),
             self.root,
@@ -346,15 +348,15 @@ class Pod(object):
                 keys = ', '.join(valid_service_kinds)
                 raise ValueError(text.format(service, keys))
         else:
-            if len(translator_services) > 1:
-                text = ('Must specify a translator name if more than one'
-                        ' translator service is configured.')
-                raise ValueError(text)
+            # Use the first configured translator by default.
+            translator_services = translator_services[:1]
         for service_config in translator_services:
             if service_config.get('service') == service or len(translator_services) == 1:
                 translator_kind = service_config.pop('service')
+                inject = inject_name == translator_kind
                 return translators.create_translator(
                     self, translator_kind, service_config,
+                    inject=inject,
                     project_title=translator_config.get('project_title'),
                     instructions=translator_config.get('instructions'))
         raise ValueError('No translator service found: {}'.format(service))
@@ -372,6 +374,13 @@ class Pod(object):
             preprocessor = preprocessors.make_preprocessor(kind, params, self)
             results.append(preprocessor)
         return results
+
+    def inject_translators(self, doc):
+        translator = self.get_translator()
+        if not translator:
+            return
+        translator.inject(doc=doc)
+        return translator
 
     def inject_preprocessors(self, doc=None, collection=None):
         """Conditionally injects or creates data from preprocessors. If a doc

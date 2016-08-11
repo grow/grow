@@ -122,7 +122,7 @@ class RenderedTest(unittest.TestCase):
 
         # Verify UI injected when preprocessor is present.
         controller, _ = pod.match('/index/')
-        result = controller._inject_ui(content, dummy_preprocessor)
+        result = controller._inject_ui(content, dummy_preprocessor, dummy_preprocessor)
         self.assertIn(ui_sentinel, result)
 
 
