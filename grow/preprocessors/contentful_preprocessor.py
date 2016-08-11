@@ -33,6 +33,8 @@ class ContentfulPreprocessor(base.BasePreprocessor):
             return field.url
         elif isinstance(field, resources.Entry):
             return field.sys['id']
+        elif isinstance(field, resources.ResourceLink):
+            return self.cda.resolve_resource_link(field)
         elif isinstance(field, list):
             return [self._parse_field(sub_field) for sub_field in field]
         return field
