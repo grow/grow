@@ -1,6 +1,5 @@
 from . import formats
 from grow.pods import pods
-from grow.pods import storage
 from grow.testing import testing
 import textwrap
 import unittest
@@ -10,7 +9,7 @@ class FormatsTestCase(unittest.TestCase):
 
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
-        self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
+        self.pod = pods.Pod(dir_path)
 
     def test_markdown(self):
         doc = self.pod.get_doc('/content/pages/intro.md')
@@ -101,6 +100,7 @@ class FormatsTestCase(unittest.TestCase):
         self.assertEqual(
             expected, formats.Format.localize_path(path, locale=locale))
 
+<<<<<<< 91f9abc4003dae71e53918f9b2d227ec005d1189
     def test_override_parts(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})
@@ -134,6 +134,23 @@ class FormatsTestCase(unittest.TestCase):
         self.assertEqual('title-base', doc.title)
         doc = pod.get_doc('/content/pages/page.yaml', locale='ja_JP')
         self.assertEqual('title-ja', doc.title)
+
+    def test_encoding(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+        })
+        pod.write_file('/content/pages/test.yaml', textwrap.dedent(
+            """\
+            foo: \u201Cbar\u201D
+            """
+        ))
+        pod.write_file('/views/base.html', '{{doc.foo}}')
+        controller, params = pod.match('/test/')
+        content = controller.render(params)
+        self.assertEqual('bar', content)
 
 
 if __name__ == '__main__':

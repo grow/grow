@@ -262,6 +262,13 @@ def load_yaml(*args, **kwargs):
     return yaml.load(*args, Loader=loader, **kwargs) or {}
 
 
+def load_yaml_all(*args, **kwargs):
+    pod = kwargs.pop('pod', None)
+    doc = kwargs.pop('doc', None)
+    loader = make_yaml_loader(pod, doc=doc)
+    return yaml.load_all(*args, Loader=loader, **kwargs) or {}
+
+
 @memoize
 def parse_yaml(content, pod=None):
     return load_yaml(content, pod=pod)
@@ -448,3 +455,11 @@ def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
             old_data.update(new_data)
         return old_data
     return new_data
+
+
+def reformat_rule(path, pod, base=None):
+    if base:
+      path = path.replace('{base}', base)
+    path = path.replace('{root}', pod.podspec.root)
+    path = path.replace('//', '/')
+    return path

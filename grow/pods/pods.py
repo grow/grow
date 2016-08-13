@@ -192,7 +192,12 @@ class Pod(object):
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
         for route in self.routes.static_routing_map.iter_rules():
-            controller = route.endpoint
+            route_message = route.endpoint
+            controller = static.StaticController(
+                path_format=route_message.path_format,
+                source_format=route_message.pod_path_format,
+                localized=route_message.localized,
+                pod=self)
             if controller.KIND == messages.Kind.STATIC:
                 serving_path = controller.match_pod_path(pod_path)
                 if serving_path:

@@ -305,8 +305,35 @@ class Collection(object):
                 return locales.Locale.parse_codes(codes)
         return self.pod.list_locales()
 
-    def to_message(self):
-        message = messages.CollectionMessage()
-        message.title = self.title
-        message.collection_path = self.collection_path
-        return message
+    def routes(self, recursive=True):
+        routes = []
+        for pod_path in self.pod.list_dir(self.pod_path, recursive=recursive):
+            doc_pod_path = os.path.join(self.pod_path, pod_path[1:])
+            base, _ = os.path.splitext(os.path.basename(doc_pod_path))
+            if base.startswith(('.', '_')):
+                continue
+            content = self.pod.read_file(doc_pod_path)
+            form = formats.Format.get2(pod_path=doc_pod_path, pod=self.pod)
+            if not form:
+                continue
+            fields = form.fields
+            if not isinstance(fields, dict):
+                continue
+            # If no doc path, use collection path.
+            if '$path' not in fields:
+                if self.path_format:
+                    rule_format = utils.reformat_rule(self.path_format, base=base, pod=self.pod)
+                    route = messages.Route(
+                        path_format=rule_format,
+                        pod_path=doc_pod_path)
+                    routes.append(route)
+                continue
+            doc_path_format = fields['$path']
+            if not doc_path_format:
+                continue
+            rule_format = utils.reformat_rule(doc_path_format, base=base, pod=self.pod)
+            route = messages.Route(
+                path_format=rule_format,
+                pod_path=doc_pod_path)
+            routes.append(route)
+        return routes

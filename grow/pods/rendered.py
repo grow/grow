@@ -12,8 +12,8 @@ class RenderedController(controllers.BaseController):
     KIND = messages.Kind.RENDERED
 
     def __init__(self, view=None, doc=None, path=None, _pod=None):
-        self.view = view
         self.doc = doc
+        self.view = view or doc.view
         self.path = path
         super(RenderedController, self).__init__(_pod=_pod)
 
@@ -51,7 +51,9 @@ class RenderedController(controllers.BaseController):
                 'env': self.pod.env,
                 'podspec': self.pod.get_podspec(),
             }
+            self.pod.logger.info('starting render')
             content = template.render(kwargs).lstrip()
+            self.pod.logger.info('ending render')
             content = self._inject_ui(content, preprocessor, translator)
             return content
         except Exception as e:

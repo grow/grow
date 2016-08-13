@@ -7,10 +7,17 @@ class Kind(messages.Enum):
     SITEMAP = 3
 
 
-class RouteMessage(messages.Message):
-    path = messages.StringField(1)
-    kind = messages.EnumField(Kind, 2)
-    locale = messages.StringField(3)
+class Route(messages.Message):
+    path_format = messages.StringField(1)
+    pod_path = messages.StringField(2)
+
+
+class StaticRoute(messages.Message):
+    path_format = messages.StringField(1)
+    pod_path_format = messages.StringField(2)
+    localized = messages.BooleanField(3)
+    localization = messages.StringField(4)
+    fingerprinted = messages.BooleanField(5)
 
 
 class Format(messages.Enum):
@@ -114,10 +121,6 @@ class CatalogsMessage(messages.Message):
     catalogs = messages.MessageField(CatalogMessage, 1, repeated=True)
 
 
-class RoutesMessage(messages.Message):
-    routes = messages.MessageField(RouteMessage, 1, repeated=True)
-
-
 class FileMessage(messages.Message):
     pod_path = messages.StringField(1)
     content = messages.StringField(2)
@@ -129,7 +132,6 @@ class FileMessage(messages.Message):
 class PodMessage(messages.Message):
     collections = messages.MessageField(CollectionMessage, 2, repeated=True)
     files = messages.MessageField(FileMessage, 3, repeated=True)
-    routes = messages.MessageField(RoutesMessage, 4)
 
 
 class FileSearchMessage(messages.Message):
