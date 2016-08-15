@@ -4,61 +4,76 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 from grow.common import sdk_utils
 from grow.preprocessors import file_watchers
 from grow.server import main as main_lib
-from twisted.internet import reactor
-from twisted.web import server
-from twisted.web import wsgi
 from xtermcolor import colorize
+from werkzeug import serving
+import os
+import socket
 import sys
 import threading
-import twisted
-import webbrowser
 
 
 def shutdown(pod):
     pod.logger.info('Goodbye. Shutting down.')
 
 
+from BaseHTTPServer import HTTPServer
+from BaseHTTPServer import BaseHTTPRequestHandler
+
+
+class CallbackHTTPServer(serving.ThreadedWSGIServer):
+
+    def server_activate(self):
+        HTTPServer.server_activate(self)
+#            version = sdk_utils.get_this_version()
+#            server.version = 'Grow/{}'.format(version)
+#        self.RequestHandlerClass.post_activate()
+        host, port = self.server_address
+        self.pod.env.port = port
+        self.pod.load()
+        url = print_server_ready_message(self.pod, host, port)
+        if self.open_browser:
+            start_browser_in_thread(url)
+#        if self.update_check:
+#            thread = threading.Thread(target=sdk_utils.check_for_sdk_updates, args=(True,))
+#            thread.setDaemon(True)
+#            thread.start()
+
+
 def start(pod, host=None, port=None, open_browser=False, debug=False,
           preprocess=True, update_check=False):
     observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
     if preprocess:
-        # Run preprocessors for the first time in a thread.
-        reactor.callInThread(pod.preprocess, build=False)
+        thread = threading.Thread(target=pod.preprocess, kwargs={'build': False})
+        thread.setDaemon(True)
+        thread.start()
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
-    port = find_port_and_start_server(pod, host, port, debug)
-    pod.env.port = port
-    pod.load()
-    url = print_server_ready_message(pod, host, port)
-    if open_browser:
-        start_browser(url)
-    shutdown_func = lambda *args: shutdown(pod)
-    reactor.addSystemEventTrigger('during', 'shutdown', shutdown_func)
-    if update_check:
-        reactor.callInThread(sdk_utils.check_for_sdk_updates, True)
-    reactor.run()
-
-
-def find_port_and_start_server(pod, host, port, debug):
+    port = find_free_port(host, port)
+    if port is None:
+        pod.logger.error('Unable to bind to {}:{}'.format(host, port))
+        sys.exit(-1)
+    CallbackHTTPServer.pod = pod
+    CallbackHTTPServer.open_browser = open_browser
+    CallbackHTTPServer.update_check = update_check
+    serving.ThreadedWSGIServer = CallbackHTTPServer
     app = main_lib.create_wsgi_app(pod, debug=debug)
+    serving.run_simple(host, port, app, request_handler=main_lib.RequestHandler, threaded=True)
+
+
+def find_free_port(host, port):
     num_tries = 0
+    test_socket = socket.socket()
     while num_tries < 10:
         try:
-            thread_pool = reactor.getThreadPool()
-            wsgi_resource = wsgi.WSGIResource(reactor, thread_pool, app)
-            site = server.Site(wsgi_resource)
-            version = sdk_utils.get_this_version()
-            server.version = 'Grow/{}'.format(version)
-            reactor.listenTCP(port, site, interface=host)
+            test_socket.bind((host, port))
+            test_socket.close()
             return port
-        except twisted.internet.error.CannotListenError as e:
+        except socket.error as e:
             if 'Errno 48' in str(e):
                 num_tries += 1
                 port += 1
             else:
                 raise e
-    pod.logger.error('Unable to bind to {}:{}'.format(host, port))
-    sys.exit(-1)
 
 
 def print_server_ready_message(pod, host, port):
@@ -75,10 +90,10 @@ def print_server_ready_message(pod, host, port):
     return url
 
 
-def start_browser(url):
-    def _start_browser(server_ready_event):
-        server_ready_event.wait()
+def start_browser_in_thread(url):
+    import webbrowser
+    def _start_browser():
         webbrowser.open(url)
-    server_ready_event = threading.Event()
-    reactor.callInThread(_start_browser, server_ready_event)
-    server_ready_event.set()
+    thread = threading.Thread(target=_start_browser)
+    thread.setDaemon(True)
+    thread.start()
