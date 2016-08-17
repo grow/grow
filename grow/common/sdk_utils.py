@@ -39,7 +39,10 @@ def get_this_version():
 def get_latest_version():
     try:
         releases = json.loads(urllib.urlopen(RELEASES_API).read())
-        return releases[0]['tag_name']
+        for release in releases:
+            if release['prerelease']:
+                continue
+            return release['tag_name']
     except Exception as e:
         text = 'Cannot check for updates to the SDK while offline.'
         logging.error(colorize(text, ansi=198))
