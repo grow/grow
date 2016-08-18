@@ -33,8 +33,12 @@ class Response(webob.Response):
     default_conditional_response = True
 
 
-import BaseHTTPServer
+# Use grow's logger instead of werkzeug's default.
 class RequestHandler(serving.WSGIRequestHandler):
+
+    @property
+    def server_version(self):
+        return 'Grow/{}'.format(sdk_utils.VERSION)
 
     def log(self, *args, **kwargs):
         pass
@@ -105,7 +109,6 @@ class PodServer(object):
         except Exception as e:
             request = Request(environ)
             response = self.handle_exception(request, e)
-            print 'xxx'
             return response(environ, start_response)
 
     def handle_exception(self, request, exc):
