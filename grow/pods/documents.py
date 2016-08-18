@@ -84,7 +84,7 @@ class Document(object):
 
     @utils.cached_property
     def default_locale(self):
-        if ('$localization' in self.fields
+        if (self.fields.get('$localization')
             and 'default_locale' in self.fields['$localization']):
             identifier = self.fields['$localization']['default_locale']
             locale = locales.Locale.parse(identifier)
@@ -283,9 +283,14 @@ class Document(object):
     def locales(self):
         # Use $localization:locales if present, else use collection's locales.
         localized = '$localization' in self.fields
-        if localized and 'locales' in self.fields['$localization']:
-            codes = self.fields['$localization']['locales'] or []
-            return locales.Locale.parse_codes(codes)
+        if localized:
+            localization = self.fields['$localization']
+            # Disable localization with $localization:~.
+            if localization is None:
+                return []
+            if 'locales' in localization:
+                codes = localization['locales'] or []
+                return locales.Locale.parse_codes(codes)
         return self.collection.locales
 
     @property

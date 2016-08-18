@@ -6,6 +6,7 @@ from . import documents
 from . import formats
 from . import locales
 from . import pods
+from . import routes
 from . import storage
 from grow.testing import testing
 
@@ -436,6 +437,13 @@ class DocumentsTestCase(unittest.TestCase):
         doc = pod.get_doc('/content/pages/page.yaml')
         self.assertEqual([], doc.locales)
 
+        # Override collection with "$localization:~" in doc.
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$localization': None,
+        })
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertEqual([], doc.locales)
+
         # Override podspec with "$localization:locales:[]" in blueprint.
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {
@@ -457,6 +465,17 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual([], collection.locales)
         self.assertEqual([], doc.locales)
 
+        # Override locales with "$localization:~" in blueprint.
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$localization': None,
+        })
+        pod.write_yaml('/content/pages/page.yaml', {})
+        doc = pod.get_doc('/content/pages/page.yaml')
+        collection = pod.get_collection('/content/pages/')
+        self.assertEqual([], collection.locales)
+        self.assertEqual([], doc.locales)
+
         # Override the overridden podspec.
         pod.write_yaml('/content/pages/page.yaml', {
             '$localization': {
@@ -468,6 +487,35 @@ class DocumentsTestCase(unittest.TestCase):
         })
         doc = pod.get_doc('/content/pages/page.yaml')
         self.assertEqual(['de', 'ja'], doc.locales)
+
+    def test_localization_fallback(self):
+        # Verify locales aren't clobbered when no localized path is specified.
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'de',
+                    'en',
+                ],
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+        })
+        pod.write_yaml('/content/pages/page.yaml', {})
+        pod.write_file('/views/base.html', '{{doc.locale}}')
+        self.assertRaises(routes.DuplicatePathsError, pod.match, '/page/')
+
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+            '$localization': None,
+        })
+        controller, params = pod.match('/page/')
+        content = controller.render(params)
+        self.assertEqual('en', content)
 
 
 if __name__ == '__main__':
