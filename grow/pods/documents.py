@@ -182,7 +182,7 @@ class Document(object):
                 and 'path' in self.fields['$localization']):
                 val = self.fields['$localization']['path']
             elif self.collection.localization:
-                val = self.collection.localization['path']
+                val = self.collection.localization.get('path')
         if val is None:
             return self.fields.get('$path', self.collection.path_format)
         return val
