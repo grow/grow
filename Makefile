@@ -15,8 +15,6 @@ export PATH := $(HOME)/go/bin/:$(PATH)
 target ?= 'grow/'
 
 develop:
-	virtualenv env --distribute
-	. env/bin/activate
 	@pip --version > /dev/null || { \
 	  echo "pip not installed. Trying to install pip..."; \
 	  sudo easy_install pip; \
@@ -25,6 +23,8 @@ develop:
 	  echo "virtualenv not installed. Trying to install virtualenv..."; \
 	  sudo pip install virtualenv; \
 	}
+	virtualenv env --distribute
+	. env/bin/activate
 	@echo "Trying to install libyaml..."
 	@if [ $(BREW) ]; then \
 	  brew install libyaml || { \
@@ -47,6 +47,7 @@ build-ui:
 	    sudo apt-get -f install -y --no-install-recommends nodejs-legacy npm; \
 	  else \
 	    echo "npm not installed. You must install npm."; \
+	    echo "Try installing via nvm: https://github.com/creationix/nvm" \
 	    exit 1; \
 	  fi \
 	}
