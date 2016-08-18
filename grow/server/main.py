@@ -21,6 +21,7 @@ from werkzeug import exceptions
 from werkzeug import routing
 from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
+from werkzeug import serving
 from werkzeug import wsgi
 
 
@@ -30,6 +31,17 @@ class Request(werkzeug.BaseRequest):
 
 class Response(webob.Response):
     default_conditional_response = True
+
+
+# Use grow's logger instead of werkzeug's default.
+class RequestHandler(serving.WSGIRequestHandler):
+
+    @property
+    def server_version(self):
+        return 'Grow/{}'.format(sdk_utils.VERSION)
+
+    def log(self, *args, **kwargs):
+        pass
 
 
 def serve_console(pod, request, values):
@@ -85,8 +97,6 @@ class PodServer(object):
             return endpoint(self.pod, request, values)
         except routing.RequestRedirect as e:
             return werkzeug_utils.redirect(e.new_url)
-        except Exception as e:
-            return self.handle_exception(request, e)
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
@@ -94,7 +104,12 @@ class PodServer(object):
         return response(environ, start_response)
 
     def __call__(self, environ, start_response):
-        return self.wsgi_app(environ, start_response)
+        try:
+            return self.wsgi_app(environ, start_response)
+        except Exception as e:
+            request = Request(environ)
+            response = self.handle_exception(request, e)
+            return response(environ, start_response)
 
     def handle_exception(self, request, exc):
         log = logging.exception if self.debug else self.pod.logger.error

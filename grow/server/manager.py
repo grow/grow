@@ -4,61 +4,31 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 from grow.common import sdk_utils
 from grow.preprocessors import file_watchers
 from grow.server import main as main_lib
-from twisted.internet import reactor
-from twisted.web import server
-from twisted.web import wsgi
+from werkzeug import serving
 from xtermcolor import colorize
+import os
+import socket
 import sys
 import threading
-import twisted
-import webbrowser
+
+# Number of tries to find a free port.
+NUM_TRIES = 10
 
 
-def shutdown(pod):
-    pod.logger.info('Goodbye. Shutting down.')
+class CallbackHTTPServer(serving.ThreadedWSGIServer):
 
-
-def start(pod, host=None, port=None, open_browser=False, debug=False,
-          preprocess=True, update_check=False):
-    observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
-    if preprocess:
-        # Run preprocessors for the first time in a thread.
-        reactor.callInThread(pod.preprocess, build=False)
-    port = 8080 if port is None else int(port)
-    host = 'localhost' if host is None else host
-    port = find_port_and_start_server(pod, host, port, debug)
-    pod.env.port = port
-    pod.load()
-    url = print_server_ready_message(pod, host, port)
-    if open_browser:
-        start_browser(url)
-    shutdown_func = lambda *args: shutdown(pod)
-    reactor.addSystemEventTrigger('during', 'shutdown', shutdown_func)
-    if update_check:
-        reactor.callInThread(sdk_utils.check_for_sdk_updates, True)
-    reactor.run()
-
-
-def find_port_and_start_server(pod, host, port, debug):
-    app = main_lib.create_wsgi_app(pod, debug=debug)
-    num_tries = 0
-    while num_tries < 10:
-        try:
-            thread_pool = reactor.getThreadPool()
-            wsgi_resource = wsgi.WSGIResource(reactor, thread_pool, app)
-            site = server.Site(wsgi_resource)
-            version = sdk_utils.get_this_version()
-            server.version = 'Grow/{}'.format(version)
-            reactor.listenTCP(port, site, interface=host)
-            return port
-        except twisted.internet.error.CannotListenError as e:
-            if 'Errno 48' in str(e):
-                num_tries += 1
-                port += 1
-            else:
-                raise e
-    pod.logger.error('Unable to bind to {}:{}'.format(host, port))
-    sys.exit(-1)
+    def server_activate(self):
+        super(CallbackHTTPServer, self).server_activate()
+        host, port = self.server_address
+        self.pod.env.port = port
+        self.pod.load()
+        url = print_server_ready_message(self.pod, self.pod.env.host, port)
+        if self.open_browser:
+            start_browser_in_thread(url)
+        if self.update_check:
+            check_func = sdk_utils.check_for_sdk_updates
+            thread = threading.Thread(target=check_func, args=(True,))
+            thread.start()
 
 
 def print_server_ready_message(pod, host, port):
@@ -75,10 +45,49 @@ def print_server_ready_message(pod, host, port):
     return url
 
 
-def start_browser(url):
-    def _start_browser(server_ready_event):
-        server_ready_event.wait()
+def start(pod, host=None, port=None, open_browser=False, debug=False,
+          preprocess=True, update_check=False):
+    observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
+    if preprocess:
+        thread = threading.Thread(target=pod.preprocess, kwargs={'build': False})
+        thread.setDaemon(True)
+        thread.start()
+    port = 8080 if port is None else int(port)
+    host = 'localhost' if host is None else host
+    # Not safe for multi-pod serving env.
+    CallbackHTTPServer.pod = pod
+    CallbackHTTPServer.open_browser = open_browser
+    CallbackHTTPServer.update_check = update_check
+    serving.ThreadedWSGIServer = CallbackHTTPServer
+    app = main_lib.create_wsgi_app(pod, debug=debug)
+    serving._log = lambda *args, **kwargs: ''
+    handler = main_lib.RequestHandler
+    num_tries = 0
+    done = False
+    while num_tries < NUM_TRIES and not done:
+        try:
+            serving.run_simple(host, port, app, request_handler=handler, threaded=True)
+            done = True
+        except socket.error as e:
+            if 'Errno 48' in str(e):
+                num_tries += 1
+                port += 1
+            else:
+                raise e
+        finally:
+            # Ensure ctrl+c works no matter what.
+            # https://github.com/grow/grow/issues/149
+            if done:
+                os._exit(0)
+    text = 'Unable to find a port for the server (tried {}).'
+    pod.logger.error(text.format(port))
+    sys.exit(-1)
+
+
+def start_browser_in_thread(url):
+    def _start_browser():
+        import webbrowser
         webbrowser.open(url)
-    server_ready_event = threading.Event()
-    reactor.callInThread(_start_browser, server_ready_event)
-    server_ready_event.set()
+    thread = threading.Thread(target=_start_browser)
+    thread.setDaemon(True)
+    thread.start()

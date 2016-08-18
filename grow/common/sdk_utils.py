@@ -13,6 +13,7 @@ import urllib
 import urlparse
 
 
+VERSION = config.VERSION
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
                      'https://raw.github.com/grow/grow/master/install.py)"')
@@ -33,7 +34,7 @@ class LatestVersionCheckError(Error):
 
 
 def get_this_version():
-    return config.VERSION
+    return VERSION
 
 
 def get_latest_version():
