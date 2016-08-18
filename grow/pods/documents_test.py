@@ -45,6 +45,7 @@ class DocumentsTestCase(unittest.TestCase):
             '$title',
             '$view',
             'csv_data',
+            'csv_data@',
             'doc_data',
             'doc_url_data',
             'foo',
@@ -53,6 +54,7 @@ class DocumentsTestCase(unittest.TestCase):
             'static_url_data',
             'tagged_fields',
             'yaml_data',
+            'yaml_data@',
         ]
         self.assertItemsEqual(keys, doc.fields.keys())
         self.assertIsNone(doc.html)

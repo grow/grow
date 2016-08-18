@@ -344,6 +344,43 @@ class UtilsTestCase(unittest.TestCase):
             },
         }, utils.untag_fields(fields, locale='fr'))
 
+    def test_untag_fields_with_backwards_compatibility(self):
+        fields_to_test = {
+            'title@': 'foo',
+            'nested': {
+                'list@': [
+                    'value1',
+                ],
+            },
+            'list@': [
+                'top-value1',
+                'top-value2',
+                'top-value3',
+            ],
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'title': 'foo',
+            'list': [
+                'top-value1',
+                'top-value2',
+                'top-value3',
+            ],
+            'list@': [
+                'top-value1',
+                'top-value2',
+                'top-value3',
+            ],
+            'nested': {
+                'list': [
+                    'value1',
+                ],
+                'list@': [
+                    'value1',
+                ],
+            },
+        }, utils.untag_fields(fields))
+
 
 if __name__ == '__main__':
     unittest.main()

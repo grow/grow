@@ -331,10 +331,15 @@ def untag_fields(fields, locale=None):
         resp = iterutils.default_exit(path, key, old_parent,
                                       new_parent, new_items)
         if paths_to_keep_tagged and isinstance(resp, dict):
-            for key, value in resp.items():
-                new_key = '{}@'.format(key)
+            for sub_key, value in resp.items():
+                if not isinstance(value, list):
+                    continue
+                new_key = '{}@'.format(sub_key)
                 resp[new_key] = value
-            paths_to_keep_tagged.clear()
+            try:
+                paths_to_keep_tagged.remove((path, key))
+            except KeyError:
+                pass
         return resp
 
     return iterutils.remap(fields, visit=visit, exit=exit)
