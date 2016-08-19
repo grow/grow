@@ -305,8 +305,6 @@ def untag_fields(fields, locale=None):
     paths_to_keep_tagged = set()
 
     def visit(path, key, value):
-        if (path, key) in updated_localized_paths:
-            return False
         if not isinstance(key, basestring):
             return key, value
         if (path, key.rstrip('@')) in updated_localized_paths:
@@ -319,6 +317,7 @@ def untag_fields(fields, locale=None):
             key = key[:-1]
         match = LOCALIZED_KEY_REGEX.match(key)
         if not match:
+            updated_localized_paths.add((path, key))
             return key, value
         untagged_key, locale_from_key = match.groups()
         if locale_from_key != locale:

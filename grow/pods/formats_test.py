@@ -2,6 +2,7 @@ from . import formats
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
+import textwrap
 import unittest
 
 
@@ -99,6 +100,40 @@ class FormatsTestCase(unittest.TestCase):
         expected = '/content/pages/file@locale.ext'
         self.assertEqual(
             expected, formats.Format.localize_path(path, locale=locale))
+
+    def test_override_parts(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$view': '/views/base.html',
+            '$localization': {
+                'default_locale': 'en_US',
+                'locales': [
+                    'en_US',
+                    'ja_JP',
+                ],
+            },
+        })
+        pod.write_file('/content/pages/page.yaml', textwrap.dedent(
+            """\
+            ---
+            $title: "title-base"
+            $path: /
+            $view: /views/pages/home.html
+
+            ctas:
+              subtitle@: Description 1.
+
+            $localization:
+              path: /intl/{locale}/
+            ---
+            $locale: ja_JP
+            $title@: "title-ja"
+            """))
+        doc = pod.get_doc('/content/pages/page.yaml')
+        self.assertEqual('title-base', doc.title)
+        doc = pod.get_doc('/content/pages/page.yaml', locale='ja_JP')
+        self.assertEqual('title-ja', doc.title)
 
 
 if __name__ == '__main__':
