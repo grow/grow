@@ -295,6 +295,8 @@ class Catalogs(object):
         # Not discriminating by file extension, because people use all sorts
         # (htm, html, tpl, dtml, jtml, ...)
         for path in self.pod.list_dir('/views/'):
+            if path.startswith('.'):
+                continue
             pod_path = os.path.join('/views/', path)
             self.pod.logger.info('Extracting: {}'.format(pod_path))
             with self.pod.open_file(pod_path) as f:
