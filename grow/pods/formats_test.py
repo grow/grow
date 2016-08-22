@@ -100,7 +100,6 @@ class FormatsTestCase(unittest.TestCase):
         self.assertEqual(
             expected, formats.Format.localize_path(path, locale=locale))
 
-<<<<<<< 91f9abc4003dae71e53918f9b2d227ec005d1189
     def test_override_parts(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})

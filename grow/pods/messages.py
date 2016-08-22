@@ -12,12 +12,21 @@ class Route(messages.Message):
     pod_path = messages.StringField(2)
 
 
+class StaticLocalization(messages.Message):
+    static_dir = messages.StringField(1)
+    serve_at = messages.StringField(2)
+
+
 class StaticRoute(messages.Message):
     path_format = messages.StringField(1)
     pod_path_format = messages.StringField(2)
     localized = messages.BooleanField(3)
-    localization = messages.StringField(4)
+    localization = messages.MessageField(StaticLocalization, 4)
     fingerprinted = messages.BooleanField(5)
+
+
+class SitemapRoute(messages.Message):
+    path_format = messages.StringField(1)
 
 
 class Format(messages.Enum):

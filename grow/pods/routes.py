@@ -45,26 +45,30 @@ class Routes(object):
         if rebuild:
             self._build_routing_map(inject=False)
 
+    @property
+    def routing_map(self):
+        return self._build_routing_map()
+
     def _build_routing_map(self, inject=False):
-        rules = []
-        serving_paths = set()
-        # Content documents.
-        for collection in self.pod.list_collections():
-#            for doc in collection.list_servable_documents(include_hidden=True, inject=inject):
-#                controller = rendered.RenderedController(
-#                    view=doc.view, doc=doc, _pod=self.pod)
-#                serving_path = doc.get_serving_path()
+        rules = self.cache.get('routes')
+        if rules is None:
+            rules = []
+            serving_paths = set()
+            # Content documents.
+            for collection in self.pod.list_collections():
+                for route in collection.routes():
+                    rule = routing.Rule(route.path_format, endpoint=route)
+                    rules.append(rule)
+            # Static routes.
+            rules += self._build_static_routing_map_and_return_rules()
+#            self.cache.set('routes', rules)
+        return routing.Map(rules, converters=Routes.converters)
+
 #                if serving_path in serving_paths:
 #                    text = 'Serving path "{}" was used twice by {}'
 #                    raise DuplicatePathsError(text.format(serving_path, doc))
 #                serving_paths.add(serving_path)
 #                rule = routing.Rule(serving_path, endpoint=controller)
-            for route in collection.routes():
-                rule = routing.Rule(route.path_format, endpoint=route)
-                rules.append(rule)
-        # Static routes.
-        rules += self._build_static_routing_map_and_return_rules()
-        return routing.Map(rules, converters=Routes.converters)
 
     def _build_static_routing_map_and_return_rules(self):
         rules = self.list_static_routes()
@@ -76,14 +80,6 @@ class Routes(object):
         if self._static_routing_map is None:
             self._build_static_routing_map_and_return_rules()
         return self._static_routing_map
-
-    @property
-    def routing_map(self):
-        routing_map = self.cache.get('routes')
-        if routing_map is None:
-            routing_map = self._build_routing_map()
-            self.cache.set('routes', routing_map)
-        return routing_map
 
     def format_path(self, path):
         path = '' if path is None else path
@@ -97,21 +93,17 @@ class Routes(object):
     def list_static_routes(self):
         rules = []
         # Auto-generated from flags.
-#        if 'sitemap' in self.podspec:
-#            sitemap_path = self.podspec['sitemap'].get('path')
-#            sitemap_path = self.format_path(sitemap_path)
-#            controller = sitemap.SitemapController(
-#                pod=self.pod,
-#                path=sitemap_path,
-#                collections=self.podspec['sitemap'].get('collections'),
-#                locales=self.podspec['sitemap'].get('locales'))
-#            rules.append(routing.Rule(controller.path, endpoint=controller))
-#        if 'static_dir' in self.pod.flags:
-#            path = self.pod.flags['static_dir'] + '<grow:filename>'
-#            endpoint = messages.Route
-#            controller = static.StaticController(
-#                path_format=path, source_format=path, pod=self.pod)
-#            rules.append(routing.Rule(path, endpoint=controller))
+        if 'sitemap' in self.podspec:
+            sitemap_path = self.podspec['sitemap'].get('path', '/sitemap.xml')
+            path_format = utils.reformat_rule(sitemap_path, pod=self.pod)
+            route = messages.SitemapRoute(path_format=path_format)
+            rules.append(routing.Rule(route.path_format, endpoint=route))
+        if 'static_dir' in self.pod.flags:
+            path = self.pod.flags['static_dir'] + '<grow:filename>'
+            route = messages.StaticRoute(
+                path_format=path,
+                pod_path_format=path)
+            rules.append(routing.Rule(route.path_format, endpoint=route))
         if 'static_dirs' in self.podspec:
             for config in self.podspec['static_dirs']:
                 if config.get('dev') and not self.pod.env.dev:
@@ -121,32 +113,31 @@ class Routes(object):
                 serve_at = self.format_path(serve_at)
                 localization = config.get('localization')
                 fingerprinted = config.get('fingerprinted', False)
+                if localization:
+                    localization = messages.StaticLocalization(
+                        static_dir=localization.get('static_dir'),
+                        serve_at=localization.get('serve_at'))
                 route = messages.StaticRoute(
                     path_format=serve_at,
                     pod_path_format=static_dir,
                     localized=False,
+                    localization=localization,
                     fingerprinted=fingerprinted)
-#                controller = static.StaticController(path_format=serve_at,
-#                                                     source_format=static_dir,
-#                                                     localized=False,
-#                                                     localization=localization,
-#                                                     fingerprinted=fingerprinted,
-#                                                     pod=self.pod)
                 rules.append(routing.Rule(route.path_format, endpoint=route))
-#                if localization:
-#                    localized_serve_at = localization.get('serve_at') + '<grow:filename>'
-#                    static_dir = localization.get('static_dir')
-#                    localized_static_dir = static_dir + '<grow:filename>'
-#                    rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
-#                    rule_path = self.format_path(rule_path)
-#                    controller = static.StaticController(
-#                        path_format=localized_serve_at,
-#                        source_format=localized_static_dir,
-#                        localized=True,
-#                        localization=localization,
-#                        fingerprinted=fingerprinted,
-#                        pod=self.pod)
-#                    rules.append(routing.Rule(rule_path, endpoint=controller))
+                if localization:
+                    localized_serve_at = localization.serve_at \
+                        + '<grow:filename>'
+                    static_dir = localization.static_dir
+                    localized_static_dir = static_dir + '<grow:filename>'
+                    rule_path = utils.reformat_rule(
+                        localized_serve_at, pod=self.pod)
+                    route = messages.StaticRoute(
+                        path_format=localized_serve_at,
+                        pod_path_format=localized_static_dir,
+                        localized=True,
+                        localization=localization,
+                        fingerprinted=fingerprinted)
+                    rules.append(routing.Rule(rule_path, endpoint=route))
         return rules
 
     def match(self, path, env):
@@ -162,19 +153,12 @@ class Routes(object):
             raise webob.exc.HTTPBadRequest('Invalid path.')
         urls = self.routing_map.bind_to_environ(env)
         try:
-            route, params = urls.match(path)
-            if isinstance(route, messages.Route):
-                pod_path = route.pod_path
-                doc = self.pod.get_doc(pod_path, locale=params.get('locale'))
-                controller = rendered.RenderedController(doc=doc, _pod=self.pod)
-            elif isinstance(route, messages.StaticRoute):
-                controller = static.StaticController(
-                    path_format=route.path_format,
-                    source_format=route.pod_path_format,
-                    localized=route.localized,
-                    pod=self.pod)
+            endpoint, params = urls.match(path)
+            controller = self.route_to_controller(endpoint, params)
             return controller, params
         except routing.NotFound:
+            for r in self:
+                print r
             raise webob.exc.HTTPNotFound('{} not found.'.format(path))
 
     def match_error(self, path, status=404):
@@ -185,7 +169,7 @@ class Routes(object):
     def get_locales_to_paths(self):
         locales_to_paths = collections.defaultdict(list)
         for route in self:
-            controller = route.endpoint
+            controller = self.route_to_controller(route.endpoint)
             paths = controller.list_concrete_paths()
             locale = controller.locale
             locales_to_paths[locale] += paths
@@ -194,7 +178,7 @@ class Routes(object):
     def get_controllers_to_paths(self):
         controllers_to_paths = collections.defaultdict(list)
         for route in self:
-            controller = route.endpoint
+            controller = self.route_to_controller(route.endpoint)
             name = str(controller)
             paths = controller.list_concrete_paths()
             controllers_to_paths[name] += paths
@@ -205,7 +189,31 @@ class Routes(object):
     def list_concrete_paths(self):
         paths = set()
         for route in self:
-            controller = route.endpoint
+            controller = self.route_to_controller(route.endpoint)
             new_paths = set(controller.list_concrete_paths())
             paths.update(new_paths)
         return list(paths)
+
+    def route_to_controller(self, route_message, params=None):
+        params = params or {}
+        if isinstance(route_message, messages.Route):
+            pod_path = route_message.pod_path
+            locale = locales.Locale.from_alias(self.pod, params.get('locale'))
+            doc = self.pod.get_doc(pod_path, locale=locale)
+            return rendered.RenderedController(doc=doc, _pod=self.pod)
+        elif isinstance(route_message, messages.SitemapRoute):
+            path_format = route_message.path_format
+            path_format = utils.reformat_rule(path_format, pod=self.pod)
+            return sitemap.SitemapController(
+                pod=self.pod,
+                path=path_format,
+                collections=self.podspec['sitemap'].get('collections'),
+                locales=self.podspec['sitemap'].get('locales'))
+        else:
+            return static.StaticController(
+                path_format=route_message.path_format,
+                source_format=route_message.pod_path_format,
+                fingerprinted=route_message.fingerprinted,
+                localization=route_message.localization,
+                localized=route_message.localized,
+                pod=self.pod)

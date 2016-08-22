@@ -110,14 +110,14 @@ class StaticFile(object):
         if self.localization:
             if self.fingerprinted:
                 suffix = StaticFile.remove_fingerprint(suffix)
-            localized_pod_path = self.localization['static_dir'] + suffix
+            localized_pod_path = self.localization.static_dir + suffix
             localized_pod_path = localized_pod_path.format(locale=self.locale)
             localized_pod_path = localized_pod_path.replace('//', '/')
             if self.pod.file_exists(localized_pod_path):
                 # TODO(jeremydw): Centralize path formatting.
                 # Internal paths use Babel locales, serving paths use aliases.
                 locale = self.locale.alias if self.locale is not None else self.locale
-                localized_serving_path = self.localization['serve_at'] + suffix
+                localized_serving_path = self.localization.serve_at + suffix
                 kwargs = {
                     'locale': locale,
                     'root': self.pod.podspec.root,
@@ -158,9 +158,9 @@ class StaticController(controllers.BaseController):
 
     def get_localized_pod_path(self, params):
         if (self.localization
-           and '{locale}' in self.localization['static_dir']
+           and '{locale}' in self.localization.static_dir
            and 'locale' in params):
-            source_format = self.localization['serve_at']
+            source_format = self.localization.serve_at
             source_format += '/{filename}'
             source_format = source_format.replace('//', '/')
             kwargs = params
@@ -284,7 +284,7 @@ class StaticController(controllers.BaseController):
                 match = re.match(source_regex, pod_path)
                 # Skip adding localized paths in subfolders of other rules.
                 if not self.localized and self.localization:
-                    localized_source_format = self.localization['static_dir']
+                    localized_source_format = self.localization.static_dir
                     localized_source_regex = localized_source_format.replace(
                         '{filename}', '(?P<filename>.*)')
                     localized_source_regex = localized_source_regex.replace(

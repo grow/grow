@@ -192,12 +192,9 @@ class Pod(object):
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
         for route in self.routes.static_routing_map.iter_rules():
-            route_message = route.endpoint
-            controller = static.StaticController(
-                path_format=route_message.path_format,
-                source_format=route_message.pod_path_format,
-                localized=route_message.localized,
-                pod=self)
+            params = {'locale': locale}
+            controller = self.routes.route_to_controller(
+                route.endpoint, params=params)
             if controller.KIND == messages.Kind.STATIC:
                 serving_path = controller.match_pod_path(pod_path)
                 if serving_path:
@@ -288,13 +285,6 @@ class Pod(object):
         else:
             clean_output = output
         return clean_output
-
-    def to_message(self):
-        message = messages.PodMessage()
-        message.collections = [collection.to_message()
-                               for collection in self.list_collections()]
-        message.routes = self.routes.to_message()
-        return message
 
     def delete(self):
         """Deletes the pod by deleting all of its files."""

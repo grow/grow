@@ -35,7 +35,13 @@ class RenderedController(controllers.BaseController):
             return [self.path]
         if not self.doc:
             raise
-        return [self.doc.get_serving_path()]
+        paths = set()
+        if self.doc.locales:
+            for locale in self.doc.locales:
+                paths.add(self.doc.localize(locale).get_serving_path())
+        else:
+            paths.add(self.doc.get_serving_path())
+        return paths
 
     def render(self, params, inject=True):
         preprocessor = None

@@ -118,9 +118,6 @@ class PodTest(unittest.TestCase):
         result = self.pod.dump()
         self.assertItemsEqual(paths, result)
 
-    def test_to_message(self):
-        self.pod.to_message()
-
     def test_list_deployments(self):
         self.pod.list_deployments()
 

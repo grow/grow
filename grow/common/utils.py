@@ -461,5 +461,6 @@ def reformat_rule(path, pod, base=None):
     if base:
       path = path.replace('{base}', base)
     path = path.replace('{root}', pod.podspec.root)
+    path = path.replace('{locale}', '<grow:locale>')
     path = path.replace('//', '/')
     return path

@@ -319,10 +319,33 @@ class Collection(object):
             fields = form.fields
             if not isinstance(fields, dict):
                 continue
+
+            # Localized paths.
+            localized_path = fields.get('$localization', {}).get('path')
+            if localized_path is not None:
+                rule_format = utils.reformat_rule(
+                    localized_path, base=base, pod=self.pod)
+                route = messages.Route(
+                    path_format=rule_format,
+                    pod_path=doc_pod_path)
+                routes.append(route)
+            else:
+                if self.localization:
+                    localized_path = self.localization.get('path')
+                    if not localized_path:
+                        continue
+                    rule_format = utils.reformat_rule(
+                        localized_path, base=base, pod=self.pod)
+                    route = messages.Route(
+                        path_format=rule_format,
+                        pod_path=doc_pod_path)
+                    routes.append(route)
+
             # If no doc path, use collection path.
             if '$path' not in fields:
                 if self.path_format:
-                    rule_format = utils.reformat_rule(self.path_format, base=base, pod=self.pod)
+                    rule_format = utils.reformat_rule(
+                        self.path_format, base=base, pod=self.pod)
                     route = messages.Route(
                         path_format=rule_format,
                         pod_path=doc_pod_path)
@@ -331,7 +354,8 @@ class Collection(object):
             doc_path_format = fields['$path']
             if not doc_path_format:
                 continue
-            rule_format = utils.reformat_rule(doc_path_format, base=base, pod=self.pod)
+            rule_format = utils.reformat_rule(
+                doc_path_format, base=base, pod=self.pod)
             route = messages.Route(
                 path_format=rule_format,
                 pod_path=doc_pod_path)

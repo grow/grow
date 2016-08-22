@@ -42,7 +42,15 @@ class RenderedTest(unittest.TestCase):
 
     def test_list_concrete_paths(self):
         controller, params = self.pod.match('/')
-        self.assertEqual(['/'], controller.list_concrete_paths())
+        paths = [
+            '/',
+            '/de_alias/home/',
+            '/fi_ALL/home/',
+            '/fil_ALL/home/',
+            '/fr/home/',
+            '/it/home/',
+        ]
+        self.assertItemsEqual(paths, controller.list_concrete_paths())
 
     def test_translation_recompilation(self):
         pod = testing.create_pod()
