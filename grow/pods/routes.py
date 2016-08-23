@@ -55,13 +55,16 @@ class Routes(object):
             rules = []
             serving_paths = set()
             # Content documents.
-            for collection in self.pod.list_collections():
-                for route in collection.routes():
+            def _handle_collection(col):
+                for route in col.routes():
                     rule = routing.Rule(route.path_format, endpoint=route)
                     rules.append(rule)
+                for sub_col in col.collections():
+                    _handle_collection(sub_col)
+            for col in self.pod.list_collections():
+                _handle_collection(col)
             # Static routes.
             rules += self._build_static_routing_map_and_return_rules()
-#            self.cache.set('routes', rules)
         return routing.Map(rules, converters=Routes.converters)
 
 #                if serving_path in serving_paths:
@@ -124,22 +127,21 @@ class Routes(object):
                     localization=localization,
                     fingerprinted=fingerprinted)
                 rules.append(routing.Rule(route.path_format, endpoint=route))
-#                if localization:
-#                    localized_serve_at = localization.serve_at \
-#                        + '<grow:filename>'
-#                    static_dir = localization.static_dir
-#                    localized_static_dir = static_dir + '<grow:filename>'
-#                    rule_path = utils.reformat_rule(
-#                        localized_serve_at, pod=self.pod)
-#                    localization.static_dir = utils.reformat_rule(
-#                        localized_static_dir, pod=self.pod)
-#                    route = messages.StaticRoute(
-#                        path_format=rule_path,
-#                        pod_path_format=localized_static_dir,
-#                        localized=True,
-#                        localization=localization,
-#                        fingerprinted=fingerprinted)
-#                    rules.append(routing.Rule(rule_path, endpoint=route))
+                if localization:
+                    localized_serve_at = localization.serve_at \
+                        + '<grow:filename>'
+                    static_dir = localization.static_dir
+                    localized_static_dir = static_dir + '<grow:filename>'
+                    rule_path = utils.reformat_rule(
+                        localized_serve_at, pod=self.pod)
+                    rule_path = self.format_path(rule_path)
+                    route = messages.StaticRoute(
+                        path_format=localized_serve_at,
+                        pod_path_format=localized_static_dir,
+                        localized=True,
+                        localization=localization,
+                        fingerprinted=fingerprinted)
+                    rules.append(routing.Rule(rule_path, endpoint=route))
         return rules
 
     def match(self, path, env):
@@ -159,8 +161,6 @@ class Routes(object):
             controller = self.route_to_controller(endpoint, params)
             return controller, params
         except routing.NotFound:
-            for r in self:
-                print r
             raise webob.exc.HTTPNotFound('{} not found.'.format(path))
 
     def match_error(self, path, status=404):
@@ -192,7 +192,8 @@ class Routes(object):
         paths = set()
         for route in self:
             controller = self.route_to_controller(route.endpoint)
-            new_paths = set(controller.list_concrete_paths())
+            new_paths = controller.list_concrete_paths()
+            print 'abc', new_paths
             paths.update(new_paths)
         return list(paths)
 
@@ -202,6 +203,7 @@ class Routes(object):
             pod_path = route_message.pod_path
             locale = locales.Locale.from_alias(self.pod, params.get('locale'))
             doc = self.pod.get_doc(pod_path, locale=locale)
+            print 'aaa', doc
             return rendered.RenderedController(doc=doc, _pod=self.pod)
         elif isinstance(route_message, messages.SitemapRoute):
             path_format = route_message.path_format

@@ -312,37 +312,35 @@ class Collection(object):
             base, _ = os.path.splitext(os.path.basename(doc_pod_path))
             if base.startswith(('.', '_')):
                 continue
-            content = self.pod.read_file(doc_pod_path)
             form = formats.Format.get2(pod_path=doc_pod_path, pod=self.pod)
-            if not form:
-                continue
-            fields = form.fields
-            if not isinstance(fields, dict):
-                continue
 
-            # Localized paths.
-            localized_path = fields.get('$localization', {}).get('path')
-            if localized_path is not None:
-                rule_format = utils.reformat_rule(
-                    localized_path, base=base, pod=self.pod)
-                route = messages.Route(
-                    path_format=rule_format,
-                    pod_path=doc_pod_path)
-                routes.append(route)
-            else:
-                if self.localization:
-                    localized_path = self.localization.get('path')
-                    if not localized_path:
-                        continue
+            # Doc specifies its own path.
+            fields = form and form.fields
+            if fields:
+                # Localized paths.
+                localized_path = fields.get('$localization', {}).get('path')
+                if localized_path is not None:
                     rule_format = utils.reformat_rule(
                         localized_path, base=base, pod=self.pod)
                     route = messages.Route(
                         path_format=rule_format,
                         pod_path=doc_pod_path)
                     routes.append(route)
+                else:
+                    if self.localization:
+                        localized_path = self.localization.get('path')
+                        if localized_path:
+                            rule_format = utils.reformat_rule(
+                                localized_path, base=base, pod=self.pod)
+                            route = messages.Route(
+                                path_format=rule_format,
+                                pod_path=doc_pod_path)
+                            routes.append(route)
 
             # If no doc path, use collection path.
-            if '$path' not in fields:
+            if (not fields
+                    or not isinstance(fields, dict)
+                    or '$path' not in fields):
                 if self.path_format:
                     rule_format = utils.reformat_rule(
                         self.path_format, base=base, pod=self.pod)
@@ -350,8 +348,9 @@ class Collection(object):
                         path_format=rule_format,
                         pod_path=doc_pod_path)
                     routes.append(route)
-                continue
-            doc_path_format = fields['$path']
+
+            # Use doc path.
+            doc_path_format = fields and fields.get('$path')
             if not doc_path_format:
                 continue
             rule_format = utils.reformat_rule(
@@ -360,4 +359,5 @@ class Collection(object):
                 path_format=rule_format,
                 pod_path=doc_pod_path)
             routes.append(route)
+        print 'bbbb', routes
         return routes
