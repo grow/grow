@@ -185,6 +185,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 logger.error(text)
                 if raise_errors:
                     raise base.PreprocessorError(text)
+            # Weak test to defend against critical errors while still
+            # permitting 404s. We may want to remove the "raise_errors = False"
+            # code path in its entirety in the future.
+            # https://github.com/grow/grow/issues/283
+            if content.startswith('<!DOCTYPE'):
+                text = 'Error downloading Google Sheet. Received: {}'
+                raise base.PreprocessorError(text.format(content))
             return content
         if raise_errors:
             text = 'No file to export from Google Sheets: {}'.format(path)
