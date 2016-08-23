@@ -149,7 +149,7 @@ class FormatsTestCase(unittest.TestCase):
         pod.write_file('/views/base.html', '{{doc.foo}}')
         controller, params = pod.match('/test/')
         content = controller.render(params)
-        self.assertEqual('bar', content)
+        self.assertEqual(u'\\u201Cbar\\u201D', content)
 
 
 if __name__ == '__main__':

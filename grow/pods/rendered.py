@@ -57,9 +57,7 @@ class RenderedController(controllers.BaseController):
                 'env': self.pod.env,
                 'podspec': self.pod.get_podspec(),
             }
-            self.pod.logger.info('starting render')
             content = template.render(kwargs).lstrip()
-            self.pod.logger.info('ending render')
             content = self._inject_ui(content, preprocessor, translator)
             return content
         except Exception as e:

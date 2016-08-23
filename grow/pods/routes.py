@@ -94,7 +94,7 @@ class Routes(object):
         rules = []
         # Auto-generated from flags.
         if 'sitemap' in self.podspec:
-            sitemap_path = self.podspec['sitemap'].get('path', '/sitemap.xml')
+            sitemap_path = self.podspec['sitemap'].get('path', '/{root}/sitemap.xml')
             path_format = utils.reformat_rule(sitemap_path, pod=self.pod)
             route = messages.SitemapRoute(path_format=path_format)
             rules.append(routing.Rule(route.path_format, endpoint=route))
@@ -124,20 +124,22 @@ class Routes(object):
                     localization=localization,
                     fingerprinted=fingerprinted)
                 rules.append(routing.Rule(route.path_format, endpoint=route))
-                if localization:
-                    localized_serve_at = localization.serve_at \
-                        + '<grow:filename>'
-                    static_dir = localization.static_dir
-                    localized_static_dir = static_dir + '<grow:filename>'
-                    rule_path = utils.reformat_rule(
-                        localized_serve_at, pod=self.pod)
-                    route = messages.StaticRoute(
-                        path_format=localized_serve_at,
-                        pod_path_format=localized_static_dir,
-                        localized=True,
-                        localization=localization,
-                        fingerprinted=fingerprinted)
-                    rules.append(routing.Rule(rule_path, endpoint=route))
+#                if localization:
+#                    localized_serve_at = localization.serve_at \
+#                        + '<grow:filename>'
+#                    static_dir = localization.static_dir
+#                    localized_static_dir = static_dir + '<grow:filename>'
+#                    rule_path = utils.reformat_rule(
+#                        localized_serve_at, pod=self.pod)
+#                    localization.static_dir = utils.reformat_rule(
+#                        localized_static_dir, pod=self.pod)
+#                    route = messages.StaticRoute(
+#                        path_format=rule_path,
+#                        pod_path_format=localized_static_dir,
+#                        localized=True,
+#                        localization=localization,
+#                        fingerprinted=fingerprinted)
+#                    rules.append(routing.Rule(rule_path, endpoint=route))
         return rules
 
     def match(self, path, env):
@@ -210,9 +212,13 @@ class Routes(object):
                 collections=self.podspec['sitemap'].get('collections'),
                 locales=self.podspec['sitemap'].get('locales'))
         else:
+            path_format = utils.reformat_rule(
+                route_message.path_format, pod=self.pod)
+            pod_path_format = utils.reformat_rule(
+                route_message.pod_path_format, pod=self.pod)
             return static.StaticController(
-                path_format=route_message.path_format,
-                source_format=route_message.pod_path_format,
+                path_format=path_format,
+                source_format=pod_path_format,
                 fingerprinted=route_message.fingerprinted,
                 localization=route_message.localization,
                 localized=route_message.localized,
