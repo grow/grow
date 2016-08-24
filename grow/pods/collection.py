@@ -314,6 +314,18 @@ class Collection(object):
 
     def routes(self, recursive=True):
         routes = []
+
+        def process_collection_localization():
+            if self.localization:
+                localized_path = self.localization.get('path')
+                if localized_path:
+                    rule_format = utils.reformat_rule(
+                        localized_path, base=base, pod=self.pod)
+                    route = messages.Route(
+                        path_format=rule_format,
+                        pod_path=doc_pod_path)
+                    routes.append(route)
+
         for pod_path in self.pod.list_dir(self.pod_path, recursive=recursive):
             doc_pod_path = os.path.join(self.pod_path, pod_path[1:])
             base, _ = os.path.splitext(os.path.basename(doc_pod_path))
@@ -333,15 +345,8 @@ class Collection(object):
                         path_format=rule_format,
                         pod_path=doc_pod_path)
                     routes.append(route)
-                if self.localization:
-                    localized_path = self.localization.get('path')
-                    if localized_path:
-                        rule_format = utils.reformat_rule(
-                            localized_path, base=base, pod=self.pod)
-                        route = messages.Route(
-                            path_format=rule_format,
-                            pod_path=doc_pod_path)
-                        routes.append(route)
+                else:
+                    process_collection_localization()
 
             # If no doc path, use collection path.
             if (not fields
@@ -354,6 +359,7 @@ class Collection(object):
                         path_format=rule_format,
                         pod_path=doc_pod_path)
                     routes.append(route)
+                process_collection_localization()
 
             # Use doc path.
             doc_path_format = fields and fields.get('$path')
