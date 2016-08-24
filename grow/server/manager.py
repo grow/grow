@@ -54,6 +54,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
         thread.start()
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
+    patch_broken_pipe_error()
     # Not safe for multi-pod serving env.
     CallbackHTTPServer.pod = pod
     CallbackHTTPServer.open_browser = open_browser
@@ -91,3 +92,26 @@ def start_browser_in_thread(url):
     thread = threading.Thread(target=_start_browser)
     thread.setDaemon(True)
     thread.start()
+
+
+def patch_broken_pipe_error():
+    from SocketServer import BaseServer
+    from wsgiref import handlers
+
+    handle_error = BaseServer.handle_error
+    log_exception = handlers.BaseHandler.log_exception
+
+    def is_broken_pipe_error():
+        _, err, _ = sys.exc_info()
+        return repr(err) == "error(32, 'Broken pipe')"
+
+    def patched_handle_error(self, request, client_address):
+        if not is_broken_pipe_error():
+            handle_error(self, request, client_address)
+
+    def patched_log_exception(self, exc_info):
+        if not is_broken_pipe_error():
+            log_exception(self, exc_info)
+
+    BaseServer.handle_error = patched_handle_error
+    handlers.BaseHandler.log_exception = patched_log_exception
