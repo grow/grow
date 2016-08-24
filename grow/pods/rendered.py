@@ -40,8 +40,7 @@ class RenderedController(controllers.BaseController):
             for locale in self.doc.locales:
                 paths.add(self.doc.localize(locale).get_serving_path())
         else:
-            if self.doc.has_serving_path():
-                paths.add(self.doc.url.path)
+            paths.add(self.doc.url.path)
         return paths
 
     def render(self, params, inject=True):

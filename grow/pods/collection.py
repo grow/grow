@@ -124,6 +124,13 @@ class Collection(object):
         the collection's blueprint exists."""
         return self.pod.file_exists(self._blueprint_path)
 
+    @property
+    def parent(self):
+        parent_pod_path = os.path.normpath(self.pod_path[:-len(self.basename)])
+        if parent_pod_path == Collection.CONTENT_PATH:
+            return
+        return self.pod.get_collection(parent_pod_path)
+
     @classmethod
     def create(cls, collection_path, fields, pod):
         """Creates a new collection by writing a blueprint."""
@@ -326,16 +333,15 @@ class Collection(object):
                         path_format=rule_format,
                         pod_path=doc_pod_path)
                     routes.append(route)
-                else:
-                    if self.localization:
-                        localized_path = self.localization.get('path')
-                        if localized_path:
-                            rule_format = utils.reformat_rule(
-                                localized_path, base=base, pod=self.pod)
-                            route = messages.Route(
-                                path_format=rule_format,
-                                pod_path=doc_pod_path)
-                            routes.append(route)
+                if self.localization:
+                    localized_path = self.localization.get('path')
+                    if localized_path:
+                        rule_format = utils.reformat_rule(
+                            localized_path, base=base, pod=self.pod)
+                        route = messages.Route(
+                            path_format=rule_format,
+                            pod_path=doc_pod_path)
+                        routes.append(route)
 
             # If no doc path, use collection path.
             if (not fields
@@ -359,5 +365,4 @@ class Collection(object):
                 path_format=rule_format,
                 pod_path=doc_pod_path)
             routes.append(route)
-        print 'bbbb', routes
         return routes

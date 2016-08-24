@@ -503,6 +503,9 @@ class DocumentsTestCase(unittest.TestCase):
         pod.write_yaml('/content/pages/_blueprint.yaml', {
             '$path': '/{base}/',
             '$view': '/views/base.html',
+            '$localization': {
+                'path': '/{base}/',
+            },
         })
         pod.write_yaml('/content/pages/page.yaml', {})
         pod.write_file('/views/base.html', '{{doc.locale}}')

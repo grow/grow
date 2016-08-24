@@ -54,17 +54,14 @@ class Routes(object):
         if rules is None:
             rules = []
             serving_paths = set()
-            # Content documents.
-            def _handle_collection(col):
+            for col in self.pod.list_collections():
                 for route in col.routes():
                     rule = routing.Rule(route.path_format, endpoint=route)
                     rules.append(rule)
-                for sub_col in col.collections():
-                    _handle_collection(sub_col)
-            for col in self.pod.list_collections():
-                _handle_collection(col)
             # Static routes.
             rules += self._build_static_routing_map_and_return_rules()
+            if not utils.is_appengine():
+                self.cache.set('routes', rules)
         return routing.Map(rules, converters=Routes.converters)
 
 #                if serving_path in serving_paths:
@@ -193,7 +190,6 @@ class Routes(object):
         for route in self:
             controller = self.route_to_controller(route.endpoint)
             new_paths = controller.list_concrete_paths()
-            print 'abc', new_paths
             paths.update(new_paths)
         return list(paths)
 
@@ -203,7 +199,6 @@ class Routes(object):
             pod_path = route_message.pod_path
             locale = locales.Locale.from_alias(self.pod, params.get('locale'))
             doc = self.pod.get_doc(pod_path, locale=locale)
-            print 'aaa', doc
             return rendered.RenderedController(doc=doc, _pod=self.pod)
         elif isinstance(route_message, messages.SitemapRoute):
             path_format = route_message.path_format

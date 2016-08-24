@@ -81,7 +81,7 @@ class RenderedTest(unittest.TestCase):
         # Verify untranslated.
         controller, params = pod.match('/ja/test/')
         content = controller.render(params)
-        self.assertEqual(content, content)
+        self.assertEqual(expected, content)
 
         controller, params = pod.match('/test/')
         content = controller.render(params)
