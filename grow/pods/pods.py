@@ -14,7 +14,6 @@ from ..preprocessors import preprocessors
 from ..translators import translators
 from grow.common import sdk_utils
 from grow.common import utils
-from grow.deployments import deployments
 from werkzeug.contrib import cache as werkzeug_cache
 import copy
 import jinja2
@@ -211,8 +210,14 @@ class Pod(object):
         if not collection_path or not unused_path:
             text = '"{}" is not a path to a document.'.format(pod_path)
             raise collection.BadCollectionNameError(text)
-        collection = self.get_collection(collection_path)
-        return collection.get_doc(pod_path, locale=locale)
+        original_collection_path = collection_path
+        col = self.get_collection(collection_path)
+        while not col.exists:
+            col = col.parent
+            if not col:
+                col = self.get_collection(original_collection_path)
+                break
+        return col.get_doc(pod_path, locale=locale)
 
     def get_home_doc(self):
         home = self.yaml.get('home')
@@ -302,6 +307,8 @@ class Pod(object):
 
     def get_deployment(self, nickname):
         """Returns a pod-specific deployment."""
+        # Lazy import avoids environment errors and speeds up importing.
+        from grow.deployments import deployments
         if 'deployments' not in self.yaml:
             raise ValueError('No pod-specific deployments configured.')
         destination_configs = self.yaml['deployments']
@@ -417,8 +424,13 @@ class Pod(object):
 
     @utils.memoize
     def _get_bytecode_cache(self):
-        client = werkzeug_cache.SimpleCache()
-        return jinja2.MemcachedBytecodeCache(client=client)
+        return jinja2.MemcachedBytecodeCache(client=self.cache)
+
+    @utils.cached_property
+    def cache(self):
+        if utils.is_appengine():
+            return werkzeug_cache.MemcachedCache(default_timeout=0)
+        return werkzeug_cache.SimpleCache(default_timeout=0)
 
     def list_jinja_extensions(self):
         extensions = []

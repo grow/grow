@@ -15,8 +15,8 @@ class SitemapController(controllers.BaseController):
         else:
             self.path = (self.pod.podspec.root + '/sitemap.xml').replace('//', '/')
         self.path = '/' + self.path.lstrip('/')
-        self.collections = list(pod.list_collections(collections))
         self.locales = locales
+        self._collection_paths = collections
         super(SitemapController, self).__init__(_pod=pod)
 
     def __repr__(self):
@@ -31,6 +31,10 @@ class SitemapController(controllers.BaseController):
     @property
     def mimetype(self):
         return mimetypes.guess_type(self.path)[0]
+
+    @utils.cached_property
+    def collections(self):
+        return list(self.pod.list_collections(self._collection_paths))
 
     def get_mimetype(self, params=None):
         return self.mimetype

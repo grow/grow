@@ -205,6 +205,13 @@ class Collection(object):
     def path_format(self):
         return self._get_builtin_field('path')
 
+    @property
+    def parent(self):
+        parent_pod_path = os.path.normpath(self.pod_path[:-len(self.basename)])
+        if parent_pod_path == Collection.CONTENT_PATH:
+            return
+        return self.pod.get_collection(parent_pod_path)
+
     def delete(self):
         if len(self.list_docs(include_hidden=True)):
             text = 'Collections that are not empty cannot be deleted.'
