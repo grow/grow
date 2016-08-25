@@ -341,7 +341,7 @@ class Collection(object):
             localized_path = fields.get('$localization', {}).get('path')
             if localized_path is None and self.localization:
                 localized_path = self.localization.get('path')
-            if localized_path is not None:
+            if localized_path:
                 rule_format = utils.reformat_rule(
                     localized_path, pod=self.pod, **kwargs)
                 route = messages.Route(
