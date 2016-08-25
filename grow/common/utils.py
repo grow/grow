@@ -457,10 +457,11 @@ def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
     return new_data
 
 
-def reformat_rule(path, pod, base=None):
-    if base:
-      path = path.replace('{base}', base)
+def reformat_rule(path, pod, **kwargs):
     path = path.replace('{root}', pod.podspec.root)
     path = path.replace('{locale}', '<grow:locale>')
+    for key, value in kwargs.iteritems():
+        value = '' if value is None else value
+        path = path.replace('{' + key + '}', value)
     path = path.replace('//', '/')
     return path

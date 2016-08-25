@@ -53,15 +53,13 @@ class Routes(object):
         rules = self.cache.get('routes')
         if rules is None:
             rules = []
-            serving_paths = set()
             for col in self.pod.list_collections():
                 for route in col.routes():
                     rule = routing.Rule(route.path_format, endpoint=route)
                     rules.append(rule)
             # Static routes.
             rules += self._build_static_routing_map_and_return_rules()
-            if not utils.is_appengine():
-                self.cache.set('routes', rules)
+            self.cache.set('routes', rules)
         return routing.Map(rules, converters=Routes.converters)
 
 #                if serving_path in serving_paths:
@@ -175,13 +173,11 @@ class Routes(object):
         return locales_to_paths
 
     def get_controllers_to_paths(self):
-        controllers_to_paths = collections.defaultdict(list)
+        controllers_to_paths = collections.defaultdict(set)
         for route in self:
             controller = self.route_to_controller(route.endpoint)
-            name = str(controller)
             paths = controller.list_concrete_paths()
-            controllers_to_paths[name] += paths
-            controllers_to_paths[name].sort()
+            controllers_to_paths[str(controller)] = sorted(paths)
         return controllers_to_paths
 
     @utils.memoize

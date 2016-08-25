@@ -17,6 +17,12 @@ import yaml
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
 PATH_LOCALE_REGEX = re.compile('(.*)@([^\.]*)\.(.*)')
+EXTENSIONS = (
+    '.html',
+    '.md',
+    '.yaml',
+    '.yml',
+)
 
 
 class Error(Exception):
