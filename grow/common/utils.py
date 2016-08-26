@@ -458,10 +458,19 @@ def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
 
 
 def reformat_rule(path, pod, **kwargs):
-    path = path.replace('{root}', pod.podspec.root)
-    path = path.replace('{locale}', '<grow:locale>')
+    # Assume lowercase locales for now.
+    if 'locales' in kwargs and kwargs['locales']:
+        locales = ', '.join([
+            pod.normalize_locale(locale).alias
+            for locale in kwargs.pop('locales')
+        ])
+        path = path.replace('{locale}', '<any({}):locale>'.format(locales))
+    elif 'locale' in kwargs and kwargs['locale']:
+        locale = kwargs.pop('locale')
+        path = path.replace('{locale}', pod.normalize_locale(locale).alias)
     for key, value in kwargs.iteritems():
         value = '' if value is None else value
         path = path.replace('{' + key + '}', value)
+    path = path.replace('{root}', pod.podspec.root)
     path = path.replace('//', '/')
     return path

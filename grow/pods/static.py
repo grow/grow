@@ -116,7 +116,8 @@ class StaticFile(object):
             if self.pod.file_exists(localized_pod_path):
                 # TODO(jeremydw): Centralize path formatting.
                 # Internal paths use Babel locales, serving paths use aliases.
-                locale = self.locale.alias if self.locale is not None else self.locale
+                locale = self.locale.alias if self.locale is not None \
+                    else self.locale
                 localized_serving_path = self.localization.serve_at + suffix
                 kwargs = {
                     'locale': locale,
@@ -128,8 +129,11 @@ class StaticFile(object):
                     kwargs['fingerprint'] = fingerprint
                 localized_serving_path = localized_serving_path.format(**kwargs)
                 if self.fingerprinted and localized_serving_path:
-                    fingerprint = StaticFile._create_fingerprint(self.pod, localized_pod_path)
-                    localized_serving_path = StaticFile.apply_fingerprint(localized_serving_path, fingerprint)
+                    fingerprint = StaticFile._create_fingerprint(
+                        self.pod, localized_pod_path)
+                    localized_serving_path = \
+                        StaticFile.apply_fingerprint(
+                            localized_serving_path, fingerprint)
                 serving_path = localized_serving_path.replace('//', '/')
         if serving_path:
             return urls.Url(
@@ -168,8 +172,6 @@ class StaticController(controllers.BaseController):
             if 'locale' in kwargs:
                 locale = locales.Locale.from_alias(self.pod, kwargs['locale'])
                 kwargs['locale'] = str(locale)
-            if '{root}' in source_format:
-                kwargs['root'] = self.pod.podspec.root
             pod_path = source_format.format(**kwargs)
             if self.fingerprinted:
                 pod_path = StaticFile.remove_fingerprint(pod_path)
@@ -278,7 +280,8 @@ class StaticController(controllers.BaseController):
                     pattern = '**{}**'.format(pattern)
                 for skip_paths in fnmatch.filter(paths, pattern):
                     paths = [path for path in paths
-                             if path.replace(self.pod.root, '') not in skip_paths]
+                             if path.replace(self.pod.root, '')
+                             not in skip_paths]
 
             for pod_path in paths:
                 match = re.match(source_regex, pod_path)
@@ -291,22 +294,28 @@ class StaticController(controllers.BaseController):
                         '{locale}', '(?P<locale>[^/]*)')
                     if re.match(localized_source_regex, pod_path):
                         continue
-                if match:
-                    kwargs = match.groupdict()
-                    kwargs['root'] = self.pod.podspec.root
-                    if 'fingerprint' in self.path_format:
-                        fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
-                        kwargs['fingerprint'] = fingerprint
-                    if 'locale' in kwargs:
-                        normalized_locale = self.pod.normalize_locale(kwargs['locale'])
-                        kwargs['locale'] = (
-                            normalized_locale.alias if normalized_locale is not None
-                            else normalized_locale)
-                    matched_path = self.path_format.format(**kwargs)
-                    matched_path = matched_path.replace('//', '/')
-                    if self.fingerprinted:
-                        fingerprint = StaticFile._create_fingerprint(self.pod, pod_path)
-                        matched_path = StaticFile.apply_fingerprint(matched_path, fingerprint)
-                    concrete_paths.add(matched_path)
+                if not match:
+                    continue
+                kwargs = match.groupdict()
+                kwargs['root'] = self.pod.podspec.root
+                if 'fingerprint' in self.path_format:
+                    fingerprint = StaticFile._create_fingerprint(
+                        self.pod, pod_path)
+                    kwargs['fingerprint'] = fingerprint
+                if 'locale' in kwargs:
+                    normalized_locale = self.pod.normalize_locale(
+                        kwargs['locale'])
+                    kwargs['locale'] = (
+                        normalized_locale.alias
+                        if normalized_locale is not None
+                        else normalized_locale)
+                matched_path = self.path_format.format(**kwargs)
+                matched_path = matched_path.replace('//', '/')
+                if self.fingerprinted:
+                    fingerprint = StaticFile._create_fingerprint(
+                        self.pod, pod_path)
+                    matched_path = StaticFile.apply_fingerprint(
+                        matched_path, fingerprint)
+                concrete_paths.add(matched_path)
 
         return list(concrete_paths)

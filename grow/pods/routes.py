@@ -85,6 +85,7 @@ class Routes(object):
             path = path.replace('{root}', self.podspec['root'])
         path = path.replace('{env.fingerprint}', self.pod.env.fingerprint)
         path = path.replace('{fingerprint}', '<grow:fingerprint>')
+        path = path.replace('{locale}', '<grow:locale>')
         path = path.replace('//', '/')
         return path
 
@@ -92,15 +93,14 @@ class Routes(object):
         rules = []
         # Auto-generated from flags.
         if 'sitemap' in self.podspec:
-            sitemap_path = self.podspec['sitemap'].get('path', '/{root}/sitemap.xml')
+            sitemap_path = \
+                self.podspec['sitemap'].get('path', '/{root}/sitemap.xml')
             path_format = utils.reformat_rule(sitemap_path, pod=self.pod)
             route = messages.SitemapRoute(path_format=path_format)
             rules.append(routing.Rule(route.path_format, endpoint=route))
         if 'static_dir' in self.pod.flags:
             path = self.pod.flags['static_dir'] + '<grow:filename>'
-            route = messages.StaticRoute(
-                path_format=path,
-                pod_path_format=path)
+            route = messages.StaticRoute(path_format=path, pod_path_format=path)
             rules.append(routing.Rule(route.path_format, endpoint=route))
         if 'static_dirs' in self.podspec:
             for config in self.podspec['static_dirs']:
@@ -127,15 +127,15 @@ class Routes(object):
                         + '<grow:filename>'
                     static_dir = localization.static_dir
                     localized_static_dir = static_dir + '<grow:filename>'
-                    rule_path = utils.reformat_rule(
-                        localized_serve_at, pod=self.pod)
-                    rule_path = self.format_path(rule_path)
                     route = messages.StaticRoute(
                         path_format=localized_serve_at,
                         pod_path_format=localized_static_dir,
                         localized=True,
                         localization=localization,
                         fingerprinted=fingerprinted)
+                    rule_path = utils.reformat_rule(
+                        localized_serve_at, pod=self.pod)
+                    rule_path = self.format_path(rule_path)
                     rules.append(routing.Rule(rule_path, endpoint=route))
         return rules
 
@@ -168,8 +168,7 @@ class Routes(object):
         for route in self:
             controller = self.route_to_controller(route.endpoint)
             paths = controller.list_concrete_paths()
-            locale = controller.locale
-            locales_to_paths[locale] += paths
+            locales_to_paths[controller.locale] += paths
         return locales_to_paths
 
     def get_controllers_to_paths(self):

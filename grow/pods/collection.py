@@ -90,9 +90,7 @@ class Collection(object):
             locale = self.localization['default_locale']
         else:
             locale = self.pod.podspec.default_locale
-        locale = locales.Locale.parse(locale)
-        if locale:
-            locale.set_alias(self.pod)
+        locale = locales.Locale.parse(locale, pod=self.pod)
         return locale
 
     @classmethod
@@ -309,44 +307,58 @@ class Collection(object):
                 return []
             if 'locales' in self.localization:
                 codes = self.localization['locales'] or []
-                return locales.Locale.parse_codes(codes)
+                return locales.Locale.parse_codes(codes, pod=self.pod)
         return self.pod.list_locales()
 
     def routes(self, recursive=True):
         routes = []
-
         for pod_path in self.pod.list_dir(self.pod_path, recursive=recursive):
             doc_pod_path = os.path.join(self.pod_path, pod_path[1:])
             base, ext = os.path.splitext(os.path.basename(doc_pod_path))
             if base.startswith(('.', '_')) or ext not in formats.EXTENSIONS:
                 continue
-            form = formats.Format.get2(pod_path=doc_pod_path, pod=self.pod)
+            form = formats.Format.get(self.pod, doc_pod_path)
             fields = form and form.fields or {}
             kwargs = {'base': base}
             kwargs['slug'] = fields.get('$slug',
                 utils.slugify(fields.get('$title'))
                               if '$title' in fields else None)
-
             # Base document.
             base_path_format = fields.get('$path', self.path_format)
             if base_path_format:
+
+                locale = fields.get('$localization', {}).get('default_locale')
+                if locale:
+                    locale = locales.Locale.parse(locale, pod=self.pod)
+                else:
+                    locale = self.default_locale
+                if locale:
+                    kwargs['locale'] = locale
+
                 rule_format = utils.reformat_rule(
                     base_path_format, pod=self.pod, **kwargs)
                 route = messages.Route(
                     path_format=rule_format,
                     pod_path=doc_pod_path)
                 routes.append(route)
-
             # Localized paths.
             localized_path = fields.get('$localization', {}).get('path')
             if localized_path is None and self.localization:
                 localized_path = self.localization.get('path')
+
+            locale_objs = fields.get('$localization', {}).get('locales')
+            if locale_objs is None:
+                locale_objs = self.locales
+            else:
+                locale_ojbs = locales.Locale.parse_codes(locale_objs, pod=self.pod)
+
             if localized_path:
+                kwargs.pop('locale', None)
+                kwargs['locales'] = locale_objs
                 rule_format = utils.reformat_rule(
                     localized_path, pod=self.pod, **kwargs)
                 route = messages.Route(
                     path_format=rule_format,
                     pod_path=doc_pod_path)
                 routes.append(route)
-
         return routes

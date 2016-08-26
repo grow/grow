@@ -324,7 +324,7 @@ class Pod(object):
 
     def list_locales(self):
         codes = self.yaml.get('localization', {}).get('locales', [])
-        return locales.Locale.parse_codes(codes)
+        return locales.Locale.parse_codes(codes, pod=self)
 
     @utils.memoize
     def get_translator(self, service=utils.SENTINEL):
@@ -479,9 +479,7 @@ class Pod(object):
     def normalize_locale(self, locale, default=None):
         locale = locale or default or self.podspec.default_locale
         if isinstance(locale, basestring):
-            locale = locales.Locale.parse(locale)
-        if locale is not None:
-            locale.set_alias(self)
+            locale = locales.Locale.parse(locale, pod=self)
         return locale
 
     def load(self):

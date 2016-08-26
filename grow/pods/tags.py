@@ -202,12 +202,12 @@ def date(datetime_obj=None, _pod=None, **kwargs):
 
 @utils.memoize_tag
 def locales(codes, _pod=None):
-    return locales_lib.Locale.parse_codes(codes)
+    return locales_lib.Locale.parse_codes(codes, pod=_pod)
 
 
 @utils.memoize_tag
 def locale(code, _pod=None):
-    return locales_lib.Locale.parse(code)
+    return locales_lib.Locale.parse(code, pod=_pod)
 
 
 @jinja2.contextfilter

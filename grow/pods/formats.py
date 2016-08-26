@@ -39,11 +39,11 @@ class BadLocalesError(BadFormatError):
 
 class Format(object):
 
-    def __init__(self, doc, pod=None, pod_path=None):
+    def __init__(self, pod, pod_path, doc=None):
         self.doc = doc
-        self.pod = pod or doc.pod
+        self.pod = pod
         self.body = None
-        self.pod_path = pod_path or self.doc.pod_path
+        self.pod_path = pod_path
         self.root_pod_path = self.pod_path
         self.locale_from_path = None
         self.content = self._init_content(self.pod_path)
@@ -114,25 +114,16 @@ class Format(object):
         return ''
 
     @classmethod
-    def get(cls, doc):
-        if doc.ext == '.html':
-            return HtmlFormat(doc)
-        elif doc.ext in ('.yaml', '.yml'):
-            return YamlFormat(doc)
-        elif doc.ext == '.md':
-            return MarkdownFormat(doc)
+    def get(cls, pod, pod_path, doc=None):
+        _, ext = os.path.splitext(pod_path)
+        if ext == '.html':
+            return HtmlFormat(pod, pod_path, doc=doc)
+        elif ext in ('.yaml', '.yml'):
+            return YamlFormat(pod, pod_path, doc=doc)
+        elif ext == '.md':
+            return MarkdownFormat(pod, pod_path, doc=doc)
         text = 'Unsupported extension for content document: {}'
-        raise BadFormatError(text.format(doc.basename))
-
-    @classmethod
-    def get2(cls, pod_path, pod):
-        if pod_path.endswith('.html'):
-            return HtmlFormat(doc=None, pod_path=pod_path, pod=pod)
-        elif pod_path.endswith(('.yaml', '.yml')):
-            return YamlFormat(doc=None, pod_path=pod_path, pod=pod)
-        elif pod_path.endswith('.md'):
-            return MarkdownFormat(doc=None, pod_path=pod_path, pod=pod)
-        return None
+        raise BadFormatError(text.format(pod_path))
 
     @staticmethod
     def has_front_matter(content):

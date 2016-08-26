@@ -54,15 +54,11 @@ class Document(object):
         try:
             self.root_pod_path, locale_from_path = \
                 formats.Format.parse_localized_path(pod_path)
-            if locale_from_path:
-                locale = locale_from_path
-            return self.pod.normalize_locale(
-                locale, default=self.default_locale)
+            locale = locale_from_path if locale_from_path else locale
         except IOError as exc:  # Document does not exist.
-            if '[Errno 2] No such file or directory' in str(exc):
-                return None
-            else:
+            if '[Errno 2] No such file or directory' not in str(exc):
                 raise
+        return self.pod.normalize_locale(locale, default=self.default_locale)
 
     def __eq__(self, other):
         return (isinstance(self, Document)
@@ -87,9 +83,7 @@ class Document(object):
         if (self.fields.get('$localization')
             and 'default_locale' in self.fields['$localization']):
             identifier = self.fields['$localization']['default_locale']
-            locale = locales.Locale.parse(identifier)
-            if locale:
-                locale.set_alias(self.pod)
+            locale = locales.Locale.parse(identifier, pod=self.pod)
             return locale
         return self.collection.default_locale
 
@@ -101,12 +95,12 @@ class Document(object):
         return {} if not fields else fields
 
     def get_tagged_fields(self):
-        format = formats.Format.get(self)
+        format = formats.Format.get(self.pod, self.pod_path, self)
         return format.fields
 
     @utils.cached_property
     def format(self):
-        return formats.Format.get(self)
+        return formats.Format.get(self.pod, self.pod_path, self)
 
     @property
     def url(self):
@@ -202,7 +196,7 @@ class Document(object):
     @utils.memoize
     def get_serving_path(self):
         # Get root path.
-        locale = str(self.locale)
+        locale = str(self.locale and self.locale.alias)
         config = self.pod.get_podspec().get_config()
         root_path = config.get('flags', {}).get('root_path', '')
         if locale == self.default_locale:
@@ -213,7 +207,7 @@ class Document(object):
                 'No path format found for {}. You must specify a path '
                 'format in either the blueprint or the document.'.format(self))
         path_format = (path_format
-                       .replace('<grow:locale>', '{locale}')
+                       .replace('<locale>', '{locale}')
                        .replace('<grow:slug>', '{slug}'))
 
         # Prevent double slashes when combining root path and path format.
@@ -290,7 +284,7 @@ class Document(object):
                 return []
             if 'locales' in localization:
                 codes = localization['locales'] or []
-                return locales.Locale.parse_codes(codes)
+                return locales.Locale.parse_codes(codes, pod=self.pod)
         return self.collection.locales
 
     @property
