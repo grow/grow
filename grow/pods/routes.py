@@ -53,20 +53,22 @@ class Routes(object):
         rules = self.cache.get('routes')
         if rules is None:
             rules = []
+            serving_paths = set()
             for col in self.pod.list_collections():
                 for route in col.routes():
-                    rule = routing.Rule(route.path_format, endpoint=route)
+                    serving_path = route.path_format
+                    if serving_path in serving_paths:
+                        text = 'Serving path "{}" was used twice by {}'
+                        raise DuplicatePathsError(
+                            text.format(serving_path, serving_path))
+                    serving_paths.add(serving_path)
+                    rule = routing.Rule(serving_path, endpoint=route)
                     rules.append(rule)
             # Static routes.
             rules += self._build_static_routing_map_and_return_rules()
             self.cache.set('routes', rules)
         return routing.Map(rules, converters=Routes.converters)
 
-#                if serving_path in serving_paths:
-#                    text = 'Serving path "{}" was used twice by {}'
-#                    raise DuplicatePathsError(text.format(serving_path, doc))
-#                serving_paths.add(serving_path)
-#                rule = routing.Rule(serving_path, endpoint=controller)
 
     def _build_static_routing_map_and_return_rules(self):
         rules = self.list_static_routes()
