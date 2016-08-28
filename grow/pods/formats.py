@@ -17,6 +17,7 @@ import yaml
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
 PATH_LOCALE_REGEX = re.compile('(.*)@([^\.]*)\.(.*)')
+GLOB_YAMLS_DIC = {}
 
 
 class Error(Exception):
@@ -241,19 +242,25 @@ class _SplitDocumentFormat(Format):
 class YamlFormat(_SplitDocumentFormat):
 
     def load(self):
+        key = "{0}_{1}".format(self.root_pod_path, self.doc._locale_kwarg)
+        global GLOB_YAMLS_DIC
+        if key in GLOB_YAMLS_DIC:
+            self.fields, self.body = GLOB_YAMLS_DIC[key]
+            return
         try:
-            if not self._has_front_matter:
+            if self._has_front_matter:
+                self._handle_pairs_of_parts_and_bodies()
+            else:
+                self.body = self.content
                 self.fields = utils.load_yaml(
                     self.content,
                     doc=self.doc,
                     pod=self.doc.pod) or {}
-                self.body = self.content
-                return
-            self._handle_pairs_of_parts_and_bodies()
         except (yaml.composer.ComposerError, yaml.scanner.ScannerError) as e:
             message = 'Error parsing {}: {}'.format(self.doc.pod_path, e)
             logging.exception(message)
             raise BadFormatError(message)
+        GLOB_YAMLS_DIC[key] = (self.fields, self.body)
 
 
 class HtmlFormat(_SplitDocumentFormat):
