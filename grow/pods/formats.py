@@ -35,7 +35,6 @@ class Format(object):
 
     def __init__(self, doc):
         self.doc = doc
-        self.pod = doc.pod
         self.body = None
         self.pod_path = self.doc.pod_path
         self.root_pod_path = self.pod_path
@@ -91,11 +90,11 @@ class Format(object):
         self.root_pod_path, self.locale_from_path = \
             Format.parse_localized_path(pod_path)
         if self.locale_from_path:
-            if self.pod.file_exists(self.root_pod_path):
-                root_content = self.pod.read_file(self.root_pod_path)
+            if self.doc.pod.file_exists(self.root_pod_path):
+                root_content = self.doc.pod.read_file(self.root_pod_path)
             else:
                 root_content = ''
-            localized_content = self.pod.read_file(pod_path)
+            localized_content = self.doc.pod.read_file(pod_path)
             root_content_with_frontmatter = Format._normalize_frontmatter(
                 self.root_pod_path, root_content)
             localized_content_with_frontmatter = Format._normalize_frontmatter(
@@ -103,8 +102,8 @@ class Format(object):
             return '{}\n{}'.format(
                 root_content_with_frontmatter,
                 localized_content_with_frontmatter)
-        if self.pod.file_exists(pod_path):
-            return self.pod.read_file(pod_path)
+        if self.doc.pod.file_exists(pod_path):
+            return self.doc.pod.read_file(pod_path)
         return ''
 
     @classmethod
