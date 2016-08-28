@@ -40,7 +40,7 @@ class Format(object):
         self.pod_path = self.doc.pod_path
         self.root_pod_path = self.pod_path
         self.locale_from_path = None
-        self.content = self._init_content(self.pod_path)
+        self.content = self._init_content()
         self._has_front_matter = Format.has_front_matter(self.content)
         self._locales_from_base = []
         self._locales_from_parts = []
@@ -87,24 +87,24 @@ class Format(object):
         base, ext = os.path.splitext(pod_path)
         return '{}@{}{}'.format(base, locale, ext)
 
-    def _init_content(self, pod_path):
+    def _init_content(self):
         self.root_pod_path, self.locale_from_path = \
-            Format.parse_localized_path(pod_path)
+            Format.parse_localized_path(self.pod_path)
         if self.locale_from_path:
             if self.doc.pod.file_exists(self.root_pod_path):
                 root_content = self.doc.pod.read_file(self.root_pod_path)
             else:
                 root_content = ''
-            localized_content = self.doc.pod.read_file(pod_path)
+            localized_content = self.doc.pod.read_file(self.pod_path)
             root_content_with_frontmatter = Format._normalize_frontmatter(
                 self.root_pod_path, root_content)
             localized_content_with_frontmatter = Format._normalize_frontmatter(
-                pod_path, localized_content, locale=self.locale_from_path)
+                self.pod_path, localized_content, locale=self.locale_from_path)
             return '{}\n{}'.format(
                 root_content_with_frontmatter,
                 localized_content_with_frontmatter)
-        if self.doc.pod.file_exists(pod_path):
-            return self.doc.pod.read_file(pod_path)
+        if self.doc.pod.file_exists(self.pod_path):
+            return self.doc.pod.read_file(self.pod_path)
         return ''
 
     @classmethod
