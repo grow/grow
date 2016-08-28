@@ -257,7 +257,7 @@ class YamlFormat(_SplitDocumentFormat):
             raise BadFormatError(message)
 
 
-class HtmlFormat(YamlFormat):
+class HtmlFormat(_SplitDocumentFormat):
 
     def _iterate_content(self):
         pairs = utils.every_two(Format.split_front_matter(self.content))
