@@ -108,6 +108,18 @@ class Document(object):
     def format(self):
         return formats.Format.get(self)
 
+    @utils.cached_property
+    def virtual_key(self):
+        last_mod = 0
+        try:
+            last_mod = self.pod.file_modified(self.pod_path)
+        except OSError:
+            pass
+        return "{0}|{1}|{2}"\
+            .format(self.root_pod_path,
+                    self._locale_kwarg,
+                    last_mod)
+
     @property
     def url(self):
         path = self.get_serving_path()

@@ -45,23 +45,21 @@ class Format(object):
         self._locales_from_parts = []
         self.fields = {}
 
-        self.key = "{0}_{1}".format(doc.root_pod_path, doc._locale_kwarg)
-
-        if self.key in doc.pod.virtual_files:
+        if doc.virtual_key in doc.pod.virtual_files:
             self.fields, \
             self.body, \
             self._has_front_matter, \
             self._locales_from_base, \
-            self._locales_from_parts = doc.pod.virtual_files[self.key]
+            self._locales_from_parts = doc.pod.virtual_files[doc.virtual_key]
             return
         else:
             self.load()
-            doc.pod.virtual_files[self.key] = (self.fields,
+            doc.pod.virtual_files[doc.virtual_key] = (self.fields,
                            self.body,
                            self._has_front_matter,
                            self._locales_from_base,
                            self._locales_from_parts)
-            #print len(doc.pod.virtual_files), self.key
+            #print len(doc.pod.virtual_files), doc.virtual_key
 
 
     @staticmethod

@@ -498,6 +498,9 @@ class Pod(object):
         return utils.untag_fields(fields)
 
     def write_yaml(self, path, content):
+        for virtual_key in self.virtual_files.keys():
+            if path in virtual_key:
+                del self.virtual_files[virtual_key]
         content = utils.dump_yaml(content)
         self.write_file(path, content)
 
