@@ -37,30 +37,16 @@ class Format(object):
         self.doc = doc
         self.body = None
         self.pod_path = self.doc.pod_path
-        #self.root_pod_path = self.pod_path
-        #self.locale_from_path = None
         self.content = self._init_content()
         self._has_front_matter = Format.has_front_matter(self.content)
         self._locales_from_base = []
         self._locales_from_parts = []
         self.fields = {}
-
-        if doc.virtual_key in doc.pod.virtual_files:
-            self.fields, \
-            self.body, \
-            self._has_front_matter, \
-            self._locales_from_base, \
-            self._locales_from_parts = doc.pod.virtual_files[doc.virtual_key]
+        if self._load_existing():
             return
-        else:
-            self.load()
-            doc.pod.virtual_files[doc.virtual_key] = (self.fields,
-                           self.body,
-                           self._has_front_matter,
-                           self._locales_from_base,
-                           self._locales_from_parts)
-            #print len(doc.pod.virtual_files), doc.virtual_key
 
+        self.load()
+        self._add_to_pod()
 
     @staticmethod
     def _normalize_frontmatter(pod_path, content, locale=None):
@@ -121,6 +107,25 @@ class Format(object):
         if self.doc.pod.file_exists(self.pod_path):
             return self.doc.pod.read_file(self.pod_path)
         return ''
+
+    def _load_existing(self):
+        if self.doc.virtual_key in self.doc.pod.virtual_files:
+            self.fields, \
+            self.body, \
+            self._has_front_matter, \
+            self._locales_from_base, \
+            self._locales_from_parts = \
+                self.doc.pod.virtual_files[self.doc.virtual_key]
+            return True
+        return False
+
+    def _add_to_pod(self):
+        self.doc.pod.virtual_files[self.doc.virtual_key] \
+            = (self.fields,
+               self.body,
+               self._has_front_matter,
+               self._locales_from_base,
+               self._locales_from_parts)
 
     @classmethod
     def get(cls, doc):
