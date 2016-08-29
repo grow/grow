@@ -120,12 +120,12 @@ class Format(object):
         return False
 
     def _add_to_pod(self):
-        self.doc.pod.virtual_files[self.doc.virtual_key] \
-            = (self.fields,
-               self.body,
-               self._has_front_matter,
-               self._locales_from_base,
-               self._locales_from_parts)
+        self.doc.pod.virtual_files[self.doc.virtual_key] = \
+            (self.fields,
+             self.body,
+             self._has_front_matter,
+             self._locales_from_base,
+             self._locales_from_parts)
 
     @classmethod
     def get(cls, doc):
