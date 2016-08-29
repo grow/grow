@@ -7,14 +7,21 @@ class Kind(messages.Enum):
     SITEMAP = 3
 
 
+class Formatters(messages.Message):
+    locale = messages.StringField(1, repeated=True)
+    filename = messages.StringField(2, repeated=True)
+
+
 class Route(messages.Message):
     path_format = messages.StringField(1)
     pod_path = messages.StringField(2)
+    formatters = messages.MessageField(Formatters, 3)
 
 
 class StaticLocalization(messages.Message):
     static_dir = messages.StringField(1)
     serve_at = messages.StringField(2)
+    formatters = messages.MessageField(Formatters, 4)
 
 
 class StaticRoute(messages.Message):
@@ -23,10 +30,12 @@ class StaticRoute(messages.Message):
     localized = messages.BooleanField(3)
     localization = messages.MessageField(StaticLocalization, 4)
     fingerprinted = messages.BooleanField(5)
+    formatters = messages.MessageField(Formatters, 6)
 
 
 class SitemapRoute(messages.Message):
     path_format = messages.StringField(1)
+    formatters = messages.MessageField(Formatters, 2)
 
 
 class Format(messages.Enum):

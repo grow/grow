@@ -16,7 +16,7 @@ import yaml
 
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
-PATH_LOCALE_REGEX = re.compile('(.*)@([^\.]*)\.(.*)')
+PATH_LOCALE_REGEX = re.compile('^(.*)@([^\.]*)\.(.*)$')
 EXTENSIONS = (
     '.html',
     '.md',

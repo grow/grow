@@ -51,13 +51,9 @@ class Document(object):
         return self.pod_path != other.pod_path or self.pod != other.pod
 
     def _init_locale(self, locale, pod_path):
-        try:
-            self.root_pod_path, locale_from_path = \
-                formats.Format.parse_localized_path(pod_path)
-            locale = locale_from_path if locale_from_path else locale
-        except IOError as exc:  # Document does not exist.
-            if '[Errno 2] No such file or directory' not in str(exc):
-                raise
+        self.root_pod_path, locale_from_path = \
+            formats.Format.parse_localized_path(pod_path)
+        locale = locale_from_path if locale_from_path else locale
         return self.pod.normalize_locale(locale, default=self.default_locale)
 
     def __eq__(self, other):
@@ -83,8 +79,7 @@ class Document(object):
         if (self.fields.get('$localization')
             and 'default_locale' in self.fields['$localization']):
             identifier = self.fields['$localization']['default_locale']
-            locale = locales.Locale.parse(identifier, pod=self.pod)
-            return locale
+            return locales.Locale.parse(identifier, pod=self.pod)
         return self.collection.default_locale
 
     @utils.cached_property
@@ -100,7 +95,7 @@ class Document(object):
 
     @utils.cached_property
     def format(self):
-        return formats.Format.get(self.pod, self.pod_path, self)
+        return pod.get_formatted_content(self.pod_path, doc=self)
 
     @property
     def url(self):
@@ -195,12 +190,7 @@ class Document(object):
 
     @utils.memoize
     def get_serving_path(self):
-        # Get root path.
         locale = str(self.locale and self.locale.alias)
-        config = self.pod.get_podspec().get_config()
-        root_path = config.get('flags', {}).get('root_path', '')
-        if locale == self.default_locale:
-            root_path = config.get('localization', {}).get('root_path', root_path)
         path_format = self.path_format
         if path_format is None:
             raise PathFormatError(
@@ -209,39 +199,6 @@ class Document(object):
         path_format = (path_format
                        .replace('<locale>', '{locale}')
                        .replace('<grow:slug>', '{slug}'))
-
-        # Prevent double slashes when combining root path and path format.
-        if path_format.startswith('/') and root_path.endswith('/'):
-            root_path = root_path[0:len(root_path) - 1]
-        path_format = root_path + path_format
-
-        # Handle default date formatting in the url.
-        while '{date|' in path_format:
-            re_date = r'({date\|(?P<date_format>[a-zA-Z0-9_%-]+)})'
-            match = re.search(re_date, path_format)
-            if match:
-                formatted_date = self.date
-                formatted_date = formatted_date.strftime(match.group('date_format'))
-                path_format = (path_format[:match.start()] + formatted_date +
-                               path_format[match.end():])
-            else:
-                # Does not match expected format, let the normal format attempt it.
-                break
-
-        # Handle the special formatting of dates in the url.
-        while '{dates.' in path_format:
-            re_dates = r'({dates\.(?P<date_name>\w+)(\|(?P<date_format>[a-zA-Z0-9_%-]+))?})'
-            match = re.search(re_dates, path_format)
-            if match:
-                formatted_date = self.dates(match.group('date_name'))
-                date_format = match.group('date_format') or '%Y-%m-%d'
-                formatted_date = formatted_date.strftime(date_format)
-                path_format = (path_format[:match.start()] + formatted_date +
-                               path_format[match.end():])
-            else:
-                # Does not match expected format, let the normal format attempt it.
-                break
-
         try:
             return self._format_path(path_format)
         except KeyError:

@@ -1,4 +1,5 @@
 from babel import localedata
+from grow.common import utils
 from grow.pods import errors
 from grow.pods import messages
 import pickle
@@ -57,6 +58,7 @@ class Locale(babel.Locale):
         super(Locale, self).__init__(language, *args, **kwargs)
 
     @classmethod
+    @utils.memoize
     def parse(cls, *args, **kwargs):
         pod = kwargs.pop('pod', None)
         locale = super(Locale, cls).parse(*args, **kwargs)
@@ -101,6 +103,7 @@ class Locale(babel.Locale):
         return 'rtl' if self.is_rtl else 'ltr'
 
     @classmethod
+    @utils.memoize
     def from_alias(cls, pod, alias):
         podspec = pod.get_podspec()
         config = podspec.get_config()

@@ -334,6 +334,10 @@ class Collection(object):
                     locale = self.default_locale
                 if locale:
                     kwargs['locale'] = locale
+                date = fields.get('$date')
+                if date:
+                    kwargs['date'] = date
+                # TODO: Implement dates.
 
                 rule_format = utils.reformat_rule(
                     base_path_format, pod=self.pod, **kwargs)
@@ -345,20 +349,28 @@ class Collection(object):
             localized_path = fields.get('$localization', {}).get('path')
             if localized_path is None and self.localization:
                 localized_path = self.localization.get('path')
-
-            locale_objs = fields.get('$localization', {}).get('locales')
-            if locale_objs is None:
-                locale_objs = self.locales
-            else:
-                locale_ojbs = locales.Locale.parse_codes(locale_objs, pod=self.pod)
+            elif base_path_format and '{locale}' in base_path_format:
+                localized_path = base_path_format
+            elif self.path_format and '{locale}' in self.path_format:
+                localized_path = self.path_format
 
             if localized_path:
-                kwargs.pop('locale', None)
-                kwargs['locales'] = locale_objs
-                rule_format = utils.reformat_rule(
-                    localized_path, pod=self.pod, **kwargs)
-                route = messages.Route(
-                    path_format=rule_format,
-                    pod_path=doc_pod_path)
-                routes.append(route)
+                locale_objs = fields.get('$localization', {}).get('locales')
+                if locale_objs is None:
+                    locale_objs = self.locales
+                else:
+                    locale_ojbs = locales.Locale.parse_codes(
+                        locale_objs, pod=self.pod)
+                formatters = messages.Formatters(
+                    locale=[self.pod.normalize_locale(locale).alias
+                            for locale in locale_objs])
+                for locale in locale_objs:
+                    kwargs['locale'] = locale
+                    rule_format = utils.reformat_rule(
+                        localized_path, pod=self.pod, **kwargs)
+                    route = messages.Route(
+                        path_format=rule_format,
+                        pod_path=doc_pod_path,
+                        formatters=formatters)
+                    routes.append(route)
         return routes
