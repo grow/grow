@@ -50,6 +50,7 @@ class PodSpecParseError(Error):
 class Pod(object):
 
     def __init__(self, root, storage=storage.auto, env=None):
+        self.virtual_files = {}
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
                      else os.path.abspath(root))

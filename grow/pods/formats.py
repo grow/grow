@@ -17,7 +17,6 @@ import yaml
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
 PATH_LOCALE_REGEX = re.compile('(.*)@([^\.]*)\.(.*)')
-GLOB_YAMLS_DIC = {}
 
 
 class Error(Exception):
@@ -38,14 +37,32 @@ class Format(object):
         self.doc = doc
         self.body = None
         self.pod_path = self.doc.pod_path
-        self.root_pod_path = self.pod_path
-        self.locale_from_path = None
+        #self.root_pod_path = self.pod_path
+        #self.locale_from_path = None
         self.content = self._init_content()
         self._has_front_matter = Format.has_front_matter(self.content)
         self._locales_from_base = []
         self._locales_from_parts = []
         self.fields = {}
-        self.load()
+
+        self.key = "{0}_{1}".format(doc.root_pod_path, doc._locale_kwarg)
+
+        if self.key in doc.pod.virtual_files:
+            self.fields, \
+            self.body, \
+            self._has_front_matter, \
+            self._locales_from_base, \
+            self._locales_from_parts = doc.pod.virtual_files[self.key]
+            return
+        else:
+            self.load()
+            doc.pod.virtual_files[self.key] = (self.fields,
+                           self.body,
+                           self._has_front_matter,
+                           self._locales_from_base,
+                           self._locales_from_parts)
+            #print len(doc.pod.virtual_files), self.key
+
 
     @staticmethod
     def _normalize_frontmatter(pod_path, content, locale=None):
@@ -242,11 +259,6 @@ class _SplitDocumentFormat(Format):
 class YamlFormat(_SplitDocumentFormat):
 
     def load(self):
-        key = "{0}_{1}".format(self.root_pod_path, self.doc._locale_kwarg)
-        global GLOB_YAMLS_DIC
-        if key in GLOB_YAMLS_DIC:
-            self.fields, self.body = GLOB_YAMLS_DIC[key]
-            return
         try:
             if self._has_front_matter:
                 self._handle_pairs_of_parts_and_bodies()
@@ -260,7 +272,6 @@ class YamlFormat(_SplitDocumentFormat):
             message = 'Error parsing {}: {}'.format(self.doc.pod_path, e)
             logging.exception(message)
             raise BadFormatError(message)
-        GLOB_YAMLS_DIC[key] = (self.fields, self.body)
 
 
 class HtmlFormat(_SplitDocumentFormat):
