@@ -116,10 +116,8 @@ class PodTest(unittest.TestCase):
             '/yaml_test/index.html',
         ]
         result = self.pod.dump()
+        self.maxDiff = None
         self.assertItemsEqual(paths, result)
-
-    def test_to_message(self):
-        self.pod.to_message()
 
     def test_list_deployments(self):
         self.pod.list_deployments()

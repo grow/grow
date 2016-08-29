@@ -10,7 +10,12 @@ from pygments.formatters import html
 from pygments.lexers import TextLexer
 from pygments.lexers import get_lexer_by_name
 import json
+import logging
+import markdown
 import re
+
+
+markdown.logger.setLevel(logging.WARNING)
 
 
 def config_from_json(config_class, config):

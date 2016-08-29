@@ -11,10 +11,6 @@ class CatalogTest(unittest.TestCase):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
-    def test_to_message(self):
-        de_catalog = self.pod.catalogs.get('de')
-        de_catalog.to_message()
-
     def test_init(self):
         de_catalog = self.pod.catalogs.get('de')
         de_catalog.init('translations/messages.pot')

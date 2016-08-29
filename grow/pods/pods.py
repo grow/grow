@@ -3,12 +3,14 @@
 from . import catalog_holder
 from . import collection
 from . import env as environment
+from . import formats
 from . import locales
 from . import messages
 from . import podspec
 from . import routes
 from . import static
 from . import storage
+from . import rendered
 from . import tags
 from ..preprocessors import preprocessors
 from ..translators import translators
@@ -119,9 +121,6 @@ class Pod(object):
     def match(self, path):
         return self.routes.match(path, env=self.env.to_wsgi_env())
 
-    def get_routes(self):
-        return self.routes
-
     def abs_path(self, pod_path):
         path = os.path.join(self.root, pod_path.lstrip('/'))
         return os.path.join(self.root, path)
@@ -183,7 +182,7 @@ class Pod(object):
             yield self.get_static(pod_path + path, locale=locale)
 
     def get_url(self, pod_path, locale=None):
-        if pod_path.startswith('/content'):
+        if pod_path.startswith(collection.Collection.CONTENT_PATH):
             doc = self.get_doc(pod_path, locale=locale)
             return doc.url
         static = self.get_static(pod_path, locale=locale)
@@ -191,8 +190,11 @@ class Pod(object):
 
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
+        return static.StaticFile(pod_path, serving_path='/foo', pod=self)
         for route in self.routes.static_routing_map.iter_rules():
-            controller = route.endpoint
+            params = {'locale': locale}
+            controller = self.routes.route_to_controller(
+                route.endpoint, params=params)
             if controller.KIND == messages.Kind.STATIC:
                 serving_path = controller.match_pod_path(pod_path)
                 if serving_path:
@@ -204,6 +206,7 @@ class Pod(object):
                 'not configured for this path in podspec.yaml.'.format(pod_path))
         raise static.BadStaticFileError(text)
 
+    @utils.memoize
     def get_doc(self, pod_path, locale=None):
         """Returns a document, given the document's pod path."""
         collection_path, unused_path = os.path.split(pod_path)
@@ -219,6 +222,7 @@ class Pod(object):
                 break
         return col.get_doc(pod_path, locale=locale)
 
+    @utils.memoize
     def get_home_doc(self):
         home = self.yaml.get('home')
         if home is None:
@@ -229,40 +233,35 @@ class Pod(object):
         return catalog_holder.Catalogs(pod=self, template_path=template_path)
 
     def create_collection(self, collection_path, fields):
-        pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
+        pod_path = os.path.join(collection.Collection.CONTENT_PATH,
+            collection_path)
         return collection.Collection.create(pod_path, fields, pod=self)
 
+    @utils.memoize
     def get_collection(self, collection_path):
-        """Returns a collection.
-
-        Args:
-          collection_path: A collection's path relative to the /content/ directory.
-        Returns:
-          Collection.
-        """
-        pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
+        pod_path = os.path.join(
+            collection.Collection.CONTENT_PATH, collection_path)
         return collection.Collection.get(pod_path, _pod=self)
 
     def export(self):
         """Builds the pod, returning a mapping of paths to content."""
         output = {}
-        routes = self.get_routes()
-        paths = []
-        for items in routes.get_locales_to_paths().values():
-            paths += items
+        total = []
+        paths = self.routes.paths()
+        num_paths = len(paths)
         text = 'Building: %(value)d/{} (in %(elapsed)s)'
-        widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
+        widgets = [progressbar.FormatLabel(text.format(num_paths))]
+        bar = progressbar.ProgressBar(widgets=widgets, maxval=num_paths)
         bar.start()
-        for path in paths:
-            controller, params = self.match(path)
+        for path, controller in self.routes.paths_to_controllers().iteritems():
+            print path, controller
             try:
-              output[path] = controller.render(params, inject=False)
+                output[path] = controller.render(inject=False)
             except:
               self.logger.error('Error building: {}'.format(controller))
               raise
             bar.update(bar.currval + 1)
-        error_controller = routes.match_error('/404.html')
+        error_controller = self.routes.match_error('/404.html')
         if error_controller:
             output['/404.html'] = error_controller.render({})
         bar.finish()
@@ -283,13 +282,6 @@ class Pod(object):
         else:
             clean_output = output
         return clean_output
-
-    def to_message(self):
-        message = messages.PodMessage()
-        message.collections = [collection.to_message()
-                               for collection in self.list_collections()]
-        message.routes = self.routes.to_message()
-        return message
 
     def delete(self):
         """Deletes the pod by deleting all of its files."""
@@ -327,9 +319,10 @@ class Pod(object):
         deployment.pod = self
         return deployment
 
+    @utils.env_cached
     def list_locales(self):
         codes = self.yaml.get('localization', {}).get('locales', [])
-        return locales.Locale.parse_codes(codes)
+        return locales.Locale.parse_codes(codes, pod=self)
 
     @utils.memoize
     def get_translator(self, service=utils.SENTINEL):
@@ -429,8 +422,11 @@ class Pod(object):
     @utils.cached_property
     def cache(self):
         if utils.is_appengine():
-            return werkzeug_cache.MemcachedCache(default_timeout=0)
-        return werkzeug_cache.SimpleCache(default_timeout=0)
+            return werkzeug_cache.MemcachedCache()
+        if 'GROW_FILE_CACHE' in os.environ:
+            path = os.path.join(self.root, '.cache')
+            return werkzeug_cache.FileSystemCache(path, default_timeout=0)
+        return werkzeug_cache.SimpleCache()
 
     def list_jinja_extensions(self):
         extensions = []
@@ -456,7 +452,7 @@ class Pod(object):
                 'jinja2.ext.loopcontrols',
                 'jinja2.ext.with_',
             ],
-            'loader': self.storage.JinjaLoader(self.root if root is None else root),
+            'loader': self.storage.JinjaLoader(root or self.root),
             'lstrip_blocks': True,
             'trim_blocks': True,
         }
@@ -464,7 +460,8 @@ class Pod(object):
             kwargs['bytecode_cache'] = self._get_bytecode_cache()
         kwargs['extensions'].extend(self.list_jinja_extensions())
         env = jinja2.Environment(**kwargs)
-        env.globals.update({'g': tags.create_builtin_tags(self, use_cache=self.env.cached)})
+        env.globals.update({'g': tags.create_builtin_tags(
+            self, use_cache=self.env.cached)})
         env.filters.update(tags.create_builtin_filters())
         get_gettext_func = self.catalogs.get_gettext_translations
         env.install_gettext_callables(
@@ -481,17 +478,21 @@ class Pod(object):
             return '/'
         return path_format.format(**{'locale': locale})
 
+    @utils.env_cached
     def normalize_locale(self, locale, default=None):
         locale = locale or default or self.podspec.default_locale
         if isinstance(locale, basestring):
-            locale = locales.Locale.parse(locale)
-        if locale is not None:
-            locale.set_alias(self)
+            return locales.Locale.parse(locale, pod=self)
         return locale
+
+    @utils.memoize
+    def locale_from_alias(self, locale_alias):
+        return locales.Locale.from_alias(self, locale_alias)
 
     def load(self):
         self.routes.routing_map
 
+    @utils.env_cached
     def read_yaml(self, path):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
         return utils.untag_fields(fields)
@@ -506,3 +507,17 @@ class Pod(object):
 
     def read_csv(self, path, locale=utils.SENTINEL):
         return utils.get_rows_from_csv(pod=self, path=path, locale=locale)
+
+    @utils.env_cached
+    def get_controller(self, pod_path, locale=None):
+        if pod_path.startswith(collection.Collection.CONTENT_PATH):
+            locale = self.locale_from_alias(locale)
+            doc = self.get_doc(pod_path, locale=locale)
+            return rendered.RenderedController(doc=doc, pod=self)
+        return static.StaticController(
+            pod, serving_path_format=path_format,
+            pod_path_format=pod_path_format)
+
+    @utils.env_cached
+    def get_formatted_content(self, pod_path, doc):
+        return formats.Format.get(self, self.pod_path, self)

@@ -6,16 +6,18 @@ from grow.pods import errors
 from grow.pods import ui
 import mimetypes
 import sys
+from werkzeug import routing
 
 
 class RenderedController(controllers.BaseController):
     KIND = messages.Kind.RENDERED
 
-    def __init__(self, view=None, doc=None, path=None, _pod=None):
-        self.view = view
+    def __init__(self, pod, doc):
         self.doc = doc
-        self.path = path
-        super(RenderedController, self).__init__(_pod=_pod)
+        self.view = doc.view
+        self.pod = pod
+        self.env = pod.env
+        super(RenderedController, self).__init__(_pod=pod)
 
     def __repr__(self):
         if not self.doc:
@@ -30,14 +32,16 @@ class RenderedController(controllers.BaseController):
     def locale(self):
         return self.doc.locale if self.doc else None
 
-    def list_concrete_paths(self):
-        if self.path:
-            return [self.path]
-        if not self.doc:
-            raise
-        return [self.doc.get_serving_path()]
+    def paths(self):
+        paths = set()
+        if self.doc.locales:
+            for locale in self.doc.locales:
+                paths.add(self.doc.localize(locale).url.path)
+        else:
+            paths.add(self.doc.url.path)
+        return paths
 
-    def render(self, params, inject=True):
+    def render(self, inject=True):
         preprocessor = None
         translator = None
         if inject:

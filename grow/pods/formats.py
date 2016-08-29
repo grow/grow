@@ -16,7 +16,13 @@ import yaml
 
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
-PATH_LOCALE_REGEX = re.compile('(.*)@([^\.]*)\.(.*)')
+PATH_LOCALE_REGEX = re.compile('^(.*)@([^\.]*)\.(.*)$')
+EXTENSIONS = (
+    '.html',
+    '.md',
+    '.yaml',
+    '.yml',
+)
 
 
 class Error(Exception):
@@ -33,11 +39,11 @@ class BadLocalesError(BadFormatError):
 
 class Format(object):
 
-    def __init__(self, doc):
+    def __init__(self, pod, pod_path, doc=None):
         self.doc = doc
-        self.pod = doc.pod
+        self.pod = pod
         self.body = None
-        self.pod_path = self.doc.pod_path
+        self.pod_path = pod_path
         self.root_pod_path = self.pod_path
         self.locale_from_path = None
         self.content = self._init_content(self.pod_path)
@@ -108,15 +114,16 @@ class Format(object):
         return ''
 
     @classmethod
-    def get(cls, doc):
-        if doc.ext == '.html':
-            return HtmlFormat(doc)
-        elif doc.ext in ('.yaml', '.yml'):
-            return YamlFormat(doc)
-        elif doc.ext == '.md':
-            return MarkdownFormat(doc)
+    def get(cls, pod, pod_path, doc=None):
+        _, ext = os.path.splitext(pod_path)
+        if ext == '.html':
+            return HtmlFormat(pod, pod_path, doc=doc)
+        elif ext in ('.yaml', '.yml'):
+            return YamlFormat(pod, pod_path, doc=doc)
+        elif ext == '.md':
+            return MarkdownFormat(pod, pod_path, doc=doc)
         text = 'Unsupported extension for content document: {}'
-        raise BadFormatError(text.format(doc.basename))
+        raise BadFormatError(text.format(pod_path))
 
     @staticmethod
     def has_front_matter(content):
@@ -188,11 +195,11 @@ class _SplitDocumentFormat(Format):
         if '$localization' in fields:
             if 'default_locale' in fields['$localization']:
                 return fields['$localization']['default_locale']
-        return self.doc.collection.default_locale
+        return self.doc.collection.default_locale if self.doc else None
 
     def _load_yaml(self, part):
         try:
-            return utils.load_yaml(part, doc=self.doc, pod=self.doc.pod)
+            return utils.load_yaml(part, doc=self.doc, pod=self.pod)
         except (yaml.parser.ParserError,
                 yaml.composer.ComposerError,
                 yaml.scanner.ScannerError) as e:
@@ -202,7 +209,7 @@ class _SplitDocumentFormat(Format):
     def _handle_pairs_of_parts_and_bodies(self):
         locales_to_fields = collections.defaultdict(dict)
         locales_to_bodies = {}
-        locale = self.doc._locale_kwarg
+        locale = self.doc._locale_kwarg if self.doc else None
         base_default_locale = None
 
         for i, parts in enumerate(self._iterate_content()):
@@ -247,7 +254,7 @@ class YamlFormat(_SplitDocumentFormat):
                 self.fields = utils.load_yaml(
                     self.content,
                     doc=self.doc,
-                    pod=self.doc.pod) or {}
+                    pod=self.pod) or {}
                 self.body = self.content
                 return
             self._handle_pairs_of_parts_and_bodies()

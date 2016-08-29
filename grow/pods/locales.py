@@ -1,4 +1,5 @@
 from babel import localedata
+from grow.common import utils
 from grow.pods import errors
 from grow.pods import messages
 import pickle
@@ -57,13 +58,19 @@ class Locale(babel.Locale):
         super(Locale, self).__init__(language, *args, **kwargs)
 
     @classmethod
+    @utils.memoize
     def parse(cls, *args, **kwargs):
+        pod = kwargs.pop('pod', None)
         locale = super(Locale, cls).parse(*args, **kwargs)
         # Weak attempt to permit fuzzy locales (locales for which we still have
-        # language and country information, but not a full localedata file for),
-        # but disallow completely invalid locales. See note at end of file.
+        # language and country information, but not a full localedata file
+        # for), but disallow completely invalid locales. See note at end of
+        # file.
         if locale and locale.get_display_name() is None:
-            raise ValueError('{} is not a valid locale identifier'.format(args[0]))
+            text = '{} is not a valid locale identifier'
+            raise ValueError(text.format(args[0]))
+        if locale and pod:
+            locale.set_alias(pod)
         return locale
 
     def __hash__(self):
@@ -78,11 +85,14 @@ class Locale(babel.Locale):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return '<Locale: "{}">'.format(str(self))
+        identifier = str(self)
+        if identifier != str(self._alias):
+            return '<Locale: {} ({})>'.format(identifier, str(self._alias))
+        return '<Locale: {}>'.format(identifier)
 
     @classmethod
-    def parse_codes(cls, codes):
-        return [cls.parse(code) for code in codes]
+    def parse_codes(cls, codes, pod=None):
+        return [cls.parse(code, pod=pod) for code in codes]
 
     @property
     def is_rtl(self):
@@ -93,6 +103,7 @@ class Locale(babel.Locale):
         return 'rtl' if self.is_rtl else 'ltr'
 
     @classmethod
+    @utils.memoize
     def from_alias(cls, pod, alias):
         podspec = pod.get_podspec()
         config = podspec.get_config()
@@ -100,7 +111,7 @@ class Locale(babel.Locale):
             aliases = config['localization']['aliases']
             for custom_locale, babel_locale in aliases.iteritems():
                 if custom_locale == alias:
-                    return cls.parse(babel_locale)
+                    return cls.parse(babel_locale, pod=pod)
         return cls.parse(alias)
 
     def set_alias(self, pod):

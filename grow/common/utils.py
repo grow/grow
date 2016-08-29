@@ -37,6 +37,9 @@ except ImportError:
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([\w|-]+)$')
 SENTINEL = object()
 SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+DATE_PATH_REGEX = re.compile(r'({date\|(?P<date_format>[a-zA-Z0-9_%-]+)})')
+DATES_PATH_REGEX = re.compile(
+    r'({dates\.(?P<date_name>\w+)(\|(?P<date_format>[a-zA-Z0-9_%-]+))?})')
 
 
 class Error(Exception):
@@ -157,6 +160,15 @@ class memoize(object):
         self.cache = {}
 
 
+class env_cached(memoize):
+
+    def __call__(self, *args, **kwargs):
+        cached = args[0].env.cached
+        if not cached:
+            return self.func(*args, **kwargs)
+        return super(env_cached, self).__call__(*args, **kwargs)
+
+
 class cached_property(property):
     """A decorator that converts a function into a lazy property.  The
     function wrapped is called the first time to retrieve the result
@@ -255,11 +267,19 @@ def make_yaml_loader(pod, doc=None):
     return YamlLoader
 
 
+@memoize
 def load_yaml(*args, **kwargs):
     pod = kwargs.pop('pod', None)
     doc = kwargs.pop('doc', None)
     loader = make_yaml_loader(pod, doc=doc)
     return yaml.load(*args, Loader=loader, **kwargs) or {}
+
+
+def load_yaml_all(*args, **kwargs):
+    pod = kwargs.pop('pod', None)
+    doc = kwargs.pop('doc', None)
+    loader = make_yaml_loader(pod, doc=doc)
+    return yaml.load_all(*args, Loader=loader, **kwargs) or {}
 
 
 @memoize
@@ -448,3 +468,47 @@ def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
             old_data.update(new_data)
         return old_data
     return new_data
+
+
+def reformat_rule(path, pod, **kwargs):
+    # Assume lowercase locales for now.
+    if 'locales' in kwargs and kwargs['locales']:
+        locales = ', '.join([
+            '"{}"'.format(pod.normalize_locale(locale).alias)
+            for locale in kwargs.pop('locales')
+        ])
+        path = path.replace('{locale}', '<any({}):locale>'.format(locales))
+    elif 'locale' in kwargs and kwargs['locale']:
+        locale = kwargs.pop('locale')
+        path = path.replace('{locale}', pod.normalize_locale(locale).alias)
+    for key, value in kwargs.iteritems():
+        value = '' if value is None else value
+        path = path.replace('{' + key + '}', str(value))
+    path = path.replace('{root}', pod.podspec.root)
+    path = path.replace('//', '/')
+    if kwargs.get('date') or kwargs.get('dates'):
+        path = reformat_date(path, pod, date=kwargs.get('date'),
+                             dates=kwargs.get('dates'))
+    return path
+
+
+def reformat_date(path_format, pod, date, dates):
+    while '{date|' in path_format:
+        match = DATE_PATH_REGEX.search(path_format)
+        if match:
+            formatted_date = date.strftime(match.group('date_format'))
+            path_format = (path_format[:match.start()] + formatted_date +
+                           path_format[match.end():])
+        else:
+            break
+    while '{dates.' in path_format:
+        match = DATES_PATH_REGEX.search(path_format)
+        if match:
+            formatted_date = dates(match.group('date_name'))
+            date_format = match.group('date_format') or '%Y-%m-%d'
+            formatted_date = formatted_date.strftime(date_format)
+            path_format = (path_format[:match.start()] + formatted_date +
+                           path_format[match.end():])
+        else:
+            break
+    return path_format
