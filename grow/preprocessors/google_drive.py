@@ -277,6 +277,14 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             return True
         return False
 
+    def _normalize_formatted_content(self, fields):
+        # A hack that sends fields through a roundtrip json serialization to
+        # avoid encoding issues with injected output from Google Sheets.
+        fp = cStringIO.StringIO()
+        json.dump(fields, fp)
+        fp.seek(0)
+        return json.load(fp)
+
     def inject(self, doc):
         path, key_to_update = self._parse_path(self.config.path)
         try:
@@ -293,6 +301,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             content, path=path, format_as=self.config.format,
             preserve=self.config.preserve, existing_data=existing_data,
             key_to_update=key_to_update)
+        fields = self._normalize_formatted_content(fields)
         fields = utils.untag_fields(fields)
         doc.inject(fields=fields)
 
