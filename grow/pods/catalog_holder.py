@@ -199,8 +199,8 @@ class Catalogs(object):
                 None,
                 auto_comments=auto_comments,
                 locations=[(path, 0)])
-
-            _add_to_catalog(message, locales)
+            if msgid:
+                _add_to_catalog(message, locales)
 
         def _babel_extract(fp, locales, path):
             try:
