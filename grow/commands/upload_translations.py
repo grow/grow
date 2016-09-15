@@ -27,6 +27,8 @@ def upload_translations(pod_path, locale, force, service, update_acl,
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     translator = pod.get_translator(service)
+    if not translator:
+        raise click.ClickException('No translators specified in podspec.yaml.')
     if update_acl:
         translator.update_acl(locales=locale)
     else:

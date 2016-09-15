@@ -72,85 +72,104 @@ class GoogleSheetsTranslator(base.Translator):
         content = fp.read()
         return updated_stat, content
 
-    def _upload_catalogs(self, catalog, source_lang):
+    def _upload_catalogs(self, catalogs, source_lang):
         project_title = self.project_title
         source_lang = str(source_lang)
+
+        # Get existing sheet ID (if it exists) from one stat.
+        stats_to_download = self._get_stats_to_download([])
+        if stats_to_download:
+            stat = stats_to_download.values()[0]
+            sheet_id = stat.ident if stat else None
+        else:
+            sheet_id = None
+
         service = self._create_service()
-        range_name = 'Sheet1!A:B'
-        major_dimension = 'columns'
-        lang = str(catalog.locale)
-        stats_to_download = self._get_stats_to_download([lang])
-        stat = stats_to_download.get(lang)
-        sheet_id = stat.ident if stat else None
         if sheet_id:
             resp = service.spreadsheets().get(spreadsheetId=sheet_id).execute()
         else:
-            row_data = []
-            row_data.append({
-                'values': [
-                    {
-                        'userEnteredValue': {'stringValue': source_lang},
-                        'userEnteredFormat': {
-                            'backgroundColor': {'red': 50, 'blue': 50, 'green': 50, 'alpha': .1},
-                            'textFormat': {'bold': True},
-                        }
-                    },
-                    {
-                        'userEnteredValue': {'stringValue': lang},
-                        'userEnteredFormat': {
-                            'backgroundColor': {'red': 50, 'blue': 50, 'green': 50, 'alpha': .1},
-                            'textFormat': {'bold': True},
-                        }
-                    },
-                ]
-            })
-            for message in catalog:
-                if not message.id:
-                    continue
-                row_data.append({
-                    'values': [
-                        {
-                            'userEnteredValue': {'stringValue': message.id},
-                            'userEnteredFormat': {'wrapStrategy': 'WRAP'}
-                        },
-                        {
-                            'userEnteredValue': {'stringValue': message.string},
-                            'userEnteredFormat': {'wrapStrategy': 'WRAP'}
-                        },
-                    ],
-                })
             sheets = []
-            sheet = {
-                'properties': {
-                    'title': lang,
-                    'gridProperties': {
-                        'columnCount': 2,
-                        'frozenRowCount': 1,
-                        'frozenColumnCount': 1,
-                    },
-                },
-                'data': [{
-                    'startRow': 0,
-                    'startColumn': 0,
-                    'rowData': row_data,
-                    'columnMetadata': [
-                        {'pixelSize': 400},
-                        {'pixelSize': 400},
-                    ],
-                }],
-            }
-            sheets.append(sheet)
+            for catalog in catalogs:
+                sheets.append(self._create_sheet_from_catalog(catalog, source_lang))
             resp = service.spreadsheets().create(body={
+                'sheets': sheets,
                 'properties': {
                     'title': project_title,
                 },
-                'sheets': sheets,
             }).execute()
         ident = resp['spreadsheetId']
         url = 'https://docs.google.com/spreadsheets/d/{}'.format(ident)
-        return base.TranslatorStat(
-            url=url,
-            lang=lang,
-            source_lang=source_lang,
-            uploaded = datetime.datetime.now(),
-            ident=ident)
+        stats = []
+        for catalog in catalogs:
+            stat = base.TranslatorStat(
+                url=url,
+                lang=str(catalog.locale),
+                source_lang=source_lang,
+                uploaded = datetime.datetime.now(),
+                ident=ident)
+            stats.append(stat)
+        return stats
+
+    def _create_header_row_data(self, source_lang, lang):
+        return {
+            'values': [
+                {
+                    'userEnteredValue': {'stringValue': source_lang},
+                    'userEnteredFormat': {
+                        'backgroundColor': {'red': 50, 'blue': 50, 'green': 50, 'alpha': .1},
+                        'textFormat': {'bold': True},
+                    }
+                },
+                {
+                    'userEnteredValue': {'stringValue': lang},
+                    'userEnteredFormat': {
+                        'backgroundColor': {'red': 50, 'blue': 50, 'green': 50, 'alpha': .1},
+                        'textFormat': {'bold': True},
+                    }
+                },
+            ]
+        }
+
+    def _create_catalog_rows(self, catalog):
+        rows = []
+        for message in catalog:
+            if not message.id:
+                continue
+            rows.append({
+                'values': [
+                    {
+                        'userEnteredValue': {'stringValue': message.id},
+                        'userEnteredFormat': {'wrapStrategy': 'WRAP'}
+                    },
+                    {
+                        'userEnteredValue': {'stringValue': message.string},
+                        'userEnteredFormat': {'wrapStrategy': 'WRAP'}
+                    },
+                ],
+            })
+        return rows
+
+    def _create_sheet_from_catalog(self, catalog, source_lang):
+        lang = str(catalog.locale)
+        row_data = []
+        row_data.append(self._create_header_row_data(source_lang, lang))
+        row_data += self._create_catalog_rows(catalog)
+        return {
+            'properties': {
+                'title': lang,
+                'gridProperties': {
+                    'columnCount': 2,
+                    'frozenRowCount': 1,
+                    'frozenColumnCount': 1,
+                },
+            },
+            'data': [{
+                'startRow': 0,
+                'startColumn': 0,
+                'rowData': row_data,
+                'columnMetadata': [
+                    {'pixelSize': 400},
+                    {'pixelSize': 400},
+                ],
+            }],
+        }
