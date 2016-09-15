@@ -88,16 +88,19 @@ class GoogleSheetsTranslator(base.Translator):
             row_data = []
             row_data.append({
                 'values': [
-                    {'userEnteredValue': {'stringValue': source_lang},
-                     'userEnteredFormat': {
-                         'backgroundColor': {'red': 100, 'blue': 100, 'green': 100, 'alpha': .1},
-                         'textFormat': {'bold': True},
-                     }},
-                    {'userEnteredValue': {'stringValue': lang},
-                     'userEnteredFormat': {
-                         'backgroundColor': {'red': 100, 'blue': 100, 'green': 100, 'alpha': .1},
-                         'textFormat': {'bold': True},
-                     },
+                    {
+                        'userEnteredValue': {'stringValue': source_lang},
+                        'userEnteredFormat': {
+                            'backgroundColor': {'red': 50, 'blue': 50, 'green': 50, 'alpha': .1},
+                            'textFormat': {'bold': True},
+                        }
+                    },
+                    {
+                        'userEnteredValue': {'stringValue': lang},
+                        'userEnteredFormat': {
+                            'backgroundColor': {'red': 50, 'blue': 50, 'green': 50, 'alpha': .1},
+                            'textFormat': {'bold': True},
+                        }
                     },
                 ]
             })
@@ -106,10 +109,14 @@ class GoogleSheetsTranslator(base.Translator):
                     continue
                 row_data.append({
                     'values': [
-                        {'userEnteredValue': {'stringValue': message.id},
-                         'userEnteredFormat': {'wrapStrategy': 'WRAP'}},
-                        {'userEnteredValue': {'stringValue': message.string},
-                         'userEnteredFormat': {'wrapStrategy': 'WRAP'}},
+                        {
+                            'userEnteredValue': {'stringValue': message.id},
+                            'userEnteredFormat': {'wrapStrategy': 'WRAP'}
+                        },
+                        {
+                            'userEnteredValue': {'stringValue': message.string},
+                            'userEnteredFormat': {'wrapStrategy': 'WRAP'}
+                        },
                     ],
                 })
             sheets = []
@@ -119,6 +126,7 @@ class GoogleSheetsTranslator(base.Translator):
                     'gridProperties': {
                         'columnCount': 2,
                         'frozenRowCount': 1,
+                        'frozenColumnCount': 1,
                     },
                 },
                 'data': [{
