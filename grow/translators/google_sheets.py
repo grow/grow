@@ -38,15 +38,16 @@ class GoogleSheetsTranslator(base.Translator):
     def _create_service(self):
         return google_drive.BaseGooglePreprocessor.create_service('sheets', 'v4')
 
-    def _download_content(self, stat):
-        sheet_id = stat.ident
-        gid = None
+    def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
-        # First two columns (source:translation).
         rangeName = "'{}'!A:B".format(stat.lang)
         resp = service.spreadsheets().values().get(
-            spreadsheetId=sheet_id, range=rangeName).execute()
-        values = resp['values']
+            spreadsheetId=spreadsheet_id, range=rangeName).execute()
+        return resp['values']
+
+    def _download_content(self, stat):
+        spreadsheet_id = stat.ident
+        values = self._download_sheet(spreadsheet_id, stat.lang)
         source_lang, lang = values.pop(0)
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
@@ -71,16 +72,29 @@ class GoogleSheetsTranslator(base.Translator):
         source_lang = str(source_lang)
 
         # Get existing sheet ID (if it exists) from one stat.
+        spreadsheet_id = None
         stats_to_download = self._get_stats_to_download([])
         if stats_to_download:
             stat = stats_to_download.values()[0]
-            sheet_id = stat.ident if stat else None
-        else:
-            sheet_id = None
+            spreadsheet_id = stat.ident if stat else None
 
+        # NOTE: Manging locales across multiple spreadsheets is unsupported.
         service = self._create_service()
-        if sheet_id:
-            resp = service.spreadsheets().get(spreadsheetId=sheet_id).execute()
+        if spreadsheet_id:
+            resp = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+            locales_to_sheet_ids = {}
+            for sheet in resp['sheets']:
+                locales_to_sheet_ids[sheet['properties']['title']] = sheet['properties']['sheetId']
+            catalogs_to_create = []
+            catalogs_to_update = []
+            for catalog in catalogs:
+                existing_sheet_id = locales_to_sheet_ids.get(str(catalog.locale))
+                if existing_sheet_id:
+                    catalogs_to_update.append(catalog)
+                else:
+                    catalogs_to_create.append(catalog)
+            self._create_sheets_request(catalogs_to_create, source_lang, spreadsheet_id)
+            self._update_sheets_request(catalogs_to_update, source_lang, spreadsheet_id)
         else:
             sheets = []
             for catalog in catalogs:
@@ -91,8 +105,9 @@ class GoogleSheetsTranslator(base.Translator):
                     'title': project_title,
                 },
             }).execute()
-        ident = resp['spreadsheetId']
-        url = 'https://docs.google.com/spreadsheets/d/{}'.format(ident)
+            spreadsheet_id = resp['spreadsheetId']
+
+        url = 'https://docs.google.com/spreadsheets/d/{}'.format(spreadsheet_id)
         stats = []
         for catalog in catalogs:
             stat = base.TranslatorStat(
@@ -100,7 +115,7 @@ class GoogleSheetsTranslator(base.Translator):
                 lang=str(catalog.locale),
                 source_lang=source_lang,
                 uploaded = datetime.datetime.now(),
-                ident=ident)
+                ident=spreadsheet_id)
             stats.append(stat)
         return stats
 
@@ -110,14 +125,24 @@ class GoogleSheetsTranslator(base.Translator):
                 {
                     'userEnteredValue': {'stringValue': source_lang},
                     'userEnteredFormat': {
-                        'backgroundColor': {'red': 50, 'blue': 50, 'green': 50, 'alpha': .1},
+                        'backgroundColor': {
+                            'red': 50,
+                            'blue': 50,
+                            'green': 50,
+                            'alpha': .1,
+                        },
                         'textFormat': {'bold': True},
                     }
                 },
                 {
                     'userEnteredValue': {'stringValue': lang},
                     'userEnteredFormat': {
-                        'backgroundColor': {'red': 50, 'blue': 50, 'green': 50, 'alpha': .1},
+                        'backgroundColor': {
+                            'red': 50,
+                            'blue': 50,
+                            'green': 50,
+                            'alpha': .1,
+                        },
                         'textFormat': {'bold': True},
                     }
                 },
@@ -168,3 +193,57 @@ class GoogleSheetsTranslator(base.Translator):
                 ],
             }],
         }
+
+    def _create_sheets_request(self, catalogs, source_lang, spreadsheet_id):
+        service = self._create_service()
+
+        # Create sheets.
+        requests = []
+        for catalog in catalogs:
+            sheet = self._create_sheet_from_catalog(catalog, source_lang)
+            request = {
+                'addSheet': {
+                    'properties': sheet['properties']
+                },
+            }
+            requests.append(request)
+        body = {'requests': requests}
+        resp = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id, body=body).execute()
+
+        # Format newly-created sheets.
+        requests = []
+        for reply in resp['replies']:
+            sheet_id = reply['addSheet']['properties']['sheetId']
+            requests.append({
+                'updateCells': {
+                    'fields': '*',
+                    'start': {
+                        'sheetId': sheet_id,
+                        'rowIndex': 0,
+                        'columnIndex': 0,
+                    },
+                    'rows': sheet['data'][0]['rowData']
+                },
+            })
+            requests.append({
+                'updateDimensionProperties': {
+                    'range': {
+                        'sheetId': sheet_id,
+                        'dimension': 'COLUMNS',
+                    },
+                    'properties': {
+                        'pixelSize': 400,
+                    },
+                    'fields': '*',
+                },
+            })
+        body = {'requests': requests}
+        resp = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id, body=body).execute()
+
+    def _update_sheets_request(self, catalogs, source_lang, spreadsheet_id):
+        pass
+#        service = self._create_service()
+#        values = self._download_sheet(spreadsheet_id, stat.lang)
+#        source_lang, lang = values.pop(0)

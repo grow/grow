@@ -237,7 +237,7 @@ class Translator(object):
         rows = []
         rows.append(['Language', 'URL', 'Wordcount'])
         for stat in stats:
-            rows.append([stat.lang, stat.url, stat.num_words])
+            rows.append([stat.lang, stat.url, stat.num_words or '--'])
         table.add_rows(rows)
         logging.info('\n' + table.draw() + '\n')
 
