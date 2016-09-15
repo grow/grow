@@ -24,10 +24,10 @@ except ImportError:
 
 
 class AccessLevel(object):
-    ADMIN = 'ADMIN'
-    READ_AND_COMMENT = 'READ_AND_COMMENT'
-    READ_AND_WRITE = 'READ_AND_WRITE'
-    READ_ONLY = 'READ_ONLY'
+    COMMENTER = 'commenter'
+    OWNER = 'owner'
+    READER = 'reader'
+    WRITER = 'writer'
 
 
 class GoogleSheetsTranslator(base.Translator):
@@ -40,7 +40,7 @@ class GoogleSheetsTranslator(base.Translator):
 
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
-        rangeName = "'{}'!A:B".format(stat.lang)
+        rangeName = "'{}'!A:B".format(locale)
         resp = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id, range=rangeName).execute()
         return resp['values']
@@ -81,20 +81,26 @@ class GoogleSheetsTranslator(base.Translator):
         # NOTE: Manging locales across multiple spreadsheets is unsupported.
         service = self._create_service()
         if spreadsheet_id:
-            resp = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+            resp = service.spreadsheets().get(
+                spreadsheetId=spreadsheet_id).execute()
             locales_to_sheet_ids = {}
             for sheet in resp['sheets']:
-                locales_to_sheet_ids[sheet['properties']['title']] = sheet['properties']['sheetId']
+                locales_to_sheet_ids[sheet['properties']['title']] = \
+                    sheet['properties']['sheetId']
             catalogs_to_create = []
-            catalogs_to_update = []
+            sheet_ids_to_catalogs = {}
             for catalog in catalogs:
                 existing_sheet_id = locales_to_sheet_ids.get(str(catalog.locale))
                 if existing_sheet_id:
-                    catalogs_to_update.append(catalog)
+                    sheet_ids_to_catalogs[existing_sheet_id] = catalog
                 else:
                     catalogs_to_create.append(catalog)
-            self._create_sheets_request(catalogs_to_create, source_lang, spreadsheet_id)
-            self._update_sheets_request(catalogs_to_update, source_lang, spreadsheet_id)
+            if catalogs_to_create:
+                self._create_sheets_request(
+                    catalogs_to_create, source_lang, spreadsheet_id)
+            if sheet_ids_to_catalogs:
+                self._update_sheets_request(
+                    sheet_ids_to_catalogs, source_lang, spreadsheet_id)
         else:
             sheets = []
             for catalog in catalogs:
@@ -106,6 +112,8 @@ class GoogleSheetsTranslator(base.Translator):
                 },
             }).execute()
             spreadsheet_id = resp['spreadsheetId']
+            if 'acl' in self.config:
+                self._update_acl(spreadsheet_id, self.config['acl'])
 
         url = 'https://docs.google.com/spreadsheets/d/{}'.format(spreadsheet_id)
         stats = []
@@ -215,6 +223,13 @@ class GoogleSheetsTranslator(base.Translator):
         requests = []
         for reply in resp['replies']:
             sheet_id = reply['addSheet']['properties']['sheetId']
+            locale = reply['addSheet']['properties']['title']
+            sheet = None
+            for catalog in catalogs:
+                if str(catalog.locale) == locale:
+                    sheet = self._create_sheet_from_catalog(catalog, source_lang)
+                    break
+            assert sheet, "Couldn't find sheet for: {}".format(locale)
             requests.append({
                 'updateCells': {
                     'fields': '*',
@@ -242,8 +257,50 @@ class GoogleSheetsTranslator(base.Translator):
         resp = service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id, body=body).execute()
 
-    def _update_sheets_request(self, catalogs, source_lang, spreadsheet_id):
-        pass
-#        service = self._create_service()
-#        values = self._download_sheet(spreadsheet_id, stat.lang)
-#        source_lang, lang = values.pop(0)
+    def _update_sheets_request(self, sheet_ids_to_catalogs, source_lang, spreadsheet_id):
+        # NOTE: Preserve locally-obsolete strings in Sheets by default.
+        requests = []
+        for sheet_id, catalog in sheet_ids_to_catalogs.iteritems():
+            existing_values = self._download_sheet(spreadsheet_id, str(catalog.locale))
+            existing_values.pop(0)  # Remove header row.
+            for value in existing_values:
+                source = value[0]
+                translation = value[1] if len(value) > 1 else None
+                if value not in catalog:
+                    catalog.add(source, translation, auto_comments=[],
+                                context=None, flags=[])
+            sheet = self._create_sheet_from_catalog(catalog, source_lang)
+            requests.append({
+                'updateCells': {
+                    'fields': '*',
+                    'start': {
+                        'sheetId': sheet_id,
+                        'rowIndex': 0,
+                        'columnIndex': 0,
+                    },
+                    'rows': sheet['data'][0]['rowData']
+                },
+            })
+        body = {'requests': requests}
+        service = self._create_service()
+        resp = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id, body=body).execute()
+
+    def _update_acl(self, spreadsheet_id, acl):
+        service = google_drive.BaseGooglePreprocessor.create_service('drive', 'v3')
+        for item in acl:
+            permission = {
+                'role': item['role'].lower(),
+            }
+            if 'domain' in item:
+                permission['type'] = 'domain'
+                permission['domain'] = item['domain']
+            elif 'user' in item:
+                permission['type'] = 'user'
+                permission['emailAddress'] = item['user']
+            elif 'group' in item:
+                permission['type'] = 'group'
+                permission['emailAddress'] = item['group']
+            resp = service.permissions().create(
+                fileId=spreadsheet_id,
+                body=permission).execute()
