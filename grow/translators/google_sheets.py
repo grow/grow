@@ -1,15 +1,15 @@
-import csv
 from . import base
+from babel.messages import catalog
+from babel.messages import pofile
 from googleapiclient import discovery
 from googleapiclient import errors
 from googleapiclient import http
-from babel.messages import pofile
-from babel.messages import catalog
 from grow.common import oauth
 from grow.common import utils
 from grow.preprocessors import google_drive
-import datetime
 import base64
+import csv
+import datetime
 import httplib2
 import json
 import logging
@@ -30,13 +30,6 @@ class AccessLevel(object):
     READ_ONLY = 'READ_ONLY'
 
 
-def raise_service_error(http_error, ident=None):
-    message = 'HttpError {} for {} returned "{}"'.format(
-        http_error.resp.status, http_error.uri,
-        http_error._get_reason().strip())
-    raise base.TranslatorServiceError(message=message, ident=ident)
-
-
 class GoogleSheetsTranslator(base.Translator):
     KIND = 'google_sheets'
     has_immutable_translation_resources = False
@@ -49,7 +42,8 @@ class GoogleSheetsTranslator(base.Translator):
         sheet_id = stat.ident
         gid = None
         service = self._create_service()
-        rangeName = 'A:B'  # First two columns (source:translation).
+        # First two columns (source:translation).
+        rangeName = "'{}'!A:B".format(stat.lang)
         resp = service.spreadsheets().values().get(
             spreadsheetId=sheet_id, range=rangeName).execute()
         values = resp['values']
@@ -159,6 +153,7 @@ class GoogleSheetsTranslator(base.Translator):
                 'title': lang,
                 'gridProperties': {
                     'columnCount': 2,
+                    'rowCount': len(row_data) + 3,  # Three rows of padding.
                     'frozenRowCount': 1,
                     'frozenColumnCount': 1,
                 },
