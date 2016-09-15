@@ -39,6 +39,7 @@ class Translator(object):
     TRANSLATOR_STATS_PATH = '/translators.yaml'
     KIND = None
     has_immutable_translation_resources = False
+    has_multiple_langs_in_one_resource = False
 
     def __init__(self, pod, config=None, project_title=None,
                  instructions=None, inject=False):
@@ -171,28 +172,36 @@ class Translator(object):
             if not utils.interactive_confirm(text):
                 self.pod.logger.info('Aborted.')
                 return
-        text = 'Uploading translations: %(value)d/{} (in %(elapsed)s)'
-        widgets = [progressbar.FormatLabel(text.format(num_files))]
-        bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
-        bar.start()
-        threads = []
-        def _do_upload(locale):
-            catalog = self.pod.catalogs.get(locale)
-            stat = self._upload_catalog(catalog, source_lang)
-            stats.append(stat)
-        for i, locale in enumerate(locales):
-            thread = utils.ProgressBarThread(
-                bar, True, target=_do_upload, args=(locale,))
-            threads.append(thread)
-            thread.start()
-            # Perform the first operation synchronously to avoid oauth2 refresh
-            # locking issues.
-            if i == 0:
-                thread.join()
-        for i, thread in enumerate(threads):
-            if i > 0:
-                thread.join()
-        bar.finish()
+        if self.has_multiple_langs_in_one_resource:
+            catalogs_to_upload = []
+            for locale in locales:
+                catalog_to_upload = self.pod.catalogs.get(locale)
+                if catalog_to_upload:
+                    catalogs_to_upload.append(catalog_to_upload)
+            stats = self._upload_catalogs(catalogs_to_upload, source_lang)
+        else:
+            text = 'Uploading translations: %(value)d/{} (in %(elapsed)s)'
+            widgets = [progressbar.FormatLabel(text.format(num_files))]
+            bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+            bar.start()
+            threads = []
+            def _do_upload(locale):
+                catalog = self.pod.catalogs.get(locale)
+                stat = self._upload_catalog(catalog, source_lang)
+                stats.append(stat)
+            for i, locale in enumerate(locales):
+                thread = utils.ProgressBarThread(
+                    bar, True, target=_do_upload, args=(locale,))
+                threads.append(thread)
+                thread.start()
+                # Perform the first operation synchronously to avoid oauth2 refresh
+                # locking issues.
+                if i == 0:
+                    thread.join()
+            for i, thread in enumerate(threads):
+                if i > 0:
+                    thread.join()
+            bar.finish()
         stats = sorted(stats, key=lambda stat: stat.lang)
         if verbose:
             self.pretty_print_stats(stats)
