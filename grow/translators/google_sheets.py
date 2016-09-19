@@ -30,6 +30,9 @@ class AccessLevel(object):
     WRITER = 'writer'
 
 
+DEFAULT_ACCESS_LEVEL = AccessLevel.WRITER
+
+
 class GoogleSheetsTranslator(base.Translator):
     KIND = 'google_sheets'
     has_immutable_translation_resources = False
@@ -113,7 +116,7 @@ class GoogleSheetsTranslator(base.Translator):
             }).execute()
             spreadsheet_id = resp['spreadsheetId']
             if 'acl' in self.config:
-                self._update_acl(spreadsheet_id, self.config['acl'])
+                self._do_update_acl(spreadsheet_id, self.config['acl'])
 
         url = 'https://docs.google.com/spreadsheets/d/{}'.format(spreadsheet_id)
         stats = []
@@ -286,11 +289,11 @@ class GoogleSheetsTranslator(base.Translator):
         resp = service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id, body=body).execute()
 
-    def _update_acl(self, spreadsheet_id, acl):
+    def _do_update_acl(self, spreadsheet_id, acl):
         service = google_drive.BaseGooglePreprocessor.create_service('drive', 'v3')
         for item in acl:
             permission = {
-                'role': item['role'].lower(),
+                'role': item.get('role', DEFAULT_ACCESS_LEVEL).lower(),
             }
             if 'domain' in item:
                 permission['type'] = 'domain'
@@ -304,3 +307,13 @@ class GoogleSheetsTranslator(base.Translator):
             resp = service.permissions().create(
                 fileId=spreadsheet_id,
                 body=permission).execute()
+
+    def _update_acls(self, stats, locales):
+        if 'acl' not in self.config:
+            return
+        stat = stats.values()[0]
+        spreadsheet_id = stat.ident
+        acl = self.config['acl']
+        if not acl:
+            return
+        self._do_update_acl(spreadsheet_id, acl)

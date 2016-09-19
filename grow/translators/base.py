@@ -137,6 +137,11 @@ class Translator(object):
         if not stats_to_download:
             self.pod.logger.info('No documents found to update.')
             return
+        if self.has_multiple_langs_in_one_resource:
+            self._update_acls(stats_to_download, locales)
+            stat = stats_to_download.values()[0]
+            self.pod.logger.info('ACL updated -> {}'.format(stat.ident))
+            return
         threads = []
         for i, (locale, stat) in enumerate(stats_to_download.iteritems()):
             thread = threading.Thread(target=self._update_acl, args=(stat, locale))
