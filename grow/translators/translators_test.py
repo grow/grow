@@ -1,4 +1,5 @@
 from . import google_translator_toolkit
+from grow.preprocessors import google_drive
 from grow.common import oauth
 from grow.pods import pods
 from grow.pods import storage
@@ -15,7 +16,21 @@ class TranslatorTestCase(testing.TestCase):
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
         super(TranslatorTestCase, self).setUp()
 
-    def test_upload_and_download_translations(self):
+    def test_upload_and_download_sheets_translations(self):
+        translator = self.pod.get_translator('google_translator_toolkit')
+        credentials, _ = oauth.get_credentials_and_storage(
+            scope=google_drive.OAUTH_SCOPE,
+            storage_key=google_drive.STORAGE_KEY)
+        if not credentials:
+            text = ('Skipping Google Sheets Translator test'
+                    ' because we don\'t have auth keys. Run'
+                    ' `grow upload_translations` or `grow download_translations`'
+                    ' to acquire auth keys and re-run the test.')
+            raise skip.SkipTest(text)
+        translator.upload(locales=['de'])
+        translator.download(locales=['de'])
+
+    def test_upload_and_download_gtt_translations(self):
         self.assertRaises(ValueError, self.pod.get_translator, 'gtt')
         translator = self.pod.get_translator('google_translator_toolkit')
         credentials, _ = oauth.get_credentials_and_storage(

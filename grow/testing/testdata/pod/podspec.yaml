@@ -50,6 +50,9 @@ translators:
     acl:
     - email: user@example.com
   - service: custom_translator
+  - service: google_sheets
+    acl:
+    - user: hikingfan@gmail.com
 
 deployments:
   gcs:

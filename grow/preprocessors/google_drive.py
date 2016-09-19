@@ -26,6 +26,7 @@ import yaml
 
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
+STORAGE_KEY = 'Grow SDK'
 
 
 # Silence extra logging from googleapiclient.
@@ -33,15 +34,14 @@ discovery.logger.setLevel(logging.WARNING)
 
 
 class BaseGooglePreprocessor(base.BasePreprocessor):
-    scheduleable = True
 
     @staticmethod
-    def create_service():
+    def create_service(api='drive', version='v2'):
         credentials = oauth.get_or_create_credentials(
             scope=OAUTH_SCOPE, storage_key='Grow SDK')
         http = httplib2.Http(ca_certs=utils.get_cacerts_path())
         http = credentials.authorize(http)
-        return discovery.build('drive', 'v2', http=http)
+        return discovery.build(api, version, http=http)
 
     def run(self, build=True):
         try:

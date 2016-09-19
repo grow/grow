@@ -1,10 +1,12 @@
 from . import google_translator_toolkit
+from . import google_sheets
 from grow.common import utils
 
 
 _kinds_to_classes = {}
 _builtins = (
     google_translator_toolkit.GoogleTranslatorToolkitTranslator,
+    google_sheets.GoogleSheetsTranslator,
 )
 
 
