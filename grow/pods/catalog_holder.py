@@ -148,10 +148,21 @@ class Catalogs(object):
             return False
         return not given_paths or path in given_paths
 
-    def extract(self, include_obsolete=False, localized=False, paths=None,
-                include_header=False, locales=None, use_fuzzy_matching=False):
-        env = self.pod.get_jinja_env()
+    def extract(self, include_obsolete=None, localized=None, paths=None,
+                include_header=None, locales=None, use_fuzzy_matching=None):
+        # If options are unspecified, leverage config in podspec.
+        # If no config in podspec, use defaults set below.
+        extract_config = self.pod.yaml.get('localization', {}).get('extract', {})
+        if include_obsolete is None:
+            include_obsolete = extract_config.get('include_obsolete', False)
+        if localized is None:
+            localized = extract_config.get('localized', False)
+        if include_header is None:
+            include_header = extract_config.get('include_header', False)
+        if use_fuzzy_matching is None:
+            use_fuzzy_matching = extract_config.get('fuzzy_matching', False)
 
+        env = self.pod.get_jinja_env()
         # {
         #    locale1: locale1_catalog,
         #    locale2: locale2_catalog,
