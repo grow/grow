@@ -6,13 +6,13 @@ import os
 
 @click.command()
 @click.argument('pod_path', default='.')
-@click.option('--include-obsolete/--no-include-obsolete', default=False,
+@click.option('--include-obsolete/--no-include-obsolete', default=None,
               is_flag=True,
               help='Whether to include obsolete messages. If false, obsolete'
                    ' messages will be removed from the catalog template. By'
                    ' default, Grow cleans obsolete messages from the catalog'
                    ' template.')
-@click.option('--localized/--no-localized', default=False, is_flag=True,
+@click.option('--localized/--no-localized', default=None, is_flag=True,
               help='Whether to create localized message catalogs. Use this'
                    ' option if content varies by locale.')
 @click.option('--init/--no-init', default=False, is_flag=True,
@@ -22,13 +22,13 @@ import os
               help='Whether to update translation catalogs with extracted'
                    ' messages. If false, only a catalog template will be'
                    ' created.')
-@click.option('--include-header', default=False, is_flag=True,
+@click.option('--include-header', default=None, is_flag=True,
               help='Whether to preserve headers at the beginning of catalogs.')
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to analyze when creating template catalogs'
                    ' that contain only untranslated messages. This option is'
                    ' only applicable when using --update or --init.')
-@click.option('--fuzzy-matching/--no-fuzzy-matching', default=False,
+@click.option('--fuzzy-matching/--no-fuzzy-matching', default=None,
               is_flag=True,
               help='Whether to use fuzzy matching when updating translation'
                    ' catalogs. If --fuzzy-matching is specified, updated'

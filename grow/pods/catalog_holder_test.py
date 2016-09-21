@@ -18,6 +18,47 @@ class CatalogsTest(unittest.TestCase):
             ['de', 'fr', 'en', 'it', 'ja'],
             self.pod.catalogs.list_locales())
 
+    def test_extract_options(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'extract': {
+                    'localized': True,
+                    'include_header': True,
+                    'include_obsolete': True,
+                    'fuzzy_matching': True,
+                },
+            },
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$title@': 'Collection Title',
+            '$localization': {
+                'locales': [
+                    'de_DE',
+                    'en_US',
+                    'fr_FR',
+                ],
+            },
+        })
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$title@': 'Page Title',
+        })
+        pod.write_yaml('/content/pages/about.yaml', {
+            '$title@': 'About Title',
+            '$localization': {
+                'locales': [
+                    'fr_FR',
+                ],
+            },
+        })
+        pod.catalogs.extract()
+        de_catalog = pod.catalogs.get('de_DE')
+        self.assertNotIn('About Title', de_catalog)
+        self.assertIn('Page Title', de_catalog)
+        fr_catalog = pod.catalogs.get('fr_FR')
+        self.assertIn('Page Title FR', fr_catalog)
+        self.assertIn('About Title', fr_catalog)
+
     def test_extract(self):
         template_catalog = self.pod.catalogs.extract()
         self.assertEqual(20, len(template_catalog))
