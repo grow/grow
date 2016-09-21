@@ -56,7 +56,6 @@ class CatalogsTest(unittest.TestCase):
         self.assertNotIn('About Title', de_catalog)
         self.assertIn('Page Title', de_catalog)
         fr_catalog = pod.catalogs.get('fr_FR')
-        self.assertIn('Page Title FR', fr_catalog)
         self.assertIn('About Title', fr_catalog)
 
     def test_extract(self):
