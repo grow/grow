@@ -99,13 +99,31 @@ class Catalogs(object):
             message.catalogs.append(catalog.to_message())
         return message
 
-    def init(self, locales, include_header=False):
+    def get_extract_config(self, include_obsolete=None, localized=None,
+            include_header=None, use_fuzzy_matching=None):
+        extract_config = self.pod.yaml.get('localization', {}).get('extract', {})
+        if include_obsolete is None:
+            include_obsolete = extract_config.get('include_obsolete', False)
+        if localized is None:
+            localized = extract_config.get('localized', False)
+        if include_header is None:
+            include_header = extract_config.get('include_header', False)
+        if use_fuzzy_matching is None:
+            use_fuzzy_matching = extract_config.get('fuzzy_matching', False)
+        return include_obsolete, localized, include_header, use_fuzzy_matching
+
+    def init(self, locales, include_header=None):
+        _, _, include_header, _ = \
+            self.get_extract_config(include_header=include_header)
         for locale in locales:
             catalog = self.get(locale)
             catalog.init(template_path=self.template_path,
                          include_header=include_header)
 
-    def update(self, locales, use_fuzzy_matching=False, include_header=False):
+    def update(self, locales, use_fuzzy_matching=None, include_header=None):
+        _, _, include_header, use_fuzzy_matching = \
+            self.get_extract_config(include_header=include_header,
+                use_fuzzy_matching=use_fuzzy_matching)
         for locale in locales:
             catalog = self.get(locale)
             self.pod.logger.info('Updating: {}'.format(locale))
@@ -150,17 +168,10 @@ class Catalogs(object):
 
     def extract(self, include_obsolete=None, localized=None, paths=None,
                 include_header=None, locales=None, use_fuzzy_matching=None):
-        # If options are unspecified, leverage config in podspec.
-        # If no config in podspec, use defaults set below.
-        extract_config = self.pod.yaml.get('localization', {}).get('extract', {})
-        if include_obsolete is None:
-            include_obsolete = extract_config.get('include_obsolete', False)
-        if localized is None:
-            localized = extract_config.get('localized', False)
-        if include_header is None:
-            include_header = extract_config.get('include_header', False)
-        if use_fuzzy_matching is None:
-            use_fuzzy_matching = extract_config.get('fuzzy_matching', False)
+        include_obsolete, localized, include_header, use_fuzzy_matching, = \
+            self.get_extract_config(include_header=include_header,
+                include_obsolete=include_obsolete, localized=localized,
+                use_fuzzy_matching=use_fuzzy_matching)
 
         env = self.pod.get_jinja_env()
         # {
