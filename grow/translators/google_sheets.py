@@ -73,6 +73,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _upload_catalogs(self, catalogs, source_lang):
         project_title = self.project_title
         source_lang = str(source_lang)
+        locales_to_sheet_ids = {}
 
         # Get existing sheet ID (if it exists) from one stat.
         spreadsheet_id = None
@@ -86,7 +87,6 @@ class GoogleSheetsTranslator(base.Translator):
         if spreadsheet_id:
             resp = service.spreadsheets().get(
                 spreadsheetId=spreadsheet_id).execute()
-            locales_to_sheet_ids = {}
             for sheet in resp['sheets']:
                 locales_to_sheet_ids[sheet['properties']['title']] = \
                     sheet['properties']['sheetId']
@@ -115,15 +115,21 @@ class GoogleSheetsTranslator(base.Translator):
                 },
             }).execute()
             spreadsheet_id = resp['spreadsheetId']
+            for sheet in resp['sheets']:
+                locale = sheet['properties']['title']
+                locales_to_sheet_ids[locale] = sheet['properties']['sheetId']
             if 'acl' in self.config:
                 self._do_update_acl(spreadsheet_id, self.config['acl'])
 
         url = 'https://docs.google.com/spreadsheets/d/{}'.format(spreadsheet_id)
         stats = []
         for catalog in catalogs:
+            lang = str(catalog.locale)
+            if lang in locales_to_sheet_ids:
+                url += '#gid={}'.format(locales_to_sheet_ids[lang])
             stat = base.TranslatorStat(
                 url=url,
-                lang=str(catalog.locale),
+                lang=lang,
                 source_lang=source_lang,
                 uploaded = datetime.datetime.now(),
                 ident=spreadsheet_id)
