@@ -5,6 +5,7 @@ log.setLevel(logging.WARNING)
 
 from . import utils
 from oauth2client import client
+from oauth2client import service_account
 from oauth2client import tools
 import os
 
@@ -45,9 +46,15 @@ def get_credentials_and_storage(scope, storage_key=DEFAULT_STORAGE_KEY):
 
 
 def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
+    key_file = os.getenv('AUTH_KEY_FILE')
+    if key_file:
+        key_file = os.path.expanduser(key_file)
+        return (service_account.
+            ServiceAccountCredentials.from_json_keyfile_name(key_file, scope))
     if appengine:
         return appengine.AppAssertionCredentials(scope)
-    credentials, storage = get_credentials_and_storage(scope, storage_key=storage_key)
+    credentials, storage = get_credentials_and_storage(scope,
+        storage_key=storage_key)
     if credentials is None:
         parser = tools.argparser
         if os.getenv('INTERACTIVE_AUTH'):
