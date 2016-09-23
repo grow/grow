@@ -252,6 +252,29 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(3, len(collection.docs(locale='en')))
         self.assertEqual(3, len(collection.docs(locale='de')))
 
+    def test_owns_doc_at_path(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {})
+        pod.write_yaml('/content/pages/page.yaml', {})
+        pod.write_yaml('/content/pages/owned/page.yaml', {})
+        pod.write_yaml('/content/pages/owned/deeper/page.yaml', {})
+        pod.write_yaml('/content/pages/sub/_blueprint.yaml', {})
+        pod.write_yaml('/content/pages/sub/page.yaml', {})
+        pod.write_yaml('/content/pages/sub/owned/page.yaml', {})
+        pod.write_yaml('/content/pages/sub/sub/_blueprint.yaml', {})
+        pod.write_yaml('/content/pages/sub/sub/page.yaml', {})
+        col = pod.get_collection('/content/pages')
+        self.assertTrue(col._owns_doc_at_path('/content/pages/page.yaml'))
+        self.assertTrue(col._owns_doc_at_path('/content/pages/owned/page.yaml'))
+        self.assertTrue(col._owns_doc_at_path('/content/pages/owned/deeper/page.yaml'))
+        self.assertFalse(col._owns_doc_at_path('/content/pages/sub/page.yaml'))
+        self.assertFalse(col._owns_doc_at_path('/content/pages/sub/owned/page.yaml'))
+        sub_col = pod.get_collection('/content/pages/sub')
+        self.assertTrue(sub_col._owns_doc_at_path('/content/pages/sub/page.yaml'))
+        self.assertTrue(sub_col._owns_doc_at_path('/content/pages/sub/owned/page.yaml'))
+        self.assertFalse(sub_col._owns_doc_at_path('/content/pages/sub/sub/page.yaml'))
+
 
 if __name__ == '__main__':
     unittest.main()

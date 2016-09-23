@@ -518,6 +518,27 @@ class DocumentsTestCase(unittest.TestCase):
         content = controller.render(params)
         self.assertEqual('en', content)
 
+        # Verify paths aren't clobbered by the default locale.
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$path': '/{locale}/{base}/',
+            '$view': '/views/base.html',
+            '$localization': {
+                'default_locale': 'de',
+                'path': '/{locale}/{base}/',
+                'locales': [
+                    'en',
+                    'de',
+                ],
+            },
+        })
+        pod.routes.reset_cache()
+        controller, params = pod.match('/de/page/')
+        content = controller.render(params)
+        self.assertEqual('de', content)
+        paths = pod.routes.list_concrete_paths()
+        expected = ['/en/page/', '/de/page/']
+        self.assertEqual(expected, paths)
+
     def test_view_format(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})

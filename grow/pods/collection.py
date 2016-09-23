@@ -218,6 +218,19 @@ class Collection(object):
             raise CollectionNotEmptyError(text)
         self.pod.delete_file(self._blueprint_path)
 
+    def _owns_doc_at_path(self, pod_path):
+        dir_name = os.path.dirname(pod_path)
+        doc_blueprint_path = os.path.join(dir_name, '_blueprint.yaml')
+        if doc_blueprint_path == self._blueprint_path:
+            return True
+        parts = pod_path.split(os.sep)
+        for i, part in enumerate(parts):
+            path = os.sep.join(parts[:-i])
+            doc_blueprint_path = os.path.join(path, '_blueprint.yaml')
+            if self.pod.file_exists(doc_blueprint_path):
+                return doc_blueprint_path == self._blueprint_path
+        return False
+
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
                   include_hidden=False, recursive=True, inject=False):
         reverse = False if reverse is None else reverse
@@ -233,9 +246,7 @@ class Collection(object):
         for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
             # Document is owned by a different collection, skip it.
-            dir_name = os.path.dirname(pod_path)
-            blueprint = os.path.join(dir_name, '_blueprint.yaml')
-            if blueprint != self._blueprint_path and self.pod.file_exists(blueprint):
+            if not self._owns_doc_at_path(pod_path):
                 continue
             slug, ext = os.path.splitext(os.path.basename(pod_path))
             if (slug.startswith('_')
