@@ -232,6 +232,11 @@ class Collection(object):
             return reversed(sorted_docs) if reverse else sorted_docs
         for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
+            # Document is owned by a different collection, skip it.
+            dir_name = os.path.dirname(pod_path)
+            blueprint = os.path.join(dir_name, '_blueprint.yaml')
+            if blueprint != self._blueprint_path and self.pod.file_exists(blueprint):
+                continue
             slug, ext = os.path.splitext(os.path.basename(pod_path))
             if (slug.startswith('_')
                     or ext not in messages.extensions_to_formats

@@ -51,6 +51,7 @@ class Routes(object):
         new_paths_to_locales_to_docs = collections.defaultdict(dict)
         rules = []
         serving_paths = set()
+        duplicate_paths = collections.defaultdict(list)
         # Content documents.
         for collection in self.pod.list_collections():
             for doc in collection.list_servable_documents(include_hidden=True, inject=inject):
@@ -58,8 +59,7 @@ class Routes(object):
                     view=doc.view, doc=doc, _pod=self.pod)
                 serving_path = doc.get_serving_path()
                 if serving_path in serving_paths:
-                    text = 'Serving path "{}" was used twice by {}'
-                    raise DuplicatePathsError(text.format(serving_path, doc))
+                    duplicate_paths[serving_path].append(doc)
                 serving_paths.add(serving_path)
                 rule = routing.Rule(serving_path, endpoint=controller)
                 rules.append(rule)
@@ -68,6 +68,9 @@ class Routes(object):
         rules += self._build_static_routing_map_and_return_rules()
         self._routing_map = routing.Map(rules, converters=Routes.converters)
         self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
+        if duplicate_paths:
+            text = 'Found duplicate serving paths: {}'
+            raise DuplicatePathsError(text.format(duplicate_paths))
         return self._routing_map
 
     def _build_static_routing_map_and_return_rules(self):

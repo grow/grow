@@ -89,6 +89,57 @@ class RoutesTest(unittest.TestCase):
         result = self.pod.routes.list_concrete_paths()
         self.assertItemsEqual(expected, result)
 
+    def test_subcollection_paths(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'de',
+                    'en',
+                ]
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$view': '/views/base.html',
+            '$path': '/{base}/',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+            }
+        })
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$title': 'Page',
+        })
+        pod.write_yaml('/content/pages/sub/_blueprint.yaml', {
+            '$view': '/views/base.html',
+            '$path': '/sub/{base}/',
+            '$localization': {
+                'path': '/sub/{locale}/{base}/',
+            }
+        })
+        pod.write_yaml('/content/pages/sub/page.yaml', {
+            '$title': 'Sub Page',
+        })
+
+        # Verify subcollections are included in pod.list_collections.
+        collection_objs = pod.list_collections()
+        pages = pod.get_collection('pages')
+        sub = pod.get_collection('pages/sub')
+        expected = [pages, sub]
+        self.assertEqual(expected, collection_objs)
+
+        # Verify subcollection docs are not included in collection.docs.
+        expected = [
+            pod.get_doc('/content/pages/page.yaml'),
+            pod.get_doc('/content/pages/page.yaml', locale='de'),
+        ]
+        docs = pages.docs(recursive=False)
+        self.assertEqual(expected, list(docs))
+
+        paths = pod.routes.list_concrete_paths()
+        expected=  ['/sub/page/', '/de/page/', '/sub/de/page/', '/page/']
+        self.assertEqual(expected, paths)
+
 
 if __name__ == '__main__':
     unittest.main()

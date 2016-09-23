@@ -513,6 +513,7 @@ class DocumentsTestCase(unittest.TestCase):
             '$view': '/views/base.html',
             '$localization': None,
         })
+        pod.routes.reset_cache()
         controller, params = pod.match('/page/')
         content = controller.render(params)
         self.assertEqual('en', content)
