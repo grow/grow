@@ -517,6 +517,17 @@ class DocumentsTestCase(unittest.TestCase):
         content = controller.render(params)
         self.assertEqual('en', content)
 
+    def test_view_format(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/{base}.html',
+        })
+        pod.write_yaml('/content/pages/page.yaml', {})
+        doc = pod.get_doc('/content/pages/page.html')
+        self.assertEqual('/views/page.html', doc.view)
+
 
 if __name__ == '__main__':
     unittest.main()
