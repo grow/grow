@@ -10,8 +10,8 @@ import os
 @click.command()
 @click.argument('deployment_name', required=False, default='default')
 @click.argument('pod_path', default='.')
-@click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
-              help='Whether to run preprocessors.')
+@click.option('--preprocess/--no-preprocess', '-p/-np', default=True,
+              is_flag=True, help='Whether to run preprocessors.')
 @click.option('--confirm/--noconfirm', '-c/-f', default=True, is_flag=True,
               help='Whether to confirm prior to deployment.')
 @click.option('--test/--notest', default=True, is_flag=True,

@@ -10,7 +10,8 @@ import os
 @click.command()
 @click.argument('pod_path', default='.')
 @click.option('--out_dir', help='Where to output built files.')
-@click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
+@click.option('--preprocess/--no-preprocess', '-p/-np',
+              default=True, is_flag=True,
               help='Whether to run preprocessors.')
 def build(pod_path, out_dir, preprocess):
     """Generates static files and dumps them to a local destination."""

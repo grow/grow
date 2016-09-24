@@ -10,8 +10,8 @@ import os
 
 @click.command()
 @click.argument('pod_path', default='.')
-@click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
-              help='Whether to run preprocessors.')
+@click.option('--preprocess/--no-preprocess', '-p/-np', default=True,
+              is_flag=True, help='Whether to run preprocessors.')
 @click.option('--remote',
               help='WebReview remote address (example: '
                    ' example.com/owner/project). A remote must be specified'
