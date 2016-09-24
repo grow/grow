@@ -161,9 +161,15 @@ upload-github:
 	  -n "$(FILENAME)" \
 	  --file dist/$(FILENAME)
 
+# https://github.com/grow/grow/issues/302
+setup-release:
+	make develop
+	. env/bin/activate
+	./env/bin/pip install git+https://github.com/pyinstaller/pyinstaller.git\#b78bfe530cdc2904f65ce098bdf2de08c9037abb
+
 release:
 	. env/bin/activate
-	pyinstaller grow.spec
+	./env/bin/pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r $(FILENAME) grow && cd ..
 	./dist/grow
