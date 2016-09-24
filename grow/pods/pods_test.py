@@ -150,10 +150,10 @@ class PodTest(unittest.TestCase):
 
     def test_list_jinja_extensions(self):
         items = self.pod.list_jinja_extensions()
-        self.assertEqual(len(items), 1)
+        self.assertEqual(len(items), 2)
         # Custom extension is called Triplicate (see podspec.yaml in test pod)
-        self.assertEqual(items[0].__name__, 'Triplicate')
-        self.assertTrue(issubclass(items[0], jinja2.ext.Extension))
+        self.assertEqual(items[1].__name__, 'Triplicate')
+        self.assertTrue(issubclass(items[1], jinja2.ext.Extension))
 
     def test_invalid_jinja_extension(self):
         # Make sure an invalid jinja2 exensions config throws an error
