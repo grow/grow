@@ -40,14 +40,14 @@ Define the extension in a corresponding place in the `/extensions/` folder.
 [sourcecode:python]
 # /extensions/triplicate.py
 
-import jinja2
+from jinja2.ext import Extension
 
 
 def do_triplicate(value):
     return value * 3
 
 
-class Triplicate(jinja2.ext.Extension):
+class Triplicate(Extension):
 
     def __init__(self, environment):
         super(Triplicate, self).__init__(environment)
