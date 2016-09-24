@@ -76,6 +76,7 @@ preprocessors:
 
 extensions:
   jinja2:
+  - extensions.numbers.NumbersExtension
   - extensions.triplicate.Triplicate
   preprocessors:
   - extensions.preprocessors.CustomPreprocessor
