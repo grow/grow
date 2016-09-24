@@ -37,7 +37,7 @@ class Document(object):
         self.base, self.ext = os.path.splitext(self.basename)
         self.pod = _pod
         self.collection = _collection
-        self.locale = self._init_locale(locale, pod_path)
+        self._locale = utils.SENTINEL
 
     def __repr__(self):
         if self.locale:
@@ -49,6 +49,12 @@ class Document(object):
 
     def __ne__(self, other):
         return self.pod_path != other.pod_path or self.pod != other.pod
+
+    @utils.cached_property
+    def locale(self):
+        if self._locale is utils.SENTINEL:
+            self._locale = self._init_locale(self._locale_kwarg, self.pod_path)
+        return self._locale
 
     def _init_locale(self, locale, pod_path):
         try:
@@ -95,7 +101,7 @@ class Document(object):
 
     @utils.cached_property
     def fields(self):
-        identifier = self.locale or self.collection.default_locale
+        identifier = self._locale_kwarg or self.collection.default_locale
         tagged_fields = self.get_tagged_fields()
         fields = utils.untag_fields(tagged_fields, locale=str(identifier))
         return {} if not fields else fields

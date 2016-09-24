@@ -222,7 +222,7 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, pod.read_csv)
 
         def construct_doc(self, node):
-            locale = doc.locale if doc else None
+            locale = doc._locale_kwarg if doc else None
             func = lambda path: pod.get_doc(path, locale=locale)
             return self._construct_func(node, func)
 
@@ -233,12 +233,12 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, pod.read_json)
 
         def construct_static(self, node):
-            locale = doc.locale if doc else None
+            locale = doc._locale_kwarg if doc else None
             func = lambda path: pod.get_static(path, locale=locale)
             return self._construct_func(node, func)
 
         def construct_url(self, node):
-            locale = doc.locale if doc else None
+            locale = doc._locale_kwarg if doc else None
             func = lambda path: pod.get_url(path, locale=locale)
             return self._construct_func(node, func)
 

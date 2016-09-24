@@ -142,13 +142,15 @@ class DocumentsTestCase(unittest.TestCase):
                   path: /intl/{locale}/multiple-locales/
                   locales:
                   - de
+                foo: bar
                 ---
                 foo: bar
                 """
             ))
 
         with self.assertRaises(formats.BadLocalesError):
-            self.pod.get_doc('/' + doc_pod_path)
+            doc = self.pod.get_doc('/' + doc_pod_path)
+            doc.fields['foo']
 
         # This should be fine:
         with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
@@ -549,6 +551,42 @@ class DocumentsTestCase(unittest.TestCase):
         pod.write_yaml('/content/pages/page.yaml', {})
         doc = pod.get_doc('/content/pages/page.html')
         self.assertEqual('/views/page.html', doc.view)
+
+    def test_recursive_yaml(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/{base}.html',
+            '$localization': {
+                'default_locale': 'en',
+                'locales': ['de', 'en'],
+            }
+        })
+        pod.write_file('/content/pages/foo.yaml', textwrap.dedent(
+            """\
+            bar: !g.doc /content/pages/bar.yaml
+            """))
+        pod.write_file('/content/pages/bar.yaml', textwrap.dedent(
+            """\
+            foo: !g.doc /content/pages/foo.yaml
+            """))
+        foo_doc = pod.get_doc('/content/pages/foo.yaml', locale='de')
+        bar_doc = pod.get_doc('/content/pages/bar.yaml', locale='de')
+        self.assertEqual(bar_doc, foo_doc.bar)
+        self.assertEqual(bar_doc, foo_doc.bar.foo.bar)
+        self.assertEqual('de', foo_doc.bar.locale)
+        self.assertEqual(foo_doc, bar_doc.foo)
+        self.assertEqual(foo_doc, bar_doc.foo.bar.foo)
+        self.assertEqual('de', bar_doc.foo.locale)
+        foo_doc = pod.get_doc('/content/pages/foo.yaml', locale='en')
+        bar_doc = pod.get_doc('/content/pages/bar.yaml', locale='en')
+        self.assertEqual(bar_doc, foo_doc.bar)
+        self.assertEqual(bar_doc, foo_doc.bar.foo.bar)
+        self.assertEqual('en', foo_doc.bar.locale)
+        self.assertEqual(foo_doc, bar_doc.foo)
+        self.assertEqual(foo_doc, bar_doc.foo.bar.foo)
+        self.assertEqual('en', bar_doc.foo.locale)
 
 
 if __name__ == '__main__':
