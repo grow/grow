@@ -121,9 +121,9 @@ class GoogleSheetsTranslator(base.Translator):
             if 'acl' in self.config:
                 self._do_update_acl(spreadsheet_id, self.config['acl'])
 
-        url = 'https://docs.google.com/spreadsheets/d/{}'.format(spreadsheet_id)
         stats = []
         for catalog in catalogs:
+            url = 'https://docs.google.com/spreadsheets/d/{}'.format(spreadsheet_id)
             lang = str(catalog.locale)
             if lang in locales_to_sheet_ids:
                 url += '#gid={}'.format(locales_to_sheet_ids[lang])

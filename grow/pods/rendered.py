@@ -21,7 +21,7 @@ class RenderedController(controllers.BaseController):
         if not self.doc:
             return '<Rendered(view=\'{}\')>'.format(self.view)
         if self.doc.locale:
-            return '<Rendered(view=\'{}\', doc=\'{}\'), locale=\'{}\'>'.format(
+            return '<Rendered(view=\'{}\', doc=\'{}\', locale=\'{}\')>'.format(
                 self.view, self.doc.pod_path, str(self.doc.locale))
         return '<Rendered(view=\'{}\', doc=\'{}\')>'.format(
             self.view, self.doc.pod_path)
