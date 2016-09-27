@@ -279,6 +279,13 @@ class GoogleSheetsTranslator(base.Translator):
                     catalog.add(source, translation, auto_comments=[],
                                 context=None, flags=[])
             sheet = self._create_sheet_from_catalog(catalog, source_lang)
+            sheet['properties']['sheetId'] = sheet_id
+            requests.append({
+                'updateSheetProperties': {
+                    'fields': '*',
+                    'properties': sheet['properties'],
+                },
+            })
             requests.append({
                 'updateCells': {
                     'fields': '*',
@@ -287,7 +294,7 @@ class GoogleSheetsTranslator(base.Translator):
                         'rowIndex': 0,
                         'columnIndex': 0,
                     },
-                    'rows': sheet['data'][0]['rowData']
+                    'rows': sheet['data'][0]['rowData'],
                 },
             })
         body = {'requests': requests}
