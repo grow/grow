@@ -51,7 +51,7 @@ def extract(pod_path, init, update, include_obsolete, localized,
     catalogs = pod.get_catalogs()
     catalogs.extract(include_obsolete=include_obsolete, localized=localized,
                      include_header=include_header,
-                     use_fuzzy_matching=fuzzy_matching)
+                     use_fuzzy_matching=use_fuzzy_matching)
     if localized:
         return
     if init:
@@ -65,7 +65,7 @@ def extract(pod_path, init, update, include_obsolete, localized,
         text = 'Updating {} catalogs with extracted messages.'
         pod.logger.info(text.format(len(locales)))
         catalogs.update(locales=locales, include_header=include_header,
-                        use_fuzzy_matching=fuzzy_matching)
+                        use_fuzzy_matching=use_fuzzy_matching)
 
 
 def validate_locales(valid_locales, locales):
