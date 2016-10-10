@@ -21,12 +21,23 @@ import os
 @click.option('--download', '-d', default=False, is_flag=True,
               help='Whether to download any existing translations prior'
                    ' to uploading.')
+@click.option('--extract', '-x', default=False, is_flag=True,
+              help='Whether to extract translations prior to uploading.')
 def upload_translations(pod_path, locale, force, service, update_acl,
-                        download):
+                        download, extract):
     """Uploads translations to a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     translator = pod.get_translator(service)
+
+    if extract:
+        include_obsolete, localized, include_header, use_fuzzy_matching, = \
+            pod.catalogs.get_extract_config()
+        catalogs = pod.get_catalogs()
+        catalogs.extract(include_obsolete=include_obsolete, localized=localized,
+                         include_header=include_header,
+                         use_fuzzy_matching=use_fuzzy_matching)
+
     if not translator:
         raise click.ClickException('No translators specified in podspec.yaml.')
     if update_acl:
