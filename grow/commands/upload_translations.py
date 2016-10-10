@@ -18,10 +18,10 @@ import os
 @click.option('--update-acl', default=False, is_flag=True,
               help='Whether to update the ACL on uploaded resources'
                    ' instead of uploading new translation files.')
-@click.option('--download', '-d', default=False, is_flag=True,
+@click.option('--download', '-d', default=True, is_flag=True,
               help='Whether to download any existing translations prior'
                    ' to uploading.')
-@click.option('--extract', '-x', default=False, is_flag=True,
+@click.option('--extract', '-x', default=True, is_flag=True,
               help='Whether to extract translations prior to uploading.')
 def upload_translations(pod_path, locale, force, service, update_acl,
                         download, extract):
