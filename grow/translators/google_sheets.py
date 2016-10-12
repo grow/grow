@@ -189,7 +189,17 @@ class GoogleSheetsTranslator(base.Translator):
                     {
                         'userEnteredValue': {'stringValue': (
                             ', '.join(t[0] for t in message.locations))},
-                        'userEnteredFormat': {'wrapStrategy': 'WRAP'}
+                        'userEnteredFormat': {
+                            'wrapStrategy': 'WRAP',
+                            'textFormat': {
+                                'foregroundColor': {
+                                    'red': 100,
+                                    'blue': 100,
+                                    'green': 100,
+                                    'alpha': .5,
+                                },
+                            },
+                        }
                     },
                 ],
             })
@@ -219,7 +229,7 @@ class GoogleSheetsTranslator(base.Translator):
                 'columnMetadata': [
                     {'pixelSize': 400},
                     {'pixelSize': 400},
-                    {'pixelSize': 300},
+                    {'pixelSize': 250},
                 ],
             }],
         }
