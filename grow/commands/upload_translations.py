@@ -23,8 +23,13 @@ import os
                    ' to uploading.')
 @click.option('--extract', '-x', default=True, is_flag=True,
               help='Whether to extract translations prior to uploading.')
+@click.option('--include-obsolete/--no-include-obsolete', default=None,
+            is_flag=True,
+            help='Whether to include obsolete messages. If false, obsolete'
+                 ' messages will be removed from the upload. By'
+                 ' default, Grow cleans obsolete messages from the upload')
 def upload_translations(pod_path, locale, force, service, update_acl,
-                        download, extract):
+                        download, extract, include_obsolete):
     """Uploads translations to a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
@@ -32,7 +37,7 @@ def upload_translations(pod_path, locale, force, service, update_acl,
 
     if extract:
         include_obsolete, localized, include_header, use_fuzzy_matching, = \
-            pod.catalogs.get_extract_config()
+            pod.catalogs.get_extract_config(include_obsolete=include_obsolete)
         catalogs = pod.get_catalogs()
         catalogs.extract(include_obsolete=include_obsolete, localized=localized,
                          include_header=include_header,
@@ -44,4 +49,4 @@ def upload_translations(pod_path, locale, force, service, update_acl,
         translator.update_acl(locales=locale)
     else:
         translator.upload(locales=locale, force=force, verbose=True,
-                          download=download)
+                          download=download, include_obsolete=include_obsolete)

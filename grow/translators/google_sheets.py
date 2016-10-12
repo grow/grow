@@ -13,6 +13,7 @@ import datetime
 import httplib2
 import json
 import logging
+import random
 import urllib
 try:
     import cStringIO as StringIO
@@ -70,7 +71,7 @@ class GoogleSheetsTranslator(base.Translator):
         content = fp.read()
         return updated_stat, content
 
-    def _upload_catalogs(self, catalogs, source_lang):
+    def _upload_catalogs(self, catalogs, source_lang, include_obsolete=False):
         project_title = self.project_title
         source_lang = str(source_lang)
         locales_to_sheet_ids = {}
@@ -100,14 +101,17 @@ class GoogleSheetsTranslator(base.Translator):
                     catalogs_to_create.append(catalog)
             if catalogs_to_create:
                 self._create_sheets_request(
-                    catalogs_to_create, source_lang, spreadsheet_id)
+                    catalogs_to_create, source_lang, spreadsheet_id,
+                            include_obsolete=include_obsolete)
             if sheet_ids_to_catalogs:
                 self._update_sheets_request(
-                    sheet_ids_to_catalogs, source_lang, spreadsheet_id)
+                    sheet_ids_to_catalogs, source_lang, spreadsheet_id,
+                            include_obsolete=include_obsolete)
         else:
             sheets = []
             for catalog in catalogs:
-                sheets.append(self._create_sheet_from_catalog(catalog, source_lang))
+                sheets.append(self._create_sheet_from_catalog(catalog, source_lang,
+                        include_obsolete=include_obsolete))
             resp = service.spreadsheets().create(body={
                 'sheets': sheets,
                 'properties': {
@@ -137,40 +141,41 @@ class GoogleSheetsTranslator(base.Translator):
         return stats
 
     def _create_header_row_data(self, source_lang, lang):
+        base_format = {
+            'backgroundColor': {
+                'red': 50,
+                'blue': 50,
+                'green': 50,
+                'alpha': .1,
+            },
+            'textFormat': {'bold': True},
+        }
         return {
             'values': [
                 {
                     'userEnteredValue': {'stringValue': source_lang},
-                    'userEnteredFormat': {
-                        'backgroundColor': {
-                            'red': 50,
-                            'blue': 50,
-                            'green': 50,
-                            'alpha': .1,
-                        },
-                        'textFormat': {'bold': True},
-                    }
+                    'userEnteredFormat': base_format,
                 },
                 {
                     'userEnteredValue': {'stringValue': lang},
-                    'userEnteredFormat': {
-                        'backgroundColor': {
-                            'red': 50,
-                            'blue': 50,
-                            'green': 50,
-                            'alpha': .1,
-                        },
-                        'textFormat': {'bold': True},
-                    }
+                    'userEnteredFormat': base_format,
+                },
+                {
+                    'userEnteredValue': {'stringValue': 'Location'},
+                    'userEnteredFormat': base_format,
                 },
             ]
         }
 
-    def _create_catalog_rows(self, catalog):
+    def _create_catalog_rows(self, catalog, include_obsolete=False):
         rows = []
         for message in catalog:
             if not message.id:
                 continue
+
+            if not include_obsolete and not message.locations:
+                continue
+
             rows.append({
                 'values': [
                     {
@@ -181,20 +186,37 @@ class GoogleSheetsTranslator(base.Translator):
                         'userEnteredValue': {'stringValue': message.string},
                         'userEnteredFormat': {'wrapStrategy': 'WRAP'}
                     },
+                    {
+                        'userEnteredValue': {'stringValue': (
+                            ', '.join(t[0] for t in message.locations))},
+                        'userEnteredFormat': {
+                            'wrapStrategy': 'WRAP',
+                            'textFormat': {
+                                'foregroundColor': {
+                                    'red': 100,
+                                    'blue': 100,
+                                    'green': 100,
+                                    'alpha': .5,
+                                },
+                            },
+                        }
+                    },
                 ],
             })
+
         return rows
 
-    def _create_sheet_from_catalog(self, catalog, source_lang):
+    def _create_sheet_from_catalog(self, catalog, source_lang,
+            include_obsolete=False):
         lang = str(catalog.locale)
         row_data = []
         row_data.append(self._create_header_row_data(source_lang, lang))
-        row_data += self._create_catalog_rows(catalog)
+        row_data += self._create_catalog_rows(catalog, include_obsolete)
         return {
             'properties': {
                 'title': lang,
                 'gridProperties': {
-                    'columnCount': 2,
+                    'columnCount': 3,
                     'rowCount': len(row_data) + 3,  # Three rows of padding.
                     'frozenRowCount': 1,
                     'frozenColumnCount': 1,
@@ -207,17 +229,20 @@ class GoogleSheetsTranslator(base.Translator):
                 'columnMetadata': [
                     {'pixelSize': 400},
                     {'pixelSize': 400},
+                    {'pixelSize': 250},
                 ],
             }],
         }
 
-    def _create_sheets_request(self, catalogs, source_lang, spreadsheet_id):
+    def _create_sheets_request(self, catalogs, source_lang, spreadsheet_id,
+            include_obsolete=False):
         service = self._create_service()
 
         # Create sheets.
         requests = []
         for catalog in catalogs:
-            sheet = self._create_sheet_from_catalog(catalog, source_lang)
+            sheet = self._create_sheet_from_catalog(catalog, source_lang,
+                    include_obsolete=include_obsolete)
             request = {
                 'addSheet': {
                     'properties': sheet['properties']
@@ -236,7 +261,8 @@ class GoogleSheetsTranslator(base.Translator):
             sheet = None
             for catalog in catalogs:
                 if str(catalog.locale) == locale:
-                    sheet = self._create_sheet_from_catalog(catalog, source_lang)
+                    sheet = self._create_sheet_from_catalog(catalog,
+                            source_lang, include_obsolete=include_obsolete)
                     break
             assert sheet, "Couldn't find sheet for: {}".format(locale)
             requests.append({
@@ -266,7 +292,8 @@ class GoogleSheetsTranslator(base.Translator):
         resp = service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id, body=body).execute()
 
-    def _update_sheets_request(self, sheet_ids_to_catalogs, source_lang, spreadsheet_id):
+    def _update_sheets_request(self, sheet_ids_to_catalogs, source_lang,
+            spreadsheet_id, include_obsolete=False):
         # NOTE: Preserve locally-obsolete strings in Sheets by default.
         requests = []
         for sheet_id, catalog in sheet_ids_to_catalogs.iteritems():
@@ -278,7 +305,8 @@ class GoogleSheetsTranslator(base.Translator):
                 if value not in catalog:
                     catalog.add(source, translation, auto_comments=[],
                                 context=None, flags=[])
-            sheet = self._create_sheet_from_catalog(catalog, source_lang)
+            sheet = self._create_sheet_from_catalog(catalog, source_lang,
+                    include_obsolete=include_obsolete)
             sheet['properties']['sheetId'] = sheet_id
             requests.append({
                 'updateSheetProperties': {
