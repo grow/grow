@@ -1,4 +1,5 @@
 from grow.common import utils
+from grow.commands.extract import validate_locales
 from grow.pods import pods
 from grow.pods import storage
 import click
@@ -42,6 +43,9 @@ def upload_translations(pod_path, locale, force, service, update_acl,
         catalogs.extract(include_obsolete=include_obsolete, localized=localized,
                          include_header=include_header,
                          use_fuzzy_matching=use_fuzzy_matching)
+        locales = validate_locales(pod.list_locales(), locale)
+        catalogs.update(locales=locales, include_header=include_header,
+                        use_fuzzy_matching=use_fuzzy_matching)
 
     if not translator:
         raise click.ClickException('No translators specified in podspec.yaml.')
