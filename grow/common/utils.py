@@ -34,7 +34,7 @@ except ImportError:
     from yaml import Loader as yaml_Loader
 
 
-LOCALIZED_KEY_REGEX = re.compile('(.*)@([\w|-]+)$')
+LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
 SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 
@@ -320,7 +320,13 @@ def untag_fields(fields, locale=None):
             updated_localized_paths.add((path, key))
             return key, value
         untagged_key, locale_from_key = match.groups()
-        if locale_from_key != locale:
+        if (locale
+                and locale_from_key.startswith('/')
+                and locale_from_key.endswith('/')):
+            locale_regex = locale_from_key[1:-1]
+            if not re.match(locale_regex, locale):
+                return False
+        elif locale_from_key != locale:
             return False
         updated_localized_paths.add((path, untagged_key.rstrip('@')))
         return untagged_key, value

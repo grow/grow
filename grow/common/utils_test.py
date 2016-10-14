@@ -381,6 +381,73 @@ class UtilsTestCase(unittest.TestCase):
             },
         }, utils.untag_fields(fields))
 
+    def test_untag_fields_with_regex(self):
+        fields_to_test = {
+            'foo': 'bar-base',
+            'foo@de': 'bar-de',
+            'foo@/fr/': 'bar-fr',
+            'nested': {
+                'nested': 'nested-base',
+                'nested@/fr/': 'nested-fr',
+            },
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'bar-fr',
+            'nested': {
+                'nested': 'nested-fr',
+            },
+        }, utils.untag_fields(fields, locale='fr'))
+        self.assertDictEqual({
+            'foo': 'bar-fr',
+            'nested': {
+                'nested': 'nested-fr',
+            },
+        }, utils.untag_fields(fields, locale='fr_FR'))
+        self.assertDictEqual({
+            'foo': 'bar-fr',
+            'nested': {
+                'nested': 'nested-fr',
+            },
+        }, utils.untag_fields(fields, locale='fr_CA'))
+        self.assertDictEqual({
+            'foo': 'bar-de',
+            'nested': {
+                'nested': 'nested-base',
+            },
+        }, utils.untag_fields(fields, locale='de'))
+
+        fields_to_test = {
+            'foo': 'bar-base',
+            'foo@de': 'bar-de',
+            'foo@/fr|it/': 'bar-any',
+            'nested': {
+                'nested': 'nested-base',
+                'nested@/fr|it/': 'nested-any',
+            },
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'bar-any',
+            'nested': {
+                'nested': 'nested-any',
+            },
+        }, utils.untag_fields(fields, locale='fr'))
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'bar-any',
+            'nested': {
+                'nested': 'nested-any',
+            },
+        }, utils.untag_fields(fields, locale='it'))
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'bar-de',
+            'nested': {
+                'nested': 'nested-base',
+            },
+        }, utils.untag_fields(fields, locale='de'))
+
 
 if __name__ == '__main__':
     unittest.main()
