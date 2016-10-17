@@ -59,6 +59,9 @@ class Translator(object):
     def _update_acl(self, stat, locale):
         raise NotImplementedError
 
+    def _update_meta(self, stat, locale):
+        raise NotImplementedError
+
     def _get_stats_to_download(self, locales):
         # 'stats' maps the service name to a mapping of languages to stats.
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
@@ -157,6 +160,29 @@ class Translator(object):
             if i == 0:
                 thread.join()
             self.pod.logger.info('ACL updated ({}): {}'.format(stat.lang, stat.url))
+        for i, thread in enumerate(threads):
+            if i > 0:
+                thread.join()
+
+    def update_meta(self, locales=None):
+        locales = locales or self.pod.catalogs.list_locales()
+        if not locales:
+            self.pod.logger.info('No locales to found to update.')
+            return
+        stats_to_download = self._get_stats_to_download(locales)
+        if not stats_to_download:
+            self.pod.logger.info('No documents found to update.')
+            return
+        threads = []
+        for i, (locale, stat) in enumerate(stats_to_download.iteritems()):
+            thread = threading.Thread(
+                    target=self._update_meta, args=(stat, locale))
+            threads.append(thread)
+            thread.start()
+            if i == 0:
+                thread.join()
+            self.pod.logger.info('Meta information updated ({}): {}'.format(
+                    stat.lang, stat.url))
         for i, thread in enumerate(threads):
             if i > 0:
                 thread.join()
