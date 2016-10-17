@@ -128,7 +128,7 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
         src/e79a7126551c39d5f8c1b83a79c14e86992155a4/external/markdown-processor.py
     """
     KIND = 'sourcecode'
-    pattern_tag = re.compile(r'\[sourcecode:(.+?)\](.+?)\[/sourcecode\]', re.S)
+    pattern_tag = re.compile(r'\[sourcecode(:.*?)\](.+?)\[/sourcecode\]', re.S)
     pattern_ticks = re.compile(r'```(.+?)\n(.+?)\n```', re.S)
 
     class Config(messages.Message):
@@ -156,6 +156,9 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
         class_name = self.config.class_name
         def repl(m):
             language = m.group(1)
+            language = language[1:] if language[0] == ':' else language
+            if language in ['', 'none']:
+                language = 'text'
             content = m.group(2)
             if self.config.highlighter == 'pygments':
                 try:
