@@ -50,9 +50,13 @@ class GoogleSheetsTranslator(base.Translator):
     HEADER_ROW_COUNT = 1
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
+    service = None
 
     def _create_service(self):
-        return google_drive.BaseGooglePreprocessor.create_service('sheets', 'v4')
+        if not self.service:
+            self.service = google_drive.BaseGooglePreprocessor.create_service(
+                    'sheets', 'v4')
+        return self.service
 
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
