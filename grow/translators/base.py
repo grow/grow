@@ -2,6 +2,7 @@ from protorpc import message_types
 from protorpc import messages
 from protorpc import protojson
 from grow.common import utils
+from grow.translators import errors as translator_errors
 import copy
 import json
 import logging
@@ -97,7 +98,13 @@ class Translator(object):
         langs_to_translations = {}
         new_stats = []
         def _do_download(lang, stat):
-            new_stat, content = self._download_content(stat)
+            try:
+                new_stat, content = self._download_content(stat)
+            except translator_errors.NotFoundError:
+                text = 'No translations to download for: {}'
+                self.pod.logger.info(text.format(lang))
+                return
+
             new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
             langs_to_translations[lang] = content
             new_stats.append(new_stat)

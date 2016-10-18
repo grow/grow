@@ -7,6 +7,7 @@ from googleapiclient import http
 from grow.common import oauth
 from grow.common import utils
 from grow.preprocessors import google_drive
+from grow.translators import errors as translator_errors
 import base64
 import csv
 import datetime
@@ -45,8 +46,15 @@ class GoogleSheetsTranslator(base.Translator):
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
         rangeName = "'{}'!A:B".format(locale)
-        resp = service.spreadsheets().values().get(
-            spreadsheetId=spreadsheet_id, range=rangeName).execute()
+        try:
+            resp = service.spreadsheets().values().get(
+                spreadsheetId=spreadsheet_id, range=rangeName).execute()
+        except errors.HttpError as e:
+            if e.resp['status'] == '400':
+                raise translator_errors.NotFoundError(
+                    'Translation for {} not found.'.format(locale))
+            raise
+
         return resp['values']
 
     def _download_content(self, stat):
