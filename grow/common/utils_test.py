@@ -385,10 +385,11 @@ class UtilsTestCase(unittest.TestCase):
         fields_to_test = {
             'foo': 'bar-base',
             'foo@de': 'bar-de',
-            'foo@/fr/': 'bar-fr',
+            'foo@fr.*': 'bar-fr',
             'nested': {
                 'nested': 'nested-base',
-                'nested@/fr/': 'nested-fr',
+                'nested@de_AT': 'nested-de',
+                'nested@fr': 'nested-fr',
             },
         }
         fields = copy.deepcopy(fields_to_test)
@@ -401,13 +402,13 @@ class UtilsTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'bar-fr',
             'nested': {
-                'nested': 'nested-fr',
+                'nested': 'nested-base',
             },
         }, utils.untag_fields(fields, locale='fr_FR'))
         self.assertDictEqual({
             'foo': 'bar-fr',
             'nested': {
-                'nested': 'nested-fr',
+                'nested': 'nested-base',
             },
         }, utils.untag_fields(fields, locale='fr_CA'))
         self.assertDictEqual({
@@ -416,14 +417,20 @@ class UtilsTestCase(unittest.TestCase):
                 'nested': 'nested-base',
             },
         }, utils.untag_fields(fields, locale='de'))
+        self.assertDictEqual({
+            'foo': 'bar-base',
+            'nested': {
+                'nested': 'nested-de',
+            },
+        }, utils.untag_fields(fields, locale='de_AT'))
 
         fields_to_test = {
             'foo': 'bar-base',
             'foo@de': 'bar-de',
-            'foo@/fr|it/': 'bar-any',
+            'foo@fr|it': 'bar-any',
             'nested': {
                 'nested': 'nested-base',
-                'nested@/fr|it/': 'nested-any',
+                'nested@fr|it': 'nested-any',
             },
         }
         fields = copy.deepcopy(fields_to_test)

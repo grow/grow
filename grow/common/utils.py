@@ -320,13 +320,8 @@ def untag_fields(fields, locale=None):
             updated_localized_paths.add((path, key))
             return key, value
         untagged_key, locale_from_key = match.groups()
-        if (locale
-                and locale_from_key.startswith('/')
-                and locale_from_key.endswith('/')):
-            locale_regex = locale_from_key[1:-1]
-            if not re.match(locale_regex, locale):
-                return False
-        elif locale_from_key != locale:
+        locale_regex = r'^{}$'.format(locale_from_key)
+        if not locale or not re.match(locale_regex, locale):
             return False
         updated_localized_paths.add((path, untagged_key.rstrip('@')))
         return untagged_key, value
