@@ -162,7 +162,7 @@ class Translator(object):
                 thread.join()
 
     def upload(self, locales=None, force=True, verbose=False, save_stats=True,
-               download=False, prune_obsolete=False):
+               download=False, prune=False):
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()
         stats = []
@@ -191,7 +191,7 @@ class Translator(object):
                 if catalog_to_upload:
                     catalogs_to_upload.append(catalog_to_upload)
             stats = self._upload_catalogs(catalogs_to_upload, source_lang,
-                    prune_obsolete=prune_obsolete)
+                    prune=prune)
         else:
             text = 'Uploading translations: %(value)d/{} (in %(elapsed)s)'
             widgets = [progressbar.FormatLabel(text.format(num_files))]
@@ -200,8 +200,7 @@ class Translator(object):
             threads = []
             def _do_upload(locale):
                 catalog = self.pod.catalogs.get(locale)
-                stat = self._upload_catalog(catalog, source_lang,
-                        prune_obsolete=prune_obsolete)
+                stat = self._upload_catalog(catalog, source_lang, prune=prune)
                 stats.append(stat)
             for i, locale in enumerate(locales):
                 thread = utils.ProgressBarThread(

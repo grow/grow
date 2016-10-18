@@ -79,7 +79,7 @@ class GoogleSheetsTranslator(base.Translator):
         content = fp.read()
         return updated_stat, content
 
-    def _upload_catalogs(self, catalogs, source_lang, prune_obsolete=False):
+    def _upload_catalogs(self, catalogs, source_lang, prune=False):
         project_title = self.project_title
         source_lang = str(source_lang)
         locales_to_sheet_ids = {}
@@ -110,16 +110,16 @@ class GoogleSheetsTranslator(base.Translator):
             if catalogs_to_create:
                 self._create_sheets_request(
                     catalogs_to_create, source_lang, spreadsheet_id,
-                            prune_obsolete=prune_obsolete)
+                            prune=prune)
             if sheet_ids_to_catalogs:
                 self._update_sheets_request(
                     sheet_ids_to_catalogs, source_lang, spreadsheet_id,
-                            prune_obsolete=prune_obsolete)
+                            prune=prune)
         else:
             sheets = []
             for catalog in catalogs:
                 sheets.append(self._create_sheet_from_catalog(catalog, source_lang,
-                        prune_obsolete=prune_obsolete))
+                        prune=prune))
             resp = service.spreadsheets().create(body={
                 'sheets': sheets,
                 'properties': {
@@ -204,13 +204,13 @@ class GoogleSheetsTranslator(base.Translator):
             ],
         }
 
-    def _create_catalog_rows(self, catalog, prune_obsolete=False):
+    def _create_catalog_rows(self, catalog, prune=False):
         rows = []
         for message in catalog:
             if not message.id:
                 continue
 
-            if not prune_obsolete and not message.locations:
+            if prune and not message.locations:
                 continue
 
             rows.append(self._create_catalog_row(
@@ -218,11 +218,11 @@ class GoogleSheetsTranslator(base.Translator):
         return rows
 
     def _create_sheet_from_catalog(self, catalog, source_lang,
-            prune_obsolete=False):
+            prune=False):
         lang = str(catalog.locale)
         row_data = []
         row_data.append(self._create_header_row_data(source_lang, lang))
-        row_data += self._create_catalog_rows(catalog, prune_obsolete)
+        row_data += self._create_catalog_rows(catalog, prune=prune)
         return {
             'properties': {
                 'title': lang,
@@ -246,14 +246,14 @@ class GoogleSheetsTranslator(base.Translator):
         }
 
     def _create_sheets_request(self, catalogs, source_lang, spreadsheet_id,
-            prune_obsolete=False):
+            prune=False):
         service = self._create_service()
 
         # Create sheets.
         requests = []
         for catalog in catalogs:
             sheet = self._create_sheet_from_catalog(catalog, source_lang,
-                    prune_obsolete=prune_obsolete)
+                    prune=prune)
             request = {
                 'addSheet': {
                     'properties': sheet['properties']
@@ -273,7 +273,7 @@ class GoogleSheetsTranslator(base.Translator):
             for catalog in catalogs:
                 if str(catalog.locale) == locale:
                     sheet = self._create_sheet_from_catalog(catalog,
-                            source_lang, prune_obsolete=prune_obsolete)
+                            source_lang, prune=prune)
                     break
             assert sheet, "Couldn't find sheet for: {}".format(locale)
             requests.append({
@@ -355,7 +355,7 @@ class GoogleSheetsTranslator(base.Translator):
         return (existing_rows, new_rows, removed_rows)
 
     def _update_sheets_request(self, sheet_ids_to_catalogs, source_lang,
-            spreadsheet_id, prune_obsolete=False):
+            spreadsheet_id, prune=False):
         requests = []
         for sheet_id, catalog in sheet_ids_to_catalogs.iteritems():
             existing_values = self._download_sheet(spreadsheet_id, str(catalog.locale))
@@ -412,7 +412,7 @@ class GoogleSheetsTranslator(base.Translator):
                 })
 
             # Remove obsolete rows if not included.
-            if prune_obsolete and len(removed_rows):
+            if prune and len(removed_rows):
                 for value in reversed(removed_rows): # Start from the bottom.
                     # NOTE this is ineffecient since it does not combine ranges.
                     # ex: 1, 2, 3 are three requests instead of one request 1-3

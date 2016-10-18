@@ -24,13 +24,13 @@ import os
                    ' to uploading.')
 @click.option('--extract/--no-extract', '-x', default=True,
               help='Whether to extract translations prior to uploading.')
-@click.option('--prune-obsolete', default=False, is_flag=True,
+@click.option('--prune', default=False, is_flag=True,
               help='Whether to remove obsolete messages from spreadsheet.'
                    ' Normally message may be removed and readded periodically'
                    ' so they are not removed, but can be removed to clean up'
                    ' translations but cannot be retrieved once pruned.')
 def upload_translations(pod_path, locale, force, service, update_acl,
-                        download, extract, prune_obsolete):
+                        download, extract, prune):
     """Uploads translations to a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
@@ -54,4 +54,4 @@ def upload_translations(pod_path, locale, force, service, update_acl,
     else:
         # TODO Remove the download from the upload arguments to clean it up.
         translator.upload(locales=locale, force=force, verbose=True,
-                          download=download, prune_obsolete=prune_obsolete)
+                          download=download, prune=prune)
