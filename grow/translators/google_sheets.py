@@ -54,27 +54,6 @@ class GoogleSheetsTranslator(base.Translator):
     def _create_service(self):
         return google_drive.BaseGooglePreprocessor.create_service('sheets', 'v4')
 
-    def _def_formatting(self):
-        formats = {}
-
-        formats['header_cell'] = {
-            'backgroundColor': self.COLOR_GREY_200,
-            'textFormat': {
-                'bold': True
-            },
-        }
-
-        formats['info_cell'] = {
-            'wrapStrategy': 'WRAP',
-            'textFormat': {
-                'foregroundColor': self.COLOR_GREY_500,
-            },
-        }
-
-        formats['wrap'] = { 'wrapStrategy': 'WRAP' }
-
-        return formats
-
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
         rangeName = "'{}'!A:C".format(locale)
@@ -139,13 +118,23 @@ class GoogleSheetsTranslator(base.Translator):
                 else:
                     catalogs_to_create.append(catalog)
             if catalogs_to_create:
-                self._create_sheets_request(
-                    catalogs_to_create, source_lang, spreadsheet_id,
-                            prune=prune)
+                # Create the new sheets separately.
+                requests = self._generate_create_sheets_requests(
+                    catalogs_to_create, source_lang, prune=prune)
+                resp = self._perform_batch_update(spreadsheet_id, requests)
+
+                # Update the spreadsheet styling with the new sheet ids.
+                requests = []
+                for reply in resp['replies']:
+                    sheet_id = reply['addSheet']['properties']['sheetId']
+                    requests += self._generate_style_requests(sheet_id)
+                self._perform_batch_update(spreadsheet_id, requests)
+
             if sheet_ids_to_catalogs:
-                self._update_sheets_request(
+                requests = self._generate_update_sheets_requests(
                     sheet_ids_to_catalogs, source_lang, spreadsheet_id,
                             prune=prune)
+                self._perform_batch_update(spreadsheet_id, requests)
         else:
             sheets = []
             for catalog in catalogs:
@@ -180,41 +169,21 @@ class GoogleSheetsTranslator(base.Translator):
         return stats
 
     def _create_header_row_data(self, source_lang, lang):
-        formats = self._def_formatting()
         return {
             'values': [
-                {
-                    'userEnteredValue': {'stringValue': source_lang},
-                    'userEnteredFormat': formats['header_cell'],
-                },
-                {
-                    'userEnteredValue': {'stringValue': lang},
-                    'userEnteredFormat': formats['header_cell'],
-                },
-                {
-                    'userEnteredValue': {'stringValue': 'Location'},
-                    'userEnteredFormat': formats['header_cell'],
-                },
+                {'userEnteredValue': {'stringValue': source_lang}},
+                {'userEnteredValue': {'stringValue': lang}},
+                {'userEnteredValue': {'stringValue': 'Location'}},
             ]
         }
 
     def _create_catalog_row(self, id, value, locations):
-        formats = self._def_formatting()
         return {
             'values': [
-                {
-                    'userEnteredValue': {'stringValue': id},
-                    'userEnteredFormat': formats['wrap']
-                },
-                {
-                    'userEnteredValue': {'stringValue': value},
-                    'userEnteredFormat': formats['wrap']
-                },
-                {
-                    'userEnteredValue': {
-                        'stringValue': (', '.join(t[0] for t in locations))},
-                    'userEnteredFormat': formats['info_cell']
-                },
+                {'userEnteredValue': {'stringValue': id}},
+                {'userEnteredValue': {'stringValue': value}},
+                {'userEnteredValue': {
+                        'stringValue': (', '.join(t[0] for t in locations))}},
             ],
         }
 
@@ -258,64 +227,6 @@ class GoogleSheetsTranslator(base.Translator):
                 ],
             }],
         }
-
-    def _create_sheets_request(self, catalogs, source_lang, spreadsheet_id,
-            prune=False):
-        service = self._create_service()
-
-        # Create sheets.
-        requests = []
-        for catalog in catalogs:
-            sheet = self._create_sheet_from_catalog(catalog, source_lang,
-                    prune=prune)
-            request = {
-                'addSheet': {
-                    'properties': sheet['properties']
-                },
-            }
-            requests.append(request)
-        body = {'requests': requests}
-        resp = service.spreadsheets().batchUpdate(
-            spreadsheetId=spreadsheet_id, body=body).execute()
-
-        # Format newly-created sheets.
-        requests = []
-        for reply in resp['replies']:
-            sheet_id = reply['addSheet']['properties']['sheetId']
-            locale = reply['addSheet']['properties']['title']
-            sheet = None
-            for catalog in catalogs:
-                if str(catalog.locale) == locale:
-                    sheet = self._create_sheet_from_catalog(catalog,
-                            source_lang, prune=prune)
-                    break
-            assert sheet, "Couldn't find sheet for: {}".format(locale)
-            requests.append({
-                'updateCells': {
-                    'fields': '*',
-                    'start': {
-                        'sheetId': sheet_id,
-                        'rowIndex': 0,
-                        'columnIndex': 0,
-                    },
-                    'rows': sheet['data'][0]['rowData']
-                },
-            })
-            requests.append({
-                'updateDimensionProperties': {
-                    'range': {
-                        'sheetId': sheet_id,
-                        'dimension': 'COLUMNS',
-                    },
-                    'properties': {
-                        'pixelSize': 400,
-                    },
-                    'fields': '*',
-                },
-            })
-        body = {'requests': requests}
-        resp = service.spreadsheets().batchUpdate(
-            spreadsheetId=spreadsheet_id, body=body).execute()
 
     def _diff_data(self, existing_values, catalog):
         existing_rows = []
@@ -368,8 +279,40 @@ class GoogleSheetsTranslator(base.Translator):
 
         return (existing_rows, new_rows, removed_rows)
 
-    def _update_meta_request(self, spreadsheet_id, sheet_id):
-        formats = self._def_formatting()
+    def _generate_create_sheets_requests(self, catalogs, source_lang,
+            prune=False):
+        # Create sheets.
+        requests = []
+        for catalog in catalogs:
+            sheet = self._create_sheet_from_catalog(catalog, source_lang,
+                    prune=prune)
+            request = {
+                'addSheet': {
+                    'properties': sheet['properties']
+                },
+            }
+            requests.append(request)
+        return requests
+
+    def _generate_style_requests(self, sheet_id):
+        formats = {}
+
+        formats['header_cell'] = {
+            'backgroundColor': self.COLOR_GREY_200,
+            'textFormat': {
+                'bold': True
+            },
+        }
+
+        formats['info_cell'] = {
+            'wrapStrategy': 'WRAP',
+            'textFormat': {
+                'foregroundColor': self.COLOR_GREY_500,
+            },
+        }
+
+        formats['wrap'] = {'wrapStrategy': 'WRAP'}
+
         requests = []
         requests.append({
             'repeatCell': {
@@ -390,6 +333,20 @@ class GoogleSheetsTranslator(base.Translator):
                 'fields': 'userEnteredFormat',
                 'range': {
                     'sheetId': sheet_id,
+                    'startColumnIndex': 0,
+                    'endColumnIndex': 2,
+                    'startRowIndex': self.HEADER_ROW_COUNT,
+                },
+                'cell': {
+                    'userEnteredFormat': formats['wrap'],
+                },
+            },
+        })
+        requests.append({
+            'repeatCell': {
+                'fields': 'userEnteredFormat',
+                'range': {
+                    'sheetId': sheet_id,
                     'startColumnIndex': 2,
                     'endColumnIndex': 3,
                     'startRowIndex': self.HEADER_ROW_COUNT,
@@ -399,13 +356,10 @@ class GoogleSheetsTranslator(base.Translator):
                 },
             },
         })
-        body = {'requests': requests}
-        service = self._create_service()
-        resp = service.spreadsheets().batchUpdate(
-            spreadsheetId=spreadsheet_id, body=body).execute()
+        return requests
 
-    def _update_sheets_request(self, sheet_ids_to_catalogs, source_lang,
-            spreadsheet_id, prune=False):
+    def _generate_update_sheets_requests(self, sheet_ids_to_catalogs,
+            source_lang, spreadsheet_id, prune=False):
         requests = []
         for sheet_id, catalog in sheet_ids_to_catalogs.iteritems():
             existing_values = self._download_sheet(spreadsheet_id, str(catalog.locale))
@@ -435,7 +389,7 @@ class GoogleSheetsTranslator(base.Translator):
                 # with the updated information. Hint: Use value['updated'].
                 requests.append({
                     'updateCells': {
-                        'fields': '*',
+                        'fields': 'userEnteredValue',
                         'start': {
                             'sheetId': sheet_id,
                             'rowIndex': self.HEADER_ROW_COUNT, # Skip header row.
@@ -456,7 +410,7 @@ class GoogleSheetsTranslator(base.Translator):
                 requests.append({
                     'appendCells': {
                         'sheetId': sheet_id,
-                        'fields': '*',
+                        'fields': 'userEnteredValue',
                         'rows': row_data,
                     },
                 })
@@ -493,11 +447,7 @@ class GoogleSheetsTranslator(base.Translator):
                     ],
                 },
             })
-
-        body = {'requests': requests}
-        service = self._create_service()
-        resp = service.spreadsheets().batchUpdate(
-            spreadsheetId=spreadsheet_id, body=body).execute()
+        return requests
 
     def _do_update_acl(self, spreadsheet_id, acl):
         service = google_drive.BaseGooglePreprocessor.create_service('drive', 'v3')
@@ -518,6 +468,12 @@ class GoogleSheetsTranslator(base.Translator):
                 fileId=spreadsheet_id,
                 body=permission).execute()
 
+    def _perform_batch_update(self, spreadsheet_id, requests):
+        service = self._create_service()
+        body = {'requests': requests}
+        return service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id, body=body).execute()
+
     def _update_acls(self, stats, locales):
         if 'acl' not in self.config:
             return
@@ -529,9 +485,13 @@ class GoogleSheetsTranslator(base.Translator):
         self._do_update_acl(spreadsheet_id, acl)
 
     def _update_meta(self, stat, locale):
+        spreadsheet_id = stat.ident
         locales_to_sheet_ids = {}
         service = self._create_service()
         resp = service.spreadsheets().get(
             spreadsheetId=stat.ident).execute()
+        requests = []
         for sheet in resp['sheets']:
-            self._update_meta_request(stat.ident, sheet['properties']['sheetId'])
+            sheet_id = sheet['properties']['sheetId']
+            requests += self._generate_style_requests(sheet_id)
+        self._perform_batch_update(spreadsheet_id, requests)
