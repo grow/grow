@@ -41,6 +41,9 @@ def upload_translations(pod_path, locale, force, service, update_acl,
     pod = pods.Pod(root, storage=storage.FileStorage)
     translator = pod.get_translator(service)
 
+    if not translator:
+        raise click.ClickException('No translators specified in podspec.yaml.')
+
     if update_acl:
         translator.update_acl(locales=locale)
         return
@@ -60,9 +63,6 @@ def upload_translations(pod_path, locale, force, service, update_acl,
         catalogs.update(locales=locales, include_header=include_header,
                         use_fuzzy_matching=use_fuzzy_matching)
 
-    if not translator:
-        raise click.ClickException('No translators specified in podspec.yaml.')
-    else:
-        # TODO Remove the download from the upload arguments to clean it up.
-        translator.upload(locales=locale, force=force, verbose=True,
-                          download=download, prune=prune)
+    # TODO Remove the download from the upload arguments to clean it up.
+    translator.upload(locales=locale, force=force, verbose=True,
+                      download=download, prune=prune)
