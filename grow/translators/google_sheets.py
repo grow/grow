@@ -37,6 +37,7 @@ DEFAULT_ACCESS_LEVEL = AccessLevel.WRITER
 
 class GoogleSheetsTranslator(base.Translator):
     KIND = 'google_sheets'
+    HEADER_ROW_COUNT = 1
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
@@ -45,7 +46,7 @@ class GoogleSheetsTranslator(base.Translator):
 
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
-        rangeName = "'{}'!A:B".format(locale)
+        rangeName = "'{}'!A:C".format(locale)
         try:
             resp = service.spreadsheets().values().get(
                 spreadsheetId=spreadsheet_id, range=rangeName).execute()
@@ -54,13 +55,12 @@ class GoogleSheetsTranslator(base.Translator):
                 raise translator_errors.NotFoundError(
                     'Translation for {} not found.'.format(locale))
             raise
-
         return resp['values']
 
     def _download_content(self, stat):
         spreadsheet_id = stat.ident
         values = self._download_sheet(spreadsheet_id, stat.lang)
-        source_lang, lang = values.pop(0)
+        source_lang, lang, _ = values.pop(0)
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
             source = row[0]
@@ -79,7 +79,7 @@ class GoogleSheetsTranslator(base.Translator):
         content = fp.read()
         return updated_stat, content
 
-    def _upload_catalogs(self, catalogs, source_lang, include_obsolete=False):
+    def _upload_catalogs(self, catalogs, source_lang, prune=False):
         project_title = self.project_title
         source_lang = str(source_lang)
         locales_to_sheet_ids = {}
@@ -110,16 +110,16 @@ class GoogleSheetsTranslator(base.Translator):
             if catalogs_to_create:
                 self._create_sheets_request(
                     catalogs_to_create, source_lang, spreadsheet_id,
-                            include_obsolete=include_obsolete)
+                            prune=prune)
             if sheet_ids_to_catalogs:
                 self._update_sheets_request(
                     sheet_ids_to_catalogs, source_lang, spreadsheet_id,
-                            include_obsolete=include_obsolete)
+                            prune=prune)
         else:
             sheets = []
             for catalog in catalogs:
                 sheets.append(self._create_sheet_from_catalog(catalog, source_lang,
-                        include_obsolete=include_obsolete))
+                        prune=prune))
             resp = service.spreadsheets().create(body={
                 'sheets': sheets,
                 'properties': {
@@ -175,57 +175,60 @@ class GoogleSheetsTranslator(base.Translator):
             ]
         }
 
-    def _create_catalog_rows(self, catalog, include_obsolete=False):
+    def _create_catalog_row(self, id, value, locations):
+        return {
+            'values': [
+                {
+                    'userEnteredValue': {'stringValue': id},
+                    'userEnteredFormat': {'wrapStrategy': 'WRAP'}
+                },
+                {
+                    'userEnteredValue': {'stringValue': value},
+                    'userEnteredFormat': {'wrapStrategy': 'WRAP'}
+                },
+                {
+                    'userEnteredValue': {'stringValue': (
+                        ', '.join(t[0] for t in locations))},
+                    'userEnteredFormat': {
+                        'wrapStrategy': 'WRAP',
+                        'textFormat': {
+                            'foregroundColor': {
+                                'red': 100,
+                                'blue': 100,
+                                'green': 100,
+                                'alpha': .5,
+                            },
+                        },
+                    }
+                },
+            ],
+        }
+
+    def _create_catalog_rows(self, catalog, prune=False):
         rows = []
         for message in catalog:
             if not message.id:
                 continue
 
-            if not include_obsolete and not message.locations:
+            if prune and not message.locations:
                 continue
 
-            rows.append({
-                'values': [
-                    {
-                        'userEnteredValue': {'stringValue': message.id},
-                        'userEnteredFormat': {'wrapStrategy': 'WRAP'}
-                    },
-                    {
-                        'userEnteredValue': {'stringValue': message.string},
-                        'userEnteredFormat': {'wrapStrategy': 'WRAP'}
-                    },
-                    {
-                        'userEnteredValue': {'stringValue': (
-                            ', '.join(t[0] for t in message.locations))},
-                        'userEnteredFormat': {
-                            'wrapStrategy': 'WRAP',
-                            'textFormat': {
-                                'foregroundColor': {
-                                    'red': 100,
-                                    'blue': 100,
-                                    'green': 100,
-                                    'alpha': .5,
-                                },
-                            },
-                        }
-                    },
-                ],
-            })
-
+            rows.append(self._create_catalog_row(
+                    message.id, message.string, message.locations))
         return rows
 
     def _create_sheet_from_catalog(self, catalog, source_lang,
-            include_obsolete=False):
+            prune=False):
         lang = str(catalog.locale)
         row_data = []
         row_data.append(self._create_header_row_data(source_lang, lang))
-        row_data += self._create_catalog_rows(catalog, include_obsolete)
+        row_data += self._create_catalog_rows(catalog, prune=prune)
         return {
             'properties': {
                 'title': lang,
                 'gridProperties': {
                     'columnCount': 3,
-                    'rowCount': len(row_data) + 3,  # Three rows of padding.
+                    'rowCount': len(row_data),
                     'frozenRowCount': 1,
                     'frozenColumnCount': 1,
                 },
@@ -243,14 +246,14 @@ class GoogleSheetsTranslator(base.Translator):
         }
 
     def _create_sheets_request(self, catalogs, source_lang, spreadsheet_id,
-            include_obsolete=False):
+            prune=False):
         service = self._create_service()
 
         # Create sheets.
         requests = []
         for catalog in catalogs:
             sheet = self._create_sheet_from_catalog(catalog, source_lang,
-                    include_obsolete=include_obsolete)
+                    prune=prune)
             request = {
                 'addSheet': {
                     'properties': sheet['properties']
@@ -270,7 +273,7 @@ class GoogleSheetsTranslator(base.Translator):
             for catalog in catalogs:
                 if str(catalog.locale) == locale:
                     sheet = self._create_sheet_from_catalog(catalog,
-                            source_lang, include_obsolete=include_obsolete)
+                            source_lang, prune=prune)
                     break
             assert sheet, "Couldn't find sheet for: {}".format(locale)
             requests.append({
@@ -300,39 +303,147 @@ class GoogleSheetsTranslator(base.Translator):
         resp = service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id, body=body).execute()
 
+    def _diff_data(self, existing_values, catalog):
+        existing_rows = []
+        new_rows = []
+        removed_rows = []
+
+        for value in existing_values:
+            existing_rows.append({
+                'source': value[0],
+                'translation': value[1] if len(value) > 1 else None,
+                'locations': value[2] if len(value) > 2 else [],
+                'updated': False, # Has changed from the downloaded value.
+                'matched': False, # Has been matched to the downloaded values.
+            })
+
+        for message in catalog:
+            if not message.id:
+                continue
+
+            found = False
+
+            # Update for any existing values.
+            for value in existing_rows:
+                if value['source'] == message.id:
+                    value['updated'] = (
+                            value['translation'] != message.string or
+                            value['locations'] != message.locations)
+                    value['translation'] = message.string
+                    value['locations'] = message.locations
+                    value['matched'] = True
+                    found = True
+                    break
+
+            if found == True:
+                continue
+
+            new_rows.append({
+                'source': message.id,
+                'translation': message.string,
+                'locations': message.locations,
+            })
+
+        for index, value in enumerate(existing_rows):
+            if not value['matched'] or len(value['locations']) == 0:
+                removed_rows.append(index)
+
+            # Reset the locations when not found in catalog.
+            if not value['matched']:
+                value['locations'] = []
+
+        return (existing_rows, new_rows, removed_rows)
+
     def _update_sheets_request(self, sheet_ids_to_catalogs, source_lang,
-            spreadsheet_id, include_obsolete=False):
-        # NOTE: Preserve locally-obsolete strings in Sheets by default.
+            spreadsheet_id, prune=False):
         requests = []
         for sheet_id, catalog in sheet_ids_to_catalogs.iteritems():
             existing_values = self._download_sheet(spreadsheet_id, str(catalog.locale))
-            existing_values.pop(0)  # Remove header row.
+            for x in range(self.HEADER_ROW_COUNT):
+                existing_values.pop(0)  # Remove header rows.
             for value in existing_values:
-                source = value[0]
-                translation = value[1] if len(value) > 1 else None
                 if value not in catalog:
+                    source = value[0]
+                    translation = value[1] if len(value) > 1 else None
                     catalog.add(source, translation, auto_comments=[],
                                 context=None, flags=[])
-            sheet = self._create_sheet_from_catalog(catalog, source_lang,
-                    include_obsolete=include_obsolete)
-            sheet['properties']['sheetId'] = sheet_id
-            requests.append({
-                'updateSheetProperties': {
-                    'fields': '*',
-                    'properties': sheet['properties'],
-                },
-            })
-            requests.append({
-                'updateCells': {
-                    'fields': '*',
-                    'start': {
-                        'sheetId': sheet_id,
-                        'rowIndex': 0,
-                        'columnIndex': 0,
+
+            # Perform a diff of the existing data to what the catalog provides
+            # to make targeted changes to the spreadsheet and preserve meta
+            # information--such as comments.
+            existing_rows, new_rows, removed_rows = self._diff_data(
+                    existing_values, catalog)
+
+            # Update the existing values in place.
+            if len(existing_rows):
+                row_data = []
+                for value in existing_rows:
+                    row_data.append(self._create_catalog_row(
+                            value['source'], value['translation'],
+                            value['locations']))
+                # NOTE This is not (yet) smart enough to only update small sections
+                # with the updated information. Hint: Use value['updated'].
+                requests.append({
+                    'updateCells': {
+                        'fields': '*',
+                        'start': {
+                            'sheetId': sheet_id,
+                            'rowIndex': self.HEADER_ROW_COUNT, # Skip header row.
+                            'columnIndex': 0,
+                        },
+                        'rows': row_data,
                     },
-                    'rows': sheet['data'][0]['rowData'],
+                })
+
+            # Append new values to end of sheet.
+            if len(new_rows):
+                row_data = []
+                for value in new_rows:
+                    row_data.append(self._create_catalog_row(
+                            value['source'], value['translation'],
+                            value['locations']))
+
+                requests.append({
+                    'appendCells': {
+                        'sheetId': sheet_id,
+                        'fields': '*',
+                        'rows': row_data,
+                    },
+                })
+
+            # Remove obsolete rows if not included.
+            if prune and len(removed_rows):
+                for value in reversed(removed_rows): # Start from the bottom.
+                    # NOTE this is ineffecient since it does not combine ranges.
+                    # ex: 1, 2, 3 are three requests instead of one request 1-3
+                    requests.append({
+                        'deleteDimension': {
+                            'range': {
+                                'sheetId': sheet_id,
+                                'dimension': 'ROWS',
+                                'startIndex': self.HEADER_ROW_COUNT + value,
+                                'endIndex': self.HEADER_ROW_COUNT + value + 1,
+                            },
+                        },
+                    })
+
+            # Sort all rows.
+            requests.append({
+                'sortRange': {
+                    'range': {
+                        'sheetId': sheet_id,
+                        'startColumnIndex': 0,
+                        'startRowIndex': self.HEADER_ROW_COUNT,
+                    },
+                    'sortSpecs': [
+                        {
+                            'dimensionIndex': 0,
+                            'sortOrder': 'ASCENDING',
+                        }
+                    ],
                 },
             })
+
         body = {'requests': requests}
         service = self._create_service()
         resp = service.spreadsheets().batchUpdate(
