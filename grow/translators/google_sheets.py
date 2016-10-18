@@ -121,24 +121,19 @@ class GoogleSheetsTranslator(base.Translator):
                     sheet_ids_to_catalogs[existing_sheet_id] = catalog
                 else:
                     catalogs_to_create.append(catalog)
-            if catalogs_to_create:
-                # Create the new sheets separately.
-                requests = self._generate_create_sheets_requests(
-                    catalogs_to_create, source_lang, prune=prune)
-                resp = self._perform_batch_update(spreadsheet_id, requests)
 
-                # Update the spreadsheet styling with the new sheet ids.
-                requests = []
-                for reply in resp['replies']:
-                    sheet_id = reply['addSheet']['properties']['sheetId']
-                    requests += self._generate_style_requests(sheet_id)
-                self._perform_batch_update(spreadsheet_id, requests)
+            requests = []
+
+            if catalogs_to_create:
+                requests += self._generate_create_sheets_requests(
+                    catalogs_to_create, source_lang)
 
             if sheet_ids_to_catalogs:
-                requests = self._generate_update_sheets_requests(
+                requests += self._generate_update_sheets_requests(
                     sheet_ids_to_catalogs, source_lang, spreadsheet_id,
                             prune=prune)
-                self._perform_batch_update(spreadsheet_id, requests)
+
+            self._perform_batch_update(spreadsheet_id, requests)
         else:
             sheets = []
             for catalog in catalogs:
@@ -204,34 +199,6 @@ class GoogleSheetsTranslator(base.Translator):
                     message.id, message.string, message.locations))
         return rows
 
-    def _create_sheet_from_catalog(self, catalog, source_lang,
-            prune=False):
-        lang = str(catalog.locale)
-        row_data = []
-        row_data.append(self._create_header_row_data(source_lang, lang))
-        row_data += self._create_catalog_rows(catalog, prune=prune)
-        return {
-            'properties': {
-                'title': lang,
-                'gridProperties': {
-                    'columnCount': 3,
-                    'rowCount': len(row_data),
-                    'frozenRowCount': 1,
-                    'frozenColumnCount': 1,
-                },
-            },
-            'data': [{
-                'startRow': 0,
-                'startColumn': 0,
-                'rowData': row_data,
-                'columnMetadata': [
-                    {'pixelSize': 400},
-                    {'pixelSize': 400},
-                    {'pixelSize': 250},
-                ],
-            }],
-        }
-
     def _diff_data(self, existing_values, catalog):
         existing_rows = []
         new_rows = []
@@ -283,19 +250,82 @@ class GoogleSheetsTranslator(base.Translator):
 
         return (existing_rows, new_rows, removed_rows)
 
-    def _generate_create_sheets_requests(self, catalogs, source_lang,
-            prune=False):
+    def _generate_create_sheets_requests(self, catalogs, source_lang):
         # Create sheets.
+        sheet_id = random.randrange(100, 9999999)
         requests = []
         for catalog in catalogs:
-            sheet = self._create_sheet_from_catalog(catalog, source_lang,
-                    prune=prune)
-            request = {
+            lang = str(catalog.locale)
+            # Create a new sheet.
+            requests.append({
                 'addSheet': {
-                    'properties': sheet['properties']
+                    'properties': {
+                        'sheetId': sheet_id,
+                        'title': lang,
+                        'gridProperties': {
+                            'columnCount': 3,
+                            'rowCount': self.HEADER_ROW_COUNT + 1,
+                            'frozenRowCount': 1,
+                            'frozenColumnCount': 1,
+                        },
+                    },
                 },
-            }
-            requests.append(request)
+            })
+
+            # Add the data to the new sheet.
+            _, new_rows, _ = self._diff_data([], catalog)
+            row_data = []
+            row_data.append(self._create_header_row_data(source_lang, lang))
+            
+            if len(new_rows):
+                for value in new_rows:
+                    row_data.append(self._create_catalog_row(
+                            value['source'], value['translation'],
+                            value['locations']))
+
+                requests.append({
+                    'appendCells': {
+                        'sheetId': sheet_id,
+                        'fields': 'userEnteredValue',
+                        'rows': row_data,
+                    },
+                })
+
+            # Format the new sheet.
+            requests += self._generate_style_requests(sheet_id)
+
+            # Size the initial sheet columns.
+            # Not part of the style request to respect user's choice to resize.
+            requests.append({
+                'updateDimensionProperties': {
+                    'range': {
+                        'sheetId': sheet_id,
+                        'dimension': 'COLUMNS',
+                        'startIndex': 0,
+                        'endIndex': 2,
+                    },
+                    'properties': {
+                        'pixelSize': 400, # Source and Translation Columns
+                    },
+                    'fields': '*',
+                },
+            })
+
+            requests.append({
+                'updateDimensionProperties': {
+                    'range': {
+                        'sheetId': sheet_id,
+                        'dimension': 'COLUMNS',
+                        'startIndex': 2,
+                        'endIndex': 3,
+                    },
+                    'properties': {
+                        'pixelSize': 200, # Location Column
+                    },
+                    'fields': '*',
+                },
+            })
+
         return requests
 
     def _generate_style_requests(self, sheet_id):
