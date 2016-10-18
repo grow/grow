@@ -1,4 +1,5 @@
 from grow.common import utils
+from grow.commands.extract import validate_locales
 from grow.pods import pods
 from grow.pods import storage
 import click
@@ -18,10 +19,10 @@ import os
 @click.option('--update-acl', default=False, is_flag=True,
               help='Whether to update the ACL on uploaded resources'
                    ' instead of uploading new translation files.')
-@click.option('--download', '-d', default=True, is_flag=True,
+@click.option('--download/--no-download', '-d', default=True,
               help='Whether to download any existing translations prior'
                    ' to uploading.')
-@click.option('--extract', '-x', default=True, is_flag=True,
+@click.option('--extract/--no-extract', '-x', default=True,
               help='Whether to extract translations prior to uploading.')
 @click.option('--include-obsolete/--no-include-obsolete', default=None,
             is_flag=True,
@@ -42,6 +43,9 @@ def upload_translations(pod_path, locale, force, service, update_acl,
         catalogs.extract(include_obsolete=include_obsolete, localized=localized,
                          include_header=include_header,
                          use_fuzzy_matching=use_fuzzy_matching)
+        locales = validate_locales(pod.list_locales(), locale)
+        catalogs.update(locales=locales, include_header=include_header,
+                        use_fuzzy_matching=use_fuzzy_matching)
 
     if not translator:
         raise click.ClickException('No translators specified in podspec.yaml.')
