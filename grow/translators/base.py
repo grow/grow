@@ -101,7 +101,7 @@ class Translator(object):
             try:
                 new_stat, content = self._download_content(stat)
             except translator_errors.NotFoundError:
-                text = 'No translation source for {} locale.'
+                text = 'No translations to download for: {}'
                 self.pod.logger.info(text.format(lang))
                 return
 
