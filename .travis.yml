@@ -4,8 +4,12 @@ python: 2.7
 cache:
   pip: true
   directories:
-  - ./env/
-  - ./gaenv/
+  - "./env/"
+  - "./gaenv/"
+
+os:
+  - linux
+  - osx
 
 env:
 - GAE_ZIP=google_appengine_1.9.36.zip
@@ -23,3 +27,12 @@ before_script:
 
 script:
 - make test-ci
+
+before_deploy:
+- make release
+
+deploy:
+  provider: releases
+  api_key:
+    secure: DXcOJEmWKTwE3vIxKTA7lOWEyoCZWkN6lYpSh+qVRgunp/ZyJgeR0BXfljYCduv+jewCQRONNnRzxAl0++KiWFm3wu/PMHKCMmdWbC5lOT/sipMkbiMCH7++MsCBUhhdOeEBguTP9P4M2q/K3Pt7zaXalE64eNpD5MCfCbqw+3o=
+  file: Grow-SDK-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.zip
