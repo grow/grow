@@ -177,7 +177,8 @@ release:
 	@echo "Built: dist/$(FILENAME)"
 
 release-ci:
-	./env/bin/pyinstaller grow.spec
+	pip install git+https://github.com/pyinstaller/pyinstaller.git\#b78bfe530cdc2904f65ce098bdf2de08c9037abb
+	pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r Grow-SDK-$(TRAVIS_OS_NAME)-$(TRAVIS_TAG).zip grow && cd ..
 	@echo "Built: dist/Grow-SDK-$(TRAVIS_OS_NAME)-$(TRAVIS_TAG).zip"
