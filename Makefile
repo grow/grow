@@ -176,6 +176,12 @@ release:
 	./dist/grow build ./grow/testing/testdata/pod/
 	@echo "Built: dist/$(FILENAME)"
 
+release-ci:
+	./env/bin/pyinstaller grow.spec
+	chmod +x dist/grow
+	cd dist && zip -r Grow-SDK-$(TRAVIS_OS_NAME)-$(TRAVIS_TAG).zip grow && cd ..
+	@echo "Built: dist/Grow-SDK-$(TRAVIS_OS_NAME)-$(TRAVIS_TAG).zip"
+
 ensure-master:
 	@if [ `git rev-parse --abbrev-ref HEAD` != "master" ]; then \
 	  echo 'Releases must be uploaded from "master".'; \

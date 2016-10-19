@@ -29,7 +29,7 @@ script:
 - make test-ci
 
 before_deploy:
-- make release
+- make release-ci
 
 deploy:
   provider: releases
