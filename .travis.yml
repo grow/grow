@@ -7,10 +7,6 @@ cache:
   - "./env/"
   - "./gaenv/"
 
-os:
-  - linux
-  - osx
-
 env:
 - GAE_ZIP=google_appengine_1.9.36.zip
 
