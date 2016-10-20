@@ -38,3 +38,4 @@ deploy:
   file: Grow-SDK-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.zip
   on:
     tags: true
+  skip_cleanup: true
