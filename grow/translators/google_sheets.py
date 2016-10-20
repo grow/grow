@@ -48,6 +48,8 @@ class GoogleSheetsTranslator(base.Translator):
     }
     KIND = 'google_sheets'
     HEADER_ROW_COUNT = 1
+    # Source locale, translation locale, message location.
+    HEADER_LABELS = [None, None, 'Location']
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
@@ -66,6 +68,13 @@ class GoogleSheetsTranslator(base.Translator):
                 raise translator_errors.NotFoundError(
                     'Translation for {} not found.'.format(locale))
             raise
+
+        # Check for spreadsheets that are missing columns.
+        column_count = len(self.HEADER_LABELS)
+        if len(resp['values'][0]) < column_count:
+            missing_columns = [None] * (column_count - len(resp['values'][0]))
+            resp['values'][:] = [i + missing_columns for i in resp['values']]
+
         return resp['values']
 
     def _download_content(self, stat):
@@ -169,7 +178,7 @@ class GoogleSheetsTranslator(base.Translator):
             'values': [
                 {'userEnteredValue': {'stringValue': source_lang}},
                 {'userEnteredValue': {'stringValue': lang}},
-                {'userEnteredValue': {'stringValue': 'Location'}},
+                {'userEnteredValue': {'stringValue': self.HEADER_LABELS[2]}},
             ]
         }
 
@@ -393,7 +402,8 @@ class GoogleSheetsTranslator(base.Translator):
             source_lang, spreadsheet_id, prune=False):
         requests = []
         for sheet_id, catalog in sheet_ids_to_catalogs.iteritems():
-            existing_values = self._download_sheet(spreadsheet_id, str(catalog.locale))
+            lang = str(catalog.locale)
+            existing_values = self._download_sheet(spreadsheet_id, lang)
             for x in range(self.HEADER_ROW_COUNT):
                 existing_values.pop(0)  # Remove header rows.
             for value in existing_values:
@@ -402,6 +412,35 @@ class GoogleSheetsTranslator(base.Translator):
                     translation = value[1] if len(value) > 1 else None
                     catalog.add(source, translation, auto_comments=[],
                                 context=None, flags=[])
+
+            # Check for missing columns.
+            num_missing_columns = 0
+            for column in existing_values[0]:
+                if column == None:
+                    num_missing_columns += 1
+            if num_missing_columns:
+                requests.append({
+                    'appendDimension': {
+                        'sheetId': sheet_id,
+                        'dimension': 'COLUMNS',
+                        'length': num_missing_columns,
+                    },
+                })
+
+                # Update the column headers.
+                requests.append({
+                    'updateCells': {
+                        'fields': 'userEnteredValue',
+                        'start': {
+                            'sheetId': sheet_id,
+                            'rowIndex': 0,
+                            'columnIndex': 0,
+                        },
+                        'rows': [
+                            self._create_header_row_data(source_lang, lang)
+                        ],
+                    },
+                })
 
             # Perform a diff of the existing data to what the catalog provides
             # to make targeted changes to the spreadsheet and preserve meta
