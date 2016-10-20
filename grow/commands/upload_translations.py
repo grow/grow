@@ -52,6 +52,9 @@ def upload_translations(pod_path, locale, force, service, update_acl,
         translator.update_meta(locales=locale)
         return
 
+    if download:
+        translator.download(locales=locale)
+
     if extract:
         include_obsolete, localized, include_header, use_fuzzy_matching, = \
             pod.catalogs.get_extract_config()
@@ -63,6 +66,4 @@ def upload_translations(pod_path, locale, force, service, update_acl,
         catalogs.update(locales=locales, include_header=include_header,
                         use_fuzzy_matching=use_fuzzy_matching)
 
-    # TODO Remove the download from the upload arguments to clean it up.
-    translator.upload(locales=locale, force=force, verbose=True,
-                      download=download, prune=prune)
+    translator.upload(locales=locale, force=force, verbose=True, prune=prune)
