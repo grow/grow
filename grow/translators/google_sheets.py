@@ -48,7 +48,8 @@ class GoogleSheetsTranslator(base.Translator):
     }
     KIND = 'google_sheets'
     HEADER_ROW_COUNT = 1
-    HEADER_LABELS = ['', '', 'Location']
+    # Source locale, translation locale, message location.
+    HEADER_LABELS = [None, None, 'Location']
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
@@ -72,7 +73,7 @@ class GoogleSheetsTranslator(base.Translator):
         column_count = len(self.HEADER_LABELS)
         if len(resp['values'][0]) < column_count:
             missing_columns = [None] * (column_count - len(resp['values'][0]))
-            resp['values'][:]=[i + missing_columns for i in resp['values']]
+            resp['values'][:] = [i + missing_columns for i in resp['values']]
 
         return resp['values']
 
