@@ -4,6 +4,7 @@ BREW := $(shell command -v brew 2> /dev/null)
 PLATFORM = $(shell uname -s | sed -e 's/Darwin/Mac/')
 VERSION = $(shell cat grow/VERSION)
 FILENAME = Grow-SDK-$(PLATFORM)-$(VERSION).zip
+FILENAME_CI = Grow-SDK-$(subst osx,Mac,$(subst linux,Linux,$(TRAVIS_OS_NAME)))-$(TRAVIS_TAG).zip
 
 GITHUB_USER = grow
 GITHUB_REPO = grow
@@ -177,11 +178,12 @@ release:
 	@echo "Built: dist/$(FILENAME)"
 
 release-ci:
+	pip uninstall pyinstaller
 	pip install git+https://github.com/pyinstaller/pyinstaller.git\#b78bfe530cdc2904f65ce098bdf2de08c9037abb
 	pyinstaller grow.spec
 	chmod +x dist/grow
-	cd dist && zip -r Grow-SDK-$(TRAVIS_OS_NAME)-$(TRAVIS_TAG).zip grow && cd ..
-	@echo "Built: dist/Grow-SDK-$(TRAVIS_OS_NAME)-$(TRAVIS_TAG).zip"
+	cd dist && zip -r $(FILENAME_CI) grow && cd ..
+	@echo "Built: dist/$(FILENAME_CI)"
 
 ensure-master:
 	@if [ `git rev-parse --abbrev-ref HEAD` != "master" ]; then \
