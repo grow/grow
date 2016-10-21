@@ -33,6 +33,7 @@ deploy:
   provider: releases
   api_key:
     secure: DXcOJEmWKTwE3vIxKTA7lOWEyoCZWkN6lYpSh+qVRgunp/ZyJgeR0BXfljYCduv+jewCQRONNnRzxAl0++KiWFm3wu/PMHKCMmdWbC5lOT/sipMkbiMCH7++MsCBUhhdOeEBguTP9P4M2q/K3Pt7zaXalE64eNpD5MCfCbqw+3o=
+  draft: true
   file: ${FILENAME_CI}
   on:
     tags: true
