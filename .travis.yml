@@ -32,7 +32,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: DXcOJEmWKTwE3vIxKTA7lOWEyoCZWkN6lYpSh+qVRgunp/ZyJgeR0BXfljYCduv+jewCQRONNnRzxAl0++KiWFm3wu/PMHKCMmdWbC5lOT/sipMkbiMCH7++MsCBUhhdOeEBguTP9P4M2q/K3Pt7zaXalE64eNpD5MCfCbqw+3o=
+    secure: Cy6rwRChlvwcCswxTVeAj7V4K+jX47njPp36avLF9Ya6Okzf2OEFLHg6UoAF0/1GhU07Y0Qz46TksFXbss3wE3eVsfP5sWpfzCzLgE4ZNH6TqfAKgEFr6uJ5IEcDKZdVNQtCr0LRrxCcUOV387rnOpyy85o2SM0lp/6VZEQpVHA=
   draft: true
   file: ${FILENAME_CI}
   on:
