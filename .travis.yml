@@ -26,12 +26,14 @@ script:
 
 before_deploy:
 - make release-ci
+- FILENAME_CI=Grow-SDK-${TRAVIS_OS_NAME/linux/Linux}-${TRAVIS_TAG}.zip
+- FILENAME_CI=${FILENAME_CI/osx/Mac}
 
 deploy:
   provider: releases
   api_key:
     secure: DXcOJEmWKTwE3vIxKTA7lOWEyoCZWkN6lYpSh+qVRgunp/ZyJgeR0BXfljYCduv+jewCQRONNnRzxAl0++KiWFm3wu/PMHKCMmdWbC5lOT/sipMkbiMCH7++MsCBUhhdOeEBguTP9P4M2q/K3Pt7zaXalE64eNpD5MCfCbqw+3o=
-  file: Grow-SDK-${TRAVIS_OS_NAME}-${TRAVIS_TAG}.zip
+  file: ${FILENAME_CI}
   on:
     tags: true
   skip_cleanup: true
