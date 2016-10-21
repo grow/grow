@@ -15,14 +15,6 @@ matrix:
     - os: osx
       language: generic
 
-os:
-- linux
-- osx
-
-# https://docs.travis-ci.com/user/multi-os/
-before_install:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python; fi
-
 # https://github.com/travis-ci/travis-ci/issues/738#issuecomment-11179888
 before_script:
 - pip install -r requirements-dev.txt
