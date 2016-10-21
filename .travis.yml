@@ -14,6 +14,13 @@ os:
 - linux
 - osx
 
+# https://github.com/travis-ci/travis-ci/issues/2312#issuecomment-247206351
+# https://github.com/travis-ci/travis-ci/issues/3448#issuecomment-250075501
+install:
+- if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+  brew install python;
+  fi
+
 # https://github.com/travis-ci/travis-ci/issues/738#issuecomment-11179888
 before_script:
 - pip install -r requirements-dev.txt
