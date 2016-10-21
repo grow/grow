@@ -43,7 +43,9 @@ def get_latest_version():
         for release in releases:
             if release['prerelease']:
                 continue
-            return release['tag_name']
+            for each_asset in release['assets']:
+                if PLATFORM in each_asset.get('name', '').lower():
+                    return release['tag_name']
     except Exception as e:
         text = 'Cannot check for updates to the SDK while offline.'
         logging.error(colorize(text, ansi=198))
