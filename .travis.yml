@@ -10,16 +10,18 @@ cache:
 env:
 - GAE_ZIP=google_appengine_1.9.36.zip
 
+matrix:
+  include:
+    - os: osx
+      language: generic
+
 os:
 - linux
 - osx
 
-# https://github.com/travis-ci/travis-ci/issues/2312#issuecomment-247206351
-# https://github.com/travis-ci/travis-ci/issues/3448#issuecomment-250075501
-install:
-- if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-  brew install python;
-  fi
+# https://docs.travis-ci.com/user/multi-os/
+before_install:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python; fi
 
 # https://github.com/travis-ci/travis-ci/issues/738#issuecomment-11179888
 before_script:
