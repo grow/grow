@@ -7,14 +7,19 @@ cache:
   - ./env/
   - ./gaenv/
 
-script:
-- make test-ci
-
 env:
 - GAE_ZIP=google_appengine_1.9.36.zip
+
+matrix:
+  include:
+    - os: osx
+      language: generic
 
 # https://github.com/travis-ci/travis-ci/issues/738#issuecomment-11179888
 before_script:
 - pip install -r requirements-dev.txt
 - wget -nv https://storage.googleapis.com/appengine-sdks/featured/${GAE_ZIP}
 - unzip -q ${GAE_ZIP} -d ${HOME}
+
+script:
+- make test-ci
