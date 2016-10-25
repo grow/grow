@@ -48,14 +48,14 @@ def extract(pod_path, init, update, include_obsolete, localized,
         pod.catalogs.get_extract_config(include_header=include_header,
             include_obsolete=include_obsolete, localized=localized,
             use_fuzzy_matching=fuzzy_matching)
+    locales = validate_locales(pod.list_locales(), locale)
     catalogs = pod.get_catalogs()
     catalogs.extract(include_obsolete=include_obsolete, localized=localized,
                      include_header=include_header,
-                     use_fuzzy_matching=use_fuzzy_matching)
+                     use_fuzzy_matching=use_fuzzy_matching, locales=locales)
     if localized:
         return
     if init:
-        locales = validate_locales(pod.list_locales(), locale)
         text = 'Initializing {} empty translation catalogs.'
         pod.logger.info(text.format(len(locales)))
         catalogs.init(locales=locales, include_header=include_header)

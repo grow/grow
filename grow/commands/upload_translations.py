@@ -59,11 +59,12 @@ def upload_translations(pod_path, locale, force, service, update_acl,
         include_obsolete, localized, include_header, use_fuzzy_matching, = \
             pod.catalogs.get_extract_config()
         catalogs = pod.get_catalogs()
+        locales = validate_locales(pod.list_locales(), locale)
         catalogs.extract(include_obsolete=include_obsolete, localized=localized,
                          include_header=include_header,
-                         use_fuzzy_matching=use_fuzzy_matching)
-        locales = validate_locales(pod.list_locales(), locale)
-        catalogs.update(locales=locales, include_header=include_header,
-                        use_fuzzy_matching=use_fuzzy_matching)
+                         use_fuzzy_matching=use_fuzzy_matching, locales=locales)
+        if not localized:
+            catalogs.update(locales=locales, include_header=include_header,
+                            use_fuzzy_matching=use_fuzzy_matching)
 
     translator.upload(locales=locale, force=force, verbose=True, prune=prune)
