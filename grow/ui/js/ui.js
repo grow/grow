@@ -3,32 +3,53 @@ grow.ui = grow.ui || {};
 window.grow = grow;
 
 grow.ui.main = function(settings) {
-  if (!settings.injectEditUrl && !settings.injectTranslateUrl) {
-    return;
-  }
+  var buttonEl;
   var buttonsEl = document.createElement('div');
-  buttonsEl.setAttribute('class', 'grow__buttons');
+  buttonsEl.setAttribute('class', 'buttons');
+  buttonsEl.addEventListener('mouseover', function() {
+    buttonsEl.classList.add('expand');
+  });
+  buttonsEl.addEventListener('mouseout', function() {
+    buttonsEl.classList.remove('expand');
+  });
+
   if (settings.injectEditUrl) {
-    var buttonEl = grow.ui.main.createButton_(
-        'edit', settings.injectEditUrl);
-    buttonsEl.appendChild(buttonEl);
+    buttonsEl.appendChild(
+      grow.ui.main.createButton_('edit', settings.injectEditUrl));
   }
+
   if (settings.injectTranslateUrl) {
-    var buttonEl = grow.ui.main.createButton_(
-        'translate', settings.injectTranslateUrl);
-    buttonsEl.appendChild(buttonEl);
+    buttonsEl.appendChild(grow.ui.main.createButton_(
+      'translate', settings.injectTranslateUrl));
   }
+
+  buttonsEl.appendChild(grow.ui.main.createButton_('primary', null, {
+    'click': function() {
+      buttonsEl.classList.toggle('expand');
+    }
+  }));
+
   var el = document.createElement('div');
-  el.setAttribute('id', 'grow');
+  el.setAttribute('id', 'grow-utils');
   el.appendChild(buttonsEl);
   document.body.appendChild(el);
 };
 
-grow.ui.main.createButton_ = function(kind, url) {
+grow.ui.main.createButton_ = function(kind, url, events) {
   var buttonEl = document.createElement('a');
-  buttonEl.classList.add('grow__buttons__button');
-  buttonEl.classList.add('grow__buttons__button--icon-' + kind);
-  buttonEl.setAttribute('href', url);
-  buttonEl.setAttribute('target', '_blank');
+  buttonEl.classList.add('button');
+  buttonEl.classList.add('icon_' + kind);
+
+  if (url) {
+    buttonEl.setAttribute('href', url);
+    buttonEl.setAttribute('target', '_blank');
+  }
+
+  if (events) {
+    for (var prop in events) {
+      buttonEl.addEventListener(prop, events[prop]);
+    }
+  }
+
   return buttonEl;
 };
