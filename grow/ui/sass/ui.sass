@@ -52,7 +52,7 @@ $transition_medium: 1000ms
 
       @for $i from 1 through $icon_count + 1
         &:nth-child(0n+#{$i+2})
-          top: ($icon_size_small * $i + $button_offset * $i) + $button_offset + $icon_size_tiny / 2
+          top: ($icon_size_small * $i + $button_offset * $i) + $button_offset + $icon_size_large / 2
 
     .grow__icon
       background-color: $color-primary
@@ -88,7 +88,7 @@ $transition_medium: 1000ms
         background-size: $icon_size_tiny
         background-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTkgNi40MUwxNy41OSA1IDEyIDEwLjU5IDYuNDEgNSA1IDYuNDEgMTAuNTkgMTIgNSAxNy41OSA2LjQxIDE5IDEyIDEzLjQxIDE3LjU5IDE5IDE5IDE3LjU5IDEzLjQxIDEyeiIvPjwvc3ZnPg==)
         height: $icon_size_tiny
-        left: $icon_size_large / 2 - $icon_size_tiny + $button_offset / 2
+        left: $icon_size_large / 2 - $icon_size_tiny + $button_offset
         position: relative
         top: $icon_size_tiny + $button_offset / 2
         width: $icon_size_tiny
