@@ -2,33 +2,74 @@ var grow = grow || {};
 grow.ui = grow.ui || {};
 window.grow = grow;
 
-grow.ui.main = function(settings) {
-  if (!settings.injectEditUrl && !settings.injectTranslateUrl) {
-    return;
-  }
-  var buttonsEl = document.createElement('div');
-  buttonsEl.setAttribute('class', 'grow__buttons');
-  if (settings.injectEditUrl) {
-    var buttonEl = grow.ui.main.createButton_(
-        'edit', settings.injectEditUrl);
-    buttonsEl.appendChild(buttonEl);
-  }
-  if (settings.injectTranslateUrl) {
-    var buttonEl = grow.ui.main.createButton_(
-        'translate', settings.injectTranslateUrl);
-    buttonsEl.appendChild(buttonEl);
-  }
-  var el = document.createElement('div');
-  el.setAttribute('id', 'grow');
-  el.appendChild(buttonsEl);
-  document.body.appendChild(el);
-};
+(function(grow){
+  grow.ui.main = function(settings) {
+    var el = document.createElement('div');
+    var buttonsEl = document.createElement('div');
+    buttonsEl.setAttribute('class', 'grow__buttons');
 
-grow.ui.main.createButton_ = function(kind, url) {
-  var buttonEl = document.createElement('a');
-  buttonEl.classList.add('grow__buttons__button');
-  buttonEl.classList.add('grow__buttons__button--icon-' + kind);
-  buttonEl.setAttribute('href', url);
-  buttonEl.setAttribute('target', '_blank');
-  return buttonEl;
-};
+    buttonsEl.appendChild(createButton_('primary', null, null, {
+      'click': function() {
+        buttonsEl.classList.toggle('grow__expand');
+      }
+    }));
+
+    buttonsEl.appendChild(createButton_('close', null, null, {
+      'click': function() {
+        el.parentNode.removeChild(el);
+      }
+    }));
+
+    if (settings.injectEditUrl) {
+      buttonsEl.appendChild(
+        createButton_('edit', 'Edit', settings.injectEditUrl));
+    }
+
+    if (settings.injectTranslateUrl) {
+      buttonsEl.appendChild(createButton_(
+        'translate', 'Translate', settings.injectTranslateUrl));
+    }
+
+    // If there is nothing to do, do not show the menu at all.
+    if (buttonsEl.children.length <= 2) {
+      return;
+    }
+
+    el.setAttribute('id', 'grow-utils');
+    el.appendChild(buttonsEl);
+    document.body.appendChild(el);
+  };
+
+  var createButton_ = function(kind, label, url, events) {
+    var containerEl = document.createElement('div');
+    containerEl.classList.add('grow__button');
+
+    var buttonEl = document.createElement('a');
+    buttonEl.classList.add('grow__icon');
+    buttonEl.classList.add('grow__icon_' + kind);
+
+    if (url) {
+      buttonEl.setAttribute('href', url);
+      buttonEl.setAttribute('target', '_blank');
+    } else {
+      buttonEl.setAttribute('href', 'javascript:void(0)');
+    }
+
+    if (events) {
+      for (var prop in events) {
+        buttonEl.addEventListener(prop, events[prop]);
+      }
+    }
+
+    containerEl.appendChild(buttonEl);
+
+    if (label) {
+      var labelEl = document.createElement('p');
+      labelEl.appendChild(document.createTextNode(label));
+      labelEl.classList.add('grow__label');
+      containerEl.appendChild(labelEl);
+    }
+
+    return containerEl;
+  };
+})(grow);
