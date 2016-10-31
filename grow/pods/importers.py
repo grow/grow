@@ -116,16 +116,21 @@ class Importer(object):
               po_file_to_merge.write(content)
               po_file_to_merge.seek(0)
               catalog_to_merge = pofile.read_po(po_file_to_merge, babel_locale)
+              num_imported = 0
               for message in catalog_to_merge:
                   if message.id not in existing_catalog:
                       existing_catalog[message.id] = message
-                  else:
+                      num_imported += 1
+                  elif (message.string
+                        and existing_catalog[message.id].string != message.string):
+                      # Avoid overwriting with empty/identical strings.
                       existing_catalog[message.id].string = message.string
+                      num_imported += 1
               existing_po_file = self.pod.open_file(pod_po_path, mode='w')
               pofile.write_po(existing_po_file, existing_catalog, width=80,
                               sort_output=True, sort_by_file=True)
-              text = 'Imported {} translations: {}'
-              message = text.format(len(catalog_to_merge), babel_locale)
+              text = 'Updated {} of {} translations: {}'
+              message = text.format(num_imported, len(catalog_to_merge), babel_locale)
               self.pod.logger.info(message)
           else:
               self.pod.write_file(pod_po_path, content)
