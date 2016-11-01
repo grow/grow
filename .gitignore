@@ -1,6 +1,7 @@
 *.py[cod]
 .DS_Store
 node_modules
+yarn.lock
 
 env
 gaenv
