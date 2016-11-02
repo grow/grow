@@ -1,0 +1,19 @@
+.grow__tool__ga
+  &--active
+    [data-g-event]
+      background: repeating-linear-gradient(-45deg, #FBE9E7, #FFCCBC 5px, white 5px, white 10px)
+
+      &:hover::after
+        background: #E64A19
+        border-radius: .25em
+        bottom: 50px
+        color: #ffffff
+        content: '[Event] ' attr(data-g-event) ' [Action] ' attr(data-g-action) ' [Label] ' attr(data-g-label)
+        font-size: 1.3rem
+        font-weight: bold
+        left: 50px
+        padding: 1em
+        position: fixed
+
+.grow__icon_tool_ga_inspect
+  background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDI0djI0SDBWMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTIgMkM2LjUgMiAyIDYuNSAyIDEyczQuNSAxMCAxMCAxMCAxMC00LjUgMTAtMTBTMTcuNSAyIDEyIDJ6bTEgMi4wN2MzLjYxLjQ1IDYuNDggMy4zMyA2LjkzIDYuOTNIMTNWNC4wN3pNNCAxMmMwLTQuMDYgMy4wNy03LjQ0IDctNy45M3YxNS44N2MtMy45My0uNS03LTMuODgtNy03Ljk0em05IDcuOTNWMTNoNi45M2MtLjQ1IDMuNjEtMy4zMiA2LjQ4LTYuOTMgNi45M3oiLz48L3N2Zz4=)
