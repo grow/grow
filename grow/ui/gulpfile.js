@@ -9,9 +9,10 @@ var uglify = require('gulp-uglify');
 var watchify = require('watchify');
 
 
-var Config = { 
+var Config = {
   JS_SOURCES: [
-    './js/ui.js'
+    './js/ui.js',
+    './js/tool-ga-inspect.js'
   ],
   JS_OUT_DIR: './dist/js/',
   JS_OUT_FILE: 'ui.min.js',
