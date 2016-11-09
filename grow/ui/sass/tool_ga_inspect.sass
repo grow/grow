@@ -11,6 +11,8 @@
   background: $color-primary
   border-radius: .35em
   bottom: 2em
+  border: 1px solid rgba(255, 255, 255, .5)
+  box-shadow: 0 0 .5em rgba(0, 0, 0, .5)
   color: $color-on-primary
   display: none
   font-family: Verdana, Arial, Helvetica, sans-serif
@@ -20,6 +22,9 @@
   position: fixed
   width: 75%
   z-index: 9999
+
+  &:empty
+    border: none
 
   > div
     display: flex

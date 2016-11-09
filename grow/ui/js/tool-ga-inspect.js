@@ -8,7 +8,6 @@
   }
 
   var messageContainer = document.createElement('div');
-  var messageContents = document.createElement('div');
   var hasInitialized = false;
   var isActive = false;
   var dataOrder = ['gEvent', 'gLabel', 'gAction'];
@@ -28,13 +27,15 @@
   }
 
   var formatData = function(data) {
-    while (messageContents.firstChild) {
-      messageContents.removeChild(messageContents.firstChild);
+    var container = document.createElement('div');
+
+    while (messageContainer.firstChild) {
+      messageContainer.removeChild(messageContainer.firstChild);
     }
 
     dataOrder.forEach(function(key) {
       if (data[key]) {
-        messageContents.appendChild(formatDataItem(key.substr(1), data[key]))
+        container.appendChild(formatDataItem(key.substr(1), data[key]))
       }
     });
 
@@ -42,9 +43,11 @@
       if (data.hasOwnProperty(key)
           && dataRegex.test(key)
           && !dataOrder.includes(key)) {
-        messageContents.appendChild(formatDataItem(key.substr(1), data[key]))
+        container.appendChild(formatDataItem(key.substr(1), data[key]))
       }
     }
+
+    messageContainer.appendChild(container);
   };
 
   var onMouseOver = function(e) {
@@ -80,7 +83,6 @@
 
     if (!hasInitialized) {
       messageContainer.classList.add('grow_tool__ga__popup');
-      messageContainer.appendChild(messageContents);
 
       var elements = document.querySelectorAll('[data-g-event]');
       elements.forEach(function(element) {
