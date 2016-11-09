@@ -3,6 +3,7 @@ grow.ui = grow.ui || {};
 window.grow = grow;
 
 (function(grow){
+  grow.ui.tools = grow.ui.tools || [];
   grow.ui.main = function(settings) {
     var el = document.createElement('div');
     var buttonsEl = document.createElement('div');
@@ -28,6 +29,16 @@ window.grow = grow;
     if (settings.injectTranslateUrl) {
       buttonsEl.appendChild(createButton_(
         'translate', 'Translate', settings.injectTranslateUrl));
+    }
+
+    // TODO: Make the tools configurable.
+    for(i in grow.ui.tools) {
+      tool = grow.ui.tools[i];
+      if (tool['button']) {
+        buttonsEl.appendChild(createButton_(
+          tool['key'], tool['name'], tool['button']['link'] || null,
+          tool['button']['events'] || {}));
+      }
     }
 
     // If there is nothing to do, do not show the menu at all.
