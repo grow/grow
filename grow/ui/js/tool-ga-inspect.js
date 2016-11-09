@@ -101,7 +101,4 @@
       }
     }
   });
-
-  // TODO remove
-  triggerTool();
 })(grow || window.grow);
