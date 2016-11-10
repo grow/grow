@@ -77,7 +77,7 @@ def serve_pod(pod, request, values):
     return response
 
 
-def serve_tool(pod, request, values):
+def serve_ui_tool(pod, request, values):
     tool_path = values.get('tool')
     response = wrappers.Response(pod.read_file(tool_path))
     guessed_type = mimetypes.guess_type(tool_path)
@@ -94,7 +94,7 @@ class PodServer(object):
         self.debug = debug
         self.url_map = routing.Map([
             rule('/', endpoint=serve_pod),
-            rule('/_grow/ui/tools/<path:tool>', endpoint=serve_tool),
+            rule('/_grow/ui/tools/<path:tool>', endpoint=serve_ui_tool),
             rule('/_grow/<any("translations"):page>/<path:locale>', endpoint=serve_console),
             rule('/_grow/<path:page>', endpoint=serve_console),
             rule('/_grow', endpoint=serve_console),
