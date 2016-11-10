@@ -6,14 +6,12 @@ window.grow = grow;
 
   grow.ui = grow.ui || {};
 
-  grow.ui.showNotice = function(text, className) {
+  grow.ui.showNotice = function(text) {
     var notice = document.createElement('div');
     notice.classList.add('grow_tool__notice');
-    notice.classList.add(className);
     notice.appendChild(document.createTextNode(text));
 
     document.body.appendChild(notice);
-
     return notice;
   };
 
