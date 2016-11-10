@@ -55,7 +55,8 @@ class RenderedController(controllers.BaseController):
                 'podspec': self.pod.get_podspec(),
             }
             content = template.render(kwargs).lstrip()
-            content = self._inject_ui(content, preprocessor, translator)
+            content = self._inject_ui(
+                content, preprocessor, translator, self.pod.ui)
             return content
         except Exception as e:
             text = 'Error building {}: {}'
@@ -65,7 +66,8 @@ class RenderedController(controllers.BaseController):
             exception.exception = e
             raise exception
 
-    def _inject_ui(self, content, preprocessor, translator):
+    def _inject_ui(self, content, preprocessor, translator, ui_settings):
+        # TODO Enable the ui when the ui option is enabled in deploy settings.
         show_ui = (self.pod.env.name == env.Name.DEV
                    and (preprocessor or translator)
                    and self.get_mimetype().endswith('html'))
@@ -76,5 +78,6 @@ class RenderedController(controllers.BaseController):
                 'doc': self.doc,
                 'preprocessor': preprocessor,
                 'translator': translator,
+                'ui': ui_settings,
             })
         return content

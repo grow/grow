@@ -1,5 +1,6 @@
 from grow.common import utils
 from grow.pods.storage import storage
+from grow.pods import tags
 import jinja2
 import os
 
@@ -8,7 +9,7 @@ import os
 def create_jinja_env():
     root = os.path.join(utils.get_grow_dir(), 'ui', 'templates')
     loader = storage.FileStorage.JinjaLoader(root)
-    return jinja2.Environment(
+    env = jinja2.Environment(
         loader=loader,
         autoescape=True,
         trim_blocks=True,
@@ -19,3 +20,6 @@ def create_jinja_env():
             'jinja2.ext.loopcontrols',
             'jinja2.ext.with_',
         ])
+    env.filters.update(tags.create_builtin_filters())
+
+    return env

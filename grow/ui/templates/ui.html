@@ -2,6 +2,13 @@
 {% set translator_edit_url = translator and translator.get_edit_url(doc) %}
 <link rel="stylesheet" href="/_grow/ui/css/ui.min.css">
 <script src="/_grow/ui/js/ui.min.js"></script>
+{% for tool in ui.tools %}
+  <link rel="stylesheet" href="/_grow/ui/tools/node_modules/grow-tool-{{tool.kind}}/tool.css">
+  <script src="/_grow/ui/tools/node_modules/grow-tool-{{tool.kind}}/tool.js"></script>
+  {% if tool.options is defined %}
+    <script>grow.ui.toolConfig('{{tool.kind}}', {{tool.options | jsonify | safe}});</script>
+  {% endif %}
+{% endfor %}
 <script>
   grow.ui.main({
     docPodPath: '{{doc.pod_path}}',

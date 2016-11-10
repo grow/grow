@@ -117,6 +117,10 @@ class Pod(object):
     def title(self):
         return self.yaml.get('title')
 
+    @property
+    def ui(self):
+        return self.yaml.get('ui')
+
     def match(self, path):
         return self.routes.match(path, env=self.env.to_wsgi_env())
 
