@@ -47,7 +47,7 @@ window.grow = grow;
 
       if (tool['button']) {
         buttonsEl.appendChild(createButton_(
-          tool['key'], tool['name'], tool['button']['link'] || null,
+          tool['kind'], tool['name'], tool['button']['link'] || null,
           tool['button']['events'] || {}));
       }
     }
