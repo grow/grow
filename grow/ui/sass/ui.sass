@@ -11,6 +11,8 @@ $transition_medium: 1000ms
 
 #grow-utils
   all: revert
+  font-family: Verdana, Arial, Helvetica, sans-serif
+  font-size: 13px
   z-index: 9999
 
   *
@@ -117,3 +119,19 @@ $transition_medium: 1000ms
     &.grow__expand
       .grow__label
         display: inherit !important
+
+.grow_tool__notice
+  background: $color-primary
+  border-radius: .35em
+  bottom: 2em
+  border: 1px solid rgba(255, 255, 255, .5)
+  box-shadow: 0 0 .5em rgba(0, 0, 0, .5)
+  color: $color-on-primary
+  font-family: Verdana, Arial, Helvetica, sans-serif
+  font-size: 12px
+  line-height: 1.2em
+  left: 2em
+  padding: .5em
+  position: fixed
+  width: 75%
+  z-index: 9999

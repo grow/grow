@@ -1,6 +1,7 @@
 import logging
 import os
 import jinja2
+import mimetypes
 import re
 import sys
 import traceback
@@ -76,6 +77,15 @@ def serve_pod(pod, request, values):
     return response
 
 
+def serve_ui_tool(pod, request, values):
+    tool_path = values.get('tool')
+    response = wrappers.Response(pod.read_file(tool_path))
+    guessed_type = mimetypes.guess_type(tool_path)
+    mime_type = guessed_type[0] or 'text/plain'
+    response.headers['Content-Type'] = mime_type
+    return response
+
+
 class PodServer(object):
 
     def __init__(self, pod, debug=False):
@@ -84,6 +94,7 @@ class PodServer(object):
         self.debug = debug
         self.url_map = routing.Map([
             rule('/', endpoint=serve_pod),
+            rule('/_grow/ui/tools/<path:tool>', endpoint=serve_ui_tool),
             rule('/_grow/<any("translations"):page>/<path:locale>', endpoint=serve_console),
             rule('/_grow/<path:page>', endpoint=serve_console),
             rule('/_grow', endpoint=serve_console),

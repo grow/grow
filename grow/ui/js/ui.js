@@ -1,8 +1,24 @@
 var grow = grow || {};
-grow.ui = grow.ui || {};
 window.grow = grow;
 
 (function(grow){
+  var toolConfig = {};
+
+  grow.ui = grow.ui || {};
+
+  grow.ui.showNotice = function(text) {
+    var notice = document.createElement('div');
+    notice.classList.add('grow_tool__notice');
+    notice.appendChild(document.createTextNode(text));
+
+    document.body.appendChild(notice);
+    return notice;
+  };
+
+  grow.ui.toolConfig = function(tool, options) {
+    toolConfig[tool] = options;
+  };
+
   grow.ui.tools = grow.ui.tools || [];
   grow.ui.main = function(settings) {
     var el = document.createElement('div');
@@ -31,12 +47,16 @@ window.grow = grow;
         'translate', 'Translate', settings.injectTranslateUrl));
     }
 
-    // TODO: Make the tools configurable.
     for(i in grow.ui.tools) {
       tool = grow.ui.tools[i];
+
+      if (tool['init']) {
+        tool['init'](toolConfig[tool['kind']] || {});
+      }
+
       if (tool['button']) {
         buttonsEl.appendChild(createButton_(
-          tool['key'], tool['name'], tool['button']['link'] || null,
+          tool['kind'], tool['name'], tool['button']['link'] || null,
           tool['button']['events'] || {}));
       }
     }
