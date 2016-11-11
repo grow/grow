@@ -1,7 +1,7 @@
 ---
 $title: Extensions
 $category: Reference
-$order: 100
+$order: 9
 ---
 # Extensions
 
