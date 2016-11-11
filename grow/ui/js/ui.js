@@ -9,7 +9,10 @@ window.grow = grow;
   grow.ui.showNotice = function(text) {
     var notice = document.createElement('div');
     notice.classList.add('grow_tool__notice');
-    notice.appendChild(document.createTextNode(text));
+
+    if (text) {
+      notice.appendChild(document.createTextNode(text));
+    }
 
     document.body.appendChild(notice);
     return notice;
