@@ -3,8 +3,17 @@
 <link rel="stylesheet" href="/_grow/ui/css/ui.min.css">
 <script src="/_grow/ui/js/ui.min.js"></script>
 {% for tool in ui.tools %}
-  <link rel="stylesheet" href="/_grow/ui/tools/node_modules/grow-tool-{{tool.kind}}/tool.css">
-  <script src="/_grow/ui/tools/node_modules/grow-tool-{{tool.kind}}/tool.js"></script>
+  {% if tool.paths is defined %}
+    {% if tool.paths.style is defined %}
+      <link rel="stylesheet" href="{{tool.paths.style}}">
+    {% endif %}
+    {% if tool.paths.script is defined %}
+      <script src="{{tool.paths.script}}"></script>
+    {% endif %}
+  {% else %}
+    <link rel="stylesheet" href="/_grow/ui/tools/grow-tool-{{tool.kind}}/tool.css">
+    <script src="/_grow/ui/tools/grow-tool-{{tool.kind}}/tool.js"></script>
+  {% endif %}
   {% if tool.options is defined %}
     <script>grow.ui.toolConfig('{{tool.kind}}', {{tool.options | jsonify | safe}});</script>
   {% endif %}

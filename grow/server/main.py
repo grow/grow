@@ -78,7 +78,7 @@ def serve_pod(pod, request, values):
 
 
 def serve_ui_tool(pod, request, values):
-    tool_path = values.get('tool')
+    tool_path = 'node_modules/{}'.format(values.get('tool'))
     response = wrappers.Response(pod.read_file(tool_path))
     guessed_type = mimetypes.guess_type(tool_path)
     mime_type = guessed_type[0] or 'text/plain'
