@@ -107,16 +107,19 @@ class Collection(object):
                     items.append(pod.get_collection(pod_path))
         return items
 
-    def collections(self):
-        """Returns collections contained within this collection. Implemented
-        as a function to allow future implementation of arguments."""
-        items = []
+    def collections(self, order_by=None, reverse=False):
+        """Returns collections contained within this collection."""
+        reverse = False if reverse is None else reverse
+        order_by = 'order' if order_by is None else order_by
+        key = operator.attrgetter(order_by)
+        sorted_collections = structures.SortedCollection(key=key)
+
         for root, dirs, _ in self.pod.walk(self.pod_path):
             if root == self.pod.abs_path(self.pod_path):
                 for dir_name in dirs:
                     pod_path = os.path.join(self.pod_path, dir_name)
-                    items.append(self.pod.get_collection(pod_path))
-        return items
+                    sorted_collections.insert(self.pod.get_collection(pod_path))
+        return reversed(sorted_collections) if reverse else sorted_collections
 
     @property
     def exists(self):
