@@ -2,7 +2,7 @@
 
 A destination is a place where Grow static builds can be deployed. Grow takes
 a pod, builds a static fileset, and deploys it to a remote location (the
-desitnation), suitable for serving the web site to lvie end users.
+desitnation), suitable for serving the web site to live end users.
 
 A "deployment" is a destination loaded up with a configuration.
 
