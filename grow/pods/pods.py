@@ -285,22 +285,36 @@ class Pod(object):
         """Builds the grow ui tools, returning a mapping of paths to content."""
         output = {}
         paths = []
-        source_prefix = 'node_modules/grow-tool-'
-        destination_prefix = '_grow/ui/tools/grow-tool-'
+        source_prefix = 'node_modules/'
+        destination_root = '_grow/ui/'
+        tools_dir = 'tools/'
+        tool_prefix = 'grow-tool-'
+
+        # Add the base ui files.
+        source_root = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
+        for path in ['css/ui.min.css', 'js/ui.min.js']:
+            source_path = os.path.join(source_root, path)
+            output_path = os.sep + os.path.join(destination_root, path)
+            output[output_path] = self.storage.read(source_path)
+
+        # Add the files from each of the tools.
         for tool in self.ui.get('tools', []):
-            tool_path = '{}{}'.format(source_prefix, tool['kind'])
+            tool_path = '{}{}{}'.format(
+                source_prefix, tool_prefix, tool['kind'])
             for root, dirs, files in self.walk(tool_path):
                 if '.git' in dirs:
                     dirs.remove('.git')
                 pod_dir = root.replace(self.root, '')
                 for file_name in files:
                     paths.append(os.path.join(pod_dir, file_name))
+
         text = 'Building UI Tools: %(value)d/{} (in %(elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
         bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
         bar.start()
         for path in paths:
-            output_path = path.replace(source_prefix, destination_prefix)
+            output_path = path.replace(
+                source_prefix, '{}{}'.format(destination_root, tools_dir))
             output[output_path] = self.read_file(path)
             bar.update(bar.currval + 1)
         bar.finish()
