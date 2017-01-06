@@ -281,8 +281,35 @@ class Pod(object):
         bar.finish()
         return output
 
+    def export_ui(self):
+        """Builds the grow ui tools, returning a mapping of paths to content."""
+        output = {}
+        paths = []
+        source_prefix = 'node_modules/grow-tool-'
+        destination_prefix = '_grow/ui/tools/grow-tool-'
+        for tool in self.ui.get('tools', []):
+            tool_path = '{}{}'.format(source_prefix, tool['kind'])
+            for root, dirs, files in self.walk(tool_path):
+                if '.git' in dirs:
+                    dirs.remove('.git')
+                pod_dir = root.replace(self.root, '')
+                for file_name in files:
+                    paths.append(os.path.join(pod_dir, file_name))
+        text = 'Building UI Tools: %(value)d/{} (in %(elapsed)s)'
+        widgets = [progressbar.FormatLabel(text.format(len(paths)))]
+        bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
+        bar.start()
+        for path in paths:
+            output_path = path.replace(source_prefix, destination_prefix)
+            output[output_path] = self.read_file(path)
+            bar.update(bar.currval + 1)
+        bar.finish()
+        return output
+
     def dump(self, suffix='index.html', append_slashes=True):
         output = self.export()
+        if self.ui:
+            output.update(self.export_ui())
         clean_output = {}
         if suffix:
             for path, content in output.iteritems():
