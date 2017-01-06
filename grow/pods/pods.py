@@ -119,7 +119,15 @@ class Pod(object):
 
     @property
     def ui(self):
-        return self.yaml.get('ui')
+        if self.env.name == environment.Name.DEV or self.env.name is None:
+            ui_config = self.yaml.get('ui')
+        else:
+            if 'deployments' not in self.yaml:
+                raise ValueError('No pod-specific deployments configured.')
+            ui_config = (self.yaml['deployments']
+                .get(self.env.name, {})
+                .get('ui'))
+        return ui_config
 
     def match(self, path):
         return self.routes.match(path, env=self.env.to_wsgi_env())

@@ -56,7 +56,7 @@ class RenderedController(controllers.BaseController):
             }
             content = template.render(kwargs).lstrip()
             content = self._inject_ui(
-                content, preprocessor, translator, self.pod.ui)
+                content, preprocessor, translator)
             return content
         except Exception as e:
             text = 'Error building {}: {}'
@@ -66,12 +66,12 @@ class RenderedController(controllers.BaseController):
             exception.exception = e
             raise exception
 
-    def _inject_ui(self, content, preprocessor, translator, ui_settings):
-        # TODO Enable the ui when the ui option is enabled in deploy settings.
-        show_ui = (self.pod.env.name == env.Name.DEV
-                   and (preprocessor or translator)
-                   and self.get_mimetype().endswith('html'))
-        if show_ui:
+    def _inject_ui(self, content, preprocessor, translator):
+        if not self.get_mimetype().endswith('html'):
+            return content
+
+        ui_settings = self.pod.ui
+        if ui_settings:
             jinja_env = ui.create_jinja_env()
             ui_template = jinja_env.get_template('ui.html')
             content += '\n' + ui_template.render({
@@ -80,4 +80,5 @@ class RenderedController(controllers.BaseController):
                 'translator': translator,
                 'ui': ui_settings,
             })
+
         return content
