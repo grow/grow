@@ -71,7 +71,9 @@ class RenderedController(controllers.BaseController):
             return content
 
         ui_settings = self.pod.ui
-        if ui_settings:
+        show_ui = (self.pod.env.name == env.Name.DEV
+                   and (preprocessor or translator))
+        if ui_settings or show_ui:
             jinja_env = ui.create_jinja_env()
             ui_template = jinja_env.get_template('ui.html')
             content += '\n' + ui_template.render({
