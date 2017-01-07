@@ -96,16 +96,21 @@ class Collection(object):
         return locale
 
     @classmethod
-    def list(cls, pod):
-        items = []
+    def list(cls, pod, order_by=None, reverse=False):
+        reverse = False if reverse is None else reverse
+        order_by = 'order' if order_by is None else order_by
+        key = operator.attrgetter(order_by)
+        items = structures.SortedCollection(key=key)
+
         for root, dirs, _ in pod.walk(cls.CONTENT_PATH + '/'):
             for dir_name in dirs:
                 pod_path = os.path.join(root, dir_name)
                 pod_path = pod_path.replace(pod.root, '')
                 col_path = os.path.join(pod_path, '_blueprint.yaml')
                 if pod.file_exists(col_path):
-                    items.append(pod.get_collection(pod_path))
-        return items
+                    items.insert(pod.get_collection(pod_path))
+        return reversed(items) if reverse else items
+
 
     def collections(self, order_by=None, reverse=False):
         """Returns collections contained within this collection."""
