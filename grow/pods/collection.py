@@ -109,7 +109,7 @@ class Collection(object):
                 col_path = os.path.join(pod_path, '_blueprint.yaml')
                 if pod.file_exists(col_path):
                     items.insert(pod.get_collection(pod_path))
-        return reversed(items) if reverse else items
+        return reversed(list(items)) if reverse else list(items)
 
 
     def collections(self, order_by=None, reverse=False):
