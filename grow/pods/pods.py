@@ -177,8 +177,8 @@ class Pod(object):
         dest_path = self._normalize_path(destination_pod_path)
         return self.storage.move_to(source_path, dest_path)
 
-    def list_collections(self, paths=None):
-        cols = collection.Collection.list(self)
+    def list_collections(self, paths=None, order_by=None, reverse=False):
+        cols = collection.Collection.list(self, order_by=order_by, reverse=reverse)
         if paths:
             return [col for col in cols if col.collection_path in paths]
         return cols
