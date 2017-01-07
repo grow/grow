@@ -279,6 +279,7 @@ def slugify(text, delim=u'-'):
     for word in SLUG_REGEX.split(text.lower()):
         word = word.encode('translit/long')
         if word:
+            word = "".join(SLUG_REGEX.split(word)) # deal with smartquotes
             result.append(word)
     return unicode(delim.join(result))
 
