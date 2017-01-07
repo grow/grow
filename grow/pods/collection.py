@@ -137,6 +137,7 @@ class Collection(object):
     @classmethod
     def get(cls, collection_path, _pod):
         """Returns a collection object."""
+        print collection_path
         return cls(collection_path, _pod)
 
     def get_doc(self, pod_path, locale=None):
