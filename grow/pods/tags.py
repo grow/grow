@@ -51,8 +51,8 @@ def docs(collection, locale=None, order_by=None, hidden=False, recursive=True, _
 
 
 @utils.memoize_tag
-def collections(collection_paths=None, _pod=None):
-    return _pod.list_collections(collection_paths)
+def collections(collection_paths=None, order_by=None, reverse=False, _pod=None):
+    return _pod.list_collections(collection_paths, order_by, reverse)
 
 
 @utils.memoize_tag
