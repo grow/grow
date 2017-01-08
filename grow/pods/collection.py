@@ -239,7 +239,8 @@ class Collection(object):
         return False
 
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
-                  include_hidden=False, recursive=True, inject=False):
+                  include_hidden=False, recursive=True, inject=False,
+                  recurse_collections=False):
         reverse = False if reverse is None else reverse
         order_by = 'order' if order_by is None else order_by
         key = operator.attrgetter(order_by)
@@ -253,7 +254,7 @@ class Collection(object):
         for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
             # Document is owned by a different collection, skip it.
-            if not self._owns_doc_at_path(pod_path):
+            if not self._owns_doc_at_path(pod_path) and not recurse_collections:
                 continue
             slug, ext = os.path.splitext(os.path.basename(pod_path))
             if (slug.startswith('_')
