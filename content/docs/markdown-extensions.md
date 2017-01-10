@@ -48,3 +48,11 @@ Implements pygments syntax highlighting for code snippets.
 <p>Source code highlighting.
 [​/sourcecode]
 [/sourcecode]
+
+The sourcecode extension also supports GitHub-flavor backticks.
+
+[sourcecode:text]
+```javascript
+console.log('Hello World');
+```
+[/sourcecode]
