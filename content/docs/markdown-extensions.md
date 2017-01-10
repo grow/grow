@@ -52,7 +52,7 @@ Implements pygments syntax highlighting for code snippets.
 The sourcecode extension also supports GitHub-flavor backticks.
 
 [sourcecode:text]
-```javascript
+`​``javascript
 console.log('Hello World');
-```
+`​``
 [/sourcecode]
