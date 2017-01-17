@@ -119,7 +119,15 @@ class Pod(object):
 
     @property
     def ui(self):
-        return self.yaml.get('ui')
+        if self.env.name == environment.Name.DEV or self.env.name is None:
+            ui_config = self.yaml.get('ui')
+        else:
+            if 'deployments' not in self.yaml:
+                raise ValueError('No pod-specific deployments configured.')
+            ui_config = (self.yaml['deployments']
+                .get(self.env.name, {})
+                .get('ui'))
+        return ui_config
 
     def match(self, path):
         return self.routes.match(path, env=self.env.to_wsgi_env())
@@ -273,8 +281,50 @@ class Pod(object):
         bar.finish()
         return output
 
+    def export_ui(self):
+        """Builds the grow ui tools, returning a mapping of paths to content."""
+        output = {}
+        paths = []
+        source_prefix = 'node_modules/'
+        destination_root = '_grow/ui/'
+        tools_dir = 'tools/'
+        tool_prefix = 'grow-tool-'
+
+        # Add the base ui files.
+        source_root = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
+        for path in ['css/ui.min.css', 'js/ui.min.js']:
+            source_path = os.path.join(source_root, path)
+            output_path = os.sep + os.path.join(destination_root, path)
+            output[output_path] = self.storage.read(source_path)
+
+        # Add the files from each of the tools.
+        for tool in self.ui.get('tools', []):
+            tool_path = '{}{}{}'.format(
+                source_prefix, tool_prefix, tool['kind'])
+            for root, dirs, files in self.walk(tool_path):
+                for directory in dirs:
+                    if directory.startswith('.'):
+                        dirs.remove(directory)
+                pod_dir = root.replace(self.root, '')
+                for file_name in files:
+                    paths.append(os.path.join(pod_dir, file_name))
+
+        text = 'Building UI Tools: %(value)d/{} (in %(elapsed)s)'
+        widgets = [progressbar.FormatLabel(text.format(len(paths)))]
+        bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
+        bar.start()
+        for path in paths:
+            output_path = path.replace(
+                source_prefix, '{}{}'.format(destination_root, tools_dir))
+            output[output_path] = self.read_file(path)
+            bar.update(bar.currval + 1)
+        bar.finish()
+        return output
+
     def dump(self, suffix='index.html', append_slashes=True):
         output = self.export()
+        if self.ui:
+            output.update(self.export_ui())
         clean_output = {}
         if suffix:
             for path, content in output.iteritems():
