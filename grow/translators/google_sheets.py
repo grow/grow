@@ -141,20 +141,20 @@ class GoogleSheetsTranslator(base.Translator):
 
             self._perform_batch_update(spreadsheet_id, requests)
         else:
-            sheets = []
-            for catalog in catalogs:
-                sheets.append(self._create_sheet_from_catalog(catalog, source_lang,
-                        prune=prune))
+            # Create a new spreadsheet and use the id.
+            service = self._create_service()
             resp = service.spreadsheets().create(body={
-                'sheets': sheets,
                 'properties': {
                     'title': project_title,
                 },
             }).execute()
             spreadsheet_id = resp['spreadsheetId']
-            for sheet in resp['sheets']:
-                locale = sheet['properties']['title']
-                locales_to_sheet_ids[locale] = sheet['properties']['sheetId']
+
+            requests = []
+            requests += self._generate_create_sheets_requests(
+                catalogs, source_lang)
+            self._perform_batch_update(spreadsheet_id, requests)
+
             if 'acl' in self.config:
                 self._do_update_acl(spreadsheet_id, self.config['acl'])
 
