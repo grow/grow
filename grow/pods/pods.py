@@ -302,8 +302,9 @@ class Pod(object):
             tool_path = '{}{}{}'.format(
                 source_prefix, tool_prefix, tool['kind'])
             for root, dirs, files in self.walk(tool_path):
-                if '.git' in dirs:
-                    dirs.remove('.git')
+                for directory in dirs:
+                    if directory.startswith('.'):
+                        dirs.remove(directory)
                 pod_dir = root.replace(self.root, '')
                 for file_name in files:
                     paths.append(os.path.join(pod_dir, file_name))
