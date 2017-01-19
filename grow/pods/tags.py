@@ -56,8 +56,8 @@ def collections(collection_paths=None, _pod=None):
 
 
 @utils.memoize_tag
-def statics(pod_path, locale=None, _pod=None):
-    return list(_pod.list_statics(pod_path, locale=locale))
+def statics(pod_path, locale=None, include_hidden=False, _pod=None):
+    return list(_pod.list_statics(pod_path, locale=locale, include_hidden=include_hidden))
 
 
 def markdown_filter(value):

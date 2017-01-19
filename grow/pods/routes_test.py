@@ -78,6 +78,7 @@ class RoutesTest(unittest.TestCase):
             '/public/file.txt',
             '/public/main.css',
             '/public/main.min.js',
+            '/public/dir/file.txt',
             '/root/base/',
             '/root/sitemap.xml',
             '/root/static/file-aa843134a2a113f7ebd5386c4d094a1a.min.js',

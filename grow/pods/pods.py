@@ -191,9 +191,10 @@ class Pod(object):
             return [col for col in cols if col.collection_path in paths]
         return cols
 
-    def list_statics(self, pod_path, locale=None):
+    def list_statics(self, pod_path, locale=None, include_hidden=False):
         for path in self.list_dir(pod_path):
-            yield self.get_static(pod_path + path, locale=locale)
+            if include_hidden or not path.rsplit(os.sep, 1)[-1].startswith('.'):
+                yield self.get_static(pod_path + path, locale=locale)
 
     def get_url(self, pod_path, locale=None):
         if pod_path.startswith('/content'):

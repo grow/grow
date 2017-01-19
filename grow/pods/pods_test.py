@@ -107,6 +107,7 @@ class PodTest(unittest.TestCase):
             '/public/file.txt',
             '/public/main.css',
             '/public/main.min.js',
+            '/public/dir/file.txt',
             '/root/base/index.html',
             '/root/sitemap.xml',
             '/root/static/file-aa843134a2a113f7ebd5386c4d094a1a.min.js',
@@ -140,6 +141,19 @@ class PodTest(unittest.TestCase):
     def test_list_statics(self):
         items = self.pod.list_statics('/public/')
         expected = [
+            self.pod.get_static('/public/dir/file.txt'),
+            self.pod.get_static('/public/file.txt'),
+            self.pod.get_static('/public/main.css'),
+            self.pod.get_static('/public/main.min.js'),
+        ]
+        for item in items:
+            self.assertIn(item, expected)
+
+    def test_list_statics_hidden(self):
+        items = self.pod.list_statics('/public/', include_hidden=True)
+        expected = [
+            self.pod.get_static('/public/dir/.dummy_dot_file'),
+            self.pod.get_static('/public/dir/file.txt'),
             self.pod.get_static('/public/.dummy_dot_file'),
             self.pod.get_static('/public/file.txt'),
             self.pod.get_static('/public/main.css'),
