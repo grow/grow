@@ -1,10 +1,16 @@
 #!/bin/bash
 
-HERE="`dirname \"$0\"`"
+function realdirname() {
+  # a cross platform version of $(dirname $(realpath $1))
+  # OS X does not have /usr/bin/realpath
+  python -c 'import sys, os.path; print os.path.dirname(os.path.realpath(sys.argv[1]))' "$1"
+}
 
-if [ -d $HERE/../env ]; then
-  source $HERE/../env/bin/activate
-  $HERE/../bin/grow ${@}
+HERE="$(realdirname "$0")"
+
+if [ -d "${HERE}/../env" ]; then
+  source "${HERE}/../env/bin/activate"
+  "${HERE}/../bin/grow" ${@}
   deactivate
 else
   echo 'Run make develop first.'
