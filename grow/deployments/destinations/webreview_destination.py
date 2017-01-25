@@ -73,8 +73,8 @@ class WebReviewDestination(base.BaseDestination):
         return self._webreview
 
     def _get_subdomain(self):
-        repo = common_utils.get_git_repo(self.pod.root)
         if self.config.subdomain_prefix and not self.config.subdomain:
+            repo = common_utils.get_git_repo(self.pod.root)
             token = repo.active_branch.name.split('/')[-1]
             if token == 'master':
                 return self.config.subdomain_prefix
@@ -100,7 +100,7 @@ class WebReviewDestination(base.BaseDestination):
                 url = finalize_response['fileset']['url']
                 # Append the homepage path to the staging link.
                 result = urlparse.urlparse(url)
-                if not result.path and self.pod.get_home_doc():
+                if not result.path and self.pod and self.pod.get_home_doc():
                   home_doc = self.pod.get_home_doc()
                   url = url.rstrip('/') + home_doc.url.path
                 logging.info('Staged: %s', url)
