@@ -1,7 +1,8 @@
-import logging
-import os
+from webob import exc as webob_exc
 import jinja2
+import logging
 import mimetypes
+import os
 import re
 import sys
 import traceback
@@ -124,7 +125,7 @@ class PodServer(object):
 
     def handle_exception(self, request, exc):
         log = logging.exception if self.debug else self.pod.logger.error
-        if isinstance(exc, webob.exc.HTTPException):
+        if isinstance(exc, webob_exc.HTTPException):
             status = exc.status_int
             log('{}: {}'.format(status, request.path))
         else:
@@ -142,7 +143,7 @@ class PodServer(object):
         formatted_traceback = '\n'.join(formatted_traceback)
         kwargs = {
             'exception': exc,
-            'is_web_exception': isinstance(exc, webob.exc.HTTPException),
+            'is_web_exception': isinstance(exc, webob_exc.HTTPException),
             'pod': self.pod,
             'status': status,
             'traceback': formatted_traceback,
