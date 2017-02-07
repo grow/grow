@@ -517,6 +517,16 @@ class UtilsTestCase(unittest.TestCase):
         expected = ['bar', 'bar2', 'bar3', 'bar4']
         self.assertItemsEqual(expected, actual)
 
+    def test_walk_empty(self):
+        data = None
+
+        actual = []
+        callback = lambda item, key, node: actual.append(item)
+        utils.walk(data, callback)
+
+        expected = []
+        self.assertItemsEqual(expected, actual)
+
 
 if __name__ == '__main__':
     unittest.main()
