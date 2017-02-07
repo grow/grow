@@ -10,14 +10,29 @@ import unittest
 class UtilsTestCase(unittest.TestCase):
 
     def test_clean_google_href(self):
+        # Test without a match.
+        raw = '<a href="https://grow.io/">Link</a>'
+        expected = '<a href="https://grow.io/">Link</a>'
+        actual = utils.clean_html(raw)
+        self.assertEqual(expected, actual)
+
+        # Test with ?q=
         raw = '<a href="https://www.google.com/url?q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
         expected = '<a href="https://grow.io/docs/">Google Search</a>'
         actual = utils.clean_html(raw)
         self.assertEqual(expected, actual)
 
+        # Test with &q=
         raw = '<a href="https://www.google.com/url?sa=t&q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
         expected = '<a href="https://grow.io/docs/">Google Search</a>'
         actual = utils.clean_html(raw)
+        self.assertEqual(expected, actual)
+
+    def test_clean_html_markdown(self):
+        # Test without a match.
+        raw = '<a href="https://grow.io/">Link</a>'
+        expected = '[Link](https://grow.io/)'
+        actual = utils.clean_html(raw, convert_to_markdown=True)
         self.assertEqual(expected, actual)
 
     def test_parse_yaml(self):
@@ -32,6 +47,19 @@ class UtilsTestCase(unittest.TestCase):
             pod.get_doc('/content/pages/home.yaml'),
         ]
         self.assertEqual(expected_docs, result['docs'])
+
+    def test_process_google_comments(self):
+        # Google comment link.
+        raw = '<div><a id="cmnt" href="https://grow.io/">Link</a></div>'
+        expected = ''
+        actual = utils.clean_html(raw)
+        self.assertEqual(expected, actual)
+
+        # Google footnote link.
+        raw = '<sup><a id="ftnt" href="https://grow.io/">Link</a></sup>'
+        expected = ''
+        actual = utils.clean_html(raw)
+        self.assertEqual(expected, actual)
 
     def test_untag_fields(self):
         fields_to_test = {

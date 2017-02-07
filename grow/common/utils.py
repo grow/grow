@@ -403,7 +403,7 @@ def clean_html(content, convert_to_markdown=False):
     content = unicode(soup.body or soup)
     if convert_to_markdown:
         h2t = html2text.HTML2Text()
-        content = h2t.handle(content)
+        content = h2t.handle(content).strip()
     return content.encode('utf-8')
 
 
