@@ -58,59 +58,52 @@ class UtilsTestCase(unittest.TestCase):
             message['m'] = m
             return 'y'
 
-        # Should be false when nothing input.
-        self.assertEqual(
-            False,
-            utils.interactive_confirm(confirm, input_func=input_none))
-        self.assertEqual(confirm_none, message['m'])
+        tests = [
+            { # Should be false when nothing input, default true.
+                'expected': False,
+                'default': False,
+                'input_func': input_none,
+                'confirm': confirm_no,
+            },
+            { # Should be true when true input, default true.
+                'expected': True,
+                'default': False,
+                'input_func': input_yes,
+                'confirm': confirm_no,
+            },
+            { # Should be false when false input, default true.
+                'expected': False,
+                'default': False,
+                'input_func': input_no,
+                'confirm': confirm_no,
+            },
+            { # Should be false when nothing input, default true.
+                'expected': True,
+                'default': True,
+                'input_func': input_none,
+                'confirm': confirm_yes,
+            },
+            { # Should be true when true input, default true.
+                'expected': True,
+                'default': True,
+                'input_func': input_yes,
+                'confirm': confirm_yes,
+            },
+            { # Should be false when false input, default true.
+                'expected': False,
+                'default': True,
+                'input_func': input_no,
+                'confirm': confirm_yes,
+            },
+        ]
 
-        # Should be true when true input.
-        self.assertEqual(
-            True,
-            utils.interactive_confirm(confirm, input_func=input_yes))
-        self.assertEqual(confirm_none, message['m'])
-
-        # Should be false when false input.
-        self.assertEqual(
-            False,
-            utils.interactive_confirm(confirm, input_func=input_no))
-        self.assertEqual(confirm_none, message['m'])
-
-        # Should be false when nothing input, default true.
-        self.assertEqual(
-            False,
-            utils.interactive_confirm(confirm, default=False, input_func=input_none))
-        self.assertEqual(confirm_no, message['m'])
-
-        # Should be true when true input, default true.
-        self.assertEqual(
-            True,
-            utils.interactive_confirm(confirm, default=False, input_func=input_yes))
-        self.assertEqual(confirm_no, message['m'])
-
-        # Should be false when false input, default true.
-        self.assertEqual(
-            False,
-            utils.interactive_confirm(confirm, default=False, input_func=input_no))
-        self.assertEqual(confirm_no, message['m'])
-
-        # Should be false when nothing input, default true.
-        self.assertEqual(
-            True,
-            utils.interactive_confirm(confirm, default=True, input_func=input_none))
-        self.assertEqual(confirm_yes, message['m'])
-
-        # Should be true when true input, default true.
-        self.assertEqual(
-            True,
-            utils.interactive_confirm(confirm, default=True, input_func=input_yes))
-        self.assertEqual(confirm_yes, message['m'])
-
-        # Should be false when false input, default true.
-        self.assertEqual(
-            False,
-            utils.interactive_confirm(confirm, default=True, input_func=input_no))
-        self.assertEqual(confirm_yes, message['m'])
+        for test in tests:
+            self.assertEqual(
+                test['expected'],
+                utils.interactive_confirm(
+                    confirm, default=test['default'],
+                    input_func=test['input_func']))
+            self.assertEqual(test['confirm'], message['m'])
 
     def test_parse_yaml(self):
         pod = testing.create_test_pod()
