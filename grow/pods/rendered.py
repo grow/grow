@@ -4,6 +4,7 @@ from grow.common import utils
 from grow.pods import env
 from grow.pods import errors
 from grow.pods import ui
+from grow.pods.tags import dependency_stream
 import mimetypes
 import sys
 
@@ -55,8 +56,12 @@ class RenderedController(controllers.BaseController):
                 'podspec': self.pod.get_podspec(),
             }
             content = template.render(kwargs).lstrip()
+            dependencies = dependency_stream.read_all()
             content = self._inject_ui(
                 content, preprocessor, translator)
+            print 'render file: {} --> {}'.format(self.view, dependencies)
+            # TODO: Return the dependencies with the content so a dependency
+            # graph can be built for the content.
             return content
         except Exception as e:
             text = 'Error building {}: {}'

@@ -12,6 +12,46 @@ import markdown
 import re
 import sys
 
+class DocStream(object):
+
+    def __init__(self):
+        self.stream = set()
+
+    def add(self, item):
+        self.stream.add(item)
+
+    def read_all(self):
+        current = self.stream
+        self.stream = set()
+        return current
+
+# TODO: Figure out how this can be done without a global.
+# Best if it can be created as part of the render(). Not sure how to make that
+# work with the annotation method yet though.
+dependency_stream = DocStream()
+
+class docImportTracker(object):
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def __call__(self, f):
+        def _wrapper(*args, **kwds):
+            self.stream.add(args[0])
+            return f(*args, **kwds)
+        return _wrapper
+
+    def _format_all_args(self, args, kwds):
+        all_args = []
+        for item in args:
+            all_args.append('%s' % str(item))
+        for key, item in kwds.items():
+            all_args.append('%s=%s' % (key,str(item)))
+        formatted = ', '.join(all_args)
+        if len(formatted) > 150:
+            return formatted[:146] + " ..."
+        return unicode(formatted + '\n')
+
 
 def categories(collection=None, collections=None, reverse=None, order_by=None,
                locale=utils.SENTINEL, _pod=None, use_cache=False):
@@ -44,6 +84,7 @@ def collection(collection, _pod=None):
 
 
 @utils.memoize_tag
+@docImportTracker(dependency_stream)
 def docs(collection, locale=None, order_by=None, hidden=False, recursive=True, _pod=None):
     collection = _pod.get_collection(collection)
     return collection.docs(locale=locale, order_by=order_by, include_hidden=hidden,
@@ -124,6 +165,7 @@ def url(pod_path, locale=None, _pod=None):
 
 
 @utils.memoize_tag
+@docImportTracker(dependency_stream)
 def get_doc(pod_path, locale=None, _pod=None):
     return _pod.get_doc(pod_path, locale=locale)
 
