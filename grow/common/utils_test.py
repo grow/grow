@@ -9,21 +9,16 @@ import unittest
 
 class UtilsTestCase(unittest.TestCase):
 
-    def test_walk(self):
-        data = {
-          'foo': 'bar',
-          'bam': {
-            'foo': 'bar2',
-            'foo2': ['bar3', 'bar4'],
-          }
-        }
+    def test_clean_google_href(self):
+        raw = '<a href="https://www.google.com/url?q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
+        expected = '<a href="https://grow.io/docs/">Google Search</a>'
+        actual = utils.clean_html(raw)
+        self.assertEqual(expected, actual)
 
-        actual = []
-        callback = lambda item, key, node: actual.append(item)
-        utils.walk(data, callback)
-
-        expected = ['bar', 'bar2', 'bar3', 'bar4']
-        self.assertItemsEqual(expected, actual)
+        raw = '<a href="https://www.google.com/url?sa=t&q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
+        expected = '<a href="https://grow.io/docs/">Google Search</a>'
+        actual = utils.clean_html(raw)
+        self.assertEqual(expected, actual)
 
     def test_parse_yaml(self):
         pod = testing.create_test_pod()
@@ -37,15 +32,6 @@ class UtilsTestCase(unittest.TestCase):
             pod.get_doc('/content/pages/home.yaml'),
         ]
         self.assertEqual(expected_docs, result['docs'])
-
-    def test_version_enforcement(self):
-        with mock.patch('grow.pods.pods.Pod.grow_version',
-                        new_callable=mock.PropertyMock) as mock_version:
-            this_version = get_this_version()
-            gt_version = '>{0}'.format(semantic_version.Version(this_version))
-            mock_version.return_value = gt_version
-            with self.assertRaises(LatestVersionCheckError):
-                pod = testing.create_test_pod()
 
     def test_untag_fields(self):
         fields_to_test = {
@@ -454,6 +440,31 @@ class UtilsTestCase(unittest.TestCase):
                 'nested': 'nested-base',
             },
         }, utils.untag_fields(fields, locale='de'))
+
+    def test_version_enforcement(self):
+        with mock.patch('grow.pods.pods.Pod.grow_version',
+                        new_callable=mock.PropertyMock) as mock_version:
+            this_version = get_this_version()
+            gt_version = '>{0}'.format(semantic_version.Version(this_version))
+            mock_version.return_value = gt_version
+            with self.assertRaises(LatestVersionCheckError):
+                pod = testing.create_test_pod()
+
+    def test_walk(self):
+        data = {
+          'foo': 'bar',
+          'bam': {
+            'foo': 'bar2',
+            'foo2': ['bar3', 'bar4'],
+          }
+        }
+
+        actual = []
+        callback = lambda item, key, node: actual.append(item)
+        utils.walk(data, callback)
+
+        expected = ['bar', 'bar2', 'bar3', 'bar4']
+        self.assertItemsEqual(expected, actual)
 
 
 if __name__ == '__main__':

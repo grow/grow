@@ -427,12 +427,11 @@ def _process_google_comments(soup):
 
 def _clean_google_href(href):
     regex = ('^'
-             + re.escape('https://www.google.com/url?q=')
-             + '(.*?)'
-             + re.escape('&'))
+             + re.escape('https://www.google.com/url')
+             + '(\?|.*\&)q=([^\&]*)')
     match = re.match(regex, href)
     if match:
-        encoded_url = match.group(1)
+        encoded_url = match.group(2)
         return urllib.unquote(encoded_url)
     return href
 
