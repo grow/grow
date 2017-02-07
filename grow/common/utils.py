@@ -90,12 +90,18 @@ def get_git_repo(root):
         logging.info('WARNING: No Git repository found in {}'.format(root))
 
 
-def interactive_confirm(message, default=False):
-    message = '{} [y/N]: '.format(message)
-    choice = raw_input(message).lower()
+def interactive_confirm(message, default=False, input_func=None):
+    if input_func is None:
+        input_func = lambda m: raw_input(m).lower()
+
+    choices = 'Y/n' if default is True else 'y/N'
+    message = '{} [{}]: '.format(message, choices)
+    choice = input_func(message)
     if choice == 'y':
         return True
-    return False
+    elif choice == 'n':
+        return False
+    return default
 
 
 def walk(node, callback, parent_key=None):
@@ -403,7 +409,7 @@ def clean_html(content, convert_to_markdown=False):
     content = unicode(soup.body or soup)
     if convert_to_markdown:
         h2t = html2text.HTML2Text()
-        content = h2t.handle(content)
+        content = h2t.handle(content).strip()
     return content.encode('utf-8')
 
 
@@ -427,12 +433,11 @@ def _process_google_comments(soup):
 
 def _clean_google_href(href):
     regex = ('^'
-             + re.escape('https://www.google.com/url?q=')
-             + '(.*?)'
-             + re.escape('&'))
+             + re.escape('https://www.google.com/url')
+             + '(\?|.*\&)q=([^\&]*)')
     match = re.match(regex, href)
     if match:
-        encoded_url = match.group(1)
+        encoded_url = match.group(2)
         return urllib.unquote(encoded_url)
     return href
 
