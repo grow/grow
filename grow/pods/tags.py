@@ -12,8 +12,7 @@ import markdown
 import re
 import sys
 
-class DocStream(object):
-
+class DependencyStream(object):
     def __init__(self):
         self.stream = set()
 
@@ -21,36 +20,7 @@ class DocStream(object):
         self.stream.add(item)
 
     def read_all(self):
-        current = self.stream
-        self.stream = set()
-        return current
-
-# TODO: Figure out how this can be done without a global.
-# Best if it can be created as part of the render(). Not sure how to make that
-# work with the annotation method yet though.
-dependency_stream = DocStream()
-
-class docImportTracker(object):
-
-    def __init__(self, stream):
-        self.stream = stream
-
-    def __call__(self, f):
-        def _wrapper(*args, **kwds):
-            self.stream.add(args[0])
-            return f(*args, **kwds)
-        return _wrapper
-
-    def _format_all_args(self, args, kwds):
-        all_args = []
-        for item in args:
-            all_args.append('%s' % str(item))
-        for key, item in kwds.items():
-            all_args.append('%s=%s' % (key,str(item)))
-        formatted = ', '.join(all_args)
-        if len(formatted) > 150:
-            return formatted[:146] + " ..."
-        return unicode(formatted + '\n')
+        return self.stream
 
 
 def categories(collection=None, collections=None, reverse=None, order_by=None,
@@ -84,7 +54,6 @@ def collection(collection, _pod=None):
 
 
 @utils.memoize_tag
-@docImportTracker(dependency_stream)
 def docs(collection, locale=None, order_by=None, hidden=False, recursive=True, _pod=None):
     collection = _pod.get_collection(collection)
     return collection.docs(locale=locale, order_by=order_by, include_hidden=hidden,
@@ -165,7 +134,6 @@ def url(pod_path, locale=None, _pod=None):
 
 
 @utils.memoize_tag
-@docImportTracker(dependency_stream)
 def get_doc(pod_path, locale=None, _pod=None):
     return _pod.get_doc(pod_path, locale=locale)
 
@@ -271,8 +239,6 @@ def create_builtin_tags(pod, use_cache=False):
         'categories': wrap(categories),
         'csv': wrap(csv),
         'date': wrap(date),
-        'doc': wrap(get_doc),
-        'docs': wrap(docs),
         'json': wrap(json),
         'locale': wrap(locale),
         'locales': wrap(locales),
@@ -296,3 +262,14 @@ def create_builtin_filters():
         ('time', babel_dates.format_time),
         ('relative', relative_filter),
     )
+
+def create_template_tags(pod, stream, use_cache=False):
+    def wrap(func, index=0):
+        def wrapper(*args, **kwds):
+            stream.add(args[index])
+            return func(*args, _pod=pod, use_cache=use_cache, **kwds)
+        return wrapper
+    return {
+        'doc': wrap(get_doc),
+        'docs': wrap(docs),
+    }
