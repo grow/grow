@@ -11,28 +11,34 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_clean_google_href(self):
         # Test without a match.
-        raw = '<a href="https://grow.io/">Link</a>'
+        raw_input = '<a href="https://grow.io/">Link</a>'
         expected = '<a href="https://grow.io/">Link</a>'
-        actual = utils.clean_html(raw)
+        actual = utils.clean_html(raw_input)
         self.assertEqual(expected, actual)
 
         # Test with ?q=
-        raw = '<a href="https://www.google.com/url?q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
+        raw_input = '<a href="https://www.google.com/url?q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
         expected = '<a href="https://grow.io/docs/">Google Search</a>'
-        actual = utils.clean_html(raw)
+        actual = utils.clean_html(raw_input)
         self.assertEqual(expected, actual)
 
         # Test with &q=
-        raw = '<a href="https://www.google.com/url?sa=t&q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
+        raw_input = '<a href="https://www.google.com/url?sa=t&q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
         expected = '<a href="https://grow.io/docs/">Google Search</a>'
-        actual = utils.clean_html(raw)
+        actual = utils.clean_html(raw_input)
         self.assertEqual(expected, actual)
 
     def test_clean_html_markdown(self):
         # Test without a match.
-        raw = '<a href="https://grow.io/">Link</a>'
+        raw_input = '<a href="https://grow.io/">Link</a>'
         expected = '[Link](https://grow.io/)'
-        actual = utils.clean_html(raw, convert_to_markdown=True)
+        actual = utils.clean_html(raw_input, convert_to_markdown=True)
+        self.assertEqual(expected, actual)
+
+    def test_every_two(self):
+        raw_input = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        expected = [(1, 2), (3, 4), (5, 6), (7, 8)]
+        actual = utils.every_two(raw_input)
         self.assertEqual(expected, actual)
 
     def test_parse_yaml(self):
