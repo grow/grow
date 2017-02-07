@@ -69,7 +69,7 @@ class RenderedController(controllers.BaseController):
                 content, preprocessor, translator)
             if deps:
                 print '{}: {}'.format(self.view, deps)
-            return content
+            return content, deps
         except Exception as e:
             text = 'Error building {}: {}'
             exception = errors.BuildError(text.format(self, e))

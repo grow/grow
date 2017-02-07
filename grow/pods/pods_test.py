@@ -53,6 +53,7 @@ class PodTest(unittest.TestCase):
 
     def test_dump(self):
         paths = [
+            '/.grow/dependencies.yaml',
             '/about/index.html',
             '/app/root/static/somepath/de_alias/test-9b3051eb0c19358847e7c879275f810a.txt',
             '/app/static/file with spaces-d41d8cd98f00b204e9800998ecf8427e.txt',

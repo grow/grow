@@ -29,7 +29,7 @@ class TocExtensionTestCase(unittest.TestCase):
             """))
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
         controller, params = pod.match('/test/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
 
         toc_sentinel = '<div class="toc">'
         toclink_sentinel = '<a class="toclink"'
@@ -58,7 +58,7 @@ class TocExtensionTestCase(unittest.TestCase):
         })
         pod = pods.Pod(pod.root)
         controller, params = pod.match('/test/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
         self.assertIn(title_sentinel, result)
         self.assertNotIn(h2_sentinel, result)
         self.assertIn(toclink_sentinel, result)
@@ -94,7 +94,7 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         content = '{{doc.html|safe}}'
         pod.write_file('/views/base.html', content)
         controller, params = pod.match('/test/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
@@ -110,7 +110,7 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         content = '{{doc.html|safe}}'
         pod.write_file('/views/base.html', content)
         controller, params = pod.match('/test/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
@@ -125,7 +125,7 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
             """)
         pod.write_file('/content/pages/test.md', content)
         controller, params = pod.match('/test/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
@@ -140,7 +140,7 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         pod.write_yaml('/podspec.yaml', fields)
         pod = pods.Pod(pod.root)
         controller, params = pod.match('/test/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
         class_sentinel = '<span class="nt">'
         self.assertIn(class_sentinel, result)
 
@@ -156,7 +156,7 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         pod.write_yaml('/podspec.yaml', fields)
         pod = pods.Pod(pod.root)
         controller, params = pod.match('/test/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
         code_sentinel = '<pre><code class="html">'
         self.assertIn(code_sentinel, result)
 

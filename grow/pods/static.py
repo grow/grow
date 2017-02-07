@@ -195,7 +195,7 @@ class StaticController(controllers.BaseController):
 
     def render(self, params, inject=False):
         pod_path = self.get_pod_path(params)
-        return self.pod.read_file(pod_path)
+        return self.pod.read_file(pod_path), set() # empty dependencies
 
     def get_mimetype(self, params):
         pod_path = self.get_pod_path(params)

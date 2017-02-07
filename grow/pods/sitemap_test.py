@@ -36,7 +36,7 @@ class SitemapTest(unittest.TestCase):
             },
         })
         controller, params = pod.match('/sitemap.xml')
-        content = controller.render(params)
+        content, _ = controller.render(params)
         # Verify $sitemap:enabled = false.
         self.assertIn('/foo/', content)
         self.assertNotIn('/bar/', content)
@@ -58,7 +58,7 @@ class SitemapTest(unittest.TestCase):
                 '$title': letter,
             })
         controller, params = pod.match('/sitemap.xml')
-        content = controller.render(params)
+        content, _ = controller.render(params)
         letters = sorted(letters)
         indices = [content.find(letter) for letter in letters]
         self.assertNotIn(-1, indices)

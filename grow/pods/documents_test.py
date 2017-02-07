@@ -517,7 +517,7 @@ class DocumentsTestCase(unittest.TestCase):
         })
         pod.routes.reset_cache()
         controller, params = pod.match('/page/')
-        content = controller.render(params)
+        content, _ = controller.render(params)
         self.assertEqual('en', content)
 
         # Verify paths aren't clobbered by the default locale.
@@ -535,7 +535,7 @@ class DocumentsTestCase(unittest.TestCase):
         })
         pod.routes.reset_cache()
         controller, params = pod.match('/de/page/')
-        content = controller.render(params)
+        content, _ = controller.render(params)
         self.assertEqual('de', content)
         paths = pod.routes.list_concrete_paths()
         expected = ['/en/page/', '/de/page/']

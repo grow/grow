@@ -36,7 +36,7 @@ class RenderedTest(unittest.TestCase):
 
     def test_custom_jinja_extensions(self):
         controller, params = self.pod.match('/')
-        html = controller.render(params)
+        html, _ = controller.render(params)
         # Test pod uses a custom `|triplicate` filter on 'abcabcabc'
         self.assertIn('Custom Jinja Extension: abcabcabc', html)
 
@@ -72,17 +72,17 @@ class RenderedTest(unittest.TestCase):
 
         # Verify untranslated.
         controller, params = pod.match('/ja/test/')
-        content = controller.render(params)
+        content, _ = controller.render(params)
         self.assertEqual(content, content)
 
         controller, params = pod.match('/test/')
-        content = controller.render(params)
+        content, _ = controller.render(params)
         self.assertEqual(expected, content)
 
         # Verify translated.
         ja_catalog.compile()
         controller, params = pod.match('/ja/test/')
-        content = controller.render(params)
+        content, _ = controller.render(params)
         self.assertEqual(translation, content)
 
     def test_inject_ui(self):
@@ -100,13 +100,13 @@ class RenderedTest(unittest.TestCase):
 
         # Verify UI not injected for normal pages.
         controller, params = pod.match('/index/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
         self.assertNotIn(ui_sentinel, result)
 
         # Verify UI not injected unless injectable preprocessor is present.
         pod.env.name = env.Name.DEV
         controller, params = pod.match('/index/')
-        result = controller.render(params)
+        result, _ = controller.render(params)
         self.assertNotIn(ui_sentinel, result)
 
         class DummyPreprocessor(base.BasePreprocessor):

@@ -46,7 +46,7 @@ class SitemapController(controllers.BaseController):
         docs = self._list_docs()
         return template.render({
             'docs': docs,
-        }).strip()
+        }).strip(), set() # empty dependencies
 
     def _list_docs(self):
         docs = []
