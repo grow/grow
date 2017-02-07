@@ -66,20 +66,20 @@ class DependencyGraphTestCase(unittest.TestCase):
 class DependencyLogTestCase(unittest.TestCase):
 
     def test_add(self):
-        stream = dependency.DependencyLog()
-        stream.add('/content/test.html')
-        self.assertEqual(set(['/content/test.html']), stream.read_all())
+        log = dependency.DependencyLog()
+        log.add('/content/test.html')
+        self.assertEqual(set(['/content/test.html']), log.read_all())
 
     def test_add_duplicate(self):
-        stream = dependency.DependencyLog()
-        stream.add('/content/test.html')
-        stream.add('/content/test1.html')
-        stream.add('/content/test.html')
-        self.assertEqual(set(['/content/test.html', '/content/test1.html']), stream.read_all())
+        log = dependency.DependencyLog()
+        log.add('/content/test.html')
+        log.add('/content/test1.html')
+        log.add('/content/test.html')
+        self.assertEqual(set(['/content/test.html', '/content/test1.html']), log.read_all())
 
     def test_empty(self):
-        stream = dependency.DependencyLog()
-        self.assertEqual(set(), stream.read_all())
+        log = dependency.DependencyLog()
+        self.assertEqual(set(), log.read_all())
 
 
 if __name__ == '__main__':
