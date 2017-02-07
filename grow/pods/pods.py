@@ -204,8 +204,7 @@ class Pod(object):
         error_controller = routes.match_error('/404.html')
         if error_controller:
             output['/404.html'] = error_controller.render({})
-        output['/.grow/dependencies.yaml'] = utils.dump_yaml(
-            dep_graph.get_all_dependencies())
+        output['/.grow/dependencies.yaml'] = utils.dump_yaml(dep_graph.export())
         bar.finish()
         return output
 

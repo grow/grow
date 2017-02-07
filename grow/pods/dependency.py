@@ -15,9 +15,18 @@ class DependencyGraph(object):
         self._dependents = {}
         self._dependencies = {}
 
+    def add_all(self, data):
+        """Add all from a data source."""
+
+        for key, value in data.iteritems():
+            self.add_references(key, value)
+
     def add_references(self, source, references):
         """Add references made in a source file to the graph."""
-        self._dependencies[source] = references
+        if not references:
+            return
+
+        self._dependencies[source] = set(references)
 
         # Bi-directional dependency references for easier lookup.
         for reference in references:
@@ -25,8 +34,13 @@ class DependencyGraph(object):
                 self._dependents[reference] = set()
             self._dependents[reference].add(source)
 
-    def get_all_dependencies(self):
-        return self._dependencies
+    def export(self):
+        result = {}
+
+        for key, value in self._dependencies.iteritems():
+            result[key] = list(value)
+
+        return result
 
     def get_dependents(self, reference):
         """

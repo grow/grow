@@ -67,8 +67,6 @@ class RenderedController(controllers.BaseController):
             deps = dep_log.read_all()
             content = self._inject_ui(
                 content, preprocessor, translator)
-            if deps:
-                print '{}: {}'.format(self.view, deps)
             return content, deps
         except Exception as e:
             text = 'Error building {}: {}'
