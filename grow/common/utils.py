@@ -90,12 +90,18 @@ def get_git_repo(root):
         logging.info('WARNING: No Git repository found in {}'.format(root))
 
 
-def interactive_confirm(message, default=False):
-    message = '{} [y/N]: '.format(message)
-    choice = raw_input(message).lower()
+def interactive_confirm(message, default=False, input_func=None):
+    if input_func is None:
+        input_func = lambda m: raw_input(m).lower()
+
+    choices = 'Y/n' if default is True else 'y/N'
+    message = '{} [{}]: '.format(message, choices)
+    choice = input_func(message)
     if choice == 'y':
         return True
-    return False
+    elif choice == 'n':
+        return False
+    return default
 
 
 def walk(node, callback, parent_key=None):

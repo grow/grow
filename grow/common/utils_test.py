@@ -42,6 +42,76 @@ class UtilsTestCase(unittest.TestCase):
         actual = utils.every_two(raw_input)
         self.assertEqual(expected, actual)
 
+    def test_interactive_confirm(self):
+        message = {'m': ''} # Use dict since nonlocal missing in python 2.x
+        confirm = 'Sure?'
+        confirm_no = 'Sure? [y/N]: '
+        confirm_yes = 'Sure? [Y/n]: '
+        confirm_none = confirm_no
+        def input_no(m):
+            message['m'] = m
+            return 'n'
+        def input_none(m):
+            message['m'] = m
+            return ''
+        def input_yes(m):
+            message['m'] = m
+            return 'y'
+
+        # Should be false when nothing input.
+        self.assertEqual(
+            False,
+            utils.interactive_confirm(confirm, input_func=input_none))
+        self.assertEqual(confirm_none, message['m'])
+
+        # Should be true when true input.
+        self.assertEqual(
+            True,
+            utils.interactive_confirm(confirm, input_func=input_yes))
+        self.assertEqual(confirm_none, message['m'])
+
+        # Should be false when false input.
+        self.assertEqual(
+            False,
+            utils.interactive_confirm(confirm, input_func=input_no))
+        self.assertEqual(confirm_none, message['m'])
+
+        # Should be false when nothing input, default true.
+        self.assertEqual(
+            False,
+            utils.interactive_confirm(confirm, default=False, input_func=input_none))
+        self.assertEqual(confirm_no, message['m'])
+
+        # Should be true when true input, default true.
+        self.assertEqual(
+            True,
+            utils.interactive_confirm(confirm, default=False, input_func=input_yes))
+        self.assertEqual(confirm_no, message['m'])
+
+        # Should be false when false input, default true.
+        self.assertEqual(
+            False,
+            utils.interactive_confirm(confirm, default=False, input_func=input_no))
+        self.assertEqual(confirm_no, message['m'])
+
+        # Should be false when nothing input, default true.
+        self.assertEqual(
+            True,
+            utils.interactive_confirm(confirm, default=True, input_func=input_none))
+        self.assertEqual(confirm_yes, message['m'])
+
+        # Should be true when true input, default true.
+        self.assertEqual(
+            True,
+            utils.interactive_confirm(confirm, default=True, input_func=input_yes))
+        self.assertEqual(confirm_yes, message['m'])
+
+        # Should be false when false input, default true.
+        self.assertEqual(
+            False,
+            utils.interactive_confirm(confirm, default=True, input_func=input_no))
+        self.assertEqual(confirm_yes, message['m'])
+
     def test_parse_yaml(self):
         pod = testing.create_test_pod()
         content = pod.read_file('/data/constructors.yaml')
