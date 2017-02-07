@@ -12,16 +12,6 @@ import markdown
 import re
 import sys
 
-class DependencyStream(object):
-    def __init__(self):
-        self.stream = set()
-
-    def add(self, item):
-        self.stream.add(item)
-
-    def read_all(self):
-        return self.stream
-
 
 def categories(collection=None, collections=None, reverse=None, order_by=None,
                locale=utils.SENTINEL, _pod=None, use_cache=False):
@@ -263,10 +253,10 @@ def create_builtin_filters():
         ('relative', relative_filter),
     )
 
-def create_template_tags(pod, stream, use_cache=False):
+def create_template_tags(pod, log, use_cache=False):
     def wrap(func, index=0):
         def wrapper(*args, **kwds):
-            stream.add(args[index])
+            log.add(args[index])
             return func(*args, _pod=pod, use_cache=use_cache, **kwds)
         return wrapper
     return {

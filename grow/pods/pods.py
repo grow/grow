@@ -2,6 +2,7 @@
 
 from . import catalog_holder
 from . import collection
+from . import dependency
 from . import env as environment
 from . import locales
 from . import messages
@@ -183,6 +184,7 @@ class Pod(object):
         output = {}
         routes = self.get_routes()
         paths = []
+        dep_graph = dependency.DependencyGraph()
         for items in routes.get_locales_to_paths().values():
             paths += items
         text = 'Building: %(value)d/{} (in %(elapsed)s)'
@@ -200,6 +202,8 @@ class Pod(object):
         error_controller = routes.match_error('/404.html')
         if error_controller:
             output['/404.html'] = error_controller.render({})
+        output['/.grow/dependencies.yaml'] = utils.dump_yaml(
+            dep_graph.get_all_dependencies())
         bar.finish()
         return output
 

@@ -1,6 +1,7 @@
 from . import controllers
 from . import messages
 from grow.common import utils
+from grow.pods import dependency
 from grow.pods import env
 from grow.pods import errors
 from grow.pods import tags
@@ -53,8 +54,8 @@ class RenderedController(controllers.BaseController):
             # Creating a local stream and tags to be able to use a separate
             # dependency stream for each page render. Allows for the rendering
             # to be done in a threaded manner.
-            dep_stream = tags.DependencyStream()
-            local_tags = tags.create_template_tags(self.pod, dep_stream)
+            dep_log = dependency.DependencyLog()
+            local_tags = tags.create_template_tags(self.pod, dep_log)
             local_tags.update(self.pod.get_jinja_env().globals['g'])
             kwargs = {
                 'doc': self.doc,
@@ -63,13 +64,11 @@ class RenderedController(controllers.BaseController):
                 'podspec': self.pod.get_podspec(),
             }
             content = template.render(kwargs).lstrip()
-            dependencies = dep_stream.read_all()
+            deps = dep_log.read_all()
             content = self._inject_ui(
                 content, preprocessor, translator)
-            if dependencies:
-                print '{}: {}'.format(self.view, dependencies)
-            # TODO: Return the dependencies with the content so a dependency
-            # graph can be built for the content.
+            if deps:
+                print '{}: {}'.format(self.view, deps)
             return content
         except Exception as e:
             text = 'Error building {}: {}'
