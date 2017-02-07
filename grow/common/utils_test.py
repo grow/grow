@@ -1,5 +1,6 @@
 from grow.testing import testing
 from grow.common.sdk_utils import get_this_version, LatestVersionCheckError
+from grow.pods import errors
 from . import utils
 import copy
 import mock
@@ -474,6 +475,22 @@ class UtilsTestCase(unittest.TestCase):
                 'nested': 'nested-base',
             },
         }, utils.untag_fields(fields, locale='de'))
+
+    def test_validate_name(self):
+        with self.assertRaises(errors.BadNameError):
+            utils.validate_name('//you/shall/not/pass')
+
+        with self.assertRaises(errors.BadNameError):
+            utils.validate_name('../you/shall/not/pass')
+
+        with self.assertRaises(errors.BadNameError):
+            utils.validate_name('/you/shall not/pass')
+
+        utils.validate_name('c:\you\shall\pass')
+        utils.validate_name('/you/shall/pass')
+        utils.validate_name('you/shall/pass')
+        utils.validate_name('./you/shall/pass')
+        utils.validate_name(u'\xbe4/\xb05/\xb93')
 
     def test_version_enforcement(self):
         with mock.patch('grow.pods.pods.Pod.grow_version',
