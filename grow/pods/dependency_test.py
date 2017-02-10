@@ -77,6 +77,17 @@ class DependencyGraphTestCase(unittest.TestCase):
         graph = dependency.DependencyGraph()
         self.assertEqual(set(), graph.get_dependencies('/content/test.yaml'))
 
+    def test_reset(self):
+        graph = dependency.DependencyGraph()
+        graph.add_references(
+            '/content/test.yaml',
+            ['/content/test1.yaml', '/content/test2.yaml'])
+        self.assertEqual(
+            set(['/content/test1.yaml', '/content/test2.yaml']),
+            graph.get_dependencies('/content/test.yaml'))
+        graph.reset()
+        self.assertEqual(set(), graph.get_dependencies('/content/test.yaml'))
+
 
 class DependencyLogTestCase(unittest.TestCase):
 

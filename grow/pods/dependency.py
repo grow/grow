@@ -12,8 +12,7 @@ class BadFieldsError(Error, ValueError):
 
 class DependencyGraph(object):
     def __init__(self):
-        self._dependents = {}
-        self._dependencies = {}
+        self.reset()
 
     def add_all(self, data):
         """Add all from a data source."""
@@ -53,6 +52,10 @@ class DependencyGraph(object):
 
     def get_dependencies(self, source):
         return self._dependencies.get(source, set())
+
+    def reset(self):
+        self._dependents = {}
+        self._dependencies = {}
 
 
 class DependencyLog(object):
