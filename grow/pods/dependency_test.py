@@ -1,5 +1,4 @@
 from . import dependency
-from grow.testing import testing
 import unittest
 
 

@@ -28,7 +28,7 @@ class BuiltinsTestCase(unittest.TestCase):
 
     def test_json(self):
         controller, params = self.pod.match('/yaml_test/')
-        html, _ = controller.render(params)
+        html = controller.render(params)
         self.assertIn('key - value', html)
         self.assertIn('key2 - value2', html)
 

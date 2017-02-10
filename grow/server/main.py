@@ -72,7 +72,7 @@ def serve_pod(pod, request, values):
     headers = controller.get_http_headers(params)
     if 'X-AppEngine-BlobKey' in headers:
         return Response(headers=headers)
-    content, _ = controller.render(params)
+    content = controller.render(params)
     response = Response(body=content)
     response.headers.update(headers)
     return response

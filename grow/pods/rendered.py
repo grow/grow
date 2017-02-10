@@ -1,11 +1,11 @@
 from . import controllers
+from . import dependency
+from . import env
+from . import errors
 from . import messages
+from . import tags
+from . import ui
 from grow.common import utils
-from grow.pods import dependency
-from grow.pods import env
-from grow.pods import errors
-from grow.pods import tags
-from grow.pods import ui
 import mimetypes
 import sys
 
@@ -67,7 +67,12 @@ class RenderedController(controllers.BaseController):
             deps = dep_log.read_all()
             content = self._inject_ui(
                 content, preprocessor, translator)
-            return content, deps
+
+            # Add all the dependencies detected during render to the graph.
+            self.pod.podcache.dependency_graph.add_references(
+                self.doc.pod_path, deps)
+
+            return content
         except Exception as e:
             text = 'Error building {}: {}'
             exception = errors.BuildError(text.format(self, e))
