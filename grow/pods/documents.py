@@ -375,3 +375,23 @@ class Document(object):
         content = self.content if self.exists else ''
         new_content = formats.Format.update(content, fields=fields, body=body)
         self.pod.write_file(self.pod_path, new_content)
+
+
+class DocumentCache(object):
+
+    def __init__(self, _pod):
+        self._pod = _pod
+        self.reset()
+
+    def export(self):
+        result = {}
+
+        return result
+
+    def get_doc(self, pod_path, locale=None, _collection=None):
+        # TODO: Make a lazy document.
+        return Document(
+            pod_path, locale=locale, _pod=self._pod, _collection=_collection)
+
+    def reset(self):
+        self._documents = {}

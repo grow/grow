@@ -244,8 +244,8 @@ class Collection(object):
             localized_path = formats.Format.localize_path(pod_path, locale)
             if self.pod.file_exists(localized_path):
                 pod_path = localized_path
-        return documents.Document(pod_path, locale=locale, _pod=self.pod,
-                                  _collection=self)
+        return self.pod.podcache.document_cache.get_doc(
+            pod_path, locale=locale, _collection=self)
 
     def list_categories(self):
         return self._get_builtin_field('categories') or []
