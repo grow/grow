@@ -229,8 +229,6 @@ def create_builtin_tags(pod, use_cache=False):
         'categories': wrap(categories),
         'csv': wrap(csv),
         'date': wrap(date),
-        'doc': wrap(get_doc),
-        'docs': wrap(docs),
         'json': wrap(json),
         'locale': wrap(locale),
         'locales': wrap(locales),
@@ -254,3 +252,14 @@ def create_builtin_filters():
         ('time', babel_dates.format_time),
         ('relative', relative_filter),
     )
+
+def create_doc_tags(pod, doc, use_cache=False):
+    def wrap(func, index=0):
+        def wrapper(*args, **kwds):
+            pod.podcache.dependency_graph.add(doc.pod_path, args[index])
+            return func(*args, _pod=pod, use_cache=use_cache, **kwds)
+        return wrapper
+    return {
+        'doc': wrap(get_doc),
+        'docs': wrap(docs),
+    }

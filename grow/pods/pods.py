@@ -5,6 +5,7 @@ from . import collection
 from . import env as environment
 from . import locales
 from . import messages
+from . import podcache
 from . import podspec
 from . import routes
 from . import static
@@ -40,14 +41,13 @@ class PodDoesNotExistError(Error, IOError):
     pass
 
 
-class PodSpecParseError(Error):
-    pass
-
-
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
 
 class Pod(object):
+
+    FILE_PODCACHE = '.podcache.yaml'
+    FILE_PODSPEC = 'podspec.yaml'
 
     def __eq__(self, other):
         return (isinstance(self, Pod)
@@ -86,14 +86,26 @@ class Pod(object):
         return os.path.join(self.root, pod_path.lstrip('/'))
 
     @utils.memoize
-    def _parse_yaml(self):
+    def _parse_cache_yaml(self):
+        podcache_file_name = '/{}'.format(self.FILE_PODCACHE)
+        if not self.file_exists(podcache_file_name):
+            return
         try:
-            return utils.parse_yaml(self.read_file('/podspec.yaml'))
+            return utils.parse_yaml(self.read_file(podcache_file_name))
         except IOError as e:
-            path = self.abs_path('/podspec.yaml')
+            path = self.abs_path(podcache_file_name)
+            raise podcache.PodCacheParseError('Error parsing: {}'.format(path))
+
+    @utils.memoize
+    def _parse_yaml(self):
+        podspec_file_name = '/{}'.format(self.FILE_PODSPEC)
+        try:
+            return utils.parse_yaml(self.read_file(podspec_file_name))
+        except IOError as e:
+            path = self.abs_path(podspec_file_name)
             if e.args[0] == 2 and e.filename:
                 raise PodDoesNotExistError('Pod not found in: {}'.format(path))
-            raise PodSpecParseError('Error parsing: {}'.format(path))
+            raise podspec.PodSpecParseError('Error parsing: {}'.format(path))
 
     @utils.cached_property
     def cache(self):
@@ -107,7 +119,7 @@ class Pod(object):
 
     @property
     def exists(self):
-        return self.file_exists('/podspec.yaml')
+        return self.file_exists('/{}'.format(self.FILE_PODSPEC))
 
     @property
     def flags(self):
@@ -117,9 +129,13 @@ class Pod(object):
     def grow_version(self):
         return self.podspec.grow_version
 
+    @utils.cached_property
+    def podcache(self):
+        return podcache.PodCache(yaml=self._parse_cache_yaml() or {}, pod=self)
+
     @property
     def podspec(self):
-        return podspec.Podspec(yaml=self.yaml, pod=self)
+        return podspec.PodSpec(yaml=self.yaml, pod=self)
 
     @property
     def title(self):
@@ -183,6 +199,7 @@ class Pod(object):
         output = {}
         routes = self.get_routes()
         paths = []
+        self.podcache.dependency_graph.reset()
         for items in routes.get_locales_to_paths().values():
             paths += items
         text = 'Building: %(value)d/{} (in %(elapsed)s)'
@@ -201,6 +218,7 @@ class Pod(object):
         if error_controller:
             output['/404.html'] = error_controller.render({})
         bar.finish()
+        self.podcache.write()
         return output
 
     def export_ui(self):
@@ -355,7 +373,8 @@ class Pod(object):
                                              fingerprinted=controller.fingerprinted,
                                              localization=controller.localization)
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
-                'not configured for this path in podspec.yaml.'.format(pod_path))
+                'not configured for this path in {}.'.format(
+                    pod_path, self.FILE_PODSPEC))
         raise static.BadStaticFileError(text)
 
     def get_podspec(self):

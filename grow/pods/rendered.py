@@ -1,9 +1,11 @@
 from . import controllers
+from . import dependency
+from . import env
+from . import errors
 from . import messages
+from . import tags
+from . import ui
 from grow.common import utils
-from grow.pods import env
-from grow.pods import errors
-from grow.pods import ui
 import mimetypes
 import sys
 
@@ -49,8 +51,11 @@ class RenderedController(controllers.BaseController):
         env = self.pod.get_jinja_env(self.locale)
         template = env.get_template(self.view.lstrip('/'))
         try:
+            local_tags = tags.create_doc_tags(self.pod, self.doc)
+            local_tags.update(self.pod.get_jinja_env().globals['g'])
             kwargs = {
                 'doc': self.doc,
+                'g': local_tags,
                 'env': self.pod.env,
                 'podspec': self.pod.get_podspec(),
             }
