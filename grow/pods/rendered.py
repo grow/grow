@@ -51,7 +51,7 @@ class RenderedController(controllers.BaseController):
         env = self.pod.get_jinja_env(self.locale)
         template = env.get_template(self.view.lstrip('/'))
         try:
-            local_tags = tags.create_template_tags(self.pod, self.doc.pod_path)
+            local_tags = tags.create_doc_tags(self.pod, self.doc)
             local_tags.update(self.pod.get_jinja_env().globals['g'])
             kwargs = {
                 'doc': self.doc,
