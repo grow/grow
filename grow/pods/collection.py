@@ -19,11 +19,11 @@ class Error(Exception):
     pass
 
 
-class CollectionNotEmptyError(Error):
+class BadCollectionNameError(Error, ValueError):
     pass
 
 
-class BadCollectionNameError(Error, ValueError):
+class BadFieldsError(Error, ValueError):
     pass
 
 
@@ -35,7 +35,7 @@ class CollectionExistsError(Error):
     pass
 
 
-class BadFieldsError(Error, ValueError):
+class CollectionNotEmptyError(Error):
     pass
 
 
@@ -46,7 +46,18 @@ class NoLocalesError(Error):
 class Collection(object):
     CONTENT_PATH = '/content'
     BLUEPRINT_PATH = '_blueprint.yaml'
+
     _content_path_regex = re.compile('^' + CONTENT_PATH + '/?')
+
+    def __eq__(self, other):
+        return (isinstance(other, Collection)
+                and self.collection_path == other.collection_path)
+
+    def __getattr__(self, name):
+        try:
+            return self.fields[name]
+        except KeyError:
+            return object.__getattribute__(self, name)
 
     def __init__(self, pod_path, _pod):
         utils.validate_name(pod_path)
@@ -58,71 +69,42 @@ class Collection(object):
         self._blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
 
-    def __repr__(self):
-        return '<Collection "{}">'.format(self.collection_path)
-
-    def __eq__(self, other):
-        return (isinstance(other, Collection)
-                and self.collection_path == other.collection_path)
-
     def __iter__(self):
         for doc in self.list_docs():
             yield doc
 
-    def __getattr__(self, name):
-        try:
-            return self.fields[name]
-        except KeyError:
-            return object.__getattribute__(self, name)
+    def __repr__(self):
+        return '<Collection "{}">'.format(self.collection_path)
 
-    @utils.cached_property
-    def fields(self):
-        fields = utils.untag_fields(self.tagged_fields)
-        return {} if not fields else fields
+    def _add_localized_docs(self, sorted_docs, pod_path, locale, doc):
+        for each_locale in doc.locales:
+            if each_locale == doc.default_locale and locale != each_locale:
+                continue
+            base, ext = os.path.splitext(pod_path)
+            localized_file_path = '{}@{}{}'.format(base, each_locale, ext)
+            if (locale in [utils.SENTINEL, each_locale]
+                    and not self.pod.file_exists(localized_file_path)):
+                new_doc = doc.localize(each_locale)
+                sorted_docs.insert(new_doc)
 
-    @property
-    def tagged_fields(self):
-        return copy.deepcopy(self.yaml)
+    def _get_builtin_field(self, name):
+        """Returns a builtin field, which is a field prefixed with a `$`. To be
+        backwards compatible with the legacy recommendation, we return the
+        field unprefixed with `$` if a prefixed field cannot be found."""
+        return self.fields.get('${}'.format(name), self.fields.get(name))
 
-    @utils.cached_property
-    def default_locale(self):
-        if self.localization and 'default_locale' in self.localization:
-            locale = self.localization['default_locale']
-        else:
-            locale = self.pod.podspec.default_locale
-        locale = locales.Locale.parse(locale)
-        if locale:
-            locale.set_alias(self.pod)
-        return locale
-
-    @classmethod
-    def list(cls, pod):
-        items = []
-        for root, dirs, _ in pod.walk(cls.CONTENT_PATH + '/'):
-            for dir_name in dirs:
-                pod_path = os.path.join(root, dir_name)
-                pod_path = pod_path.replace(pod.root, '')
-                col_path = os.path.join(pod_path, '_blueprint.yaml')
-                if pod.file_exists(col_path):
-                    items.append(pod.get_collection(pod_path))
-        return items
-
-    def collections(self):
-        """Returns collections contained within this collection. Implemented
-        as a function to allow future implementation of arguments."""
-        items = []
-        for root, dirs, _ in self.pod.walk(self.pod_path):
-            if root == self.pod.abs_path(self.pod_path):
-                for dir_name in dirs:
-                    pod_path = os.path.join(self.pod_path, dir_name)
-                    items.append(self.pod.get_collection(pod_path))
-        return items
-
-    @property
-    def exists(self):
-        """Returns whether the collection exists, as determined by whether
-        the collection's blueprint exists."""
-        return self.pod.file_exists(self._blueprint_path)
+    def _owns_doc_at_path(self, pod_path):
+        dir_name = os.path.dirname(pod_path)
+        doc_blueprint_path = os.path.join(dir_name, '_blueprint.yaml')
+        if doc_blueprint_path == self._blueprint_path:
+            return True
+        parts = pod_path.split(os.sep)
+        for i, part in enumerate(parts):
+            path = os.sep.join(parts[:-i])
+            doc_blueprint_path = os.path.join(path, '_blueprint.yaml')
+            if self.pod.file_exists(doc_blueprint_path):
+                return doc_blueprint_path == self._blueprint_path
+        return False
 
     @classmethod
     def create(cls, collection_path, fields, pod):
@@ -139,58 +121,52 @@ class Collection(object):
         """Returns a collection object."""
         return cls(collection_path, _pod)
 
-    def get_doc(self, pod_path, locale=None):
-        """Returns a document contained in this collection."""
-        if locale is not None:
-            localized_path = formats.Format.localize_path(pod_path, locale)
-            if self.pod.file_exists(localized_path):
-                pod_path = localized_path
-        return documents.Document(pod_path, locale=locale, _pod=self.pod,
-                                  _collection=self)
+    @classmethod
+    def list(cls, pod):
+        items = []
+        for root, dirs, _ in pod.walk(cls.CONTENT_PATH + '/'):
+            for dir_name in dirs:
+                pod_path = os.path.join(root, dir_name)
+                pod_path = pod_path.replace(pod.root, '')
+                col_path = os.path.join(pod_path, '_blueprint.yaml')
+                if pod.file_exists(col_path):
+                    items.append(pod.get_collection(pod_path))
+        return items
 
-    def create_doc(self, basename, fields=utils.SENTINEL, body=utils.SENTINEL):
-        """Creates a document within the collection."""
-        doc_pod_path = os.path.join(self.pod_path, basename)
-        doc = self.get_doc(doc_pod_path)
-        doc.write(fields=fields, body=body)
-        return doc
-
-    @property
-    @utils.memoize
-    def yaml(self):
-        if not self.exists:
-            return {}
-        result = utils.parse_yaml(self.pod.read_file(self._blueprint_path))
-        if result is None:
-            return {}
-        return result
-
-    def _get_builtin_field(self, name):
-        """Returns a builtin field, which is a field prefixed with a `$`. To be
-        backwards compatible with the legacy recommendation, we return the
-        field unprefixed with `$` if a prefixed field cannot be found."""
-        return self.fields.get('${}'.format(name), self.fields.get(name))
-
-    def list_categories(self):
-        return self._get_builtin_field('categories') or []
+    @utils.cached_property
+    def default_locale(self):
+        if self.localization and 'default_locale' in self.localization:
+            locale = self.localization['default_locale']
+        else:
+            locale = self.pod.podspec.default_locale
+        locale = locales.Locale.parse(locale)
+        if locale:
+            locale.set_alias(self.pod)
+        return locale
 
     @property
-    def title(self):
-        return self._get_builtin_field('title')
+    def exists(self):
+        """Returns whether the collection exists, as determined by whether
+        the collection's blueprint exists."""
+        return self.pod.file_exists(self._blueprint_path)
 
-    def titles(self, title_name=None):
-        if title_name is None:
-            return self.title
-        titles = self.fields.get('$titles', {})
-        return titles.get(title_name, self.title)
+    @utils.cached_property
+    def fields(self):
+        fields = utils.untag_fields(self.tagged_fields)
+        return {} if not fields else fields
 
-    @property
-    def root(self):
-        return self._get_builtin_field('root')
-
-    @property
-    def view(self):
-        return self._get_builtin_field('view')
+    @utils.cached_property
+    def locales(self):
+        localized = ('$localization' in self.fields
+                     or 'localization' in self.fields)
+        if localized:
+            # Disable localization with $localization:~.
+            if self.localization is None:
+                return []
+            if 'locales' in self.localization:
+                codes = self.localization['locales'] or []
+                return locales.Locale.parse_codes(codes)
+        return self.pod.list_locales()
 
     @property
     def localization(self):
@@ -202,15 +178,59 @@ class Collection(object):
         return self.fields.get('$order', sys.maxint)
 
     @property
-    def path_format(self):
-        return self._get_builtin_field('path')
-
-    @property
     def parent(self):
         parent_pod_path = os.path.normpath(self.pod_path[:-len(self.basename)])
         if parent_pod_path == Collection.CONTENT_PATH:
             return
         return self.pod.get_collection(parent_pod_path)
+
+    @property
+    def path_format(self):
+        return self._get_builtin_field('path')
+
+    @property
+    def root(self):
+        return self._get_builtin_field('root')
+
+    @property
+    def tagged_fields(self):
+        return copy.deepcopy(self.yaml)
+
+    @property
+    def title(self):
+        return self._get_builtin_field('title')
+
+    @property
+    def view(self):
+        return self._get_builtin_field('view')
+
+    @property
+    @utils.memoize
+    def yaml(self):
+        if not self.exists:
+            return {}
+        result = utils.parse_yaml(self.pod.read_file(self._blueprint_path))
+        if result is None:
+            return {}
+        return result
+
+    def create_doc(self, basename, fields=utils.SENTINEL, body=utils.SENTINEL):
+        """Creates a document within the collection."""
+        doc_pod_path = os.path.join(self.pod_path, basename)
+        doc = self.get_doc(doc_pod_path)
+        doc.write(fields=fields, body=body)
+        return doc
+
+    def collections(self):
+        """Returns collections contained within this collection. Implemented
+        as a function to allow future implementation of arguments."""
+        items = []
+        for root, dirs, _ in self.pod.walk(self.pod_path):
+            if root == self.pod.abs_path(self.pod_path):
+                for dir_name in dirs:
+                    pod_path = os.path.join(self.pod_path, dir_name)
+                    items.append(self.pod.get_collection(pod_path))
+        return items
 
     def delete(self):
         if len(self.list_docs(include_hidden=True)):
@@ -218,18 +238,22 @@ class Collection(object):
             raise CollectionNotEmptyError(text)
         self.pod.delete_file(self._blueprint_path)
 
-    def _owns_doc_at_path(self, pod_path):
-        dir_name = os.path.dirname(pod_path)
-        doc_blueprint_path = os.path.join(dir_name, '_blueprint.yaml')
-        if doc_blueprint_path == self._blueprint_path:
-            return True
-        parts = pod_path.split(os.sep)
-        for i, part in enumerate(parts):
-            path = os.sep.join(parts[:-i])
-            doc_blueprint_path = os.path.join(path, '_blueprint.yaml')
-            if self.pod.file_exists(doc_blueprint_path):
-                return doc_blueprint_path == self._blueprint_path
-        return False
+    # Aliases `collection.docs` to `collection.list_docs`. `collection.docs`
+    # should be the public and supported way to retrieve documents from a
+    # collection.
+    docs = list_docs
+
+    def get_doc(self, pod_path, locale=None):
+        """Returns a document contained in this collection."""
+        if locale is not None:
+            localized_path = formats.Format.localize_path(pod_path, locale)
+            if self.pod.file_exists(localized_path):
+                pod_path = localized_path
+        return documents.Document(pod_path, locale=locale, _pod=self.pod,
+                                  _collection=self)
+
+    def list_categories(self):
+        return self._get_builtin_field('categories') or []
 
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
                   include_hidden=False, recursive=True, inject=False):
@@ -280,22 +304,6 @@ class Collection(object):
                 raise
         return reversed(sorted_docs) if reverse else sorted_docs
 
-    # Aliases `collection.docs` to `collection.list_docs`. `collection.docs`
-    # should be the public and supported way to retrieve documents from a
-    # collection.
-    docs = list_docs
-
-    def _add_localized_docs(self, sorted_docs, pod_path, locale, doc):
-        for each_locale in doc.locales:
-            if each_locale == doc.default_locale and locale != each_locale:
-                continue
-            base, ext = os.path.splitext(pod_path)
-            localized_file_path = '{}@{}{}'.format(base, each_locale, ext)
-            if (locale in [utils.SENTINEL, each_locale]
-                    and not self.pod.file_exists(localized_file_path)):
-                new_doc = doc.localize(each_locale)
-                sorted_docs.insert(new_doc)
-
     def list_servable_documents(self, include_hidden=False, locales=None, inject=None):
         docs = []
         inject = False if inject is None else inject
@@ -308,18 +316,11 @@ class Collection(object):
             docs.append(doc)
         return docs
 
-    @utils.cached_property
-    def locales(self):
-        localized = ('$localization' in self.fields
-                     or 'localization' in self.fields)
-        if localized:
-            # Disable localization with $localization:~.
-            if self.localization is None:
-                return []
-            if 'locales' in self.localization:
-                codes = self.localization['locales'] or []
-                return locales.Locale.parse_codes(codes)
-        return self.pod.list_locales()
+    def titles(self, title_name=None):
+        if title_name is None:
+            return self.title
+        titles = self.fields.get('$titles', {})
+        return titles.get(title_name, self.title)
 
     def to_message(self):
         message = messages.CollectionMessage()
