@@ -14,11 +14,11 @@ class Error(Exception):
     pass
 
 
-class GrowConverter(routing.PathConverter):
+class DuplicatePathsError(Error, ValueError):
     pass
 
 
-class DuplicatePathsError(Error, ValueError):
+class GrowConverter(routing.PathConverter):
     pass
 
 
@@ -33,19 +33,6 @@ class Routes(object):
 
     def __iter__(self):
         return self.routing_map.iter_rules()
-
-    @property
-    def podspec(self):
-        return self.pod.get_podspec().get_config()
-
-    def reset_cache(self, rebuild=True, inject=False):
-        if rebuild:
-            self._build_routing_map(inject=False)
-
-    def get_doc(self, path, locale=None):
-        if isinstance(locale, basestring):
-            locale = locales.Locale(locale)
-        return self._paths_to_locales_to_docs.get(path, {}).get(locale)
 
     def _build_routing_map(self, inject=False):
         new_paths_to_locales_to_docs = collections.defaultdict(dict)
@@ -80,16 +67,8 @@ class Routes(object):
         return [rule.empty() for rule in rules]
 
     @property
-    def static_routing_map(self):
-        if self._static_routing_map is None:
-            self._build_static_routing_map_and_return_rules()
-        return self._static_routing_map
-
-    @property
-    def routing_map(self):
-        if self._routing_map is None:
-            return self._build_routing_map()
-        return self._routing_map
+    def podspec(self):
+        return self.pod.get_podspec().get_config()
 
     def format_path(self, path):
         path = '' if path is None else path
@@ -99,6 +78,39 @@ class Routes(object):
         path = path.replace('{fingerprint}', '<grow:fingerprint>')
         path = path.replace('//', '/')
         return path
+
+    def get_controllers_to_paths(self):
+        controllers_to_paths = collections.defaultdict(list)
+        for route in self:
+            controller = route.endpoint
+            name = str(controller)
+            paths = controller.list_concrete_paths()
+            controllers_to_paths[name] += paths
+            controllers_to_paths[name].sort()
+        return controllers_to_paths
+
+    def get_doc(self, path, locale=None):
+        if isinstance(locale, basestring):
+            locale = locales.Locale(locale)
+        return self._paths_to_locales_to_docs.get(path, {}).get(locale)
+
+    def get_locales_to_paths(self):
+        locales_to_paths = collections.defaultdict(list)
+        for route in self:
+            controller = route.endpoint
+            paths = controller.list_concrete_paths()
+            locale = controller.locale
+            locales_to_paths[locale] += paths
+        return locales_to_paths
+
+    @utils.memoize
+    def list_concrete_paths(self):
+        paths = set()
+        for route in self:
+            controller = route.endpoint
+            new_paths = set(controller.list_concrete_paths())
+            paths.update(new_paths)
+        return list(paths)
 
     def list_static_routes(self):
         rules = []
@@ -172,33 +184,21 @@ class Routes(object):
             view = self.pod.error_routes.get('default')
             return rendered.RenderedController(view=view, _pod=self.pod)
 
-    def get_locales_to_paths(self):
-        locales_to_paths = collections.defaultdict(list)
-        for route in self:
-            controller = route.endpoint
-            paths = controller.list_concrete_paths()
-            locale = controller.locale
-            locales_to_paths[locale] += paths
-        return locales_to_paths
+    def reset_cache(self, rebuild=True, inject=False):
+        if rebuild:
+            self._build_routing_map(inject=False)
 
-    def get_controllers_to_paths(self):
-        controllers_to_paths = collections.defaultdict(list)
-        for route in self:
-            controller = route.endpoint
-            name = str(controller)
-            paths = controller.list_concrete_paths()
-            controllers_to_paths[name] += paths
-            controllers_to_paths[name].sort()
-        return controllers_to_paths
+    @property
+    def routing_map(self):
+        if self._routing_map is None:
+            return self._build_routing_map()
+        return self._routing_map
 
-    @utils.memoize
-    def list_concrete_paths(self):
-        paths = set()
-        for route in self:
-            controller = route.endpoint
-            new_paths = set(controller.list_concrete_paths())
-            paths.update(new_paths)
-        return list(paths)
+    @property
+    def static_routing_map(self):
+        if self._static_routing_map is None:
+            self._build_static_routing_map_and_return_rules()
+        return self._static_routing_map
 
     def to_message(self):
         message = messages.RoutesMessage()

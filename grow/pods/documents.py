@@ -14,10 +14,6 @@ class Error(Exception):
     pass
 
 
-class PathFormatError(Error, ValueError):
-    pass
-
-
 class DocumentDoesNotExistError(Error, ValueError):
     pass
 
@@ -26,7 +22,27 @@ class DocumentExistsError(Error, ValueError):
     pass
 
 
+class PathFormatError(Error, ValueError):
+    pass
+
+
 class Document(object):
+
+    def __cmp__(self, other):
+        return self.pod_path == other.pod_path and self.pod == other.pod
+
+    def __eq__(self, other):
+        return (isinstance(self, Document)
+                and isinstance(other, Document)
+                and self.pod_path == other.pod_path)
+
+    def __getattr__(self, name):
+        if name == 'locale':
+            return self._locale_kwarg
+        try:
+            return self.fields[name]
+        except KeyError:
+            return object.__getattribute__(self, name)
 
     def __init__(self, pod_path, _pod, locale=None, _collection=None):
         self._locale_kwarg = locale
@@ -39,22 +55,43 @@ class Document(object):
         self.collection = _collection
         self._locale = utils.SENTINEL
 
+    def __ne__(self, other):
+        return self.pod_path != other.pod_path or self.pod != other.pod
+
     def __repr__(self):
         if self.locale:
             return "<Document({}, locale='{}')>".format(self.pod_path, self.locale)
         return "<Document({})>".format(self.pod_path)
 
-    def __cmp__(self, other):
-        return self.pod_path == other.pod_path and self.pod == other.pod
+    @classmethod
+    def _clean_basename(cls, pod_path):
+        pod_path, _ = formats.Format.parse_localized_path(pod_path)
+        return os.path.basename(pod_path)
 
-    def __ne__(self, other):
-        return self.pod_path != other.pod_path or self.pod != other.pod
-
-    @utils.cached_property
-    def locale(self):
-        if self._locale is utils.SENTINEL:
-            self._locale = self._init_locale(self._locale_kwarg, self.pod_path)
-        return self._locale
+    def _format_path(self, path_format):
+        podspec = self.pod.get_podspec()
+        locale = self.locale.alias if self.locale is not None else self.locale
+        formatters = {
+            'base': self.base,
+            'category': self.category,
+            'collection.basename': self.collection.basename,
+            'collection.root': self.collection.root,
+            'env.fingerpint': self.pod.env.fingerprint,
+            'locale': locale,
+            'parent': self.parent if self.parent else utils.DummyDict(),
+            'root': podspec.root,
+            'slug': self.slug,
+        }
+        if '{date' in path_format:
+            if isinstance(self.date, datetime.datetime):
+                formatters['date'] = self.date.date()
+            else:
+                formatters['date'] = self.date
+        if '|lower' in path_format:
+            for key, value in formatters.items():
+                if isinstance(value, basestring):
+                    formatters['{}|lower'.format(key)] = value.lower()
+        return path_format.format(**formatters).replace('//', '/')
 
     def _init_locale(self, locale, pod_path):
         try:
@@ -70,23 +107,22 @@ class Document(object):
             else:
                 raise
 
-    def __eq__(self, other):
-        return (isinstance(self, Document)
-                and isinstance(other, Document)
-                and self.pod_path == other.pod_path)
+    @property
+    @utils.memoize
+    def body(self):
+        return self.format.body.decode('utf-8') if self.format.body else None
 
-    def __getattr__(self, name):
-        if name == 'locale':
-            return self._locale_kwarg
-        try:
-            return self.fields[name]
-        except KeyError:
-            return object.__getattribute__(self, name)
+    @property
+    def category(self):
+        return self.fields.get('$category')
 
-    @classmethod
-    def _clean_basename(cls, pod_path):
-        pod_path, _ = formats.Format.parse_localized_path(pod_path)
-        return os.path.basename(pod_path)
+    @property
+    def content(self):
+        return self.format.content.decode('utf-8')
+
+    @property
+    def date(self):
+        return self.fields.get('$date')
 
     @utils.cached_property
     def default_locale(self):
@@ -99,6 +135,10 @@ class Document(object):
             return locale
         return self.collection.default_locale
 
+    @property
+    def exists(self):
+        return self.pod.file_exists(self.pod_path)
+
     @utils.cached_property
     def fields(self):
         identifier = self._locale_kwarg or self.collection.default_locale
@@ -106,89 +146,49 @@ class Document(object):
         fields = utils.untag_fields(tagged_fields, locale=str(identifier))
         return {} if not fields else fields
 
-    def get_tagged_fields(self):
-        format = formats.Format.get(self)
-        return format.fields
-
     @utils.cached_property
     def format(self):
         return formats.Format.get(self)
 
+    @property
+    def hidden(self):
+        return self.fields.get('$hidden', False)
+
+    @property
+    def html(self):
+        return self.format.html
+
     @utils.cached_property
-    def virtual_key(self):
-        last_mod = 0
-        try:
-            last_mod = self.pod.file_modified(self.pod_path)
-        except OSError:
-            pass
-        return "{0}|{1}|{2}"\
-            .format(self.root_pod_path,
-                    self._locale_kwarg,
-                    last_mod)
+    def locale(self):
+        if self._locale is utils.SENTINEL:
+            self._locale = self._init_locale(self._locale_kwarg, self.pod_path)
+        return self._locale
 
-    @property
-    def url(self):
-        path = self.get_serving_path()
-        if path:
-            return urls.Url(
-                path=path,
-                host=self.pod.env.host,
-                port=self.pod.env.port,
-                scheme=self.pod.env.scheme)
-
-    @property
-    def slug(self):
-        if '$slug' in self.fields:
-            return self.fields['$slug']
-        return utils.slugify(self.title) if self.title is not None else None
+    @utils.cached_property
+    def locales(self):
+        # Use $localization:locales if present, else use collection's locales.
+        localized = '$localization' in self.fields
+        if localized:
+            localization = self.fields['$localization']
+            # Disable localization with $localization:~.
+            if localization is None:
+                return []
+            if 'locales' in localization:
+                codes = localization['locales'] or []
+                return locales.Locale.parse_codes(codes)
+        return self.collection.locales
 
     @property
     def order(self):
         return self.fields.get('$order')
 
     @property
-    def sitemap(self):
-        return self.fields.get('$sitemap')
-
-    @property
-    def title(self):
-        return self.fields.get('$title')
-
-    def titles(self, title_name=None):
-        if title_name is None:
-            return self.title
-        titles = self.fields.get('$titles', {})
-        return titles.get(title_name, self.title)
-
-    @property
-    def category(self):
-        return self.fields.get('$category')
-
-    @property
-    def date(self):
-        return self.fields.get('$date')
-
-    @property
-    def view(self):
-        view_format = self.fields.get('$view', self.collection.view)
-        if view_format is not None:
-            return self._format_path(view_format)
-
-    def dates(self, date_name=None):
-        if date_name is None:
-            return self.date
-        dates = self.fields.get('$dates', {})
-        return dates.get(date_name, self.date)
-
-    def delete(self):
-        self.pod.delete_file(self.pod_path)
-
-    @property
-    def exists(self):
-        return self.pod.file_exists(self.pod_path)
-
-    def localize(self, locale):
-        return self.collection.get_doc(self.root_pod_path, locale=locale)
+    @utils.memoize
+    def parent(self):
+        if '$parent' not in self.fields:
+            return None
+        parent_pod_path = self.fields['$parent']
+        return self.collection.get_doc(parent_pod_path, locale=self.locale)
 
     @property
     @utils.memoize
@@ -206,16 +206,71 @@ class Document(object):
         return val
 
     @property
-    @utils.memoize
-    def parent(self):
-        if '$parent' not in self.fields:
-            return None
-        parent_pod_path = self.fields['$parent']
-        return self.collection.get_doc(parent_pod_path, locale=self.locale)
+    def slug(self):
+        if '$slug' in self.fields:
+            return self.fields['$slug']
+        return utils.slugify(self.title) if self.title is not None else None
+
+    @property
+    def sitemap(self):
+        return self.fields.get('$sitemap')
+
+    @property
+    def title(self):
+        return self.fields.get('$title')
+
+    @property
+    def url(self):
+        path = self.get_serving_path()
+        if path:
+            return urls.Url(
+                path=path,
+                host=self.pod.env.host,
+                port=self.pod.env.port,
+                scheme=self.pod.env.scheme)
+
+    @property
+    def view(self):
+        view_format = self.fields.get('$view', self.collection.view)
+        if view_format is not None:
+            return self._format_path(view_format)
+
+    @utils.cached_property
+    def virtual_key(self):
+        last_mod = 0
+        try:
+            last_mod = self.pod.file_modified(self.pod_path)
+        except OSError:
+            pass
+        return "{0}|{1}|{2}"\
+            .format(self.root_pod_path,
+                    self._locale_kwarg,
+                    last_mod)
+
+    def dates(self, date_name=None):
+        if date_name is None:
+            return self.date
+        dates = self.fields.get('$dates', {})
+        return dates.get(date_name, self.date)
+
+    def delete(self):
+        self.pod.delete_file(self.pod_path)
+
+    def get_tagged_fields(self):
+        format = formats.Format.get(self)
+        return format.fields
 
     @utils.memoize
     def has_serving_path(self):
         return bool(self.path_format)
+
+    def inject(self, fields=utils.SENTINEL, body=utils.SENTINEL):
+        """Injects without updating the copy on the filesystem."""
+        if fields != utils.SENTINEL:
+            self.fields.update(fields)
+        if body != utils.SENTINEL:
+            self.format.body = body
+        self.pod.logger.info('Injected -> {}'.format(self.pod_path))
 
     @utils.memoize
     def get_serving_path(self):
@@ -272,61 +327,8 @@ class Document(object):
             logging.error('Error with path format: {}'.format(path_format))
             raise
 
-    def _format_path(self, path_format):
-        podspec = self.pod.get_podspec()
-        locale = self.locale.alias if self.locale is not None else self.locale
-        formatters = {
-            'base': self.base,
-            'category': self.category,
-            'collection.basename': self.collection.basename,
-            'collection.root': self.collection.root,
-            'env.fingerpint': self.pod.env.fingerprint,
-            'locale': locale,
-            'parent': self.parent if self.parent else utils.DummyDict(),
-            'root': podspec.root,
-            'slug': self.slug,
-        }
-        if '{date' in path_format:
-            if isinstance(self.date, datetime.datetime):
-                formatters['date'] = self.date.date()
-            else:
-                formatters['date'] = self.date
-        if '|lower' in path_format:
-            for key, value in formatters.items():
-                if isinstance(value, basestring):
-                    formatters['{}|lower'.format(key)] = value.lower()
-        return path_format.format(**formatters).replace('//', '/')
-
-    @utils.cached_property
-    def locales(self):
-        # Use $localization:locales if present, else use collection's locales.
-        localized = '$localization' in self.fields
-        if localized:
-            localization = self.fields['$localization']
-            # Disable localization with $localization:~.
-            if localization is None:
-                return []
-            if 'locales' in localization:
-                codes = localization['locales'] or []
-                return locales.Locale.parse_codes(codes)
-        return self.collection.locales
-
-    @property
-    @utils.memoize
-    def body(self):
-        return self.format.body.decode('utf-8') if self.format.body else None
-
-    @property
-    def content(self):
-        return self.format.content.decode('utf-8')
-
-    @property
-    def html(self):
-        return self.format.html
-
-    @property
-    def hidden(self):
-        return self.fields.get('$hidden', False)
+    def localize(self, locale):
+        return self.collection.get_doc(self.root_pod_path, locale=locale)
 
     def next(self, docs=None):
         if docs is None:
@@ -352,6 +354,12 @@ class Document(object):
                     return None
                 return docs[i - 1]
 
+    def titles(self, title_name=None):
+        if title_name is None:
+            return self.title
+        titles = self.fields.get('$titles', {})
+        return titles.get(title_name, self.title)
+
     def to_message(self):
         message = messages.DocumentMessage()
         message.basename = self.basename
@@ -367,11 +375,3 @@ class Document(object):
         content = self.content if self.exists else ''
         new_content = formats.Format.update(content, fields=fields, body=body)
         self.pod.write_file(self.pod_path, new_content)
-
-    def inject(self, fields=utils.SENTINEL, body=utils.SENTINEL):
-        """Injects without updating the copy on the filesystem."""
-        if fields != utils.SENTINEL:
-            self.fields.update(fields)
-        if body != utils.SENTINEL:
-            self.format.body = body
-        self.pod.logger.info('Injected -> {}'.format(self.pod_path))
