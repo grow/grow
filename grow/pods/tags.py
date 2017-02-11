@@ -253,10 +253,10 @@ def create_builtin_filters():
         ('relative', relative_filter),
     )
 
-def create_template_tags(pod, log, use_cache=False):
+def create_template_tags(pod, doc_path, use_cache=False):
     def wrap(func, index=0):
         def wrapper(*args, **kwds):
-            log.add(args[index])
+            pod.podcache.dependency_graph.add(doc_path, args[index])
             return func(*args, _pod=pod, use_cache=use_cache, **kwds)
         return wrapper
     return {

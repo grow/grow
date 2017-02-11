@@ -51,11 +51,7 @@ class RenderedController(controllers.BaseController):
         env = self.pod.get_jinja_env(self.locale)
         template = env.get_template(self.view.lstrip('/'))
         try:
-            # Creating a local stream and tags to be able to use a separate
-            # dependency stream for each page render. Allows for the rendering
-            # to be done in a threaded manner.
-            dep_log = dependency.DependencyLog()
-            local_tags = tags.create_template_tags(self.pod, dep_log)
+            local_tags = tags.create_template_tags(self.pod, self.doc.pod_path)
             local_tags.update(self.pod.get_jinja_env().globals['g'])
             kwargs = {
                 'doc': self.doc,
@@ -64,14 +60,8 @@ class RenderedController(controllers.BaseController):
                 'podspec': self.pod.get_podspec(),
             }
             content = template.render(kwargs).lstrip()
-            deps = dep_log.read_all()
             content = self._inject_ui(
                 content, preprocessor, translator)
-
-            # Add all the dependencies detected during render to the graph.
-            self.pod.podcache.dependency_graph.add_references(
-                self.doc.pod_path, deps)
-
             return content
         except Exception as e:
             text = 'Error building {}: {}'

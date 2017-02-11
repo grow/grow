@@ -20,6 +20,20 @@ class DependencyGraph(object):
         for key, value in data.iteritems():
             self.add_references(key, value)
 
+    def add(self, source, reference):
+        """Add reference made in a source file to the graph."""
+        if not reference:
+            return
+
+        if source not in self._dependencies:
+            self._dependencies[source] = set()
+        self._dependencies[source].add(reference)
+
+        # Bi-directional dependency references for easier lookup.
+        if reference not in self._dependents:
+            self._dependents[reference] = set()
+        self._dependents[reference].add(source)
+
     def add_references(self, source, references):
         """Add references made in a source file to the graph."""
         if not references:
@@ -58,15 +72,3 @@ class DependencyGraph(object):
     def reset(self):
         self._dependents = {}
         self._dependencies = {}
-
-
-class DependencyLog(object):
-    """Log of all dependencies that occure as the template is rendered."""
-    def __init__(self):
-        self.log = set()
-
-    def add(self, item):
-        self.log.add(item)
-
-    def read_all(self):
-        return self.log
