@@ -46,7 +46,7 @@ class PodDoesNotExistError(Error, IOError):
 
 class Pod(object):
 
-    FILE_PODCACHE = 'podcache.yaml'
+    FILE_PODCACHE = '.podcache.yaml'
     FILE_PODSPEC = 'podspec.yaml'
 
     def __eq__(self, other):
