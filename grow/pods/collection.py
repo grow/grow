@@ -238,11 +238,6 @@ class Collection(object):
             raise CollectionNotEmptyError(text)
         self.pod.delete_file(self._blueprint_path)
 
-    # Aliases `collection.docs` to `collection.list_docs`. `collection.docs`
-    # should be the public and supported way to retrieve documents from a
-    # collection.
-    docs = list_docs
-
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
         if locale is not None:
@@ -303,6 +298,11 @@ class Collection(object):
                 logging.error('Error loading doc: {}'.format(pod_path))
                 raise
         return reversed(sorted_docs) if reverse else sorted_docs
+
+    # Aliases `collection.docs` to `collection.list_docs`. `collection.docs`
+    # should be the public and supported way to retrieve documents from a
+    # collection.
+    docs = list_docs
 
     def list_servable_documents(self, include_hidden=False, locales=None, inject=None):
         docs = []
