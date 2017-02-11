@@ -229,7 +229,9 @@ def make_yaml_loader(pod, doc=None):
 
         def construct_doc(self, node):
             locale = doc._locale_kwarg if doc else None
-            func = lambda path: pod.get_doc(path, locale=locale)
+            def func(path):
+                pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return pod.get_doc(path, locale=locale)
             return self._construct_func(node, func)
 
         def construct_gettext(self, node):
