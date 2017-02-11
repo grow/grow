@@ -14,10 +14,10 @@ class DependencyGraph(object):
     def __init__(self):
         self.reset()
 
-    def add_all(self, data):
-        """Add all from a data source."""
+    def add_all(self, path_to_dependencies):
+        """Add all from a dict of paths to dependencies."""
 
-        for key, value in data.iteritems():
+        for key, value in path_to_dependencies.iteritems():
             self.add_references(key, value)
 
     def add(self, source, reference):
