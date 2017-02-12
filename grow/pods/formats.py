@@ -48,46 +48,6 @@ class Format(object):
         self.load()
         self._add_to_pod()
 
-    @staticmethod
-    def _normalize_frontmatter(pod_path, content, locale=None):
-        content = '' if content == '{}\n' else content  # Hack for JSON-formatted YAML.
-        if Format.has_front_matter(content):
-            if locale:
-                fields, body = Format.split_front_matter(content)
-                fields += '\n"$locale": "{}"\n'.format(locale)
-                return '---\n{}\n---\n{}'.format(fields, body)
-            return content
-        if pod_path.endswith('.md'):
-            if locale:
-                return '---\n"$locale": "{}"\n---\n{}'.format(locale, content)
-            else:
-                return '---\n\n---\n{}'.format(content)
-        if locale:
-            return '---\n"$locale": "{}"\n{}'.format(locale, content)
-        else:
-            return '---\n{}'.format(content)
-
-    @classmethod
-    def parse_localized_path(cls, pod_path):
-        """Returns a tuple containing the root pod path and the locale, parsed
-        from a localized pod path (formatted <base>@<locale>.<ext>). If the
-        supplied pod path does not contain a locale, the pod path is returned
-        along with None."""
-        locale_match = PATH_LOCALE_REGEX.match(pod_path)
-        if locale_match:
-            groups = locale_match.groups()
-            locale = groups[1]
-            root_pod_path = '{}.{}'.format(groups[0], groups[2])
-            return root_pod_path, locale
-        return pod_path, None
-
-    @classmethod
-    def localize_path(cls, pod_path, locale):
-        """Returns a localized path (formatted <base>@<locale>.<ext>) for
-        multi-file localization."""
-        base, ext = os.path.splitext(pod_path)
-        return '{}@{}{}'.format(base, locale, ext)
-
     def _init_content(self):
         self.root_pod_path, self.locale_from_path = \
             Format.parse_localized_path(self.pod_path)
@@ -119,24 +79,24 @@ class Format(object):
             return True
         return False
 
-    def _add_to_pod(self):
-        self.doc.pod.virtual_files[self.doc.virtual_key] = \
-            (self.fields,
-             self.body,
-             self._has_front_matter,
-             self._locales_from_base,
-             self._locales_from_parts)
-
-    @classmethod
-    def get(cls, doc):
-        if doc.ext == '.html':
-            return HtmlFormat(doc)
-        elif doc.ext in ('.yaml', '.yml'):
-            return YamlFormat(doc)
-        elif doc.ext == '.md':
-            return MarkdownFormat(doc)
-        text = 'Unsupported extension for content document: {}'
-        raise BadFormatError(text.format(doc.basename))
+    @staticmethod
+    def _normalize_frontmatter(pod_path, content, locale=None):
+        content = '' if content == '{}\n' else content  # Hack for JSON-formatted YAML.
+        if Format.has_front_matter(content):
+            if locale:
+                fields, body = Format.split_front_matter(content)
+                fields += '\n"$locale": "{}"\n'.format(locale)
+                return '---\n{}\n---\n{}'.format(fields, body)
+            return content
+        if pod_path.endswith('.md'):
+            if locale:
+                return '---\n"$locale": "{}"\n---\n{}'.format(locale, content)
+            else:
+                return '---\n\n---\n{}'.format(content)
+        if locale:
+            return '---\n"$locale": "{}"\n{}'.format(locale, content)
+        else:
+            return '---\n{}'.format(content)
 
     @staticmethod
     def has_front_matter(content):
@@ -162,47 +122,59 @@ class Format(object):
             return result[:-5]
         return result
 
-    @property
-    def html(self):
-        return None
+    @classmethod
+    def get(cls, doc):
+        if doc.ext == '.html':
+            return HtmlFormat(doc)
+        elif doc.ext in ('.yaml', '.yml'):
+            return YamlFormat(doc)
+        elif doc.ext == '.md':
+            return MarkdownFormat(doc)
+        text = 'Unsupported extension for content document: {}'
+        raise BadFormatError(text.format(doc.basename))
 
-    def load(self):
-        raise NotImplementedError
+    @classmethod
+    def localize_path(cls, pod_path, locale):
+        """Returns a localized path (formatted <base>@<locale>.<ext>) for
+        multi-file localization."""
+        base, ext = os.path.splitext(pod_path)
+        return '{}@{}{}'.format(base, locale, ext)
+
+    @classmethod
+    def parse_localized_path(cls, pod_path):
+        """Returns a tuple containing the root pod path and the locale, parsed
+        from a localized pod path (formatted <base>@<locale>.<ext>). If the
+        supplied pod path does not contain a locale, the pod path is returned
+        along with None."""
+        locale_match = PATH_LOCALE_REGEX.match(pod_path)
+        if locale_match:
+            groups = locale_match.groups()
+            locale = groups[1]
+            root_pod_path = '{}.{}'.format(groups[0], groups[2])
+            return root_pod_path, locale
+        return pod_path, None
 
     @property
     def has_localized_parts(self):
         return bool(self._locales_from_parts)
 
+    @property
+    def html(self):
+        return None
+
+    def _add_to_pod(self):
+        self.doc.pod.virtual_files[self.doc.virtual_key] = \
+            (self.fields,
+             self.body,
+             self._has_front_matter,
+             self._locales_from_base,
+             self._locales_from_parts)
+
+    def load(self):
+        raise NotImplementedError
+
 
 class _SplitDocumentFormat(Format):
-
-    def _iterate_content(self):
-        parts = [(part, part) for part in Format.split_front_matter(self.content)]
-        if not parts[-1][0].strip():
-            parts.pop()
-        return parts
-
-    def _validate_fields(self, fields):
-        if '$locale' in fields and '$locales' in fields:
-            text = 'You must specify either $locale or $locales, not both.'
-            raise BadLocalesError(text)
-
-    def _validate_base_part(self, fields):
-        self._validate_fields(fields)
-
-    def _validate_non_base_part(self, fields):
-        # Any additional parts after base part MUST declare one or more locales
-        # (otherwise there's no point)
-        if '$locale' not in fields and '$locales' not in fields:
-            text = 'You must specify either $locale or $locales for each document part.'
-            raise BadLocalesError(text)
-        self._validate_fields(fields)
-
-    def _get_locales_of_part(self, fields):
-        if '$locales' in fields:
-            return fields['$locales']
-        else:
-            return [fields.get('$locale')]  # None for base document.
 
     def _get_base_default_locale(self, fields):
         if '$localization' in fields:
@@ -210,14 +182,11 @@ class _SplitDocumentFormat(Format):
                 return fields['$localization']['default_locale']
         return self.doc.collection.default_locale
 
-    def _load_yaml(self, part):
-        try:
-            return utils.load_yaml(part, doc=self.doc, pod=self.doc.pod)
-        except (yaml.parser.ParserError,
-                yaml.composer.ComposerError,
-                yaml.scanner.ScannerError) as e:
-            message = 'Error parsing {}: {}'.format(self.doc.pod_path, e)
-            raise BadFormatError(message)
+    def _get_locales_of_part(self, fields):
+        if '$locales' in fields:
+            return fields['$locales']
+        else:
+            return [fields.get('$locale')]  # None for base document.
 
     def _handle_pairs_of_parts_and_bodies(self):
         locales_to_fields = collections.defaultdict(dict)
@@ -258,23 +227,36 @@ class _SplitDocumentFormat(Format):
         self.body = locales_to_bodies.get(locale, base_body)
         self.body = self.body.strip() if self.body is not None else None
 
+    def _iterate_content(self):
+        parts = [(part, part) for part in Format.split_front_matter(self.content)]
+        if not parts[-1][0].strip():
+            parts.pop()
+        return parts
 
-class YamlFormat(_SplitDocumentFormat):
-
-    def load(self):
+    def _load_yaml(self, part):
         try:
-            if self._has_front_matter:
-                self._handle_pairs_of_parts_and_bodies()
-            else:
-                self.body = self.content
-                self.fields = utils.load_yaml(
-                    self.content,
-                    doc=self.doc,
-                    pod=self.doc.pod) or {}
-        except (yaml.composer.ComposerError, yaml.scanner.ScannerError) as e:
+            return utils.load_yaml(part, doc=self.doc, pod=self.doc.pod)
+        except (yaml.parser.ParserError,
+                yaml.composer.ComposerError,
+                yaml.scanner.ScannerError) as e:
             message = 'Error parsing {}: {}'.format(self.doc.pod_path, e)
-            logging.exception(message)
             raise BadFormatError(message)
+
+    def _validate_base_part(self, fields):
+        self._validate_fields(fields)
+
+    def _validate_fields(self, fields):
+        if '$locale' in fields and '$locales' in fields:
+            text = 'You must specify either $locale or $locales, not both.'
+            raise BadLocalesError(text)
+
+    def _validate_non_base_part(self, fields):
+        # Any additional parts after base part MUST declare one or more locales
+        # (otherwise there's no point)
+        if '$locale' not in fields and '$locales' not in fields:
+            text = 'You must specify either $locale or $locales for each document part.'
+            raise BadLocalesError(text)
+        self._validate_fields(fields)
 
 
 class HtmlFormat(_SplitDocumentFormat):
@@ -283,17 +265,17 @@ class HtmlFormat(_SplitDocumentFormat):
         pairs = utils.every_two(Format.split_front_matter(self.content))
         return [(part, body) for part, body in pairs]
 
+    @property
+    def html(self):
+        if self.body is not None:
+            return self.body.decode('utf-8')
+
     def load(self):
         if not self._has_front_matter:
             self.fields = {}
             self.body = self.content
             return
         self._handle_pairs_of_parts_and_bodies()
-
-    @property
-    def html(self):
-        if self.body is not None:
-            return self.body.decode('utf-8')
 
 
 class MarkdownFormat(HtmlFormat):
@@ -311,3 +293,21 @@ class MarkdownFormat(HtmlFormat):
             ]
             val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
         return val
+
+
+class YamlFormat(_SplitDocumentFormat):
+
+    def load(self):
+        try:
+            if self._has_front_matter:
+                self._handle_pairs_of_parts_and_bodies()
+            else:
+                self.body = self.content
+                self.fields = utils.load_yaml(
+                    self.content,
+                    doc=self.doc,
+                    pod=self.doc.pod) or {}
+        except (yaml.composer.ComposerError, yaml.scanner.ScannerError) as e:
+            message = 'Error parsing {}: {}'.format(self.doc.pod_path, e)
+            logging.exception(message)
+            raise BadFormatError(message)
