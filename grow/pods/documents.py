@@ -396,6 +396,14 @@ class DocumentCache(object):
             self._documents[doc.pod_path] = {}
         self._documents[doc.pod_path][locale] = cached
 
+    def cache_doc_property(self, doc, prop, cached):
+        locale = str(doc._locale_kwarg)
+        if doc.pod_path not in self._documents:
+            self._documents[doc.pod_path] = {}
+        if locale not in self._documents[doc.pod_path]:
+            self._documents[doc.pod_path][locale] = {}
+        self._documents[doc.pod_path][locale][prop] = cached
+
     def delete_doc(self, pod_path):
         self._documents.pop(pod_path, None)
 
@@ -407,6 +415,13 @@ class DocumentCache(object):
         if doc.pod_path in self._documents:
             if locale in self._documents[doc.pod_path]:
                 return self._documents[doc.pod_path][locale]
+        return None
+
+    def get_cached_doc_property(self, doc, prop):
+        locale = str(doc._locale_kwarg)
+        if doc.pod_path in self._documents:
+            if locale in self._documents[doc.pod_path]:
+                return self._documents[doc.pod_path][locale][prop] or None
         return None
 
     def reset(self):

@@ -13,15 +13,17 @@ class PodCache(object):
     def __init__(self, yaml, pod):
         self._pod = pod
 
-        with timer.Timer() as t:
-            self._document_cache = documents.DocumentCache(self._pod)
-            self._document_cache.add_all(yaml.get(self.KEY_DOCUMENTS, {}))
-        print "=> elasped _document_cache: %s s" % t.secs
+        self._content_cache = documents.DocumentCache(self._pod)
 
-        with timer.Timer() as t:
-            self._dependency_graph = dependency.DependencyGraph()
-            self._dependency_graph.add_all(yaml.get(self.KEY_DEPENDENCIES, {}))
-        print "=> elasped _dependency_graph: %s s" % t.secs
+        self._document_cache = documents.DocumentCache(self._pod)
+        self._document_cache.add_all(yaml.get(self.KEY_DOCUMENTS, {}))
+
+        self._dependency_graph = dependency.DependencyGraph()
+        self._dependency_graph.add_all(yaml.get(self.KEY_DEPENDENCIES, {}))
+
+    @property
+    def content_cache(self):
+        return self._content_cache
 
     @property
     def dependency_graph(self):
@@ -32,6 +34,7 @@ class PodCache(object):
         return self._document_cache
 
     def reset(self):
+        self._content_cache.reset()
         self._dependency_graph.reset()
         self._document_cache.reset()
 

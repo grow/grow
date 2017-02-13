@@ -151,13 +151,29 @@ class Format(object):
     @property
     @utils.memoize
     def body(self):
+        # Check the cached content first.
+        cached = self.doc.pod.podcache.content_cache.get_cached_doc_property(
+            self.doc, 'body')
+        if cached:
+            return cached
+
+        # Load in the content, parse, and cache.
         self.load()
+        self.doc.pod.podcache.content_cache.cache_doc_property(
+            self.doc, 'body', self._body)
         return self._body
 
     @property
     @utils.memoize
     def content(self):
+        # Check the cached content first.
+        cached = self.doc.pod.podcache.content_cache.get_cached_doc_property(
+            self.doc, 'content')
+        if cached:
+            return cached
+
         print 'CONTENTS READ!!! : {}'.format(self.pod_path)
+        parsed_content = ''
         root_pod_path, locale_from_path = \
             Format.parse_localized_path(self.pod_path)
         if locale_from_path:
@@ -170,12 +186,16 @@ class Format(object):
                 root_pod_path, root_content)
             localized_content_with_frontmatter = Format._normalize_frontmatter(
                 self.pod_path, localized_content, locale=locale_from_path)
-            return '{}\n{}'.format(
+            parsed_content = '{}\n{}'.format(
                 root_content_with_frontmatter,
                 localized_content_with_frontmatter)
         if self.doc.pod.file_exists(self.pod_path):
-            return self.doc.pod.read_file(self.pod_path)
-        return ''
+            parsed_content =  self.doc.pod.read_file(self.pod_path)
+
+        self.doc.pod.podcache.content_cache.cache_doc_property(
+            self.doc, 'content', parsed_content)
+
+        return parsed_content
 
     @property
     def has_localized_parts(self):
