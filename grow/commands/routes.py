@@ -27,4 +27,5 @@ def routes(pod_path):
         else:
             out.append(paths[0])
         out.append('')
-    click.echo_via_pager('\n'.join(out))
+    print len(out)
+    # click.echo_via_pager('\n'.join(out))

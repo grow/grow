@@ -14,6 +14,7 @@ from . import tags
 from ..preprocessors import preprocessors
 from ..translators import translators
 from grow.common import sdk_utils
+from grow.common import timer
 from grow.common import utils
 from werkzeug.contrib import cache as werkzeug_cache
 import copy
@@ -55,7 +56,6 @@ class Pod(object):
                 and self.root == other.root)
 
     def __init__(self, root, storage=storage.auto, env=None):
-        self.virtual_files = {}
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
                      else os.path.abspath(root))
@@ -65,6 +65,7 @@ class Pod(object):
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.logger = _logger
         self.routes = routes.Routes(pod=self)
+        self._podcache = None
         try:
             sdk_utils.check_sdk_version(self)
         except PodDoesNotExistError:
@@ -85,13 +86,15 @@ class Pod(object):
           raise ValueError('.. not allowed in file paths.')
         return os.path.join(self.root, pod_path.lstrip('/'))
 
-    @utils.memoize
     def _parse_cache_yaml(self):
         podcache_file_name = '/{}'.format(self.FILE_PODCACHE)
         if not self.file_exists(podcache_file_name):
             return
         try:
-            return utils.parse_yaml(self.read_file(podcache_file_name))
+            with timer.Timer() as t:
+                parsed = utils.parse_yaml(self.read_file(podcache_file_name))
+            print "=> elasped _parse_cache_yaml: %s s" % t.secs
+            return parsed
         except IOError as e:
             path = self.abs_path(podcache_file_name)
             raise podcache.PodCacheParseError('Error parsing: {}'.format(path))
@@ -129,9 +132,12 @@ class Pod(object):
     def grow_version(self):
         return self.podspec.grow_version
 
-    @utils.cached_property
+    @property
     def podcache(self):
-        return podcache.PodCache(yaml=self._parse_cache_yaml() or {}, pod=self)
+        if not self._podcache:
+            self._podcache = podcache.PodCache(
+                yaml=self._parse_cache_yaml() or {}, pod=self)
+        return self._podcache
 
     @property
     def podspec(self):
@@ -199,7 +205,7 @@ class Pod(object):
         output = {}
         routes = self.get_routes()
         paths = []
-        self.podcache.dependency_graph.reset()
+        self.podcache.reset()
         for items in routes.get_locales_to_paths().values():
             paths += items
         text = 'Building: %(value)d/{} (in %(elapsed)s)'
@@ -579,8 +585,6 @@ class Pod(object):
         self.storage.write(path, content)
 
     def write_yaml(self, path, content):
-        for virtual_key in self.virtual_files.keys():
-            if path in virtual_key:
-                del self.virtual_files[virtual_key]
+        self.podcache.document_cache.delete_doc(path)
         content = utils.dump_yaml(content)
         self.write_file(path, content)

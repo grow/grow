@@ -383,21 +383,31 @@ class DocumentCache(object):
         self._pod = _pod
         self.reset()
 
-    def cache_doc(self, pod_path, doc, locale=None):
-        if pod_path not in self._documents:
-            self._documents[pod_path] = {}
-        if locale in self._documents[pod_path]:
-            self._documents[pod_path][locale] = {}
+    def add_all(self, path_to_locale_to_cached):
+        for pod_path, locales in path_to_locale_to_cached.iteritems():
+            if pod_path not in self._documents:
+                self._documents[pod_path] = {}
+            for locale, cached in locales.iteritems():
+                self._documents[pod_path][locale] = cached
 
-        # TODO: Cache specific attributes of the doc.
+    def cache_doc(self, doc, cached):
+        locale = str(doc._locale_kwarg)
+        if doc.pod_path not in self._documents:
+            self._documents[doc.pod_path] = {}
+        self._documents[doc.pod_path][locale] = cached
+
+    def delete_doc(self, pod_path):
+        self._documents.pop(pod_path, None)
 
     def export(self):
         return self._documents
 
-    def get_cached_doc(self, pod_path, locale=None):
-        if pod_path in self._documents and locale in self._documents[pod_path]:
-            return self._documents[pod_path][locale]
-        return {}
+    def get_cached_doc(self, doc):
+        locale = str(doc._locale_kwarg)
+        if doc.pod_path in self._documents:
+            if locale in self._documents[doc.pod_path]:
+                return self._documents[doc.pod_path][locale]
+        return None
 
     def reset(self):
         self._documents = {}

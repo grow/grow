@@ -35,49 +35,43 @@ class Format(object):
 
     def __init__(self, doc):
         self.doc = doc
-        self.body = None
         self.pod_path = self.doc.pod_path
-        self.content = self._init_content()
+        self._body = None
+
+        if self._from_cache():
+            return
+
         self._has_front_matter = Format.has_front_matter(self.content)
         self._locales_from_base = []
         self._locales_from_parts = []
         self.fields = {}
-        if self._load_existing():
-            return
-
         self.load()
-        self._add_to_pod()
+        self._to_cache()
 
-    def _init_content(self):
-        self.root_pod_path, self.locale_from_path = \
-            Format.parse_localized_path(self.pod_path)
-        if self.locale_from_path:
-            if self.doc.pod.file_exists(self.root_pod_path):
-                root_content = self.doc.pod.read_file(self.root_pod_path)
-            else:
-                root_content = ''
-            localized_content = self.doc.pod.read_file(self.pod_path)
-            root_content_with_frontmatter = Format._normalize_frontmatter(
-                self.root_pod_path, root_content)
-            localized_content_with_frontmatter = Format._normalize_frontmatter(
-                self.pod_path, localized_content, locale=self.locale_from_path)
-            return '{}\n{}'.format(
-                root_content_with_frontmatter,
-                localized_content_with_frontmatter)
-        if self.doc.pod.file_exists(self.pod_path):
-            return self.doc.pod.read_file(self.pod_path)
-        return ''
+    def _from_cache(self):
+        cached = self.doc.pod.podcache.document_cache.get_cached_doc(self.doc)
 
-    def _load_existing(self):
-        if self.doc.virtual_key in self.doc.pod.virtual_files:
-            self.fields, \
-            self.body, \
-            self._has_front_matter, \
-            self._locales_from_base, \
-            self._locales_from_parts = \
-                self.doc.pod.virtual_files[self.doc.virtual_key]
-            return True
-        return False
+        # print 'retrieved cache: {}'.format(cached)
+
+        if not cached:
+            return False
+
+        self._has_front_matter = cached['_has_front_matter']
+        self._locales_from_base = cached['_locales_from_base']
+        self._locales_from_parts = cached['_locales_from_parts']
+        self.fields = cached['fields']
+        return True
+
+    def _to_cache(self):
+        cached = {}
+        cached['_has_front_matter'] = self._has_front_matter
+        cached['_locales_from_base'] = self._locales_from_base
+        cached['_locales_from_parts'] = self._locales_from_parts
+        cached['fields'] = self.fields
+
+        # print 'caching: {}'.format(cached)
+
+        self.doc.pod.podcache.document_cache.cache_doc(self.doc, cached)
 
     @staticmethod
     def _normalize_frontmatter(pod_path, content, locale=None):
@@ -155,20 +149,41 @@ class Format(object):
         return pod_path, None
 
     @property
+    @utils.memoize
+    def body(self):
+        self.load()
+        return self._body
+
+    @property
+    @utils.memoize
+    def content(self):
+        print 'CONTENTS READ!!! : {}'.format(self.pod_path)
+        root_pod_path, locale_from_path = \
+            Format.parse_localized_path(self.pod_path)
+        if locale_from_path:
+            if self.doc.pod.file_exists(root_pod_path):
+                root_content = self.doc.pod.read_file(root_pod_path)
+            else:
+                root_content = ''
+            localized_content = self.doc.pod.read_file(self.pod_path)
+            root_content_with_frontmatter = Format._normalize_frontmatter(
+                root_pod_path, root_content)
+            localized_content_with_frontmatter = Format._normalize_frontmatter(
+                self.pod_path, localized_content, locale=locale_from_path)
+            return '{}\n{}'.format(
+                root_content_with_frontmatter,
+                localized_content_with_frontmatter)
+        if self.doc.pod.file_exists(self.pod_path):
+            return self.doc.pod.read_file(self.pod_path)
+        return ''
+
+    @property
     def has_localized_parts(self):
         return bool(self._locales_from_parts)
 
     @property
     def html(self):
         return None
-
-    def _add_to_pod(self):
-        self.doc.pod.virtual_files[self.doc.virtual_key] = \
-            (self.fields,
-             self.body,
-             self._has_front_matter,
-             self._locales_from_base,
-             self._locales_from_parts)
 
     def load(self):
         raise NotImplementedError
@@ -224,8 +239,8 @@ class _SplitDocumentFormat(Format):
 
         # Merge localized bodies into base body.
         base_body = locales_to_bodies.get(None)
-        self.body = locales_to_bodies.get(locale, base_body)
-        self.body = self.body.strip() if self.body is not None else None
+        self._body = locales_to_bodies.get(locale, base_body)
+        self._body = self._body.strip() if self._body is not None else None
 
     def _iterate_content(self):
         parts = [(part, part) for part in Format.split_front_matter(self.content)]
@@ -273,7 +288,7 @@ class HtmlFormat(_SplitDocumentFormat):
     def load(self):
         if not self._has_front_matter:
             self.fields = {}
-            self.body = self.content
+            self._body = self.content
             return
         self._handle_pairs_of_parts_and_bodies()
 
@@ -302,7 +317,7 @@ class YamlFormat(_SplitDocumentFormat):
             if self._has_front_matter:
                 self._handle_pairs_of_parts_and_bodies()
             else:
-                self.body = self.content
+                self._body = self.content
                 self.fields = utils.load_yaml(
                     self.content,
                     doc=self.doc,
