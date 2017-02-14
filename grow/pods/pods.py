@@ -205,7 +205,6 @@ class Pod(object):
         output = {}
         routes = self.get_routes()
         paths = []
-        self.podcache.reset()
         for items in routes.get_locales_to_paths().values():
             paths += items
         text = 'Building: %(value)d/{} (in %(elapsed)s)'
@@ -224,7 +223,6 @@ class Pod(object):
         if error_controller:
             output['/404.html'] = error_controller.render({})
         bar.finish()
-        self.podcache.write()
         return output
 
     def export_ui(self):
@@ -585,6 +583,7 @@ class Pod(object):
         self.storage.write(path, content)
 
     def write_yaml(self, path, content):
-        self.podcache.document_cache.delete_doc(path)
+        self.podcache.content_cache.delete_by_path(path)
+        self.podcache.document_cache.delete_by_path(path)
         content = utils.dump_yaml(content)
         self.write_file(path, content)
