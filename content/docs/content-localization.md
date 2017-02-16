@@ -7,88 +7,59 @@ $order: 5
 
 [TOC]
 
-In addition to controlling site-wide localization in podspec.yaml, you can create and manage fully localized content at the collection-level or the document-level. Each content document is capable of holding multiple localized versions of itself. The easiest way to explain how this works is to look at the below examples.
-
-## Markdown body localization
-
-[sourcecode:yaml]
-# Blueprint /content/pages/_blueprint.yaml
-
-path: /{slug}/
-view: /views/pages.html
-
-# Overrides localization config from podspec.yaml.
-localization:
-  path: /{locale}/{slug}/
-  default_locale: en
-  locales:
-  - en
-  - de
-  - fr
-  - it
-[/sourcecode]
-
-[sourcecode:yaml]
-# Document /content/pages/welcome.md
-
-​---
-$title@: Hello, Grow localization!
-​---
-Welcome!
-​---
-$locale: de
-$slug: wilkommen
-​---
-Willkommen!
-​---
-$locale: fr
-​---
-Bienvenue!
-[/sourcecode]
-
-This example builds the following pages:
-
-- /welcome/
-- /de/willkommen/ (built to a different path because the built-in `$slug` value is overridden)
-- /fr/welcome/
-- /it/welcome/
+In addition to controlling [site-wide localization]({{g.doc('/docs/content-localization/').url.path}}#localization) in podspec.yaml, you can create and manage fully localized content at the collection-level or the document-level.
 
 ## Front matter localization
 
-You can localize front matter data on a per-locale basis. If you've localized some fields, but not all fields that are specified in the blueprint or default locale, the localized fields will be merged with the default locale's fields, cascading from a localized version down to the default version.
+You can localize front matter data on a per-locale basis. If you've localized some fields, but not all fields that are specified in the blueprint or default locale, the localized fields will fall back to default locale's fields, cascading from a localized version down to the default version.
 
 [sourcecode:yaml]
-# Document /content/pages/hello.md
-
-​---
-$title: Hello World!
-$path: /{slug}/
-$view: /views/pages.html
-$localization:
-  path: /{locale}/{slug}/
-foo: bar
-qaz: qux
-​---
-Hello World!
-​---
-$locale: de
-foo: baz
-​---
-Hallo Welt!
+title@: Title
+title@fr: Title in FR
+body@: Body
+body@fr: Body for FR
+caption@: Caption
 [/sourcecode]
 
-[sourcecode:jinja]
-# Page /hello/
+[sourcecode:text]
+# Default
+{{doc.title}} -> Title
+{{doc.body}} -> Body
+{{doc.caption}} -> Caption
 
-{{doc.foo}}         # bar
-{{doc.qaz}}         # qux
-{{doc.locale}}      # Locale('en')
+# FR
+{{doc.title}} -> Title in FR
+{{doc.body}} -> Body for FR
+{{doc.caption}} -> Caption
+[/sourcecode]
 
-# Page /de/hello/
+## File based localization
 
-{{doc.foo}}         # baz
-{{doc.qaz}}         # qux
-{{doc.locale}}      # Locale('de')
+Similar to the idea of using the `@locale` localization in the front matter, file names can also be used to manage the localization.
+
+[sourcecode:yaml]
+# Content /presentation.yaml
+title@: Title
+body@: Body
+caption@: Caption
+[/sourcecode]
+
+[sourcecode:yaml]
+# Content /presentation@fr.yaml
+title: Title in FR
+body: Body for FR
+[/sourcecode]
+
+[sourcecode:text]
+# Default
+{{doc.title}} -> Title
+{{doc.body}} -> Body
+{{doc.caption}} -> Caption
+
+# FR
+{{doc.title}} -> Title in FR
+{{doc.body}} -> Body for FR
+{{doc.caption}} -> Caption
 [/sourcecode]
 
 ## Locale class
