@@ -588,6 +588,31 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(foo_doc, bar_doc.foo.bar.foo)
         self.assertEqual('en', bar_doc.foo.locale)
 
+    def test_locale_paths(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_file('/content/pages/foo@en-us.yaml', '')
+        pod.write_file('/content/pages/foo@en.yaml', '')
+        pod.write_file('/content/pages/foo.yaml', '')
+
+        doc = pod.get_doc('/content/pages/foo@en-us.yaml')
+        self.assertEqual([
+            '/content/pages/foo@en-us.yaml',
+            '/content/pages/foo@en.yaml',
+            '/content/pages/foo.yaml',
+        ], doc.locale_paths)
+
+        doc = pod.get_doc('/content/pages/foo@en.yaml')
+        self.assertEqual([
+            '/content/pages/foo@en.yaml',
+            '/content/pages/foo.yaml',
+        ], doc.locale_paths)
+
+        doc = pod.get_doc('/content/pages/foo.yaml')
+        self.assertEqual([
+            '/content/pages/foo.yaml',
+        ], doc.locale_paths)
+
 
 if __name__ == '__main__':
     unittest.main()

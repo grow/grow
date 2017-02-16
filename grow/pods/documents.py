@@ -11,6 +11,9 @@ import os
 import re
 
 
+PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')
+
+
 class Error(Exception):
     pass
 
@@ -182,6 +185,20 @@ class Document(object):
                 codes = localization['locales'] or []
                 return locales.Locale.parse_codes(codes)
         return self.collection.locales
+
+    @utils.cached_property
+    def locale_paths(self):
+        """
+        Returns the pod path and any possible pod paths that are 'parents'
+        of the localized path.
+        """
+        paths = [self.pod_path]
+        parts = PATH_LOCALE_REGEX.split(self.pod_path)
+        if len(parts) > 1:
+            if parts[3]: # [3] -> Country Code
+                paths.append('{}@{}{}'.format(parts[0], parts[1], parts[4]))
+            paths.append('{}{}'.format(parts[0], parts[4]))
+        return paths
 
     @property
     def order(self):
