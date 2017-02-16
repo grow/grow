@@ -1,8 +1,9 @@
+from . import document_format
 from . import formats
+from . import locales
 from . import messages
+from . import urls
 from grow.common import utils
-from grow.pods import locales
-from grow.pods import urls
 import datetime
 import json
 import logging
@@ -150,6 +151,10 @@ class Document(object):
     def format(self):
         return formats.Format.get(self)
 
+    @utils.cached_property
+    def format_x(self):
+        return document_format.DocumentFormat.from_doc(doc=self)
+
     @property
     def hidden(self):
         return self.fields.get('$hidden', False)
@@ -204,6 +209,10 @@ class Document(object):
         if val is None:
             return self.fields.get('$path', self.collection.path_format)
         return val
+
+    @property # Cached in document format.
+    def raw_content(self):
+        return self.format_x.raw_content
 
     @property
     def slug(self):
