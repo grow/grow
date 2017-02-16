@@ -25,6 +25,7 @@ import os
 import progressbar
 import re
 import time
+import yaml
 
 _handler = logging.StreamHandler()
 _formatter = logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S')
@@ -92,7 +93,9 @@ class Pod(object):
             return
         try:
             with timer.Timer() as t:
-                parsed = utils.parse_yaml(self.read_file(podcache_file_name))
+                # Do not use the utils.parse_yaml as that has extra constructors
+                # that should not be run when the cache file is being parsed.
+                parsed = yaml.load(self.read_file(podcache_file_name)) or {}
             print "=> elasped _parse_cache_yaml: %s s" % t.secs
             return parsed
         except IOError as e:

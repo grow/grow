@@ -48,7 +48,12 @@ class DocumentFrontMatter(object):
 
     def export(self):
         """
-        Export the front matter in a raw format.
+        Exports the front matter in a raw format.
+
         This allows it to be cached in a file and parsed when recontructed.
+        If exported in the parsed form then any yaml constructors will have
+        already run and it will fail since it cannot write the referenced
+        objects in the cache file. Also the size can be much larger after the
+        yaml has been parsed.
         """
         return self._raw_front_matter
