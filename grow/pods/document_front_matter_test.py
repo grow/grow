@@ -12,7 +12,6 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
-        self.doc = pods.Pod(dir_path, storage=storage.FileStorage)
 
     def test_split_front_matter(self):
         # Normal front matter.

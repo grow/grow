@@ -38,9 +38,20 @@ class DocumentFormat(object):
             return YamlDocumentFormat(*args, **kwargs)
         return TextDocumentFormat(*args, **kwargs)
 
-    @property
-    def body(self):
-        raise NotImplementedError
+    def _parse_content(self):
+        """
+        Parse the content from the raw content.
+        """
+        _, parsed_content = doc_front_matter.DocumentFrontMatter\
+            .split_front_matter(self.raw_content)
+        return parsed_content
+
+    def _parse_front_matter(self):
+        """
+        Parse the front matter from the raw content.
+        """
+        return doc_front_matter.DocumentFrontMatter(
+            self._doc)
 
     @utils.cached_property
     def content(self):
@@ -52,8 +63,7 @@ class DocumentFormat(object):
         if cached:
             return cached
 
-        _, parsed_content = doc_front_matter.DocumentFrontMatter\
-            .split_front_matter(self.raw_content)
+        parsed_content = self._parse_content()
         self._doc.pod.podcache.content_cache.add_property(
             self._doc, 'content', parsed_content)
         return parsed_content
@@ -63,14 +73,13 @@ class DocumentFormat(object):
         cached_front_matter = self._doc.pod.podcache.document_cache\
             .get_property(self._doc, 'front_matter')
         if cached_front_matter:
-            self._front_matter = doc_front_matter.DocumentFrontMatter(
+            return doc_front_matter.DocumentFrontMatter(
                 self._doc, raw_front_matter=cached_front_matter)
-        else:
-            self._front_matter = doc_front_matter.DocumentFrontMatter(
-                self._doc)
-            self._doc.pod.podcache.document_cache.add_property(
-                self._doc, 'front_matter', self._front_matter.export())
-        return self._front_matter
+
+        front_matter = self._parse_front_matter()
+        self._doc.pod.podcache.document_cache.add_property(
+            self._doc, 'front_matter', front_matter.export())
+        return front_matter
 
     @utils.cached_property
     def raw_content(self):
@@ -90,4 +99,10 @@ class TextDocumentFormat(DocumentFormat):
 
 
 class YamlDocumentFormat(DocumentFormat):
-    pass
+
+    def _parse_content(self):
+        return None
+
+    def _parse_front_matter(self):
+        return doc_front_matter.DocumentFrontMatter(
+            self._doc, raw_front_matter=self.raw_content)

@@ -13,12 +13,6 @@ class DocumentFormatTestCase(unittest.TestCase):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
-    def test_body(self):
-        with self.assertRaises(NotImplementedError):
-            doc = self.pod.get_doc('/content/pages/html.html')
-            doc_format = document_format.DocumentFormat(doc=doc)
-            doc_format.body
-
     def test_content(self):
         doc = self.pod.get_doc('/content/pages/html.html')
         doc_format = document_format.DocumentFormat.from_doc(doc=doc)
