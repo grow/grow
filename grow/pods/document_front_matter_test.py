@@ -61,6 +61,40 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             expected,
             document_front_matter.DocumentFrontMatter(doc).export())
 
+    def test_inherit(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_file('/content/pages/foo@en-us.yaml', textwrap.dedent("""\
+            $title: HTML EN-US Page
+            foo: three
+            """))
+        pod.write_file('/content/pages/foo@en.yaml', textwrap.dedent("""\
+            $title: HTML EN Page
+            foo: two
+            bar: true
+            """))
+        pod.write_file('/content/pages/foo.yaml', textwrap.dedent("""\
+            $title: HTML Page
+            foo: one
+            """))
+
+        doc = pod.get_doc('/content/pages/foo@en-us.yaml')
+        front_matter = doc.format_x.front_matter
+        self.assertEqual('HTML EN-US Page', front_matter._data['$title'])
+        self.assertEqual('three', front_matter._data['foo'])
+        self.assertEqual(True, front_matter._data['bar'])
+
+        doc = pod.get_doc('/content/pages/foo@en.yaml')
+        front_matter = doc.format_x.front_matter
+        self.assertEqual('HTML EN Page', front_matter._data['$title'])
+        self.assertEqual('two', front_matter._data['foo'])
+        self.assertEqual(True, front_matter._data['bar'])
+
+        doc = pod.get_doc('/content/pages/foo.yaml')
+        front_matter = doc.format_x.front_matter
+        self.assertEqual('HTML Page', front_matter._data['$title'])
+        self.assertEqual('one', front_matter._data['foo'])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -20,12 +20,8 @@ class DocumentFrontMatter(object):
 
     def __init__(self, doc, raw_front_matter=None):
         self._doc = doc
-        if raw_front_matter:
-            self._raw_front_matter = raw_front_matter
-        else:
-            self._raw_front_matter, _ = DocumentFrontMatter.split_front_matter(
-                self._doc.raw_content)
-        self._load_yaml()
+        self._data = {}
+        self._load_front_matter(raw_front_matter)
 
     @staticmethod
     def split_front_matter(content):
@@ -34,12 +30,31 @@ class DocumentFrontMatter(object):
             return parts[1].strip(), parts[2].strip()
         return None, content.strip()
 
-    def _load_yaml(self):
-        if not self._raw_front_matter:
+    def _load_front_matter(self, raw_front_matter):
+        """
+        Documents with localization need to base the front-matter off the base
+        document to extend or overwrite the base fields.
+        """
+        # Load base locales from the raw yaml to prevent shared variables.
+        for locale_path in reversed(self._doc.locale_paths[1:]):
+            if self._doc.pod.file_exists(locale_path):
+                locale_doc = self._doc.pod.get_doc(locale_path)
+                self._data.update(self._load_yaml(
+                    locale_doc.format_x.front_matter.export()))
+
+        if raw_front_matter:
+            self._raw_front_matter = raw_front_matter
+        else:
+            self._raw_front_matter, _ = DocumentFrontMatter.split_front_matter(
+                self._doc.raw_content)
+        self._data.update(self._load_yaml(self._raw_front_matter))
+
+    def _load_yaml(self, raw_yaml):
+        if not raw_yaml:
             return
         try:
             return utils.load_yaml(
-                self._raw_front_matter, doc=self._doc, pod=self._doc.pod)
+                raw_yaml, doc=self._doc, pod=self._doc.pod)
         except (yaml.parser.ParserError,
                 yaml.composer.ComposerError,
                 yaml.scanner.ScannerError) as e:
