@@ -1,3 +1,4 @@
+from . import document_fields
 from . import document_format
 from . import formats
 from . import locales
@@ -145,10 +146,10 @@ class Document(object):
 
     @utils.cached_property
     def fields(self):
-        identifier = self._locale_kwarg or self.collection.default_locale
-        tagged_fields = self.get_tagged_fields()
-        fields = utils.untag_fields(tagged_fields, locale=str(identifier))
-        return {} if not fields else fields
+        locale_identifier = str(
+            self._locale_kwarg or self.collection.default_locale)
+        return document_fields.DocumentFields(
+            self, self.format_x.front_matter.data, locale_identifier)
 
     @utils.cached_property
     def format(self):
@@ -281,10 +282,6 @@ class Document(object):
 
     def delete(self):
         self.pod.delete_file(self.pod_path)
-
-    def get_tagged_fields(self):
-        format = formats.Format.get(self)
-        return format.fields
 
     @utils.memoize
     def has_serving_path(self):
