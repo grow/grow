@@ -2,6 +2,8 @@
 Document fields for accessing the meta fields parsed from the document.
 """
 
+from grow.common import utils
+
 
 class DocumentFields(object):
 
@@ -12,7 +14,7 @@ class DocumentFields(object):
         return self._data[key]
 
     def __init__(self, data, locale_identifier):
-        self._data = data
+        self._data = utils.untag_fields(data, locale=locale_identifier)
         self._locale_identifier = locale_identifier
 
     def __len__(self):
