@@ -11,8 +11,7 @@ class DocumentFields(object):
     def __getitem__(self, key):
         return self._data[key]
 
-    def __init__(self, doc, data, locale_identifier):
-        self._doc = doc
+    def __init__(self, data, locale_identifier):
         self._data = data
         self._locale_identifier = locale_identifier
 

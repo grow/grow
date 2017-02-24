@@ -149,7 +149,7 @@ class Document(object):
         locale_identifier = str(
             self._locale_kwarg or self.collection.default_locale)
         return document_fields.DocumentFields(
-            self, self.format_x.front_matter.data, locale_identifier)
+            self.format_x.front_matter.data, locale_identifier)
 
     @utils.cached_property
     def format(self):
