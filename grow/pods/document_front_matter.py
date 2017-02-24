@@ -20,7 +20,7 @@ class DocumentFrontMatter(object):
 
     def __init__(self, doc, raw_front_matter=None):
         self._doc = doc
-        self._data = {}
+        self.data = {}
         self._load_front_matter(raw_front_matter)
 
     @staticmethod
@@ -39,7 +39,7 @@ class DocumentFrontMatter(object):
         for locale_path in reversed(self._doc.locale_paths[1:]):
             if self._doc.pod.file_exists(locale_path):
                 locale_doc = self._doc.pod.get_doc(locale_path)
-                self._data.update(self._load_yaml(
+                self.data.update(self._load_yaml(
                     locale_doc.format_x.front_matter.export()))
 
         if raw_front_matter:
@@ -47,7 +47,7 @@ class DocumentFrontMatter(object):
         else:
             self._raw_front_matter, _ = DocumentFrontMatter.split_front_matter(
                 self._doc.raw_content)
-        self._data.update(self._load_yaml(self._raw_front_matter))
+        self.data.update(self._load_yaml(self._raw_front_matter))
 
     def _load_yaml(self, raw_yaml):
         if not raw_yaml:

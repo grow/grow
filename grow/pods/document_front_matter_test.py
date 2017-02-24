@@ -80,20 +80,23 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
 
         doc = pod.get_doc('/content/pages/foo@en-us.yaml')
         front_matter = doc.format_x.front_matter
-        self.assertEqual('HTML EN-US Page', front_matter._data['$title'])
-        self.assertEqual('three', front_matter._data['foo'])
-        self.assertEqual(True, front_matter._data['bar'])
+        data = front_matter.data
+        self.assertEqual('HTML EN-US Page', data['$title'])
+        self.assertEqual('three', data['foo'])
+        self.assertEqual(True, data['bar'])
 
         doc = pod.get_doc('/content/pages/foo@en.yaml')
         front_matter = doc.format_x.front_matter
-        self.assertEqual('HTML EN Page', front_matter._data['$title'])
-        self.assertEqual('two', front_matter._data['foo'])
-        self.assertEqual(True, front_matter._data['bar'])
+        data = front_matter.data
+        self.assertEqual('HTML EN Page', data['$title'])
+        self.assertEqual('two', data['foo'])
+        self.assertEqual(True, data['bar'])
 
         doc = pod.get_doc('/content/pages/foo.yaml')
         front_matter = doc.format_x.front_matter
-        self.assertEqual('HTML Page', front_matter._data['$title'])
-        self.assertEqual('one', front_matter._data['foo'])
+        data = front_matter.data
+        self.assertEqual('HTML Page', data['$title'])
+        self.assertEqual('one', data['foo'])
 
 
 if __name__ == '__main__':
