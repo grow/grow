@@ -2,6 +2,7 @@
 
 from . import catalog_holder
 from . import collection
+from . import document_fields
 from . import env as environment
 from . import locales
 from . import messages
@@ -565,7 +566,7 @@ class Pod(object):
 
     def read_yaml(self, path):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
-        return utils.untag_fields(fields)
+        return document_fields.DocumentFields._untag(fields)
 
     def reset_yaml(self):
         self._parse_yaml.reset()

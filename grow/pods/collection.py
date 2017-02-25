@@ -1,5 +1,6 @@
 """Collections contain content documents and blueprints."""
 
+from . import document_fields
 from . import documents
 from . import formats
 from . import messages
@@ -152,7 +153,7 @@ class Collection(object):
 
     @utils.cached_property
     def fields(self):
-        fields = utils.untag_fields(self.tagged_fields)
+        fields = document_fields.DocumentFields._untag(self.tagged_fields)
         return {} if not fields else fields
 
     @utils.cached_property

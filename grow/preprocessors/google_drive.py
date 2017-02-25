@@ -15,6 +15,7 @@ from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
 from grow.pods import formats
+from grow.pods import document_fields
 from protorpc import messages
 import cStringIO
 import csv
@@ -302,7 +303,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             preserve=self.config.preserve, existing_data=existing_data,
             key_to_update=key_to_update)
         fields = self._normalize_formatted_content(fields)
-        fields = utils.untag_fields(fields)
+        fields = document_fields.DocumentFields._untag(fields)
         doc.inject(fields=fields)
 
     def get_edit_url(self, doc=None):
