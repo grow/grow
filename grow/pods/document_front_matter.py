@@ -47,7 +47,8 @@ class DocumentFrontMatter(object):
         else:
             self._raw_front_matter, _ = DocumentFrontMatter.split_front_matter(
                 self._doc.raw_content)
-        self.data.update(self._load_yaml(self._raw_front_matter))
+        if self._raw_front_matter:
+            self.data.update(self._load_yaml(self._raw_front_matter))
 
     def _load_yaml(self, raw_yaml):
         if not raw_yaml:
