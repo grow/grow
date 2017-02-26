@@ -1,11 +1,6 @@
----
 $title@: About 
 $titles:
   nav@: About us
 $order: 1.1
 foo: bar
 qaz: qux
----
-$locale: de
-$title@: AboutDE
-foo: baz
