@@ -145,7 +145,6 @@ class Document(object):
                 raise
 
     @property
-    @utils.memoize
     def body(self):
         return self.format.content.decode('utf-8') if self.format.content else None
 
@@ -188,12 +187,16 @@ class Document(object):
         return document_format.DocumentFormat.from_doc(doc=self)
 
     @property
+    def formatted(self):
+        return self.format.formatted
+
+    @property
     def hidden(self):
         return self.fields.get('$hidden', False)
 
     @property
     def html(self):
-        return self.format.formatted
+        return self.formatted
 
     @utils.cached_property
     def locale(self):
