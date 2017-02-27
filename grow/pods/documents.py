@@ -1,6 +1,5 @@
 from . import document_fields
 from . import document_format
-from . import formats
 from . import locales
 from . import messages
 from . import urls
@@ -70,8 +69,41 @@ class Document(object):
 
     @classmethod
     def _clean_basename(cls, pod_path):
-        pod_path, _ = formats.Format.parse_localized_path(pod_path)
-        return os.path.basename(pod_path)
+        base_pod_path = cls._locale_paths(pod_path)[-1]
+        return os.path.basename(base_pod_path)
+
+    @classmethod
+    def _locale_paths(cls, pod_path):
+        paths = [pod_path]
+        parts = PATH_LOCALE_REGEX.split(pod_path)
+        if len(parts) > 1:
+            if parts[3]: # [3] -> Country Code
+                paths.append('{}@{}{}'.format(parts[0], parts[1], parts[4]))
+            paths.append('{}{}'.format(parts[0], parts[4]))
+        return paths
+
+    @classmethod
+    def localize_path(cls, pod_path, locale):
+        """Returns a localized path (formatted <base>@<locale>.<ext>) for
+        multi-file localization."""
+        base, ext = os.path.splitext(pod_path)
+        return '{}@{}{}'.format(base, locale, ext)
+
+    @classmethod
+    def parse_localized_path(cls, pod_path):
+        """Returns a tuple containing the root pod path and the locale, parsed
+        from a localized pod path (formatted <base>@<locale>.<ext>). If the
+        supplied pod path does not contain a locale, the pod path is returned
+        along with None."""
+        groups = PATH_LOCALE_REGEX.split(pod_path)
+        if len(groups) > 1:
+            if groups[3]:
+                locale = '{}{}{}'.format(groups[1], groups[2], groups[3])
+            else:
+                locale = groups[1]
+            root_pod_path = '{}{}'.format(groups[0], groups[4])
+            return root_pod_path, locale
+        return pod_path, None
 
     def _format_path(self, path_format):
         podspec = self.pod.get_podspec()
@@ -101,7 +133,7 @@ class Document(object):
     def _init_locale(self, locale, pod_path):
         try:
             self.root_pod_path, locale_from_path = \
-                formats.Format.parse_localized_path(pod_path)
+                Document.parse_localized_path(pod_path)
             if locale_from_path:
                 locale = locale_from_path
             return self.pod.normalize_locale(
@@ -170,6 +202,10 @@ class Document(object):
         return self._locale
 
     @utils.cached_property
+    def locale_paths(self):
+        return Document._locale_paths(self.pod_path)
+
+    @utils.cached_property
     def locales(self):
         # Use $localization:locales if present, else use collection's locales.
         localized = '$localization' in self.fields
@@ -182,20 +218,6 @@ class Document(object):
                 codes = localization['locales'] or []
                 return locales.Locale.parse_codes(codes)
         return self.collection.locales
-
-    @utils.cached_property
-    def locale_paths(self):
-        """
-        Returns the pod path and any possible pod paths that are 'parents'
-        of the localized path.
-        """
-        paths = [self.pod_path]
-        parts = PATH_LOCALE_REGEX.split(self.pod_path)
-        if len(parts) > 1:
-            if parts[3]: # [3] -> Country Code
-                paths.append('{}@{}{}'.format(parts[0], parts[1], parts[4]))
-            paths.append('{}{}'.format(parts[0], parts[4]))
-        return paths
 
     @property
     def order(self):
@@ -391,6 +413,9 @@ class Document(object):
         return message
 
     def write(self, fields=utils.SENTINEL, body=utils.SENTINEL):
-        content = self.content if self.exists else ''
-        new_content = formats.Format.update(content, fields=fields, body=body)
+        if body is utils.SENTINEL:
+            body = self.body if self.exists else ''
+        self.format.update(fields=fields, content=body)
+        new_content = self.format.to_raw_content()
+        print 'writing {}'.format(self.pod_path)
         self.pod.write_file(self.pod_path, new_content)

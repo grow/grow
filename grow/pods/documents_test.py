@@ -3,7 +3,6 @@ import textwrap
 import unittest
 
 from . import documents
-from . import formats
 from . import locales
 from . import pods
 from . import routes
@@ -92,6 +91,27 @@ class DocumentsTestCase(unittest.TestCase):
         expected = '/ko/contact-us/'
         self.assertEqual(expected, ko_doc.url.path)
         self.assertTrue(ko_doc.exists)
+
+    def test_parse_localized_path(self):
+        path = '/content/pages/file@en_us.ext'
+        expected = ('/content/pages/file.ext', 'en_us')
+        self.assertEqual(
+            expected, documents.Document.parse_localized_path(path))
+        path = '/content/pages/file@en.ext'
+        expected = ('/content/pages/file.ext', 'en')
+        self.assertEqual(
+            expected, documents.Document.parse_localized_path(path))
+        path = '/content/pages/file.ext'
+        expected = ('/content/pages/file.ext', None)
+        self.assertEqual(
+            expected, documents.Document.parse_localized_path(path))
+
+    def test_localize_path(self):
+        path = '/content/pages/file.ext'
+        locale = 'locale'
+        expected = '/content/pages/file@locale.ext'
+        self.assertEqual(
+            expected, documents.Document.localize_path(path, locale=locale))
 
     def test_next_prev(self):
         collection = self.pod.get_collection('pages')

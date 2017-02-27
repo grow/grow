@@ -19,7 +19,6 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             ---
             name: Jane Doe
             ---
-
             Jane was adventuring.
             """)
         expected = ('name: Jane Doe', 'Jane was adventuring.')
@@ -30,6 +29,18 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
 
         # No front matter, so only content returned.
         input = textwrap.dedent("""
+            Jane was adventuring.
+            """)
+        expected = (None, 'Jane was adventuring.')
+
+        self.assertEquals(
+            expected,
+            document_front_matter.DocumentFrontMatter.split_front_matter(input))
+
+        # Empty front matter, so only content returned.
+        input = textwrap.dedent("""
+            ---
+            ---
             Jane was adventuring.
             """)
         expected = (None, 'Jane was adventuring.')

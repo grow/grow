@@ -10,6 +10,10 @@ from grow.common import utils
 from markdown.extensions import tables
 import markdown
 
+
+BOUNDARY_SEPARATOR = '---'
+
+
 class Error(Exception):
     pass
 
@@ -42,25 +46,19 @@ class DocumentFormat(object):
         return TextDocumentFormat(*args, **kwargs)
 
     def _parse_content(self):
-        """
-        Parse the content from the raw content.
-        """
+        """Parse the content from the raw content."""
         _, parsed_content = doc_front_matter.DocumentFrontMatter\
             .split_front_matter(self.raw_content)
         return parsed_content
 
     def _parse_front_matter(self):
-        """
-        Parse the front matter from the raw content.
-        """
+        """Parse the front matter from the raw content."""
         return doc_front_matter.DocumentFrontMatter(
             self._doc)
 
     @utils.cached_property
     def content(self):
-        """
-        Lazy load the content after checking the content cache.
-        """
+        """Lazy load the content after checking the content cache."""
         cached = self._doc.pod.podcache.content_cache.get_property(
             self._doc, 'content')
         if cached:
@@ -91,6 +89,38 @@ class DocumentFormat(object):
     @utils.cached_property
     def formatted(self):
         return self.content
+
+    def to_raw_content(self):
+        """Formats the front matter and content into a raw_content string."""
+        raw_content = ''
+
+        raw_front_matter = self.front_matter.export().strip()
+        content = self.content.strip()
+
+        if raw_front_matter and content:
+            raw_content = '{0}\n{1}\n{0}\n{2}\n'.format(
+                BOUNDARY_SEPARATOR, raw_front_matter, content)
+        elif raw_front_matter:
+            raw_content = '{}\n'.format(raw_front_matter)
+        else:
+            raw_content = '{}\n'.format(content)
+
+        return raw_content
+
+    def update(self, fields=utils.SENTINEL, content=utils.SENTINEL):
+        """Updates content and frontmatter."""
+        if fields is not utils.SENTINEL:
+            raw_front_matter = utils.dump_yaml(fields)
+            self.front_matter._load_front_matter(raw_front_matter)
+            self._doc.pod.podcache.document_cache.add_property(
+                self._doc, 'front_matter', self.front_matter.export())
+
+        if content is not utils.SENTINEL:
+            self.content = content
+            self._doc.pod.podcache.content_cache.add_property(
+                self._doc, 'content', content)
+
+        self.raw_content = self.to_raw_content()
 
 
 class HtmlDocumentFormat(DocumentFormat):

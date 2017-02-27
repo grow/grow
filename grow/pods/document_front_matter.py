@@ -21,13 +21,14 @@ class DocumentFrontMatter(object):
     def __init__(self, doc, raw_front_matter=None):
         self._doc = doc
         self.data = {}
+        self._raw_front_matter = None
         self._load_front_matter(raw_front_matter)
 
     @staticmethod
     def split_front_matter(content):
         parts = BOUNDARY_REGEX.split(content)
         if len(parts) == 3:
-            return parts[1].strip(), parts[2].strip()
+            return parts[1].strip() or None, parts[2].strip()
         return None, content.strip()
 
     def _load_front_matter(self, raw_front_matter):
@@ -44,9 +45,10 @@ class DocumentFrontMatter(object):
 
         if raw_front_matter:
             self._raw_front_matter = raw_front_matter
-        else:
+        elif self._doc.exists:
             self._raw_front_matter, _ = DocumentFrontMatter.split_front_matter(
                 self._doc.raw_content)
+
         if self._raw_front_matter:
             self.data.update(self._load_yaml(self._raw_front_matter))
 

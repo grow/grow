@@ -2,7 +2,6 @@
 
 from . import document_fields
 from . import documents
-from . import formats
 from . import messages
 from grow.common import structures
 from grow.common import utils
@@ -242,7 +241,7 @@ class Collection(object):
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
         if locale is not None:
-            localized_path = formats.Format.localize_path(pod_path, locale)
+            localized_path = documents.Document.localize_path(pod_path, locale)
             if self.pod.file_exists(localized_path):
                 pod_path = localized_path
         return documents.Document(
@@ -275,7 +274,7 @@ class Collection(object):
                 continue
             try:
                 _, locale_from_path = \
-                    formats.Format.parse_localized_path(pod_path)
+                    documents.Document.parse_localized_path(pod_path)
                 if locale_from_path:
                     if (locale is not None
                             and locale in [utils.SENTINEL, locale_from_path]):
