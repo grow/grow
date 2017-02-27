@@ -1,0 +1,48 @@
+INFO    Root directory of conversion: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod
+INFO    Single locale detected, skipping: /content/globals.yaml
+INFO    Single locale detected, skipping: /content/localized_collection/_blueprint.yaml
+INFO    Single locale detected, skipping: /content/localized_collection/doc.csv
+INFO    Converting: /content/localized_collection/doc_in_parts.html
+INFO     - Number of content pairs: 3
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/doc_in_parts.html
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/doc_in_parts@ja.html
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/doc_in_parts@it.html
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/doc_in_parts@sv.html
+INFO    Converting: /content/localized_collection/doc_in_parts.yaml
+INFO     - Number of content pairs: 3
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/doc_in_parts.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/doc_in_parts@ja.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/doc_in_parts@it.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/doc_in_parts@sv.yaml
+INFO    Single locale detected, skipping: /content/localized_collection/localized_doc.html
+INFO    Single locale detected, skipping: /content/localized_collection/localized_doc.md
+INFO    Single locale detected, skipping: /content/localized_collection/localized_doc.yaml
+INFO    Single locale detected, skipping: /content/localized_collection/unlocalized_doc.html
+INFO    Single locale detected, skipping: /content/localized_collection/unlocalized_doc.yaml
+INFO    Converting: /content/localized_collection/unlocalized_doc_with_localized_parts.yaml
+INFO     - Number of content pairs: 2
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/unlocalized_doc_with_localized_parts.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/localized_collection/unlocalized_doc_with_localized_parts@ja.yaml
+INFO    Single locale detected, skipping: /content/unlocalized_collection/_blueprint.yaml
+INFO    Single locale detected, skipping: /content/unlocalized_collection/doc.csv
+INFO    Converting: /content/unlocalized_collection/doc_in_parts.html
+INFO     - Number of content pairs: 3
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/doc_in_parts.html
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/doc_in_parts@ja.html
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/doc_in_parts@it.html
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/doc_in_parts@sv.html
+INFO    Converting: /content/unlocalized_collection/doc_in_parts.yaml
+INFO     - Number of content pairs: 3
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/doc_in_parts.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/doc_in_parts@ja.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/doc_in_parts@it.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/doc_in_parts@sv.yaml
+INFO    Single locale detected, skipping: /content/unlocalized_collection/localized_doc.html
+INFO    Single locale detected, skipping: /content/unlocalized_collection/localized_doc.md
+INFO    Single locale detected, skipping: /content/unlocalized_collection/localized_doc.yaml
+INFO    Single locale detected, skipping: /content/unlocalized_collection/unlocalized_doc.html
+INFO    Single locale detected, skipping: /content/unlocalized_collection/unlocalized_doc.yaml
+INFO    Converting: /content/unlocalized_collection/unlocalized_doc_with_localized_parts.yaml
+INFO     - Number of content pairs: 2
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/unlocalized_doc_with_localized_parts.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/extract_localized/localized_pod/content/unlocalized_collection/unlocalized_doc_with_localized_parts@pl.yaml

@@ -1,0 +1,37 @@
+INFO    Root directory of conversion: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod
+INFO    Single locale detected, skipping: /content/empty-front-matter/_blueprint.yaml
+INFO    Single locale detected, skipping: /content/empty-front-matter/empty-front-matter.html
+INFO    Single locale detected, skipping: /content/localized/_blueprint.yaml
+INFO    Converting: /content/localized/localized-view-override.yaml
+INFO     - Number of content pairs: 2
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/localized/localized-view-override.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/localized/localized-view-override@tr_TR.yaml
+INFO    Converting: /content/localized/localized.yaml
+INFO     - Number of content pairs: 2
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/localized/localized.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/localized/localized@ja.yaml
+INFO    Converting: /content/localized/multiple-locales.yaml
+INFO     - Number of content pairs: 3
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/localized/multiple-locales.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/localized/multiple-locales@de.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/localized/multiple-locales@it.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/localized/multiple-locales@fr.yaml
+INFO    Single locale detected, skipping: /content/pages/_blueprint.yaml
+INFO    Converting: /content/pages/about.yaml
+INFO     - Number of content pairs: 2
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/pages/about.yaml
+INFO    Writing: /Users/randy/blinkk/code/grow/grow/testing/testdata/pod/content/pages/about@de.yaml
+INFO    Single locale detected, skipping: /content/pages/contact.yaml
+INFO    Single locale detected, skipping: /content/pages/home.yaml
+INFO    Single locale detected, skipping: /content/pages/html.html
+INFO    Single locale detected, skipping: /content/pages/intro.md
+INFO    Filename contains a @, skipping: /content/pages/intro@fr.md
+INFO    Single locale detected, skipping: /content/pages/localized.yaml
+INFO    Single locale detected, skipping: /content/pages/root.yaml
+INFO    Single locale detected, skipping: /content/pages/text.txt
+INFO    Single locale detected, skipping: /content/pages/yaml_test.html
+INFO    Single locale detected, skipping: /content/posts/_blueprint.yaml
+INFO    Single locale detected, skipping: /content/posts/newer.md
+INFO    Single locale detected, skipping: /content/posts/newest.md
+INFO    Single locale detected, skipping: /content/posts/older.md
+INFO    Single locale detected, skipping: /content/posts/oldest.md
