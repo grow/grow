@@ -1,6 +1,6 @@
 """
 Code timing function.
-From: https://www.huyng.com/posts/python-performance-analysis
+Based off https://www.huyng.com/posts/python-performance-analysis
 """
 
 import time
@@ -18,4 +18,4 @@ class Timer(object):
         self.secs = self.end - self.start
         self.msecs = self.secs * 1000  # millisecs
         if self.verbose:
-            print 'elapsed time: %f ms' % self.msecs
+            print 'Elapsed time: {.4f} ms'.format(self.msecs)
