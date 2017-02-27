@@ -420,5 +420,4 @@ class Document(object):
             body = self.body if self.exists else ''
         self.format.update(fields=fields, content=body)
         new_content = self.format.to_raw_content()
-        print 'writing {}'.format(self.pod_path)
         self.pod.write_file(self.pod_path, new_content)
