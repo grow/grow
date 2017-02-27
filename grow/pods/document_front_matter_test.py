@@ -79,21 +79,21 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             """))
 
         doc = pod.get_doc('/content/pages/foo@en-us.yaml')
-        front_matter = doc.format_x.front_matter
+        front_matter = doc.format.front_matter
         data = front_matter.data
         self.assertEqual('HTML EN-US Page', data['$title'])
         self.assertEqual('three', data['foo'])
         self.assertEqual(True, data['bar'])
 
         doc = pod.get_doc('/content/pages/foo@en.yaml')
-        front_matter = doc.format_x.front_matter
+        front_matter = doc.format.front_matter
         data = front_matter.data
         self.assertEqual('HTML EN Page', data['$title'])
         self.assertEqual('two', data['foo'])
         self.assertEqual(True, data['bar'])
 
         doc = pod.get_doc('/content/pages/foo.yaml')
-        front_matter = doc.format_x.front_matter
+        front_matter = doc.format.front_matter
         data = front_matter.data
         self.assertEqual('HTML Page', data['$title'])
         self.assertEqual('one', data['foo'])
