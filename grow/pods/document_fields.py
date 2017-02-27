@@ -73,5 +73,8 @@ class DocumentFields(object):
     def get(self, key, default=None):
         return self._data.get(key, default)
 
+    def keys(self):
+        return self._data.keys()
+
     def update(self, updated):
         self._data.update(updated)

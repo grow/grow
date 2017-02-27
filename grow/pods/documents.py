@@ -115,7 +115,7 @@ class Document(object):
     @property
     @utils.memoize
     def body(self):
-        return self.format.body.decode('utf-8') if self.format.body else None
+        return self.format_x.content.decode('utf-8') if self.format_x.content else None
 
     @property
     def category(self):
@@ -123,7 +123,7 @@ class Document(object):
 
     @property
     def content(self):
-        return self.format.content.decode('utf-8')
+        return self.format_x.raw_content.decode('utf-8')
 
     @property
     def date(self):
@@ -152,10 +152,6 @@ class Document(object):
             self.format_x.front_matter.data, locale_identifier)
 
     @utils.cached_property
-    def format(self):
-        return formats.Format.get(self)
-
-    @utils.cached_property
     def format_x(self):
         return document_format.DocumentFormat.from_doc(doc=self)
 
@@ -165,7 +161,7 @@ class Document(object):
 
     @property
     def html(self):
-        return self.format.html
+        return self.format_x.formatted
 
     @utils.cached_property
     def locale(self):
@@ -292,7 +288,7 @@ class Document(object):
         if fields != utils.SENTINEL:
             self.fields.update(fields)
         if body != utils.SENTINEL:
-            self.format.body = body
+            self.format_x.body = body
         self.pod.logger.info('Injected -> {}'.format(self.pod_path))
 
     @utils.memoize

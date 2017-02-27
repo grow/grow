@@ -5,7 +5,10 @@ Defines how to handle documents formatted in various syntax formats.
 """
 
 from . import document_front_matter as doc_front_matter
+from grow.common import markdown_extensions
 from grow.common import utils
+from markdown.extensions import tables
+import markdown
 
 class Error(Exception):
     pass
@@ -85,13 +88,34 @@ class DocumentFormat(object):
     def raw_content(self):
         return self._doc.pod.read_file(self._doc.pod_path)
 
+    @utils.cached_property
+    def formatted(self):
+        return self.content
+
 
 class HtmlDocumentFormat(DocumentFormat):
-    pass
+
+    @utils.cached_property
+    def formatted(self):
+        val = self.content
+        return val.decode('utf-8') if val is not None else None
 
 
 class MarkdownDocumentFormat(DocumentFormat):
-    pass
+
+    @utils.cached_property
+    def formatted(self):
+        val = self.content
+        if val is not None:
+            extensions = [
+                tables.TableExtension(),
+                markdown_extensions.TocExtension(pod=self._doc.pod),
+                markdown_extensions.CodeBlockExtension(self._doc.pod),
+                markdown_extensions.IncludeExtension(self._doc.pod),
+                markdown_extensions.UrlExtension(self._doc.pod),
+            ]
+            val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
+        return val
 
 
 class TextDocumentFormat(DocumentFormat):

@@ -1,12 +1,13 @@
 $title: Localized
-$view: /views/localized.html
+$view: /views/ja-specific-view.html
 $path: /intl/{locale}/localized/
 $localization:
-  default_locale: en
+  default_locale: ja
   path: /intl/{locale}/localized/
   locales:
   - de
   - en
   - fr
-foo: base
+  - ja
+foo: base_ja
 bar: baz
