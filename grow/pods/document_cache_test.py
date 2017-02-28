@@ -25,9 +25,7 @@ class DocumentCacheTestCase(unittest.TestCase):
         print str(doc._locale_kwarg)
         self.doc_cache.add_all({
             '/content/pages/intro.md': {
-                None: {
-                    'question': '???'
-                }
+                'question': '???'
             }
         })
         self.assertEqual('???', self.doc_cache.get(doc)['question'])
@@ -44,7 +42,7 @@ class DocumentCacheTestCase(unittest.TestCase):
         doc = self.pod.get_doc('/content/pages/intro.md')
         self.doc_cache.add(doc, value)
         self.assertEqual(42, self.doc_cache.get(doc)['answer'])
-        self.assertEqual({None: value}, self.doc_cache.delete(doc))
+        self.assertEqual(value, self.doc_cache.delete(doc))
         self.assertEqual(None, self.doc_cache.get(doc))
 
     def test_export(self):
@@ -56,16 +54,12 @@ class DocumentCacheTestCase(unittest.TestCase):
         self.doc_cache.add(doc, {
             'question': '???'
         })
-        self.assertEqual({
+        self.assertDictEqual({
             '/content/pages/about.md': {
-                None: {
-                    'question': '???'
-                }
+                'question': '???'
             },
             '/content/pages/intro.md': {
-                None: {
-                    'answer': 42
-                }
+                'answer': 42
             },
         }, self.doc_cache.export())
 
