@@ -204,8 +204,7 @@ class Collection(object):
     def view(self):
         return self._get_builtin_field('view')
 
-    @property
-    @utils.memoize
+    @utils.cached_property
     def yaml(self):
         if not self.exists:
             return {}
