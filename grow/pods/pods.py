@@ -293,7 +293,13 @@ class Pod(object):
           Collection.
         """
         pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
-        return collection.Collection.get(pod_path, _pod=self)
+        cached = self.podcache.collection_cache.get(pod_path, None)
+        if cached:
+            return cached
+
+        col = collection.Collection.get(pod_path, _pod=self)
+        self.podcache.collection_cache[pod_path] = col
+        return col
 
     def get_deployment(self, nickname):
         """Returns a pod-specific deployment."""
