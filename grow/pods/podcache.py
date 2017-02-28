@@ -13,7 +13,8 @@ class PodCache(object):
     def __init__(self, yaml, pod):
         self._pod = pod
 
-        self._content_cache = document_cache.DocumentCache()
+        self._collection_cache = {}
+        self._doc_cache = {}
 
         self._document_cache = document_cache.DocumentCache()
         self._document_cache.add_all(yaml.get(self.KEY_DOCUMENTS, {}))
@@ -22,19 +23,28 @@ class PodCache(object):
         self._dependency_graph.add_all(yaml.get(self.KEY_DEPENDENCIES, {}))
 
     @property
-    def content_cache(self):
-        return self._content_cache
+    def collection_cache(self):
+        """Cache for the collections."""
+        return self._collection_cache
+
+    @property
+    def doc_cache(self):
+        """Cache for the full document."""
+        return self._doc_cache
 
     @property
     def dependency_graph(self):
+        """Dependency graph from rendered docs."""
         return self._dependency_graph
 
     @property
     def document_cache(self):
+        """Cache for specific document properties."""
         return self._document_cache
 
     def reset(self):
-        self._content_cache.reset()
+        self._collection_cache = {}
+        self._doc_cache = {}
         self._dependency_graph.reset()
         self._document_cache.reset()
 
