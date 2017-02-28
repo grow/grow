@@ -59,15 +59,7 @@ class DocumentFormat(object):
     @utils.cached_property
     def content(self):
         """Lazy load the content after checking the content cache."""
-        cached = self._doc.pod.podcache.content_cache.get_property(
-            self._doc, 'content')
-        if cached:
-            return cached
-
-        parsed_content = self._parse_content()
-        self._doc.pod.podcache.content_cache.add_property(
-            self._doc, 'content', parsed_content)
-        return parsed_content
+        return self._parse_content()
 
     @utils.cached_property
     def front_matter(self):
@@ -117,8 +109,6 @@ class DocumentFormat(object):
 
         if content is not utils.SENTINEL:
             self.content = content
-            self._doc.pod.podcache.content_cache.add_property(
-                self._doc, 'content', content)
 
         self.raw_content = self.to_raw_content()
 
