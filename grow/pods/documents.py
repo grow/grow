@@ -86,6 +86,8 @@ class Document(object):
     def localize_path(cls, pod_path, locale):
         """Returns a localized path (formatted <base>@<locale>.<ext>) for
         multi-file localization."""
+        if locale is None:
+            return pod_path
         base, ext = os.path.splitext(pod_path)
         return '{}@{}{}'.format(base, locale, ext)
 
