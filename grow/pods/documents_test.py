@@ -74,6 +74,29 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('baz', de_doc.foo)
         self.assertEqual('qux', de_doc.qaz)
 
+    def test_clean_localized_path(self):
+        input = '/content/pages/about.yaml'
+        expected = '/content/pages/about.yaml'
+        self.assertEquals(expected, documents.Document.clean_localized_path(
+            input, None))
+
+        input = '/content/pages/about@de.yaml'
+        expected = '/content/pages/about@de.yaml'
+        self.assertEquals(expected, documents.Document.clean_localized_path(
+            input, 'de'))
+
+        input = '/content/pages/about@de.yaml'
+        expected = '/content/pages/about.yaml'
+        self.assertEquals(expected, documents.Document.clean_localized_path(
+            input, 'en'))
+
+    def test_get_serving_path(self):
+        about_doc = self.pod.get_doc('/content/pages/about.yaml')
+        self.assertEquals('/about/', about_doc.get_serving_path())
+
+        de_doc = self.pod.get_doc('/content/pages/about.yaml', locale='de')
+        self.assertEquals('/de_alias/about/', de_doc.get_serving_path())
+
     def test_locales(self):
         doc = self.pod.get_doc('/content/pages/contact.yaml')
         self.assertEqual(locales.Locale('de'), doc.locale)
@@ -110,6 +133,20 @@ class DocumentsTestCase(unittest.TestCase):
         path = '/content/pages/file.ext'
         locale = 'locale'
         expected = '/content/pages/file@locale.ext'
+        self.assertEqual(
+            expected, documents.Document.localize_path(path, locale=locale))
+
+        # No Locale
+        path = '/content/pages/file.ext'
+        locale = None
+        expected = '/content/pages/file.ext'
+        self.assertEqual(
+            expected, documents.Document.localize_path(path, locale=locale))
+
+        # Existing Locale
+        path = '/content/pages/file@locale.ext'
+        locale = 'elacol'
+        expected = '/content/pages/file@elacol.ext'
         self.assertEqual(
             expected, documents.Document.localize_path(path, locale=locale))
 

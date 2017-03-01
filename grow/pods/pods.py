@@ -218,7 +218,7 @@ class Pod(object):
         for path in paths:
             controller, params = self.match(path)
             try:
-              output[path] = controller.render(params, inject=False)
+                output[path] = controller.render(params, inject=False)
             except:
               self.logger.error('Error building: {}'.format(controller))
               raise

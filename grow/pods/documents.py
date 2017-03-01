@@ -83,9 +83,19 @@ class Document(object):
         return paths
 
     @classmethod
+    def clean_localized_path(cls, pod_path, locale):
+        """Removed the localized part of the path."""
+        if '@' in pod_path and locale is not None:
+            base, _ = os.path.splitext(pod_path)
+            if not base.endswith('@{}'.format(locale)):
+                pod_path = cls._locale_paths(pod_path)[-1]
+        return pod_path
+
+    @classmethod
     def localize_path(cls, pod_path, locale):
         """Returns a localized path (formatted <base>@<locale>.<ext>) for
         multi-file localization."""
+        pod_path = cls.clean_localized_path(pod_path, locale)
         if locale is None:
             return pod_path
         base, ext = os.path.splitext(pod_path)

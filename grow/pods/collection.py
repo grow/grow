@@ -239,6 +239,7 @@ class Collection(object):
 
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
+        pod_path = documents.Document.clean_localized_path(pod_path, locale)
         if locale is not None:
             localized_path = documents.Document.localize_path(pod_path, locale)
             if self.pod.file_exists(localized_path):
