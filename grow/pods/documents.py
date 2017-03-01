@@ -295,18 +295,6 @@ class Document(object):
         if view_format is not None:
             return self._format_path(view_format)
 
-    @utils.cached_property
-    def virtual_key(self):
-        last_mod = 0
-        try:
-            last_mod = self.pod.file_modified(self.pod_path)
-        except OSError:
-            pass
-        return "{0}|{1}|{2}"\
-            .format(self.root_pod_path,
-                    self._locale_kwarg,
-                    last_mod)
-
     def dates(self, date_name=None):
         if date_name is None:
             return self.date
