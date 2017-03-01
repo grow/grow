@@ -31,6 +31,12 @@ class CollectionCache(object):
             doc.pod_path, doc._locale_kwarg)
         self._cache[col.collection_path]['docs'][cache_key] = doc
 
+        # Recache with the real locale once we have stored it.
+        new_cache_key = CollectionCache.generate_cache_key(
+            doc.pod_path, doc.locale)
+        if cache_key != new_cache_key:
+            self._cache[col.collection_path]['docs'][new_cache_key] = doc
+
     def delete_by_path(self, path):
         """Removes the collection or document based on the path."""
         if path.startswith(collection.Collection.CONTENT_PATH):
@@ -75,6 +81,8 @@ class CollectionCache(object):
             self.add_collection(col)
 
     def get_collection(self, collection_path):
+        collection_path = collection.Collection.clean_collection_path(
+            collection_path)
         if collection_path in self._cache:
             return self._cache[collection_path]['collection']
         return None

@@ -61,10 +61,9 @@ class Collection(object):
 
     def __init__(self, pod_path, _pod):
         utils.validate_name(pod_path)
-        regex = Collection._content_path_regex
         self.pod = _pod
-        self.collection_path = regex.sub('', pod_path).strip('/')
         self.pod_path = pod_path
+        self.collection_path = Collection.clean_collection_path(pod_path)
         self.basename = os.path.basename(self.collection_path)
         self._blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
@@ -75,6 +74,10 @@ class Collection(object):
 
     def __repr__(self):
         return '<Collection "{}">'.format(self.collection_path)
+
+    @classmethod
+    def clean_collection_path(cls, pod_path):
+        return Collection._content_path_regex.sub('', pod_path).strip('/')
 
     def _add_localized_docs(self, sorted_docs, pod_path, locale, doc):
         for each_locale in doc.locales:
