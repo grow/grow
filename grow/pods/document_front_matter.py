@@ -40,8 +40,9 @@ class DocumentFrontMatter(object):
         for locale_path in reversed(self._doc.locale_paths[1:]):
             if self._doc.pod.file_exists(locale_path):
                 locale_doc = self._doc.pod.get_doc(locale_path)
-                self.data.update(self._load_yaml(
-                    locale_doc.format.front_matter.export()))
+                raw_locale_front_matter = locale_doc.format.front_matter.export()
+                if raw_locale_front_matter:
+                    self.data.update(self._load_yaml(raw_locale_front_matter))
 
         if raw_front_matter:
             self._raw_front_matter = raw_front_matter
