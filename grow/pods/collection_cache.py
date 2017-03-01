@@ -25,8 +25,10 @@ class CollectionCache(object):
     def add_document(self, doc):
         col = doc.collection
         self.ensure_collection(col)
+        # NOTE: Using `doc.locale` causes infinite loop since it needs to load
+        # the fields (which can have circular dependencies).
         cache_key = CollectionCache.generate_cache_key(
-            doc.pod_path, str(doc.locale))
+            doc.pod_path, doc._locale_kwarg)
         self._cache[col.collection_path]['docs'][cache_key] = doc
 
     def delete_by_path(self, path):
@@ -64,7 +66,7 @@ class CollectionCache(object):
         col = doc.collection
         if col.collection_path in self._cache:
             cache_key = CollectionCache.generate_cache_key(
-                doc.pod_path, str(doc.locale))
+                doc.pod_path, doc._locale_kwarg)
             if cache_key in self._cache[col.collection_path]['docs']:
                 del self._cache[col.collection_path]['docs'][cache_key]
 
