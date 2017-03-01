@@ -555,13 +555,13 @@ class DocumentsTestCase(unittest.TestCase):
     def test_locale_paths(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})
-        pod.write_file('/content/pages/foo@en-us.yaml', '')
+        pod.write_file('/content/pages/foo@en_us.yaml', '')
         pod.write_file('/content/pages/foo@en.yaml', '')
         pod.write_file('/content/pages/foo.yaml', '')
 
-        doc = pod.get_doc('/content/pages/foo@en-us.yaml')
+        doc = pod.get_doc('/content/pages/foo@en_us.yaml')
         self.assertEqual([
-            '/content/pages/foo@en-us.yaml',
+            '/content/pages/foo@en_us.yaml',
             '/content/pages/foo@en.yaml',
             '/content/pages/foo.yaml',
         ], doc.locale_paths)

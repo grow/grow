@@ -75,7 +75,7 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
     def test_inherit(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})
-        pod.write_file('/content/pages/foo@en-us.yaml', textwrap.dedent("""\
+        pod.write_file('/content/pages/foo@en_us.yaml', textwrap.dedent("""\
             $title: HTML EN-US Page
             foo: three
             """))
@@ -89,7 +89,7 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             foo: one
             """))
 
-        doc = pod.get_doc('/content/pages/foo@en-us.yaml')
+        doc = pod.get_doc('/content/pages/foo@en_us.yaml')
         front_matter = doc.format.front_matter
         data = front_matter.data
         self.assertEqual('HTML EN-US Page', data['$title'])
