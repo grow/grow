@@ -363,7 +363,6 @@ class Pod(object):
             kwargs['bytecode_cache'] = self._get_bytecode_cache()
         kwargs['extensions'].extend(self.list_jinja_extensions())
         env = jinja2.Environment(**kwargs)
-        env.globals.update({'g': tags.create_builtin_tags(self, use_cache=self.env.cached)})
         env.filters.update(tags.create_builtin_filters())
         get_gettext_func = self.catalogs.get_gettext_translations
         env.install_gettext_callables(
