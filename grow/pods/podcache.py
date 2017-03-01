@@ -1,5 +1,6 @@
 """Caching for pod meta information."""
 
+from . import collection_cache
 from . import document_cache
 from . import dependency
 from grow.common import timer
@@ -13,8 +14,7 @@ class PodCache(object):
     def __init__(self, yaml, pod):
         self._pod = pod
 
-        self._collection_cache = {}
-        self._doc_cache = {}
+        self._collection_cache = collection_cache.CollectionCache()
 
         self._document_cache = document_cache.DocumentCache()
         self._document_cache.add_all(yaml.get(self.KEY_DOCUMENTS, {}))
@@ -43,8 +43,7 @@ class PodCache(object):
         return self._document_cache
 
     def reset(self):
-        self._collection_cache = {}
-        self._doc_cache = {}
+        self._collection_cache.reset()
         self._dependency_graph.reset()
         self._document_cache.reset()
 

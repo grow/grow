@@ -293,12 +293,12 @@ class Pod(object):
           Collection.
         """
         pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
-        cached = self.podcache.collection_cache.get(pod_path, None)
+        cached = self.podcache.collection_cache.get_collection(pod_path)
         if cached:
             return cached
 
         col = collection.Collection.get(pod_path, _pod=self)
-        self.podcache.collection_cache[pod_path] = col
+        self.podcache.collection_cache.add_collection(col)
         return col
 
     def get_deployment(self, nickname):
@@ -593,6 +593,7 @@ class Pod(object):
         self.storage.write(path, content)
 
     def write_yaml(self, path, content):
+        self.podcache.collection_cache.delete_by_path(path)
         self.podcache.document_cache.delete_by_path(path)
         content = utils.dump_yaml(content)
         self.write_file(path, content)
