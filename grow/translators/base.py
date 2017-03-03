@@ -53,7 +53,7 @@ class Translator(object):
     def _download_content(self, stat):
         raise NotImplementedError
 
-    def _upload_catalog(self, catalog, source_lang):
+    def _upload_catalog(self, catalog, source_lang, prune):
         raise NotImplementedError
 
     def _update_acl(self, stat, locale):

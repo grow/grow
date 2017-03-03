@@ -170,7 +170,7 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
             return
         gtt.update_acl(stat.ident, acl)
 
-    def _upload_catalog(self, catalog, source_lang):
+    def _upload_catalog(self, catalog, source_lang, prune=False):
         gtt = Gtt()
         project_title = self.project_title
         name = '{} ({})'.format(project_title, str(catalog.locale))

@@ -258,9 +258,9 @@ class GoogleSheetsTranslator(base.Translator):
 
     def _generate_create_sheets_requests(self, catalogs, source_lang):
         # Create sheets.
-        sheet_id = random.randrange(100, 9999999)
         requests = []
         for catalog in catalogs:
+            sheet_id = random.randrange(100, 9999999)
             lang = str(catalog.locale)
             # Create a new sheet.
             requests.append({
