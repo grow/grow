@@ -38,7 +38,7 @@ class Document(object):
     def __eq__(self, other):
         return (isinstance(self, Document)
                 and isinstance(other, Document)
-                and self.pod_path == other.pod_path)
+                and self.root_pod_path == other.root_pod_path)
 
     def __getattr__(self, name):
         if name == 'locale':
