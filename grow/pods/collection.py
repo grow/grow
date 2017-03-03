@@ -324,6 +324,16 @@ class Collection(object):
                     or not doc.view
                     or (locales and doc.locale not in locales)):
                 continue
+
+            # If there is a localized version of the default locale
+            # the base document should not be added with the same locale.
+            if (doc.locale and doc.locale == doc.default_locale and
+                    not documents.Document.is_localized_path(doc.pod_path)):
+                localized_path = documents.Document.localize_path(
+                    doc.pod_path, doc.locale)
+                if self.pod.file_exists(localized_path):
+                    continue
+
             docs.append(doc)
         return docs
 

@@ -92,6 +92,10 @@ class Document(object):
         return pod_path
 
     @classmethod
+    def is_localized_path(cls, pod_path):
+        return '@' in pod_path
+
+    @classmethod
     def localize_path(cls, pod_path, locale):
         """Returns a localized path (formatted <base>@<locale>.<ext>) for
         multi-file localization."""
