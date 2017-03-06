@@ -45,7 +45,7 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
     meta:
       key: value
     
-    sitemap:s
+    sitemap:
       enabled: yes
       path: /sitemap.xml
       collections:
