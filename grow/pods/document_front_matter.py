@@ -3,10 +3,21 @@ Parsing and manipulation of front matter elements of a document.
 """
 
 from grow.common import utils
+import collections
 import re
 import yaml
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
+
+
+def _update_deep(orig_dict, new_dict):
+    for k, v in new_dict.iteritems():
+        if (k in orig_dict and isinstance(orig_dict[k], dict)
+                and isinstance(new_dict[k], collections.Mapping)):
+            _update_deep(orig_dict[k], new_dict[k])
+        else:
+            orig_dict[k] = new_dict[k]
+
 
 class Error(Exception):
     pass
@@ -42,7 +53,7 @@ class DocumentFrontMatter(object):
                 locale_doc = self._doc.pod.get_doc(locale_path)
                 raw_locale_front_matter = locale_doc.format.front_matter.export()
                 if raw_locale_front_matter:
-                    self.data.update(self._load_yaml(raw_locale_front_matter))
+                    _update_deep(self.data, self._load_yaml(raw_locale_front_matter))
 
         if raw_front_matter:
             self._raw_front_matter = raw_front_matter
@@ -51,7 +62,7 @@ class DocumentFrontMatter(object):
                 self._doc.raw_content)
 
         if self._raw_front_matter:
-            self.data.update(self._load_yaml(self._raw_front_matter))
+            _update_deep(self.data, self._load_yaml(self._raw_front_matter))
 
     def _load_yaml(self, raw_yaml):
         if not raw_yaml:
@@ -64,6 +75,7 @@ class DocumentFrontMatter(object):
                 yaml.scanner.ScannerError) as e:
             message = 'Error parsing {}: {}'.format(self._doc.pod_path, e)
             raise BadFormatError(message)
+
 
     def export(self):
         """
