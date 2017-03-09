@@ -8,6 +8,8 @@ import re
 import yaml
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
+CONVERT_MESSAGE = """Document contains too many parts: {},
+    Please run `grow convert --version=0.1.0` to help update files."""
 
 
 def _update_deep(orig_dict, new_dict):
@@ -38,6 +40,10 @@ class DocumentFrontMatter(object):
     @staticmethod
     def split_front_matter(content):
         parts = BOUNDARY_REGEX.split(content)
+        if len(parts) > 3:
+            message = CONVERT_MESSAGE.format(
+                self._doc.pod_path)
+            raise BadFormatError(message)
         if len(parts) == 3:
             return parts[1].strip() or None, parts[2].strip()
         return None, content.strip()
@@ -56,6 +62,11 @@ class DocumentFrontMatter(object):
                     _update_deep(self.data, self._load_yaml(raw_locale_front_matter))
 
         if raw_front_matter:
+            # There should be no boundary separators in the front-matter.
+            if BOUNDARY_REGEX.match(raw_front_matter):
+                message = CONVERT_MESSAGE.format(
+                    self._doc.pod_path)
+                raise BadFormatError(message)
             self._raw_front_matter = raw_front_matter
         elif self._doc.exists:
             self._raw_front_matter, _ = DocumentFrontMatter.split_front_matter(
