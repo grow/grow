@@ -1,3 +1,4 @@
+from grow.pods import catalog_holder
 from grow.pods import pods
 from grow.pods import storage
 import click
@@ -39,20 +40,33 @@ import os
                    ' because some translation tools may not remove the "fuzzy"'
                    ' flag from messages even after a translation has been'
                    ' provided.')
+@click.option('--audit', default=False, is_flag=True,
+              help='Audit content files for all untagged strings instead of'
+                   ' actually extracting.')
 def extract(pod_path, init, update, include_obsolete, localized,
-            include_header, locale, fuzzy_matching):
+            include_header, locale, fuzzy_matching, audit):
     """Extracts tagged messages from source files into a template catalog."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
+    pod.list_preprocessors()
     include_obsolete, localized, include_header, use_fuzzy_matching, = \
         pod.catalogs.get_extract_config(include_header=include_header,
             include_obsolete=include_obsolete, localized=localized,
             use_fuzzy_matching=fuzzy_matching)
     locales = validate_locales(pod.list_locales(), locale)
     catalogs = pod.get_catalogs()
-    catalogs.extract(include_obsolete=include_obsolete, localized=localized,
-                     include_header=include_header,
-                     use_fuzzy_matching=use_fuzzy_matching, locales=locales)
+    untagged_strings, extracted_catalogs = \
+        catalogs.extract(include_obsolete=include_obsolete, localized=localized,
+                         include_header=include_header,
+                         use_fuzzy_matching=fuzzy_matching, locales=locales,
+                         audit=audit)
+    if audit:
+        tables = catalog_holder.Catalogs.format_audit(
+            untagged_strings, extracted_catalogs)
+        # NOTE: Should use click.echo_via_pager; but blocked by
+        # UnicodeDecodeError issue.
+        print tables
+        return
     if localized:
         return
     if init:

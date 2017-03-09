@@ -14,6 +14,7 @@ import click
 import collections
 import gettext
 import os
+import texttable
 import tokenize
 
 
@@ -172,7 +173,8 @@ class Catalogs(object):
         return not given_paths or path in given_paths
 
     def extract(self, include_obsolete=None, localized=None, paths=None,
-                include_header=None, locales=None, use_fuzzy_matching=None):
+                include_header=None, locales=None, use_fuzzy_matching=None,
+                audit=False):
         include_obsolete, localized, include_header, use_fuzzy_matching, = \
             self.get_extract_config(include_header=include_header,
                 include_obsolete=include_obsolete, localized=localized,
@@ -186,6 +188,7 @@ class Catalogs(object):
         # }
         # This is built up as we extract
         localized_catalogs = {}
+        untagged_strings = []
         unlocalized_catalog = catalogs.Catalog()  # for localized=False case
 
         comment_tags = [
@@ -210,8 +213,12 @@ class Catalogs(object):
 
         def _handle_field(path, locales, msgid, key, node):
             if (not key
-                    or not isinstance(key, basestring)
-                    or not key.endswith('@')):
+                    or not isinstance(msgid, basestring)
+                    or not isinstance(key, basestring)):
+                return
+            if not key.endswith('@'):
+                if msgid:
+                    untagged_strings.append((path, msgid))
                 return
             # Support gettext "extracted comments" on tagged fields:
             #   field@: Message.
@@ -253,11 +260,11 @@ class Catalogs(object):
         # scope (pod > collection > document > document part)
         last_pod_path = None
         for collection in self.pod.list_collections():
-            text = 'Extracting collection: {}'.format(collection.pod_path)
+            text = 'Extracting: {}'.format(collection.blueprint_path)
             self.pod.logger.info(text)
             # Extract from blueprint.
             utils.walk(collection.tagged_fields,
-                       lambda *args: _handle_field(collection.pod_path,
+                       lambda *args: _handle_field(collection.blueprint_path,
                                                    collection.locales, *args))
             # Extract from docs in collection.
             for doc in collection.docs(include_hidden=True):
@@ -321,16 +328,17 @@ class Catalogs(object):
         # Extract from /views/:
         # Not discriminating by file extension, because people use all sorts
         # (htm, html, tpl, dtml, jtml, ...)
-        for path in self.pod.list_dir('/views/'):
-            if path.startswith('.'):
-                continue
-            pod_path = os.path.join('/views/', path)
-            self.pod.logger.info('Extracting: {}'.format(pod_path))
-            with self.pod.open_file(pod_path) as f:
-                _babel_extract(f, self.pod.list_locales(), pod_path)
+        if not audit:
+            for path in self.pod.list_dir('/views/'):
+                if path.startswith('.'):
+                    continue
+                pod_path = os.path.join('/views/', path)
+                self.pod.logger.info('Extracting: {}'.format(pod_path))
+                with self.pod.open_file(pod_path) as f:
+                    _babel_extract(f, self.pod.list_locales(), pod_path)
 
         # Extract from podspec.yaml:
-        self.pod.logger.info('Extracting: podspec.yaml')
+        self.pod.logger.info('Extracting: /podspec.yaml')
         utils.walk(
             self.pod.get_podspec().get_config(),
             lambda *args: _handle_field('/podspec.yaml', self.pod.list_locales(), *args)
@@ -347,6 +355,8 @@ class Catalogs(object):
                 existing_catalog.update_using_catalog(
                     new_catalog,
                     include_obsolete=include_obsolete)
+                if audit:
+                    continue
                 existing_catalog.save(include_header=include_header)
                 missing = existing_catalog.list_untranslated()
                 num_messages = len(existing_catalog)
@@ -356,18 +366,20 @@ class Catalogs(object):
                         num_translated=num_messages - len(missing),
                         num_messages=num_messages)
                     )
+            return untagged_strings, localized_catalogs.items()
         else:
             # --localized omitted / --no-localized
             template_catalog = self.get_template()
             template_catalog.update_using_catalog(
                 unlocalized_catalog,
                 include_obsolete=include_obsolete)
-            template_catalog.save(include_header=include_header)
-            text = 'Saved: {} ({} messages)'
-            self.pod.logger.info(
-                text.format(template_catalog.pod_path, len(template_catalog))
-            )
-            return template_catalog
+            if not audit:
+                template_catalog.save(include_header=include_header)
+                text = 'Saved: {} ({} messages)'
+                self.pod.logger.info(
+                    text.format(template_catalog.pod_path, len(template_catalog))
+                )
+            return untagged_strings, [template_catalog]
 
     def write_template(self, template_path, catalog, include_obsolete=False,
                        include_header=False):
@@ -463,3 +475,15 @@ class Catalogs(object):
         self.write_template(out_path, babel_catalog,
                             include_header=include_header)
         return [babel_catalog]
+
+    @classmethod
+    def format_audit(cls, untagged_strings, extracted_catalogs):
+        table = texttable.Texttable()
+        table.set_deco(texttable.Texttable.HEADER)
+        rows = []
+        rows.append(['Location', 'String'])
+        for location, string in untagged_strings:
+            rows.append([location, string])
+        table.add_rows(rows)
+        content = table.draw()
+        return content
