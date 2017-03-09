@@ -47,7 +47,11 @@ class Catalog(catalog.Catalog):
             self.pod.write_file(pod_path, '')
         po_file = self.pod.open_file(pod_path)
         try:
-            babel_catalog = pofile.read_po(po_file, self.locale)
+            try:
+                babel_catalog = pofile.read_po(po_file, self.locale)
+            except:
+                self.pod.logger.error('Error parsing catalog for: {}'.format(self.locale))
+                raise
         finally:
             po_file.close()
         attr_names = [
