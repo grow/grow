@@ -59,7 +59,8 @@ class CatalogsTest(unittest.TestCase):
         self.assertIn('About Title', fr_catalog)
 
     def test_extract(self):
-        template_catalog = self.pod.catalogs.extract()
+        _, template_catalogs = self.pod.catalogs.extract()
+        template_catalog = template_catalogs[0]
         self.assertEqual(20, len(template_catalog))
         expected = [
             'Hello World!',
@@ -78,10 +79,12 @@ class CatalogsTest(unittest.TestCase):
         self.pod.catalogs.write_template(
             self.pod.catalogs.template_path, template_catalog)
 
-        template_catalog = self.pod.catalogs.extract(include_obsolete=True)
+        _, template_catalogs = self.pod.catalogs.extract(include_obsolete=True)
+        template_catalog = template_catalogs[0]
         self.assertIn('foo', template_catalog)
 
-        template_catalog = self.pod.catalogs.extract(include_obsolete=False)
+        _, template_catalogs = self.pod.catalogs.extract(include_obsolete=False)
+        template_catalog = template_catalogs[0]
         self.assertNotIn('foo', template_catalog)
 
         self.assertIn('string content tagged', template_catalog)
@@ -821,6 +824,18 @@ class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
                 self.assertExtractedFor(unlocalized_pod, message, [])
             else:
                 self.assertExtractedFor(localized_pod, message, [])
+
+    def test_audit(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {})
+        pod.write_yaml('/content/pages/page.yaml', {
+            'title': 'Untagged string',
+            'subtitle@': 'Tagged string',
+        })
+        untagged_strings, _ = pod.catalogs.extract(audit=True)
+        expected = [('/content/pages/page.yaml', 'Untagged string')]
+        self.assertEqual(expected, untagged_strings)
 
 
 if __name__ == '__main__':

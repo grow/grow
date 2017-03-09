@@ -65,7 +65,7 @@ class Collection(object):
         self.pod_path = pod_path
         self.collection_path = Collection.clean_collection_path(pod_path)
         self.basename = os.path.basename(self.collection_path)
-        self._blueprint_path = os.path.join(
+        self.blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
 
     def __iter__(self):
@@ -99,14 +99,14 @@ class Collection(object):
     def _owns_doc_at_path(self, pod_path):
         dir_name = os.path.dirname(pod_path)
         doc_blueprint_path = os.path.join(dir_name, '_blueprint.yaml')
-        if doc_blueprint_path == self._blueprint_path:
+        if doc_blueprint_path == self.blueprint_path:
             return True
         parts = pod_path.split(os.sep)
         for i, part in enumerate(parts):
             path = os.sep.join(parts[:-i])
             doc_blueprint_path = os.path.join(path, '_blueprint.yaml')
             if self.pod.file_exists(doc_blueprint_path):
-                return doc_blueprint_path == self._blueprint_path
+                return doc_blueprint_path == self.blueprint_path
         return False
 
     @classmethod
@@ -116,7 +116,7 @@ class Collection(object):
         if collection.exists:
             raise CollectionExistsError('{} already exists.'.format(collection))
         fields = utils.dump_yaml(fields)
-        pod.write_file(collection._blueprint_path, fields)
+        pod.write_file(collection.blueprint_path, fields)
         return collection
 
     @classmethod
@@ -151,7 +151,7 @@ class Collection(object):
     def exists(self):
         """Returns whether the collection exists, as determined by whether
         the collection's blueprint exists."""
-        return self.pod.file_exists(self._blueprint_path)
+        return self.pod.file_exists(self.blueprint_path)
 
     @utils.cached_property
     def fields(self):
@@ -211,7 +211,7 @@ class Collection(object):
     def yaml(self):
         if not self.exists:
             return {}
-        result = utils.parse_yaml(self.pod.read_file(self._blueprint_path))
+        result = utils.parse_yaml(self.pod.read_file(self.blueprint_path))
         if result is None:
             return {}
         return result
@@ -238,7 +238,7 @@ class Collection(object):
         if len(self.list_docs(include_hidden=True)):
             text = 'Collections that are not empty cannot be deleted.'
             raise CollectionNotEmptyError(text)
-        self.pod.delete_file(self._blueprint_path)
+        self.pod.delete_file(self.blueprint_path)
 
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
