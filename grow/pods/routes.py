@@ -186,6 +186,7 @@ class Routes(object):
 
     def reset_cache(self, rebuild=True, inject=False):
         if rebuild:
+            self.pod.podcache.reset()
             self._build_routing_map(inject=False)
 
     @property

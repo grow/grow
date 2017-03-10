@@ -1,13 +1,17 @@
-from . import formats
+from . import document_fields
+from . import document_format
+from . import locales
 from . import messages
+from . import urls
 from grow.common import utils
-from grow.pods import locales
-from grow.pods import urls
 import datetime
 import json
 import logging
 import os
 import re
+
+
+PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')
 
 
 class Error(Exception):
@@ -34,7 +38,7 @@ class Document(object):
     def __eq__(self, other):
         return (isinstance(self, Document)
                 and isinstance(other, Document)
-                and self.pod_path == other.pod_path)
+                and self.root_pod_path == other.root_pod_path)
 
     def __getattr__(self, name):
         if name == 'locale':
@@ -65,8 +69,57 @@ class Document(object):
 
     @classmethod
     def _clean_basename(cls, pod_path):
-        pod_path, _ = formats.Format.parse_localized_path(pod_path)
-        return os.path.basename(pod_path)
+        base_pod_path = cls._locale_paths(pod_path)[-1]
+        return os.path.basename(base_pod_path)
+
+    @classmethod
+    def _locale_paths(cls, pod_path):
+        paths = [pod_path]
+        parts = PATH_LOCALE_REGEX.split(pod_path)
+        if len(parts) > 1:
+            if parts[3]: # [3] -> Country Code
+                paths.append('{}@{}{}'.format(parts[0], parts[1], parts[4]))
+            paths.append('{}{}'.format(parts[0], parts[4]))
+        return paths
+
+    @classmethod
+    def clean_localized_path(cls, pod_path, locale):
+        """Removed the localized part of the path."""
+        if '@' in pod_path and locale is not None:
+            base, _ = os.path.splitext(pod_path)
+            if not base.endswith('@{}'.format(locale)):
+                pod_path = cls._locale_paths(pod_path)[-1]
+        return pod_path
+
+    @classmethod
+    def is_localized_path(cls, pod_path):
+        return '@' in pod_path
+
+    @classmethod
+    def localize_path(cls, pod_path, locale):
+        """Returns a localized path (formatted <base>@<locale>.<ext>) for
+        multi-file localization."""
+        pod_path = cls.clean_localized_path(pod_path, locale)
+        if locale is None:
+            return pod_path
+        base, ext = os.path.splitext(pod_path)
+        return '{}@{}{}'.format(base, locale, ext)
+
+    @classmethod
+    def parse_localized_path(cls, pod_path):
+        """Returns a tuple containing the root pod path and the locale, parsed
+        from a localized pod path (formatted <base>@<locale>.<ext>). If the
+        supplied pod path does not contain a locale, the pod path is returned
+        along with None."""
+        groups = PATH_LOCALE_REGEX.split(pod_path)
+        if len(groups) > 1:
+            if groups[3]:
+                locale = '{}{}{}'.format(groups[1], groups[2], groups[3])
+            else:
+                locale = groups[1]
+            root_pod_path = '{}{}'.format(groups[0], groups[4])
+            return root_pod_path, locale
+        return pod_path, None
 
     def _format_path(self, path_format):
         podspec = self.pod.get_podspec()
@@ -96,7 +149,7 @@ class Document(object):
     def _init_locale(self, locale, pod_path):
         try:
             self.root_pod_path, locale_from_path = \
-                formats.Format.parse_localized_path(pod_path)
+                Document.parse_localized_path(pod_path)
             if locale_from_path:
                 locale = locale_from_path
             return self.pod.normalize_locale(
@@ -108,9 +161,8 @@ class Document(object):
                 raise
 
     @property
-    @utils.memoize
     def body(self):
-        return self.format.body.decode('utf-8') if self.format.body else None
+        return self.format.content.decode('utf-8') if self.format.content else None
 
     @property
     def category(self):
@@ -118,7 +170,7 @@ class Document(object):
 
     @property
     def content(self):
-        return self.format.content.decode('utf-8')
+        return self.format.raw_content.decode('utf-8')
 
     @property
     def date(self):
@@ -141,14 +193,18 @@ class Document(object):
 
     @utils.cached_property
     def fields(self):
-        identifier = self._locale_kwarg or self.collection.default_locale
-        tagged_fields = self.get_tagged_fields()
-        fields = utils.untag_fields(tagged_fields, locale=str(identifier))
-        return {} if not fields else fields
+        locale_identifier = str(
+            self._locale_kwarg or self.collection.default_locale)
+        return document_fields.DocumentFields(
+            self.format.front_matter.data, locale_identifier)
 
     @utils.cached_property
     def format(self):
-        return formats.Format.get(self)
+        return document_format.DocumentFormat.from_doc(doc=self)
+
+    @property
+    def formatted(self):
+        return self.format.formatted
 
     @property
     def hidden(self):
@@ -156,13 +212,17 @@ class Document(object):
 
     @property
     def html(self):
-        return self.format.html
+        return self.formatted
 
     @utils.cached_property
     def locale(self):
         if self._locale is utils.SENTINEL:
             self._locale = self._init_locale(self._locale_kwarg, self.pod_path)
         return self._locale
+
+    @utils.cached_property
+    def locale_paths(self):
+        return Document._locale_paths(self.pod_path)
 
     @utils.cached_property
     def locales(self):
@@ -205,6 +265,10 @@ class Document(object):
             return self.fields.get('$path', self.collection.path_format)
         return val
 
+    @property # Cached in document format.
+    def raw_content(self):
+        return self.format.raw_content
+
     @property
     def slug(self):
         if '$slug' in self.fields:
@@ -235,18 +299,6 @@ class Document(object):
         if view_format is not None:
             return self._format_path(view_format)
 
-    @utils.cached_property
-    def virtual_key(self):
-        last_mod = 0
-        try:
-            last_mod = self.pod.file_modified(self.pod_path)
-        except OSError:
-            pass
-        return "{0}|{1}|{2}"\
-            .format(self.root_pod_path,
-                    self._locale_kwarg,
-                    last_mod)
-
     def dates(self, date_name=None):
         if date_name is None:
             return self.date
@@ -255,10 +307,6 @@ class Document(object):
 
     def delete(self):
         self.pod.delete_file(self.pod_path)
-
-    def get_tagged_fields(self):
-        format = formats.Format.get(self)
-        return format.fields
 
     @utils.memoize
     def has_serving_path(self):
@@ -372,6 +420,8 @@ class Document(object):
         return message
 
     def write(self, fields=utils.SENTINEL, body=utils.SENTINEL):
-        content = self.content if self.exists else ''
-        new_content = formats.Format.update(content, fields=fields, body=body)
+        if body is utils.SENTINEL:
+            body = self.body if self.exists else ''
+        self.format.update(fields=fields, content=body)
+        new_content = self.format.to_raw_content()
         self.pod.write_file(self.pod_path, new_content)

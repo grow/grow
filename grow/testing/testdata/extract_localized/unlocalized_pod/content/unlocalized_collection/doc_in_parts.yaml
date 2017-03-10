@@ -1,14 +1,5 @@
----
 $localization:
   locales:
   - it
   - ja
   - sv
----
-$locale: ja
-foo@: Localized yaml doc part in localized doc in unlocalized collection in unlocalized pöd
----
-$locales:
-- it
-- sv
-foo@: Multi-locale yaml doc part in localized doc in unlocalized collection in unlocalized pöd

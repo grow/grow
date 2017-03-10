@@ -1,7 +1,7 @@
 """Collections contain content documents and blueprints."""
 
+from . import document_fields
 from . import documents
-from . import formats
 from . import messages
 from grow.common import structures
 from grow.common import utils
@@ -61,10 +61,9 @@ class Collection(object):
 
     def __init__(self, pod_path, _pod):
         utils.validate_name(pod_path)
-        regex = Collection._content_path_regex
         self.pod = _pod
-        self.collection_path = regex.sub('', pod_path).strip('/')
         self.pod_path = pod_path
+        self.collection_path = Collection.clean_collection_path(pod_path)
         self.basename = os.path.basename(self.collection_path)
         self._blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
@@ -75,6 +74,10 @@ class Collection(object):
 
     def __repr__(self):
         return '<Collection "{}">'.format(self.collection_path)
+
+    @classmethod
+    def clean_collection_path(cls, pod_path):
+        return Collection._content_path_regex.sub('', pod_path).strip('/')
 
     def _add_localized_docs(self, sorted_docs, pod_path, locale, doc):
         for each_locale in doc.locales:
@@ -152,7 +155,7 @@ class Collection(object):
 
     @utils.cached_property
     def fields(self):
-        fields = utils.untag_fields(self.tagged_fields)
+        fields = document_fields.DocumentFields._untag(self.tagged_fields)
         return {} if not fields else fields
 
     @utils.cached_property
@@ -204,8 +207,7 @@ class Collection(object):
     def view(self):
         return self._get_builtin_field('view')
 
-    @property
-    @utils.memoize
+    @utils.cached_property
     def yaml(self):
         if not self.exists:
             return {}
@@ -240,12 +242,21 @@ class Collection(object):
 
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
+        pod_path = documents.Document.clean_localized_path(pod_path, locale)
         if locale is not None:
-            localized_path = formats.Format.localize_path(pod_path, locale)
+            localized_path = documents.Document.localize_path(pod_path, locale)
             if self.pod.file_exists(localized_path):
                 pod_path = localized_path
-        return documents.Document(pod_path, locale=locale, _pod=self.pod,
-                                  _collection=self)
+
+        cached = self.pod.podcache.collection_cache.get_document(
+            self, pod_path, locale)
+        if cached:
+            return cached
+
+        doc = documents.Document(
+            pod_path, locale=locale, _pod=self.pod, _collection=self)
+        self.pod.podcache.collection_cache.add_document(doc)
+        return doc
 
     def list_categories(self):
         return self._get_builtin_field('categories') or []
@@ -274,7 +285,7 @@ class Collection(object):
                 continue
             try:
                 _, locale_from_path = \
-                    formats.Format.parse_localized_path(pod_path)
+                    documents.Document.parse_localized_path(pod_path)
                 if locale_from_path:
                     if (locale is not None
                             and locale in [utils.SENTINEL, locale_from_path]):
@@ -313,6 +324,16 @@ class Collection(object):
                     or not doc.view
                     or (locales and doc.locale not in locales)):
                 continue
+
+            # If there is a localized version of the default locale
+            # the base document should not be added with the same locale.
+            if (doc.locale and doc.locale == doc.default_locale and
+                    not documents.Document.is_localized_path(doc.pod_path)):
+                localized_path = documents.Document.localize_path(
+                    doc.pod_path, doc.locale)
+                if self.pod.file_exists(localized_path):
+                    continue
+
             docs.append(doc)
         return docs
 

@@ -49,13 +49,16 @@ class RenderedController(controllers.BaseController):
             preprocessor = self.pod.inject_preprocessors(doc=self.doc)
             translator = self.pod.inject_translators(doc=self.doc)
         env = self.pod.get_jinja_env(self.locale)
+        local_tags = tags.create_builtin_tags(
+            self.pod, self.doc, use_cache=self.pod.env.cached)
         template = env.get_template(self.view.lstrip('/'))
+        # NOTE: This should be done using get_template(... globals=...) but
+        # it is not available included inside macros???
+        # See: https://github.com/pallets/jinja/issues/688
+        template.globals['g'] = local_tags
         try:
-            local_tags = tags.create_doc_tags(self.pod, self.doc)
-            local_tags.update(self.pod.get_jinja_env().globals['g'])
             kwargs = {
                 'doc': self.doc,
-                'g': local_tags,
                 'env': self.pod.env,
                 'podspec': self.pod.get_podspec(),
             }

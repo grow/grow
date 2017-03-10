@@ -50,7 +50,7 @@ class DependencyGraph(object):
     def export(self):
         result = {}
 
-        for key in sorted(self._dependencies):
+        for key in self._dependencies:
             values = list(self._dependencies[key])
             values.sort()
             result[key] = values

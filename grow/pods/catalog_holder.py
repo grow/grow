@@ -284,7 +284,7 @@ class Catalogs(object):
                 doc_locales = [doc.locale]
                 # Extract yaml fields: `foo@: Extract me`
                 # ("tagged" = prior to stripping `@` suffix from field names)
-                tagged_fields = doc.get_tagged_fields()
+                tagged_fields = doc.format.front_matter.data
                 utils.walk(tagged_fields,
                            lambda *args: _handle_field(doc.pod_path, doc_locales, *args))
 
@@ -309,7 +309,7 @@ class Catalogs(object):
                 pod_path = os.path.join('/content/', path)
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
                 utils.walk(
-                    self.pod.get_doc(pod_path).get_tagged_fields(),
+                    self.pod.get_doc(pod_path).format.front_matter.data,
                     lambda *args: _handle_field(pod_path, self.pod.list_locales(), *args)
                 )
 
