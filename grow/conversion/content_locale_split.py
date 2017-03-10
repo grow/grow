@@ -374,6 +374,7 @@ class ConversionDocument(object):
     def normalize_raw_content(self):
         # Clean and rewrite the yaml files that start with an empty section.
         if self.file_name.endswith('.yaml') and self.raw_content.lstrip().startswith('---'):
+            logging.info('Normalizing: {}'.format(self.file_name))
             self.raw_content = self.raw_content.lstrip()[3:].lstrip()
             self.pod.write_file(self.file_name, self.raw_content)
 
