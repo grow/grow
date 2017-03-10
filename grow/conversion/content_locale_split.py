@@ -114,6 +114,7 @@ class ConversionDocument(object):
         self.pod = pod
         self.file_name = file_name
         self.raw_content = pod.read_file(file_name)
+        self.normalize_raw_content()
 
     @staticmethod
     def determine_default_locale(front_matter):
@@ -369,6 +370,12 @@ class ConversionDocument(object):
         file_parts = self.file_name.split('.')
         return '{}@{}.{}'.format(
             '.'.join(file_parts[:-1]), locale_identifier, file_parts[-1])
+
+    def normalize_raw_content(self):
+        # Clean and rewrite the yaml files that start with an empty section.
+        if self.file_name.endswith('.yaml') and self.raw_content.lstrip().startswith('---'):
+            self.raw_content = self.raw_content.lstrip()[3:].lstrip()
+            self.pod.write_file(self.file_name, self.raw_content)
 
     def split(self):
         parts = BOUNDARY_REGEX.split(self.raw_content)

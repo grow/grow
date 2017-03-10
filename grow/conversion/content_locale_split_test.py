@@ -253,7 +253,27 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 Reigning content.
                 """).lstrip(),
         }
-        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(
+            self.pod, '/content/test.md', 'en_us')
+        doc.convert()
+        for key, value in expected.iteritems():
+            self.assertEquals(value, self.pod.read_file(key))
+
+    def test_convert_with_empty_front_section(self):
+        self.pod.write_file('/content/test.yaml', textwrap.dedent("""
+                ---
+                name: Julie Yang
+                """).lstrip())
+
+
+        expected = {
+            '/content/test.yaml': textwrap.dedent("""
+                name: Julie Yang
+                """).lstrip(),
+        }
+
+        doc = content_locale_split.ConversionDocument(
+            self.pod, '/content/test.yaml', 'en_us')
         doc.convert()
         for key, value in expected.iteritems():
             self.assertEquals(value, self.pod.read_file(key))
