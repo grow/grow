@@ -34,16 +34,6 @@ class DocumentCacheTestCase(unittest.TestCase):
         self.doc_cache.add_property(doc, 'answer', 42)
         self.assertEqual(42, self.doc_cache.get(doc)['answer'])
 
-    def test_delete(self):
-        value = {
-            'answer': 42
-        }
-        doc = self.pod.get_doc('/content/pages/intro.md')
-        self.doc_cache.add(doc, value)
-        self.assertEqual(42, self.doc_cache.get(doc)['answer'])
-        self.assertEqual(value, self.doc_cache.delete(doc))
-        self.assertEqual(None, self.doc_cache.get(doc))
-
     def test_export(self):
         doc = self.pod.get_doc('/content/pages/intro.md')
         self.doc_cache.add(doc, {
@@ -68,6 +58,16 @@ class DocumentCacheTestCase(unittest.TestCase):
             'answer': 42
         })
         self.assertEqual(42, self.doc_cache.get_property(doc, 'answer'))
+
+    def test_remove(self):
+        value = {
+            'answer': 42
+        }
+        doc = self.pod.get_doc('/content/pages/intro.md')
+        self.doc_cache.add(doc, value)
+        self.assertEqual(42, self.doc_cache.get(doc)['answer'])
+        self.assertEqual(value, self.doc_cache.remove(doc))
+        self.assertEqual(None, self.doc_cache.get(doc))
 
 
 if __name__ == '__main__':

@@ -25,7 +25,7 @@ class DocumentCacheTestCase(unittest.TestCase):
         self.assertEquals(doc, col_cache.get_document(
             col, '/content/pages/intro.md', doc._locale_kwarg))
 
-    def test_delete_by_path(self):
+    def test_remove_by_path(self):
         col_cache = collection_cache.CollectionCache()
         doc = self.pod.get_doc('/content/pages/intro.md')
         col = doc.collection
@@ -34,43 +34,43 @@ class DocumentCacheTestCase(unittest.TestCase):
         # Deleting a document's path removes the document.
         self.assertEquals(doc, col_cache.get_document(
             col, '/content/pages/intro.md', doc._locale_kwarg))
-        col_cache.delete_by_path('/content/pages/intro.md')
+        col_cache.remove_by_path('/content/pages/intro.md')
         self.assertEquals(None, col_cache.get_document(
             col, '/content/pages/intro.md', doc._locale_kwarg))
 
         # Deleting a collection blueprint removes the entire collection.
         col_cache.add_collection(col)
         self.assertEquals(col, col_cache.get_collection('pages'))
-        col_cache.delete_by_path('/content/pages/_blueprint.yaml')
+        col_cache.remove_by_path('/content/pages/_blueprint.yaml')
         self.assertEquals(None, col_cache.get_collection('pages'))
 
-    def test_delete_collection(self):
+    def test_remove_collection(self):
         col_cache = collection_cache.CollectionCache()
         doc = self.pod.get_doc('/content/pages/intro.md')
         col = doc.collection
 
-        # Test straight up delete.
+        # Test straight up remove.
         col_cache.add_collection(col)
         self.assertEquals(col, col_cache.get_collection('pages'))
-        col_cache.delete_collection(col)
+        col_cache.remove_collection(col)
         self.assertEquals(None, col_cache.get_collection('pages'))
 
         # Test that documents in the collection are removed.
         col_cache.add_document(doc)
         self.assertEquals(doc, col_cache.get_document(
             col, '/content/pages/intro.md', doc._locale_kwarg))
-        col_cache.delete_collection(col)
+        col_cache.remove_collection(col)
         self.assertEquals(None, col_cache.get_document(
             col, '/content/pages/intro.md', doc._locale_kwarg))
 
-    def test_delete_document(self):
+    def test_remove_document(self):
         col_cache = collection_cache.CollectionCache()
         doc = self.pod.get_doc('/content/pages/intro.md')
         col = doc.collection
         col_cache.add_document(doc)
         self.assertEquals(doc, col_cache.get_document(
             col, '/content/pages/intro.md', doc._locale_kwarg))
-        col_cache.delete_document(doc)
+        col_cache.remove_document(doc)
         self.assertEquals(None, col_cache.get_document(
             col, '/content/pages/intro.md', doc._locale_kwarg))
 

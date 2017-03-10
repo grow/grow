@@ -37,7 +37,7 @@ class CollectionCache(object):
         if cache_key != new_cache_key:
             self._cache[col.collection_path]['docs'][new_cache_key] = doc
 
-    def delete_by_path(self, path):
+    def remove_by_path(self, path):
         """Removes the collection or document based on the path."""
         if path.startswith(collection.Collection.CONTENT_PATH):
             if path.endswith(
@@ -64,11 +64,11 @@ class CollectionCache(object):
 
                     col_path = os.path.split(col_path)[0]
 
-    def delete_collection(self, col):
+    def remove_collection(self, col):
         if col.collection_path in self._cache:
             del self._cache[col.collection_path]
 
-    def delete_document(self, doc):
+    def remove_document(self, doc):
         col = doc.collection
         if col.collection_path in self._cache:
             cache_key = CollectionCache.generate_cache_key(

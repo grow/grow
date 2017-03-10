@@ -28,10 +28,10 @@ class DocumentCache(object):
         path = self._ensure_exists(doc)
         self._cache[path][prop] = value
 
-    def delete(self, doc):
-        return self.delete_by_path(doc.pod_path)
+    def remove(self, doc):
+        return self.remove_by_path(doc.pod_path)
 
-    def delete_by_path(self, path):
+    def remove_by_path(self, path):
         return self._cache.pop(path, None)
 
     def export(self):

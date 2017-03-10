@@ -592,7 +592,7 @@ class Pod(object):
         self.storage.write(path, content)
 
     def write_yaml(self, path, content):
-        self.podcache.collection_cache.delete_by_path(path)
-        self.podcache.document_cache.delete_by_path(path)
+        self.podcache.collection_cache.remove_by_path(path)
+        self.podcache.document_cache.remove_by_path(path)
         content = utils.dump_yaml(content)
         self.write_file(path, content)
