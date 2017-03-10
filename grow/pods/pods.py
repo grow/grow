@@ -93,12 +93,9 @@ class Pod(object):
         if not self.file_exists(podcache_file_name):
             return
         try:
-            with timer.Timer() as t:
-                # Do not use the utils.parse_yaml as that has extra constructors
-                # that should not be run when the cache file is being parsed.
-                parsed = yaml.load(self.read_file(podcache_file_name)) or {}
-            print "=> elasped _parse_cache_yaml: %s s" % t.secs
-            return parsed
+            # Do not use the utils.parse_yaml as that has extra constructors
+            # that should not be run when the cache file is being parsed.
+            return yaml.load(self.read_file(podcache_file_name)) or {}
         except IOError as e:
             path = self.abs_path(podcache_file_name)
             raise podcache.PodCacheParseError('Error parsing: {}'.format(path))
