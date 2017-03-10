@@ -13,6 +13,30 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
+    def test_bad_format(self):
+        doc = self.pod.get_doc('/content/pages/html.html')
+        input = 'testing: > 2'
+
+        with self.assertRaises(document_front_matter.BadFormatError):
+            document_front_matter.DocumentFrontMatter(
+                doc, raw_front_matter=input)
+
+        doc = self.pod.get_doc('/content/pages/html.html')
+        input = textwrap.dedent("""
+            name: Jane Doe
+            ---
+            foo: bar
+            """).lstrip()
+        with self.assertRaises(document_front_matter.BadFormatError):
+            document_front_matter.DocumentFrontMatter(
+                doc, raw_front_matter=input)
+
+    def test_empty_raw_front_matter(self):
+        doc = self.pod.get_doc('/content/pages/html.html')
+
+        document_front_matter.DocumentFrontMatter(
+            doc, raw_front_matter=None)
+
     def test_split_front_matter(self):
         # Normal front matter.
         input = textwrap.dedent("""
@@ -49,17 +73,17 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             expected,
             document_front_matter.DocumentFrontMatter.split_front_matter(input))
 
-        # Invalid front matter, missing opening dashes.
+        # Invalid front matter, too many sections.
         input = textwrap.dedent("""
             name: Jane Doe
             ---
+            foo: bar
+            ---
             Jane was adventuring.
             """)
-        expected = (None, 'name: Jane Doe\n---\nJane was adventuring.')
 
-        self.assertEquals(
-            expected,
-            document_front_matter.DocumentFrontMatter.split_front_matter(input))
+        with self.assertRaises(document_front_matter.BadFormatError):
+            document_front_matter.DocumentFrontMatter.split_front_matter(input)
 
     def test_export(self):
         expected = textwrap.dedent("""

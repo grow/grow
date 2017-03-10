@@ -40,12 +40,13 @@ class DocumentFrontMatter(object):
     @staticmethod
     def split_front_matter(content):
         parts = BOUNDARY_REGEX.split(content)
-        if len(parts) > 3:
-            message = CONVERT_MESSAGE.format(
-                self._doc.pod_path)
+        if parts[0].strip() == '':
+            parts.pop(0)
+        if len(parts) > 2:
+            message = CONVERT_MESSAGE.format('')
             raise BadFormatError(message)
-        if len(parts) == 3:
-            return parts[1].strip() or None, parts[2].strip()
+        if len(parts) == 2:
+            return parts[0].strip() or None, parts[1].strip()
         return None, content.strip()
 
     def _load_front_matter(self, raw_front_matter):
@@ -63,7 +64,7 @@ class DocumentFrontMatter(object):
 
         if raw_front_matter:
             # There should be no boundary separators in the front-matter.
-            if BOUNDARY_REGEX.match(raw_front_matter):
+            if BOUNDARY_REGEX.search(raw_front_matter):
                 message = CONVERT_MESSAGE.format(
                     self._doc.pod_path)
                 raise BadFormatError(message)
@@ -76,8 +77,6 @@ class DocumentFrontMatter(object):
             _update_deep(self.data, self._load_yaml(self._raw_front_matter))
 
     def _load_yaml(self, raw_yaml):
-        if not raw_yaml:
-            return
         try:
             return utils.load_yaml(
                 raw_yaml, doc=self._doc, pod=self._doc.pod)
