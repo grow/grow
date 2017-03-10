@@ -63,6 +63,35 @@ class DocumentFormatTestCase(unittest.TestCase):
         """)
         self.assertEquals(expected.strip(), doc_format.raw_content.strip())
 
+    def test_to_raw_content(self):
+        doc = self.pod.get_doc('/content/pages/html.html')
+        doc_format = document_format.DocumentFormat.from_doc(doc=doc)
+        expected = textwrap.dedent("""
+        ---
+        $title@: HTML Page
+        $hidden: true
+        ---
+        <div>HTML Content.</div>
+        """)
+        self.assertEquals(expected.strip(), doc_format.to_raw_content().strip())
+
+        doc = self.pod.get_doc('/content/empty-front-matter/empty-front-matter.html')
+        doc_format = document_format.DocumentFormat.from_doc(doc=doc)
+        expected = textwrap.dedent("""
+        <div>Empty front matter.</div>
+        """)
+        self.assertEquals(expected.strip(), doc_format.to_raw_content().strip())
+
+        doc = self.pod.get_doc('/content/pages/root.yaml')
+        doc_format = document_format.DocumentFormat.from_doc(doc=doc)
+        expected = textwrap.dedent("""
+        $path: "{root}/base/"
+        $view: /views/home.html
+        $localization:
+          locales:
+        """)
+        self.assertEquals(expected.strip(), doc_format.to_raw_content().strip())
+
 
 if __name__ == '__main__':
     unittest.main()

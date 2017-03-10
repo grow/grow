@@ -86,16 +86,16 @@ class DocumentFormat(object):
         """Formats the front matter and content into a raw_content string."""
         raw_content = ''
 
-        raw_front_matter = self.front_matter.export().strip()
-        content = self.content.strip()
+        raw_front_matter = self.front_matter.export()
+        content = self.content
 
         if raw_front_matter and content:
             raw_content = '{0}\n{1}\n{0}\n{2}\n'.format(
-                BOUNDARY_SEPARATOR, raw_front_matter, content)
+                BOUNDARY_SEPARATOR, raw_front_matter.strip(), content.strip())
         elif raw_front_matter:
-            raw_content = '{}\n'.format(raw_front_matter)
+            raw_content = '{}\n'.format(raw_front_matter.strip())
         else:
-            raw_content = '{}\n'.format(content)
+            raw_content = '{}\n'.format(content.strip())
 
         return raw_content
 
