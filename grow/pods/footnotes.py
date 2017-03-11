@@ -46,7 +46,7 @@ def numberic_symbol_generator():
         index += 1
 
 
-class Footnotes:
+class Footnotes(object):
 
     def __init__(self, locale, symbols=None, use_numeric_symbols=None,
             numeric_locales_pattern=None):
