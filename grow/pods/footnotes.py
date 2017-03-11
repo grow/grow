@@ -27,14 +27,14 @@ NUMERICAL_SYMBOLS = {
 NUMERIC_TERRITORIES = ['DE', 'CA']
 
 
-def symbol_generator():
+def symbol_generator(symbols=SYMBOLS):
     loop_count = 1
     loop_index = 0
     while True:
-        if loop_index > len(SYMBOLS) - 1:
+        if loop_index > len(symbols) - 1:
             loop_count += 1
             loop_index = 0
-        yield SYMBOLS[loop_index] * loop_count
+        yield symbols[loop_index] * loop_count
         loop_index += 1
 
 
@@ -47,16 +47,17 @@ def numberic_symbol_generator():
 
 class Footnotes:
 
-    def __init__(self, locale, use_numeric_symbols=None):
+    def __init__(self, locale, symbols=SYMBOLS, use_numeric_symbols=None):
         self.locale = locale
         self.symbol_to_footnote = collections.OrderedDict()
+        # TODO: Allow arbitrary set of territories.
         is_numeric_territory = (self.locale is not None
             and self.locale.territory in NUMERIC_TERRITORIES)
         if use_numeric_symbols or is_numeric_territory:
             self.generator = numberic_symbol_generator()
             self.is_numeric = True
         else:
-            self.generator = symbol_generator()
+            self.generator = symbol_generator(symbols)
             self.is_numeric = False
 
     def __getitem__(self, key):

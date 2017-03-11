@@ -20,6 +20,18 @@ class SymbolGeneratorTestCase(unittest.TestCase):
             actual.append(next(generator))
         self.assertEquals(expected, actual)
 
+    def test_symbol_generator_symbols(self):
+        symbols = ['*', u'†', u'‡', u'§',]
+        generator = footnotes.symbol_generator(symbols=symbols)
+
+        expected = [
+            '*', u'†', u'‡', u'§', '**', u'††', u'‡‡', u'§§', '***', u'†††',
+        ]
+        actual = []
+        for _ in range(10):
+            actual.append(next(generator))
+        self.assertEquals(expected, actual)
+
 class NumberSymbolGeneratorTestCase(unittest.TestCase):
 
     def test_numberic_symbol_generator(self):
