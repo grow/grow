@@ -59,8 +59,9 @@ class RenderedController(controllers.BaseController):
         # See: https://github.com/pallets/jinja/issues/688
         template.globals['g'] = local_tags
 
-        # Configure the footnotes based on the podspec settings.
-        footnote_config = self.pod.podspec.fields.get('footnotes', {})
+        # Configure the footnotes based on the doc or podspec settings.
+        footnote_config = self.doc.fields.get(
+            '$footnotes', self.pod.podspec.fields.get('footnotes', {}))
         locale = str(self.doc.locale) if self.doc.locale else None
         symbols = footnote_config.get('symbols', None)
         use_numeric_symbols = footnote_config.get('use_numeric_symbols', None)
