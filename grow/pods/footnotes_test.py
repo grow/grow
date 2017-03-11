@@ -58,6 +58,13 @@ class FootnotesTestCase(unittest.TestCase):
         self.assertEquals('See other side.', notes['*'])
         self.assertDictEqual({'*': 'See other side.'}, notes.footnotes)
 
+    def test_index(self):
+        notes = footnotes.Footnotes(None)
+        symbol = notes.add('See other side.')
+        self.assertEquals(0, notes.index(symbol))
+        symbol = notes.add('Nothing to see here.')
+        self.assertEquals(1, notes.index(symbol))
+
     def test_locale_pattern(self):
         notes = footnotes.Footnotes(None)
         self.assertEquals(False, notes.is_numeric)

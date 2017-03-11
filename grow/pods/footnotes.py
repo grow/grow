@@ -79,6 +79,9 @@ class Footnotes:
         self.symbol_to_footnote[symbol] = value
         return symbol
 
+    def index(self, key):
+        return self.symbol_to_footnote.keys().index(key)
+
     def items(self):
         return self.symbol_to_footnote.items()
 
