@@ -8,16 +8,13 @@ from grow.common import timer
 
 class PodCache(object):
 
-    KEY_DOCUMENTS = 'documents'
     KEY_DEPENDENCIES = 'dependencies'
 
     def __init__(self, yaml, pod):
         self._pod = pod
 
         self._collection_cache = collection_cache.CollectionCache()
-
         self._document_cache = document_cache.DocumentCache()
-        self._document_cache.add_all(yaml.get(self.KEY_DOCUMENTS, {}))
 
         self._dependency_graph = dependency.DependencyGraph()
         self._dependency_graph.add_all(yaml.get(self.KEY_DEPENDENCIES, {}))
@@ -50,5 +47,4 @@ class PodCache(object):
     def write(self):
         yaml = {}
         yaml[self.KEY_DEPENDENCIES] = self._dependency_graph.export()
-        yaml[self.KEY_DOCUMENTS] = self._document_cache.export()
         self._pod.write_yaml('/{}'.format(self._pod.FILE_PODCACHE), yaml)
