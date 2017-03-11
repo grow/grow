@@ -55,7 +55,8 @@ class Footnotes(object):
         numeric_locales_pattern = (
             numeric_locales_pattern or NUMERIC_LOCALES_REGEX)
         if type(NUMERIC_LOCALES_REGEX) != type(numeric_locales_pattern):
-            numeric_locales_pattern = re.compile(numeric_locales_pattern)
+            numeric_locales_pattern = re.compile(
+                numeric_locales_pattern, re.IGNORECASE)
         is_numeric_territory = (locale is not None
             and numeric_locales_pattern.search(locale))
         if use_numeric_symbols != False and (
