@@ -80,7 +80,7 @@ class FootnotesTestCase(unittest.TestCase):
 
     def test_locale_pattern_custom(self):
         notes = footnotes.Footnotes(
-            'en_US', numeric_locales_pattern=re.compile('_US$'))
+            'en_US', numeric_locales_pattern='_US$')
         self.assertEquals(True, notes.is_numeric)
 
     def test_use_numeric_symbols(self):
