@@ -9,7 +9,7 @@ import yaml
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
 CONVERT_MESSAGE = """Document contains too many parts: {},
-    Please run `grow convert content_locale_split` to help update files."""
+    Please run `grow convert --type content_locale_split` to help update files."""
 
 
 def _update_deep(orig_dict, new_dict):
