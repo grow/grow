@@ -2,6 +2,7 @@ from . import controllers
 from . import dependency
 from . import env
 from . import errors
+from . import footnotes
 from . import messages
 from . import tags
 from . import ui
@@ -60,6 +61,7 @@ class RenderedController(controllers.BaseController):
             kwargs = {
                 'doc': self.doc,
                 'env': self.pod.env,
+                'footnotes': footnotes.Footnotes(self.doc.locale),
                 'podspec': self.pod.get_podspec(),
             }
             content = template.render(kwargs).lstrip()
