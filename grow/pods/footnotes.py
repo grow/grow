@@ -2,6 +2,7 @@
 """Footnotes for documents using chicago manual style."""
 
 import collections
+import re
 
 SYMBOLS = [
     '*',
@@ -24,7 +25,7 @@ NUMERICAL_SYMBOLS = {
     u'8': u'⁸',
     u'9': u'⁹',
 }
-NUMERIC_TERRITORIES = ['DE', 'CA']
+NUMERIC_LOCALES_REGEX = re.compile(r'_(DE|CA)$', re.IGNORECASE)
 
 
 def symbol_generator(symbols=SYMBOLS):
@@ -47,12 +48,11 @@ def numberic_symbol_generator():
 
 class Footnotes:
 
-    def __init__(self, locale, symbols=SYMBOLS, use_numeric_symbols=None):
-        self.locale = locale
+    def __init__(self, locale, symbols=SYMBOLS, use_numeric_symbols=None,
+            numeric_locales_pattern=NUMERIC_LOCALES_REGEX):
         self.symbol_to_footnote = collections.OrderedDict()
-        # TODO: Allow arbitrary set of territories.
-        is_numeric_territory = (self.locale is not None
-            and self.locale.territory in NUMERIC_TERRITORIES)
+        is_numeric_territory = (locale is not None
+            and numeric_locales_pattern.search(locale))
         if use_numeric_symbols or is_numeric_territory:
             self.generator = numberic_symbol_generator()
             self.is_numeric = True

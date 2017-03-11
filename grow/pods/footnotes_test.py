@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from grow.pods import footnotes
-from grow.pods import locales
+import re
 import unittest
 
 
@@ -58,21 +58,23 @@ class FootnotesTestCase(unittest.TestCase):
         self.assertEquals('See other side.', notes['*'])
         self.assertDictEqual({'*': 'See other side.'}, notes.footnotes)
 
-    def test_locale_territories(self):
+    def test_locale_pattern(self):
         notes = footnotes.Footnotes(None)
         self.assertEquals(False, notes.is_numeric)
 
-        locale = locales.Locale.parse('en_CA')
-        notes = footnotes.Footnotes(locale)
+        notes = footnotes.Footnotes('en_CA')
         self.assertEquals(True, notes.is_numeric)
 
-        locale = locales.Locale.parse('de_DE')
-        notes = footnotes.Footnotes(locale)
+        notes = footnotes.Footnotes('de_DE')
         self.assertEquals(True, notes.is_numeric)
 
-        locale = locales.Locale.parse('en_US')
-        notes = footnotes.Footnotes(locale)
+        notes = footnotes.Footnotes('en_US')
         self.assertEquals(False, notes.is_numeric)
+
+    def test_locale_pattern_custom(self):
+        notes = footnotes.Footnotes(
+            'en_US', numeric_locales_pattern=re.compile('_US$'))
+        self.assertEquals(True, notes.is_numeric)
 
 
 if __name__ == '__main__':
