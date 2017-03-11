@@ -76,6 +76,32 @@ class FootnotesTestCase(unittest.TestCase):
             'en_US', numeric_locales_pattern=re.compile('_US$'))
         self.assertEquals(True, notes.is_numeric)
 
+    def test_use_numeric_symbols(self):
+        # Defaults to pattern for detection.
+        notes = footnotes.Footnotes('de_DE')
+        self.assertEquals(True, notes.is_numeric)
+
+        notes = footnotes.Footnotes('en_US')
+        self.assertEquals(False, notes.is_numeric)
+
+        # Ignores the pattern when false.
+        notes = footnotes.Footnotes(
+            'de_DE', use_numeric_symbols=False)
+        self.assertEquals(False, notes.is_numeric)
+
+        notes = footnotes.Footnotes(
+            'en_US', use_numeric_symbols=False)
+        self.assertEquals(False, notes.is_numeric)
+
+        # Ignores the pattern when true.
+        notes = footnotes.Footnotes(
+            'de_DE', use_numeric_symbols=True)
+        self.assertEquals(True, notes.is_numeric)
+
+        notes = footnotes.Footnotes(
+            'en_US', use_numeric_symbols=True)
+        self.assertEquals(True, notes.is_numeric)
+
 
 if __name__ == '__main__':
     unittest.main()

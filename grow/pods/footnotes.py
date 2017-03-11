@@ -48,12 +48,16 @@ def numberic_symbol_generator():
 
 class Footnotes:
 
-    def __init__(self, locale, symbols=SYMBOLS, use_numeric_symbols=None,
-            numeric_locales_pattern=NUMERIC_LOCALES_REGEX):
+    def __init__(self, locale, symbols=None, use_numeric_symbols=None,
+            numeric_locales_pattern=None):
         self.symbol_to_footnote = collections.OrderedDict()
+        symbols = symbols or SYMBOLS
+        numeric_locales_pattern = (
+            numeric_locales_pattern or NUMERIC_LOCALES_REGEX)
         is_numeric_territory = (locale is not None
             and numeric_locales_pattern.search(locale))
-        if use_numeric_symbols or is_numeric_territory:
+        if use_numeric_symbols != False and (
+                use_numeric_symbols == True or is_numeric_territory):
             self.generator = numberic_symbol_generator()
             self.is_numeric = True
         else:
