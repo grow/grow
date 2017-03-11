@@ -60,7 +60,7 @@ class RenderedController(controllers.BaseController):
         template.globals['g'] = local_tags
 
         # Configure the footnotes based on the podspec settings.
-        footnote_config = self.pod.podspec.get('footnotes', {})
+        footnote_config = self.pod.podspec.fields.get('footnotes', {})
         locale = str(self.doc.locale) if self.doc.locale else None
         symbols = footnote_config.get('symbols', None)
         use_numeric_symbols = footnote_config.get('use_numeric_symbols', None)
