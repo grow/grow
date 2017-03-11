@@ -4,6 +4,7 @@ from . import env
 from . import errors
 from . import footnotes
 from . import messages
+from . import rendered_utils
 from . import tags
 from . import ui
 from grow.common import utils
@@ -59,24 +60,12 @@ class RenderedController(controllers.BaseController):
         # See: https://github.com/pallets/jinja/issues/688
         template.globals['g'] = local_tags
 
-        # Configure the footnotes based on the doc or podspec settings.
-        footnote_config = self.doc.fields.get(
-            '$footnotes', self.pod.podspec.fields.get('footnotes', {}))
-        locale = str(self.doc.locale) if self.doc.locale else None
-        symbols = footnote_config.get('symbols', None)
-        use_numeric_symbols = footnote_config.get('use_numeric_symbols', None)
-        numeric_locales_pattern = footnote_config.get(
-            'numeric_locales_pattern', None)
-        notes = footnotes.Footnotes(
-            locale, symbols=symbols, use_numeric_symbols=use_numeric_symbols,
-            numeric_locales_pattern=numeric_locales_pattern)
-
         try:
             kwargs = {
                 'doc': self.doc,
                 'env': self.pod.env,
-                'footnotes': notes,
                 'podspec': self.pod.podspec,
+                'utils': rendered_utils.RenderedUtilities(self.doc),
             }
             content = template.render(kwargs).lstrip()
             content = self._inject_ui(
