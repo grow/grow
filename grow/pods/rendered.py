@@ -50,6 +50,7 @@ class RenderedController(controllers.BaseController):
             preprocessor = self.pod.inject_preprocessors(doc=self.doc)
             translator = self.pod.inject_translators(doc=self.doc)
         env = self.pod.get_jinja_env(self.locale)
+
         local_tags = tags.create_builtin_tags(
             self.pod, self.doc, use_cache=self.pod.env.cached)
         template = env.get_template(self.view.lstrip('/'))
@@ -57,12 +58,24 @@ class RenderedController(controllers.BaseController):
         # it is not available included inside macros???
         # See: https://github.com/pallets/jinja/issues/688
         template.globals['g'] = local_tags
+
+        # Configure the footnotes based on the podspec settings.
+        footnote_config = self.pod.podspec.get('footnotes', {})
+        locale = str(self.doc.locale) if self.doc.locale else None
+        symbols = footnote_config.get('symbols', None)
+        use_numeric_symbols = footnote_config.get('use_numeric_symbols', None)
+        numeric_locales_pattern = footnote_config.get(
+            'numeric_locales_pattern', None)
+        notes = footnotes.Footnotes(
+            locale, symbols=symbols, use_numeric_symbols=use_numeric_symbols,
+            numeric_locales_pattern=numeric_locales_pattern)
+
         try:
             kwargs = {
                 'doc': self.doc,
                 'env': self.pod.env,
-                'footnotes': footnotes.Footnotes(self.doc.locale),
-                'podspec': self.pod.get_podspec(),
+                'footnotes': notes,
+                'podspec': self.pod.podspec,
             }
             content = template.render(kwargs).lstrip()
             content = self._inject_ui(

@@ -47,3 +47,6 @@ class PodSpec(object):
     @property
     def localization(self):
         return self.fields.get('localization')
+
+    def get(self, key, default=None):
+        return self.fields.get(key, default)
