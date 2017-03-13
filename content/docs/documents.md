@@ -224,7 +224,7 @@ This needs to be considered.<a href="#footnote-{{doc.footnotes.index(symbol)}}">
 Footnotes can be displayed later on the page.
 
 [sourcecode:html+jinja]
-{% for symbol, value in doc.footnotes.iteritems() %}
+{% for symbol, value in doc.footnotes %}
   <p id="footnote-{{loop.index-1}}">{{symbol}} : {{_(value)}}</p>
 {% endfor %}
 [/sourcecode]
