@@ -239,8 +239,8 @@ This needs to be considered.<a href="#footnote-{{utils.footnotes.index(symbol)}}
 #### Displaying Footnotes
 
 [sourcecode:html+jinja]
-{% for count, (symbol, value) in enumerate(utils.footnotes.iteritems(), 0) %}
-  <p id="footnote-{{count}}">{{symbol}} : {{_(value)}}</p>
+{% for symbol, value in utils.footnotes.iteritems() %}
+  <p id="footnote-{{loop.index-1}}">{{symbol}} : {{_(value)}}</p>
 {% endfor %}
 [/sourcecode]
 
