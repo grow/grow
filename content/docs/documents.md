@@ -36,15 +36,15 @@ As long as a blueprint specifies a document's `view` and its `path`, including Y
 
 #### Constructors
 
-Yaml constructors can be used to load in other documents or files into fields for the document.
+Yaml constructors can be used to load in other documents or files into fields of the document.
 
 [sourcecode:yaml]
-csv:    !g.csv('/pod/path/to.csv')         # Loads CSV file.
-doc:    !g.doc('/content/page/about.yaml') # Loads document.
-json:   !g.json('/pod/path/to.json')       # Loads json file.
-static: !g.static('/pod/path/to.img')      # Loads static file.
-url:    !g.url('/content/page/about.yaml') # Loads the url for a given path.
-yaml:   !g.yaml('/pod/path/to.yaml')       # Loads yaml file.
+csv:    !g.csv /pod/path/to.csv
+doc:    !g.doc /content/page/about.yaml
+json:   !g.json /pod/path/to.json
+static: !g.static /pod/path/to.img
+url:    !g.url /content/page/about.yaml
+yaml:   !g.yaml /pod/path/to.yaml
 [/sourcecode]
 
 ### Body
