@@ -79,9 +79,6 @@ class FootnotesTestCase(unittest.TestCase):
         notes = footnotes.Footnotes(None)
         self.assertEquals(False, notes.is_numeric)
 
-        notes = footnotes.Footnotes('en_CA')
-        self.assertEquals(True, notes.is_numeric)
-
         notes = footnotes.Footnotes('de_DE')
         self.assertEquals(True, notes.is_numeric)
 
