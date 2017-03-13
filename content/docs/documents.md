@@ -206,6 +206,32 @@ Whether a document exists.
     {% set page = g.doc('/content/pages/home.yaml') %}
     {{page.exists}}
 
+### footnotes
+
+Manages footnotes in a document and displays corresponding symbols.
+
+[sourcecode:html+jinja]
+This needs to be considered.{{doc.footnotes.add('More details available.')}}
+[/sourcecode]
+
+Can also make links to the list of footnotes.
+
+[sourcecode:html+jinja]
+{% set symbol = doc.footnotes.add('More details available.') %}
+This needs to be considered.<a href="#footnote-{{doc.footnotes.index(symbol)}}">{{symbol}}</a>
+[/sourcecode]
+
+Footnotes can be displayed later on the page.
+
+[sourcecode:html+jinja]
+{% for symbol, value in doc.footnotes.iteritems() %}
+  <p id="footnote-{{loop.index-1}}">{{symbol}} : {{_(value)}}</p>
+{% endfor %}
+[/sourcecode]
+
+The footnotes can be configured using the `$footnotes` field in the document or
+inherits the [podspec `footnotes` configuration]([url('/content/docs/podspec.md')]#footnotes).
+
 ### html
 
 Returns the document's body (for `.md` documents, the Markdown body) rendered as HTML.
