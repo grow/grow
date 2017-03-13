@@ -4,7 +4,6 @@ from . import env
 from . import errors
 from . import footnotes
 from . import messages
-from . import rendered_utils
 from . import tags
 from . import ui
 from grow.common import utils
@@ -65,7 +64,6 @@ class RenderedController(controllers.BaseController):
                 'doc': self.doc,
                 'env': self.pod.env,
                 'podspec': self.pod.podspec,
-                'utils': rendered_utils.RenderedUtilities(self.doc),
             }
             content = template.render(kwargs).lstrip()
             content = self._inject_ui(

@@ -78,6 +78,11 @@ class Footnotes(object):
         return self.symbol_to_footnote
 
     def add(self, value):
+        for symbol, note_value in self.symbol_to_footnote.iteritems():
+            if value == note_value:
+                return symbol
+
+        # Doesn't exist, add as new symbol.
         symbol = next(self.generator)
         self.symbol_to_footnote[symbol] = value
         return symbol

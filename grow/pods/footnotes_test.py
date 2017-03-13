@@ -55,8 +55,18 @@ class FootnotesTestCase(unittest.TestCase):
         symbol = notes.add('See other side.')
         self.assertEquals(1, len(notes))
         self.assertEquals('*', symbol)
-        self.assertEquals('See other side.', notes['*'])
+        self.assertEquals('See other side.', notes[symbol])
         self.assertDictEqual({'*': 'See other side.'}, notes.footnotes)
+
+    def test_add_duplicate(self):
+        # Adding duplicate footnotes does not create new footnotes.
+        notes = footnotes.Footnotes(None)
+        symbol = notes.add('See other side.')
+        self.assertEquals(1, len(notes))
+        self.assertEquals('*', symbol)
+        symbol = notes.add('See other side.')
+        self.assertEquals(1, len(notes))
+        self.assertEquals('*', symbol)
 
     def test_index(self):
         notes = footnotes.Footnotes(None)
