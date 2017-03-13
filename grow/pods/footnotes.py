@@ -70,6 +70,9 @@ class Footnotes(object):
     def __getitem__(self, key):
         return self.symbol_to_footnote[key]
 
+    def __iter__(self):
+        return self.symbol_to_footnote.iteritems()
+
     def __len__(self):
         return len(self.symbol_to_footnote)
 
