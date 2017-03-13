@@ -225,7 +225,7 @@ Footnotes can be displayed later on the page.
 
 [sourcecode:html+jinja]
 {% for symbol, value in doc.footnotes %}
-  <p id="footnote-{{loop.index-1}}">{{symbol}} : {{_(value)}}</p>
+  <p id="footnote-{{loop.index0}}">{{symbol}} : {{_(value)}}</p>
 {% endfor %}
 [/sourcecode]
 
