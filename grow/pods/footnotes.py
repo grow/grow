@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
-"""Footnotes for documents using chicago manual style."""
+"""Footnotes for documents using chicago manual style.
+
+By default specific languages forgo the symbol based footnotes.
+
+https://en.wikipedia.org/wiki/Dagger_(typography) :
+While daggers are freely used in English-language texts, they are often avoided
+in other languages because of their similarity to the Christian cross. In
+German, for example, daggers are commonly employed only to indicate a person's
+death or the extinction of a word, language, species or the like.
+
+http://graphicdesign.stackexchange.com/questions/10892/footnote-typographic-conventions :
+In Germany the two footnote signs * † have also the meaning of born (*) and died (†)
+"""
 
 import collections
 import re
@@ -25,7 +37,7 @@ NUMERICAL_SYMBOLS = {
     u'8': u'⁸',
     u'9': u'⁹',
 }
-NUMERIC_LOCALES_REGEX = re.compile(r'_(DE|CA)$', re.IGNORECASE)
+NUMERIC_LOCALES_REGEX = re.compile(r'_(DE)$', re.IGNORECASE)
 
 
 def symbol_generator(symbols=SYMBOLS):
