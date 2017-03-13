@@ -34,6 +34,19 @@ Front matter contains fields. Field names prefixed with a dollar sign ($) are on
 
 As long as a blueprint specifies a document's `view` and its `path`, including YAML front matter in a content document is optional.
 
+#### Constructors
+
+Yaml constructors can be used to load in other documents or files into fields for the document.
+
+[sourcecode:yaml]
+csv:    !g.csv('/pod/path/to.csv')         # Loads CSV file.
+doc:    !g.doc('/content/page/about.yaml') # Loads document.
+json:   !g.json('/pod/path/to.json')       # Loads json file.
+static: !g.static('/pod/path/to.img')      # Loads static file.
+url:    !g.url('/content/page/about.yaml') # Loads the url for a given path.
+yaml:   !g.yaml('/pod/path/to.yaml')       # Loads yaml file.
+[/sourcecode]
+
 ### Body
 
 A document's body is the stuff that comes after its YAML front matter. For Markdown-formatted documents, Grow provides a shortcut for accessing rendered HTML using `{{doc.html}}` (see the `html` API function below). The unprocessed body contents can be accessed with `{{doc.body}}`.
