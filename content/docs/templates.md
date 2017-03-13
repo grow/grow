@@ -215,6 +215,35 @@ Returns the URL object for a document, given a document's pod path. Access the `
 
 Returns a parsed yaml object, given a yaml file's pod path. Respects translation tagging.
 
+## Utilities
+
+### utils.footnotes
+
+#### utils.footnotes.add
+
+`utils.footnotes.add(<Footnote text>)`
+
+Returns a symbol that corresponds to the footnote text.
+
+[sourcecode:html+jinja]
+This needs to be considered.{{utils.footnotes.add('More details available.')}}
+[/sourcecode]
+
+#### Linking Footnotes
+
+[sourcecode:html+jinja]
+{% set symbol = utils.footnotes.add('More details available.') %}
+This needs to be considered.<a href="#footnote-{{utils.footnotes.index(symbol)}}">{{symbol}}</a>
+[/sourcecode]
+
+#### Displaying Footnotes
+
+[sourcecode:html+jinja]
+{% for count, (symbol, value) in enumerate(utils.footnotes.iteritems(), 0) %}
+  <p id="footnote-{{count}}">{{symbol}} : {{_(value)}}</p>
+{% endfor %}
+[/sourcecode]
+
 ## Filters
 
 ### date
