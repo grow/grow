@@ -1,5 +1,6 @@
 from . import document_fields
 from . import document_format
+from . import footnotes
 from . import locales
 from . import messages
 from . import urls
@@ -197,6 +198,20 @@ class Document(object):
             self._locale_kwarg or self.collection.default_locale)
         return document_fields.DocumentFields(
             self.format.front_matter.data, locale_identifier)
+
+    @utils.cached_property
+    def footnotes(self):
+        # Configure the footnotes based on the doc or podspec settings.
+        footnote_config = self.fields.get(
+            '$footnotes', self.pod.podspec.fields.get('footnotes', {}))
+        locale = str(self.locale) if self.locale else None
+        symbols = footnote_config.get('symbols', None)
+        use_numeric_symbols = footnote_config.get('use_numeric_symbols', None)
+        numeric_locales_pattern = footnote_config.get(
+            'numeric_locales_pattern', None)
+        return footnotes.Footnotes(
+            locale, symbols=symbols, use_numeric_symbols=use_numeric_symbols,
+            numeric_locales_pattern=numeric_locales_pattern)
 
     @utils.cached_property
     def format(self):
