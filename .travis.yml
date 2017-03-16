@@ -42,4 +42,5 @@ deploy:
 notifications:
   slack:
     on_success: change
-    secure: h4w4c5VDJcRs/nVMI3MK+qM3bazQ/XOiLPK+YfMV3Ekr51uhkqY9f2Jl5WNDuWAjP+2kjar/2iWW6irNxOSkiiXpMKjm7wJPYsP+3wFvLMlFT3Ri/0Mdfm7ZTEeHCyAR8kslcAfKJvwvl+WEm8ziDgu3vRvUF+0R4J/iTpniwKk=
+    rooms:
+    - secure: h4w4c5VDJcRs/nVMI3MK+qM3bazQ/XOiLPK+YfMV3Ekr51uhkqY9f2Jl5WNDuWAjP+2kjar/2iWW6irNxOSkiiXpMKjm7wJPYsP+3wFvLMlFT3Ri/0Mdfm7ZTEeHCyAR8kslcAfKJvwvl+WEm8ziDgu3vRvUF+0R4J/iTpniwKk=
