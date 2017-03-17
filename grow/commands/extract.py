@@ -48,7 +48,6 @@ def extract(pod_path, init, update, include_obsolete, localized,
     """Extracts tagged messages from source files into a template catalog."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.list_preprocessors()
     include_obsolete, localized, include_header, use_fuzzy_matching, = \
         pod.catalogs.get_extract_config(include_header=include_header,
             include_obsolete=include_obsolete, localized=localized,

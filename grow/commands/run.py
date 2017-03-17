@@ -20,7 +20,8 @@ import threading
               help='Whether to open a browser upon startup.')
 @click.option('--update-check/--no-update-check', default=True, is_flag=True,
               help='Whether to check for updates to Grow.')
-@click.option('--preprocess/--no-preprocess', default=True, is_flag=True,
+@click.option('--preprocess/--no-preprocess', '-p/-np',
+              default=True, is_flag=True,
               help='Whether to run preprocessors on server start.')
 def run(host, port, https, debug, browser, update_check, preprocess,
         pod_path):
