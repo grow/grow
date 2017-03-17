@@ -122,7 +122,8 @@ class Routes(object):
                 pod=self.pod,
                 path=sitemap_path,
                 collections=self.podspec['sitemap'].get('collections'),
-                locales=self.podspec['sitemap'].get('locales'))
+                locales=self.podspec['sitemap'].get('locales'),
+                template=self.podspec['sitemap'].get('template'))
             rules.append(routing.Rule(controller.path, endpoint=controller))
         if 'static_dir' in self.pod.flags:
             path = self.pod.flags['static_dir'] + '<grow:filename>'

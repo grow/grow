@@ -8,7 +8,7 @@ import os
 class SitemapController(controllers.BaseController):
     KIND = messages.Kind.SITEMAP
 
-    def __init__(self, pod, path=None, collections=None, locales=None):
+    def __init__(self, pod, path=None, collections=None, locales=None, template=None):
         self.pod = pod
         if path:
             self.path = path
@@ -16,6 +16,7 @@ class SitemapController(controllers.BaseController):
             self.path = (self.pod.podspec.root + '/sitemap.xml').replace('//', '/')
         self.path = '/' + self.path.lstrip('/')
         self.locales = locales
+        self.template = template
         self._collection_paths = collections
         super(SitemapController, self).__init__(_pod=pod)
 
@@ -42,9 +43,14 @@ class SitemapController(controllers.BaseController):
     def render(self, params=None, inject=False):
         root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
         env = self.pod.get_jinja_env(root=root)
-        template = env.get_template('sitemap.xml')
+        if self.template:
+            content = self.pod.read_file(self.template)
+            template = env.from_string(content)
+        else:
+            template = env.get_template('sitemap.xml')
         docs = self._list_docs()
         return template.render({
+            'pod': self.pod,
             'docs': docs,
         }).strip()
 

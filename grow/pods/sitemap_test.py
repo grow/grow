@@ -64,6 +64,27 @@ class SitemapTest(unittest.TestCase):
         self.assertNotIn(-1, indices)
         self.assertListEqual(indices, sorted(indices))
 
+    def test_custom_sitemap_template(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'sitemap': {
+                'enabled': True,
+                'template': '/views/sitemap.xml',
+            },
+        })
+        pod.write_file('/views/sitemap.xml', 'foo')
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+        })
+        pod.write_yaml('/content/pages/foo.yaml', {
+            '$title': 'Foo',
+        })
+        pod.write_file('/views/base.html', '{{doc.html}}')
+        paths_to_contents = pod.export()
+        content = paths_to_contents['/sitemap.xml']
+        self.assertEqual(content, 'foo')
+
 
 if __name__ == '__main__':
     unittest.main()
