@@ -68,6 +68,11 @@ class Pod(object):
         self.logger = _logger
         self.routes = routes.Routes(pod=self)
         self._podcache = None
+        # Ensure preprocessors are loaded when pod is initialized.
+        # Preprocessors may modify the environment in ways that are required by
+        # data files (e.g. yaml constructors).
+        if self.exists:
+            self.list_preprocessors()
         try:
             sdk_utils.check_sdk_version(self)
         except PodDoesNotExistError:
