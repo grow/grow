@@ -83,13 +83,18 @@ class Catalogs(object):
         self.clear_gettext_cache()
         locales = self.list_locales()
         self.validate_locales(locales)
+        skipped_locales = []
         for locale in locales:
             catalog = self.get(locale)
             if not catalog.exists:
-                self.pod.logger.info('Does not exist: {}'.format(catalog))
+                skipped_locales.append(locale)
                 continue
             if force or catalog.needs_compilation:
                 catalog.compile()
+        if skipped_locales:
+            skipped_locales.sort()
+            text = 'No translations to compile -> {}'
+            self.pod.logger.info(text.format(', '.join(skipped_locales)))
 
     def to_message(self):
         message = messages.CatalogsMessage()
