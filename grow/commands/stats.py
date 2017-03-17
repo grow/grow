@@ -15,7 +15,6 @@ def stats(pod_path, full):
     """Displays statistics about the pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.list_preprocessors()
     try:
         stats = stats_lib.Stats(pod, full=full)
         click.echo_via_pager('\n\n'.join(stats.to_tables()))
