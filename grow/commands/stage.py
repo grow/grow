@@ -18,14 +18,16 @@ import os
                    ' either using --remote or by configuring a deployment'
                    ' named "webreview" in podspec.yaml.')
 @click.option('--subdomain', help='Assign a subdomain to this build.')
+@click.option('--api-key',
+              help='API key for authorizing staging to WebReview projects.')
 @click.pass_context
-def stage(context, pod_path, remote, preprocess, subdomain):
+def stage(context, pod_path, remote, preprocess, subdomain, api_key):
     """Stages a build on a WebReview server."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     auth = context.parent.params.get('auth')
     try:
         pod = pods.Pod(root, storage=storage.FileStorage)
-        deployment = _get_deployment(pod, remote, subdomain)
+        deployment = _get_deployment(pod, remote, subdomain, api_key)
         if auth:
             deployment.login(auth)
         if preprocess:
@@ -41,7 +43,7 @@ def stage(context, pod_path, remote, preprocess, subdomain):
         raise click.ClickException(str(e))
 
 
-def _get_deployment(pod, remote, subdomain):
+def _get_deployment(pod, remote, subdomain, api_key):
     if remote:
         dest_class = webreview_destination.WebReviewDestination
         return dest_class(dest_class.Config(remote=remote, name=subdomain))
@@ -50,6 +52,8 @@ def _get_deployment(pod, remote, subdomain):
             deployment = pod.get_deployment('webreview')
             if subdomain:
                 deployment.config.subdomain = subdomain
+            if api_key:
+                deployment.webreview.api_key = api_key
             return deployment
         except ValueError:
             text = ('Must provide --remote or specify a deployment named '
