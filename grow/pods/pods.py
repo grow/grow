@@ -189,24 +189,12 @@ class Pod(object):
         return self.storage.delete(path)
 
     def dump(self, suffix='index.html', append_slashes=True):
-        output = self.export()
+        output = self.export(suffix=suffix, append_slashes=append_slashes)
         if self.ui:
             output.update(self.export_ui())
-        clean_output = {}
-        if suffix:
-            for path, content in output.iteritems():
-                if (append_slashes
-                    and not path.endswith('/')
-                    and not os.path.splitext(path)[-1]):
-                    path = path.rstrip('/') + '/'
-                if append_slashes and path.endswith('/') and suffix:
-                    path += suffix
-                clean_output[path] = content
-        else:
-            clean_output = output
-        return clean_output
+        return output
 
-    def export(self):
+    def export(self, suffix=None, append_slashes=False):
         """Builds the pod, returning a mapping of paths to content."""
         output = {}
         routes = self.get_routes()
@@ -218,9 +206,22 @@ class Pod(object):
         bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
         bar.start()
         for path in paths:
+            output_path = path
             controller, params = self.match(path)
+            # Append a suffix onto rendered routes only. This supports dumping
+            # paths that would serve at URLs that terminate in "/" or without
+            # an extension to an HTML file suitable for writing to a
+            # filesystem. Static routes and other routes that may export to
+            # paths without extensions should remain unmodified.
+            if suffix and controller.KIND == messages.Kind.RENDERED:
+                if (append_slashes
+                    and not output_path.endswith('/')
+                    and not os.path.splitext(output_path)[-1]):
+                    output_path = output_path.rstrip('/') + '/'
+                if append_slashes and output_path.endswith('/') and suffix:
+                    output_path += suffix
             try:
-                output[path] = controller.render(params, inject=False)
+                output[output_path] = controller.render(params, inject=False)
             except:
               self.logger.error('Error building: {}'.format(controller))
               raise

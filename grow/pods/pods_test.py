@@ -189,6 +189,43 @@ class PodTest(unittest.TestCase):
         self.pod.preprocess(['custom'])
         self.assertEqual(self.pod._custom_preprocessor_value, 'testing123')
 
+    def test_dump_static_files_without_extension(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'static_dirs': [{
+                'static_dir': '/source/media/',
+                'serve_at': '/static/',
+            }],
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+        })
+        pod.write_yaml('/content/pages/foo.yaml', {
+            '$title': 'Foo',
+        })
+        pod.write_file('/source/media/file.txt', 'file')
+        pod.write_file('/source/media/extensionless', 'file')
+        pod.write_file('/views/base.html', '{{doc.html|safe}}')
+
+        # Verify dump appends suffix.
+        expected = [
+            '/foo/index.html',
+            '/static/file.txt',
+            '/static/extensionless',
+        ]
+        paths = pod.dump().keys()
+        self.assertItemsEqual(expected, paths)
+
+        # Verify export does not append suffix.
+        expected = [
+            '/foo/',
+            '/static/file.txt',
+            '/static/extensionless',
+        ]
+        paths = pod.export().keys()
+        self.assertItemsEqual(expected, paths)
+
 
 if __name__ == '__main__':
     unittest.main()
