@@ -13,7 +13,7 @@ import os
 @click.option('--preprocessor', '-p', type=str, multiple=True,
               help='Name of preprocessor to run. Preprocessors controlled by'
                    ' the preprocess command must have names or tags.')
-@click.option('--tag', '-tag', type=str, multiple=True,
+@click.option('--tag', '-t', type=str, multiple=True,
               help='Tags of preprocessors to run. Preprocessors controlled by'
                    ' the preprocess command must have names or tags.')
 @click.option('--ratelimit', type=int,
