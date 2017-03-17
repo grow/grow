@@ -2,9 +2,11 @@
 
 from . import catalog_holder
 from . import collection
+from . import document_fields
 from . import env as environment
 from . import locales
 from . import messages
+from . import podcache
 from . import podspec
 from . import routes
 from . import static
@@ -13,6 +15,7 @@ from . import tags
 from ..preprocessors import preprocessors
 from ..translators import translators
 from grow.common import sdk_utils
+from grow.common import timer
 from grow.common import utils
 from werkzeug.contrib import cache as werkzeug_cache
 import copy
@@ -23,6 +26,7 @@ import os
 import progressbar
 import re
 import time
+import yaml
 
 _handler = logging.StreamHandler()
 _formatter = logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S')
@@ -40,14 +44,13 @@ class PodDoesNotExistError(Error, IOError):
     pass
 
 
-class PodSpecParseError(Error):
-    pass
-
-
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
 
 class Pod(object):
+
+    FILE_PODCACHE = '.podcache.yaml'
+    FILE_PODSPEC = 'podspec.yaml'
 
     def __eq__(self, other):
         return (isinstance(self, Pod)
@@ -55,7 +58,6 @@ class Pod(object):
                 and self.root == other.root)
 
     def __init__(self, root, storage=storage.auto, env=None):
-        self.virtual_files = {}
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
                      else os.path.abspath(root))
@@ -65,6 +67,7 @@ class Pod(object):
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.logger = _logger
         self.routes = routes.Routes(pod=self)
+        self._podcache = None
         try:
             sdk_utils.check_sdk_version(self)
         except PodDoesNotExistError:
@@ -85,15 +88,28 @@ class Pod(object):
           raise ValueError('.. not allowed in file paths.')
         return os.path.join(self.root, pod_path.lstrip('/'))
 
+    def _parse_cache_yaml(self):
+        podcache_file_name = '/{}'.format(self.FILE_PODCACHE)
+        if not self.file_exists(podcache_file_name):
+            return
+        try:
+            # Do not use the utils.parse_yaml as that has extra constructors
+            # that should not be run when the cache file is being parsed.
+            return yaml.load(self.read_file(podcache_file_name)) or {}
+        except IOError as e:
+            path = self.abs_path(podcache_file_name)
+            raise podcache.PodCacheParseError('Error parsing: {}'.format(path))
+
     @utils.memoize
     def _parse_yaml(self):
+        podspec_file_name = '/{}'.format(self.FILE_PODSPEC)
         try:
-            return utils.parse_yaml(self.read_file('/podspec.yaml'))
+            return utils.parse_yaml(self.read_file(podspec_file_name))
         except IOError as e:
-            path = self.abs_path('/podspec.yaml')
+            path = self.abs_path(podspec_file_name)
             if e.args[0] == 2 and e.filename:
                 raise PodDoesNotExistError('Pod not found in: {}'.format(path))
-            raise PodSpecParseError('Error parsing: {}'.format(path))
+            raise podspec.PodSpecParseError('Error parsing: {}'.format(path))
 
     @utils.cached_property
     def cache(self):
@@ -107,7 +123,7 @@ class Pod(object):
 
     @property
     def exists(self):
-        return self.file_exists('/podspec.yaml')
+        return self.file_exists('/{}'.format(self.FILE_PODSPEC))
 
     @property
     def flags(self):
@@ -118,8 +134,15 @@ class Pod(object):
         return self.podspec.grow_version
 
     @property
+    def podcache(self):
+        if not self._podcache:
+            self._podcache = podcache.PodCache(
+                yaml=self._parse_cache_yaml() or {}, pod=self)
+        return self._podcache
+
+    @property
     def podspec(self):
-        return podspec.Podspec(yaml=self.yaml, pod=self)
+        return podspec.PodSpec(yaml=self.yaml, pod=self)
 
     @property
     def title(self):
@@ -192,7 +215,7 @@ class Pod(object):
         for path in paths:
             controller, params = self.match(path)
             try:
-              output[path] = controller.render(params, inject=False)
+                output[path] = controller.render(params, inject=False)
             except:
               self.logger.error('Error building: {}'.format(controller))
               raise
@@ -267,7 +290,13 @@ class Pod(object):
           Collection.
         """
         pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
-        return collection.Collection.get(pod_path, _pod=self)
+        cached = self.podcache.collection_cache.get_collection(pod_path)
+        if cached:
+            return cached
+
+        col = collection.Collection.get(pod_path, _pod=self)
+        self.podcache.collection_cache.add_collection(col)
+        return col
 
     def get_deployment(self, nickname):
         """Returns a pod-specific deployment."""
@@ -331,7 +360,6 @@ class Pod(object):
             kwargs['bytecode_cache'] = self._get_bytecode_cache()
         kwargs['extensions'].extend(self.list_jinja_extensions())
         env = jinja2.Environment(**kwargs)
-        env.globals.update({'g': tags.create_builtin_tags(self, use_cache=self.env.cached)})
         env.filters.update(tags.create_builtin_filters())
         get_gettext_func = self.catalogs.get_gettext_translations
         env.install_gettext_callables(
@@ -355,7 +383,8 @@ class Pod(object):
                                              fingerprinted=controller.fingerprinted,
                                              localization=controller.localization)
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
-                'not configured for this path in podspec.yaml.'.format(pod_path))
+                'not configured for this path in {}.'.format(
+                    pod_path, self.FILE_PODSPEC))
         raise static.BadStaticFileError(text)
 
     def get_podspec(self):
@@ -539,7 +568,7 @@ class Pod(object):
 
     def read_yaml(self, path):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
-        return utils.untag_fields(fields)
+        return document_fields.DocumentFields._untag(fields)
 
     def reset_yaml(self):
         self._parse_yaml.reset()
@@ -560,8 +589,7 @@ class Pod(object):
         self.storage.write(path, content)
 
     def write_yaml(self, path, content):
-        for virtual_key in self.virtual_files.keys():
-            if path in virtual_key:
-                del self.virtual_files[virtual_key]
+        self.podcache.collection_cache.remove_by_path(path)
+        self.podcache.document_cache.remove_by_path(path)
         content = utils.dump_yaml(content)
         self.write_file(path, content)

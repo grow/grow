@@ -3,7 +3,6 @@ import textwrap
 import unittest
 
 from . import documents
-from . import formats
 from . import locales
 from . import pods
 from . import routes
@@ -21,11 +20,16 @@ class DocumentsTestCase(unittest.TestCase):
         doc1 = self.pod.get_doc('/content/pages/contact.yaml')
         doc2 = self.pod.get_doc('/content/pages/contact.yaml')
         self.assertEqual(doc1, doc2)
+
         col = self.pod.get_collection('pages')
         for doc in col:
             if doc.pod_path == '/content/pages/contact.yaml':
                 self.assertEqual(doc1, doc)
                 self.assertEqual(doc2, doc)
+
+        doc1 = self.pod.get_doc('/content/pages/about.yaml')
+        doc2 = self.pod.get_doc('/content/pages/about@de.yaml')
+        self.assertEqual(doc1, doc2)
 
     def test_doc_storage(self):
         # Because this test involves translation priority, ensure that we have
@@ -75,6 +79,29 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('baz', de_doc.foo)
         self.assertEqual('qux', de_doc.qaz)
 
+    def test_clean_localized_path(self):
+        input = '/content/pages/about.yaml'
+        expected = '/content/pages/about.yaml'
+        self.assertEquals(expected, documents.Document.clean_localized_path(
+            input, None))
+
+        input = '/content/pages/about@de.yaml'
+        expected = '/content/pages/about@de.yaml'
+        self.assertEquals(expected, documents.Document.clean_localized_path(
+            input, 'de'))
+
+        input = '/content/pages/about@de.yaml'
+        expected = '/content/pages/about.yaml'
+        self.assertEquals(expected, documents.Document.clean_localized_path(
+            input, 'en'))
+
+    def test_get_serving_path(self):
+        about_doc = self.pod.get_doc('/content/pages/about.yaml')
+        self.assertEquals('/about/', about_doc.get_serving_path())
+
+        de_doc = self.pod.get_doc('/content/pages/about.yaml', locale='de')
+        self.assertEquals('/de_alias/about/', de_doc.get_serving_path())
+
     def test_locales(self):
         doc = self.pod.get_doc('/content/pages/contact.yaml')
         self.assertEqual(locales.Locale('de'), doc.locale)
@@ -93,6 +120,41 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(expected, ko_doc.url.path)
         self.assertTrue(ko_doc.exists)
 
+    def test_parse_localized_path(self):
+        path = '/content/pages/file@en_us.ext'
+        expected = ('/content/pages/file.ext', 'en_us')
+        self.assertEqual(
+            expected, documents.Document.parse_localized_path(path))
+        path = '/content/pages/file@en.ext'
+        expected = ('/content/pages/file.ext', 'en')
+        self.assertEqual(
+            expected, documents.Document.parse_localized_path(path))
+        path = '/content/pages/file.ext'
+        expected = ('/content/pages/file.ext', None)
+        self.assertEqual(
+            expected, documents.Document.parse_localized_path(path))
+
+    def test_localize_path(self):
+        path = '/content/pages/file.ext'
+        locale = 'locale'
+        expected = '/content/pages/file@locale.ext'
+        self.assertEqual(
+            expected, documents.Document.localize_path(path, locale=locale))
+
+        # No Locale
+        path = '/content/pages/file.ext'
+        locale = None
+        expected = '/content/pages/file.ext'
+        self.assertEqual(
+            expected, documents.Document.localize_path(path, locale=locale))
+
+        # Existing Locale
+        path = '/content/pages/file@locale.ext'
+        locale = 'elacol'
+        expected = '/content/pages/file@elacol.ext'
+        self.assertEqual(
+            expected, documents.Document.localize_path(path, locale=locale))
+
     def test_next_prev(self):
         collection = self.pod.get_collection('pages')
         docs = collection.list_docs()
@@ -104,9 +166,9 @@ class DocumentsTestCase(unittest.TestCase):
 
     def test_default_locale(self):
         doc = self.pod.get_doc('/content/localized/localized.yaml', locale='de')
-        self.assertEqual('/views/localized.html', doc.view)
+        self.assertEqual('/views/ja-specific-view.html', doc.view)
         self.assertEqual(locales.Locale('de'), doc.locale)
-        self.assertEqual('base', doc.foo)
+        self.assertEqual('base_ja', doc.foo)
         self.assertEqual('baz', doc.bar)
 
         doc = self.pod.get_doc('/content/localized/localized.yaml')
@@ -123,75 +185,18 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('baz', doc.bar)
 
         doc = self.pod.get_doc('/content/localized/localized.yaml', locale='fr')
-        self.assertEqual('/views/localized.html', doc.view)
+        self.assertEqual('/views/ja-specific-view.html', doc.view)
         self.assertEqual(locales.Locale('fr'), doc.locale)
-        self.assertEqual('base', doc.foo)
+        self.assertEqual('base_ja', doc.foo)
         self.assertEqual('baz', doc.bar)
         self.assertEqual('/intl/fr/localized/', doc.url.path)
 
-    def test_disallow_part_with_no_locale(self):
-        # Doc parts must either define $locale or $locales.
-        # Add test file dynamically, otherwise it'll error when other tests run
-        doc_pod_path = 'content/localized/part-with-no-locale.yaml'
-        with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
-            f.write(textwrap.dedent(
-                """\
-                ---
-                $title: Multiple Locales
-                $localization:
-                  path: /intl/{locale}/multiple-locales/
-                  locales:
-                  - de
-                foo: bar
-                ---
-                foo: bar
-                """
-            ))
-
-        with self.assertRaises(formats.BadLocalesError):
-            doc = self.pod.get_doc('/' + doc_pod_path)
-            doc.fields['foo']
-
-        # This should be fine:
-        with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
-            f.write(textwrap.dedent(
-                """\
-                ---
-                $title: Multiple Locales
-                $localization:
-                  path: /intl/{locale}/multiple-locales/
-                  locales:
-                  - de
-                  - fr
-                ---
-                $locale: de
-                foo: bar
-                """
-            ))
-        de_doc = self.pod.get_doc('/' + doc_pod_path, locale='de')
-        fr_doc = self.pod.get_doc('/' + doc_pod_path, locale='fr')
-        self.assertEqual(de_doc.fields['foo'], 'bar')
-        self.assertNotIn('foo', fr_doc.fields)
-
-    def test_dont_treat_trailing_dashes_as_a_new_part(self):
-        doc_pod_path = 'content/localized/part-with-trailing-dashes.yaml'
-        with open(os.path.join(self.pod.root, doc_pod_path), 'w') as f:
-            f.write(textwrap.dedent(
-                """\
-                ---
-                $localization:
-                    locales:
-                    - de
-                root_doc_part: true
-                ---
-                $locale: de
-                subsequent_doc_part: true
-                ---
-                """
-            ))
-
-        doc = self.pod.get_doc('/' + doc_pod_path)
-        self.assertEqual(len(doc.format._iterate_content()), 2)
+        doc = self.pod.get_doc('/content/localized/localized.yaml', locale='en')
+        self.assertEqual('/views/localized.html', doc.view)
+        self.assertEqual(locales.Locale('en'), doc.locale)
+        self.assertEqual('base', doc.foo)
+        self.assertEqual('baz', doc.bar)
+        self.assertEqual('/intl/en/localized/', doc.url.path)
 
     def test_view_override(self):
         doc = self.pod.get_doc('/content/localized/localized-view-override.yaml')
@@ -231,8 +236,7 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('fr_value', fr_doc.key)
         self.assertEqual('root_key_value', de_doc.root_key)
         self.assertEqual('root_key_value', fr_doc.root_key)
-        # Verify '$locale' is appended.
-        keys = ['$title', '$order', '$titles', 'key', 'root_key', '$locale']
+        keys = ['$title', '$order', '$titles', 'key', 'root_key']
         self.assertItemsEqual(keys, fr_doc.fields.keys())
 
     def test_locale_override(self):
@@ -287,42 +291,6 @@ class DocumentsTestCase(unittest.TestCase):
         it_doc = doc.localize('it')
         self.assertEqual('bar-base', it_doc.foo)
         self.assertEqual('qux', it_doc.qaz)
-
-    def test_localized_part_overrides(self):
-        pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'localization': {
-                'default_locale': 'en',
-                'locales': [
-                    'fr',
-                    'ja',
-                ],
-            },
-        })
-        pod.write_yaml('/content/pages/_blueprint.yaml', {
-            '$path': '/{base}/',
-            '$localization': {
-                'path': '/{locale}/{base}/',
-            }
-        })
-        pod.write_file('/content/pages/page.yaml', textwrap.dedent(
-            """\
-            ---
-            foo: bar
-            ---
-            $locale: en
-            foo: bar-en
-            ---
-            $locale: fr
-            foo: bar-fr
-            """
-        ))
-        doc = pod.get_doc('/content/pages/page.yaml')
-        self.assertEqual('bar-en', doc.foo)
-        fr_doc = doc.localize('fr')
-        self.assertEqual('bar-fr', fr_doc.foo)
-        ja_doc = doc.localize('ja')
-        self.assertEqual('bar', ja_doc.foo)
 
     def test_localization(self):
         # Localized document.
@@ -380,6 +348,7 @@ class DocumentsTestCase(unittest.TestCase):
         pod.write_yaml('/content/pages/_blueprint.yaml', {
             '$path': '/{base}/',
         })
+        pod.write_yaml('/content/pages/page.yaml', {})
         collection = pod.get_collection('/content/pages/')
         self.assertEqual(['de'], collection.locales)
         doc = pod.get_doc('/content/pages/page.yaml')
@@ -549,7 +518,7 @@ class DocumentsTestCase(unittest.TestCase):
             '$view': '/views/{base}.html',
         })
         pod.write_yaml('/content/pages/page.yaml', {})
-        doc = pod.get_doc('/content/pages/page.html')
+        doc = pod.get_doc('/content/pages/page.yaml')
         self.assertEqual('/views/page.html', doc.view)
 
     def test_recursive_yaml(self):
@@ -587,6 +556,31 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(foo_doc, bar_doc.foo)
         self.assertEqual(foo_doc, bar_doc.foo.bar.foo)
         self.assertEqual('en', bar_doc.foo.locale)
+
+    def test_locale_paths(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_file('/content/pages/foo@en_us.yaml', '')
+        pod.write_file('/content/pages/foo@en.yaml', '')
+        pod.write_file('/content/pages/foo.yaml', '')
+
+        doc = pod.get_doc('/content/pages/foo@en_us.yaml')
+        self.assertEqual([
+            '/content/pages/foo@en_us.yaml',
+            '/content/pages/foo@en.yaml',
+            '/content/pages/foo.yaml',
+        ], doc.locale_paths)
+
+        doc = pod.get_doc('/content/pages/foo@en.yaml')
+        self.assertEqual([
+            '/content/pages/foo@en.yaml',
+            '/content/pages/foo.yaml',
+        ], doc.locale_paths)
+
+        doc = pod.get_doc('/content/pages/foo.yaml')
+        self.assertEqual([
+            '/content/pages/foo.yaml',
+        ], doc.locale_paths)
 
 
 if __name__ == '__main__':

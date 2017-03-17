@@ -12,6 +12,16 @@ class CollectionsTestCase(unittest.TestCase):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
+    def test_clean_collection_path(self):
+        self.assertEqual('pages', collection.Collection.clean_collection_path(
+            '/content/pages/'))
+        self.assertEqual('pages', collection.Collection.clean_collection_path(
+            '/content/pages'))
+        self.assertEqual('pages', collection.Collection.clean_collection_path(
+            'pages'))
+        self.assertEqual('pages/other', collection.Collection.clean_collection_path(
+            '/content/pages/other/'))
+
     def test_get(self):
         col = self.pod.get_collection('/content/pages/')
         self.assertEqual('pages', col.collection_path)

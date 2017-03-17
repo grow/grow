@@ -13,11 +13,16 @@ import os
 @click.option('--preprocess/--no-preprocess', '-p/-np',
               default=True, is_flag=True,
               help='Whether to run preprocessors.')
-def build(pod_path, out_dir, preprocess):
+@click.option('--clear_cache',
+              default=False, is_flag=True,
+              help='Clear the pod cache before building.')
+def build(pod_path, out_dir, preprocess, clear_cache):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
     pod = pods.Pod(root, storage=storage.FileStorage)
+    if clear_cache:
+        pod.podcache.reset()
     if preprocess:
         pod.preprocess()
     try:
@@ -28,5 +33,6 @@ def build(pod_path, out_dir, preprocess):
         stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
         destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,
                            test=False)
+        pod.podcache.write()
     except pods.Error as e:
         raise click.ClickException(str(e))

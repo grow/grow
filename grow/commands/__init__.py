@@ -1,4 +1,5 @@
 from . import build
+from . import convert
 from . import deploy
 from . import download_translations
 from . import extract
@@ -17,6 +18,7 @@ from . import upload_translations
 
 def add(group):
     group.add_command(build.build)
+    group.add_command(convert.convert)
     group.add_command(deploy.deploy)
     group.add_command(download_translations.download_translations)
     group.add_command(extract.extract)

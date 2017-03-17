@@ -130,7 +130,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
             return
         fields, body, _ = self._parse_item(item)
         if doc.exists:
-            existing_data = doc.get_tagged_fields()
+            existing_data = doc.format.front_matter.data
         else:
             existing_data = {}
         fields = utils.format_existing_data(

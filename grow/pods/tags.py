@@ -217,20 +217,26 @@ def relative_filter(ctx, path):
         path, relative_to=doc.url.path)
 
 
-@utils.memoize
-def create_builtin_tags(pod, use_cache=False):
+def create_builtin_tags(pod, doc, use_cache=False):
     def wrap(func):
         return lambda *args, **kwargs: func(
             *args, _pod=pod, use_cache=use_cache, **kwargs)
+
+    def wrap_dependency(func, index=0):
+        def wrapper(*args, **kwds):
+            pod.podcache.dependency_graph.add(doc.pod_path, args[index])
+            return func(*args, _pod=pod, use_cache=use_cache, **kwds)
+        return wrapper
+
     return {
         'breadcrumb': wrap(breadcrumb),
+        'categories': wrap(categories),
         'collection': wrap(collection),
         'collections': wrap(collections),
-        'categories': wrap(categories),
         'csv': wrap(csv),
         'date': wrap(date),
-        'doc': wrap(get_doc),
-        'docs': wrap(docs),
+        'doc': wrap_dependency(get_doc),
+        'docs': wrap_dependency(docs),
         'json': wrap(json),
         'locale': wrap(locale),
         'locales': wrap(locales),

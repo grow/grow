@@ -2,7 +2,15 @@
 from grow.pods import locales
 
 
-class Podspec(object):
+class Error(Exception):
+    pass
+
+
+class PodSpecParseError(Error):
+    pass
+
+
+class PodSpec(object):
 
     def __init__(self, yaml, pod):
         yaml = yaml or {}

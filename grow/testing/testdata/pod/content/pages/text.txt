@@ -1,0 +1,5 @@
+---
+$title@: Text Page
+$hidden: true
+---
+Text page. All text, nothing special here.

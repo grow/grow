@@ -1,4 +1,3 @@
----
 $title: Localized View Override
 $view: /views/localized.html
 $path: /intl/{locale}/localized-view/
@@ -8,6 +7,3 @@ $localization:
   locales:
   - en_PK
   - tr_TR
----
-$locale: tr_TR
-$view: /views/tr-specific-view.html
