@@ -3,4 +3,4 @@ language: python
 python: 2.7
 cache: pip
 install: pip install grow
-script: if [ TRAVIS_BRANCH == "master" ] ; grow deploy --noconfirm grow.io ; fi
+script: if [ TRAVIS_BRANCH == "master" ] ; then grow deploy --noconfirm grow.io ; fi
