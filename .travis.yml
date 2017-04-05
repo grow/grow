@@ -1,9 +1,6 @@
-branches:
-  only:
-  - master
 sudo: false
 language: python
 python: 2.7
 cache: pip
 install: pip install grow
-script: grow deploy --noconfirm grow.io
+script: if [ TRAVIS_BRANCH == "master" ] ; grow deploy --noconfirm grow.io ; fi
