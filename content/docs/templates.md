@@ -217,11 +217,17 @@ Returns a parsed yaml object, given a yaml file's pod path. Respects translation
 
 ## Filters
 
+### currency
+
+Formats currency in a localized format. Use's [Babel's format_currency](http://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_currency).
+
+[sourcecode:html+jinja]
+{{12345|currency('USD')}}
+[/sourcecode]
+
 ### date
 
-`date`
-
-Formats localized and non-localized dates. Use's [Babel's format_date](http://babel.pocoo.org/docs/api/dates/#babel.dates.format_date).
+Formats localized and non-localized dates. Use's [Babel's format_date](http://babel.pocoo.org/en/latest/dates.html#babel.dates.format_date).
 
 [sourcecode:html+jinja]
 {{date_object|date(format='short')}}
@@ -231,11 +237,17 @@ Formats localized and non-localized dates. Use's [Babel's format_date](http://ba
 
 ### datetime
 
-Formats localized and non-localized datetimes. Use's [Babel's format_datetime](http://babel.pocoo.org/docs/api/dates/#babel.dates.format_datetime).
+Formats localized and non-localized datetimes. Use's [Babel's format_datetime](http://babel.pocoo.org/en/latest/dates.html#babel.dates.format_datetime).
+
+### decimal
+
+Formats decimal in a localized format. Use's [Babel's format_decimal](http://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_decimal).
+
+[sourcecode:html+jinja]
+{{123.45|decimal()}}
+[/sourcecode]
 
 ### deeptrans
-
-`deeptrans`
 
 Recursively applies the gettext translation function to strings within a dictionary.
 
@@ -252,8 +264,6 @@ Recursively applies the gettext translation function to strings within a diction
 
 ### jsonify
 
-`jsonify`
-
 Converts a dictionary into JSON.
 
 [sourcecode:html+jinja]
@@ -262,8 +272,6 @@ Converts a dictionary into JSON.
 
 ### markdown
 
-`markdown`
-
 Renders Markdown content into HTML. Use in conjunction with the `safe` filter to render HTML to a page.
 
 [sourcecode:html+jinja]
@@ -271,9 +279,23 @@ Renders Markdown content into HTML. Use in conjunction with the `safe` filter to
 {{markdown_content|markdown|safe}}
 [/sourcecode]
 
-### relative
+### number
 
-`relative`
+Formats numbers in a localized format. Use's [Babel's format_number](http://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_number).
+
+[sourcecode:html+jinja]
+{{1234.567|number}}
+[/sourcecode]
+
+### percent
+
+Formats percentages in a localized format. Use's [Babel's format_percent](http://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_percent).
+
+[sourcecode:html+jinja]
+{{0.123|percent}}
+[/sourcecode]
+
+### relative
 
 Generates a relative URL (from the perspective of the current document context) from an absolute URL path.
 
@@ -283,8 +305,6 @@ Generates a relative URL (from the perspective of the current document context) 
 
 ### slug
 
-`slug`
-
 Creates a slug from text.
 
 [sourcecode:html+jinja]
@@ -293,6 +313,4 @@ Creates a slug from text.
 
 ### time
 
-`time`
-
-Formats localized and non-localized times. Use's [Babel's format_time](http://babel.pocoo.org/docs/api/dates/#babel.dates.format_time).
+Formats localized and non-localized times. Use's [Babel's format_time](http://babel.pocoo.org/en/latest/dates.html#babel.dates.format_time).
