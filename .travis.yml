@@ -4,5 +4,5 @@ python: 2.7
 cache: pip
 install: pip install grow
 script:
-  - echo TRAVIS_BRANCH
-  - if [ TRAVIS_BRANCH == "master" ] ; then grow deploy --noconfirm grow.io ; fi
+  - echo $TRAVIS_BRANCH
+  - if [ $TRAVIS_BRANCH == "master" ] ; then grow deploy --noconfirm grow.io ; fi
