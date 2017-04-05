@@ -1,5 +1,6 @@
 from . import collection as collection_lib
 from babel import dates as babel_dates
+from babel import numbers as babel_numbers
 from datetime import datetime
 from grow.common import utils
 from grow.pods import locales as locales_lib
@@ -250,11 +251,15 @@ def create_builtin_tags(pod, doc, use_cache=False):
 
 def create_builtin_filters():
     return (
+        ('currency', babel_numbers.format_currency),
         ('date', babel_dates.format_date),
         ('datetime', babel_dates.format_datetime),
+        ('decimal', babel_numbers.format_decimal),
         ('deeptrans', deeptrans),
         ('jsonify', jsonify),
         ('markdown', markdown_filter),
+        ('number', babel_numbers.format_number),
+        ('percent', babel_numbers.format_percent),
         ('render', render_filter),
         ('slug', slug_filter),
         ('time', babel_dates.format_time),
