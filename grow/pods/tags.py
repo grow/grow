@@ -1,5 +1,6 @@
 from . import collection as collection_lib
 from babel import dates as babel_dates
+from babel import numbers as babel_numbers
 from datetime import datetime
 from grow.common import utils
 from grow.pods import locales as locales_lib
@@ -217,6 +218,16 @@ def relative_filter(ctx, path):
         path, relative_to=doc.url.path)
 
 
+def wrap_locale_context(func):
+    @jinja2.contextfilter
+    def locale_filter(ctx, value, *args, **kwargs):
+        doc = ctx['doc']
+        if not kwargs.get('locale', None):
+            kwargs['locale'] = str(doc.locale)
+        return func(value, *args, **kwargs)
+    return locale_filter
+
+
 def create_builtin_tags(pod, doc, use_cache=False):
     def wrap(func):
         return lambda *args, **kwargs: func(
@@ -250,13 +261,17 @@ def create_builtin_tags(pod, doc, use_cache=False):
 
 def create_builtin_filters():
     return (
-        ('date', babel_dates.format_date),
-        ('datetime', babel_dates.format_datetime),
+        ('currency', wrap_locale_context(babel_numbers.format_currency)),
+        ('date', wrap_locale_context(babel_dates.format_date)),
+        ('datetime', wrap_locale_context(babel_dates.format_datetime)),
+        ('decimal', wrap_locale_context(babel_numbers.format_decimal)),
         ('deeptrans', deeptrans),
         ('jsonify', jsonify),
         ('markdown', markdown_filter),
+        ('number', wrap_locale_context(babel_numbers.format_number)),
+        ('percent', wrap_locale_context(babel_numbers.format_percent)),
         ('render', render_filter),
         ('slug', slug_filter),
-        ('time', babel_dates.format_time),
+        ('time', wrap_locale_context(babel_dates.format_time)),
         ('relative', relative_filter),
     )
