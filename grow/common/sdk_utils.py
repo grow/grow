@@ -112,7 +112,10 @@ def install(pod, gerrit=None):
     if gerrit or has_gerrit_remote(pod) and gerrit is not False:
         install_gerrit_commit_hook(pod)
     if pod.file_exists('/package.json'):
-        success = install_npm(pod)
+        if pod.file_exists('/yarn.lock'):
+            success = install_yarn(pod)
+        else:
+            success = install_npm(pod)
         if not success:
           return
     if pod.file_exists('/bower.json'):
@@ -213,3 +216,21 @@ def install_gulp(pod):
         return
     pod.logger.info('[✓] "gulp" is installed.')
     return True
+
+
+def install_yarn(pod):
+    args = get_popen_args(pod)
+    npm_status_command = 'yarn --version > /dev/null 2>&1'
+    npm_not_found = subprocess.call(npm_status_command, shell=True, **args) == 127
+    if npm_not_found:
+        pod.logger.error('[✘] The "yarn" command was not found.')
+        pod.logger.error('    Please install using: npm install -g yarn')
+        return
+    pod.logger.info('[✓] "yarn" is installed.')
+    npm_command = 'yarn install'
+    process = subprocess.Popen(npm_command, shell=True, **args)
+    code = process.wait()
+    if not code:
+        pod.logger.info('[✓] Finished: yarn install.')
+        return True
+    pod.logger.error('[✘] There was an error running "yarn install".')
