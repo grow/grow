@@ -49,6 +49,7 @@ class PodDoesNotExistError(Error, IOError):
 
 class Pod(object):
 
+    FEATURE_UI = 'ui'
     FILE_PODCACHE = '.podcache.yaml'
     FILE_PODSPEC = 'podspec.yaml'
 
@@ -68,6 +69,8 @@ class Pod(object):
         self.logger = _logger
         self.routes = routes.Routes(pod=self)
         self._podcache = None
+        self._disabled = set()
+
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
         # data files (e.g. yaml constructors).
@@ -188,9 +191,12 @@ class Pod(object):
         path = self._normalize_path(pod_path)
         return self.storage.delete(path)
 
+    def disable(self, feature):
+        self._disabled.add(feature)
+
     def dump(self, suffix='index.html', append_slashes=True):
         output = self.export(suffix=suffix, append_slashes=append_slashes)
-        if self.ui:
+        if self.ui and not self.is_enabled(self.FEATURE_UI):
             output.update(self.export_ui())
         return output
 
@@ -468,6 +474,9 @@ class Pod(object):
             return
         translator.inject(doc=doc)
         return translator
+
+    def is_enabled(self, feature):
+        return feature not in self._disabled
 
     def list_collections(self, paths=None):
         cols = collection.Collection.list(self)

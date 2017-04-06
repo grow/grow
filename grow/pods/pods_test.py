@@ -16,6 +16,11 @@ class PodTest(unittest.TestCase):
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
+    def test_disable(self):
+        self.assertTrue(self.pod.is_enabled('ui'))
+        self.pod.disable('ui')
+        self.assertFalse(self.pod.is_enabled('ui'))
+
     def test_eq(self):
         pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
         self.assertEqual(self.pod, pod)

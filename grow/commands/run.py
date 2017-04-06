@@ -23,7 +23,9 @@ import threading
 @click.option('--preprocess/--no-preprocess', '-p/-np',
               default=True, is_flag=True,
               help='Whether to run preprocessors on server start.')
-def run(host, port, https, debug, browser, update_check, preprocess,
+@click.option('--ui/--no-ui', '-b', is_flag=True, default=True,
+              help='Whether to inject the Grow UI Tools.')
+def run(host, port, https, debug, browser, update_check, preprocess, ui,
         pod_path):
     """Starts a development server for a single pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
@@ -32,6 +34,10 @@ def run(host, port, https, debug, browser, update_check, preprocess,
                            scheme=scheme, cached=False, dev=True)
     environment = env.Env(config)
     pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
+
+    if not ui:
+        pod.disable(pod.FEATURE_UI)
+
     try:
         manager.start(pod, host=host, port=port, open_browser=browser,
                       debug=debug, preprocess=preprocess,
