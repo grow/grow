@@ -110,6 +110,12 @@ This file can then be used to create translation catalogs manually using a PO fi
 grow extract
 [/sourcecode]
 
+Extracted translations can also be audited to find content that is untagged for translation.
+
+[sourcecode:bash]
+grow extract --audit
+[/sourcecode]
+
 ## Compiling translations
 
 Grow automatically recompiles translations when the development server starts, builds a pod, and during deployment. Translations must be recompiled before they're visible on your site.
