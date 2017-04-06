@@ -1,3 +1,4 @@
+# coding: utf8
 from grow.testing import testing
 from grow.pods import pods
 import unittest
@@ -64,6 +65,34 @@ class TocExtensionTestCase(unittest.TestCase):
         self.assertIn(toclink_sentinel, result)
         self.assertIn(sep_sentinel, result)
         self.assertIn(para_sentinel, result)
+
+    def test_utf8(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'markdown': {
+                'extensions': [{
+                    'kind': 'toc',
+                }],
+            }
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$view': '/views/base.html',
+            '$path': '/{base}/'
+        })
+        pod.write_file('/content/pages/test.md', textwrap.dedent(
+            """\
+            # Did you see the rocket launch?
+            # 로켓 발사를 봤어?
+            """))
+        pod.write_file('/views/base.html', '{{doc.html|safe}}')
+        controller, params = pod.match('/test/')
+        result = controller.render(params)
+
+        header = '<h1 id="did-you-see-the-rocket-launch?">Did you see the rocket launch?</h1>'
+        self.assertIn(header, result)
+
+        header = u'<h1 id="로켓-발사를-봤어?">로켓 발사를 봤어?</h1>'
+        self.assertIn(header, result)
 
 
 class CodeBlockPreprocessorTestCase(unittest.TestCase):

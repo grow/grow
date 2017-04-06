@@ -49,6 +49,11 @@ class TocExtension(toc.TocExtension):
             if val is not None:
                 config_kwargs[item.name] = val
         configs = config_kwargs.items()
+        # HTML5 allows all non-space characters for a valid id.
+        configs += [(
+            'slugify',
+            lambda value, separator: separator.join(value.split()).lower()
+        )]
         super(TocExtension, self).__init__ (configs=configs)
 
 
