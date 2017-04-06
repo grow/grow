@@ -182,6 +182,8 @@ release-ci:
 	pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r $(FILENAME_CI) grow && cd ..
+	./dist/grow
+	./dist/grow build ./grow/testing/testdata/pod/
 	@echo "Built: dist/$(FILENAME_CI)"
 
 ensure-master:
