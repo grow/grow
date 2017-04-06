@@ -196,7 +196,7 @@ class Pod(object):
 
     def dump(self, suffix='index.html', append_slashes=True):
         output = self.export(suffix=suffix, append_slashes=append_slashes)
-        if self.ui and not self.is_disabled(self.FEATURE_UI):
+        if self.ui and not self.is_enabled(self.FEATURE_UI):
             output.update(self.export_ui())
         return output
 
@@ -475,8 +475,8 @@ class Pod(object):
         translator.inject(doc=doc)
         return translator
 
-    def is_disabled(self, feature):
-        return feature in self._disabled
+    def is_enabled(self, feature):
+        return feature not in self._disabled
 
     def list_collections(self, paths=None):
         cols = collection.Collection.list(self)

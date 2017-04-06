@@ -66,7 +66,7 @@ class RenderedController(controllers.BaseController):
                 'podspec': self.pod.podspec,
             }
             content = template.render(kwargs).lstrip()
-            if not self.pod.is_disabled(self.pod.FEATURE_UI):
+            if self.pod.is_enabled(self.pod.FEATURE_UI):
                 content = self._inject_ui(
                     content, preprocessor, translator)
             return content
