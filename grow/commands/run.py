@@ -36,7 +36,7 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
     pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
 
     if not ui:
-        pod.disable('ui')
+        pod.disable(pod.FEATURE_UI)
 
     try:
         manager.start(pod, host=host, port=port, open_browser=browser,
