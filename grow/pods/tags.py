@@ -71,15 +71,10 @@ def markdown_filter(value):
         return markdown.markdown(value)
 
 
-_slug_regex = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
-
+_slug_regex = re.compile(r'[^A-Za-z0-9-._~]+')
 
 def slug_filter(value):
-    result = []
-    for word in _slug_regex.split(value.lower()):
-        if word:
-            result.append(word)
-    return unicode(u'-'.join(result))
+    return unicode(u'-'.join(_slug_regex.split(value.lower())).strip(u'-'))
 
 
 @utils.memoize_tag

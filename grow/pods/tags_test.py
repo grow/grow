@@ -16,6 +16,9 @@ class BuiltinsTestCase(unittest.TestCase):
         words = 'Foo Bar Baz'
         self.assertEqual('foo-bar-baz', tags.slug_filter(words))
 
+        words = 'Foo\'s b@z b**'
+        self.assertEqual('foo-s-b-z-b', tags.slug_filter(words))
+
     def test_locale(self):
         identifier = 'de'
         expected = locales.Locale.parse(identifier)
