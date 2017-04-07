@@ -5,4 +5,4 @@ cache: pip
 install: pip install grow
 script:
   - grow build
-  - if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_PULL_REQUEST_BRANCH == "" ] ; then grow deploy --noconfirm grow.io ; fi
+  - if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST_BRANCH" == "" ] ; then grow deploy --noconfirm grow.io ; fi
