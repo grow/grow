@@ -40,14 +40,22 @@ def get_this_version():
 def get_latest_version():
     try:
         releases = json.loads(urllib.urlopen(RELEASES_API).read())
+        if 'message' in releases:
+            text = 'Error while downloading release information: {}'.format(
+                releases['message'])
+            logging.error(colorize(text, ansi=198))
+            raise LatestVersionCheckError(str(text))
         for release in releases:
             if release['prerelease']:
                 continue
             for each_asset in release['assets']:
                 if PLATFORM in each_asset.get('name', '').lower():
                     return release['tag_name']
+    except LatestVersionCheckError:
+        raise
     except Exception as e:
-        text = 'Cannot check for updates to the SDK while offline.'
+        logging.error(colorize(str(e), ansi=198))
+        text = 'Unable to check for the latest version: {}'.format(str(e))
         logging.error(colorize(text, ansi=198))
         raise LatestVersionCheckError(str(e))
 
