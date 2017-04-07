@@ -14,9 +14,15 @@ matrix:
   include:
   - os: osx
     language: generic
+    osx_image: xcode6.4
 
 # https://github.com/travis-ci/travis-ci/issues/738#issuecomment-11179888
 before_script:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]];
+  then brew unlink python;
+  brew install python;
+  pip install virtualenv;
+  fi
 - pip install -r requirements-dev.txt
 - wget -nv https://storage.googleapis.com/appengine-sdks/featured/${GAE_ZIP}
 - unzip -q ${GAE_ZIP} -d ${HOME}
