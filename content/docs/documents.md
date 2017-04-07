@@ -34,6 +34,19 @@ Front matter contains fields. Field names prefixed with a dollar sign ($) are on
 
 As long as a blueprint specifies a document's `view` and its `path`, including YAML front matter in a content document is optional.
 
+#### Constructors
+
+Yaml constructors can be used to load in other documents or files into fields of the document.
+
+[sourcecode:yaml]
+csv:    !g.csv /pod/path/to.csv
+doc:    !g.doc /content/page/about.yaml
+json:   !g.json /pod/path/to.json
+static: !g.static /pod/path/to.img
+url:    !g.url /content/page/about.yaml
+yaml:   !g.yaml /pod/path/to.yaml
+[/sourcecode]
+
 ### Body
 
 A document's body is the stuff that comes after its YAML front matter. For Markdown-formatted documents, Grow provides a shortcut for accessing rendered HTML using `{{doc.html}}` (see the `html` API function below). The unprocessed body contents can be accessed with `{{doc.body}}`.
@@ -192,6 +205,32 @@ Whether a document exists.
 
     {% set page = g.doc('/content/pages/home.yaml') %}
     {{page.exists}}
+
+### footnotes
+
+Manages footnotes in a document and displays corresponding symbols.
+
+[sourcecode:html+jinja]
+This needs to be considered.{{doc.footnotes.add('More details available.')}}
+[/sourcecode]
+
+Can also make links to the list of footnotes.
+
+[sourcecode:html+jinja]
+{% set symbol = doc.footnotes.add('More details available.') %}
+This needs to be considered.<a href="#footnote-{{doc.footnotes.index(symbol)}}">{{symbol}}</a>
+[/sourcecode]
+
+Footnotes can be displayed later on the page.
+
+[sourcecode:html+jinja]
+{% for symbol, value in doc.footnotes %}
+  <p id="footnote-{{loop.index0}}">{{symbol}} : {{_(value)}}</p>
+{% endfor %}
+[/sourcecode]
+
+The footnotes can be configured using the `$footnotes` field in the document or
+inherits the [podspec `footnotes` configuration]([url('/content/docs/podspec.md')]#footnotes).
 
 ### html
 

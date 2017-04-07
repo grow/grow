@@ -41,10 +41,10 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
     - kind: sass
       sass_dir: /source/sass/
       out_dir: /static/css/
-    
+
     meta:
       key: value
-    
+
     sitemap:
       enabled: yes
       path: /sitemap.xml
@@ -102,7 +102,7 @@ Grow can rewrite static file paths with fingerprints.
     - static_dir: /source/
       serve_at: /static/
       fingerprinted: true
-      
+
 In the above example, a file at `/source/images/file.png` would be served at `/static/images/file-<fingerprint>.png` where `<fingerprint>` is an md5 hash of the file's contents.
 
 ### error_routes
@@ -222,3 +222,24 @@ deployments:
       scheme: https
       port: 9000
 [/sourcecode]
+
+
+### footnotes
+
+Add `footnotes` to configure how footnotes are [generated in documents]([url('/content/docs/documents.md')]#footnotes).
+
+[sourcecode:yaml]
+footnotes:
+  numeric_locales_pattern: US$
+  symbols:
+  - ∞
+  - ●
+  - ◐
+  - ◕
+[/sourcecode]
+
+The default set of symbols follows the Chicago Manual footnote style. Symbols are repeated after the initial list is exhausted. For example, the above configuration would make the fifth footnote use ∞∞ as the symbol.
+
+By default, the DE and CA territories use numeric symbols instead of normal symbols. The `numeric_locales_pattern` configures what regex to apply to the locales to determine if it should use the numeric symbols instead of the normal symbol set. Ex: `numeric_locales_pattern: (US|CA)$` would make all the US and CA territories use the numeric symbols.
+
+You can force all locales to use numeric symbols by using `use_numeric_symbols: True` or turn off the usage of numeric symbols by using `use_numeric_symbols: False`.

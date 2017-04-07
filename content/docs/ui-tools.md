@@ -16,6 +16,7 @@ Many tools can be found and installed using [NPM](https://www.npmjs.com/search?q
 Some examples include:
 
   - [grow-tool-analytics-highlight](https://www.npmjs.com/package/grow-tool-analytics-highlight) Highlights automatically tracked analytics that use data attributes (ex: [autotrack](https://github.com/googleanalytics/autotrack)).
+  - [grow-tool-grid](https://www.npmjs.com/package/grow-tool-grid) Overlays a responsive css grid for checking content alignment.
   - [grow-tool-image-swap](https://www.npmjs.com/package/grow-tool-image-swap) Allows dragging new image files to temporarily replace images to preview without changing the source.
 
 ### Installing
@@ -35,6 +36,15 @@ Run `grow install` to install the new dependency.
 Update the `podspec.yaml` to enable the new tool:
 
 [sourcecode:yaml]
+# Setting for specific deployments.
+deployments:
+  staging:
+    # Other settings...
+    ui:
+      tools:
+      - kind: image-swap
+
+# Settings for dev server.
 ui:
   tools:
   - kind: analytics-highlight
@@ -44,7 +54,7 @@ ui:
 
 ### CDNs and Local Sources
 
-Tools can also be hosted on third party systems such as CDNs or custom within the project:
+Tools can also be hosted on third party systems such as CDNs or within the project:
 
 [sourcecode:yaml]
 ui:
