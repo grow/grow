@@ -25,11 +25,6 @@ class PodCache(object):
         return self._collection_cache
 
     @property
-    def doc_cache(self):
-        """Cache for the full document."""
-        return self._doc_cache
-
-    @property
     def dependency_graph(self):
         """Dependency graph from rendered docs."""
         return self._dependency_graph
