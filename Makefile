@@ -39,7 +39,6 @@ develop:
 	fi
 	$(MAKE) build-ui
 	./env/bin/pip install -r requirements-dev.txt
-	./env/bin/pip install --upgrade PyYAML==3.10
 
 build-ui:
 	@npm --version > /dev/null || { \
