@@ -77,10 +77,6 @@ def get_grow_dir():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
-def get_cacerts_path():
-    return os.path.join(get_grow_dir(), 'data', 'cacerts.txt')
-
-
 def get_git_repo(root):
     git = get_git()
     try:
