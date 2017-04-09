@@ -297,14 +297,13 @@ class Pod(object):
             self.routes.reset_cache(rebuild=True)
 
         if pod_path.startswith(collection.Collection.CONTENT_PATH):
-            # Remove the dependencies from the cache.
             for dep_path in self.podcache.dependency_graph.get_dependents(
                     pod_path):
                 # Remove the existing doc from the routing.
                 doc = self.get_doc(dep_path)
                 self.routes.remove_document(doc)
 
-                # Remove from caches after the old version is used.
+                # Remove caches after the old version is removed from routing.
                 self.podcache.document_cache.remove(doc)
                 self.podcache.collection_cache.remove_document(doc)
 
