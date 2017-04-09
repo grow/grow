@@ -76,6 +76,18 @@ class CollectionCache(object):
             if cache_key in self._cache[col.collection_path]['docs']:
                 del self._cache[col.collection_path]['docs'][cache_key]
 
+    def remove_document_locales(self, doc):
+        col = doc.collection
+        if col.collection_path in self._cache:
+            doc_cache_key = CollectionCache.generate_cache_key(
+                doc.pod_path, '')
+            invalid_keys = []
+            for cache_key in self._cache[col.collection_path]['docs'].iterkeys():
+                if cache_key.startswith(doc_cache_key):
+                    invalid_keys.append(cache_key)
+            for cache_key in invalid_keys:
+                del self._cache[col.collection_path]['docs'][cache_key]
+
     def ensure_collection(self, col):
         if col.collection_path not in self._cache:
             self.add_collection(col)

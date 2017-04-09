@@ -307,7 +307,7 @@ class Pod(object):
 
                 # Remove caches after the old version is removed from routing.
                 self.podcache.document_cache.remove(doc)
-                self.podcache.collection_cache.remove_document(doc)
+                self.podcache.collection_cache.remove_document_locales(doc)
 
                 # Add the new version of the doc to the routing.
                 doc = self.get_doc(dep_path)
