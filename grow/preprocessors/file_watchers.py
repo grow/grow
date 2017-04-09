@@ -1,4 +1,3 @@
-from . import routes_cache
 from . import translation
 from watchdog import events
 from watchdog import observers
@@ -6,7 +5,7 @@ from xtermcolor import colorize
 
 
 class PodspecFileEventHandler(events.PatternMatchingEventHandler):
-    patterns = ['*/podspec.yaml']
+    patterns = ['*']
     ignore_directories = True
 
     def __init__(self, pod, managed_observer, *args, **kwargs):
@@ -15,8 +14,8 @@ class PodspecFileEventHandler(events.PatternMatchingEventHandler):
         super(PodspecFileEventHandler, self).__init__(*args, **kwargs)
 
     def handle(self, event=None):
-        self.pod.reset_yaml()
-        self.pod.routes.reset_cache(rebuild=True)
+        pod_path = event.src_path[len(self.pod.root):]
+        self.pod.file_updated(pod_path)
         self.managed_observer.reschedule_children()
 
     def on_created(self, event):
@@ -63,13 +62,11 @@ class ManagedObserver(observers.Observer):
         self._child_observers = []
         super(ManagedObserver, self).__init__()
 
-    def schedule_podspec(self):
-        podspec_handler = PodspecFileEventHandler(self.pod, managed_observer=self)
-        self.schedule(podspec_handler, path=self.pod.root, recursive=False)
+    def schedule_podfile(self):
+        podfile_handler = PodspecFileEventHandler(self.pod, managed_observer=self)
+        self.schedule(podfile_handler, path=self.pod.root, recursive=True)
 
     def schedule_builtins(self):
-        preprocessor = routes_cache.RoutesCachePreprocessor(pod=self.pod)
-        self._schedule_preprocessor('/content/', preprocessor, patterns=['*'])
         preprocessor = translation.TranslationPreprocessor(pod=self.pod)
         self._schedule_preprocessor('/translations/', preprocessor, patterns=['*.po'])
 
@@ -130,7 +127,7 @@ def create_dev_server_observers(pod):
     main_observer.schedule_preprocessors()
 
     podspec_observer = ManagedObserver(pod)
-    podspec_observer.schedule_podspec()
+    podspec_observer.schedule_podfile()
     podspec_observer.add_child(main_observer)
     podspec_observer.start()
     return main_observer, podspec_observer

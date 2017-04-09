@@ -290,6 +290,28 @@ class Pod(object):
         path = self._normalize_path(pod_path)
         return self.storage.size(path)
 
+    def file_updated(self, pod_path):
+        """Handle when a single file has changed in the pod."""
+        if pod_path == '/{}'.format(self.FILE_PODSPEC):
+            self.reset_yaml()
+            self.routes.reset_cache(rebuild=True)
+
+        if pod_path.startswith(collection.Collection.CONTENT_PATH):
+            # Remove the dependencies from the cache.
+            for dep_path in self.podcache.dependency_graph.get_dependents(
+                    pod_path):
+                # Remove the existing doc from the routing.
+                doc = self.get_doc(dep_path)
+                self.routes.remove_document(doc)
+
+                # Remove from caches after the old version is used.
+                self.podcache.document_cache.remove(doc)
+                self.podcache.collection_cache.remove_document(doc)
+
+                # Add the new version of the doc to the routing.
+                doc = self.get_doc(dep_path)
+                self.routes.add_document(doc)
+
     def get_catalogs(self, template_path=None):
         return catalog_holder.Catalogs(pod=self, template_path=template_path)
 

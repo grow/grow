@@ -19,8 +19,18 @@ class RoutesTest(unittest.TestCase):
         controller.render(params)
         controller, params = self.pod.match('/de_alias/about/')
         controller.render(params)
-        self.assertRaises(webob.exc.HTTPNotFound, self.pod.match, '/dummy/')
         controller, params = self.pod.match('/app/static/file with spaces.txt')
+        controller.render(params)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/dummy/')
+
+    def test_remove(self):
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+        doc = self.pod.get_doc('/content/pages/about.yaml')
+        self.pod.routes.remove_document(doc)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/about/')
 
     def test_list_concrete_paths(self):
         expected = [
