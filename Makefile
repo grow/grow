@@ -68,6 +68,7 @@ develop-linux:
 	  python-all-dev zip \
 	  python-pip \
 	  zip
+	sudo pip install --upgrade --force-reinstall pyyaml
 	sudo pip install --upgrade pip
 	sudo pip install --upgrade six
 	$(MAKE) develop
