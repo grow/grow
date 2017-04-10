@@ -4,14 +4,14 @@ from watchdog import observers
 from xtermcolor import colorize
 
 
-class PodspecFileEventHandler(events.PatternMatchingEventHandler):
+class PodFileEventHandler(events.PatternMatchingEventHandler):
     patterns = ['*']
     ignore_directories = True
 
     def __init__(self, pod, managed_observer, *args, **kwargs):
         self.pod = pod
         self.managed_observer = managed_observer
-        super(PodspecFileEventHandler, self).__init__(*args, **kwargs)
+        super(PodFileEventHandler, self).__init__(*args, **kwargs)
 
     def handle(self, event=None):
         pod_path = event.src_path[len(self.pod.root):]
@@ -63,7 +63,7 @@ class ManagedObserver(observers.Observer):
         super(ManagedObserver, self).__init__()
 
     def schedule_podfile(self):
-        podfile_handler = PodspecFileEventHandler(self.pod, managed_observer=self)
+        podfile_handler = PodFileEventHandler(self.pod, managed_observer=self)
         self.schedule(podfile_handler, path=self.pod.root, recursive=True)
 
     def schedule_builtins(self):
