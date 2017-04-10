@@ -15,7 +15,7 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
 
     def handle(self, event=None):
         pod_path = event.src_path[len(self.pod.root):]
-        self.pod.file_updated(pod_path)
+        self.pod.on_file_changed(pod_path)
         self.managed_observer.reschedule_children()
 
     def on_created(self, event):
