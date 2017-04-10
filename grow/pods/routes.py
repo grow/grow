@@ -30,31 +30,38 @@ class Routes(object):
         self._paths_to_locales_to_docs = collections.defaultdict(dict)
         self._routing_map = None
         self._static_routing_map = None
+        self._routing_rules = []
 
     def __iter__(self):
         return self.routing_map.iter_rules()
 
+    def _add_document(self, doc):
+        rule, serving_path = self._create_rule_for_doc(doc)
+        if not rule:
+            return
+        self._routing_rules.append(rule)
+
     def _build_routing_map(self, inject=False):
         new_paths_to_locales_to_docs = collections.defaultdict(dict)
-        rules = []
+        self._routing_rules = []
         serving_paths_to_docs = {}
         duplicate_paths = collections.defaultdict(list)
+
         # Content documents.
         for collection in self.pod.list_collections():
             for doc in collection.list_servable_documents(include_hidden=True, inject=inject):
-                controller = rendered.RenderedController(
-                    view=doc.view, doc=doc, _pod=self.pod)
-                serving_path = doc.get_serving_path()
+                rule, serving_path = self._create_rule_for_doc(doc)
                 if serving_path in serving_paths_to_docs:
                     duplicate_paths[serving_path].append(serving_paths_to_docs[serving_path])
                     duplicate_paths[serving_path].append(doc)
                 serving_paths_to_docs[serving_path] = doc
-                rule = routing.Rule(serving_path, endpoint=controller)
-                rules.append(rule)
+                self._routing_rules.append(rule)
                 new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
+
         # Static routes.
-        rules += self._build_static_routing_map_and_return_rules()
-        self._routing_map = routing.Map(rules, converters=Routes.converters)
+        self._routing_rules += self._build_static_routing_map_and_return_rules()
+
+        self._recreate_routing_map()
         self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
         if duplicate_paths:
             text = 'Found duplicate serving paths: {}'
@@ -66,9 +73,42 @@ class Routes(object):
         self._static_routing_map = routing.Map(rules, converters=Routes.converters)
         return [rule.empty() for rule in rules]
 
+    def _create_rule_for_doc(self, doc):
+        if not doc.has_serving_path():
+            return None, None
+        serving_path = doc.get_serving_path()
+        controller = rendered.RenderedController(
+            view=doc.view, doc=doc, _pod=self.pod)
+        return routing.Rule(serving_path, endpoint=controller), serving_path
+
+    def _recreate_routing_map(self):
+        rules = [rule.empty() for rule in self._routing_rules]
+        self._routing_map = routing.Map(rules, converters=Routes.converters)
+
+    def _remove_document(self, doc):
+        rule, serving_path = self._create_rule_for_doc(doc)
+        if not rule:
+            return
+
+        # The `.remove()` does not work correctly for rules.
+        old_rules = self._routing_rules
+        self._routing_rules = []
+        for rule in old_rules:
+            if rule.rule is not serving_path:
+                self._routing_rules.append(rule)
+
     @property
     def podspec(self):
         return self.pod.get_podspec().get_config()
+
+    def add_document(self, doc):
+        self._add_document(doc)
+        self._recreate_routing_map()
+
+    def add_documents(self, docs):
+        for doc in docs:
+            self._add_document(doc)
+        self._recreate_routing_map()
 
     def format_path(self, path):
         path = '' if path is None else path
@@ -185,6 +225,22 @@ class Routes(object):
             view = self.pod.error_routes.get('default')
             return rendered.RenderedController(view=view, _pod=self.pod)
 
+    def reconcile_documents(self, remove_docs=None, add_docs=None):
+        for doc in remove_docs if remove_docs else []:
+            self._remove_document(doc)
+        for doc in add_docs if add_docs else []:
+            self._add_document(doc)
+        self._recreate_routing_map()
+
+    def remove_document(self, doc):
+        self._remove_document(doc)
+        self._recreate_routing_map()
+
+    def remove_documents(self, docs):
+        for doc in docs:
+            self._remove_document(doc)
+        self._recreate_routing_map()
+
     def reset_cache(self, rebuild=True, inject=False):
         if rebuild:
             self.pod.podcache.reset()
@@ -193,7 +249,7 @@ class Routes(object):
     @property
     def routing_map(self):
         if self._routing_map is None:
-            return self._build_routing_map()
+            self._build_routing_map()
         return self._routing_map
 
     @property

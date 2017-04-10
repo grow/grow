@@ -16,43 +16,54 @@ class RenderedController(controllers.BaseController):
 
     def __init__(self, view=None, doc=None, path=None, _pod=None):
         self.view = view
-        self.doc = doc
         self.path = path
+        self._pod_path = doc.pod_path
+        self._locale = str(doc.locale)
         super(RenderedController, self).__init__(_pod=_pod)
 
     def __repr__(self):
-        if not self.doc:
+        doc = self.doc
+        if not doc:
             return '<Rendered(view=\'{}\')>'.format(self.view)
-        if self.doc.locale:
+        if doc.locale:
             return '<Rendered(view=\'{}\', doc=\'{}\', locale=\'{}\')>'.format(
-                self.view, self.doc.pod_path, str(self.doc.locale))
+                self.view, doc.pod_path, str(doc.locale))
         return '<Rendered(view=\'{}\', doc=\'{}\')>'.format(
-            self.view, self.doc.pod_path)
+            self.view, doc.pod_path)
 
     def get_mimetype(self, params=None):
         return mimetypes.guess_type(self.view)[0]
 
     @property
+    def doc(self):
+        # Rely on the pod caching to get the doc so that the routing map
+        # does not need to be rebuilt every time a document changes.
+        return self.pod.get_doc(self._pod_path, self._locale)
+
+    @property
     def locale(self):
-        return self.doc.locale if self.doc else None
+        doc = self.doc
+        return doc.locale if doc else None
 
     def list_concrete_paths(self):
         if self.path:
             return [self.path]
-        if not self.doc:
+        doc = self.doc
+        if not doc:
             raise
-        return [self.doc.get_serving_path()]
+        return [doc.get_serving_path()]
 
     def render(self, params, inject=True):
+        doc = self.doc
         preprocessor = None
         translator = None
         if inject:
-            preprocessor = self.pod.inject_preprocessors(doc=self.doc)
-            translator = self.pod.inject_translators(doc=self.doc)
+            preprocessor = self.pod.inject_preprocessors(doc=doc)
+            translator = self.pod.inject_translators(doc=doc)
         env = self.pod.get_jinja_env(self.locale)
 
         local_tags = tags.create_builtin_tags(
-            self.pod, self.doc, use_cache=self.pod.env.cached)
+            self.pod, doc, use_cache=self.pod.env.cached)
         template = env.get_template(self.view.lstrip('/'))
         # NOTE: This should be done using get_template(... globals=...) but
         # it is not available included inside macros???
@@ -61,7 +72,7 @@ class RenderedController(controllers.BaseController):
 
         try:
             kwargs = {
-                'doc': self.doc,
+                'doc': doc,
                 'env': self.pod.env,
                 'podspec': self.pod.podspec,
             }

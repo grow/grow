@@ -19,8 +19,75 @@ class RoutesTest(unittest.TestCase):
         controller.render(params)
         controller, params = self.pod.match('/de_alias/about/')
         controller.render(params)
-        self.assertRaises(webob.exc.HTTPNotFound, self.pod.match, '/dummy/')
         controller, params = self.pod.match('/app/static/file with spaces.txt')
+        controller.render(params)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/dummy/')
+
+    def test_add_remove_document(self):
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+        doc = self.pod.get_doc('/content/pages/about.yaml')
+        self.pod.routes.remove_document(doc)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/about/')
+        self.pod.routes.add_document(doc)
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+
+    def test_add_remove_documents(self):
+        controller, params = self.pod.match('/')
+        controller.render(params)
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+        doc_home = self.pod.get_doc('/content/pages/home.yaml')
+        doc_about = self.pod.get_doc('/content/pages/about.yaml')
+        docs = [doc_home, doc_about]
+        self.pod.routes.remove_documents(docs)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/')
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/about/')
+        self.pod.routes.add_documents(docs)
+        controller, params = self.pod.match('/')
+        controller.render(params)
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+
+    def test_reconcile_documents(self):
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+        self.pod.write_yaml('/content/pages/foobar.yaml', {
+            '$title': 'Foobar'
+        })
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/foobar/')
+        doc_about = self.pod.get_doc('/content/pages/about.yaml')
+        doc_foobar = self.pod.get_doc('/content/pages/foobar.yaml')
+        self.pod.routes.reconcile_documents(
+            remove_docs=[doc_about],
+            add_docs=[doc_foobar])
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/about/')
+        controller, params = self.pod.match('/foobar/')
+        controller.render(params)
+
+    def test_on_file_changed(self):
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/foobar')
+
+        # Does not use the write_* so that the cache removal is skipped.
+        path = self.pod._normalize_path('/content/pages/about.yaml')
+        self.pod.storage.write(path, '$path: /foobar')
+
+        self.pod.on_file_changed('/content/pages/about.yaml')
+
+        controller, params = self.pod.match('/foobar')
+        controller.render(params)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/about/')
 
     def test_list_concrete_paths(self):
         expected = [

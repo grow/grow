@@ -15,7 +15,6 @@ from . import tags
 from ..preprocessors import preprocessors
 from ..translators import translators
 from grow.common import sdk_utils
-from grow.common import timer
 from grow.common import utils
 from werkzeug.contrib import cache as werkzeug_cache
 import copy
@@ -549,6 +548,41 @@ class Pod(object):
         if locale is not None:
             locale.set_alias(self)
         return locale
+
+    def on_file_changed(self, pod_path):
+        """Handle when a single file has changed in the pod."""
+        if pod_path == '/{}'.format(self.FILE_PODSPEC):
+            self.reset_yaml()
+            self.routes.reset_cache(rebuild=True)
+
+        if pod_path.startswith(collection.Collection.CONTENT_PATH):
+            col = self.get_doc(pod_path).collection
+            base_docs = []
+            original_docs = []
+            updated_docs = []
+
+            for dep_path in self.podcache.dependency_graph.get_dependents(
+                    pod_path):
+                base_docs.append(self.get_doc(dep_path))
+                original_docs += col.list_servable_document_locales(dep_path)
+
+            for doc in base_docs:
+                self.podcache.document_cache.remove(doc)
+                self.podcache.collection_cache.remove_document_locales(doc)
+
+            # The routing map should remain unchanged unless the file change
+            # caused the serving path of a doc to change.
+            changed_docs = []
+            for i, original_doc in enumerate(original_docs):
+                updated_doc = self.get_doc(
+                    original_doc.pod_path, original_doc._locale_kwarg)
+                if (updated_doc.has_serving_path()
+                        and original_doc.get_serving_path() != updated_doc.get_serving_path()):
+                    changed_docs.append((original_doc, updated_doc))
+            if changed_docs:
+                self.routes.reconcile_documents(
+                    remove_docs=[x[0] for x in changed_docs],
+                    add_docs=[x[1] for x in changed_docs])
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
