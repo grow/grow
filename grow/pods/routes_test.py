@@ -24,13 +24,54 @@ class RoutesTest(unittest.TestCase):
         with self.assertRaises(webob.exc.HTTPNotFound):
             self.pod.match('/dummy/')
 
-    def test_remove(self):
+    def test_add_remove_document(self):
         controller, params = self.pod.match('/about/')
         controller.render(params)
         doc = self.pod.get_doc('/content/pages/about.yaml')
         self.pod.routes.remove_document(doc)
         with self.assertRaises(webob.exc.HTTPNotFound):
             self.pod.match('/about/')
+        self.pod.routes.add_document(doc)
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+
+    def test_add_remove_documents(self):
+        controller, params = self.pod.match('/')
+        controller.render(params)
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+        doc_home = self.pod.get_doc('/content/pages/home.yaml')
+        doc_about = self.pod.get_doc('/content/pages/about.yaml')
+        docs = [doc_home, doc_about]
+        self.pod.routes.remove_documents(docs)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/')
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/about/')
+        self.pod.routes.add_documents(docs)
+        controller, params = self.pod.match('/')
+        controller.render(params)
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+
+    def test_reconcile_documents(self):
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+        self.pod.write_yaml('/content/pages/foobar.yaml', {
+            '$title': 'Foobar'
+        })
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/foobar/')
+        doc_about = self.pod.get_doc('/content/pages/about.yaml')
+        doc_foobar = self.pod.get_doc('/content/pages/foobar.yaml')
+        print doc_foobar.get_serving_path()
+        self.pod.routes.reconcile_documents(
+            remove_docs=[doc_about],
+            add_docs=[doc_foobar])
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/about/')
+        controller, params = self.pod.match('/foobar/')
+        controller.render(params)
 
     def test_list_concrete_paths(self):
         expected = [
