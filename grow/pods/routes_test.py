@@ -64,7 +64,6 @@ class RoutesTest(unittest.TestCase):
             self.pod.match('/foobar/')
         doc_about = self.pod.get_doc('/content/pages/about.yaml')
         doc_foobar = self.pod.get_doc('/content/pages/foobar.yaml')
-        print doc_foobar.get_serving_path()
         self.pod.routes.reconcile_documents(
             remove_docs=[doc_about],
             add_docs=[doc_foobar])
@@ -72,6 +71,23 @@ class RoutesTest(unittest.TestCase):
             self.pod.match('/about/')
         controller, params = self.pod.match('/foobar/')
         controller.render(params)
+
+    def test_file_updated(self):
+        controller, params = self.pod.match('/about/')
+        controller.render(params)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/foobar')
+
+        # Does not use the write_* so that the cache removal is skipped.
+        path = self.pod._normalize_path('/content/pages/about.yaml')
+        self.pod.storage.write(path, '$path: /foobar')
+
+        self.pod.file_updated('/content/pages/about.yaml')
+
+        controller, params = self.pod.match('/foobar')
+        controller.render(params)
+        with self.assertRaises(webob.exc.HTTPNotFound):
+            self.pod.match('/about/')
 
     def test_list_concrete_paths(self):
         expected = [
