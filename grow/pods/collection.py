@@ -315,10 +315,13 @@ class Collection(object):
     # collection.
     docs = list_docs
 
-    def list_servable_documents(self, include_hidden=False, locales=None, inject=None):
+    def list_servable_documents(self, include_hidden=False, locales=None,
+            inject=None, doc_list=None):
+        if not doc_list:
+            inject = False if inject is None else inject
+            doc_list = self.list_docs(include_hidden=include_hidden, inject=inject)
         docs = []
-        inject = False if inject is None else inject
-        for doc in self.list_docs(include_hidden=include_hidden, inject=inject):
+        for doc in doc_list:
             if (self._get_builtin_field('draft')
                     or not doc.has_serving_path()
                     or not doc.view
@@ -336,6 +339,15 @@ class Collection(object):
 
             docs.append(doc)
         return docs
+
+    def list_servable_document_locales(self, pod_path, include_hidden=False,
+            locales=None):
+        sorted_docs = structures.SortedCollection(key=None)
+        doc = self.get_doc(pod_path)
+        sorted_docs.insert(doc)
+        self._add_localized_docs(sorted_docs, pod_path, utils.SENTINEL, doc)
+        return self.list_servable_documents(
+            include_hidden=include_hidden, locales=locales, doc_list=sorted_docs)
 
     def titles(self, title_name=None):
         if title_name is None:
