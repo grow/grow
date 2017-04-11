@@ -230,7 +230,7 @@ class Pod(object):
             except:
               self.logger.error('Error building: {}'.format(controller))
               raise
-            bar.update(bar.currval + 1)
+            bar.update(bar.value + 1)
         error_controller = routes.match_error('/404.html')
         if error_controller:
             output['/404.html'] = error_controller.render({})
@@ -273,7 +273,7 @@ class Pod(object):
             output_path = path.replace(
                 source_prefix, '{}{}'.format(destination_root, tools_dir))
             output[output_path] = self.read_file(path)
-            bar.update(bar.currval + 1)
+            bar.update(bar.value + 1)
         bar.finish()
         return output
 

@@ -352,7 +352,7 @@ class ProgressBarThread(threading.Thread):
     def run(self):
         super(ProgressBarThread, self).run()
         if self.enabled:
-            self.bar.update(self.bar.currval + 1)
+            self.bar.update(self.bar.value + 1)
 
 
 def clean_html(content, convert_to_markdown=False):
