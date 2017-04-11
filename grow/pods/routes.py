@@ -3,6 +3,7 @@ from . import messages
 from . import rendered
 from . import sitemap
 from . import static
+from grow.common import timer
 from grow.common import utils
 from werkzeug import routing
 import collections
@@ -243,8 +244,10 @@ class Routes(object):
 
     def reset_cache(self, rebuild=True, inject=False):
         if rebuild:
-            self.pod.podcache.reset()
-            self._build_routing_map(inject=False)
+            self.pod.logger.info('Rebuilding routes...')
+            with timer.Timer() as t:
+                self._build_routing_map(inject=False)
+            self.pod.logger.info('Routes rebuilt in {:.3f} s'.format(t.secs))
 
     @property
     def routing_map(self):
