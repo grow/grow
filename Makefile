@@ -38,6 +38,7 @@ develop:
 	  echo " You must install libyaml from source: http://pyyaml.org/wiki/LibYAML"; \
 	fi
 	$(MAKE) build-ui
+	./env/bin/pip install --upgrade pip
 	./env/bin/pip install -r requirements-dev.txt
 	./env/bin/pip install --upgrade PyYAML==3.10
 
