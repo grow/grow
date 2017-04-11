@@ -95,7 +95,7 @@ class Routes(object):
         old_rules = self._routing_rules
         self._routing_rules = []
         for rule in old_rules:
-            if rule.rule is not serving_path:
+            if rule.rule != serving_path:
                 self._routing_rules.append(rule)
 
     @property

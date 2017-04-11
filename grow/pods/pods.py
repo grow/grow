@@ -575,19 +575,38 @@ class Pod(object):
                 self.podcache.document_cache.remove(doc)
                 self.podcache.collection_cache.remove_document_locales(doc)
 
-            # The routing map should remain unchanged unless the file change
-            # caused the serving path of a doc to change.
-            changed_docs = []
+            # The routing map should remain unchanged most of the time.
+            added_docs = []
+            removed_docs = []
             for i, original_doc in enumerate(original_docs):
                 updated_doc = self.get_doc(
                     original_doc.pod_path, original_doc._locale_kwarg)
+
+                # When the serving path has changed, updated in routes.
                 if (updated_doc.has_serving_path()
                         and original_doc.get_serving_path() != updated_doc.get_serving_path()):
-                    changed_docs.append((original_doc, updated_doc))
-            if changed_docs:
+                    added_docs.append(updated_doc)
+                    removed_docs.append(original_doc)
+
+                # If the locales change then we need to adjust the routes.
+                original_locales = set([str(l) for l in original_doc.locales])
+                updated_locales = set([str(l) for l in updated_doc.locales])
+
+                new_locales = updated_locales - original_locales
+                for locale in new_locales:
+                    new_doc = self.get_doc(original_doc.pod_path, locale)
+                    if new_doc.has_serving_path() and new_doc not in added_docs:
+                        added_docs.append(new_doc)
+
+                removed_locales = original_locales - updated_locales
+                for locale in removed_locales:
+                    removed_doc = self.get_doc(original_doc.pod_path, locale)
+                    if removed_doc.has_serving_path():
+                        if removed_doc not in removed_docs:
+                            removed_docs.append(removed_doc)
+            if added_docs or removed_docs:
                 self.routes.reconcile_documents(
-                    remove_docs=[x[0] for x in changed_docs],
-                    add_docs=[x[1] for x in changed_docs])
+                    remove_docs=removed_docs, add_docs=added_docs)
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
