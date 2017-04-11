@@ -98,13 +98,13 @@ class Collection(object):
 
     def _owns_doc_at_path(self, pod_path):
         dir_name = os.path.dirname(pod_path)
-        doc_blueprint_path = os.path.join(dir_name, '_blueprint.yaml')
+        doc_blueprint_path = os.path.join(dir_name, self.BLUEPRINT_PATH)
         if doc_blueprint_path == self.blueprint_path:
             return True
         parts = pod_path.split(os.sep)
         for i, part in enumerate(parts):
             path = os.sep.join(parts[:-i])
-            doc_blueprint_path = os.path.join(path, '_blueprint.yaml')
+            doc_blueprint_path = os.path.join(path, self.BLUEPRINT_PATH)
             if self.pod.file_exists(doc_blueprint_path):
                 return doc_blueprint_path == self.blueprint_path
         return False
@@ -131,7 +131,7 @@ class Collection(object):
             for dir_name in dirs:
                 pod_path = os.path.join(root, dir_name)
                 pod_path = pod_path.replace(pod.root, '')
-                col_path = os.path.join(pod_path, '_blueprint.yaml')
+                col_path = os.path.join(pod_path, cls.BLUEPRINT_PATH)
                 if pod.file_exists(col_path):
                     items.append(pod.get_collection(pod_path))
         return items
