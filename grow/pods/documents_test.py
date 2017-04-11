@@ -502,6 +502,7 @@ class DocumentsTestCase(unittest.TestCase):
                 ],
             },
         })
+        pod.podcache.reset()
         pod.routes.reset_cache()
         controller, params = pod.match('/de/page/')
         content = controller.render(params)
