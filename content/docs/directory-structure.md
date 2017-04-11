@@ -16,6 +16,7 @@ Each pod is a Git repo, and each pod contains all the files used to build your s
 Here's an example pod. Folders and files marked with __*__ are *builtins*, and their names cannot change.
 
 [sourcecode:bash]
+├──  /build                        # Where your site is built by default.
 ├──  /content*                     # All your content.
 |    ├──  /pages                   # A content collection.
 |         ├──  /_blueprint.yaml*   # A blueprint.
@@ -35,12 +36,6 @@ Here's an example pod. Folders and files marked with __*__ are *builtins*, and t
 |         ├──  /carousel.js
 |         ├──  /main.js
 |         └──  /widget.js
-├──  /static                       # Static files.
-|    └──  /css
-|         └──  /main.min.css
-|    └──  /js
-|         ├──  /jquery.min.js
-|         └──  /main.min.js
 ├──  /translations*                # All your translation data.
 |    ├──  /messages.pot            # Message catalog template.
 |    └──  /de
