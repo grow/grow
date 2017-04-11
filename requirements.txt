@@ -22,7 +22,7 @@ httplib2==0.10.3
 keyring==10.3.1
 keyrings.alt==2.2
 libsass==0.12.3
-oauth2client==4.0.0
+oauth2client==3.0.0
 paramiko==2.1.2
 progressbar2==3.17.1
 protorpc==0.11.1
