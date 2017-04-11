@@ -551,11 +551,13 @@ class Pod(object):
 
     def on_file_changed(self, pod_path):
         """Handle when a single file has changed in the pod."""
-        if pod_path == '/{}'.format(self.FILE_PODSPEC):
+        if (pod_path == '/{}'.format(self.FILE_PODSPEC) or (
+                pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
+                and pod_path.startswith(collection.Collection.CONTENT_PATH)
+            )):
             self.reset_yaml()
             self.routes.reset_cache(rebuild=True)
-
-        if pod_path.startswith(collection.Collection.CONTENT_PATH):
+        elif pod_path.startswith(collection.Collection.CONTENT_PATH):
             col = self.get_doc(pod_path).collection
             base_docs = []
             original_docs = []
