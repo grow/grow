@@ -230,7 +230,8 @@ def create_builtin_tags(pod, doc, use_cache=False):
 
     def wrap_dependency(func, index=0):
         def wrapper(*args, **kwds):
-            pod.podcache.dependency_graph.add(doc.pod_path, args[index])
+            if doc:
+                pod.podcache.dependency_graph.add(doc.pod_path, args[index])
             return func(*args, _pod=pod, use_cache=use_cache, **kwds)
         return wrapper
 

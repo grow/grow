@@ -17,8 +17,13 @@ class RenderedController(controllers.BaseController):
     def __init__(self, view=None, doc=None, path=None, _pod=None):
         self.view = view
         self.path = path
-        self._pod_path = doc.pod_path
-        self._locale = str(doc.locale)
+        if doc:
+            self._pod_path = doc.pod_path
+            self._locale = str(doc.locale)
+        else:
+            print 'Doc... {}'.format(doc)
+            self._pod_path = None
+            self._locale = None
         super(RenderedController, self).__init__(_pod=_pod)
 
     def __repr__(self):
@@ -38,6 +43,9 @@ class RenderedController(controllers.BaseController):
     def doc(self):
         # Rely on the pod caching to get the doc so that the routing map
         # does not need to be rebuilt every time a document changes.
+        if self._pod_path is None:
+            return None
+
         return self.pod.get_doc(self._pod_path, self._locale)
 
     @property
@@ -82,6 +90,7 @@ class RenderedController(controllers.BaseController):
                     content, preprocessor, translator)
             return content
         except Exception as e:
+            raise
             text = 'Error building {}: {}'
             exception = errors.BuildError(text.format(self, e))
             exception.traceback = sys.exc_info()[2]
