@@ -173,7 +173,7 @@ class Diff(object):
 
         def run_with_progress(func, *args):
             func(*args)
-            bar.update(bar.currval + 1)
+            bar.update(bar.value + 1)
 
         if batch_writes:
             writes_paths_to_contents = {}

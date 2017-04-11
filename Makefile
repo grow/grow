@@ -40,7 +40,6 @@ develop:
 	$(MAKE) build-ui
 	./env/bin/pip install --upgrade pip
 	./env/bin/pip install -r requirements-dev.txt
-	./env/bin/pip install --upgrade PyYAML==3.10
 
 build-ui:
 	@npm --version > /dev/null || { \
@@ -102,10 +101,10 @@ test-gae:
 	. gaenv/bin/activate
 	./gaenv/bin/pip install -r requirements-dev.txt
 	./gaenv/bin/pip install gaenv
-	./gaenv/bin/pip install NoseGAE==0.5.8
+	./gaenv/bin/pip install NoseGAE==0.5.10
 	# https://github.com/faisalraja/gaenv/issues/11
 	cat requirements.txt > ./gaenv/requirements-gae.txt
-	echo "pyasn1-modules>=0.0.5" >> ./gaenv/requirements-gae.txt
+	echo "pyasn1-modules>=0.0.8" >> ./gaenv/requirements-gae.txt
 	./gaenv/bin/gaenv -r ./gaenv/requirements-gae.txt --lib lib --no-import .
 	NOSEGAE=1 ./gaenv/bin/nosetests \
 	  -v \
