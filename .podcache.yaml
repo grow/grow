@@ -1,0 +1,80 @@
+dependencies:
+  /content/codelab/0.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/1.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/2.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/3.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/4.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/5.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/6.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/7.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/8.md:
+  - /content/pages/index.html
+  - codelab
+  /content/codelab/9.md:
+  - /content/pages/index.html
+  - codelab
+  /content/docs/building.md:
+  - /content/pages/index.html
+  /content/docs/collections.md:
+  - /content/pages/index.html
+  /content/docs/content-localization.md:
+  - /content/pages/index.html
+  /content/docs/continuous.md:
+  - /content/pages/index.html
+  /content/docs/deployment.md:
+  - /content/pages/index.html
+  /content/docs/development-server.md:
+  - /content/pages/index.html
+  /content/docs/directory-structure.md:
+  - /content/pages/index.html
+  /content/docs/documents.md:
+  - /content/pages/index.html
+  /content/docs/extensions.md:
+  - /content/pages/index.html
+  /content/docs/git-usage.md:
+  - /content/pages/index.html
+  /content/docs/index.md:
+  - /content/pages/index.html
+  /content/docs/markdown-extensions.md:
+  - /content/pages/index.html
+  /content/docs/podspec.md:
+  - /content/pages/index.html
+  /content/docs/preprocessors.md:
+  - /content/pages/index.html
+  /content/docs/samples.md:
+  - /content/pages/index.html
+  /content/docs/templates.md:
+  - /content/pages/index.html
+  /content/docs/translations.md:
+  - /content/pages/index.html
+  /content/docs/ui-tools.md:
+  - /content/pages/index.html
+  /content/docs/urls.md:
+  - /content/pages/index.html
+  /content/pages/index.html:
+  - /content/docs/podspec.md
+  - /content/pages/index.html
+  /content/pages/project.html:
+  - /content/pages/index.html
+  /content/pages/search.yaml:
+  - /content/pages/index.html
+  /content/pages/themes.html:
+  - /content/pages/index.html
+  /content/testing/building.md:
+  - /content/pages/index.html
