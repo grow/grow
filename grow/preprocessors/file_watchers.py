@@ -2,6 +2,7 @@ from . import translation
 from watchdog import events
 from watchdog import observers
 from xtermcolor import colorize
+import os
 
 
 class PodFileEventHandler(events.PatternMatchingEventHandler):
@@ -84,6 +85,8 @@ class ManagedObserver(observers.Observer):
                 kwargs['ignore_directories'] = [self.pod.abs_path(p)
                                                 for p in kwargs['ignore_directories']]
             path = self.pod.abs_path(path)
+            if not os.path.isdir(path):
+                return None
             handler = PreprocessorEventHandler(preprocessor, **kwargs)
             return self.schedule(handler, path=path, recursive=True)
         except OSError:
