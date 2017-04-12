@@ -14,8 +14,8 @@ import re
 import sys
 
 
-def categories(collection=None, collections=None, reverse=None, order_by=None,
-               locale=utils.SENTINEL, _pod=None, use_cache=False):
+def categories(collection=None, collections=None, reverse=None, recursive=True,
+        order_by=None, locale=utils.SENTINEL, _pod=None, use_cache=False):
     if isinstance(collection, collection_lib.Collection):
         collection = collection
     elif isinstance(collection, basestring):
@@ -31,7 +31,8 @@ def categories(collection=None, collections=None, reverse=None, order_by=None,
         except ValueError:
             return sys.maxint  # Unspecified items go to the end.
     category_list = collection.list_categories()
-    docs = collection.docs(reverse=reverse, locale=locale, order_by='category')
+    docs = collection.docs(reverse=reverse, locale=locale, order_by='category',
+        recursive=recursive)
     result = []
     for category, unsorted_docs in itertools.groupby(docs, key=lambda doc: doc.category):
         sorted_docs = sorted(unsorted_docs, key=lambda doc: doc.order)
