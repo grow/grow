@@ -24,7 +24,7 @@ Here's an example pod. Folders and files marked with __*__ are *builtins*, and t
 |         ├──  /contact.md
 |         └──  /index.md
 |    └──  /posts
-|         ├──  /_blueprint.yaml
+|         ├──  /_blueprint.yaml*
 |         ├──  /my-first-post.md
 |         └──  /hello-grow.md
 ├──  /source                       # Source files.
