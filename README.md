@@ -16,19 +16,7 @@ Grow is a declarative tool for rapidly building, launching, and maintaining high
 
 ## Quick start
 
-Run the commands below to start a server. The install script explains what
-it does and pauses before each action.
-
-```bash
-curl https://install.growsdk.org | bash
-grow init base base
-cd base
-grow run
-```
-
-- [Read quick start documentation](https://grow.io/docs/).
-
-You can alternatively `pip install grow` if you like.
+`pip install grow`
 
 ## Developing Grow itself
 
