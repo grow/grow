@@ -1,4 +1,5 @@
 from grow.pods import pods
+from grow.pods import catalogs
 from grow.pods import storage
 from grow.testing import testing
 import os
@@ -66,6 +67,48 @@ class CatalogTest(unittest.TestCase):
             return
         de_catalog = self.pod.catalogs.get('de')
         de_catalog.machine_translate()
+
+    def test__message_in_paths(self):
+        class DummyMessage(object):
+            def __init__(self, locations):
+                self.locations = [(location, 0) for location in locations]
+        message = DummyMessage([
+            '/content/pages/foo.yaml',
+            '/content/pages/bar.yaml',
+        ])
+
+        paths = [
+            '/content/pages/foo*',
+            '/content/pages/foo.yaml',
+            '/content/*/foo.yaml',
+            '/content/*/*.yaml',
+            '/content/pages/bar*',
+            '/content/pages/bar.yaml',
+            '/content/*/bar.yaml',
+        ]
+        for path in paths:
+            self.assertTrue(catalogs.Catalog._message_in_paths(message, [path]))
+
+        paths = [
+            'content/pages/foo*',
+            'content/pages/foo.yaml',
+            'content/*/foo.yaml',
+            'content/*/*.yaml',
+            'content/pages/bar*',
+            'content/pages/bar.yaml',
+            'content/*/bar.yaml',
+        ]
+        for path in paths:
+            self.assertTrue(catalogs.Catalog._message_in_paths(message, [path]))
+
+        paths = [
+            'content/pages/qaz*',
+            'content/pages/qaz.yaml',
+            'content/*/qaz.yaml',
+        ]
+        for path in paths:
+            self.assertFalse(
+                    catalogs.Catalog._message_in_paths(message, [path]))
 
 
 if __name__ == '__main__':
