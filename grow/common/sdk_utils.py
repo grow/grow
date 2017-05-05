@@ -107,6 +107,8 @@ def get_popen_args(pod):
     node_modules_path = os.path.join(pod.root, 'node_modules', '.bin')
     env = os.environ.copy()
     env['PATH'] = str(os.environ['PATH'] + os.path.pathsep + node_modules_path)
+    if pod.env.name:
+      env['GROW_ENVIRONMENT_NAME'] = pod.env.name
     args = {
         'cwd': pod.root,
         'env': env,
