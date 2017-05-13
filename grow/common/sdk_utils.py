@@ -6,10 +6,10 @@ import json
 import logging
 import os
 import platform
+import requests
 import semantic_version
 import subprocess
 import sys
-import urllib
 import urlparse
 
 
@@ -39,7 +39,7 @@ def get_this_version():
 
 def get_latest_version():
     try:
-        releases = json.loads(urllib.urlopen(RELEASES_API).read())
+        releases = requests.get(RELEASES_API).json()
         if 'message' in releases:
             text = 'Error while downloading release information: {}'.format(
                 releases['message'])
