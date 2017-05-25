@@ -20,7 +20,7 @@ Run the commands below to start a server. The install script explains what
 it does and pauses before each action.
 
 ```bash
-curl https://install.growsdk.org | bash
+curl https://install.grow.io| bash
 grow init base base
 cd base
 grow run
