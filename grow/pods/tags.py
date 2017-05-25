@@ -230,10 +230,18 @@ def create_builtin_tags(pod, doc, use_cache=False):
             *args, _pod=pod, use_cache=use_cache, **kwargs)
 
     def wrap_dependency(func, index=0):
-        def wrapper(*args, **kwds):
+        def wrapper(*args, **kwargs):
+            if not kwargs.get('locale', None):
+                kwargs['locale'] = str(doc.locale)
+            included_docs = func(*args, _pod=pod, use_cache=use_cache, **kwargs)
             if doc:
-                pod.podcache.dependency_graph.add(doc.pod_path, args[index])
-            return func(*args, _pod=pod, use_cache=use_cache, **kwds)
+                try:
+                    for included_doc in included_docs:
+                        pod.podcache.dependency_graph.add(doc.pod_path, included_doc.pod_path)
+                except TypeError:
+                    # Not an interable, try it as a doc.
+                    pod.podcache.dependency_graph.add(doc.pod_path, included_docs.pod_path)
+            return included_docs
         return wrapper
 
     return {
