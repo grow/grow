@@ -17,6 +17,10 @@ import zipfile
 
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
+ALIAS_FILES_LINUX = ['.bash_aliases', '.bash_profile', '.profile', '.bashrc']
+ALIAS_FILES_MAC = ['.bash_profile']
+ALIAS_FILES_DEFAULT = '.bashrc'
+ALIAS_RE = re.compile(r'^alias grow\=([\'"])(.*)\1$', re.MULTILINE)
 
 if 'Linux' in platform.system():
   PLATFORM = 'linux'
@@ -28,8 +32,8 @@ else:
   sys.exit(-1)
 
 
-def colorize(text):
-  return text.format(**{
+def hai(text, *args):
+  print text.format(*args, **{
     'blue': '\033[0;34m',
     '/blue': '\033[0;m',
     'red': '\033[0;31m',
@@ -43,28 +47,48 @@ def colorize(text):
   })
 
 
-def hai(text):
-  print colorize(text)
-
-
 def orly(text):
   resp = raw_input(text)
   return resp.lower() == 'y'
 
 
-def get_rc_path():
-  if PLATFORM == 'linux':
-    if os.path.exists(os.path.expanduser('~/.bash_aliases')):
-      basename = '.bash_aliases'
-    if os.path.exists(os.path.expanduser('~/.bash_profile')):
-      basename = '.bash_profile'
-    elif os.path.exists(os.path.expanduser('~/.profile')):
-      basename = '.profile'
-    else:
-      basename = '.bashrc'
-  elif PLATFORM == 'mac':
-    basename = '.bash_profile'
-  return '~/{}'.format(basename)
+def find_conflicting_aliases(existing_aliases, bin_path):
+  files_to_alias = {}
+  for filename, paths in existing_aliases.iteritems():
+    conflicting = [path for path in paths if path != bin_path]
+    if conflicting:
+      files_to_alias[filename] = conflicting
+  return files_to_alias
+
+
+def find_matching_alias(existing_aliases, bin_path):
+  for filename, paths in existing_aliases.iteritems():
+    matching = [path for path in paths if path == bin_path]
+    if matching:
+      return filename
+  return None
+
+
+def get_alias_path():
+  alias_files = ALIAS_FILES_LINUX if PLATFORM == 'linux' else ALIAS_FILES_MAC
+  for basename in alias_files:
+    basepath = os.path.expanduser('~/{}'.format(basename))
+    if os.path.exists(basepath):
+        return basepath
+  return os.path.expanduser('~/{}'.format(ALIAS_FILES_DEFAULT))
+
+
+def get_existing_aliases():
+  files_to_alias = {}
+  alias_files = ALIAS_FILES_LINUX if PLATFORM == 'linux' else ALIAS_FILES_MAC
+  for basename in alias_files:
+    basepath = os.path.expanduser('~/{}'.format(basename))
+    if os.path.exists(basepath):
+      profile = open(basepath).read()
+      matches = re.findall(ALIAS_RE, profile)
+      if matches:
+        files_to_alias[basepath] = [x[1] for x in matches]
+  return files_to_alias
 
 
 def install(rc_path=None, bin_path=None, force=False):
@@ -91,22 +115,28 @@ def install(rc_path=None, bin_path=None, force=False):
   download_url = DOWNLOAD_URL_FORMAT.format(version=version, name=asset['name'])
 
   bin_path = os.path.expanduser(bin_path or '~/bin/grow')
-  rc_path = os.path.expanduser(rc_path or get_rc_path())
+  rc_path = os.path.expanduser(rc_path or get_alias_path())
   alias_cmd = 'alias grow="{}"'.format(bin_path)
   alias_comment = '# Added by Grow SDK Installer ({})'.format(datetime.datetime.now())
 
-  hai('{yellow}Welcome to the installer for Grow SDK v%s{/yellow}' % version)
-  hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/%s' % version)
-  hai('{blue}==>{/blue} {green}This script will install:{/green} %s' % bin_path)
+  hai('{yellow}Welcome to the installer for Grow SDK v{}{/yellow}', version)
+  hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/{}', version)
+  hai('{blue}==>{/blue} {green}This script will install:{/green} {}', bin_path)
 
-  has_alias = False
-  if os.path.exists(rc_path):
-    profile = open(rc_path).read()
-    has_alias = bool(re.search('^{}$'.format(alias_cmd), profile, re.MULTILINE))
+  existing_aliases = get_existing_aliases()
+  conflicting_aliases = find_conflicting_aliases(existing_aliases, bin_path)
+  matching_alias = find_matching_alias(existing_aliases, bin_path)
+
+  has_alias = bool(matching_alias)
+  has_conflicts = bool(conflicting_aliases)
+
+  if has_conflicts:
+    hai('{red}[✗] You have conflicting aliases for "grow" in:{/red} {}', ' '.join([x for x in conflicting_aliases]))
+
   if has_alias:
-    hai('{blue}[✓]{/blue} {green}You already have an alias for "grow" in:{/green} %s' % rc_path)
+    hai('{blue}[✓]{/blue} {green}You already have an alias for "grow" in:{/green} {}', rc_path)
   else:
-    hai('{blue}==>{/blue} {green}An alias for "grow" will be created in:{/green} %s' % rc_path)
+    hai('{blue}==>{/blue} {green}An alias for "grow" will be created in:{/green} {}', rc_path)
 
   if not force:
     result = orly('Continue? [y/N]: ')
@@ -140,7 +170,7 @@ def install(rc_path=None, bin_path=None, force=False):
         sys.exit(-1)
       raise
     fp.close()
-    hai('{blue}[✓]{/blue} {green}Installed Grow SDK to:{/green} %s' % bin_path)
+    hai('{blue}[✓]{/blue} {green}Installed Grow SDK to:{/green} {}', bin_path)
     stat = os.stat(bin_path)
     os.chmod(bin_path, stat.st_mode | 0111)
   finally:
@@ -151,9 +181,9 @@ def install(rc_path=None, bin_path=None, force=False):
     fp.write('\n' + alias_comment + '\n')
     fp.write(alias_cmd)
     fp.close()
-    hai('{blue}[✓]{/blue} {green}Created "grow" alias in:{/green} %s' % rc_path)
+    hai('{blue}[✓]{/blue} {green}Created "grow" alias in:{/green} {}', rc_path)
     hai('{green}All done. To use Grow SDK...{/green}')
-    hai(' ...reload your shell session OR use `source {}`,'.format(rc_path))
+    hai(' ...reload your shell session OR use `source {}`,', rc_path)
     hai(' ...then type `grow` and press enter.')
 
 
