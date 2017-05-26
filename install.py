@@ -54,6 +54,8 @@ def orly(text):
 
 def get_rc_path():
   if PLATFORM == 'linux':
+    if os.path.exists(os.path.expanduser('~/.bash_aliases')):
+      basename = '.bash_aliases'
     if os.path.exists(os.path.expanduser('~/.bash_profile')):
       basename = '.bash_profile'
     elif os.path.exists(os.path.expanduser('~/.profile')):
