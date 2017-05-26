@@ -231,7 +231,7 @@ def create_builtin_tags(pod, doc, use_cache=False):
 
     def wrap_dependency(func, index=0):
         def wrapper(*args, **kwargs):
-            if not kwargs.get('locale', None):
+            if doc and not kwargs.get('locale', None):
                 kwargs['locale'] = str(doc.locale)
             included_docs = func(*args, _pod=pod, use_cache=use_cache, **kwargs)
             if doc:
