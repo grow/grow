@@ -467,7 +467,7 @@ class GoogleSheetsTranslator(base.Translator):
                 'endColumnIndex': 3,
                 'startRowIndex': self.HEADER_ROW_COUNT,
             },
-            'description': 'Description strings can only be edited in the source files.',
+            'description': 'Source strings can only be edited in the source files.',
             'warningOnly': True,
         })
 
