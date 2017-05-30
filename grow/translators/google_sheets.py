@@ -445,6 +445,57 @@ class GoogleSheetsTranslator(base.Translator):
             }
         })
 
+        # Protect the original values.
+        requests += self._generate_style_protected_requests(sheet_id, sheet, {
+            'protectedRangeId': sheet_id + 1000001,  # Keep it predictble.
+            'range': {
+                'sheetId': sheet_id,
+                'startColumnIndex': 0,
+                'endColumnIndex': 1,
+                'startRowIndex': self.HEADER_ROW_COUNT,
+            },
+            'description': 'Original strings can only be edited in the source files.',
+            'warningOnly': True,
+        })
+
+        # Protect the location values.
+        requests += self._generate_style_protected_requests(sheet_id, sheet, {
+            'protectedRangeId': sheet_id + 1000002,  # Keep it predictble.
+            'range': {
+                'sheetId': sheet_id,
+                'startColumnIndex': 2,
+                'endColumnIndex': 3,
+                'startRowIndex': self.HEADER_ROW_COUNT,
+            },
+            'description': 'Description strings can only be edited in the source files.',
+            'warningOnly': True,
+        })
+
+        return requests
+
+    def _generate_style_protected_requests(self, sheet_id, sheet, protected_range):
+        requests = []
+
+        is_protected = False
+        if 'protectedRanges' in sheet:
+            for existing_range in sheet['protectedRanges']:
+                if existing_range['protectedRangeId'] == protected_range['protectedRangeId']:
+                    is_protected = True
+                    requests.append({
+                        'updateProtectedRange': {
+                            'protectedRange': protected_range,
+                            'fields': 'range,description,warningOnly',
+                        },
+                    })
+                    break
+
+        if not is_protected:
+            requests.append({
+                'addProtectedRange': {
+                    'protectedRange': protected_range,
+                },
+            })
+
         return requests
 
     def _generate_update_sheets_requests(self, sheet_ids_to_catalogs,
