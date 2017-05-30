@@ -51,12 +51,12 @@ class Importer(object):
     def import_path(self, path, locale=None):
         if path.endswith('.zip'):
             self._validate_path(path)
-            self.import_zip_file(path)
+            return self.import_zip_file(path)
         elif path.endswith('.po'):
             self._validate_path(path)
-            self.import_file(locale, path)
+            return self.import_file(locale, path)
         elif os.path.isdir(path):
-            self.import_dir(path)
+            return self.import_dir(path)
         else:
             raise Error('Must import a .zip file, .po file, or directory.')
 
@@ -65,11 +65,14 @@ class Importer(object):
             temp_dir_path = tempfile.mkdtemp()
             with zipfile.ZipFile(zip_path, 'r') as zip_file:
                 zip_file.extractall(temp_dir_path)
-            self.import_dir(temp_dir_path)
+            return self.import_dir(temp_dir_path)
         finally:
             shutil.rmtree(temp_dir_path)
 
     def import_dir(self, dir_path):
+        # Track if the imported content is actually changing the translations.
+        has_changed_content = False
+
         # TODO(jeremydw): Allow a custom syntax for translation importers.
         # Currently, assume one directory per locale.
         for locale in os.listdir(dir_path):
@@ -79,9 +82,12 @@ class Importer(object):
             for basename in os.listdir(locale_dir):
                 po_path = os.path.join(locale_dir, basename)
                 if basename.endswith('.po'):
-                    self.import_file(locale, po_path)
+                    if self.import_file(locale, po_path):
+                        has_changed_content = True
                 else:
                     self.pod.logger.warning('Skipping: {}'.format(po_path))
+
+        return has_changed_content
 
     def import_file(self, locale, po_path):
         if not os.path.exists(po_path):
@@ -92,6 +98,9 @@ class Importer(object):
     def import_content(self, locale, content):
         if locale is None:
             raise Error('Must specify locale.')
+
+        # Track if the imported content is actually changing the translations.
+        has_changed_content = False
 
         # Leverage user-defined locale identifiers when importing translations.
         external_to_babel_locales = copy.deepcopy(
@@ -131,6 +140,7 @@ class Importer(object):
                         num_imported += 1
 
                 if num_imported > 0:
+                    has_changed_content = True
                     existing_po_file = self.pod.open_file(pod_po_path, mode='w')
                     pofile.write_po(existing_po_file, existing_catalog, width=80,
                                     sort_output=True, sort_by_file=True)
@@ -143,6 +153,9 @@ class Importer(object):
                     message = text.format(babel_locale)
                     self.pod.logger.info(message)
             else:
+                has_changed_content = True
                 self.pod.write_file(pod_po_path, content)
                 message = 'Imported new catalog: {}'.format(babel_locale)
                 self.pod.logger.info(message)
+
+        return has_changed_content

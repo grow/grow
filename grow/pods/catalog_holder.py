@@ -140,9 +140,9 @@ class Catalogs(object):
     def import_translations(self, path=None, locale=None, content=None):
         importer = importers.Importer(self.pod)
         if path:
-            importer.import_path(path, locale=locale)
+            return importer.import_path(path, locale=locale)
         if content:
-            importer.import_content(content=content, locale=locale)
+            return importer.import_content(content=content, locale=locale)
 
     def _get_or_create_catalog(self, template_path):
         exists = True
