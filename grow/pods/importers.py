@@ -106,33 +106,37 @@ class Importer(object):
 
         babel_locales = external_to_babel_locales.get(locale, [locale])
         for babel_locale in babel_locales:
-          pod_translations_dir = os.path.join(
-              'translations', babel_locale, 'LC_MESSAGES')
-          pod_po_path = os.path.join(pod_translations_dir, 'messages.po')
-          if self.pod.file_exists(pod_po_path):
-              existing_po_file = self.pod.open_file(pod_po_path)
-              existing_catalog = pofile.read_po(existing_po_file, babel_locale)
-              po_file_to_merge = cStringIO.StringIO()
-              po_file_to_merge.write(content)
-              po_file_to_merge.seek(0)
-              catalog_to_merge = pofile.read_po(po_file_to_merge, babel_locale)
-              num_imported = 0
-              for message in catalog_to_merge:
-                  if message.id not in existing_catalog:
-                      existing_catalog[message.id] = message
-                      num_imported += 1
-                  elif (message.string
-                        and existing_catalog[message.id].string != message.string):
-                      # Avoid overwriting with empty/identical strings.
-                      existing_catalog[message.id].string = message.string
-                      num_imported += 1
-              existing_po_file = self.pod.open_file(pod_po_path, mode='w')
-              pofile.write_po(existing_po_file, existing_catalog, width=80,
-                              sort_output=True, sort_by_file=True)
-              text = 'Updated {} of {} translations: {}'
-              message = text.format(num_imported, len(catalog_to_merge), babel_locale)
-              self.pod.logger.info(message)
-          else:
-              self.pod.write_file(pod_po_path, content)
-              message = 'Imported new catalog: {}'.format(babel_locale)
-              self.pod.logger.info(message)
+            pod_translations_dir = os.path.join(
+                'translations', babel_locale, 'LC_MESSAGES')
+            pod_po_path = os.path.join(pod_translations_dir, 'messages.po')
+            if self.pod.file_exists(pod_po_path):
+                existing_po_file = self.pod.open_file(pod_po_path)
+                existing_catalog = pofile.read_po(
+                    existing_po_file, babel_locale)
+                po_file_to_merge = cStringIO.StringIO()
+                po_file_to_merge.write(content)
+                po_file_to_merge.seek(0)
+                catalog_to_merge = pofile.read_po(
+                    po_file_to_merge, babel_locale)
+                num_imported = 0
+                for message in catalog_to_merge:
+                    if message.id not in existing_catalog:
+                        existing_catalog[message.id] = message
+                        num_imported += 1
+                    elif (message.string
+                          and existing_catalog[message.id].string != message.string):
+                        # Avoid overwriting with empty/identical strings.
+                        existing_catalog[message.id].string = message.string
+                        num_imported += 1
+
+                existing_po_file = self.pod.open_file(pod_po_path, mode='w')
+                pofile.write_po(existing_po_file, existing_catalog, width=80,
+                                sort_output=True, sort_by_file=True)
+                text = 'Updated {} of {} translations: {}'
+                message = text.format(num_imported, len(
+                    catalog_to_merge), babel_locale)
+                self.pod.logger.info(message)
+            else:
+                self.pod.write_file(pod_po_path, content)
+                message = 'Imported new catalog: {}'.format(babel_locale)
+                self.pod.logger.info(message)
