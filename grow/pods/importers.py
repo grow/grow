@@ -122,20 +122,26 @@ class Importer(object):
                 for message in catalog_to_merge:
                     if message.id not in existing_catalog:
                         existing_catalog[message.id] = message
-                        num_imported += 1
+                        if message.id:  # Only count the non-header messages.
+                            num_imported += 1
                     elif (message.string
                           and existing_catalog[message.id].string != message.string):
                         # Avoid overwriting with empty/identical strings.
                         existing_catalog[message.id].string = message.string
                         num_imported += 1
 
-                existing_po_file = self.pod.open_file(pod_po_path, mode='w')
-                pofile.write_po(existing_po_file, existing_catalog, width=80,
-                                sort_output=True, sort_by_file=True)
-                text = 'Updated {} of {} translations: {}'
-                message = text.format(num_imported, len(
-                    catalog_to_merge), babel_locale)
-                self.pod.logger.info(message)
+                if num_imported > 0:
+                    existing_po_file = self.pod.open_file(pod_po_path, mode='w')
+                    pofile.write_po(existing_po_file, existing_catalog, width=80,
+                                    sort_output=True, sort_by_file=True)
+                    text = 'Updated {} of {} translations: {}'
+                    message = text.format(num_imported, len(
+                        catalog_to_merge), babel_locale)
+                    self.pod.logger.info(message)
+                else:
+                    text = 'No translations updated: {}'
+                    message = text.format(babel_locale)
+                    self.pod.logger.info(message)
             else:
                 self.pod.write_file(pod_po_path, content)
                 message = 'Imported new catalog: {}'.format(babel_locale)
