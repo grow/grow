@@ -338,7 +338,7 @@ class GoogleSheetsTranslator(base.Translator):
 
         return requests
 
-    def _generate_style_requests(self, sheet_id, sheet):
+    def _generate_style_requests(self, sheet_id, sheet=None):
         formats = {}
 
         formats['header_cell'] = {
@@ -477,7 +477,7 @@ class GoogleSheetsTranslator(base.Translator):
         requests = []
 
         is_protected = False
-        if 'protectedRanges' in sheet:
+        if sheet and 'protectedRanges' in sheet:
             for existing_range in sheet['protectedRanges']:
                 if existing_range['protectedRangeId'] == protected_range['protectedRangeId']:
                     is_protected = True
