@@ -489,6 +489,43 @@ class GoogleSheetsTranslator(base.Translator):
             'warningOnly': True,
         })
 
+        # Filter view for easy filtering.
+        requests += self._generate_style_filter_view_requests(sheet_id, sheet, {
+            'filterViewId': sheet_id + 3300001,  # Keep it predictble.
+            'range': {
+                'sheetId': sheet_id,
+                'startColumnIndex': 0,
+                'endColumnIndex': 4,
+                'startRowIndex': 0,
+            },
+            'title': 'Filter translations',
+        })
+
+        return requests
+
+    def _generate_style_filter_view_requests(self, sheet_id, sheet, filter_view):
+        requests = []
+
+        is_filtered = False
+        if sheet and 'filterViews' in sheet:
+            for existing_range in sheet['filterViews']:
+                if existing_range['filterViewId'] == filter_view['filterViewId']:
+                    is_filtered = True
+                    requests.append({
+                        'updateFilterView': {
+                            'filter': filter_view,
+                            'fields': 'range,title',
+                        },
+                    })
+                    break
+
+        if not is_filtered:
+            requests.append({
+                'addFilterView': {
+                    'filter': filter_view,
+                },
+            })
+
         return requests
 
     def _generate_style_protected_requests(self, sheet_id, sheet, protected_range):
