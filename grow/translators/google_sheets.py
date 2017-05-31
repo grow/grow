@@ -49,7 +49,7 @@ class GoogleSheetsTranslator(base.Translator):
     KIND = 'google_sheets'
     HEADER_ROW_COUNT = 1
     # Source locale, translation locale, message location.
-    HEADER_LABELS = [None, None, 'Location']
+    HEADER_LABELS = [None, None, 'Extracted Comments', 'Reference']
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
@@ -59,7 +59,7 @@ class GoogleSheetsTranslator(base.Translator):
 
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
-        rangeName = "'{}'!A:C".format(locale)
+        rangeName = "'{}'!A:D".format(locale)
         try:
             resp = service.spreadsheets().values().get(
                 spreadsheetId=spreadsheet_id, range=rangeName).execute()
@@ -183,16 +183,18 @@ class GoogleSheetsTranslator(base.Translator):
                 {'userEnteredValue': {'stringValue': source_lang}},
                 {'userEnteredValue': {'stringValue': lang}},
                 {'userEnteredValue': {'stringValue': self.HEADER_LABELS[2]}},
+                {'userEnteredValue': {'stringValue': self.HEADER_LABELS[3]}},
             ]
         }
 
-    def _create_catalog_row(self, id, value, locations):
+    def _create_catalog_row(self, id, value, comments, locations):
         return {
             'values': [
                 {'userEnteredValue': {'stringValue': id}},
                 {'userEnteredValue': {'stringValue': value}},
+                {'userEnteredValue': {'stringValue': '\n'.join(comments)}},
                 {'userEnteredValue': {
-                    'stringValue': (', '.join(t[0] for t in locations))}},
+                    'stringValue': ', '.join(t[0] for t in locations)}},
             ],
         }
 
@@ -206,7 +208,7 @@ class GoogleSheetsTranslator(base.Translator):
                 continue
 
             rows.append(self._create_catalog_row(
-                message.id, message.string, message.locations))
+                message.id, message.string, message.auto_comments, message.locations))
         return rows
 
     def _diff_data(self, existing_values, catalog):
@@ -218,7 +220,8 @@ class GoogleSheetsTranslator(base.Translator):
             existing_rows.append({
                 'source': value[0],
                 'translation': value[1] if len(value) > 1 else None,
-                'locations': value[2] if len(value) > 2 else [],
+                'comments': value[2] if len(value) > 2 else [],
+                'locations': value[3] if len(value) > 3 else [],
                 'updated': False,  # Has changed from the downloaded value.
                 'matched': False,  # Has been matched to the downloaded values.
             })
@@ -237,6 +240,7 @@ class GoogleSheetsTranslator(base.Translator):
                         value['locations'] != message.locations)
                     value['translation'] = message.string
                     value['locations'] = message.locations
+                    value['comments'] = message.auto_comments
                     value['matched'] = True
                     found = True
                     break
@@ -248,6 +252,7 @@ class GoogleSheetsTranslator(base.Translator):
                 'source': message.id,
                 'translation': message.string,
                 'locations': message.locations,
+                'comments': message.auto_comments,
             })
 
         for index, value in enumerate(existing_rows):
@@ -273,7 +278,7 @@ class GoogleSheetsTranslator(base.Translator):
                         'sheetId': sheet_id,
                         'title': lang,
                         'gridProperties': {
-                            'columnCount': 3,
+                            'columnCount': 4,
                             'rowCount': self.HEADER_ROW_COUNT + 1,
                             'frozenRowCount': 1,
                             'frozenColumnCount': 1,
@@ -291,7 +296,7 @@ class GoogleSheetsTranslator(base.Translator):
                 for value in new_rows:
                     row_data.append(self._create_catalog_row(
                         value['source'], value['translation'],
-                        value['locations']))
+                        value['comments'], value['locations']))
 
                 requests.append({
                     'appendCells': {
@@ -312,7 +317,7 @@ class GoogleSheetsTranslator(base.Translator):
                         'sheetId': sheet_id,
                         'dimension': 'COLUMNS',
                         'startIndex': 0,
-                        'endIndex': 2,
+                        'endIndex': 3,
                     },
                     'properties': {
                         'pixelSize': 400,  # Source and Translation Columns
@@ -326,8 +331,8 @@ class GoogleSheetsTranslator(base.Translator):
                     'range': {
                         'sheetId': sheet_id,
                         'dimension': 'COLUMNS',
-                        'startIndex': 2,
-                        'endIndex': 3,
+                        'startIndex': 3,
+                        'endIndex': 4,
                     },
                     'properties': {
                         'pixelSize': 200,  # Location Column
@@ -394,14 +399,14 @@ class GoogleSheetsTranslator(base.Translator):
             },
         })
 
-        # Allow the translations to wrap.
+        # Allow the translations and comments to wrap.
         requests.append({
             'repeatCell': {
                 'fields': 'userEnteredFormat',
                 'range': {
                     'sheetId': sheet_id,
                     'startColumnIndex': 0,
-                    'endColumnIndex': 2,
+                    'endColumnIndex': 3,
                     'startRowIndex': self.HEADER_ROW_COUNT,
                 },
                 'cell': {
@@ -410,14 +415,14 @@ class GoogleSheetsTranslator(base.Translator):
             },
         })
 
-        # Info cells are muted in styling.
+        # Comment and source cells are muted in styling.
         requests.append({
             'repeatCell': {
                 'fields': 'userEnteredFormat',
                 'range': {
                     'sheetId': sheet_id,
                     'startColumnIndex': 2,
-                    'endColumnIndex': 3,
+                    'endColumnIndex': 4,
                     'startRowIndex': self.HEADER_ROW_COUNT,
                 },
                 'cell': {
@@ -458,13 +463,26 @@ class GoogleSheetsTranslator(base.Translator):
             'warningOnly': True,
         })
 
-        # Protect the location values.
+        # Protect the comment values.
         requests += self._generate_style_protected_requests(sheet_id, sheet, {
             'protectedRangeId': sheet_id + 1000002,  # Keep it predictble.
             'range': {
                 'sheetId': sheet_id,
                 'startColumnIndex': 2,
                 'endColumnIndex': 3,
+                'startRowIndex': self.HEADER_ROW_COUNT,
+            },
+            'description': 'Comment strings can only be edited in the source files.',
+            'warningOnly': True,
+        })
+
+        # Protect the location values.
+        requests += self._generate_style_protected_requests(sheet_id, sheet, {
+            'protectedRangeId': sheet_id + 1000003,  # Keep it predictble.
+            'range': {
+                'sheetId': sheet_id,
+                'startColumnIndex': 3,
+                'endColumnIndex': 4,
                 'startRowIndex': self.HEADER_ROW_COUNT,
             },
             'description': 'Source strings can only be edited in the source files.',
@@ -518,6 +536,7 @@ class GoogleSheetsTranslator(base.Translator):
             for column in existing_values[0]:
                 if column == None:
                     num_missing_columns += 1
+
             if num_missing_columns:
                 requests.append({
                     'appendDimension': {
@@ -554,7 +573,7 @@ class GoogleSheetsTranslator(base.Translator):
                 for value in existing_rows:
                     row_data.append(self._create_catalog_row(
                         value['source'], value['translation'],
-                        value['locations']))
+                        value['comments'], value['locations']))
                 # NOTE This is not (yet) smart enough to only update small sections
                 # with the updated information. Hint: Use value['updated'].
                 requests.append({
@@ -576,7 +595,7 @@ class GoogleSheetsTranslator(base.Translator):
                 for value in new_rows:
                     row_data.append(self._create_catalog_row(
                         value['source'], value['translation'],
-                        value['locations']))
+                        value['comments'], value['locations']))
 
                 requests.append({
                     'appendCells': {
