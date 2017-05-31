@@ -129,12 +129,16 @@ class Translator(object):
                 thread.join()
         if not inject:
             bar.finish()
+
+        has_changed_content = False
         for lang, translations in langs_to_translations.iteritems():
             if inject:
-                self.pod.catalogs.inject_translations(locale=lang, content=translations)
-            else:
-                self.pod.catalogs.import_translations(locale=lang, content=translations)
-        if save_stats:
+                if self.pod.catalogs.inject_translations(locale=lang, content=translations):
+                    has_changed_content = True
+            elif self.pod.catalogs.import_translations(locale=lang, content=translations):
+                has_changed_content = True
+
+        if save_stats and has_changed_content:
             self.save_stats(new_stats)
         return new_stats
 
