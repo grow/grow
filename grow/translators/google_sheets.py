@@ -53,6 +53,15 @@ class GoogleSheetsTranslator(base.Translator):
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
+    def _catalog_has_comments(self, catalog):
+        for message in catalog:
+            if not message.id:
+                continue
+
+            if message.auto_comments:
+                return True
+        return False
+
     def _create_service(self):
         return google_drive.BaseGooglePreprocessor.create_service(
             'sheets', 'v4')
@@ -80,7 +89,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _download_content(self, stat):
         spreadsheet_id = stat.ident
         values = self._download_sheet(spreadsheet_id, stat.lang)
-        source_lang, lang, _ = values.pop(0)
+        source_lang, lang, _, _ = values.pop(0)
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
             source = row[0]
@@ -265,6 +274,38 @@ class GoogleSheetsTranslator(base.Translator):
 
         return (existing_rows, new_rows, removed_rows)
 
+    def _generate_comments_column_requests(self, sheet_id, catalog):
+        requests = []
+        sheet_range = {
+            'sheetId': sheet_id,
+            'dimension': 'COLUMNS',
+            'startIndex': 2,
+            'endIndex': 3,
+        }
+
+        if self._catalog_has_comments(catalog):
+            requests.append({
+                'updateDimensionProperties': {
+                    'range': sheet_range,
+                    'properties': {
+                        'hiddenByUser': False,
+                    },
+                    'fields': 'hiddenByUser',
+                },
+            })
+        else:
+            requests.append({
+                'updateDimensionProperties': {
+                    'range': sheet_range,
+                    'properties': {
+                        'hiddenByUser': True,
+                    },
+                    'fields': 'hiddenByUser',
+                },
+            })
+
+        return requests
+
     def _generate_create_sheets_requests(self, catalogs, source_lang):
         # Create sheets.
         requests = []
@@ -322,7 +363,7 @@ class GoogleSheetsTranslator(base.Translator):
                     'properties': {
                         'pixelSize': 400,  # Source and Translation Columns
                     },
-                    'fields': '*',
+                    'fields': 'pixelSize',
                 },
             })
 
@@ -337,9 +378,11 @@ class GoogleSheetsTranslator(base.Translator):
                     'properties': {
                         'pixelSize': 200,  # Location Column
                     },
-                    'fields': '*',
+                    'fields': 'pixelSize',
                 },
             })
+
+            requests += self._generate_comments_column_requests(sheet_id, catalog)
 
         return requests
 
@@ -637,6 +680,8 @@ class GoogleSheetsTranslator(base.Translator):
                     ],
                 },
             })
+
+            requests += self._generate_comments_column_requests(sheet_id, catalog)
         return requests
 
     def _do_update_acl(self, spreadsheet_id, acl):
