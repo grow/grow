@@ -49,7 +49,7 @@ class GoogleSheetsTranslator(base.Translator):
     KIND = 'google_sheets'
     HEADER_ROW_COUNT = 1
     # Source locale, translation locale, message location.
-    HEADER_LABELS = [None, None, 'Extracted Comments', 'Reference']
+    HEADER_LABELS = [None, None, 'Extracted comments', 'Reference']
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
@@ -531,6 +531,48 @@ class GoogleSheetsTranslator(base.Translator):
             'description': 'Source strings can only be edited in the source files.',
             'warningOnly': True,
         })
+
+        # Filter view for easy filtering.
+        requests += self._generate_style_filter_view_requests(sheet_id, sheet, {
+            'filterViewId': sheet_id + 3300001,  # Keep it predictble.
+            'range': {
+                'sheetId': sheet_id,
+                'startColumnIndex': 0,
+                'endColumnIndex': 4,
+                'startRowIndex': 0,
+            },
+            'title': 'Untranslated Strings',
+            'criteria': {
+                '1': {
+                    'condition': {'type': 'BLANK'}
+                },
+            },
+        })
+
+        return requests
+
+    def _generate_style_filter_view_requests(self, sheet_id, sheet, filter_view):
+        requests = []
+
+        is_filtered = False
+        if sheet and 'filterViews' in sheet:
+            for existing_range in sheet['filterViews']:
+                if existing_range['filterViewId'] == filter_view['filterViewId']:
+                    is_filtered = True
+                    requests.append({
+                        'updateFilterView': {
+                            'filter': filter_view,
+                            'fields': 'range,title,criteria',
+                        },
+                    })
+                    break
+
+        if not is_filtered:
+            requests.append({
+                'addFilterView': {
+                    'filter': filter_view,
+                },
+            })
 
         return requests
 
