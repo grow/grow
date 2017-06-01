@@ -49,7 +49,7 @@ class GoogleSheetsTranslator(base.Translator):
     KIND = 'google_sheets'
     HEADER_ROW_COUNT = 1
     # Source locale, translation locale, message location.
-    HEADER_LABELS = [None, None, 'Extracted Comments', 'Reference']
+    HEADER_LABELS = [None, None, 'Extracted comments', 'Reference']
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
