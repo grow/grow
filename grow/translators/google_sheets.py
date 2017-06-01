@@ -541,7 +541,12 @@ class GoogleSheetsTranslator(base.Translator):
                 'endColumnIndex': 4,
                 'startRowIndex': 0,
             },
-            'title': 'Filter translations',
+            'title': 'Untranslated Strings',
+            'criteria': {
+                '1': {
+                    'condition': {'type': 'BLANK'}
+                },
+            },
         })
 
         return requests
@@ -557,7 +562,7 @@ class GoogleSheetsTranslator(base.Translator):
                     requests.append({
                         'updateFilterView': {
                             'filter': filter_view,
-                            'fields': 'range,title',
+                            'fields': 'range,title,criteria',
                         },
                     })
                     break
