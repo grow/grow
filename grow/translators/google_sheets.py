@@ -68,6 +68,9 @@ class GoogleSheetsTranslator(base.Translator):
                 return True
         return False
 
+    def _content_hash(self, location, locale):
+        return hash((location, locale)) % (10 ** 8)  # 10 Digits of the hash.
+
     def _create_service(self):
         return google_drive.BaseGooglePreprocessor.create_service(
             'sheets', 'v4')
@@ -437,8 +440,8 @@ class GoogleSheetsTranslator(base.Translator):
                 location = raw_location[0]
                 if not location in location_to_filter_id:
                     # Try to match up with the document hash value.
-                    location_to_filter_id[location] = self._trim_hash(
-                        hash((location, lang)))
+                    location_to_filter_id[
+                        location] = self._content_hash(location, lang)
 
         for location, filter_id in location_to_filter_id.iteritems():
             requests += self._generate_filter_view_requests(sheet_id, sheet, {
@@ -806,9 +809,6 @@ class GoogleSheetsTranslator(base.Translator):
         return service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id, body=body).execute()
 
-    def _trim_hash(self, hash_value):
-        return hash_value % (10 ** 8)  # 10 Digits of the hash.
-
     def _update_acls(self, stats, locales):
         if 'acl' not in self.config:
             return
@@ -840,5 +840,4 @@ class GoogleSheetsTranslator(base.Translator):
         if doc.locale not in stats:
             return
         stat = stats[doc.locale]
-        doc_hash = hash((doc.pod_path, doc.locale))
-        return '{}&fvid={}'.format(stat.url, self._trim_hash(doc_hash))
+        return '{}&fvid={}'.format(stat.url, self._content_hash(doc.pod_path, doc.locale))
