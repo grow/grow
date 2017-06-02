@@ -37,9 +37,9 @@ DEFAULT_ACCESS_LEVEL = AccessLevel.WRITER
 
 class GoogleSheetsTranslator(base.Translator):
     COLOR_DEEP_PURPLE_50 = {
-        'red': 0.819,
-        'green': 0.768,
-        'blue': 0.913,
+        'red': 0.929,
+        'green': 0.905,
+        'blue': 0.964,
     }
     COLOR_GREY_200 = {
         'red': .933,
@@ -353,7 +353,8 @@ class GoogleSheetsTranslator(base.Translator):
                 })
 
             # Format the new sheet.
-            requests += self._generate_style_requests(sheet_id)
+            requests += self._generate_style_requests(
+                sheet_id, catalog=catalog)
 
             # Size the initial sheet columns.
             # Not part of the style request to respect user's choice to resize.
@@ -387,11 +388,95 @@ class GoogleSheetsTranslator(base.Translator):
                 },
             })
 
-            requests += self._generate_comments_column_requests(sheet_id, catalog)
+            requests += self._generate_comments_column_requests(
+                sheet_id, catalog)
 
         return requests
 
-    def _generate_style_requests(self, sheet_id, sheet=None):
+    def _generate_filter_view_requests(self, sheet_id, sheet, filter_view):
+        requests = []
+
+        is_filtered = False
+        if sheet and 'filterViews' in sheet:
+            for existing_range in sheet['filterViews']:
+                if existing_range['filterViewId'] == filter_view['filterViewId']:
+                    is_filtered = True
+                    requests.append({
+                        'updateFilterView': {
+                            'filter': filter_view,
+                            'fields': 'range,title,criteria',
+                        },
+                    })
+                    break
+
+        if not is_filtered:
+            requests.append({
+                'addFilterView': {
+                    'filter': filter_view,
+                },
+            })
+
+        return requests
+
+    def _generate_filter_view_resource_requests(self, sheet_id, sheet=None, catalog=None):
+        requests = []
+
+        if not catalog or not sheet:
+            return requests
+
+        location_to_filter_id = {}
+        filter_ids = set()
+        filter_id_shift = random.randrange(10000, 99999)
+
+        # Find all the unique resource locations.
+        for message in catalog:
+            if not message.id:
+                continue
+
+            for raw_location in message.locations:
+                location = raw_location[0]
+                if not location in location_to_filter_id:
+                    location_to_filter_id[location] = None
+
+        # Match up the existing filter views based on the location.
+        if 'filterViews' in sheet:
+            for filter_view in sheet['filterViews']:
+                if filter_view['title'] in location_to_filter_id:
+                    filter_id = filter_view['filterViewId']
+                    location_to_filter_id[filter_view['title']] = filter_id
+                    filter_ids.add(filter_id)
+
+        for location, filter_id in location_to_filter_id.iteritems():
+            if filter_id is None:
+                while filter_id is None or filter_id in filter_ids:
+                    filter_id = sheet_id + filter_id_shift
+                    filter_id_shift += 1
+                filter_ids.add(filter_id)
+
+            requests += self._generate_filter_view_requests(sheet_id, sheet, {
+                'filterViewId': filter_id,
+                'range': {
+                    'sheetId': sheet_id,
+                    'startColumnIndex': 0,
+                    'endColumnIndex': 4,
+                    'startRowIndex': 0,
+                },
+                'title': location,
+                'criteria': {
+                    '3': {
+                        'condition': {
+                            'type': 'TEXT_CONTAINS',
+                            'values': [
+                                {'userEnteredValue': location},
+                            ],
+                        },
+                    },
+                },
+            })
+
+        return requests
+
+    def _generate_style_requests(self, sheet_id, sheet=None, catalog=None):
         formats = {}
 
         formats['header_cell'] = {
@@ -533,8 +618,8 @@ class GoogleSheetsTranslator(base.Translator):
             'warningOnly': True,
         })
 
-        # Filter view for easy filtering.
-        requests += self._generate_style_filter_view_requests(sheet_id, sheet, {
+        # Filter view for untranslated strings.
+        requests += self._generate_filter_view_requests(sheet_id, sheet, {
             'filterViewId': sheet_id + 3300001,  # Keep it predictble.
             'range': {
                 'sheetId': sheet_id,
@@ -550,30 +635,9 @@ class GoogleSheetsTranslator(base.Translator):
             },
         })
 
-        return requests
-
-    def _generate_style_filter_view_requests(self, sheet_id, sheet, filter_view):
-        requests = []
-
-        is_filtered = False
-        if sheet and 'filterViews' in sheet:
-            for existing_range in sheet['filterViews']:
-                if existing_range['filterViewId'] == filter_view['filterViewId']:
-                    is_filtered = True
-                    requests.append({
-                        'updateFilterView': {
-                            'filter': filter_view,
-                            'fields': 'range,title,criteria',
-                        },
-                    })
-                    break
-
-        if not is_filtered:
-            requests.append({
-                'addFilterView': {
-                    'filter': filter_view,
-                },
-            })
+        # Filter view for each content path.
+        requests += self._generate_filter_view_resource_requests(
+            sheet_id, sheet, catalog)
 
         return requests
 
@@ -724,7 +788,8 @@ class GoogleSheetsTranslator(base.Translator):
                 },
             })
 
-            requests += self._generate_comments_column_requests(sheet_id, catalog)
+            requests += self._generate_comments_column_requests(
+                sheet_id, catalog)
         return requests
 
     def _do_update_acl(self, spreadsheet_id, acl):
@@ -763,7 +828,7 @@ class GoogleSheetsTranslator(base.Translator):
             return
         self._do_update_acl(spreadsheet_id, acl)
 
-    def _update_meta(self, stat, locale):
+    def _update_meta(self, stat, locale, catalog):
         spreadsheet_id = stat.ident
         service = self._create_service()
         resp = service.spreadsheets().get(
@@ -773,5 +838,6 @@ class GoogleSheetsTranslator(base.Translator):
             if sheet['properties']['title'] != locale:
                 continue
             sheet_id = sheet['properties']['sheetId']
-            requests += self._generate_style_requests(sheet_id, sheet)
+            requests += self._generate_style_requests(
+                sheet_id, sheet=sheet, catalog=catalog)
         self._perform_batch_update(spreadsheet_id, requests)
