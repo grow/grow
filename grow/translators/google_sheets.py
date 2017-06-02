@@ -55,6 +55,7 @@ class GoogleSheetsTranslator(base.Translator):
     HEADER_ROW_COUNT = 1
     # Source locale, translation locale, message location.
     HEADER_LABELS = [None, None, 'Extracted comments', 'Reference']
+    SHEETS_BASE_URL = 'https://docs.google.com/spreadsheets/d/'
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
@@ -177,8 +178,7 @@ class GoogleSheetsTranslator(base.Translator):
         for catalog in catalogs:
             if str(catalog.locale) == source_lang:
                 continue
-            url = 'https://docs.google.com/spreadsheets/d/{}'.format(
-                spreadsheet_id)
+            url = '{}{}'.format(self.SHEETS_BASE_URL, spreadsheet_id)
             lang = str(catalog.locale)
             if lang in locales_to_sheet_ids:
                 url += '#gid={}'.format(locales_to_sheet_ids[lang])
@@ -418,15 +418,15 @@ class GoogleSheetsTranslator(base.Translator):
 
         return requests
 
-    def _generate_filter_view_resource_requests(self, sheet_id, sheet=None, catalog=None):
+    def _generate_filter_view_resource_requests(self, sheet_id, sheet, catalog=None):
         requests = []
 
         if not catalog:
             return requests
 
+        lang = str(catalog.locale)
         location_to_filter_id = {}
         filter_ids = set()
-        filter_id_shift = random.randrange(10000, 99999)
 
         # Find all the unique resource locations.
         for message in catalog:
@@ -436,23 +436,11 @@ class GoogleSheetsTranslator(base.Translator):
             for raw_location in message.locations:
                 location = raw_location[0]
                 if not location in location_to_filter_id:
-                    location_to_filter_id[location] = None
-
-        # Match up the existing filter views based on the location.
-        if sheet and 'filterViews' in sheet:
-            for filter_view in sheet['filterViews']:
-                if filter_view['title'] in location_to_filter_id:
-                    filter_id = filter_view['filterViewId']
-                    location_to_filter_id[filter_view['title']] = filter_id
-                    filter_ids.add(filter_id)
+                    # Try to match up with the document hash value.
+                    location_to_filter_id[location] = self._trim_hash(
+                        hash((location, lang)))
 
         for location, filter_id in location_to_filter_id.iteritems():
-            if filter_id is None:
-                while filter_id is None or filter_id in filter_ids:
-                    filter_id = sheet_id + filter_id_shift
-                    filter_id_shift += 1
-                filter_ids.add(filter_id)
-
             requests += self._generate_filter_view_requests(sheet_id, sheet, {
                 'filterViewId': filter_id,
                 'range': {
@@ -818,6 +806,9 @@ class GoogleSheetsTranslator(base.Translator):
         return service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id, body=body).execute()
 
+    def _trim_hash(self, hash_value):
+        return hash_value % (10 ** 8)  # 10 Digits of the hash.
+
     def _update_acls(self, stats, locales):
         if 'acl' not in self.config:
             return
@@ -841,3 +832,12 @@ class GoogleSheetsTranslator(base.Translator):
             requests += self._generate_style_requests(
                 sheet_id, sheet=sheet, catalog=catalog)
         self._perform_batch_update(spreadsheet_id, requests)
+
+    def get_edit_url(self, doc):
+        if not doc.locale:
+            return
+        stats = self._get_stats_to_download([doc.locale])
+        if doc.locale not in stats:
+            return
+        stat = stats[doc.locale]
+        return '{}&fvid={}'.format(stat.url, self._trim_hash(hash(doc)))
