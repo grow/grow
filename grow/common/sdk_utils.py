@@ -134,6 +134,8 @@ def install(pod, gerrit=None):
           return
     if pod.file_exists('/gulpfile.js'):
         success = install_gulp(pod)
+    if pod.file_exists('/extensions.txt'):
+        success = install_extensions(pod)
 
 
 def has_gerrit_remote(pod):
@@ -228,17 +230,34 @@ def install_gulp(pod):
     return True
 
 
+def install_extensions(pod):
+    args = get_popen_args(pod)
+    pip_status_command = 'pip --version > /dev/null 2>&1'
+    pip_not_found = subprocess.call(pip_status_command, shell=True, **args) == 127
+    if pip_not_found:
+        pod.logger.error('[✘] The "pip" command was not found.')
+        return
+    pod.logger.info('[✓] "pip" is installed.')
+    pip_command = 'pip install -t ext -r extensions.txt'
+    process = subprocess.Popen(pip_command, shell=True, **args)
+    code = process.wait()
+    if not code:
+        pod.logger.info('[✓] Finished: Grow extensions install.')
+        return True
+    pod.logger.error('[✘] There was an error running "pip install -t ext -r extensions.txt".')
+
+
 def install_yarn(pod):
     args = get_popen_args(pod)
-    npm_status_command = 'yarn --version > /dev/null 2>&1'
-    npm_not_found = subprocess.call(npm_status_command, shell=True, **args) == 127
-    if npm_not_found:
+    yarn_status_command = 'yarn --version > /dev/null 2>&1'
+    yarn_not_found = subprocess.call(yarn_status_command, shell=True, **args) == 127
+    if yarn_not_found:
         pod.logger.error('[✘] The "yarn" command was not found.')
-        pod.logger.error('    Please install using: npm install -g yarn')
+        pod.logger.error('    Please install using: yarn install -g yarn')
         return
     pod.logger.info('[✓] "yarn" is installed.')
-    npm_command = 'yarn install'
-    process = subprocess.Popen(npm_command, shell=True, **args)
+    yarn_command = 'yarn install'
+    process = subprocess.Popen(yarn_command, shell=True, **args)
     code = process.wait()
     if not code:
         pod.logger.info('[✓] Finished: yarn install.')
