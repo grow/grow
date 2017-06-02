@@ -36,6 +36,11 @@ DEFAULT_ACCESS_LEVEL = AccessLevel.WRITER
 
 
 class GoogleSheetsTranslator(base.Translator):
+    COLOR_DEEP_PURPLE_50 = {
+        'red': 0.819,
+        'green': 0.768,
+        'blue': 0.913,
+    }
     COLOR_GREY_200 = {
         'red': .933,
         'blue': .933,
@@ -404,11 +409,7 @@ class GoogleSheetsTranslator(base.Translator):
         }
 
         formats['missing_cell'] = {
-            'backgroundColor': {
-                'red': 1,
-                'green': 0.95,
-                'blue': 1
-            }
+            'backgroundColor': self.COLOR_DEEP_PURPLE_50,
         }
 
         formats['wrap'] = {'wrapStrategy': 'WRAP'}
