@@ -1,4 +1,5 @@
 @import '_config'
+@import url('https://fonts.googleapis.com/css?family=Roboto')
 
 $button_offset: 10px
 $icon_count: 10
@@ -11,14 +12,14 @@ $transition_medium: 1000ms
 
 #grow-utils
   all: revert
-  font-family: Verdana, Arial, Helvetica, sans-serif
+  font-family: 'Roboto', sans-serif
   font-size: 13px
 
   *
     box-sizing: border-box
 
   .grow__buttons
-    align-items: right
+    align-items: flex-end
     bottom: 0
     display: flex
     flex-flow: column-reverse
@@ -35,11 +36,14 @@ $transition_medium: 1000ms
       transition: opacity $transition_medium ease-in-out, top $transition_fast ease-in-out, right $transition_fast ease-in-out
 
       .grow__label
-        color: $color-white
+        background: $color-secondary
+        color: $color-on-secondary
         display: none
+        font-size: 11px
         font-weight: bold
         margin: 0 1em 0 0
-        text-shadow: 0px 0px 1px rgba(0, 0, 0, 1), 1px 1px rgba(0, 0, 0, 0.5)
+        opacity: .9
+        padding: 4px 8px
 
       &:hover
         .grow__label
@@ -61,13 +65,13 @@ $transition_medium: 1000ms
           top: $icon_size_small * $i + $button_offset * ($i + 1) + $icon_size_tiny + ($icon_size_large - $icon_size_small) / 2
 
     .grow__icon
-      background-color: $color-primary
+      background-color: $color-secondary
       background-position: center
       background-repeat: no-repeat
       background-size: $icon_size_small/2
       border-radius: 100%
       box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)
-      color: $color-on-primary
+      color: $color-on-secondary
       display: block
       height: $icon_size_small
       margin-right: ($icon_size_large - $icon_size_small) / 2
@@ -81,9 +85,10 @@ $transition_medium: 1000ms
         cursor: pointer
 
       &.grow__icon_primary
-        background-color: $color-black
-        background-image: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTA3LjQgNTA3LjQiPjxzdHlsZT4uc3Qwe2ZpbGw6IzkyMjE2OTt9IC5zdDF7ZmlsbDojRUQzNzg0O30gLnN0MntmaWxsOiNGNTlFQzE7fSAuc3Qze2ZpbGw6IzBGNzZCQzt9IC5zdDR7ZmlsbDojMkYyRTczO30gLnN0NXtmaWxsOiNGQ0JFNTI7fSAuc3Q2e2ZpbGw6I0UwODQ0NDt9IC5zdDd7ZmlsbDojOUJDMUREO30gLnN0OHtmaWxsOiNFOUU5RUE7fSAuc3Q5e29wYWNpdHk6MC41NjtmaWxsOiMyRjJFNzM7fSAuc3QxMHtmaWxsOiMwMTAxMDE7fSAuc3QxMXtvcGFjaXR5OjAuMzQ7ZmlsbDojMEY3NkJDO308L3N0eWxlPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yMDEgMzM1LjlsMi4yIDE2Ni4xYzE2LjggMy40IDM0LjEgNS4xIDUxLjkgNXMzNS4xLTIuMiA1MS44LTZsLTIuMi0xNjYuMS01MS45LjUtNTEuOC41eiIvPjxwYXRoIGNsYXNzPSJzdDEiIGQ9Ik0yNTMgMzQyLjdsLTQwLjEuNCAxLjMgMTMxLjEgMjIuNi0xNC4yIDE3LjUgMTMuOCAxNy4yLTE0LjEgMjIuOSAxMy43LTEuNC0xMzEuMXoiLz48cGF0aCBjbGFzcz0ic3QyIiBkPSJNMjU0IDM0Mi40aC0yN3YxMDEuMmwxNC05LjcgMTMgOS43IDEzLjEtOS43IDE0IDkuN1YzNDIuNHoiLz48cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzQ3LjIgMzkzLjNoLTI5LjZ2MTA1LjFjMjEtNS42IDQwLjgtMTMuOSA1OS4yLTI0LjR2LTgwLjZoLTI5LjZ6TTE1OCAzOTMuM2gtMjkuNnY3OWMxOC4zIDEwLjkgMzguMiAxOS41IDU5LjIgMjUuM1YzOTMuM0gxNTh6Ii8+PHBhdGggY2xhc3M9InN0MSIgZD0iTTM0Ni41IDM3MGwtMjIuOS4yLjcgNzQuNyAxMi45LTggMTAgNy44IDkuOC04IDEzLjEgNy44LS44LTc0Ljh6Ii8+PHBhdGggY2xhc3M9InN0MiIgZD0iTTM0Ny4yIDM3MC42aC0xNS40djU3LjdsOC01LjYgNy40IDUuNiA3LjUtNS42IDggNS42di01Ny43eiIvPjxwYXRoIGNsYXNzPSJzdDEiIGQ9Ik0xNTggMzcwLjZoLTIyLjl2NzQuN2wxMy03LjkgOS45IDcuOSA5LjktNy45IDEzIDcuOXYtNzQuN3oiLz48cGF0aCBjbGFzcz0ic3QyIiBkPSJNMTU4IDM3MC42aC0xNS40djU3LjdsNy45LTUuNiA3LjUgNS42IDcuNS01LjYgNy45IDUuNnYtNTcuN3oiLz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMTU4LjQgMTI4LjV2LS4ycy0uMSAwLS4yLjFjLS4xLS4xLS4yLS4xLS4yLS4xdi4yYy0zLjIgMS42LTI5IDE1LjgtMjkgNDMuNnYyMjEuM2g1OC40VjE3Mi4xYzAtMjcuOC0yNS44LTQyLTI5LTQzLjZ6Ii8+PHBhdGggY2xhc3M9InN0NCIgZD0iTTM0NyAxMjguNXYtLjJzLS4xIDAtLjIuMWMtLjEtLjEtLjItLjEtLjItLjF2LjJjLTMuMiAxLjYtMjkgMTUuOC0yOSA0My42djIyMS4zSDM3NlYxNzIuMWMwLTI3LjgtMjUuOC00Mi0yOS00My42eiIvPjxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNTMuOCAxLjRzLTUxLjkgMjQuOS01MS45IDc3LjJ2MjE1LjNoNTEuOVYxLjR6Ii8+PHBhdGggY2xhc3M9InN0NiIgZD0iTTI1My44IDEuNHM1MS44IDI0LjkgNTEuOCA3Ny4ydjIxNS4zaC01MS45bC4xLTI5Mi41eiIvPjxwYXRoIGNsYXNzPSJzdDciIGQ9Ik00MzkuNyAzMjkuN2wtMTAzLjEtNzMuOC0zMy42LTU3LTI5LjItMTE1LjVMMjU0IDcxLjd2MzA5LjloMTY5LjZsMTYuMiA0MS42eiIvPjxwYXRoIGNsYXNzPSJzdDgiIGQ9Ik0yMzQuMyA4My40bC0yOS4yIDExNS41LTMzLjYgNTctMTAzLjEgNzMuOHY5MS44bDE2LjEtMzkuOUgyNTRWNzEuN3oiLz48cGF0aCBjbGFzcz0ic3Q5IiBkPSJNMzM2LjYgMjU1LjlsLTMwLjcgMTI1LjdoLTI0LjhMMzAzIDE5OC45eiIvPjxwYXRoIGNsYXNzPSJzdDEwIiBkPSJNMjU0IDE0My4zbDE3LjYgNS4yIDI1LjcgMjcuNyA1LjcgMjIuNy0zMi45LTIxLjVIMjU0ek0yNTQgMTAxaDE0LjdsMTEuNSA3LjgtNi40LTI1LjRMMjU0IDcxLjd6Ii8+PHBhdGggY2xhc3M9InN0MTEiIGQ9Ik0xNzEuNSAyNTUuOWwzMC43IDEyNS43SDIyN2wtMjEuOS0xODIuN3oiLz48cGF0aCBjbGFzcz0ic3QzIiBkPSJNMjU0IDE0My4zbC0xNy41IDUuMi0yNS43IDI3LjctNS43IDIyLjcgMzIuOS0yMS41aDE2ek0yNTQgMTAxaC0xNC42bC0xMS41IDcuOCA2LjQtMjUuNEwyNTQgNzEuN3oiLz48cGF0aCBjbGFzcz0ic3Q3IiBkPSJNMjU0IDM4MS42aDUxLjl2MTEuN0gyNTR6Ii8+PHBhdGggY2xhc3M9InN0OSIgZD0iTTI1NCAzODEuNmg1MS45djExLjdIMjU0eiIvPjxwYXRoIGNsYXNzPSJzdDgiIGQ9Ik0yMDIuMiAzODEuNmg1MS45djExLjdoLTUxLjl6Ii8+PHBhdGggY2xhc3M9InN0MTEiIGQ9Ik0yMDIuMiAzODEuNmg1MS45djExLjdoLTUxLjl6Ii8+PGc+PHBhdGggY2xhc3M9InN0OSIgZD0iTTQyMy42IDM4MS42bDE2LjIgNDEuNi0uMS05My41eiIvPjwvZz48Zz48cGF0aCBjbGFzcz0ic3QxMSIgZD0iTTY4LjQgMzI5Ljd2OTMuOGwxNi4xLTQxLjl6Ii8+PC9nPjwvc3ZnPgo=)
-        background-size: $icon_size_large
+        background-color: $color-primary
+        background-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTkuNDMgMTIuOThjLjA0LS4zMi4wNy0uNjQuMDctLjk4cy0uMDMtLjY2LS4wNy0uOThsMi4xMS0xLjY1Yy4xOS0uMTUuMjQtLjQyLjEyLS42NGwtMi0zLjQ2Yy0uMTItLjIyLS4zOS0uMy0uNjEtLjIybC0yLjQ5IDFjLS41Mi0uNC0xLjA4LS43My0xLjY5LS45OGwtLjM4LTIuNjVBLjQ4OC40ODggMCAwIDAgMTQgMmgtNGMtLjI1IDAtLjQ2LjE4LS40OS40MmwtLjM4IDIuNjVjLS42MS4yNS0xLjE3LjU5LTEuNjkuOThsLTIuNDktMWMtLjIzLS4wOS0uNDkgMC0uNjEuMjJsLTIgMy40NmMtLjEzLjIyLS4wNy40OS4xMi42NGwyLjExIDEuNjVjLS4wNC4zMi0uMDcuNjUtLjA3Ljk4cy4wMy42Ni4wNy45OGwtMi4xMSAxLjY1Yy0uMTkuMTUtLjI0LjQyLS4xMi42NGwyIDMuNDZjLjEyLjIyLjM5LjMuNjEuMjJsMi40OS0xYy41Mi40IDEuMDguNzMgMS42OS45OGwuMzggMi42NWMuMDMuMjQuMjQuNDIuNDkuNDJoNGMuMjUgMCAuNDYtLjE4LjQ5LS40MmwuMzgtMi42NWMuNjEtLjI1IDEuMTctLjU5IDEuNjktLjk4bDIuNDkgMWMuMjMuMDkuNDkgMCAuNjEtLjIybDItMy40NmMuMTItLjIyLjA3LS40OS0uMTItLjY0bC0yLjExLTEuNjV6TTEyIDE1LjVjLTEuOTMgMC0zLjUtMS41Ny0zLjUtMy41czEuNTctMy41IDMuNS0zLjUgMy41IDEuNTcgMy41IDMuNS0xLjU3IDMuNS0zLjUgMy41eiIgZmlsbD0iI0ZGRiIvPjwvc3ZnPg==)
+        background-size: $icon_size_tiny
+        fill: $color-white
         height: $icon_size_large
         margin-right: 0
         width: $icon_size_large
@@ -121,12 +126,12 @@ $transition_medium: 1000ms
         display: inherit !important
 
 .grow_tool__notice
-  background: $color-primary
+  background: $color-secondary
   border-radius: .35em
   bottom: 2em
   border: 1px solid rgba(255, 255, 255, .5)
   box-shadow: 0 0 .5em rgba(0, 0, 0, .5)
-  color: $color-on-primary
+  color: $color-on-secondary
   font-family: Verdana, Arial, Helvetica, sans-serif
   font-size: 12px
   line-height: 1.2em
