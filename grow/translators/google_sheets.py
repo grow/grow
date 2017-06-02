@@ -840,4 +840,5 @@ class GoogleSheetsTranslator(base.Translator):
         if doc.locale not in stats:
             return
         stat = stats[doc.locale]
-        return '{}&fvid={}'.format(stat.url, self._trim_hash(hash(doc)))
+        doc_hash = hash((doc.pod_path, doc.locale))
+        return '{}&fvid={}'.format(stat.url, self._trim_hash(doc_hash))

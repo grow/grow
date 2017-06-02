@@ -49,11 +49,6 @@ class Document(object):
         except KeyError:
             return object.__getattribute__(self, name)
 
-    def __hash__(self):
-        if self.locale:
-            return hash((self.pod_path, self.locale))
-        return hash(self.pod_path)
-
     def __init__(self, pod_path, _pod, locale=None, _collection=None):
         self._locale_kwarg = locale
         utils.validate_name(pod_path)
