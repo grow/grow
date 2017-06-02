@@ -421,7 +421,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _generate_filter_view_resource_requests(self, sheet_id, sheet=None, catalog=None):
         requests = []
 
-        if not catalog or not sheet:
+        if not catalog:
             return requests
 
         location_to_filter_id = {}
@@ -439,7 +439,7 @@ class GoogleSheetsTranslator(base.Translator):
                     location_to_filter_id[location] = None
 
         # Match up the existing filter views based on the location.
-        if 'filterViews' in sheet:
+        if sheet and 'filterViews' in sheet:
             for filter_view in sheet['filterViews']:
                 if filter_view['title'] in location_to_filter_id:
                     filter_id = filter_view['filterViewId']
