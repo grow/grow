@@ -36,8 +36,9 @@ $transition_medium: 1000ms
       transition: opacity $transition_medium ease-in-out, top $transition_fast ease-in-out, right $transition_fast ease-in-out
 
       .grow__label
-        background: $color-secondary
-        color: $color-on-secondary
+        background: $color-tertiary
+        border-radius: 2px
+        color: $color-on-tertiary
         display: none
         font-size: 11px
         font-weight: bold
@@ -126,17 +127,16 @@ $transition_medium: 1000ms
         display: inherit !important
 
 .grow_tool__notice
-  background: $color-secondary
-  border-radius: .35em
+  background: $color-tertiary
+  border-radius: 3px
   bottom: 2em
-  border: 1px solid rgba(255, 255, 255, .5)
-  box-shadow: 0 0 .5em rgba(0, 0, 0, .5)
-  color: $color-on-secondary
-  font-family: Verdana, Arial, Helvetica, sans-serif
-  font-size: 12px
+  border: 1px solid rgba($color-on-tertiary, .5)
+  color: $color-on-tertiary
+  font-family: 'Roboto', sans-serif
+  font-size: 13px
   line-height: 1.2em
   left: 2em
-  padding: .5em
+  padding: 1em
   position: fixed
   width: 75%
   z-index: 9999
