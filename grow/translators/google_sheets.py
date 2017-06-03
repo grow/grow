@@ -36,6 +36,11 @@ DEFAULT_ACCESS_LEVEL = AccessLevel.WRITER
 
 
 class GoogleSheetsTranslator(base.Translator):
+    COLOR_DEEP_PURPLE_50 = {
+        'red': 0.929,
+        'green': 0.905,
+        'blue': 0.964,
+    }
     COLOR_GREY_200 = {
         'red': .933,
         'blue': .933,
@@ -50,6 +55,7 @@ class GoogleSheetsTranslator(base.Translator):
     HEADER_ROW_COUNT = 1
     # Source locale, translation locale, message location.
     HEADER_LABELS = [None, None, 'Extracted comments', 'Reference']
+    SHEETS_BASE_URL = 'https://docs.google.com/spreadsheets/d/'
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
@@ -61,6 +67,9 @@ class GoogleSheetsTranslator(base.Translator):
             if message.auto_comments:
                 return True
         return False
+
+    def _content_hash(self, location, locale):
+        return hash((location, locale)) % (10 ** 8)  # 10 Digits of the hash.
 
     def _create_service(self):
         return google_drive.BaseGooglePreprocessor.create_service(
@@ -172,8 +181,7 @@ class GoogleSheetsTranslator(base.Translator):
         for catalog in catalogs:
             if str(catalog.locale) == source_lang:
                 continue
-            url = 'https://docs.google.com/spreadsheets/d/{}'.format(
-                spreadsheet_id)
+            url = '{}{}'.format(self.SHEETS_BASE_URL, spreadsheet_id)
             lang = str(catalog.locale)
             if lang in locales_to_sheet_ids:
                 url += '#gid={}'.format(locales_to_sheet_ids[lang])
@@ -348,7 +356,8 @@ class GoogleSheetsTranslator(base.Translator):
                 })
 
             # Format the new sheet.
-            requests += self._generate_style_requests(sheet_id)
+            requests += self._generate_style_requests(
+                sheet_id, catalog=catalog)
 
             # Size the initial sheet columns.
             # Not part of the style request to respect user's choice to resize.
@@ -382,11 +391,83 @@ class GoogleSheetsTranslator(base.Translator):
                 },
             })
 
-            requests += self._generate_comments_column_requests(sheet_id, catalog)
+            requests += self._generate_comments_column_requests(
+                sheet_id, catalog)
 
         return requests
 
-    def _generate_style_requests(self, sheet_id, sheet=None):
+    def _generate_filter_view_requests(self, sheet_id, sheet, filter_view):
+        requests = []
+
+        is_filtered = False
+        if sheet and 'filterViews' in sheet:
+            for existing_range in sheet['filterViews']:
+                if existing_range['filterViewId'] == filter_view['filterViewId']:
+                    is_filtered = True
+                    requests.append({
+                        'updateFilterView': {
+                            'filter': filter_view,
+                            'fields': 'range,title,criteria',
+                        },
+                    })
+                    break
+
+        if not is_filtered:
+            requests.append({
+                'addFilterView': {
+                    'filter': filter_view,
+                },
+            })
+
+        return requests
+
+    def _generate_filter_view_resource_requests(self, sheet_id, sheet, catalog=None):
+        requests = []
+
+        if not catalog:
+            return requests
+
+        lang = str(catalog.locale)
+        location_to_filter_id = {}
+        filter_ids = set()
+
+        # Find all the unique resource locations.
+        for message in catalog:
+            if not message.id:
+                continue
+
+            for raw_location in message.locations:
+                location = raw_location[0]
+                if not location in location_to_filter_id:
+                    # Try to match up with the document hash value.
+                    location_to_filter_id[
+                        location] = self._content_hash(location, lang)
+
+        for location, filter_id in location_to_filter_id.iteritems():
+            requests += self._generate_filter_view_requests(sheet_id, sheet, {
+                'filterViewId': filter_id,
+                'range': {
+                    'sheetId': sheet_id,
+                    'startColumnIndex': 0,
+                    'endColumnIndex': 4,
+                    'startRowIndex': 0,
+                },
+                'title': location,
+                'criteria': {
+                    '3': {
+                        'condition': {
+                            'type': 'TEXT_CONTAINS',
+                            'values': [
+                                {'userEnteredValue': location},
+                            ],
+                        },
+                    },
+                },
+            })
+
+        return requests
+
+    def _generate_style_requests(self, sheet_id, sheet=None, catalog=None):
         formats = {}
 
         formats['header_cell'] = {
@@ -404,11 +485,7 @@ class GoogleSheetsTranslator(base.Translator):
         }
 
         formats['missing_cell'] = {
-            'backgroundColor': {
-                'red': 1,
-                'green': 0.95,
-                'blue': 1
-            }
+            'backgroundColor': self.COLOR_DEEP_PURPLE_50,
         }
 
         formats['wrap'] = {'wrapStrategy': 'WRAP'}
@@ -532,8 +609,8 @@ class GoogleSheetsTranslator(base.Translator):
             'warningOnly': True,
         })
 
-        # Filter view for easy filtering.
-        requests += self._generate_style_filter_view_requests(sheet_id, sheet, {
+        # Filter view for untranslated strings.
+        requests += self._generate_filter_view_requests(sheet_id, sheet, {
             'filterViewId': sheet_id + 3300001,  # Keep it predictble.
             'range': {
                 'sheetId': sheet_id,
@@ -549,30 +626,9 @@ class GoogleSheetsTranslator(base.Translator):
             },
         })
 
-        return requests
-
-    def _generate_style_filter_view_requests(self, sheet_id, sheet, filter_view):
-        requests = []
-
-        is_filtered = False
-        if sheet and 'filterViews' in sheet:
-            for existing_range in sheet['filterViews']:
-                if existing_range['filterViewId'] == filter_view['filterViewId']:
-                    is_filtered = True
-                    requests.append({
-                        'updateFilterView': {
-                            'filter': filter_view,
-                            'fields': 'range,title,criteria',
-                        },
-                    })
-                    break
-
-        if not is_filtered:
-            requests.append({
-                'addFilterView': {
-                    'filter': filter_view,
-                },
-            })
+        # Filter view for each content path.
+        requests += self._generate_filter_view_resource_requests(
+            sheet_id, sheet, catalog)
 
         return requests
 
@@ -723,7 +779,8 @@ class GoogleSheetsTranslator(base.Translator):
                 },
             })
 
-            requests += self._generate_comments_column_requests(sheet_id, catalog)
+            requests += self._generate_comments_column_requests(
+                sheet_id, catalog)
         return requests
 
     def _do_update_acl(self, spreadsheet_id, acl):
@@ -762,7 +819,7 @@ class GoogleSheetsTranslator(base.Translator):
             return
         self._do_update_acl(spreadsheet_id, acl)
 
-    def _update_meta(self, stat, locale):
+    def _update_meta(self, stat, locale, catalog):
         spreadsheet_id = stat.ident
         service = self._create_service()
         resp = service.spreadsheets().get(
@@ -772,5 +829,15 @@ class GoogleSheetsTranslator(base.Translator):
             if sheet['properties']['title'] != locale:
                 continue
             sheet_id = sheet['properties']['sheetId']
-            requests += self._generate_style_requests(sheet_id, sheet)
+            requests += self._generate_style_requests(
+                sheet_id, sheet=sheet, catalog=catalog)
         self._perform_batch_update(spreadsheet_id, requests)
+
+    def get_edit_url(self, doc):
+        if not doc.locale:
+            return
+        stats = self._get_stats_to_download([doc.locale])
+        if doc.locale not in stats:
+            return
+        stat = stats[doc.locale]
+        return '{}&fvid={}'.format(stat.url, self._content_hash(doc.pod_path, doc.locale))

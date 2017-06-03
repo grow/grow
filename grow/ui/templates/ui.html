@@ -21,7 +21,7 @@
 <script>
   grow.ui.main({
     docPodPath: '{{doc.pod_path}}',
-    injectEditUrl: '{{inject_edit_url or ''}}',
-    injectTranslateUrl: '{{translator_edit_url or ''}}'
+    {% if inject_edit_url %}injectEditUrl: '{{inject_edit_url|safe}}',{% endif %}
+    {% if translator_edit_url %}injectTranslateUrl: '{{translator_edit_url|safe}}',{% endif %}
   });
 </script>

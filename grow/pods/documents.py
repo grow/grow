@@ -78,7 +78,7 @@ class Document(object):
         paths = [pod_path]
         parts = PATH_LOCALE_REGEX.split(pod_path)
         if len(parts) > 1:
-            if parts[3]: # [3] -> Country Code
+            if parts[3]:  # [3] -> Country Code
                 paths.append('{}@{}{}'.format(parts[0], parts[1], parts[4]))
             paths.append('{}{}'.format(parts[0], parts[4]))
         return paths
@@ -180,7 +180,7 @@ class Document(object):
     @utils.cached_property
     def default_locale(self):
         if (self.fields.get('$localization')
-            and 'default_locale' in self.fields['$localization']):
+                and 'default_locale' in self.fields['$localization']):
             identifier = self.fields['$localization']['default_locale']
             locale = locales.Locale.parse(identifier)
             if locale:
@@ -270,9 +270,9 @@ class Document(object):
     def path_format(self):
         val = None
         if (self.locale
-            and self.locale != self.default_locale):
+                and self.locale != self.default_locale):
             if ('$localization' in self.fields
-                and 'path' in self.fields['$localization']):
+                    and 'path' in self.fields['$localization']):
                 val = self.fields['$localization']['path']
             elif self.collection.localization:
                 val = self.collection.localization.get('path')
@@ -280,7 +280,7 @@ class Document(object):
             return self.fields.get('$path', self.collection.path_format)
         return val
 
-    @property # Cached in document format.
+    @property  # Cached in document format.
     def raw_content(self):
         return self.format.raw_content
 
@@ -342,7 +342,8 @@ class Document(object):
         config = self.pod.get_podspec().get_config()
         root_path = config.get('flags', {}).get('root_path', '')
         if locale == self.default_locale:
-            root_path = config.get('localization', {}).get('root_path', root_path)
+            root_path = config.get('localization', {}).get(
+                'root_path', root_path)
         path_format = self.path_format
         if path_format is None:
             raise PathFormatError(
@@ -363,11 +364,13 @@ class Document(object):
             match = re.search(re_date, path_format)
             if match:
                 formatted_date = self.date
-                formatted_date = formatted_date.strftime(match.group('date_format'))
+                formatted_date = formatted_date.strftime(
+                    match.group('date_format'))
                 path_format = (path_format[:match.start()] + formatted_date +
                                path_format[match.end():])
             else:
-                # Does not match expected format, let the normal format attempt it.
+                # Does not match expected format, let the normal format attempt
+                # it.
                 break
 
         # Handle the special formatting of dates in the url.
@@ -381,7 +384,8 @@ class Document(object):
                 path_format = (path_format[:match.start()] + formatted_date +
                                path_format[match.end():])
             else:
-                # Does not match expected format, let the normal format attempt it.
+                # Does not match expected format, let the normal format attempt
+                # it.
                 break
 
         try:
