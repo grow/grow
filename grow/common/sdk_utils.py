@@ -95,7 +95,7 @@ def check_for_sdk_updates(auto_update_prompt=False):
         else:
             text = (
                 'In-place update failed. Update manually or use:\n'
-                '  curl https://install.growsdk.org | bash')
+                '  curl https://install.grow.io| bash')
             logging.error(text)
             sys.exit(-1)
     else:
