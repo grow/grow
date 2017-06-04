@@ -166,7 +166,7 @@ def install(rc_path=None, bin_path=None, force=False):
     except IOError as e:
       if 'Text file busy' in str(e):
         hai('Unable to overwrite {}. Try closing Grow and installing again.'.format(bin_path))
-        hai('You can use the installer by running: curl https://install.grow.io| bash')
+        hai('You can use the installer by running: curl https://install.grow.io | bash')
         sys.exit(-1)
       raise
     fp.close()
