@@ -166,7 +166,7 @@ class UtilsTestCase(unittest.TestCase):
         }
 
         actual = []
-        callback = lambda item, key, node: actual.append(item)
+        callback = lambda item, key, node, parent_node: actual.append(item)
         utils.walk(data, callback)
 
         expected = ['bar', 'bar2', 'bar3', 'bar4']
