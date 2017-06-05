@@ -213,7 +213,7 @@ class Catalogs(object):
                 localized_catalogs[locale][message.id] = message
             unlocalized_catalog[message.id] = message
 
-        def _handle_field(path, locales, msgid, key, node, parent_node):
+        def _handle_field(path, locales, msgid, key, node, parent_node=None):
             if (not key
                     or not isinstance(msgid, basestring)
                     or not isinstance(key, basestring)):
