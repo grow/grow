@@ -71,7 +71,8 @@ class Catalogs(object):
                     parts[-1] = territory.upper()
                     correct_locale = '_'.join(parts)
                     text = 'WARNING: Translation directories are case sensitive (move {} -> {}).'
-                    self.pod.logger.warning(text.format(locale, correct_locale))
+                    self.pod.logger.warning(
+                        text.format(locale, correct_locale))
 
     def __iter__(self):
         for locale in self.list_locales():
@@ -106,8 +107,9 @@ class Catalogs(object):
         return message
 
     def get_extract_config(self, include_obsolete=None, localized=None,
-            include_header=None, use_fuzzy_matching=None):
-        extract_config = self.pod.yaml.get('localization', {}).get('extract', {})
+                           include_header=None, use_fuzzy_matching=None):
+        extract_config = self.pod.yaml.get(
+            'localization', {}).get('extract', {})
         if include_obsolete is None:
             include_obsolete = extract_config.get('include_obsolete', False)
         if localized is None:
@@ -129,7 +131,7 @@ class Catalogs(object):
     def update(self, locales, use_fuzzy_matching=None, include_header=None):
         _, _, include_header, use_fuzzy_matching = \
             self.get_extract_config(include_header=include_header,
-                use_fuzzy_matching=use_fuzzy_matching)
+                                    use_fuzzy_matching=use_fuzzy_matching)
         for locale in locales:
             catalog = self.get(locale)
             self.pod.logger.info('Updating: {}'.format(locale))
@@ -177,8 +179,8 @@ class Catalogs(object):
                 audit=False):
         include_obsolete, localized, include_header, use_fuzzy_matching, = \
             self.get_extract_config(include_header=include_header,
-                include_obsolete=include_obsolete, localized=localized,
-                use_fuzzy_matching=use_fuzzy_matching)
+                                    include_obsolete=include_obsolete, localized=localized,
+                                    use_fuzzy_matching=use_fuzzy_matching)
 
         env = self.pod.get_jinja_env()
         # {
@@ -211,7 +213,7 @@ class Catalogs(object):
                 localized_catalogs[locale][message.id] = message
             unlocalized_catalog[message.id] = message
 
-        def _handle_field(path, locales, msgid, key, node):
+        def _handle_field(path, locales, msgid, key, node, parent_node):
             if (not key
                     or not isinstance(msgid, basestring)
                     or not isinstance(key, basestring)):
@@ -228,6 +230,11 @@ class Catalogs(object):
                 auto_comment = node.get('{}#'.format(key))
                 if auto_comment:
                     auto_comments.append(auto_comment)
+            elif isinstance(node, list) and parent_node:
+                auto_comment = parent_node.get('{}#'.format(key))
+                if auto_comment:
+                    auto_comments.append(auto_comment)
+
             message = catalog.Message(
                 msgid,
                 None,
@@ -252,7 +259,8 @@ class Catalogs(object):
                         locations=[(path, lineno)])
                     _add_to_catalog(message, locales)
             except tokenize.TokenError:
-                self.pod.logger.error('Problem extracting body: {}'.format(path))
+                self.pod.logger.error(
+                    'Problem extracting body: {}'.format(path))
                 raise
 
         # Extract from collections in /content/:
@@ -308,12 +316,14 @@ class Catalogs(object):
             # Extract from CSVs for this collection's locales
             for filepath in self.pod.list_dir(collection.pod_path):
                 if filepath.endswith('.csv'):
-                    pod_path = os.path.join(collection.pod_path, filepath.lstrip('/'))
+                    pod_path = os.path.join(
+                        collection.pod_path, filepath.lstrip('/'))
                     self.pod.logger.info('Extracting: {}'.format(pod_path))
                     rows = self.pod.read_csv(pod_path)
                     for i, row in enumerate(rows):
                         for key, msgid in row.iteritems():
-                            _handle_field(pod_path, collection.locales, msgid, key, row)
+                            _handle_field(
+                                pod_path, collection.locales, msgid, key, row)
 
         # Extract from root of /content/:
         for path in self.pod.list_dir('/content/', recursive=False):
@@ -322,7 +332,8 @@ class Catalogs(object):
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
                 utils.walk(
                     self.pod.get_doc(pod_path).format.front_matter.data,
-                    lambda *args: _handle_field(pod_path, self.pod.list_locales(), *args)
+                    lambda *args: _handle_field(pod_path,
+                                                self.pod.list_locales(), *args)
                 )
 
         # Extract from /views/:
@@ -341,7 +352,8 @@ class Catalogs(object):
         self.pod.logger.info('Extracting: /podspec.yaml')
         utils.walk(
             self.pod.get_podspec().get_config(),
-            lambda *args: _handle_field('/podspec.yaml', self.pod.list_locales(), *args)
+            lambda *args: _handle_field('/podspec.yaml',
+                                        self.pod.list_locales(), *args)
         )
 
         # Save it out: behavior depends on --localized and --locale flags
@@ -365,7 +377,7 @@ class Catalogs(object):
                         path=existing_catalog.pod_path,
                         num_translated=num_messages - len(missing),
                         num_messages=num_messages)
-                    )
+                )
             return untagged_strings, localized_catalogs.items()
         else:
             # --localized omitted / --no-localized
@@ -377,7 +389,8 @@ class Catalogs(object):
                 template_catalog.save(include_header=include_header)
                 text = 'Saved: {} ({} messages)'
                 self.pod.logger.info(
-                    text.format(template_catalog.pod_path, len(template_catalog))
+                    text.format(template_catalog.pod_path,
+                                len(template_catalog))
                 )
             return untagged_strings, [template_catalog]
 

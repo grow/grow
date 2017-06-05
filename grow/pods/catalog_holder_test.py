@@ -83,12 +83,68 @@ class CatalogsTest(unittest.TestCase):
         template_catalog = template_catalogs[0]
         self.assertIn('foo', template_catalog)
 
-        _, template_catalogs = self.pod.catalogs.extract(include_obsolete=False)
+        _, template_catalogs = self.pod.catalogs.extract(
+            include_obsolete=False)
         template_catalog = template_catalogs[0]
         self.assertNotIn('foo', template_catalog)
 
         self.assertIn('string content tagged', template_catalog)
         self.assertNotIn('string content untagged', template_catalog)
+
+    def test_extract_autocomments(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'extract': {
+                    'localized': True,
+                },
+            },
+        })
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$title@': 'Collection Title',
+            '$localization': {
+                'locales': [
+                    'de_DE',
+                    'en_US',
+                ],
+            },
+        })
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$title@': 'Page Title',
+            '$title@#': 'Page Title Comment',
+        })
+        pod.write_yaml('/content/pages/about.yaml', {
+            '$title@': 'About Title',
+            'items@#': 'Items comment',
+            'items@': [
+                'one',
+                'two',
+                'three',
+            ],
+            'dict': {
+                'key@#': 'object key comment',
+                'key@': 'object key',
+            },
+        })
+        pod.catalogs.extract()
+        de_catalog = pod.catalogs.get('de_DE')
+
+        # Extracted comment for string.
+        self.assertIn('Page Title', de_catalog)
+        message = de_catalog.get('Page Title')
+        self.assertEqual('Page Title Comment', message.auto_comments[0])
+
+        # Extracted comments for list items.
+        items = ['one', 'two', 'three']
+        for item in items:
+            self.assertIn(item, de_catalog)
+            message = de_catalog.get(item)
+            self.assertEqual('Items comment', message.auto_comments[0])
+
+        # Extracted comment for dict.
+        self.assertIn('object key', de_catalog)
+        message = de_catalog.get('object key')
+        self.assertEqual('object key comment', message.auto_comments[0])
 
     def test_extract_podspec(self):
         # Verify global extract.
@@ -267,12 +323,15 @@ class _BaseExtractLocalizedTest(unittest.TestCase):
 class ExtractLocalizedTest(_BaseExtractLocalizedTest):
     # setUpClass rather than setUp to only do this once & hence speed up tests
     # NOTE: Pods should NOT be modified by test cases
+
     @classmethod
     def setUpClass(cls):
-        cls.localized_pod = testing.create_test_pod('extract_localized/localized_pod')
+        cls.localized_pod = testing.create_test_pod(
+            'extract_localized/localized_pod')
         cls.localized_pod.catalogs.compile()
         cls.localized_pod.catalogs.extract(localized=True)
-        cls.unlocalized_pod = testing.create_test_pod('extract_localized/unlocalized_pod')
+        cls.unlocalized_pod = testing.create_test_pod(
+            'extract_localized/unlocalized_pod')
         cls.unlocalized_pod.catalogs.compile()
         cls.unlocalized_pod.catalogs.extract(localized=True)
 
@@ -588,7 +647,8 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
             self.localized_pod,
             u'Unlocalized yaml doc in unlocalized collection in localized pöd',
             'de')
-        # Document only specifies base doc part and $locale: ja, no $localization.
+        # Document only specifies base doc part and $locale: ja, no
+        # $localization.
         self.assertExtractedFor(
             self.localized_pod,
             u'Unlocalized base doc part in unlocalized collection in localized pöd',
@@ -694,7 +754,8 @@ class ExtractLocalizedWithExistingTest(_BaseExtractLocalizedTest):
     def test_include_obsolete_option(self):
         pod = testing.create_test_pod('extract_localized/localized_pod')
         pod.catalogs.compile()
-        pod.catalogs.extract(localized=True, locales=['fr'], include_obsolete=True)
+        pod.catalogs.extract(localized=True, locales=[
+                             'fr'], include_obsolete=True)
 
         message = u'Existing message in localized pöd'
         translation = u'Existing FR translation in localized pöd'
@@ -711,11 +772,13 @@ class ExtractLocalizedWithExistingTest(_BaseExtractLocalizedTest):
 class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
 
     def test_extract_localized_for_single_locale(self):
-        localized_pod = testing.create_test_pod('extract_localized/localized_pod')
+        localized_pod = testing.create_test_pod(
+            'extract_localized/localized_pod')
         localized_pod.catalogs.compile()
         localized_pod.catalogs.extract(localized=True, locales=['it'])
 
-        unlocalized_pod = testing.create_test_pod('extract_localized/unlocalized_pod')
+        unlocalized_pod = testing.create_test_pod(
+            'extract_localized/unlocalized_pod')
         unlocalized_pod.catalogs.compile()
         unlocalized_pod.catalogs.extract(localized=True, locales=['it'])
 
@@ -740,7 +803,8 @@ class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
             else:
                 self.assertExtractedFor(localized_pod, message, 'it')
 
-        # These are only relevant to FR, DE or no locales, so shouldn't be extracted
+        # These are only relevant to FR, DE or no locales, so shouldn't be
+        # extracted
         non_italian_messages = (
             u'Unlocalized doc body in localized collection in localized pöd',
             u'Unlocalized doc body in localized collection in unlocalized pöd',
@@ -764,13 +828,17 @@ class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
                 self.assertExtractedFor(localized_pod, message, [])
 
     def test_extract_localized_for_multiple_locales(self):
-        localized_pod = testing.create_test_pod('extract_localized/localized_pod')
+        localized_pod = testing.create_test_pod(
+            'extract_localized/localized_pod')
         localized_pod.catalogs.compile()
-        localized_pod.catalogs.extract(localized=True, locales=['it', 'sv', 'de'])
+        localized_pod.catalogs.extract(
+            localized=True, locales=['it', 'sv', 'de'])
 
-        unlocalized_pod = testing.create_test_pod('extract_localized/unlocalized_pod')
+        unlocalized_pod = testing.create_test_pod(
+            'extract_localized/unlocalized_pod')
         unlocalized_pod.catalogs.compile()
-        unlocalized_pod.catalogs.extract(localized=True, locales=['it', 'sv', 'de'])
+        unlocalized_pod.catalogs.extract(
+            localized=True, locales=['it', 'sv', 'de'])
 
         # These strings are all relevant to both IT & SV
         it_sv_messages = (
@@ -805,7 +873,8 @@ class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
             else:
                 self.assertExtractedFor(localized_pod, message, ['de'])
 
-        # These are only relevant to FR or no locales, so shouldn't be extracted
+        # These are only relevant to FR or no locales, so shouldn't be
+        # extracted
         fr_messages = (
             u'Unlocalized doc body in localized collection in localized pöd',
             u'Unlocalized doc body in localized collection in unlocalized pöd',
