@@ -83,7 +83,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
         mock_generate_new_sheet_id.side_effect = [765, 654, 543, 432, 321]
 
         translator = self.pod.get_translator('google_sheets')
-        translator.upload()
+        translator.upload(locales=['de'])
 
         mock_sheets_service['spreadsheets.batchUpdate'].assert_called_with(
             spreadsheetId='98765',
@@ -98,479 +98,6 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                               'frozenRowCount': 1
                           },
                             'sheetId': 765,
-                            'title': 'fr'
-                        }
-                    }
-                }, {
-                    'appendCells': {
-                        'fields': 'userEnteredValue',
-                        'rows': [{
-                            'values': [{
-                                'userEnteredValue': {
-                                  'stringValue': 'en'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'fr'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'Extracted comments'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'Reference'
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'About'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'About us'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'AboutDE'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Bar'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Contact'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Foo'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Goodnight Moon!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Hello World 2!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Hello World!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Higher Priority'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Home page'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Introduction'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Lower Priority'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Newest!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }],
-                        'sheetId': 765
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'bold': True
-                                },
-                                'backgroundColor': {
-                                    'blue': 0.933,
-                                    'green': 0.933,
-                                    'red': 0.933
-                                }
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endRowIndex': 1,
-                            'startRowIndex': 0,
-                            'sheetId': 765,
-                            'startColumnIndex': 0
-                        }
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'wrapStrategy': 'WRAP'
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endColumnIndex': 3,
-                            'sheetId': 765,
-                            'startColumnIndex': 0,
-                            'startRowIndex': 1
-                        }
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'foregroundColor': {
-                                        'blue': 0.6196,
-                                        'green': 0.6196,
-                                        'red': 0.6196
-                                    }
-                                },
-                                'wrapStrategy': 'WRAP'
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endColumnIndex': 4,
-                            'sheetId': 765,
-                            'startColumnIndex': 2,
-                            'startRowIndex': 1
-                        }
-                    }
-                }, {
-                    'addConditionalFormatRule': {
-                        'index': 0,
-                        'rule': {
-                            'ranges': [{
-                                'endColumnIndex': 2,
-                                'sheetId': 765,
-                                'startColumnIndex': 1,
-                                'startRowIndex': 1
-                            }],
-                            'booleanRule': {
-                                'condition': {
-                                    'type': 'BLANK'
-                                },
-                                'format': {
-                                    'backgroundColor': {
-                                        'blue': 0.964,
-                                        'green': 0.905,
-                                        'red': 0.929
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000766,
-                            'range': {
-                                'endColumnIndex': 1,
-                                'sheetId': 765,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Original strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000767,
-                            'range': {
-                                'endColumnIndex': 3,
-                                'sheetId': 765,
-                                'startColumnIndex': 2,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Comment strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000768,
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 765,
-                                'startColumnIndex': 3,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Source strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addFilterView': {
-                        'filter': {
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 765,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 0
-                            },
-                            'criteria': {
-                                '1': {
-                                    'condition': {
-                                        'type': 'BLANK'
-                                    }
-                                }
-                            },
-                            'filterViewId': 3300766,
-                            'title': 'Untranslated Strings'
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'pixelSize',
-                        'range': {
-                            'endIndex': 3,
-                            'startIndex': 0,
-                            'sheetId': 765,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'pixelSize': 400
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'pixelSize',
-                        'range': {
-                            'endIndex': 4,
-                            'startIndex': 3,
-                            'sheetId': 765,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'pixelSize': 200
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'hiddenByUser',
-                        'range': {
-                            'endIndex': 3,
-                            'startIndex': 2,
-                            'sheetId': 765,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'hiddenByUser': True
-                        }
-                    }
-                }, {
-                    'addSheet': {
-                        'properties': {
-                            'gridProperties': {
-                                'columnCount': 4,
-                                'rowCount': 2,
-                                'frozenColumnCount': 1,
-                                'frozenRowCount': 1
-                            },
-                            'sheetId': 654,
                             'title': 'de'
                         }
                     }
@@ -974,7 +501,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                                 }
                             }]
                         }],
-                        'sheetId': 654
+                        'sheetId': 765
                     }
                 }, {
                     'repeatCell': {
@@ -994,7 +521,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'range': {
                             'endRowIndex': 1,
                             'startRowIndex': 0,
-                            'sheetId': 654,
+                            'sheetId': 765,
                             'startColumnIndex': 0
                         }
                     }
@@ -1008,7 +535,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'fields': 'userEnteredFormat',
                         'range': {
                             'endColumnIndex': 3,
-                            'sheetId': 654,
+                            'sheetId': 765,
                             'startColumnIndex': 0,
                             'startRowIndex': 1
                         }
@@ -1030,7 +557,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'fields': 'userEnteredFormat',
                         'range': {
                             'endColumnIndex': 4,
-                            'sheetId': 654,
+                            'sheetId': 765,
                             'startColumnIndex': 2,
                             'startRowIndex': 1
                         }
@@ -1041,7 +568,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'rule': {
                             'ranges': [{
                                 'endColumnIndex': 2,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 1,
                                 'startRowIndex': 1
                             }],
@@ -1063,10 +590,10 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                     'addProtectedRange': {
                         'protectedRange': {
                             'warningOnly': True,
-                            'protectedRangeId': 1000655,
+                            'protectedRangeId': 1000766,
                             'range': {
                                 'endColumnIndex': 1,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 1
                             },
@@ -1077,10 +604,10 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                     'addProtectedRange': {
                         'protectedRange': {
                             'warningOnly': True,
-                            'protectedRangeId': 1000656,
+                            'protectedRangeId': 1000767,
                             'range': {
                                 'endColumnIndex': 3,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 2,
                                 'startRowIndex': 1
                             },
@@ -1091,10 +618,10 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                     'addProtectedRange': {
                         'protectedRange': {
                             'warningOnly': True,
-                            'protectedRangeId': 1000657,
+                            'protectedRangeId': 1000768,
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 3,
                                 'startRowIndex': 1
                             },
@@ -1106,7 +633,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1117,7 +644,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                                     }
                                 }
                             },
-                            'filterViewId': 3300655,
+                            'filterViewId': 3300766,
                             'title': 'Untranslated Strings'
                         }
                     }
@@ -1126,7 +653,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1149,7 +676,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1172,7 +699,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1195,7 +722,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1218,7 +745,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1241,7 +768,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1264,7 +791,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1287,7 +814,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1310,7 +837,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1333,7 +860,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1356,7 +883,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1379,7 +906,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'filter': {
                             'range': {
                                 'endColumnIndex': 4,
-                                'sheetId': 654,
+                                'sheetId': 765,
                                 'startColumnIndex': 0,
                                 'startRowIndex': 0
                             },
@@ -1403,7 +930,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'range': {
                             'endIndex': 3,
                             'startIndex': 0,
-                            'sheetId': 654,
+                            'sheetId': 765,
                             'dimension': 'COLUMNS'
                         },
                         'properties': {
@@ -1416,7 +943,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'range': {
                             'endIndex': 4,
                             'startIndex': 3,
-                            'sheetId': 654,
+                            'sheetId': 765,
                             'dimension': 'COLUMNS'
                         },
                         'properties': {
@@ -1429,1219 +956,11 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                         'range': {
                             'endIndex': 3,
                             'startIndex': 2,
-                            'sheetId': 654,
+                            'sheetId': 765,
                             'dimension': 'COLUMNS'
                         },
                         'properties': {
                             'hiddenByUser': False
-                        }
-                    }
-                }, {
-                    'addSheet': {
-                        'properties': {
-                            'gridProperties': {
-                                'columnCount': 4,
-                                'rowCount': 2,
-                                'frozenColumnCount': 1,
-                                'frozenRowCount': 1
-                            },
-                            'sheetId': 543,
-                            'title': 'en'
-                        }
-                    }
-                }, {
-                    'appendCells': {
-                        'fields': 'userEnteredValue',
-                        'rows': [{
-                            'values': [{
-                                'userEnteredValue': {
-                                  'stringValue': 'en'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'en'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'Extracted comments'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'Reference'
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'About'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'About us'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'AboutDE'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Bar'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Contact'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Foo'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Goodnight Moon!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Hello World 2!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Hello World!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Higher Priority'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Home page'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Introduction'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Lower Priority'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Newest!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }],
-                        'sheetId': 543
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'bold': True
-                                },
-                                'backgroundColor': {
-                                    'blue': 0.933,
-                                    'green': 0.933,
-                                    'red': 0.933
-                                }
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endRowIndex': 1,
-                            'startRowIndex': 0,
-                            'sheetId': 543,
-                            'startColumnIndex': 0
-                        }
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'wrapStrategy': 'WRAP'
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endColumnIndex': 3,
-                            'sheetId': 543,
-                            'startColumnIndex': 0,
-                            'startRowIndex': 1
-                        }
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'foregroundColor': {
-                                        'blue': 0.6196,
-                                        'green': 0.6196,
-                                        'red': 0.6196
-                                    }
-                                },
-                                'wrapStrategy': 'WRAP'
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endColumnIndex': 4,
-                            'sheetId': 543,
-                            'startColumnIndex': 2,
-                            'startRowIndex': 1
-                        }
-                    }
-                }, {
-                    'addConditionalFormatRule': {
-                        'index': 0,
-                        'rule': {
-                            'ranges': [{
-                                'endColumnIndex': 2,
-                                'sheetId': 543,
-                                'startColumnIndex': 1,
-                                'startRowIndex': 1
-                            }],
-                            'booleanRule': {
-                                'condition': {
-                                    'type': 'BLANK'
-                                },
-                                'format': {
-                                    'backgroundColor': {
-                                        'blue': 0.964,
-                                        'green': 0.905,
-                                        'red': 0.929
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000544,
-                            'range': {
-                                'endColumnIndex': 1,
-                                'sheetId': 543,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Original strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000545,
-                            'range': {
-                                'endColumnIndex': 3,
-                                'sheetId': 543,
-                                'startColumnIndex': 2,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Comment strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000546,
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 543,
-                                'startColumnIndex': 3,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Source strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addFilterView': {
-                        'filter': {
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 543,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 0
-                            },
-                            'criteria': {
-                                '1': {
-                                    'condition': {
-                                        'type': 'BLANK'
-                                    }
-                                }
-                            },
-                            'filterViewId': 3300544,
-                            'title': 'Untranslated Strings'
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'pixelSize',
-                        'range': {
-                            'endIndex': 3,
-                            'startIndex': 0,
-                            'sheetId': 543,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'pixelSize': 400
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'pixelSize',
-                        'range': {
-                            'endIndex': 4,
-                            'startIndex': 3,
-                            'sheetId': 543,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'pixelSize': 200
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'hiddenByUser',
-                        'range': {
-                            'endIndex': 3,
-                            'startIndex': 2,
-                            'sheetId': 543,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'hiddenByUser': True
-                        }
-                    }
-                }, {
-                    'addSheet': {
-                        'properties': {
-                            'gridProperties': {
-                                'columnCount': 4,
-                                'rowCount': 2,
-                                'frozenColumnCount': 1,
-                                'frozenRowCount': 1
-                            },
-                            'sheetId': 432,
-                            'title': 'it'
-                        }
-                    }
-                }, {
-                    'appendCells': {
-                        'fields': 'userEnteredValue',
-                        'rows': [{
-                            'values': [{
-                                'userEnteredValue': {
-                                  'stringValue': 'en'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'it'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'Extracted comments'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'Reference'
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'About'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'About us'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'AboutDE'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Bar'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Contact'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Foo'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Goodnight Moon!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Hello World 2!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Hello World!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Higher Priority'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Home page'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Introduction'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Lower Priority'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Newest!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }]
-                        }],
-                        'sheetId': 432
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'bold': True
-                                },
-                                'backgroundColor': {
-                                    'blue': 0.933,
-                                    'green': 0.933,
-                                    'red': 0.933
-                                }
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endRowIndex': 1,
-                            'startRowIndex': 0,
-                            'sheetId': 432,
-                            'startColumnIndex': 0
-                        }
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'wrapStrategy': 'WRAP'
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endColumnIndex': 3,
-                            'sheetId': 432,
-                            'startColumnIndex': 0,
-                            'startRowIndex': 1
-                        }
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'foregroundColor': {
-                                        'blue': 0.6196,
-                                        'green': 0.6196,
-                                        'red': 0.6196
-                                    }
-                                },
-                                'wrapStrategy': 'WRAP'
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endColumnIndex': 4,
-                            'sheetId': 432,
-                            'startColumnIndex': 2,
-                            'startRowIndex': 1
-                        }
-                    }
-                }, {
-                    'addConditionalFormatRule': {
-                        'index': 0,
-                        'rule': {
-                            'ranges': [{
-                                'endColumnIndex': 2,
-                                'sheetId': 432,
-                                'startColumnIndex': 1,
-                                'startRowIndex': 1
-                            }],
-                            'booleanRule': {
-                                'condition': {
-                                    'type': 'BLANK'
-                                },
-                                'format': {
-                                    'backgroundColor': {
-                                        'blue': 0.964,
-                                        'green': 0.905,
-                                        'red': 0.929
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000433,
-                            'range': {
-                                'endColumnIndex': 1,
-                                'sheetId': 432,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Original strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000434,
-                            'range': {
-                                'endColumnIndex': 3,
-                                'sheetId': 432,
-                                'startColumnIndex': 2,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Comment strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000435,
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 432,
-                                'startColumnIndex': 3,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Source strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addFilterView': {
-                        'filter': {
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 432,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 0
-                            },
-                            'criteria': {
-                                '1': {
-                                    'condition': {
-                                        'type': 'BLANK'
-                                    }
-                                }
-                            },
-                            'filterViewId': 3300433,
-                            'title': 'Untranslated Strings'
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'pixelSize',
-                        'range': {
-                            'endIndex': 3,
-                            'startIndex': 0,
-                            'sheetId': 432,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'pixelSize': 400
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'pixelSize',
-                        'range': {
-                            'endIndex': 4,
-                            'startIndex': 3,
-                            'sheetId': 432,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'pixelSize': 200
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'hiddenByUser',
-                        'range': {
-                            'endIndex': 3,
-                            'startIndex': 2,
-                            'sheetId': 432,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'hiddenByUser': True
-                        }
-                    }
-                }, {
-                    'addSheet': {
-                        'properties': {
-                            'gridProperties': {
-                                'columnCount': 4,
-                                'rowCount': 2,
-                                'frozenColumnCount': 1,
-                                'frozenRowCount': 1
-                            },
-                            'sheetId': 321,
-                            'title': 'ja'
-                        }
-                    }
-                }, {
-                    'appendCells': {
-                        'fields': 'userEnteredValue',
-                        'rows': [{
-                            'values': [{
-                                'userEnteredValue': {
-                                  'stringValue': 'en'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'ja'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'Extracted comments'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': 'Reference'
-                                }
-                            }]
-                        }, {
-                            'values': [{
-                                'userEnteredValue': {
-                                    'stringValue': u'Hello World!'
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': ''
-                                }
-                            }, {
-                                'userEnteredValue': {
-                                    'stringValue': u'source/templates/home.html'
-                                }
-                            }]
-                        }],
-                        'sheetId': 321
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'bold': True
-                                },
-                                'backgroundColor': {
-                                    'blue': 0.933,
-                                    'green': 0.933,
-                                    'red': 0.933
-                                }
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endRowIndex': 1,
-                            'startRowIndex': 0,
-                            'sheetId': 321,
-                            'startColumnIndex': 0
-                        }
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'wrapStrategy': 'WRAP'
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endColumnIndex': 3,
-                            'sheetId': 321,
-                            'startColumnIndex': 0,
-                            'startRowIndex': 1
-                        }
-                    }
-                }, {
-                    'repeatCell': {
-                        'cell': {
-                            'userEnteredFormat': {
-                                'textFormat': {
-                                    'foregroundColor': {
-                                        'blue': 0.6196,
-                                        'green': 0.6196,
-                                        'red': 0.6196
-                                    }
-                                },
-                                'wrapStrategy': 'WRAP'
-                            }
-                        },
-                        'fields': 'userEnteredFormat',
-                        'range': {
-                            'endColumnIndex': 4,
-                            'sheetId': 321,
-                            'startColumnIndex': 2,
-                            'startRowIndex': 1
-                        }
-                    }
-                }, {
-                    'addConditionalFormatRule': {
-                        'index': 0,
-                        'rule': {
-                            'ranges': [{
-                                'endColumnIndex': 2,
-                                'sheetId': 321,
-                                'startColumnIndex': 1,
-                                'startRowIndex': 1
-                            }],
-                            'booleanRule': {
-                                'condition': {
-                                    'type': 'BLANK'
-                                },
-                                'format': {
-                                    'backgroundColor': {
-                                        'blue': 0.964,
-                                        'green': 0.905,
-                                        'red': 0.929
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000322,
-                            'range': {
-                                'endColumnIndex': 1,
-                                'sheetId': 321,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Original strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000323,
-                            'range': {
-                                'endColumnIndex': 3,
-                                'sheetId': 321,
-                                'startColumnIndex': 2,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Comment strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addProtectedRange': {
-                        'protectedRange': {
-                            'warningOnly': True,
-                            'protectedRangeId': 1000324,
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 321,
-                                'startColumnIndex': 3,
-                                'startRowIndex': 1
-                            },
-                            'description': 'Source strings can only be edited in the source files.'
-                        }
-                    }
-                }, {
-                    'addFilterView': {
-                        'filter': {
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 321,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 0
-                            },
-                            'criteria': {
-                                '1': {
-                                    'condition': {
-                                        'type': 'BLANK'
-                                    }
-                                }
-                            },
-                            'filterViewId': 3300322,
-                            'title': 'Untranslated Strings'
-                        }
-                    }
-                }, {
-                    'addFilterView': {
-                        'filter': {
-                            'range': {
-                                'endColumnIndex': 4,
-                                'sheetId': 321,
-                                'startColumnIndex': 0,
-                                'startRowIndex': 0
-                            },
-                            'criteria': {
-                                '3': {
-                                    'condition': {
-                                        'values': [{
-                                            'userEnteredValue': u'source/templates/home.html'
-                                        }],
-                                        'type': 'TEXT_CONTAINS'
-                                    }
-                                }
-                            },
-                            'filterViewId': 39896814,
-                            'title': u'source/templates/home.html'
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'pixelSize',
-                        'range': {
-                            'endIndex': 3,
-                            'startIndex': 0,
-                            'sheetId': 321,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'pixelSize': 400
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'pixelSize',
-                        'range': {
-                            'endIndex': 4,
-                            'startIndex': 3,
-                            'sheetId': 321,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'pixelSize': 200
-                        }
-                    }
-                }, {
-                    'updateDimensionProperties': {
-                        'fields': 'hiddenByUser',
-                        'range': {
-                            'endIndex': 3,
-                            'startIndex': 2,
-                            'sheetId': 321,
-                            'dimension': 'COLUMNS'
-                        },
-                        'properties': {
-                            'hiddenByUser': True
                         }
                     }
                 }]
