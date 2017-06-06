@@ -103,7 +103,7 @@ def interactive_confirm(message, default=False, input_func=None):
     return default
 
 
-def walk(node, callback, parent_key=None):
+def walk(node, callback, parent_key=None, parent_node=None):
     if node is None:
         return
     for key in node:
@@ -116,11 +116,11 @@ def walk(node, callback, parent_key=None):
             parent_key = key
 
         if isinstance(item, (list, set, dict)):
-            walk(item, callback, parent_key=parent_key)
+            walk(item, callback, parent_key=parent_key, parent_node=node)
         else:
             if isinstance(node, (list, set)):
                 key = parent_key
-            callback(item, key, node)
+            callback(item, key, node, parent_node)
 
 
 def validate_name(name):
