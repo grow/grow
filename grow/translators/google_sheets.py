@@ -318,7 +318,7 @@ class GoogleSheetsTranslator(base.Translator):
         # Create sheets.
         requests = []
         for catalog in catalogs:
-            sheet_id = random.randrange(100, 9999999)
+            sheet_id = self._generate_new_sheet_id()
             lang = str(catalog.locale)
             # Create a new sheet.
             requests.append({
@@ -466,6 +466,9 @@ class GoogleSheetsTranslator(base.Translator):
             })
 
         return requests
+
+    def _generate_new_sheet_id(self):
+        return random.randrange(100, 9999999)
 
     def _generate_style_requests(self, sheet_id, sheet=None, catalog=None):
         formats = {}
