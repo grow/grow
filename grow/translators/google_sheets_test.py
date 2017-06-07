@@ -13,6 +13,26 @@ import unittest
 
 class GoogleSheetsTranslatorTestCase(unittest.TestCase):
 
+    def setUp(self):
+        dir_path = testing.create_test_pod_dir()
+        self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
+
+    def test_upload_translations(self):
+        credentials, _ = oauth.get_credentials_and_storage(
+            scope=google_drive.OAUTH_SCOPE,
+            storage_key=google_drive.STORAGE_KEY)
+        if not credentials:
+            text = ('Skipping Google Sheets Translator test'
+                    ' because we don\'t have auth keys. Run'
+                    ' `grow upload_translations` or `grow download_translations`'
+                    ' to acquire auth keys and re-run the test.')
+            raise skip.SkipTest(text)
+        translator = self.pod.get_translator('google_sheets')
+        translator.upload(locales=['de'])
+
+
+class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
+
     def _mock_drive_service(self, create=None):
         mock_service = mock.Mock()
 
@@ -55,14 +75,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
             'spreadsheets.get': mock_get,
         }
 
-    def setUp(self):
-        dir_path = testing.create_test_pod_dir()
-        self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
-
-    @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_generate_new_sheet_id')
-    @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
-    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
-    def test_create_sheet(self, mock_create_service_drive, mock_create_service_sheets, mock_generate_new_sheet_id):
+    def _setup_mocks(self):
         mock_drive_service = self._mock_drive_service()
         mock_sheets_service = self._mock_sheets_service(create={
             'spreadsheetId': '98765',
@@ -77,10 +90,21 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
         }, get={
             'spreadsheetId': 76543,
         })
-        mock_create_service_drive.return_value = mock_drive_service['service']
-        mock_create_service_sheets.return_value = mock_sheets_service[
-            'service']
-        mock_generate_new_sheet_id.side_effect = [765, 654, 543, 432, 321]
+
+        return mock_drive_service, mock_sheets_service
+
+    def setUp(self):
+        dir_path = testing.create_test_pod_dir()
+        self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
+
+    @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_generate_new_sheet_id')
+    @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_create_sheet(self, mock_service_drive, mock_service_sheets, mock_new_sheet_id):
+        mock_drive_service, mock_sheets_service = self._setup_mocks()
+        mock_service_drive.return_value = mock_drive_service['service']
+        mock_service_sheets.return_value = mock_sheets_service['service']
+        mock_new_sheet_id.side_effect = [765, 654, 543, 432, 321]
 
         translator = self.pod.get_translator('google_sheets')
         translator.upload(locales=['de'])
