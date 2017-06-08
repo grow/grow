@@ -3,7 +3,6 @@ from . import importers
 from babel import support
 from babel import util as babel_util
 from babel.messages import catalog
-from babel.messages import catalog as babel_catalog
 from babel.messages import extract
 from babel.messages import mofile
 from babel.messages import pofile

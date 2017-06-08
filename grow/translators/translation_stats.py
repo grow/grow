@@ -21,6 +21,12 @@ class TranslationStats(object):
                 tracking[locale][message] = self._locale_to_message[locale][message]
         return tracking
 
+    def export(self):
+        return {
+            'messages': self.messages,
+            'untranslated': self.untranslated,
+        }
+
     def tick(self, message, locale):
         if locale not in self._locale_to_message:
             self._locale_to_message[locale] = {}
