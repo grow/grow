@@ -23,7 +23,7 @@ import threading
 @click.option('--preprocess/--no-preprocess', '-p/-np',
               default=True, is_flag=True,
               help='Whether to run preprocessors on server start.')
-@click.option('--ui/--no-ui', '-b', is_flag=True, default=True,
+@click.option('--ui/--no-ui', is_flag=True, default=True,
               help='Whether to inject the Grow UI Tools.')
 def run(host, port, https, debug, browser, update_check, preprocess, ui,
         pod_path):
