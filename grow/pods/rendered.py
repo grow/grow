@@ -61,7 +61,7 @@ class RenderedController(controllers.BaseController):
             raise
         return [doc.get_serving_path()]
 
-    def render(self, params, inject=True):
+    def render(self, params, inject=True, message_stats=True):
         doc = self.doc
         preprocessor = None
         translator = None
@@ -77,6 +77,10 @@ class RenderedController(controllers.BaseController):
         # it is not available included inside macros???
         # See: https://github.com/pallets/jinja/issues/688
         template.globals['g'] = local_tags
+
+        # Track the message stats, including untranslated strings.
+        if message_stats:
+            template.globals['_'] = tags.make_doc_gettext(doc)
 
         try:
             kwargs = {

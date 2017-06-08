@@ -14,6 +14,7 @@ from . import storage
 from . import tags
 from ..preprocessors import preprocessors
 from ..translators import translators
+from ..translators import translation_stats
 from grow.common import sdk_utils
 from grow.common import utils
 from werkzeug.contrib import cache as werkzeug_cache
@@ -155,6 +156,10 @@ class Pod(object):
     def title(self):
         return self.yaml.get('title')
 
+    @utils.cached_property
+    def translation_stats(self):
+        return translation_stats.TranslationStats()
+
     @property
     def ui(self):
         if self.env.name == environment.Name.DEV or self.env.name is None:
@@ -235,6 +240,11 @@ class Pod(object):
         if error_controller:
             output['/404.html'] = error_controller.render({})
         bar.finish()
+
+        print 'Translation Stats'
+        print self.translation_stats.messages
+        print self.translation_stats.untranslated
+
         return output
 
     def export_ui(self):

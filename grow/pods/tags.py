@@ -169,8 +169,22 @@ def _deep_gettext(ctx, fields):
         return fields
 
 
+@jinja2.contextfunction
 def _gettext_alias(__context, *args, **kwargs):
     return __context.call(__context.resolve('gettext'), *args, **kwargs)
+
+
+def make_doc_gettext(doc):
+    translation_stats = doc.pod.translation_stats
+    catalog = doc.pod.catalogs.get(doc.locale)
+    gettext_trans = doc.pod.catalogs.get_gettext_translations(doc.locale)
+
+    @jinja2.contextfunction
+    def gettext(__context, __string, *args, **kwargs):
+        message = catalog[__string]
+        translation_stats.tick(message, doc.locale)
+        return gettext_trans.gettext(__string, *args, **kwargs)
+    return gettext
 
 
 @utils.memoize_tag
