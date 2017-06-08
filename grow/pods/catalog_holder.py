@@ -1,5 +1,6 @@
 from . import catalogs
 from . import importers
+from . import locales as grow_locales
 from babel import support
 from babel import util as babel_util
 from babel.messages import catalog
@@ -64,15 +65,10 @@ class Catalogs(object):
 
     def validate_locales(self, locales):
         for locale in locales:
-            if '_' in locale:
-                parts = locale.split('_')
-                territory = parts[-1]
-                if territory != territory.upper():
-                    parts[-1] = territory.upper()
-                    correct_locale = '_'.join(parts)
-                    text = 'WARNING: Translation directories are case sensitive (move {} -> {}).'
-                    self.pod.logger.warning(
-                        text.format(locale, correct_locale))
+            parsed_locale = grow_locales.Locale.parse(locale)
+            if str(parsed_locale) != locale:
+                text = 'WARNING: Translation directories are case sensitive (move {} -> {}).'
+                self.pod.logger.warning(text.format(locale, parsed_locale))
 
     def __iter__(self):
         for locale in self.list_locales():
