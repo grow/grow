@@ -183,7 +183,7 @@ def make_doc_gettext(doc):
     def gettext(__context, __string, *args, **kwargs):
         message = catalog[__string]
         translation_stats.tick(message, doc.locale)
-        return gettext_trans.gettext(__string, *args, **kwargs)
+        return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
     return gettext
 
 
