@@ -31,6 +31,16 @@ class TranslationStatsTestCase(unittest.TestCase):
             },
             stats.export())
 
+    def test_tick_none(self):
+        stats = translation_stats.TranslationStats()
+        stats.tick(None, 'ga')
+        self.assertEqual(
+            {
+                'messages': {},
+                'untranslated': {},
+            },
+            stats.export())
+
     def test_tick_untranslated(self):
         stats = translation_stats.TranslationStats()
         stats.tick(catalog.Message(

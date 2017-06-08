@@ -28,6 +28,9 @@ class TranslationStats(object):
         }
 
     def tick(self, message, locale):
+        if not message:
+            return
+
         if locale not in self._locale_to_message:
             self._locale_to_message[locale] = {}
 
