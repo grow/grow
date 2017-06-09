@@ -121,10 +121,15 @@ test-gae:
 	  --gae-lib-root=$(HOME)/google_appengine/ \
 	  $(target)
 
+test-pylint:
+	pylint --errors-only \
+	  $(target)
+
 test-ci:
 	$(MAKE) build-ui
 	$(MAKE) test-nosetests
 	$(MAKE) test-gae
+	$(MAKE) test-pylint
 
 prep-release:
 	$(MAKE) build-ui

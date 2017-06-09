@@ -31,7 +31,6 @@ before_script:
 
 script:
 - make test-ci
-- make pylint
 
 after_success:
 - coveralls
