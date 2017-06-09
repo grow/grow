@@ -1,3 +1,5 @@
+"""Pod storage using Google Cloud Storage as the backing."""
+
 try:
     import cloudstorage
     from cloudstorage import cloudstorage_api
@@ -10,9 +12,9 @@ try:
 except ImportError:
     blobstore = None
 
+import logging
 import os
 import jinja2
-import logging
 from grow.pods.storage import base_storage
 from grow.pods.storage import errors
 
@@ -95,8 +97,7 @@ class CloudStorage(base_storage.BaseStorage):
 
     @staticmethod
     def copy_to(path, target_path):
-        # TODO(jeremydw): Replace
-        return cloudstorage_api._copy2(path, target_path)
+        return cloudstorage_api.copy2(path, target_path)
 
     @staticmethod
     def move_to(path, target_path):

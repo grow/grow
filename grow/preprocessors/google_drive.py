@@ -9,20 +9,22 @@
     to markdown.
 """
 
-from . import base
+import cStringIO
+import csv
+import json
+import logging
+import os
+import httplib2
+import yaml
 from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
 from grow.pods import document_fields
+from grow.pods import document_format
+from grow.pods import document_front_matter as doc_front_matter
 from protorpc import messages
-import cStringIO
-import csv
-import httplib2
-import json
-import logging
-import os
-import yaml
+from . import base
 
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
@@ -66,6 +68,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
     def download(cls, path, doc_id, logger=None, raise_errors=False):
         logger = logger or logging
         service = BaseGooglePreprocessor.create_service()
+        # pylint: disable=no-member
         resp = service.files().get(fileId=doc_id).execute()
         if 'exportLinks' not in resp:
             text = 'Unable to export Google Doc: {}'
@@ -91,12 +94,14 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
     def format_content(cls, path, content, convert=True, existing_data=None):
         ext = os.path.splitext(path)[1]
         convert_to_markdown = ext == '.md' and convert is not False
-        content = utils.clean_html(content, convert_to_markdown=convert_to_markdown)
+        content = utils.clean_html(
+            content, convert_to_markdown=convert_to_markdown)
         # Preserve any existing frontmatter.
         if existing_data:
-            if formats.Format.has_front_matter(existing_data):
-                content = formats.Format.update(
-                    existing_data, body=content)
+            if doc_front_matter.BOUNDARY_REGEX.search(existing_data):
+                front_matter, content = doc_front_matter.DocumentFrontMatter.split_front_matter(
+                    existing_data)
+                return document_format.DocumentFormat.format_doc(front_matter, content)
         return content
 
     def execute(self, config):
@@ -133,6 +138,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     @staticmethod
     def _convert_rows_to_mapping(reader):
         results = {}
+
         def _update_node(root, part):
             if isinstance(root, dict) and part not in root:
                 root[part] = {}
@@ -166,6 +172,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         logger = logger or logging
         ext = os.path.splitext(path)[1]
         service = BaseGooglePreprocessor.create_service()
+        # pylint: disable=no-member
         resp = service.files().get(fileId=sheet_id).execute()
         if 'exportLinks' not in resp:
             text = 'Unable to export Google Sheet: {} / Received: {}'

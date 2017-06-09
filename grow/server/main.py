@@ -1,5 +1,5 @@
-from webob import exc as webob_exc
-import jinja2
+"""Grow local development server."""
+
 import logging
 import mimetypes
 import os
@@ -7,27 +7,20 @@ import re
 import sys
 import traceback
 import urllib
+import jinja2
 import webob
-import werkzeug
-
-# Allows "import grow" and "from grow import <name>".
-sys.path.extend([os.path.join(os.path.dirname(__file__), '..', '..')])
-
-from grow.common import sdk_utils
-from grow.common import utils
-from grow.pods import errors
-from grow.pods import storage
-from grow.pods import ui
-
-from werkzeug import exceptions
 from werkzeug import routing
 from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
 from werkzeug import serving
 from werkzeug import wsgi
+from ..common import sdk_utils
+from ..common import utils
+from ..pods import errors
+from ..pods import ui
 
 
-class Request(werkzeug.BaseRequest):
+class Request(wrappers.BaseRequest):
     pass
 
 
@@ -125,7 +118,7 @@ class PodServer(object):
 
     def handle_exception(self, request, exc):
         log = logging.exception if self.debug else self.pod.logger.error
-        if isinstance(exc, webob_exc.HTTPException):
+        if isinstance(exc, webob.exc.HTTPException):
             status = exc.status_int
             log('{}: {}'.format(status, request.path))
         else:
@@ -143,7 +136,7 @@ class PodServer(object):
         formatted_traceback = '\n'.join(formatted_traceback)
         kwargs = {
             'exception': exc,
-            'is_web_exception': isinstance(exc, webob_exc.HTTPException),
+            'is_web_exception': isinstance(exc, webob.exc.HTTPException),
             'pod': self.pod,
             'status': status,
             'traceback': formatted_traceback,

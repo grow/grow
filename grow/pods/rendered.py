@@ -1,14 +1,13 @@
+"""Render controller for rendering documents."""
+
+import mimetypes
+import sys
 from . import controllers
-from . import dependency
 from . import env
 from . import errors
-from . import footnotes
 from . import messages
 from . import tags
 from . import ui
-from grow.common import utils
-import mimetypes
-import sys
 
 
 class RenderedController(controllers.BaseController):
@@ -21,7 +20,6 @@ class RenderedController(controllers.BaseController):
             self._pod_path = doc.pod_path
             self._locale = str(doc.locale)
         else:
-            print 'Doc... {}'.format(doc)
             self._pod_path = None
             self._locale = None
         super(RenderedController, self).__init__(_pod=_pod)
@@ -56,10 +54,9 @@ class RenderedController(controllers.BaseController):
     def list_concrete_paths(self):
         if self.path:
             return [self.path]
-        doc = self.doc
-        if not doc:
-            raise
-        return [doc.get_serving_path()]
+        if not self.doc:
+            return []
+        return [self.doc.get_serving_path()]
 
     def render(self, params, inject=True):
         doc = self.doc

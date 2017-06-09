@@ -1,22 +1,22 @@
-from . import catalogs
-from . import importers
-from . import locales as grow_locales
+"""Translation catalog container."""
+
+import cStringIO
+import collections
+import gettext
+import os
+import tokenize
+import texttable
 from babel import support
-from babel import util as babel_util
-from babel.messages import catalog
 from babel.messages import catalog as babel_catalog
 from babel.messages import extract
 from babel.messages import mofile
 from babel.messages import pofile
+import click
 from grow.common import utils
 from grow.pods import messages
-import cStringIO
-import click
-import collections
-import gettext
-import os
-import texttable
-import tokenize
+from . import catalogs
+from . import importers
+from . import locales as grow_locales
 
 
 _TRANSLATABLE_EXTENSIONS = (
@@ -231,7 +231,7 @@ class Catalogs(object):
                 if auto_comment:
                     auto_comments.append(auto_comment)
 
-            message = catalog.Message(
+            message = babel_catalog.Message(
                 msgid,
                 None,
                 auto_comments=auto_comments,
@@ -248,7 +248,7 @@ class Catalogs(object):
                     comment_tags=comment_tags)
                 for parts in all_parts:
                     lineno, msgid, comments, context = parts
-                    message = catalog.Message(
+                    message = babel_catalog.Message(
                         msgid,
                         None,
                         auto_comments=comments,
@@ -268,8 +268,9 @@ class Catalogs(object):
             self.pod.logger.info(text)
             # Extract from blueprint.
             utils.walk(collection.tagged_fields,
-                       lambda *args: _handle_field(collection.blueprint_path,
-                                                   collection.locales, *args))
+                       lambda msgid, key, node, **kwargs: _handle_field(
+                           collection.blueprint_path, collection.locales, msgid, key, node,
+                           **kwargs))
             # Extract from docs in collection.
             for doc in collection.docs(include_hidden=True):
                 if not self._should_extract_as_babel(paths, doc.pod_path):
@@ -302,7 +303,8 @@ class Catalogs(object):
                 # ("tagged" = prior to stripping `@` suffix from field names)
                 tagged_fields = doc.format.front_matter.data
                 utils.walk(tagged_fields,
-                           lambda *args: _handle_field(doc.pod_path, doc_locales, *args))
+                           lambda msgid, key, node, **kwargs: _handle_field(
+                               doc.pod_path, doc_locales, msgid, key, node, **kwargs))
 
                 # Extract body: {{_('Extract me')}}
                 if doc.body:
@@ -328,8 +330,8 @@ class Catalogs(object):
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
                 utils.walk(
                     self.pod.get_doc(pod_path).format.front_matter.data,
-                    lambda *args: _handle_field(pod_path,
-                                                self.pod.list_locales(), *args)
+                    lambda msgid, key, node, **kwargs: _handle_field(
+                        pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
                 )
 
         # Extract from /views/:
@@ -348,8 +350,8 @@ class Catalogs(object):
         self.pod.logger.info('Extracting: /podspec.yaml')
         utils.walk(
             self.pod.get_podspec().get_config(),
-            lambda *args: _handle_field('/podspec.yaml',
-                                        self.pod.list_locales(), *args)
+            lambda msgid, key, node, **kwargs: _handle_field(
+                '/podspec.yaml', self.pod.list_locales(), msgid, key, node, **kwargs)
         )
 
         # Save it out: behavior depends on --localized and --locale flags
