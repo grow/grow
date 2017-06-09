@@ -82,7 +82,7 @@ def slug_filter(value):
 
 
 @utils.memoize_tag
-def static(path, locale=None, _pod=None):
+def static_something(path, locale=None, _pod=None):
     """Retrieves a static file from the pod."""
     return _pod.get_static(path, locale=locale)
 
@@ -246,9 +246,9 @@ def create_builtin_tags(pod, doc, use_cache=False):
     """Creates standard set of tags for rendering based on the doc."""
 
     def _wrap(func):
-        def _wrapped(*args, **kwargs):
-            func(*args, _pod=pod, use_cache=use_cache, **kwargs)
-        return _wrapped
+        # pylint: disable=unnecessary-lambda
+        return lambda *args, **kwargs: func(
+            *args, _pod=pod, use_cache=use_cache, **kwargs)
 
     def _wrap_dependency(func):
         def _wrapper(*args, **kwargs):
@@ -280,7 +280,7 @@ def create_builtin_tags(pod, doc, use_cache=False):
         'locale': _wrap(locale),
         'locales': _wrap(locales),
         'nav': _wrap(nav),
-        'static': _wrap(static),
+        'static': _wrap(static_something),
         'statics': _wrap(statics),
         'url': _wrap(url),
         'yaml': _wrap(yaml),

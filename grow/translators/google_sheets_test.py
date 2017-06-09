@@ -19,7 +19,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
 
     def test_upload_translations(self):
         credentials, _ = oauth.get_credentials_and_storage(
-            scope=google_drive.OAUTH_SCOPE,
+            scope=google_sheets.OAUTH_SCOPE,
             storage_key=google_drive.STORAGE_KEY)
         if not credentials:
             text = ('Skipping Google Sheets Translator test'

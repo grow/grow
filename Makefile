@@ -73,6 +73,11 @@ develop-linux:
 	sudo pip install --upgrade six
 	$(MAKE) develop
 
+pylint:
+	. env/bin/activate
+	./env/bin/pylint --errors-only \
+	  $(target)
+
 test:
 	. env/bin/activate
 	./env/bin/nosetests \

@@ -33,6 +33,7 @@ class AccessLevel(object):
 
 
 DEFAULT_ACCESS_LEVEL = AccessLevel.WRITER
+OAUTH_SCOPE = 'https://www.googleapis.com/auth/spreadsheets'
 
 
 class GoogleSheetsTranslator(base.Translator):
