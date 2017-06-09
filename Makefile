@@ -128,8 +128,8 @@ test-pylint:
 test-ci:
 	$(MAKE) build-ui
 	$(MAKE) test-nosetests
-	$(MAKE) test-gae
 	$(MAKE) test-pylint
+	$(MAKE) test-gae
 
 prep-release:
 	$(MAKE) build-ui
