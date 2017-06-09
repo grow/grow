@@ -1,0 +1,9 @@
+[DESIGN]
+
+# Maximum number of arguments for function / method
+max-args=10
+
+[MESSAGES CONTROL]
+
+# Disable the message, report, category or checker with the given id(s).
+# disable=
