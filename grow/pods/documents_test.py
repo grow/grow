@@ -1,13 +1,13 @@
-import os
+"""Tests for documents."""
+
 import textwrap
 import unittest
-
+from grow.testing import testing
 from . import documents
 from . import locales
 from . import pods
 from . import routes
 from . import storage
-from grow.testing import testing
 
 
 class DocumentsTestCase(unittest.TestCase):

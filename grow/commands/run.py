@@ -1,10 +1,11 @@
+"""Command to run the local development server."""
+
+import os
+import click
 from grow.pods import env
 from grow.pods import pods
 from grow.pods import storage
 from grow.server import manager
-import click
-import os
-import threading
 
 
 @click.command()

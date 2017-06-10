@@ -1,9 +1,11 @@
+"""Tests for translation catalogs."""
+
+import os
+import unittest
 from grow.pods import pods
 from grow.pods import catalogs
 from grow.pods import storage
 from grow.testing import testing
-import os
-import unittest
 
 
 class CatalogTest(unittest.TestCase):
