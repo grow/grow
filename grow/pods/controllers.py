@@ -3,6 +3,8 @@ from . import messages
 
 class BaseController(object):
 
+    KIND = 'Base'
+
     def __init__(self, _pod):
         self.pod = _pod
 
@@ -22,6 +24,9 @@ class BaseController(object):
         if mimetype:
             headers['Content-Type'] = mimetype
         return headers
+
+    def list_concrete_paths(self):
+        raise NotImplementedError
 
     def to_route_messages(self):
         route_messages = []

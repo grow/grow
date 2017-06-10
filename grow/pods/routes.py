@@ -1,14 +1,15 @@
+"""Routes for document path routing."""
+
+import collections
+import webob
+from werkzeug import routing
+from grow.common import timer
+from grow.common import utils
 from . import locales
 from . import messages
 from . import rendered
 from . import sitemap
 from . import static
-from grow.common import timer
-from grow.common import utils
-from werkzeug import routing
-import collections
-import webob
-import werkzeug
 
 
 class Error(Exception):

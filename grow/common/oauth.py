@@ -1,13 +1,15 @@
+"""Common OAuth functionality."""
+
+import os
+
 # Silence "Loading" messages from keyring.
 import logging
 log = logging.getLogger('keyring.backend')
 log.setLevel(logging.WARNING)
 
-from . import utils
 from oauth2client import client
 from oauth2client import service_account
 from oauth2client import tools
-import os
 
 try:
     from oauth2client.contrib import appengine

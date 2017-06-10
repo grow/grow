@@ -1,17 +1,18 @@
-from babel import support
+"""Translation catalogs."""
+
+from datetime import datetime
+import logging
+import os
+import re
+import textwrap
+import fnmatch
+import goslate
 from babel import util
 from babel.messages import catalog
 from babel.messages import mofile
 from babel.messages import pofile
 from babel.util import odict
-from datetime import datetime
 from grow.pods import messages
-import fnmatch
-import goslate
-import logging
-import os
-import re
-import textwrap
 
 
 class Catalog(catalog.Catalog):

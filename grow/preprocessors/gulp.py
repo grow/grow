@@ -1,20 +1,17 @@
-from . import base
-from grow.common import sdk_utils
-from protorpc import messages
-from xtermcolor import colorize
+"""Preprocessor for running gulp tasks."""
+
 import os
-import re
 import shlex
 import subprocess
-import sys
-
+from protorpc import messages
+from grow.common import sdk_utils
+from . import base
 
 
 class Config(messages.Message):
     build_task = messages.StringField(1, default='build')
     run_task = messages.StringField(2, default='')
     command = messages.StringField(3, default='gulp')
-
 
 
 class GulpPreprocessor(base.BasePreprocessor):

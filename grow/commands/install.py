@@ -1,9 +1,10 @@
+"""Command to install grow project dependencies."""
+
+import os
+import click
 from grow.common import sdk_utils
-from grow.common import utils
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()

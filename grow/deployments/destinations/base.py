@@ -66,17 +66,17 @@ grow/deployments/deployments.py. Proprietary destinations can be registered
 using deployments.register_destination.
 """
 
-from . import messages
-from .. import indexes
-from .. import tests
-from grow.common import utils
-from grow.pods import env
 import inspect
 import io
 import logging
 import os
 import subprocess
 import sys
+from grow.common import utils
+from grow.deployments import indexes
+from grow.deployments import tests
+from grow.pods import env
+from . import messages
 
 
 class Error(Exception):
@@ -138,6 +138,10 @@ class BaseDestination(object):
             return self.config.control_dir
         return self._control_dir
 
+    @property
+    def storage(self):
+        raise NotImplementedError
+
     def _get_remote_index(self):
         try:
             content = self.read_control_file(self.index_basename)
@@ -190,7 +194,7 @@ class BaseDestination(object):
         if self._has_custom_control_dir:
             return self.storage.write(path, content)
         if self.batch_writes:
-            return self.write_file({path: content})
+            return self.write_file(path, content)
         return self.write_file(path, content)
 
     def test(self):

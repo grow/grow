@@ -1,9 +1,10 @@
-from . import messages
-from protorpc import protojson
+"""Deployment stats tracking."""
+
 import collections
-import logging
 import os
 import texttable
+from protorpc import protojson
+from . import messages
 
 
 class Stats(object):

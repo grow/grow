@@ -3,9 +3,8 @@
 Supports caching the collection and caching documents within those collections.
 """
 
-from . import collection
 import os
-import re
+from . import collection
 
 class CollectionCache(object):
 

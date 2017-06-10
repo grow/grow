@@ -1,14 +1,14 @@
-from . import google_translator_toolkit
-from . import google_sheets
+"""Tests for Google Sheets translations."""
+
+import unittest
+import mock
+from nose.plugins import skip
 from grow.preprocessors import google_drive
 from grow.common import oauth
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
-from nose.plugins import skip
-import mock
-import time
-import unittest
+from . import google_sheets
 
 
 class GoogleSheetsTranslatorTestCase(unittest.TestCase):
@@ -19,7 +19,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
 
     def test_upload_translations(self):
         credentials, _ = oauth.get_credentials_and_storage(
-            scope=google_drive.OAUTH_SCOPE,
+            scope=google_sheets.OAUTH_SCOPE,
             storage_key=google_drive.STORAGE_KEY)
         if not credentials:
             text = ('Skipping Google Sheets Translator test'

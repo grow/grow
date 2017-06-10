@@ -1,16 +1,8 @@
-from grow.pods import errors
-try:
-    import cStringIO as StringIO
-except ImportError:
-    try:
-        import StringIO
-    except ImportError:
-        from io import StringIO
-import bs4
+"""Common grow utility functions."""
+
 import csv as csv_lib
 import functools
 import gettext
-import html2text
 import imp
 import json
 import logging
@@ -19,14 +11,18 @@ import re
 import sys
 import threading
 import time
-import translitcodec
 import urllib
 import yaml
+import bs4
+import html2text
+import translitcodec  # pylint: disable=unused-import
+from grow.pods import errors
 
 # The CLoader implementation of the PyYaml loader is orders of magnitutde
 # faster than the default pure Python loader. CLoader is available when
 # libyaml is installed on the system.
 try:
+    # pylint: disable=ungrouped-imports
     from yaml import CLoader as yaml_Loader
 except ImportError:
     logging.warning('Warning: libyaml missing, using slower yaml parser.')
@@ -47,7 +43,9 @@ class UnavailableError(Error):
 
 
 def is_packaged_app():
+    """Returns whether the environment is a packaged app."""
     try:
+        # pylint: disable=pointless-statement,protected-access
         sys._MEIPASS
         return True
     except AttributeError:
@@ -57,6 +55,7 @@ def is_packaged_app():
 def is_appengine():
     """Returns whether the environment is Google App Engine."""
     try:
+        # pylint: disable=unused-variable
         import google.appengine
         return True
     except ImportError:
@@ -73,6 +72,7 @@ def get_git():
 
 def get_grow_dir():
     if is_packaged_app():
+        # pylint: disable=no-member,protected-access
         return os.path.join(sys._MEIPASS)
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -120,7 +120,7 @@ def walk(node, callback, parent_key=None, parent_node=None):
         else:
             if isinstance(node, (list, set)):
                 key = parent_key
-            callback(item, key, node, parent_node)
+            callback(item, key, node, parent_node=parent_node)
 
 
 def validate_name(name):
@@ -300,10 +300,11 @@ class DummyDict(object):
 
 class JsonEncoder(json.JSONEncoder):
 
-    def default(self, obj):
-        if hasattr(obj, 'timetuple'):
-            return time.mktime(obj.timetuple())
-        raise TypeError(repr(obj) + ' is not JSON serializable.')
+    # pylint: disable=method-hidden
+    def default(self, o):
+        if hasattr(o, 'timetuple'):
+            return time.mktime(o.timetuple())
+        raise TypeError(repr(o) + ' is not JSON serializable.')
 
 
 def LocaleIterator(iterator, locale):

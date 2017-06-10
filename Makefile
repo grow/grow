@@ -73,6 +73,11 @@ develop-linux:
 	sudo pip install --upgrade six
 	$(MAKE) develop
 
+pylint:
+	. env/bin/activate
+	./env/bin/pylint --errors-only \
+	  $(target)
+
 test:
 	. env/bin/activate
 	./env/bin/nosetests \
@@ -116,9 +121,14 @@ test-gae:
 	  --gae-lib-root=$(HOME)/google_appengine/ \
 	  $(target)
 
+test-pylint:
+	pylint --errors-only \
+	  $(target)
+
 test-ci:
 	$(MAKE) build-ui
 	$(MAKE) test-nosetests
+	$(MAKE) test-pylint
 	$(MAKE) test-gae
 
 prep-release:
