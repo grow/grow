@@ -24,6 +24,7 @@ before_script:
   brew install python;
   pip install virtualenv;
   fi
+- pip install -U pip
 - pip install -r requirements-dev.txt
 - pip install coveralls
 - wget -nv https://storage.googleapis.com/appengine-sdks/featured/${GAE_ZIP}

@@ -6,11 +6,11 @@ Markdown==2.6.8
 MarkupSafe==1.0
 PyYAML==3.12
 WebOb==1.7.2
-Werkzeug==0.12.1
-beautifulsoup4==4.5.3
+Werkzeug==0.12.2
+beautifulsoup4==4.6.0
 boltons==17.1.0
-boto==2.46.1
-certifi==2017.1.23
+boto==2.47.0
+certifi==2017.4.17
 click==6.7
 contentful.py==0.9.3
 dulwich==0.17.3
@@ -23,10 +23,10 @@ httplib2==0.10.3
 # https://github.com/jaraco/keyring/issues/219
 keyring==8.7
 keyrings.alt==2.2
-libsass==0.12.3
+libsass==0.13.1
 # Pyinstaller ImportError: file_cache is unavailable when using oauth2client >= 4.0.0
 oauth2client==3.0.0
-paramiko==2.1.2
+paramiko==2.2.0
 progressbar2==3.17.1
 protorpc==0.11.1
 pyasn1==0.2.3
