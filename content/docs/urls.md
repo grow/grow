@@ -29,8 +29,8 @@ Setting `path` in *both* a collection's blueprint and in a content document is *
 
 __Remember: don't repeat yourself.__ If you can specify a path format in a collection's blueprint that generates the right path for all of its documents, then there is no need to also specify `$path` for each document. Only specify `$path` in a document for paths you need to override.
 
-| Path formatter
-|-|-|
+| Path formatter | Description
+|----------------|------------|
 | `{base}` | The document's basename.
 | `{collection.root}` | The document's collection's root.
 | `{env.fingerprint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerprint: <fingerprint>` in a deployment configuration.
