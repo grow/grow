@@ -1,4 +1,7 @@
-from . import utils
+"""Extension for parsing markdown documents."""
+
+import json
+import re
 from markdown import extensions
 from markdown import preprocessors
 from markdown.extensions import toc
@@ -7,10 +10,7 @@ from protorpc import protojson
 from pygments import highlight
 from pygments import lexers
 from pygments.formatters import html
-from pygments.lexers import TextLexer
-from pygments.lexers import get_lexer_by_name
-import json
-import re
+from . import utils
 
 
 def config_from_json(config_class, config):
@@ -52,14 +52,15 @@ class TocExtension(toc.TocExtension):
         # HTML5 allows all non-space characters for a valid id.
         configs += [(
             'slugify',
+            # pylint: disable=no-member
             lambda value, separator: separator.join(value.split()).lower()
         )]
-        super(TocExtension, self).__init__ (configs=configs)
+        super(TocExtension, self).__init__(configs=configs)
 
 
 class IncludePreprocessor(preprocessors.Preprocessor):
 
-    REGEX = re.compile("^\[include\('([^')]*)'\)\]")
+    REGEX = re.compile(r"^\[include\('([^')]*)'\)\]")
 
     def __init__(self, pod, markdown_instance):
         self.pod = pod
@@ -159,6 +160,7 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
 
     def run(self, lines):
         class_name = self.config.class_name
+
         def repl(m):
             language = m.group(1)
             language = language[1:] if language[0] == ':' else language
@@ -169,6 +171,7 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
                 try:
                     lexer = lexers.get_lexer_by_name(language)
                 except ValueError:
+                    # pylint: disable=no-member
                     lexer = lexers.TextLexer()
                 code = highlight(content, lexer, self.formatter)
                 return '\n\n<div class="%s">%s</div>\n\n' % (class_name, code)

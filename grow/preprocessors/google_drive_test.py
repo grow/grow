@@ -1,13 +1,14 @@
-from . import google_drive
-from grow.pods import pods
-from grow.pods import storage
-from grow.testing import testing
+"""Tests for Google Drive preprocessor."""
+
 import cStringIO
 import copy
 import csv
 import json
 import unittest
 import yaml
+from grow.pods import pods
+from grow.testing import testing
+from . import google_drive
 
 
 class GoogleSheetsPreprocessorTest(unittest.TestCase):

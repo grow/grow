@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Tests for footnotes."""
 
-from grow.pods import footnotes
-import re
 import unittest
+from grow.pods import footnotes
 
 
 class SymbolGeneratorTestCase(unittest.TestCase):

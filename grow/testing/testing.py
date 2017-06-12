@@ -1,12 +1,15 @@
-import tempfile
-import shutil
+"""Testing resources for grow."""
+
 import os
+import shutil
+import tempfile
+import unittest
 from grow.pods import pods
 from grow.common import utils
-import unittest
 
-_here = os.path.dirname(__file__)
-TESTDATA_DIR = os.path.abspath(os.path.join(_here, 'testdata'))
+
+TESTDATA_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'testdata'))
 
 
 # root is relative to testdata/ dir
@@ -34,7 +37,9 @@ def get_testdata_dir():
 class TestCase(unittest.TestCase):
 
     def setUp(self, *args, **kwargs):
-        if utils.is_appengine():
+        self.is_appengine = utils.is_appengine()
+        if self.is_appengine:
+            # pylint: disable=import-error
             from google.appengine.ext import testbed
             self.testbed = testbed.Testbed()
             self.testbed.activate()
@@ -42,5 +47,5 @@ class TestCase(unittest.TestCase):
             self.testbed.init_memcache_stub()
 
     def tearDown(self, *args, **kwargs):
-        if utils.is_appengine():
+        if self.is_appengine:
             self.testbed.deactivate()

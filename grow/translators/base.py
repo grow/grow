@@ -1,15 +1,17 @@
+"""Base translators for translating Grow content."""
+
+import copy
+import json
+import logging
+import threading
+import progressbar
+import texttable
+import yaml
 from protorpc import message_types
 from protorpc import messages
 from protorpc import protojson
 from grow.common import utils
 from grow.translators import errors as translator_errors
-import copy
-import json
-import logging
-import progressbar
-import texttable
-import threading
-import yaml
 
 
 class TranslatorStat(messages.Message):
@@ -57,7 +59,13 @@ class Translator(object):
     def _upload_catalog(self, catalog, source_lang, prune):
         raise NotImplementedError
 
+    def _upload_catalogs(self, catalogs, source_lang, prune=False):
+        raise NotImplementedError
+
     def _update_acl(self, stat, locale):
+        raise NotImplementedError
+
+    def _update_acls(self, stat, locales):
         raise NotImplementedError
 
     def _update_meta(self, stat, locale, catalog):

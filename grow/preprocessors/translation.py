@@ -1,9 +1,7 @@
-from . import base
-from grow.common import sdk_utils
-from xtermcolor import colorize
-import os
+"""Preprocessor for translations."""
+
 import re
-import sys
+from . import base
 
 SUFFIXES = frozenset(['po'])
 SUFFIX_PATTERN = re.compile('[.](' + '|'.join(map(re.escape, SUFFIXES)) + ')$')

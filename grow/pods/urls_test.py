@@ -1,8 +1,9 @@
-from . import urls
+"""Tests for urls."""
+
+import unittest
 from grow.pods import pods
 from grow.testing import testing
-import os
-import unittest
+from . import urls
 
 
 class UrlTest(unittest.TestCase):

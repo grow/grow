@@ -1,12 +1,7 @@
-from . import google_drive
-from grow.pods import pods
-from grow.pods import storage
-from grow.testing import testing
-import cStringIO
-import csv
-import json
+"""Tests for blogger preprocessor."""
+
 import unittest
-import yaml
+from grow.testing import testing
 
 
 class BloggerTestCase(testing.TestCase):
