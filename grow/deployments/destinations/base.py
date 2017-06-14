@@ -194,7 +194,9 @@ class BaseDestination(object):
         if self._has_custom_control_dir:
             return self.storage.write(path, content)
         if self.batch_writes:
-            return self.write_file(path, content)
+            # TODO: Rename method to `write_files` for destinations
+            # that support writing files in batches.
+            return self.write_file({path: content})
         return self.write_file(path, content)
 
     def test(self):
