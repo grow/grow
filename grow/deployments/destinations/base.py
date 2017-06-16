@@ -42,6 +42,9 @@ destination, you'll just have to implement the following methods/properties:
   write_file(self, path, content)
     Writes a file at the destination, given the file's pod path and its content.
 
+  write_files(self, paths_to_contents)
+    Writes files in bulk, given a mapping of paths to file contents.
+
   KIND
     A string identifying the deployment.
 
@@ -160,7 +163,12 @@ class BaseDestination(object):
         """Returns a file-like object."""
         raise NotImplementedError
 
+    def write_files(self, paths_to_contents):
+        """Writes files in bulk."""
+        raise NotImplementedError
+
     def write_file(self, path, content):
+        """Writes an individual file."""
         raise NotImplementedError
 
     def delete_file(self, path):
@@ -194,9 +202,7 @@ class BaseDestination(object):
         if self._has_custom_control_dir:
             return self.storage.write(path, content)
         if self.batch_writes:
-            # TODO: Rename method to `write_files` for destinations
-            # that support writing files in batches.
-            return self.write_file({path: content})
+            return self.write_files({path: content})
         return self.write_file(path, content)
 
     def test(self):
