@@ -4,6 +4,7 @@ import copy
 import json
 import logging
 import os
+import sys
 import time
 import progressbar
 import yaml
@@ -56,7 +57,7 @@ class Pod(object):
                 and isinstance(other, Pod)
                 and self.root == other.root)
 
-    def __init__(self, root, storage=storage.auto, env=None):
+    def __init__(self, root, storage=storage.auto, env=None, load_extensions=True):
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
                      else os.path.abspath(root))
@@ -69,10 +70,17 @@ class Pod(object):
         self._podcache = None
         self._disabled = set()
 
+        # Modify sys.path for built-in extension support.
+        _ext_dir = os.path.join(self.root, sdk_utils.EXTENSIONS_DIR_NAME)
+        if os.path.exists(_ext_dir):
+            sys.path.insert(0, _ext_dir)
+
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
-        # data files (e.g. yaml constructors).
-        if self.exists:
+        # data files (e.g. yaml constructors). Avoid loading extensions using
+        # `load_extensions=False` to permit `grow install` to be used to
+        # actually install extensions, prior to loading them.
+        if load_extensions and self.exists:
             self.list_preprocessors()
         try:
             sdk_utils.check_sdk_version(self)

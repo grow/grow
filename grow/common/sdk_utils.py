@@ -14,6 +14,7 @@ from grow.common import utils
 from xtermcolor import colorize
 
 
+EXTENSIONS_DIR_NAME = 'extensions'
 VERSION = config.VERSION
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
@@ -250,11 +251,11 @@ def install_extensions(pod):
         pod.logger.error('[✘] The "pip" command was not found.')
         return
     pod.logger.info('[✓] "pip" is installed.')
-    pip_command = 'pip install -t ext -r extensions.txt'
+    pip_command = 'pip install -t {} -r extensions.txt'.format(EXTENSIONS_DIR_NAME)
     process = subprocess.Popen(pip_command, shell=True, **args)
     code = process.wait()
     if not code:
-        pod.logger.info('[✓] Finished: Grow extensions install.')
+        pod.logger.info('[✓] Installed: Grow extensions from extensions.txt.')
         return True
     pod.logger.error(
         '[✘] There was an error running "pip install -t ext -r extensions.txt".')
