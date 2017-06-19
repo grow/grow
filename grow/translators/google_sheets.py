@@ -1,21 +1,12 @@
-from . import base
+"""Google Sheets for translating pod content."""
+
+import datetime
+import random
 from babel.messages import catalog
 from babel.messages import pofile
-from googleapiclient import discovery
 from googleapiclient import errors
-from googleapiclient import http
-from grow.common import oauth
-from grow.common import utils
 from grow.preprocessors import google_drive
 from grow.translators import errors as translator_errors
-import base64
-import csv
-import datetime
-import httplib2
-import json
-import logging
-import random
-import urllib
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -23,6 +14,7 @@ except ImportError:
         import StringIO
     except ImportError:
         from io import StringIO
+from . import base
 
 
 class AccessLevel(object):
@@ -33,6 +25,7 @@ class AccessLevel(object):
 
 
 DEFAULT_ACCESS_LEVEL = AccessLevel.WRITER
+OAUTH_SCOPE = 'https://www.googleapis.com/auth/spreadsheets'
 
 
 class GoogleSheetsTranslator(base.Translator):
@@ -79,6 +72,7 @@ class GoogleSheetsTranslator(base.Translator):
         service = self._create_service()
         rangeName = "'{}'!A:D".format(locale)
         try:
+            # pylint: disable=no-member
             resp = service.spreadsheets().values().get(
                 spreadsheetId=spreadsheet_id, range=rangeName).execute()
         except errors.HttpError as e:
@@ -132,6 +126,7 @@ class GoogleSheetsTranslator(base.Translator):
         # NOTE: Manging locales across multiple spreadsheets is unsupported.
         service = self._create_service()
         if spreadsheet_id:
+            # pylint: disable=no-member
             resp = service.spreadsheets().get(
                 spreadsheetId=spreadsheet_id).execute()
             for sheet in resp['sheets']:
@@ -162,6 +157,7 @@ class GoogleSheetsTranslator(base.Translator):
         else:
             # Create a new spreadsheet and use the id.
             service = self._create_service()
+            # pylint: disable=no-member
             resp = service.spreadsheets().create(body={
                 'properties': {
                     'title': project_title,
@@ -318,7 +314,7 @@ class GoogleSheetsTranslator(base.Translator):
         # Create sheets.
         requests = []
         for catalog in catalogs:
-            sheet_id = random.randrange(100, 9999999)
+            sheet_id = self._generate_new_sheet_id()
             lang = str(catalog.locale)
             # Create a new sheet.
             requests.append({
@@ -466,6 +462,9 @@ class GoogleSheetsTranslator(base.Translator):
             })
 
         return requests
+
+    def _generate_new_sheet_id(self):
+        return random.randrange(100, 9999999)
 
     def _generate_style_requests(self, sheet_id, sheet=None, catalog=None):
         formats = {}
@@ -799,6 +798,7 @@ class GoogleSheetsTranslator(base.Translator):
             elif 'group' in item:
                 permission['type'] = 'group'
                 permission['emailAddress'] = item['group']
+            # pylint: disable=no-member
             resp = service.permissions().create(
                 fileId=spreadsheet_id,
                 body=permission).execute()
@@ -806,6 +806,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _perform_batch_update(self, spreadsheet_id, requests):
         service = self._create_service()
         body = {'requests': requests}
+        # pylint: disable=no-member
         return service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id, body=body).execute()
 
@@ -822,6 +823,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _update_meta(self, stat, locale, catalog):
         spreadsheet_id = stat.ident
         service = self._create_service()
+        # pylint: disable=no-member
         resp = service.spreadsheets().get(
             spreadsheetId=stat.ident).execute()
         requests = []

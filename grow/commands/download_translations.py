@@ -1,8 +1,9 @@
-from grow.common import utils
+"""Command for downloading translations from remote source."""
+
+import os
+import click
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()

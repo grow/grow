@@ -4,11 +4,11 @@ Document formatting specifics for parsing and working with documents.
 Defines how to handle documents formatted in various syntax formats.
 """
 
-from . import document_front_matter as doc_front_matter
+import markdown
+from markdown.extensions import tables
 from grow.common import markdown_extensions
 from grow.common import utils
-from markdown.extensions import tables
-import markdown
+from . import document_front_matter as doc_front_matter
 
 
 BOUNDARY_SEPARATOR = '---'
@@ -30,6 +30,8 @@ class DocumentFormat(object):
 
     def __init__(self, doc):
         self._doc = doc
+        self._content = None
+        self._raw_content = None
 
     @staticmethod
     def from_doc(*args, **kwargs):
@@ -45,6 +47,15 @@ class DocumentFormat(object):
             return YamlDocumentFormat(*args, **kwargs)
         return TextDocumentFormat(*args, **kwargs)
 
+    @staticmethod
+    def format_doc(front_matter, content):
+        if front_matter and content:
+            return '{0}\n{1}\n{0}\n{2}\n'.format(
+                BOUNDARY_SEPARATOR, front_matter.strip(), content.strip())
+        elif front_matter:
+            return '{}\n'.format(front_matter.strip())
+        return '{}\n'.format(content.strip())
+
     def _parse_content(self):
         """Parse the content from the raw content."""
         _, parsed_content = doc_front_matter.DocumentFrontMatter\
@@ -56,10 +67,13 @@ class DocumentFormat(object):
         return doc_front_matter.DocumentFrontMatter(
             self._doc)
 
-    @utils.cached_property
+    @property
     def content(self):
         """Lazy load the content after checking the content cache."""
-        return self._parse_content()
+        if self._content:
+            return self._content
+        self._content = self._parse_content()
+        return self._content
 
     @utils.cached_property
     def front_matter(self):
@@ -74,9 +88,12 @@ class DocumentFormat(object):
             self._doc, 'front_matter', front_matter.export())
         return front_matter
 
-    @utils.cached_property
+    @property
     def raw_content(self):
-        return self._doc.pod.read_file(self._doc.pod_path)
+        if self._raw_content:
+            return self._raw_content
+        self._raw_content = self._doc.pod.read_file(self._doc.pod_path)
+        return self._raw_content
 
     @utils.cached_property
     def formatted(self):
@@ -84,20 +101,8 @@ class DocumentFormat(object):
 
     def to_raw_content(self):
         """Formats the front matter and content into a raw_content string."""
-        raw_content = ''
-
         raw_front_matter = self.front_matter.export()
-        content = self.content
-
-        if raw_front_matter and content:
-            raw_content = '{0}\n{1}\n{0}\n{2}\n'.format(
-                BOUNDARY_SEPARATOR, raw_front_matter.strip(), content.strip())
-        elif raw_front_matter:
-            raw_content = '{}\n'.format(raw_front_matter.strip())
-        else:
-            raw_content = '{}\n'.format(content.strip())
-
-        return raw_content
+        return self.format_doc(raw_front_matter, self.content)
 
     def update(self, fields=utils.SENTINEL, content=utils.SENTINEL):
         """Updates content and frontmatter."""
@@ -108,9 +113,9 @@ class DocumentFormat(object):
                 self._doc, 'front_matter', self.front_matter.export())
 
         if content is not utils.SENTINEL:
-            self.content = content
+            self._content = content
 
-        self.raw_content = self.to_raw_content()
+        self._raw_content = self.to_raw_content()
 
 
 class HtmlDocumentFormat(DocumentFormat):

@@ -7,7 +7,7 @@ import collections
 import re
 import yaml
 
-BOUNDARY_REGEX = re.compile(r'^-{3,}$', re.MULTILINE)
+BOUNDARY_REGEX = re.compile(r'^-{3,}\s*$', re.MULTILINE)
 CONVERT_MESSAGE = """Document contains too many parts: {},
     Please run `grow convert --type content_locale_split` to help update files."""
 

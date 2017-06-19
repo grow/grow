@@ -1,9 +1,10 @@
-from grow.common import utils
+"""Command for uploading translations to a remote source."""
+
+import os
+import click
 from grow.commands.extract import validate_locales
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()

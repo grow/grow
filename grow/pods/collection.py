@@ -1,18 +1,17 @@
 """Collections contain content documents and blueprints."""
 
-from . import document_fields
-from . import documents
-from . import messages
-from grow.common import structures
-from grow.common import utils
-from grow.pods import locales
 import copy
-import json
 import logging
 import operator
 import os
 import re
 import sys
+from grow.common import structures
+from grow.common import utils
+from grow.pods import locales
+from . import document_fields
+from . import documents
+from . import messages
 
 
 class Error(Exception):

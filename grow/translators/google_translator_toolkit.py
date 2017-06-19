@@ -1,14 +1,14 @@
-from . import base
+"""Google Translator toolkit for translating documents."""
+
+import datetime
+import base64
+import urllib
+import httplib2
 from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
-import datetime
-import base64
-import httplib2
-import json
-import logging
-import urllib
+from . import base
 
 
 EDIT_URL_FORMAT = 'https://translate.google.com/toolkit/workbench?did={}'
@@ -50,11 +50,13 @@ class Gtt(object):
         return http
 
     def get_document(self, document_id):
+        # pylint: disable=no-member
         return self.service.documents().get(documentId=document_id).execute()
 
     def update_acl(self, document_id, acl_change):
         body = {}
         body['gttAclChange'] = acl_change
+        # pylint: disable=no-member
         return self.service.documents().update(
             documentId=document_id, body=body).execute()
 
@@ -76,6 +78,7 @@ class Gtt(object):
         if glossary_ids:
             doc['glossaryIds'] = glossary_ids
         try:
+            # pylint: disable=no-member
             return self.service.documents().insert(body=doc).execute()
         except errors.HttpError as resp:
             raise_service_error(locale=lang, http_error=resp)

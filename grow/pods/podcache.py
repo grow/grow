@@ -3,7 +3,14 @@
 from . import collection_cache
 from . import document_cache
 from . import dependency
-from grow.common import timer
+
+
+class Error(Exception):
+    pass
+
+
+class PodCacheParseError(Error):
+    pass
 
 
 class PodCache(object):

@@ -1,8 +1,9 @@
-from grow.common import utils
+"""Command to run the preprocessors for the project."""
+
+import os
+import click
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()

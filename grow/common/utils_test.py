@@ -1,11 +1,12 @@
+"""Tests for the common utility methods."""
+
+import unittest
+import mock
+import semantic_version
 from grow.testing import testing
 from grow.common.sdk_utils import get_this_version, LatestVersionCheckError
 from grow.pods import errors
 from . import utils
-import copy
-import mock
-import semantic_version
-import unittest
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -166,7 +167,7 @@ class UtilsTestCase(unittest.TestCase):
         }
 
         actual = []
-        callback = lambda item, key, node: actual.append(item)
+        callback = lambda item, key, node, parent_node: actual.append(item)
         utils.walk(data, callback)
 
         expected = ['bar', 'bar2', 'bar3', 'bar4']

@@ -1,16 +1,17 @@
 # coding: utf8
-from grow.common import config
-from grow.common import utils
-from xtermcolor import colorize
-import json
+"""Utility functions for managing the sdk."""
+
 import logging
 import os
 import platform
-import requests
-import semantic_version
 import subprocess
 import sys
 import urlparse
+import requests
+import semantic_version
+from grow.common import config
+from grow.common import utils
+from xtermcolor import colorize
 
 
 EXTENSIONS_DIR_NAME = 'extensions'
@@ -21,9 +22,9 @@ INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
 
 PLATFORM = None
 if 'Linux' in platform.system():
-  PLATFORM = 'linux'
+    PLATFORM = 'linux'
 elif 'Darwin' in platform.system():
-  PLATFORM = 'mac'
+    PLATFORM = 'mac'
 
 
 class Error(Exception):
@@ -67,8 +68,9 @@ def check_sdk_version(pod):
     if requires_version is None:
         return
     if (semantic_version.Version(sdk_version)
-        not in semantic_version.Spec(requires_version)):
-        text = 'ERROR! Pod requires Grow SDK version: {}'.format(requires_version)
+            not in semantic_version.Spec(requires_version)):
+        text = 'ERROR! Pod requires Grow SDK version: {}'.format(
+            requires_version)
         logging.error(colorize(text, ansi=197))
         raise LatestVersionCheckError(str(text))
 
@@ -100,7 +102,8 @@ def check_for_sdk_updates(auto_update_prompt=False):
             logging.error(text)
             sys.exit(-1)
     else:
-        logging.info('  Update using: ' + colorize('pip install --upgrade grow', ansi=200))
+        logging.info('  Update using: ' +
+                     colorize('pip install --upgrade grow', ansi=200))
     print ''
 
 
@@ -109,7 +112,7 @@ def get_popen_args(pod):
     env = os.environ.copy()
     env['PATH'] = str(os.environ['PATH'] + os.path.pathsep + node_modules_path)
     if pod.env.name:
-      env['GROW_ENVIRONMENT_NAME'] = pod.env.name
+        env['GROW_ENVIRONMENT_NAME'] = pod.env.name
     args = {
         'cwd': pod.root,
         'env': env,
@@ -128,11 +131,11 @@ def install(pod, gerrit=None):
         else:
             success = install_npm(pod)
         if not success:
-          return
+            return
     if pod.file_exists('/bower.json'):
         success = install_bower(pod)
         if not success:
-          return
+            return
     if pod.file_exists('/gulpfile.js'):
         success = install_gulp(pod)
     if pod.file_exists('/extensions.txt'):
@@ -178,15 +181,19 @@ def install_gerrit_commit_hook(pod):
 def install_npm(pod):
     args = get_popen_args(pod)
     npm_status_command = 'npm --version > /dev/null 2>&1'
-    npm_not_found = subprocess.call(npm_status_command, shell=True, **args) == 127
+    npm_not_found = subprocess.call(
+        npm_status_command, shell=True, **args) == 127
     if npm_not_found:
         if PLATFORM == 'linux':
             pod.logger.error('[✘] The "npm" command was not found.')
-            pod.logger.error('    On Linux, you can install npm using: apt-get install nodejs')
+            pod.logger.error(
+                '    On Linux, you can install npm using: apt-get install nodejs')
         elif PLATFORM == 'mac':
             pod.logger.error('[✘] The "npm" command was not found.')
-            pod.logger.error('    Using brew (https://brew.sh), you can install using: brew install node')
-            pod.logger.error('    If you do not have brew, you can download Node.js from https://nodejs.org')
+            pod.logger.error(
+                '    Using brew (https://brew.sh), you can install using: brew install node')
+            pod.logger.error(
+                '    If you do not have brew, you can download Node.js from https://nodejs.org')
         else:
             pod.logger.error('[✘] The "npm" command was not found.')
             pod.logger.error('    Download Node.js from https://nodejs.org')
@@ -204,10 +211,12 @@ def install_npm(pod):
 def install_bower(pod):
     args = get_popen_args(pod)
     bower_status_command = 'bower --version > /dev/null 2>&1'
-    bower_not_found = subprocess.call(bower_status_command, shell=True, **args) == 127
+    bower_not_found = subprocess.call(
+        bower_status_command, shell=True, **args) == 127
     if bower_not_found:
         pod.logger.error('[✘] The "bower" command was not found.')
-        pod.logger.error('    Either add bower to package.json or install globally using: sudo npm install -g bower')
+        pod.logger.error(
+            '    Either add bower to package.json or install globally using: sudo npm install -g bower')
         return
     pod.logger.info('[✓] "bower" is installed.')
     bower_command = 'bower install'
@@ -222,10 +231,12 @@ def install_bower(pod):
 def install_gulp(pod):
     args = get_popen_args(pod)
     gulp_status_command = 'gulp --version > /dev/null 2>&1'
-    gulp_not_found = subprocess.call(gulp_status_command, shell=True, **args) == 127
+    gulp_not_found = subprocess.call(
+        gulp_status_command, shell=True, **args) == 127
     if gulp_not_found:
         pod.logger.error('[✘] The "gulp" command was not found.')
-        pod.logger.error('    Either add gulp to package.json or install globally using: sudo npm install -g gulp')
+        pod.logger.error(
+            '    Either add gulp to package.json or install globally using: sudo npm install -g gulp')
         return
     pod.logger.info('[✓] "gulp" is installed.')
     return True
@@ -234,7 +245,8 @@ def install_gulp(pod):
 def install_extensions(pod):
     args = get_popen_args(pod)
     pip_status_command = 'pip --version > /dev/null 2>&1'
-    pip_not_found = subprocess.call(pip_status_command, shell=True, **args) == 127
+    pip_not_found = subprocess.call(
+        pip_status_command, shell=True, **args) == 127
     if pip_not_found:
         pod.logger.error('[✘] The "pip" command was not found.')
         return
@@ -245,13 +257,15 @@ def install_extensions(pod):
     if not code:
         pod.logger.info('[✓] Installed: Grow extensions from extensions.txt.')
         return True
-    pod.logger.error('[✘] There was an error running "pip install -t ext -r extensions.txt".')
+    pod.logger.error(
+        '[✘] There was an error running "pip install -t ext -r extensions.txt".')
 
 
 def install_yarn(pod):
     args = get_popen_args(pod)
     yarn_status_command = 'yarn --version > /dev/null 2>&1'
-    yarn_not_found = subprocess.call(yarn_status_command, shell=True, **args) == 127
+    yarn_not_found = subprocess.call(
+        yarn_status_command, shell=True, **args) == 127
     if yarn_not_found:
         pod.logger.error('[✘] The "yarn" command was not found.')
         pod.logger.error('    Please install using: yarn install -g yarn')

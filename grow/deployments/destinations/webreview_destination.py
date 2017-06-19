@@ -139,7 +139,7 @@ class WebReviewDestination(base.BaseDestination):
         except webreview.RpcError as e:
             raise base.Error(e.message)
 
-    def write_file(self, paths_to_contents):
+    def write_files(self, paths_to_contents):
         try:
             for path, content in paths_to_contents.iteritems():
                 if isinstance(content, unicode):
