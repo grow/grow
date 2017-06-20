@@ -159,7 +159,7 @@ class Diff(object):
         return protojson.encode_message(message)
 
     @classmethod
-    def apply(cls, message, paths_to_content, write_func, delete_func,
+    def apply(cls, message, paths_to_content, write_func, batch_write_func, delete_func,
               threaded=True, batch_writes=False):
         if pool is None:
             text = 'Deployment is unavailable in this environment.'
@@ -185,7 +185,7 @@ class Diff(object):
                     paths_to_content[file_message.path]
             deletes_paths = [file_message.path for file_message in diff.deletes]
             if writes_paths_to_contents:
-                write_func(writes_paths_to_contents)
+                batch_write_func(writes_paths_to_contents)
             if deletes_paths:
                 delete_func(deletes_paths)
         else:

@@ -255,16 +255,17 @@ class BaseDestination(object):
                     logging.info('Aborted.')
                     return
             indexes.Diff.apply(
-                diff, paths_to_contents, write_func=self.write_file,
-                delete_func=self.delete_file, threaded=self.threaded,
-                batch_writes=self.batch_writes)
-            self.write_control_file(self.index_basename, indexes.Index.to_string(new_index))
+                diff, paths_to_contents, write_func=self.write_file, batch_write_func=self.write_files,
+                delete_func=self.delete_file, threaded=self.threaded, batch_writes=self.batch_writes)
+            self.write_control_file(
+                self.index_basename, indexes.Index.to_string(new_index))
             if stats is not None:
                 self.write_control_file(self.stats_basename, stats.to_string())
             else:
                 self.delete_control_file(self.stats_basename)
             if diff:
-                self.write_control_file(self.diff_basename, indexes.Diff.to_string(diff))
+                self.write_control_file(
+                    self.diff_basename, indexes.Diff.to_string(diff))
             self.success = True
         finally:
             self.postlaunch()
