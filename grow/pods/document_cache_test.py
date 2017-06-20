@@ -21,7 +21,6 @@ class DocumentCacheTestCase(unittest.TestCase):
 
     def test_add_all(self):
         doc = self.pod.get_doc('/content/pages/intro.md')
-        print str(doc._locale_kwarg)
         self.doc_cache.add_all({
             '/content/pages/intro.md': {
                 'question': '???'
