@@ -2,10 +2,10 @@
 Parsing and manipulation of front matter elements of a document.
 """
 
-from grow.common import utils
 import collections
 import re
 import yaml
+from grow.common import utils
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}\s*$', re.MULTILINE)
 CONVERT_MESSAGE = """Document contains too many parts: {},
@@ -13,7 +13,7 @@ CONVERT_MESSAGE = """Document contains too many parts: {},
 
 
 def _update_deep(orig_dict, new_dict):
-    for k, v in new_dict.iteritems():
+    for k in new_dict:
         if (k in orig_dict and isinstance(orig_dict[k], dict)
                 and isinstance(new_dict[k], collections.Mapping)):
             _update_deep(orig_dict[k], new_dict[k])
@@ -22,14 +22,17 @@ def _update_deep(orig_dict, new_dict):
 
 
 class Error(Exception):
+    """General document front matter error."""
     pass
 
 
 class BadFormatError(Error, ValueError):
+    """Error for bad document front matter formatting."""
     pass
 
 
 class DocumentFrontMatter(object):
+    """Document front matter."""
 
     def __init__(self, doc, raw_front_matter=None):
         self._doc = doc
@@ -39,6 +42,7 @@ class DocumentFrontMatter(object):
 
     @staticmethod
     def split_front_matter(content):
+        """Takes raw document content and separates the front matter and content."""
         parts = BOUNDARY_REGEX.split(content)
         if parts[0].strip() == '':
             parts.pop(0)
@@ -60,7 +64,8 @@ class DocumentFrontMatter(object):
                 locale_doc = self._doc.pod.get_doc(locale_path)
                 raw_locale_front_matter = locale_doc.format.front_matter.export()
                 if raw_locale_front_matter:
-                    _update_deep(self.data, self._load_yaml(raw_locale_front_matter))
+                    _update_deep(self.data, self._load_yaml(
+                        raw_locale_front_matter))
 
         if raw_front_matter:
             # There should be no boundary separators in the front-matter.
@@ -82,10 +87,9 @@ class DocumentFrontMatter(object):
                 raw_yaml, doc=self._doc, pod=self._doc.pod)
         except (yaml.parser.ParserError,
                 yaml.composer.ComposerError,
-                yaml.scanner.ScannerError) as e:
-            message = 'Error parsing {}: {}'.format(self._doc.pod_path, e)
+                yaml.scanner.ScannerError) as error:
+            message = 'Error parsing {}: {}'.format(self._doc.pod_path, error)
             raise BadFormatError(message)
-
 
     def export(self):
         """
