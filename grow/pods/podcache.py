@@ -60,7 +60,7 @@ class PodCache(object):
         """Global object cache."""
         return self.get_object_cache(self.KEY_GLOBAL)
 
-    def create_object_cache(self, key, write_to_file=False, can_reset=True, values=None):
+    def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None):
         """Create a named object cache."""
         self._object_caches[key] = {
             'cache': object_cache.ObjectCache(),
