@@ -22,7 +22,7 @@ def build(pod_path, out_dir, preprocess, clear_cache):
     out_dir = out_dir or os.path.join(root, 'build')
     pod = pods.Pod(root, storage=storage.FileStorage)
     if clear_cache:
-        pod.podcache.reset()
+        pod.podcache.reset(force=True)
     if preprocess:
         pod.preprocess()
     try:
