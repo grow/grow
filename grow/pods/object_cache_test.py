@@ -48,6 +48,12 @@ class ObjectCacheTestCase(unittest.TestCase):
             },
         }, self.obj_cache.export())
 
+    def test_contains(self):
+        """Contains a value to the cache?"""
+        self.assertEqual(False, 'answer' in self.obj_cache)
+        self.obj_cache.add('answer', 42)
+        self.assertEqual(True, 'answer' in self.obj_cache)
+
     def test_remove(self):
         """Test removing a key from the cache."""
         value = {
