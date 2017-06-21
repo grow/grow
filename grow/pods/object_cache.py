@@ -7,6 +7,8 @@ The contents of the cache should be raw and not internationalized as it will
 be shared between locales.
 """
 
+import re
+
 class ObjectCache(object):
     """Object cache for caching arbitrary data in a pod."""
 
@@ -42,4 +44,13 @@ class ObjectCache(object):
 
     def search(self, pattern):
         """Search through the cache and return all the matching elements."""
-        raise NotImplementedError
+        if type(pattern) is not type(re.compile('.')):
+            pattern = re.compile(pattern)
+
+        results = {}
+
+        for key, value in self._cache.iteritems():
+            if pattern.search(key) is not None:
+                results[key] = value
+
+        return results

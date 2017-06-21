@@ -61,8 +61,20 @@ class ObjectCacheTestCase(unittest.TestCase):
     def test_search(self):
         """Test searching for matching keys from the cache."""
 
-        with self.assertRaises(NotImplementedError):
-            self.obj_cache.search(re.compile('^ans*'))
+        self.obj_cache.add('answer', 42)
+        self.obj_cache.add('motivation', 'holy hand grenade')
+        self.obj_cache.add('question', '???')
+        self.obj_cache.add('quest', 'to follow that star')
+
+        self.assertEqual({'answer': 42}, self.obj_cache.search(r'^ans*'))
+        self.assertEqual({
+            'motivation': 'holy hand grenade',
+            'question': '???',
+        }, self.obj_cache.search(re.compile(r'ion$')))
+        self.assertEqual({
+            'quest': 'to follow that star',
+            'question': '???',
+        }, self.obj_cache.search(r'^quest'))
 
 
 if __name__ == '__main__':

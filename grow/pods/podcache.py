@@ -33,7 +33,8 @@ class PodCache(object):
         self._dependency_graph.add_all(yaml.get(self.KEY_DEPENDENCIES, {}))
 
         self._object_caches = {}
-        self.create_object_cache(self.KEY_GLOBAL, write_to_file=False, can_reset=True)
+        self.create_object_cache(
+            self.KEY_GLOBAL, write_to_file=False, can_reset=True)
 
         existing_object_caches = yaml.get(self.KEY_OBJECTS, {})
         for key, item in existing_object_caches.iteritems():
