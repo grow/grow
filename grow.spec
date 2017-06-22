@@ -1,7 +1,8 @@
 # -*- mode: python -*-
 
-import os
 import glob
+import os
+import stdlib_list
 import sys
 try:
     # PyInstaller==3.1
@@ -85,6 +86,9 @@ hiddenimports += [
     'werkzeug.wrappers',
     'werkzeug.wsgi',
 ]
+
+# Ensure the stdlib is included in its entirety for extensions.
+hiddenimports += stdlib_list.stdlib_list('2.7')
 
 try:
   hiddenimports += collect_submodules('pkg_resources._vendor')
