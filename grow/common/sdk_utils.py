@@ -251,7 +251,7 @@ def install_extensions(pod):
         pod.logger.error('[✘] The "pip" command was not found.')
         return
     pod.logger.info('[✓] "pip" is installed.')
-    pip_command = 'pip install -t {} -r extensions.txt'.format(EXTENSIONS_DIR_NAME)
+    pip_command = 'pip install -U -t {} -r extensions.txt'.format(EXTENSIONS_DIR_NAME)
     process = subprocess.Popen(pip_command, shell=True, **args)
     code = process.wait()
     if not code:
