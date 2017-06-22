@@ -60,7 +60,7 @@ class PodCache(object):
         """Global object cache."""
         return self.get_object_cache(self.KEY_GLOBAL)
 
-    def create_object_cache(self, key, write_to_file=False, can_reset=True, values=None):
+    def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None):
         """Create a named object cache."""
         self._object_caches[key] = {
             'cache': object_cache.ObjectCache(),
@@ -83,7 +83,7 @@ class PodCache(object):
         """Has an existing object cache?"""
         return key in self._object_caches
 
-    def reset(self):
+    def reset(self, force=False):
         """Reset pod caches."""
         self._collection_cache.reset()
         self._dependency_graph.reset()
@@ -91,7 +91,7 @@ class PodCache(object):
 
         # Only reset the object caches if permitted.
         for meta in self._object_caches.itervalues():
-            if meta['can_reset']:
+            if meta['can_reset'] or force:
                 meta['cache'].reset()
 
     def write(self):
