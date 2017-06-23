@@ -255,6 +255,9 @@ def install_extensions(pod):
     process = subprocess.Popen(pip_command, shell=True, **args)
     code = process.wait()
     if not code:
+        init_file_name = '/{}/__init__.py'.format(EXTENSIONS_DIR_NAME)
+        if not pod.file_exists(init_file_name):
+            pod.write_file(init_file_name, '')
         pod.logger.info('[✓] Installed: Grow extensions from extensions.txt.')
         return True
     pod.logger.error(
