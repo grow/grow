@@ -329,21 +329,6 @@ def get_rows_from_csv(pod, path, locale=SENTINEL):
     return rows
 
 
-def import_string(import_name, paths):
-    """Imports & returns an object using dot notation, e.g. 'A.B.C'"""
-    # ASSUMPTION: import_name refers to a value in a module (i.e. must have at
-    # least 2 parts)
-    if '.' not in import_name:
-        raise ImportError
-    part1, part2 = import_name.split('.', 1)
-    if '.' in part2:
-        f, part1_path, desc = imp.find_module(part1, paths)
-        return import_string(part2, [part1_path])
-    else:
-        module = imp.load_module(part1, *imp.find_module(part1, paths))
-        return getattr(module, part2)
-
-
 class ProgressBarThread(threading.Thread):
 
     def __init__(self, bar, enabled, *args, **kwargs):

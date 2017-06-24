@@ -11,6 +11,7 @@ import yaml
 import jinja2
 from werkzeug.contrib import cache as werkzeug_cache
 from grow.common import sdk_utils
+from grow.common import extensions
 from grow.common import utils
 from grow.preprocessors import preprocessors
 from grow.translators import translators
@@ -508,17 +509,17 @@ class Pod(object):
         return self.storage.listdir(path, recursive=recursive)
 
     def list_jinja_extensions(self):
-        extensions = []
+        loaded_extensions = []
         for name in self.yaml.get('extensions', {}).get('jinja2', []):
             try:
-                value = utils.import_string(name, [self.root])
+                value = extensions.import_extension(name, [self.root])
             except ImportError:
                 logging.error(
                     'Error importing %s. Module path must be relative to '
                     'the pod root.', repr(name))
                 raise
-            extensions.append(value)
-        return extensions
+            loaded_extensions.append(value)
+        return loaded_extensions
 
     def list_locales(self):
         codes = self.yaml.get('localization', {}).get('locales', [])
