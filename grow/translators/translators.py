@@ -1,5 +1,6 @@
 from . import google_translator_toolkit
 from . import google_sheets
+from grow.common import extensions
 from grow.common import utils
 
 
@@ -32,5 +33,5 @@ def create_translator(pod, kind, config, inject=False,
 
 def register_extensions(extension_paths, pod_root):
     for path in extension_paths:
-        cls = utils.import_string(path, [pod_root])
+        cls = extensions.import_extension(path, [pod_root])
         install_translator(cls)
