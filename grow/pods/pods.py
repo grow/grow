@@ -10,8 +10,8 @@ import progressbar
 import yaml
 import jinja2
 from werkzeug.contrib import cache as werkzeug_cache
-from grow.common import sdk_utils
 from grow.common import extensions
+from grow.common import sdk_utils
 from grow.common import utils
 from grow.preprocessors import preprocessors
 from grow.translators import translators
