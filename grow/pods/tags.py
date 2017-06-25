@@ -7,6 +7,7 @@ import json as json_lib
 import re
 import jinja2
 import markdown
+import random
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import utils
@@ -148,6 +149,17 @@ def parsedatetime_filter(_ctx, date_string, string_format):
 def deeptrans(ctx, obj):
     """Deep translate an object."""
     return _deep_gettext(ctx, obj)
+
+
+@jinja2.contextfilter
+def shuffle_filter(_ctx, seq):
+    """Shuffles the list into a random order."""
+    try:
+        result = list(seq)
+        random.shuffle(result)
+        return result
+    except TypeError:
+        return seq
 
 
 @jinja2.contextfilter
@@ -300,6 +312,7 @@ def create_builtin_filters():
         ('number', wrap_locale_context(babel_numbers.format_number)),
         ('percent', wrap_locale_context(babel_numbers.format_percent)),
         ('render', render_filter),
+        ('shuffle', shuffle_filter),
         ('slug', slug_filter),
         ('time', wrap_locale_context(babel_dates.format_time)),
         ('relative', relative_filter),
