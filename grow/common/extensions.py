@@ -1,7 +1,7 @@
 """Loads extensions, with a workaround for the frozen version."""
 
-# NOTE: Here be demons, specifically for the packaged application. There are no
-# demons present here when Grow runs in the normal environment. The very
+# NOTE: Here be dragons, specifically for the packaged application. There are
+# no dragons present here when Grow runs in the normal environment. The very
 # concept of importing and running external "plugin-like" code is antithetical
 # to PyInstaller, whose goal is to package everything necessary for running a
 # program into a single executable. However, we need to support the extension
@@ -16,22 +16,22 @@
 # PyInstaller, attempting to implement something similar, encountered similar
 # errors (https://stackoverflow.com/q/35254139).
 #
-# That wasn't enough, though, because other bizarre errors related to the
-# stdlib would occur. Specifically, modules had difficulty importing the
-# `exceptions` module. None of these errors would occur if these libraries
-# simply relied on the system's `site-packages` and system Python library. To
-# permit extensions to rely on the system `site-packages`, we can import
-# Python's `site` module, which sets `sys.path` depending on the system.
-# Normally that would be enough, but PyInstaller overwrites the system `site`
-# module with a `site` module that specifically prevents this behavior
+# Other bizarre errors, beyond os.py, related to the stdlib would occur.
+# Specifically, modules had difficulty importing the `exceptions` module. None
+# of these errors would occur if these libraries simply relied on the system's
+# `site-packages` and system Python library. To permit extensions to rely on
+# the system `site-packages`, we can import Python's `site` module, which
+# configures `sys.path` depending on the system.  Normally that would be
+# enough, but PyInstaller overwrites the system `site` module with a `site`
+# module that specifically prevents this behavior
 # (https://github.com/pyinstaller/pyinstaller/issues/510).
 #
-# To permit extensions to rely on the system libraries, we overwite
-# PyInstaller's `site` module with our vendored copy of the default `site`
-# module from Python (which we're calling `patched_site.py`. This was not
-# enough, though, and we had to make one modification to `patched_site.py`'s
-# main: preventing a magic function (`abs__file__()`) from being executed since
-# its behavior was also not compatible with PyInstaller.
+# So, in order to leverage the default `site.py` `sys.path` configuration, we
+# overwite PyInstaller's `site` module with our vendored copy of the default
+# `site` module from Python (which we're calling `patched_site.py`. This was
+# not enough, though, and we had to make one modification to
+# `patched_site.py`'s main: preventing a magic function (`abs__file__()`) from
+# being executed since its behavior was also not compatible with PyInstaller.
 #
 # After all is said and done, we reset `sys.path` after the extension is
 # loaded, to prevent any permanent changes during runtime. There may be a more
@@ -56,7 +56,7 @@ def import_extension(name, paths):
         return import_extension(part2, [pathname])
     if IS_PACKAGED_APP:
         original_sys_path = sys.path[:]
-        import patched_site
+        import patched_site  # Updates sys.path.
     fp, pathname, description = imp.find_module(part1, paths)
     module = imp.load_module(part1, fp, pathname, description)
     result = getattr(module, part2)
