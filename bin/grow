@@ -5,7 +5,6 @@ import os
 import sys
 
 
-
 def is_packaged_app():
   try:
     sys._MEIPASS
