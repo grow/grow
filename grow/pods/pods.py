@@ -48,7 +48,7 @@ class PodDoesNotExistError(Error, IOError):
 # "podspec" class.
 
 class Pod(object):
-
+    DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
     FEATURE_UI = 'ui'
     FILE_PODCACHE = '.podcache.yaml'
     FILE_PODSPEC = 'podspec.yaml'
@@ -71,17 +71,16 @@ class Pod(object):
         self._podcache = None
         self._disabled = set()
 
-        # Modify sys.path for built-in extension support.
-        _ext_dir = os.path.join(self.root, sdk_utils.EXTENSIONS_DIR_NAME)
-        if os.path.exists(_ext_dir):
-            sys.path.insert(0, _ext_dir)
-
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
         # data files (e.g. yaml constructors). Avoid loading extensions using
         # `load_extensions=False` to permit `grow install` to be used to
         # actually install extensions, prior to loading them.
         if load_extensions and self.exists:
+            # Modify sys.path for built-in extension support.
+            _ext_dir = self.abs_path(self.extensions_dir)
+            if os.path.exists(_ext_dir):
+                sys.path.insert(0, _ext_dir)
             self.list_preprocessors()
         try:
             sdk_utils.check_sdk_version(self)
@@ -162,6 +161,10 @@ class Pod(object):
     @property
     def title(self):
         return self.yaml.get('title')
+
+    @property
+    def extensions_dir(self):
+        return self.yaml.get('extensions_dir', Pod.DEFAULT_EXTENSIONS_DIR_NAME)
 
     @property
     def ui(self):
