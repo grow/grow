@@ -303,6 +303,14 @@ Generates a relative URL (from the perspective of the current document context) 
 {{g.doc('/content/pages/home.yaml').url|relative}}
 [/sourcecode]
 
+### shuffle
+
+Randomizes the order of items in a list.
+
+[sourcecode:html+jinja]
+{{[1,2,3,4,5]|shuffle}}
+[/sourcecode]
+
 ### slug
 
 Creates a slug from text.
