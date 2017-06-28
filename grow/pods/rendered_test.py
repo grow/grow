@@ -1,4 +1,5 @@
 from grow.pods import env
+from grow.pods import errors
 from grow.pods import locales
 from grow.pods import pods
 from grow.preprocessors import base
@@ -14,10 +15,10 @@ class RenderedTest(unittest.TestCase):
         self.pod = pods.Pod(self.dir_path)
 
     def test_locale(self):
-        controller, params = self.pod.match('/fr/about/')
+        controller, _ = self.pod.match('/fr/about/')
         fr_locale = locales.Locale.parse('fr')
         self.assertEqual(fr_locale, controller.locale)
-        controller, params = self.pod.match('/de_alias/about/')
+        controller, _ = self.pod.match('/de_alias/about/')
         de_locale = locales.Locale.parse('de')
         self.assertEqual(de_locale, controller.locale)
         self.assertEqual('de_alias', controller.locale.alias)
@@ -34,6 +35,22 @@ class RenderedTest(unittest.TestCase):
         controller, params = self.pod.match('/fr/about/')
         controller.render(params)
 
+    def test_render_error(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_file('/views/base.html', '{{doc.tulip()}}')
+        fields = {
+            'path': '/{base}/',
+            'view': '/views/base.html',
+        }
+        pod.write_yaml('/content/collection/_blueprint.yaml', fields)
+        pod.write_file('/content/collection/test.yaml', '')
+
+        # Verify fails with correct error.
+        controller, params = pod.match('/test/')
+        with self.assertRaises(errors.BuildError):
+            controller.render(params)
+
     def test_custom_jinja_extensions(self):
         controller, params = self.pod.match('/')
         html = controller.render(params)
@@ -41,7 +58,7 @@ class RenderedTest(unittest.TestCase):
         self.assertIn('Custom Jinja Extension: abcabcabc', html)
 
     def test_list_concrete_paths(self):
-        controller, params = self.pod.match('/')
+        controller, _ = self.pod.match('/')
         self.assertEqual(['/'], controller.list_concrete_paths())
 
     def test_translation_recompilation(self):
@@ -109,12 +126,15 @@ class RenderedTest(unittest.TestCase):
         result = controller.render(params)
         self.assertNotIn(ui_sentinel, result)
 
+        # pylint: disable=abstract-method
         class DummyPreprocessor(base.BasePreprocessor):
-
+            """Dummy preprocessor"""
             class Config(messages.Message):
+                """Dummy config"""
                 pass
 
-            def get_edit_url(self, doc):
+            def get_edit_url(self, doc=None):
+                """All edits are equal."""
                 return 'https://example.com'
 
         config = DummyPreprocessor.Config()
@@ -122,6 +142,7 @@ class RenderedTest(unittest.TestCase):
 
         # Verify UI injected when preprocessor is present.
         controller, _ = pod.match('/index/')
+        # pylint: disable=protected-access
         result = controller._inject_ui(content, dummy_preprocessor, dummy_preprocessor)
         self.assertIn(ui_sentinel, result)
 
