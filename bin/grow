@@ -26,6 +26,9 @@ import click
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 # Fixes PyInstaller issues with below imports.
+import copy
+import exceptions
+import weakref
 import werkzeug
 from email.mime.application import MIMEApplication
 

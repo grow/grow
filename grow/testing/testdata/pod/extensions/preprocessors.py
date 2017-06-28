@@ -4,7 +4,7 @@ from protorpc import messages
 # NOTE: This is an unused import, specifically added to verify the ability to
 # load extensions that depend on modules in Python's standard library, which
 # Grow itself may not depend on.
-import shelve
+import dependency
 
 
 class CustomPreprocessor(grow.Preprocessor):
