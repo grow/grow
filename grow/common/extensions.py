@@ -40,9 +40,36 @@
 
 from . import utils
 import imp
+import os
 import sys
 
 IS_PACKAGED_APP = utils.is_packaged_app()
+
+MAC_SYS_PREFIX = '/System/Library/Frameworks/Python.framework/Versions/2.7'
+
+
+class FrozenImportFixer():
+    # If importing a module encounters an ImportError, retry importing the
+    # module by modifing the sys.meta_path. By default, PyInstaller overwrites
+    # sys.meta_path, this patched object, intended to be used with the `with`
+    # statement, removes PyInstaller's modifications and reinstates them after
+    # the import is complete.
+
+    def __enter__(self):
+        self._frozen_meta_path = sys.meta_path[:]
+        self._frozen_sys_path = sys.path[:]
+        if os.path.exists(MAC_SYS_PREFIX):
+            sys.path.insert(0, MAC_SYS_PREFIX + '/lib/python2.7')
+        sys.meta_path = sys.meta_path[2:]
+
+    def __exit__(self, type, value, traceback):
+        sys.meta_path = self._frozen_meta_path
+        sys.path = self._frozen_sys_path
+
+
+def _get_module(part1, paths):
+    fp, pathname, description = imp.find_module(part1, paths)
+    return imp.load_module(part1, fp, pathname, description)
 
 
 def import_extension(name, paths):
@@ -54,12 +81,22 @@ def import_extension(name, paths):
     if '.' in part2:
         fp, pathname, description = imp.find_module(part1, paths)
         return import_extension(part2, [pathname])
-    if IS_PACKAGED_APP:
+    if not IS_PACKAGED_APP:
+        module = _get_module(part1, paths)
+    else:
         original_sys_path = sys.path[:]
+        original_sys_prefix = sys.prefix
+        if os.path.exists(MAC_SYS_PREFIX):
+            sys.prefix = MAC_SYS_PREFIX
         import patched_site  # Updates sys.path.
-    fp, pathname, description = imp.find_module(part1, paths)
-    module = imp.load_module(part1, fp, pathname, description)
-    result = getattr(module, part2)
-    if IS_PACKAGED_APP:
+        patched_site.main()
+        try:
+            module = _get_module(part1, paths)
+        except ImportError:
+            with FrozenImportFixer():
+                module = _get_module(part1, paths)
+        # If extension modifies sys.path, preserve the modification.
+        sys.prefix = original_sys_prefix
         sys.path = original_sys_path
+    result = getattr(module, part2)
     return result
