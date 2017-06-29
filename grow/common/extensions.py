@@ -50,7 +50,7 @@ MAC_SYS_PREFIX = '/System/Library/Frameworks/Python.framework/Versions/2.7'
 
 class FrozenImportFixer():
     # If importing a module encounters an ImportError, retry importing the
-    # module by modifing the sys.meta_path. By default, PyInstaller overwrites
+    # module by modifying the sys.meta_path. By default, PyInstaller overwrites
     # sys.meta_path, this patched object, intended to be used with the `with`
     # statement, removes PyInstaller's modifications and reinstates them after
     # the import is complete.
