@@ -7,6 +7,12 @@ from protorpc import messages
 import dependency
 
 
+# Add extra verification for the FrozenImportFixer.
+with grow.common.extensions.FrozenImportFixer():
+    import dependency
+    reload(dependency)
+
+
 class CustomPreprocessor(grow.Preprocessor):
     KIND = 'custom_preprocessor'
 
