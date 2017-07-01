@@ -45,7 +45,7 @@ class AmazonS3Destination(base.BaseDestination):
             raise
 
     def dump(self, pod):
-        pod.env = self.get_env()
+        pod.set_env(self.get_env())
         return pod.dump(
             suffix=self.config.index_document,
             append_slashes=self.config.redirect_trailing_slashes)

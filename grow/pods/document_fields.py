@@ -6,6 +6,7 @@ from boltons import iterutils
 import re
 
 
+ENV_KEY_REGEX = re.compile('(.*)@env\.([^@]+)$')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 
 
@@ -17,14 +18,14 @@ class DocumentFields(object):
     def __getitem__(self, key):
         return self._data[key]
 
-    def __init__(self, data, locale_identifier):
-        self._data = DocumentFields._untag(data, locale_identifier)
+    def __init__(self, data, locale_identifier=None, env_name=None):
+        self._data = DocumentFields.untag(data, locale_identifier, env_name)
 
     def __len__(self):
         return len(self._data)
 
     @staticmethod
-    def _untag(data, locale=None):
+    def untag(data, locale=None, env_name=None):
         """Untags fields, handling translation priority."""
 
         updated_localized_paths = set()
@@ -41,6 +42,16 @@ class DocumentFields(object):
                 if isinstance(value, list):
                     paths_to_keep_tagged.add((path, key))
                 key = key[:-1]
+            # Support <key>@env.<name regex>: <value>.
+            env_match = ENV_KEY_REGEX.match(key)
+            if env_match:
+                untagged_key, env_name_from_key = env_match.groups()
+                env_regex = r'^{}$'.format(env_name_from_key)
+                if not env_name or not re.match(env_regex, env_name):
+                    return False
+                updated_localized_paths.add((path, untagged_key.rstrip('@')))
+                return untagged_key, value
+            # Support <key>@<locale regex>: <value>.
             match = LOCALIZED_KEY_REGEX.match(key)
             if not match:
                 updated_localized_paths.add((path, key))

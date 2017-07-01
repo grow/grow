@@ -59,6 +59,7 @@ class Pod(object):
                 and self.root == other.root)
 
     def __init__(self, root, storage=storage.auto, env=None, load_extensions=True):
+        self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
                      else os.path.abspath(root))
@@ -125,6 +126,16 @@ class Pod(object):
                 raise PodDoesNotExistError('Pod not found in: {}'.format(path))
             raise podspec.PodSpecParseError('Error parsing: {}'.format(path))
 
+    def set_env(self, env):
+        if env.name:
+            untag = document_fields.DocumentFields.untag
+            content = untag(self.yaml, env_name=env.name)
+            self._yaml = content
+            # Preprocessors may depend on env, reset cache.
+            # pylint: disable=no-member
+            self.list_preprocessors.reset()
+        self.env = env
+
     @utils.cached_property
     def cache(self):
         if utils.is_appengine():
@@ -176,7 +187,9 @@ class Pod(object):
 
     @property
     def yaml(self):
-        return self._parse_yaml() or {}
+        if self._yaml is utils.SENTINEL:
+            self._yaml = self._parse_yaml() or {}
+        return self._yaml
 
     def abs_path(self, pod_path):
         path = os.path.join(self.root, pod_path.lstrip('/'))
@@ -645,7 +658,7 @@ class Pod(object):
 
     def read_yaml(self, path):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
-        return document_fields.DocumentFields._untag(fields)
+        return document_fields.DocumentFields.untag(fields)
 
     def reset_yaml(self):
         # Tell the cached property to reset.
