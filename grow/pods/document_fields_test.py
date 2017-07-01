@@ -76,7 +76,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                     'nested': 'sub-sub-nested-value',
                 },
             },
-        }, document_fields.DocumentFields._untag(fields, locale='fr'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
 
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
@@ -91,7 +91,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                     'nested': 'sub-sub-nested-value',
                 },
             },
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
 
         fields_to_test = {
             'foo': 'bar-base',
@@ -108,14 +108,14 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'nested': {
                 'nested': 'nested-fr',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='fr'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'foo': 'bar-de',
             'nested': {
                 'nested': 'nested-base',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
 
         fields_to_test = {
             'list': [
@@ -145,7 +145,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                     'item': 'value-3-fr',
                 },
             ]
-        }, document_fields.DocumentFields._untag(fields, locale='fr'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'list': [
@@ -157,7 +157,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                 },
                 {},
             ]
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
         self.assertDictEqual({
             'list': [
                 {
@@ -168,7 +168,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                 },
                 {},
             ]
-        }, document_fields.DocumentFields._untag(fields, locale='ja'))
+        }, document_fields.DocumentFields.untag(fields, locale='ja'))
 
         fields_to_test = {
             '$view': '/views/base.html',
@@ -194,7 +194,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'nested': {
                 'nested': 'nested-ja',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='ja'))
+        }, document_fields.DocumentFields.untag(fields, locale='ja'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             '$view': '/views/base.html',
@@ -203,7 +203,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'nested': {
                 'nested': 'nested-base',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
 
         fields_to_test = {
             'foo@': 'bar',
@@ -212,13 +212,13 @@ class DocumentFieldsTestCase(unittest.TestCase):
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'foo': 'bar',
-        }, document_fields.DocumentFields._untag(fields))
+        }, document_fields.DocumentFields.untag(fields))
         self.assertDictEqual({
             'foo': 'bar',
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
         self.assertDictEqual({
             'foo': 'bar-fr',
-        }, document_fields.DocumentFields._untag(fields, locale='fr'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
 
         fields_to_test = {
             'list@': [
@@ -244,7 +244,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                 'value2',
                 'value3',
             ],
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'list': [
@@ -257,7 +257,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                 'value2-fr',
                 'value3-fr',
             ],
-        }, document_fields.DocumentFields._untag(fields, locale='fr'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
 
         fields_to_test = {
             'nested1': {
@@ -310,7 +310,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                     'value2',
                 ],
             },
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'nested1': {
@@ -335,7 +335,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                     'value2-fr',
                 ],
             },
-        }, document_fields.DocumentFields._untag(fields, locale='fr'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
 
     def test_untag_with_backwards_compatibility(self):
         fields_to_test = {
@@ -372,7 +372,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
                     'value1',
                 ],
             },
-        }, document_fields.DocumentFields._untag(fields))
+        }, document_fields.DocumentFields.untag(fields))
 
     def test_untag_with_regex(self):
         fields_to_test = {
@@ -391,31 +391,31 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'nested': {
                 'nested': 'nested-fr',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='fr'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
         self.assertDictEqual({
             'foo': 'bar-fr',
             'nested': {
                 'nested': 'nested-base',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='fr_FR'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr_FR'))
         self.assertDictEqual({
             'foo': 'bar-fr',
             'nested': {
                 'nested': 'nested-base',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='fr_CA'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr_CA'))
         self.assertDictEqual({
             'foo': 'bar-de',
             'nested': {
                 'nested': 'nested-base',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
         self.assertDictEqual({
             'foo': 'bar-base',
             'nested': {
                 'nested': 'nested-de',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='de_AT'))
+        }, document_fields.DocumentFields.untag(fields, locale='de_AT'))
 
         fields_to_test = {
             'foo': 'bar-base',
@@ -432,21 +432,71 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'nested': {
                 'nested': 'nested-any',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='fr'))
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'foo': 'bar-any',
             'nested': {
                 'nested': 'nested-any',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='it'))
+        }, document_fields.DocumentFields.untag(fields, locale='it'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'foo': 'bar-de',
             'nested': {
                 'nested': 'nested-base',
             },
-        }, document_fields.DocumentFields._untag(fields, locale='de'))
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
+
+    def test_untag_env_name(self):
+        untag = document_fields.DocumentFields.untag
+        fields_to_test = {
+            'foo': 'base',
+            'foo@env.dev': 'dev',
+            'foo@env.prod': 'prod',
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'base',
+        }, untag(fields, locale=None, env_name=None))
+        self.assertDictEqual({
+            'foo': 'dev',
+        }, untag(fields, locale=None, env_name='dev'))
+        self.assertDictEqual({
+            'foo': 'prod',
+        }, untag(fields, locale=None, env_name='prod'))
+        fields_to_test = {
+            'nested': {
+                'foo': 'nested-base',
+            },
+            'nested@de': {
+                'foo': 'nested-de-base',
+                'foo@env.dev': 'nested-de-dev',
+                'foo@env.prod': 'nested-de-prod',
+            }
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'nested': {
+                'foo': 'nested-base',
+            },
+        }, untag(fields, locale=None, env_name=None))
+        self.assertDictEqual({
+            'nested': {
+                'foo': 'nested-base',
+            },
+        }, untag(fields, locale=None, env_name='dev'))
+        self.assertDictEqual({
+            'nested': {
+                'foo': 'nested-de-dev',
+            },
+        }, untag(fields, locale='de', env_name='dev'))
+        self.assertDictEqual({
+            'nested': {
+                'foo': 'nested-de-prod',
+            },
+        }, untag(fields, locale='de', env_name='prod'))
+
 
 if __name__ == '__main__':
     unittest.main()

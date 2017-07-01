@@ -227,7 +227,7 @@ class BaseDestination(object):
         pass
 
     def dump(self, pod):
-        pod.env = self.get_env()
+        pod.set_env(self.get_env())
         return pod.dump()
 
     def deploy(self, paths_to_contents, stats=None,

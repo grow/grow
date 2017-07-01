@@ -72,7 +72,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
             raise
 
     def dump(self, pod):
-        pod.env = self.get_env()
+        pod.set_env(self.get_env())
         return pod.dump(
             suffix=self.config.main_page_suffix,
             append_slashes=self.config.redirect_trailing_slashes)

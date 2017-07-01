@@ -309,7 +309,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             preserve=self.config.preserve, existing_data=existing_data,
             key_to_update=key_to_update)
         fields = self._normalize_formatted_content(fields)
-        fields = document_fields.DocumentFields._untag(fields)
+        fields = document_fields.DocumentFields.untag(fields)
         doc.inject(fields=fields)
 
     def get_edit_url(self, doc=None):

@@ -35,7 +35,7 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
         pod = pods.Pod(root, storage=storage.FileStorage)
         deployment = pod.get_deployment(deployment_name)
         # use the deployment's environment for preprocessing and later steps.
-        pod.env = deployment.config.env
+        pod.set_env(deployment.config.env)
         if auth:
             deployment.login(auth)
         if preprocess:
