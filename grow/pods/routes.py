@@ -116,7 +116,8 @@ class Routes(object):
         path = '' if path is None else path
         if 'root' in self.podspec:
             path = path.replace('{root}', self.podspec['root'])
-        path = path.replace('{env.fingerprint}', self.pod.env.fingerprint)
+        if self.pod.env.fingerprint:
+            path = path.replace('{env.fingerprint}', self.pod.env.fingerprint)
         path = path.replace('{fingerprint}', '<grow:fingerprint>')
         path = path.replace('//', '/')
         return path
