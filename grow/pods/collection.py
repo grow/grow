@@ -154,7 +154,8 @@ class Collection(object):
 
     @utils.cached_property
     def fields(self):
-        fields = document_fields.DocumentFields.untag(self.tagged_fields)
+        untag = document_fields.DocumentFields.untag
+        fields = untag(self.tagged_fields, env_name=self.pod.env.name)
         return {} if not fields else fields
 
     @utils.cached_property
