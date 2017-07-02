@@ -134,6 +134,7 @@ class Pod(object):
             # Preprocessors may depend on env, reset cache.
             # pylint: disable=no-member
             self.list_preprocessors.reset()
+            self.podcache.reset()
         self.env = env
 
     @utils.cached_property
@@ -658,7 +659,8 @@ class Pod(object):
 
     def read_yaml(self, path):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
-        return document_fields.DocumentFields.untag(fields)
+        untag = document_fields.DocumentFields.untag
+        return untag(fields, env_name=self.env.name)
 
     def reset_yaml(self):
         # Tell the cached property to reset.
