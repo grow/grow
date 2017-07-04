@@ -156,7 +156,6 @@ class Routes(object):
 
     def list_static_routes(self):
         rules = []
-        # Auto-generated from flags.
         if 'sitemap' in self.podspec:
             sitemap_path = self.podspec['sitemap'].get('path')
             sitemap_path = self.format_path(sitemap_path)
@@ -167,11 +166,6 @@ class Routes(object):
                 locales=self.podspec['sitemap'].get('locales'),
                 template=self.podspec['sitemap'].get('template'))
             rules.append(routing.Rule(controller.path, endpoint=controller))
-        if 'static_dir' in self.pod.flags:
-            path = self.pod.flags['static_dir'] + '<grow:filename>'
-            controller = static.StaticController(
-                path_format=path, source_format=path, pod=self.pod)
-            rules.append(routing.Rule(path, endpoint=controller))
         if 'static_dirs' in self.podspec:
             for config in self.podspec['static_dirs']:
                 if config.get('dev') and not self.pod.env.dev:

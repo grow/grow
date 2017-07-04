@@ -140,10 +140,6 @@ class Pod(object):
         return self.file_exists('/{}'.format(self.FILE_PODSPEC))
 
     @property
-    def flags(self):
-        return self.yaml.get('flags', {})
-
-    @property
     def grow_version(self):
         return self.podspec.grow_version
 
@@ -415,15 +411,6 @@ class Pod(object):
 
     def get_podspec(self):
         return self.podspec
-
-    def get_root_path(self, locale=None):
-        path_format = self.yaml.get('flags', {}).get('root_path', None)
-        if locale is None:
-            locale = self.yaml.get('localization', {}).get(
-                'default_locale', '')
-        if not path_format:
-            return '/'
-        return path_format.format(**{'locale': locale})
 
     @utils.memoize
     def get_translator(self, service=utils.SENTINEL):

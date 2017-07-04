@@ -340,10 +340,6 @@ class Document(object):
         # Get root path.
         locale = str(self.locale)
         config = self.pod.get_podspec().get_config()
-        root_path = config.get('flags', {}).get('root_path', '')
-        if locale == self.default_locale:
-            root_path = config.get('localization', {}).get(
-                'root_path', root_path)
         path_format = self.path_format
         if path_format is None:
             raise PathFormatError(
@@ -352,11 +348,6 @@ class Document(object):
         path_format = (path_format
                        .replace('<grow:locale>', '{locale}')
                        .replace('<grow:slug>', '{slug}'))
-
-        # Prevent double slashes when combining root path and path format.
-        if path_format.startswith('/') and root_path.endswith('/'):
-            root_path = root_path[0:len(root_path) - 1]
-        path_format = root_path + path_format
 
         # Handle default date formatting in the url.
         while '{date|' in path_format:
