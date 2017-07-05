@@ -259,7 +259,6 @@ class DocumentsTestCase(unittest.TestCase):
                 'path': '/{locale}/{base}/',
             },
         })
-        # Verify ability to override using the default locale.
         pod.write_yaml('/content/pages/page.yaml', {
             '$localization': {
                 'default_locale': 'de',
@@ -267,6 +266,11 @@ class DocumentsTestCase(unittest.TestCase):
             'foo': 'foo-base',
             'foo@de': 'foo-de',
         })
+        pod.write_yaml('/content/pages/page2.yaml', {
+            'foo': 'foo-base',
+            'foo@de': 'foo-de',
+        })
+        # Verify ability to override using the default locale.
         controller, params = pod.match('/page/')
         content = controller.render(params)
         self.assertEqual('foo-de', content)
@@ -274,10 +278,6 @@ class DocumentsTestCase(unittest.TestCase):
         content = controller.render(params)
         self.assertEqual('foo-base', content)
         # Verify default behavior otherwise.
-        pod.write_yaml('/content/pages/page2.yaml', {
-            'foo': 'foo-base',
-            'foo@de': 'foo-de',
-        })
         controller, params = pod.match('/page2/')
         content = controller.render(params)
         self.assertEqual('foo-base', content)

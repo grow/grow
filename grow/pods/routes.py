@@ -1,7 +1,8 @@
 """Routes for document path routing."""
 
 import collections
-import webob
+# NOTE: exc imported directly, webob.exc doesn't work when frozen.
+from webob import exc as webob_exc
 from werkzeug import routing
 from grow.common import timer
 from grow.common import utils
@@ -209,13 +210,13 @@ class Routes(object):
           routing.NotFound: When no controller is found.
         """
         if '/..' in path:
-            raise webob.exc.HTTPBadRequest('Invalid path.')
+            raise webob_exc.HTTPBadRequest('Invalid path.')
         urls = self.routing_map.bind_to_environ(env)
         try:
             controller, params = urls.match(path)
             return controller, params
         except routing.NotFound:
-            raise webob.exc.HTTPNotFound('{} not found.'.format(path))
+            raise webob_exc.HTTPNotFound('{} not found.'.format(path))
 
     def match_error(self, path, status=404):
         if status == 404 and self.pod.error_routes:
