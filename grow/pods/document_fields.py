@@ -27,7 +27,6 @@ class DocumentFields(object):
     @staticmethod
     def untag(data, locale=None, env_name=None):
         """Untags fields, handling translation priority."""
-
         updated_localized_paths = set()
         paths_to_keep_tagged = set()
 
