@@ -239,6 +239,52 @@ class DocumentsTestCase(unittest.TestCase):
         keys = ['$title', '$order', '$titles', 'key', 'root_key']
         self.assertItemsEqual(keys, fr_doc.fields.keys())
 
+    def test_default_locale_override(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'en',
+                    'de',
+                    'it',
+                ]
+            }
+        })
+        pod.write_file('/views/base.html', '{{doc.foo}}')
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+            },
+        })
+        # Verify ability to override using the default locale.
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$localization': {
+                'default_locale': 'de',
+            },
+            'foo': 'foo-base',
+            'foo@de': 'foo-de',
+        })
+        controller, params = pod.match('/page/')
+        content = controller.render(params)
+        self.assertEqual('foo-de', content)
+        controller, params = pod.match('/en/page/')
+        content = controller.render(params)
+        self.assertEqual('foo-base', content)
+        # Verify default behavior otherwise.
+        pod.write_yaml('/content/pages/page2.yaml', {
+            'foo': 'foo-base',
+            'foo@de': 'foo-de',
+        })
+        controller, params = pod.match('/page2/')
+        content = controller.render(params)
+        self.assertEqual('foo-base', content)
+        controller, params = pod.match('/de/page2/')
+        content = controller.render(params)
+        self.assertEqual('foo-de', content)
+
     def test_locale_override(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {

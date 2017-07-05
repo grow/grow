@@ -179,9 +179,13 @@ class Document(object):
 
     @utils.cached_property
     def default_locale(self):
-        if (self.fields.get('$localization')
-                and 'default_locale' in self.fields['$localization']):
-            identifier = self.fields['$localization']['default_locale']
+        # Use untagged, raw fields from front matter in order to extract
+        # default_locale from fields, so that default_locale can be used to
+        # untag fields.
+        fields = self.format.front_matter.data
+        if (fields.get('$localization')
+                and 'default_locale' in fields['$localization']):
+            identifier = fields['$localization']['default_locale']
             locale = locales.Locale.parse(identifier)
             if locale:
                 locale.set_alias(self.pod)
@@ -194,8 +198,7 @@ class Document(object):
 
     @utils.cached_property
     def fields(self):
-        locale_identifier = str(
-            self._locale_kwarg or self.collection.default_locale)
+        locale_identifier = str(self._locale_kwarg or self.default_locale)
         return document_fields.DocumentFields(
             self.format.front_matter.data, locale_identifier,
             env_name=self.pod.env.name)
