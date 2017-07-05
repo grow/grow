@@ -129,7 +129,7 @@ class Pod(object):
     def set_env(self, env):
         if env.name:
             untag = document_fields.DocumentFields.untag
-            content = untag(self.yaml, env_name=env.name)
+            content = untag(self._parse_yaml(), env_name=env.name)
             self._yaml = content
             # Preprocessors may depend on env, reset cache.
             # pylint: disable=no-member
