@@ -9,7 +9,7 @@ import traceback
 import urllib
 import jinja2
 import webob
-# NOTE: exc imported directly, webob.exc doesn't work.
+# NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
 from werkzeug import routing
 from werkzeug import utils as werkzeug_utils
