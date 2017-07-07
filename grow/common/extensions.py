@@ -53,9 +53,12 @@ class FrozenImportFixer():
     # module by modifying the sys.meta_path. By default, PyInstaller overwrites
     # sys.meta_path, this patched object, intended to be used with the `with`
     # statement, removes PyInstaller's modifications and reinstates them after
-    # the import is complete.
+    # the import is complete. This should be a no-op outside the frozen
+    # environment.
 
     def __enter__(self):
+        if not IS_PACKAGED_APP:
+            return
         self._frozen_meta_path = sys.meta_path[:]
         self._frozen_sys_path = sys.path[:]
         if os.path.exists(MAC_SYS_PREFIX):
@@ -63,6 +66,8 @@ class FrozenImportFixer():
         sys.meta_path = sys.meta_path[2:]
 
     def __exit__(self, type, value, traceback):
+        if not IS_PACKAGED_APP:
+            return
         sys.meta_path = self._frozen_meta_path
         sys.path = self._frozen_sys_path
 
