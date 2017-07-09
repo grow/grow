@@ -31,9 +31,17 @@ class Diff(object):
 
     @classmethod
     def _format_author(cls, author, include_email=True):
+        if not author:
+            return ''
+        author_name = author.name
+        author_email = author.email
+        if isinstance(author_name, unicode):
+            author_name = author_name.encode('utf-8')
+        if isinstance(author_email, unicode):
+            author_email = author_email.encode('utf-8')
         if include_email:
-            return '{} <{}>'.format(author.name, author.email) if author else ''
-        return author.name if author else ''
+            return '{} <{}>'.format(author_name, author_email)
+        return author_name
 
     @classmethod
     def _make_diff_row(cls, color, label, message):
