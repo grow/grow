@@ -92,7 +92,8 @@ class DocumentFormat(object):
     def raw_content(self):
         if self._raw_content:
             return self._raw_content
-        self._raw_content = self._doc.pod.read_file(self._doc.pod_path)
+        if self._doc.exists:
+            self._raw_content = self._doc.pod.read_file(self._doc.pod_path)
         return self._raw_content
 
     @utils.cached_property
