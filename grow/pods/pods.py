@@ -28,13 +28,6 @@ from . import static
 from . import storage
 from . import tags
 
-_handler = logging.StreamHandler()
-_formatter = logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S')
-_handler.setFormatter(_formatter)
-_logger = logging.getLogger('pod')
-_logger.propagate = False
-_logger.addHandler(_handler)
-
 
 class Error(Exception):
     pass
@@ -67,7 +60,6 @@ class Pod(object):
                     else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
-        self.logger = _logger
         self.routes = routes.Routes(pod=self)
         self._podcache = None
         self._disabled = set()
@@ -687,3 +679,13 @@ class Pod(object):
         self.podcache.document_cache.remove_by_path(path)
         content = utils.dump_yaml(content)
         self.write_file(path, content)
+
+    @utils.cached_property
+    def logger(self):
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S')
+        handler.setFormatter(formatter)
+        logger = logging.getLogger('pod')
+        logger.propagate = False
+        logger.addHandler(handler)
+        return logger
