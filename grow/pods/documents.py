@@ -13,6 +13,22 @@ import re
 
 
 PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')
+BUILT_IN_FIELDS = [
+    'category',
+    'date',
+    'dates',
+    'footnotes',
+    'localization',
+    'hidden',
+    'order',
+    'parent',
+    'path',
+    'slug',
+    'sitemap',
+    'title',
+    'titles',
+    'view',
+]
 
 
 class Error(Exception):
