@@ -257,7 +257,6 @@ def make_yaml_loader(pod, doc=None):
                     path, reference = path.split('?')
                     data = pod.read_yaml(path)
                     for key in reference.split('.'):
-                        print key, data
                         if data and key in data:
                             data = data[key]
                         else:
