@@ -252,7 +252,19 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, func)
 
         def construct_yaml(self, node):
-            return self._construct_func(node, pod.read_yaml)
+            def func(path):
+                if '?' in path:
+                    path, reference = path.split('?')
+                    data = pod.read_yaml(path)
+                    for key in reference.split('.'):
+                        print key, data
+                        if data and key in data:
+                            data = data[key]
+                        else:
+                            data = None
+                    return data
+                return pod.read_yaml(path)
+            return self._construct_func(node, func)
 
     YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
     YamlLoader.add_constructor(u'!g.csv', YamlLoader.construct_csv)

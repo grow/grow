@@ -3,3 +3,5 @@ docs: !g.doc
 - /content/pages/home.yaml
 - /content/pages/about.yaml
 - /content/pages/home.yaml
+deep: !g.yaml /data/deep.yaml?nested.key
+unfathomable: !g.yaml /data/deep.yaml?not.really.there
