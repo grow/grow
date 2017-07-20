@@ -23,7 +23,10 @@ before_script:
   then brew unlink python;
   brew install python;
   which pip2;
+  type pip2;
+  type pip;
   alias pip=/usr/local/bin/pip2;
+  type pip;
   pip install virtualenv;
   fi
 - pip install -U pip
