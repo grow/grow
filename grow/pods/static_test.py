@@ -1,8 +1,12 @@
-from . import static
+"""Tests for the static file object."""
+
+import textwrap
+import unittest
+from grow.common import utils
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
-import unittest
+from . import static
 
 
 class StaticTest(unittest.TestCase):
@@ -58,6 +62,18 @@ class StaticTest(unittest.TestCase):
         path = '/path-path/file-{}.min.js'.format(fingerprint)
         expected = '/path-path/file.min.js'
         self.assertEqual(expected, static.StaticFile.remove_fingerprint(path))
+
+    def test_yaml_dump(self):
+        """Test if the yaml representer is working correctly."""
+        static_file = self.pod.get_static('/static/test.txt')
+        input_obj = {
+            'static': static_file
+        }
+        expected = textwrap.dedent(
+            """\
+            static: !g.static '/static/test.txt'
+            """)
+        self.assertEqual(expected, utils.dump_yaml(input_obj))
 
 
 if __name__ == '__main__':
