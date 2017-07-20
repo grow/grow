@@ -2,6 +2,7 @@
 
 import textwrap
 import unittest
+from grow.common import utils
 from grow.testing import testing
 from . import documents
 from . import locales
@@ -731,6 +732,22 @@ class DocumentsTestCase(unittest.TestCase):
             '/content/partials/partial@de.yaml',
             '/content/pages/page.yaml',
         ]), dependents)
+
+    def test_yaml_dump(self):
+        """Test if the yaml representer is working correctly."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/page.yaml', {})
+        doc = pod.get_doc('/content/pages/page.yaml')
+        input_obj = {
+            'doc': doc
+        }
+        expected = textwrap.dedent(
+            """\
+            doc: !g.doc '/content/pages/page.yaml'
+            """)
+
+        self.assertEqual(expected, utils.dump_yaml(input_obj))
 
 
 if __name__ == '__main__':

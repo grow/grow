@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import re
+import yaml
 
 
 PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')
@@ -455,3 +456,10 @@ class Document(object):
         self.format.update(fields=fields, content=body)
         new_content = self.format.to_raw_content()
         self.pod.write_file(self.pod_path, new_content)
+
+
+# Allow the yaml dump to write out a representation of the document.
+def doc_representer(dumper, data):
+    return dumper.represent_scalar(u'!g.doc', data.pod_path)
+
+yaml.SafeDumper.add_representer(Document, doc_representer)
