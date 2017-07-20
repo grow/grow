@@ -22,6 +22,8 @@ before_script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
   then brew unlink python;
   brew install python;
+  which pip2
+  which pip
   pip install virtualenv;
   fi
 - pip install -U pip
