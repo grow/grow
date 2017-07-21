@@ -2,7 +2,6 @@
 
 import copy
 import json
-import logging
 import os
 import sys
 import time
@@ -11,6 +10,7 @@ import yaml
 import jinja2
 from werkzeug.contrib import cache as werkzeug_cache
 from grow.common import extensions
+from grow.common import logger
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.preprocessors import preprocessors
@@ -146,6 +146,10 @@ class Pod(object):
     @property
     def grow_version(self):
         return self.podspec.grow_version
+
+    @property
+    def logger(self):
+        return logger.LOGGER
 
     @property
     def podcache(self):
@@ -679,13 +683,3 @@ class Pod(object):
         self.podcache.document_cache.remove_by_path(path)
         content = utils.dump_yaml(content)
         self.write_file(path, content)
-
-    @utils.cached_property
-    def logger(self):
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('[%(asctime)s] %(message)s', '%H:%M:%S')
-        handler.setFormatter(formatter)
-        logger = logging.getLogger('pod')
-        logger.propagate = False
-        logger.addHandler(handler)
-        return logger
