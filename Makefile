@@ -140,7 +140,9 @@ upload-pypi:
 	$(MAKE) ensure-master
 	git pull origin master
 	$(MAKE) prep-release
-	python setup.py sdist upload
+	python setup.py sdist bdist_wheel
+	pip2 install twine --upgrade
+	twine upload dist/grow-$(VERSION)*
 
 upload-github:
 	@github-release > /dev/null || { \
