@@ -24,9 +24,9 @@ from . import locales
 from . import messages
 from . import podcache
 from . import podspec
-from . import routes
-from . import static
-from . import storage
+from . import routes as grow_routes
+from . import static as grow_static
+from . import storage as grow_storage
 from . import tags
 
 
@@ -52,7 +52,7 @@ class Pod(object):
                 and isinstance(other, Pod)
                 and self.root == other.root)
 
-    def __init__(self, root, storage=storage.auto, env=None, load_extensions=True):
+    def __init__(self, root, storage=grow_storage.auto, env=None, load_extensions=True):
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
@@ -61,7 +61,7 @@ class Pod(object):
                     else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
-        self.routes = routes.Routes(pod=self)
+        self.routes = grow_routes.Routes(pod=self)
         self._podcache = None
         self._disabled = set()
 
@@ -219,12 +219,20 @@ class Pod(object):
         return output
 
     def export(self, suffix=None, append_slashes=False):
-        """Builds the pod, returning a mapping of paths to content."""
-        output = {}
+        """Builds the pod, returning a mapping of paths to content based on pod routes."""
         routes = self.get_routes()
         paths = []
         for items in routes.get_locales_to_paths().values():
             paths += items
+        output = self.export_paths(paths, suffix, append_slashes)
+        error_controller = routes.match_error('/404.html')
+        if error_controller:
+            output['/404.html'] = error_controller.render({})
+        return output
+
+    def export_paths(self, paths, suffix=None, append_slashes=False):
+        """Builds the pod, returning a mapping of paths to content."""
+        output = {}
         text = 'Building: %(value)d/{} (in %(elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
         bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
@@ -250,9 +258,6 @@ class Pod(object):
                 self.logger.error('Error building: {}'.format(controller))
                 raise
             bar.update(bar.value + 1)
-        error_controller = routes.match_error('/404.html')
-        if error_controller:
-            output['/404.html'] = error_controller.render({})
         bar.finish()
         return output
 
@@ -411,14 +416,14 @@ class Pod(object):
             if controller.KIND == messages.Kind.STATIC:
                 serving_path = controller.match_pod_path(pod_path)
                 if serving_path:
-                    return static.StaticFile(pod_path, serving_path, locale=locale,
-                                             pod=self, controller=controller,
-                                             fingerprinted=controller.fingerprinted,
-                                             localization=controller.localization)
+                    return grow_static.StaticFile(pod_path, serving_path, locale=locale,
+                                                  pod=self, controller=controller,
+                                                  fingerprinted=controller.fingerprinted,
+                                                  localization=controller.localization)
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
                 'not configured for this path in {}.'.format(
                     pod_path, self.FILE_PODSPEC))
-        raise static.BadStaticFileError(text)
+        raise grow_static.BadStaticFileError(text)
 
     def get_podspec(self):
         return self.podspec
