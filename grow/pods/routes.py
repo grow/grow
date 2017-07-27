@@ -39,41 +39,57 @@ class Routes(object):
         return self.routing_map.iter_rules()
 
     def _add_document(self, doc):
-        rule, serving_path = self._create_rule_for_doc(doc)
+        rule, _ = self._create_rule_for_doc(doc)
         if not rule:
             return
         self._routing_rules.append(rule)
 
     def _build_routing_map(self, inject=False):
-        new_paths_to_locales_to_docs = collections.defaultdict(dict)
         self._routing_rules = []
-        serving_paths_to_docs = {}
-        duplicate_paths = collections.defaultdict(list)
 
         # Content documents.
-        for collection in self.pod.list_collections():
-            for doc in collection.list_servable_documents(include_hidden=True, inject=inject):
-                rule, serving_path = self._create_rule_for_doc(doc)
-                if serving_path in serving_paths_to_docs:
-                    duplicate_paths[serving_path].append(serving_paths_to_docs[serving_path])
-                    duplicate_paths[serving_path].append(doc)
-                serving_paths_to_docs[serving_path] = doc
-                self._routing_rules.append(rule)
-                new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
+        def _get_all_docs():
+            for collection in self.pod.list_collections():
+                for doc in collection.list_servable_documents(include_hidden=True, inject=inject):
+                    yield doc
+
+        doc_routing_rules, new_paths_to_locales_to_docs = self._build_rules_from_docs(
+            _get_all_docs())
+        self._routing_rules += doc_routing_rules
+        self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
 
         # Static routes.
         self._routing_rules += self._build_static_routing_map_and_return_rules()
 
         self._recreate_routing_map()
-        self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
+        return self._routing_map
+
+    def _build_rules_from_docs(self, docs):
+        new_paths_to_locales_to_docs = collections.defaultdict(dict)
+        routing_rules = []
+        serving_paths_to_docs = {}
+        duplicate_paths = collections.defaultdict(list)
+
+        # Content documents.
+        for doc in docs:
+            rule, serving_path = self._create_rule_for_doc(doc)
+            if serving_path in serving_paths_to_docs:
+                duplicate_paths[serving_path].append(
+                    serving_paths_to_docs[serving_path])
+                duplicate_paths[serving_path].append(doc)
+            serving_paths_to_docs[serving_path] = doc
+            routing_rules.append(rule)
+            new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
+
         if duplicate_paths:
             text = 'Found duplicate serving paths: {}'
             raise DuplicatePathsError(text.format(dict(duplicate_paths)))
-        return self._routing_map
+        return routing_rules, new_paths_to_locales_to_docs
 
     def _build_static_routing_map_and_return_rules(self):
         rules = self.list_static_routes()
-        self._static_routing_map = routing.Map(rules, converters=Routes.converters)
+        self._static_routing_map = routing.Map(
+            rules, converters=Routes.converters)
         return [rule.empty() for rule in rules]
 
     def _create_rule_for_doc(self, doc):
@@ -185,10 +201,12 @@ class Routes(object):
                                                      pod=self.pod)
                 rules.append(routing.Rule(serve_at, endpoint=controller))
                 if localization:
-                    localized_serve_at = localization.get('serve_at') + '<grow:filename>'
+                    localized_serve_at = localization.get(
+                        'serve_at') + '<grow:filename>'
                     static_dir = localization.get('static_dir')
                     localized_static_dir = static_dir + '<grow:filename>'
-                    rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
+                    rule_path = localized_serve_at.replace(
+                        '{locale}', '<grow:locale>')
                     rule_path = self.format_path(rule_path)
                     controller = static.StaticController(
                         path_format=localized_serve_at,
