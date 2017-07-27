@@ -33,7 +33,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, files):
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
         destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,
-                           test=False)
+                           test=False, is_partial=bool(files))
         pod.podcache.write()
     except pods.Error as e:
         raise click.ClickException(str(e))

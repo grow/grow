@@ -1,17 +1,21 @@
-from . import messages
-from . import utils
-from grow.common import utils as common_utils
-from protorpc import protojson
-if common_utils.is_appengine():
-    pool = None
-else:
-    from multiprocessing import pool
-import ConfigParser
+"""Indexes for tracking the changes to pods across deployments and builds."""
+
 import datetime
 import hashlib
 import logging
+import ConfigParser
 import progressbar
 import texttable
+from grow.common import utils as common_utils
+from protorpc import protojson
+from . import messages
+from . import utils
+
+if common_utils.is_appengine():
+    # pylint: disable=invalid-name
+    pool = None
+else:
+    from multiprocessing import pool
 
 
 class Error(Exception):
@@ -46,9 +50,11 @@ class Diff(object):
     @classmethod
     def _make_diff_row(cls, color, label, message):
         label = texttable.get_color_string(color, label)
-        path = texttable.get_color_string(texttable.bcolors.WHITE, message.path)
+        path = texttable.get_color_string(
+            texttable.bcolors.WHITE, message.path)
         formatted_author = cls._format_author(message.deployed_by, True)
-        deployed = str(message.deployed).split('.')[0][:-3] if message.deployed else ''
+        deployed = str(message.deployed).split('.')[0][
+            :-3] if message.deployed else ''
         return [label, path, deployed, formatted_author]
 
     @classmethod
@@ -64,11 +70,14 @@ class Diff(object):
         rows.append(['Action', 'Path', 'Last deployed', 'By'])
         file_rows = []
         for add in diff.adds:
-            file_rows.append(cls._make_diff_row(texttable.bcolors.GREEN, 'add', add))
+            file_rows.append(cls._make_diff_row(
+                texttable.bcolors.GREEN, 'add', add))
         for edit in diff.edits:
-            file_rows.append(cls._make_diff_row(texttable.bcolors.PURPLE, 'edit', edit))
+            file_rows.append(cls._make_diff_row(
+                texttable.bcolors.PURPLE, 'edit', edit))
         for delete in diff.deletes:
-            file_rows.append(cls._make_diff_row(texttable.bcolors.RED, 'delete', delete))
+            file_rows.append(cls._make_diff_row(
+                texttable.bcolors.RED, 'delete', delete))
         file_rows.sort(key=lambda row: row[1])
         rows += file_rows
         table.add_rows(rows)
@@ -91,11 +100,15 @@ class Diff(object):
                 between_commits, new_index.deployed_by.email))
         if diff.what_changed:
             logging.info(diff.what_changed + '\n')
+        if diff.is_partial:
+            logging.info(
+                '  Note: Partial diffs do not include changes that remove files.\n')
 
     @classmethod
-    def create(cls, index, theirs, repo=None):
+    def create(cls, index, theirs, repo=None, is_partial=False):
         git = common_utils.get_git()
         diff = messages.DiffMessage()
+        diff.is_partial = is_partial
         diff.indexes = []
         diff.indexes.append(theirs or messages.IndexMessage())
         diff.indexes.append(index or messages.IndexMessage())
@@ -128,24 +141,27 @@ class Diff(object):
                 file_message.path = path
                 diff.adds.append(file_message)
 
-        for path, sha in their_paths_to_shas.iteritems():
-            file_message = messages.FileMessage()
-            file_message.path = path
-            file_message.deployed = theirs.deployed
-            file_message.deployed_by = theirs.deployed_by
-            diff.deletes.append(file_message)
+        # When doing partial diffs we do not have enough information to know
+        # which files have been deleted.
+        if not is_partial:
+            for path, sha in their_paths_to_shas.iteritems():
+                file_message = messages.FileMessage()
+                file_message.path = path
+                file_message.deployed = theirs.deployed
+                file_message.deployed_by = theirs.deployed_by
+                diff.deletes.append(file_message)
 
         # What changed in the pod between deploy commits.
         if (repo is not None
             and index.commit and index.commit.sha
-            and theirs.commit and theirs.commit.sha):
+                and theirs.commit and theirs.commit.sha):
             try:
                 what_changed = repo.git.log(
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
                     '{}..{}'.format(theirs.commit.sha, index.commit.sha))
                 if isinstance(what_changed, unicode):
-                  what_changed = what_changed.encode('utf-8')
+                    what_changed = what_changed.encode('utf-8')
                 diff.what_changed = what_changed.decode('utf-8')
             except git.exc.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
@@ -154,10 +170,10 @@ class Diff(object):
         elif (repo is not None
               and index.commit and index.commit.sha):
             what_changed = repo.git.log(
-                  '--date=short',
-                  '--pretty=format:[%h] %ad <%ae> %s')
+                '--date=short',
+                '--pretty=format:[%h] %ad <%ae> %s')
             if isinstance(what_changed, unicode):
-              what_changed = what_changed.encode('utf-8')
+                what_changed = what_changed.encode('utf-8')
             diff.what_changed = what_changed.decode('utf-8')
 
         return diff
@@ -177,11 +193,11 @@ class Diff(object):
         num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
         text = 'Deploying: %(value)d/{} (in %(elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
-        bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+        progress = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
 
         def run_with_progress(func, *args):
             func(*args)
-            bar.update(bar.value + 1)
+            progress.update(progress.value + 1)
 
         if batch_writes:
             writes_paths_to_contents = {}
@@ -191,13 +207,14 @@ class Diff(object):
             for file_message in diff.edits:
                 writes_paths_to_contents[file_message.path] = \
                     paths_to_content[file_message.path]
-            deletes_paths = [file_message.path for file_message in diff.deletes]
+            deletes_paths = [
+                file_message.path for file_message in diff.deletes]
             if writes_paths_to_contents:
                 batch_write_func(writes_paths_to_contents)
             if deletes_paths:
                 delete_func(deletes_paths)
         else:
-            bar.start()
+            progress.start()
             for file_message in diff.adds:
                 content = paths_to_content[file_message.path]
                 if threaded:
@@ -223,7 +240,7 @@ class Diff(object):
             thread_pool.close()
             thread_pool.join()
         if not batch_writes:
-            bar.finish()
+            progress.finish()
 
 
 class Index(object):
