@@ -152,9 +152,8 @@ class Diff(object):
                 diff.deletes.append(file_message)
 
         # What changed in the pod between deploy commits.
-        if (repo is not None
-            and index.commit and index.commit.sha
-                and theirs.commit and theirs.commit.sha):
+        if (repo is not None and index.commit and index.commit.sha and theirs.commit
+                and theirs.commit.sha):
             try:
                 what_changed = repo.git.log(
                     '--date=short',
