@@ -222,9 +222,13 @@ class Pod(object):
     def export(self, suffix=None, append_slashes=False, files=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
         if files:
+            # When provided a list of files do a custom routing tree based on
+            # the docs that are dependent based on the dependecy graph.
             def _gen_docs(files):
-                for filename in files:
-                    yield self.get_doc(filename)
+                for pod_path in files:
+                    for dep_path in self.podcache.dependency_graph.get_dependents(
+                            pod_path):
+                        yield self.get_doc(dep_path)
             routes = grow_routes.Routes.from_docs(self, _gen_docs(files))
         else:
             routes = self.get_routes()
@@ -300,14 +304,14 @@ class Pod(object):
 
         text = 'Building UI Tools: %(value)d/{} (in %(elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
-        bar.start()
+        progress = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
+        progress.start()
         for path in paths:
             output_path = path.replace(
                 source_prefix, '{}{}'.format(destination_root, tools_dir))
             output[output_path] = self.read_file(path)
-            bar.update(bar.value + 1)
-        bar.finish()
+            progress.update(progress.value + 1)
+        progress.finish()
         return output
 
     def file_exists(self, pod_path):
