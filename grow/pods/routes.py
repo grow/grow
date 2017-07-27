@@ -38,6 +38,14 @@ class Routes(object):
     def __iter__(self):
         return self.routing_map.iter_rules()
 
+    @staticmethod
+    def from_docs(pod, docs):
+        """Create a routes object from a set of documents."""
+        routes = Routes(pod)
+        # pylint: disable=protected-access
+        routes._build_routing_map_from_docs(docs)
+        return routes
+
     def _add_document(self, doc):
         rule, _ = self._create_rule_for_doc(doc)
         if not rule:
@@ -60,6 +68,17 @@ class Routes(object):
 
         # Static routes.
         self._routing_rules += self._build_static_routing_map_and_return_rules()
+
+        self._recreate_routing_map()
+        return self._routing_map
+
+    def _build_routing_map_from_docs(self, docs):
+        self._routing_rules = []
+
+        doc_routing_rules, new_paths_to_locales_to_docs = self._build_rules_from_docs(
+            docs)
+        self._routing_rules += doc_routing_rules
+        self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
 
         self._recreate_routing_map()
         return self._routing_map

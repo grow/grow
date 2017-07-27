@@ -16,7 +16,8 @@ import os
 @click.option('--clear_cache',
               default=False, is_flag=True,
               help='Clear the pod cache before building.')
-def build(pod_path, out_dir, preprocess, clear_cache):
+@click.option('--files', help='Build only pages affected by content files.', multiple=True)
+def build(pod_path, out_dir, preprocess, clear_cache, files):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -28,7 +29,7 @@ def build(pod_path, out_dir, preprocess, clear_cache):
     try:
         config = local_destination.Config(out_dir=out_dir)
         destination = local_destination.LocalDestination(config)
-        paths_to_contents = destination.dump(pod)
+        paths_to_contents = destination.dump(pod, files=files)
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
         destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,

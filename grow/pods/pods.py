@@ -212,25 +212,34 @@ class Pod(object):
     def disable(self, feature):
         self._disabled.add(feature)
 
-    def dump(self, suffix='index.html', append_slashes=True):
-        output = self.export(suffix=suffix, append_slashes=append_slashes)
+    def dump(self, suffix='index.html', append_slashes=True, files=None):
+        output = self.export(
+            suffix=suffix, append_slashes=append_slashes, files=files)
         if self.ui and not self.is_enabled(self.FEATURE_UI):
             output.update(self.export_ui())
         return output
 
-    def export(self, suffix=None, append_slashes=False):
+    def export(self, suffix=None, append_slashes=False, files=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
-        routes = self.get_routes()
+        if files:
+            def _gen_docs(files):
+                for filename in files:
+                    yield self.get_doc(filename)
+            routes = grow_routes.Routes.from_docs(self, _gen_docs(files))
+        else:
+            routes = self.get_routes()
         paths = []
         for items in routes.get_locales_to_paths().values():
             paths += items
-        output = self.export_paths(paths, suffix, append_slashes)
-        error_controller = routes.match_error('/404.html')
-        if error_controller:
-            output['/404.html'] = error_controller.render({})
+        output = self.export_paths(
+            paths, routes, suffix=suffix, append_slashes=append_slashes)
+        if not files:
+            error_controller = routes.match_error('/404.html')
+            if error_controller:
+                output['/404.html'] = error_controller.render({})
         return output
 
-    def export_paths(self, paths, suffix=None, append_slashes=False):
+    def export_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Builds the pod, returning a mapping of paths to content."""
         output = {}
         text = 'Building: %(value)d/{} (in %(elapsed)s)'
@@ -239,7 +248,7 @@ class Pod(object):
         bar.start()
         for path in paths:
             output_path = path
-            controller, params = self.match(path)
+            controller, params = routes.match(path, env=self.env.to_wsgi_env())
             # Append a suffix onto rendered routes only. This supports dumping
             # paths that would serve at URLs that terminate in "/" or without
             # an extension to an HTML file suitable for writing to a
