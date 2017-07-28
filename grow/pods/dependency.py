@@ -1,6 +1,8 @@
 """Dependency graph for content references."""
 
+import fnmatch
 import os
+
 
 class Error(Exception):
     pass
@@ -11,6 +13,7 @@ class BadFieldsError(Error, ValueError):
 
 
 class DependencyGraph(object):
+
     def __init__(self):
         self.reset()
 
@@ -63,11 +66,23 @@ class DependencyGraph(object):
         contains the reference.
         """
         return (self._dependents.get(reference, set())
-            | self._dependents.get(os.path.dirname(reference), set())
-            | set([reference]))
+                | self._dependents.get(os.path.dirname(reference), set())
+                | set([reference]))
 
     def get_dependencies(self, source):
         return self._dependencies.get(source, set())
+
+    def match_dependents(self, reference):
+        """
+        Match dependents that rely upon the reference or a collection that
+        contains the reference using a glob pattern.
+        """
+        matched_dependents = set()
+        for dependent in self._dependents:
+            if fnmatch.fnmatch(dependent, reference):
+                matched_dependents = (
+                    matched_dependents | self._dependents.get(dependent) | set([dependent]))
+        return matched_dependents
 
     def reset(self):
         self._dependents = {}

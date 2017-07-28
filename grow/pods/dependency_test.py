@@ -83,11 +83,31 @@ class DependencyGraphTestCase(unittest.TestCase):
 
     def test_empty_dependents(self):
         graph = dependency.DependencyGraph()
-        self.assertEqual(set(['/content/test1.yaml']), graph.get_dependents('/content/test1.yaml'))
+        self.assertEqual(set(['/content/test1.yaml']),
+                         graph.get_dependents('/content/test1.yaml'))
 
     def test_empty_dependencies(self):
         graph = dependency.DependencyGraph()
         self.assertEqual(set(), graph.get_dependencies('/content/test.yaml'))
+
+    def test_match_dependents(self):
+        graph = dependency.DependencyGraph()
+        graph.add_references(
+            '/content/ref.yaml',
+            ['/content/test1.yaml'])
+        graph.add_references(
+            '/content/ref1.yaml',
+            ['/content/test1.yaml'])
+        graph.add_references(
+            '/content/ref2.yaml',
+            ['/content/test2.yaml'])
+        self.assertEqual(
+            set(['/content/test1.yaml', '/content/ref.yaml', '/content/ref1.yaml']),
+            graph.match_dependents('/content/test1.yaml'))
+        self.assertEqual(
+            set(['/content/test1.yaml', '/content/test2.yaml',
+                 '/content/ref.yaml', '/content/ref1.yaml', '/content/ref2.yaml']),
+            graph.match_dependents('/content/test*.yaml'))
 
     def test_reset(self):
         graph = dependency.DependencyGraph()
