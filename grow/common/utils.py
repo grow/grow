@@ -127,7 +127,7 @@ def validate_name(name):
     # TODO: better validation.
     if ('//' in name
         or '..' in name
-        or ' ' in name):
+            or ' ' in name):
         raise errors.BadNameError(
             'Names must be lowercase and only contain letters, numbers, '
             'backslashes, and dashes. Found: "{}"'.format(name))
@@ -224,6 +224,8 @@ def make_yaml_loader(pod, doc=None):
             return func(node.value)
 
         def construct_csv(self, node):
+            if doc:
+                pod.podcache.dependency_graph.add(doc.pod_path, node.value)
             return self._construct_func(node, pod.read_csv)
 
         def construct_doc(self, node):
@@ -239,22 +241,32 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, gettext.gettext)
 
         def construct_json(self, node):
+            if doc:
+                pod.podcache.dependency_graph.add(doc.pod_path, node.value)
             return self._construct_func(node, pod.read_json)
 
         def construct_static(self, node):
             locale = doc._locale_kwarg if doc else None
-            func = lambda path: pod.get_static(path, locale=locale)
+            def func(path):
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return pod.get_static(path, locale=locale)
             return self._construct_func(node, func)
 
         def construct_url(self, node):
             locale = doc._locale_kwarg if doc else None
-            func = lambda path: pod.get_url(path, locale=locale)
+            def func(path):
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return pod.get_url(path, locale=locale)
             return self._construct_func(node, func)
 
         def construct_yaml(self, node):
             def func(path):
                 if '?' in path:
                     path, reference = path.split('?')
+                    if doc:
+                        pod.podcache.dependency_graph.add(doc.pod_path, path)
                     data = pod.read_yaml(path)
                     for key in reference.split('.'):
                         if data and key in data:
@@ -262,6 +274,8 @@ def make_yaml_loader(pod, doc=None):
                         else:
                             data = None
                     return data
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
                 return pod.read_yaml(path)
             return self._construct_func(node, func)
 

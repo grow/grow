@@ -280,22 +280,29 @@ def create_builtin_tags(pod, doc, use_cache=False):
             return included_docs
         return _wrapper
 
+    def _wrap_dependency_path(func):
+        def _wrapper(*args, **kwargs):
+            if doc:
+                pod.podcache.dependency_graph.add(doc.pod_path, args[0])
+            return func(*args, _pod=pod, use_cache=use_cache, **kwargs)
+        return _wrapper
+
     return {
         'categories': _wrap(categories),
         'collection': _wrap(collection),
         'collections': _wrap(collections),
-        'csv': _wrap(csv),
+        'csv': _wrap_dependency_path(csv),
         'date': _wrap(date),
         'doc': _wrap_dependency(get_doc),
         'docs': _wrap_dependency(docs),
-        'json': _wrap(json),
+        'json': _wrap_dependency_path(json),
         'locale': _wrap(locale),
         'locales': _wrap(locales),
         'nav': _wrap(nav),
-        'static': _wrap(static_something),
-        'statics': _wrap(statics),
-        'url': _wrap(url),
-        'yaml': _wrap(yaml),
+        'static': _wrap_dependency(static_something),
+        'statics': _wrap_dependency(statics),
+        'url': _wrap_dependency_path(url),
+        'yaml': _wrap_dependency_path(yaml),
     }
 
 
