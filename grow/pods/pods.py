@@ -227,7 +227,7 @@ class Pod(object):
             def _gen_docs(pod_paths):
                 for pod_path in pod_paths:
                     for dep_path in self.podcache.dependency_graph.get_dependents(
-                            pod_path):
+                            self._normalize_path(pod_path)):
                         yield self.get_doc(dep_path)
             routes = grow_routes.Routes.from_docs(self, _gen_docs(pod_paths))
         else:
