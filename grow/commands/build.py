@@ -1,10 +1,12 @@
+"""Command for building pods into static deployments."""
+
+import os
+import click
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()
@@ -16,7 +18,8 @@ import os
 @click.option('--clear_cache',
               default=False, is_flag=True,
               help='Clear the pod cache before building.')
-def build(pod_path, out_dir, preprocess, clear_cache):
+@click.option('--file', '--pod_path', 'pod_paths', help='Build only pages affected by content files.', multiple=True)
+def build(pod_path, out_dir, preprocess, clear_cache, pod_paths):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -28,11 +31,11 @@ def build(pod_path, out_dir, preprocess, clear_cache):
     try:
         config = local_destination.Config(out_dir=out_dir)
         destination = local_destination.LocalDestination(config)
-        paths_to_contents = destination.dump(pod)
+        paths_to_contents = destination.dump(pod, pod_paths=pod_paths)
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
         destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,
-                           test=False)
+                           test=False, is_partial=bool(pod_paths))
         pod.podcache.write()
     except pods.Error as e:
         raise click.ClickException(str(e))
