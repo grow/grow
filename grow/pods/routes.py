@@ -92,6 +92,8 @@ class Routes(object):
         # Content documents.
         for doc in docs:
             rule, serving_path = self._create_rule_for_doc(doc)
+            if not rule:
+                continue
             if serving_path in serving_paths_to_docs:
                 duplicate_paths[serving_path].append(
                     serving_paths_to_docs[serving_path])
