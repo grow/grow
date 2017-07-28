@@ -212,24 +212,24 @@ class Pod(object):
     def disable(self, feature):
         self._disabled.add(feature)
 
-    def dump(self, suffix='index.html', append_slashes=True, files=None):
+    def dump(self, suffix='index.html', append_slashes=True, pod_paths=None):
         output = self.export(
-            suffix=suffix, append_slashes=append_slashes, files=files)
+            suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths)
         if self.ui and not self.is_enabled(self.FEATURE_UI):
             output.update(self.export_ui())
         return output
 
-    def export(self, suffix=None, append_slashes=False, files=None):
+    def export(self, suffix=None, append_slashes=False, pod_paths=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
-        if files:
-            # When provided a list of files do a custom routing tree based on
+        if pod_paths:
+            # When provided a list of pod_paths do a custom routing tree based on
             # the docs that are dependent based on the dependecy graph.
-            def _gen_docs(files):
-                for pod_path in files:
+            def _gen_docs(pod_paths):
+                for pod_path in pod_paths:
                     for dep_path in self.podcache.dependency_graph.get_dependents(
                             pod_path):
                         yield self.get_doc(dep_path)
-            routes = grow_routes.Routes.from_docs(self, _gen_docs(files))
+            routes = grow_routes.Routes.from_docs(self, _gen_docs(pod_paths))
         else:
             routes = self.get_routes()
         paths = []
@@ -237,7 +237,7 @@ class Pod(object):
             paths += items
         output = self.export_paths(
             paths, routes, suffix=suffix, append_slashes=append_slashes)
-        if not files:
+        if not pod_paths:
             error_controller = routes.match_error('/404.html')
             if error_controller:
                 output['/404.html'] = error_controller.render({})
