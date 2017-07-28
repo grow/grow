@@ -96,6 +96,13 @@ class Pod(object):
             raise ValueError('.. not allowed in file paths.')
         return os.path.join(self.root, pod_path.lstrip('/'))
 
+    def _normalize_pod_path(self, pod_path):
+        if '..' in pod_path:
+            raise ValueError('.. not allowed in pod paths.')
+        if not pod_path.startswith('/'):
+            pod_path = '/{}'.format(pod_path)
+        return pod_path
+
     def _parse_cache_yaml(self):
         podcache_file_name = '/{}'.format(self.FILE_PODCACHE)
         if not self.file_exists(podcache_file_name):
@@ -226,8 +233,8 @@ class Pod(object):
             # the docs that are dependent based on the dependecy graph.
             def _gen_docs(pod_paths):
                 for pod_path in pod_paths:
-                    for dep_path in self.podcache.dependency_graph.get_dependents(
-                            self._normalize_path(pod_path)):
+                    for dep_path in self.podcache.dependency_graph.match_dependents(
+                            self._normalize_pod_path(pod_path)):
                         yield self.get_doc(dep_path)
             routes = grow_routes.Routes.from_docs(self, _gen_docs(pod_paths))
         else:
