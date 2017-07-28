@@ -6,4 +6,4 @@ max-args=10
 [MESSAGES CONTROL]
 
 # Disable the message, report, category or checker with the given id(s).
-# disable=
+disable=logging-format-interpolation

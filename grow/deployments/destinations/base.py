@@ -226,12 +226,12 @@ class BaseDestination(object):
     def login(self, account, reauth=False):
         pass
 
-    def dump(self, pod):
+    def dump(self, pod, pod_paths=None):
         pod.set_env(self.get_env())
-        return pod.dump()
+        return pod.dump(pod_paths=pod_paths)
 
-    def deploy(self, paths_to_contents, stats=None,
-               repo=None, dry_run=False, confirm=False, test=True):
+    def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False,
+               confirm=False, test=True, is_partial=False):
         self._confirm = confirm
         self.prelaunch(dry_run=dry_run)
         if test:
@@ -241,7 +241,8 @@ class BaseDestination(object):
             new_index = indexes.Index.create(paths_to_contents)
             if repo:
                 indexes.Index.add_repo(new_index, repo)
-            diff = indexes.Diff.create(new_index, deployed_index, repo=repo)
+            diff = indexes.Diff.create(
+                new_index, deployed_index, repo=repo, is_partial=is_partial)
             self._diff = diff
             if indexes.Diff.is_empty(diff):
                 logging.info('Finished with no diffs since the last build.')
@@ -255,8 +256,9 @@ class BaseDestination(object):
                     logging.info('Aborted.')
                     return
             indexes.Diff.apply(
-                diff, paths_to_contents, write_func=self.write_file, batch_write_func=self.write_files,
-                delete_func=self.delete_file, threaded=self.threaded, batch_writes=self.batch_writes)
+                diff, paths_to_contents, write_func=self.write_file,
+                batch_write_func=self.write_files, delete_func=self.delete_file,
+                threaded=self.threaded, batch_writes=self.batch_writes)
             self.write_control_file(
                 self.index_basename, indexes.Index.to_string(new_index))
             if stats is not None:

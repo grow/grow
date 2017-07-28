@@ -43,6 +43,7 @@ class DiffMessage(messages.Message):
     nochanges = messages.MessageField(FileMessage, 4, repeated=True)
     indexes = messages.MessageField(IndexMessage, 5, repeated=True)
     what_changed = messages.StringField(6)
+    is_partial = messages.BooleanField(7)
 
 
 class FileCountMessage(messages.Message):
