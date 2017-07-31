@@ -45,5 +45,4 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, display_untrans
     except pods.Error as e:
         raise click.ClickException(str(e))
     if display_untranslated:
-        for table in pod.translation_stats.to_tables():
-            print table
+        pod.translation_stats.pretty_print()

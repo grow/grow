@@ -1,5 +1,6 @@
 """Translation stats collection and reporting."""
 
+import logging
 import texttable
 
 
@@ -49,9 +50,8 @@ class TranslationStats(object):
                 self._untranslated[locale] = set()
             self._untranslated[locale].add(message.id)
 
-    def to_tables(self, show_all=False):
+    def pretty_print(self, show_all=False):
         """Outputs the translation stats to a table formatted view."""
-        results = []
 
         # Most frequent untranslated messages.
         table = texttable.Texttable(max_width=120)
@@ -72,10 +72,7 @@ class TranslationStats(object):
                 rows.append(['', num_rows-self.ROW_COUNT, '+ Additional untranslated strings...'])
 
         table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
-        results.append(table.draw())
-
-        # Spacer.
-        results.append('')
+        logging.info('\n' + table.draw() + '\n')
 
         # Untranslated messages per locale.
         table = texttable.Texttable(max_width=120)
@@ -90,6 +87,4 @@ class TranslationStats(object):
         rows = sorted(rows, key=lambda x: -x[1])
 
         table.add_rows([['Locale', 'Untranslated']] + rows)
-        results.append(table.draw())
-
-        return results
+        logging.info('\n' + table.draw() + '\n')
