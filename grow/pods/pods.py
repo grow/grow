@@ -15,6 +15,7 @@ from grow.common import logger
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.preprocessors import preprocessors
+from grow.translators import translation_stats
 from grow.translators import translators
 from . import catalog_holder
 from . import collection
