@@ -1,7 +1,8 @@
 """Routes for document path routing."""
 
 import collections
-import webob
+# NOTE: exc imported directly, webob.exc doesn't work when frozen.
+from webob import exc as webob_exc
 from werkzeug import routing
 from grow.common import timer
 from grow.common import utils
@@ -37,42 +38,79 @@ class Routes(object):
     def __iter__(self):
         return self.routing_map.iter_rules()
 
+    @staticmethod
+    def from_docs(pod, docs):
+        """Create a routes object from a set of documents."""
+        routes = Routes(pod)
+        # pylint: disable=protected-access
+        routes._build_routing_map_from_docs(docs)
+        return routes
+
     def _add_document(self, doc):
-        rule, serving_path = self._create_rule_for_doc(doc)
+        rule, _ = self._create_rule_for_doc(doc)
         if not rule:
             return
         self._routing_rules.append(rule)
 
     def _build_routing_map(self, inject=False):
-        new_paths_to_locales_to_docs = collections.defaultdict(dict)
         self._routing_rules = []
-        serving_paths_to_docs = {}
-        duplicate_paths = collections.defaultdict(list)
 
         # Content documents.
-        for collection in self.pod.list_collections():
-            for doc in collection.list_servable_documents(include_hidden=True, inject=inject):
-                rule, serving_path = self._create_rule_for_doc(doc)
-                if serving_path in serving_paths_to_docs:
-                    duplicate_paths[serving_path].append(serving_paths_to_docs[serving_path])
-                    duplicate_paths[serving_path].append(doc)
-                serving_paths_to_docs[serving_path] = doc
-                self._routing_rules.append(rule)
-                new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
+        def _get_all_docs():
+            for collection in self.pod.list_collections():
+                for doc in collection.list_servable_documents(include_hidden=True, inject=inject):
+                    yield doc
+
+        doc_routing_rules, new_paths_to_locales_to_docs = self._build_rules_from_docs(
+            _get_all_docs())
+        self._routing_rules += doc_routing_rules
+        self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
 
         # Static routes.
         self._routing_rules += self._build_static_routing_map_and_return_rules()
 
         self._recreate_routing_map()
+        return self._routing_map
+
+    def _build_routing_map_from_docs(self, docs):
+        self._routing_rules = []
+
+        doc_routing_rules, new_paths_to_locales_to_docs = self._build_rules_from_docs(
+            docs)
+        self._routing_rules += doc_routing_rules
         self._paths_to_locales_to_docs = new_paths_to_locales_to_docs
+
+        self._recreate_routing_map()
+        return self._routing_map
+
+    def _build_rules_from_docs(self, docs):
+        new_paths_to_locales_to_docs = collections.defaultdict(dict)
+        routing_rules = []
+        serving_paths_to_docs = {}
+        duplicate_paths = collections.defaultdict(list)
+
+        # Content documents.
+        for doc in docs:
+            rule, serving_path = self._create_rule_for_doc(doc)
+            if not rule:
+                continue
+            if serving_path in serving_paths_to_docs:
+                duplicate_paths[serving_path].append(
+                    serving_paths_to_docs[serving_path])
+                duplicate_paths[serving_path].append(doc)
+            serving_paths_to_docs[serving_path] = doc
+            routing_rules.append(rule)
+            new_paths_to_locales_to_docs[doc.pod_path][doc.locale] = doc
+
         if duplicate_paths:
             text = 'Found duplicate serving paths: {}'
             raise DuplicatePathsError(text.format(dict(duplicate_paths)))
-        return self._routing_map
+        return routing_rules, new_paths_to_locales_to_docs
 
     def _build_static_routing_map_and_return_rules(self):
         rules = self.list_static_routes()
-        self._static_routing_map = routing.Map(rules, converters=Routes.converters)
+        self._static_routing_map = routing.Map(
+            rules, converters=Routes.converters)
         return [rule.empty() for rule in rules]
 
     def _create_rule_for_doc(self, doc):
@@ -116,7 +154,8 @@ class Routes(object):
         path = '' if path is None else path
         if 'root' in self.podspec:
             path = path.replace('{root}', self.podspec['root'])
-        path = path.replace('{env.fingerprint}', self.pod.env.fingerprint)
+        if self.pod.env.fingerprint:
+            path = path.replace('{env.fingerprint}', self.pod.env.fingerprint)
         path = path.replace('{fingerprint}', '<grow:fingerprint>')
         path = path.replace('//', '/')
         return path
@@ -156,7 +195,6 @@ class Routes(object):
 
     def list_static_routes(self):
         rules = []
-        # Auto-generated from flags.
         if 'sitemap' in self.podspec:
             sitemap_path = self.podspec['sitemap'].get('path')
             sitemap_path = self.format_path(sitemap_path)
@@ -167,11 +205,6 @@ class Routes(object):
                 locales=self.podspec['sitemap'].get('locales'),
                 template=self.podspec['sitemap'].get('template'))
             rules.append(routing.Rule(controller.path, endpoint=controller))
-        if 'static_dir' in self.pod.flags:
-            path = self.pod.flags['static_dir'] + '<grow:filename>'
-            controller = static.StaticController(
-                path_format=path, source_format=path, pod=self.pod)
-            rules.append(routing.Rule(path, endpoint=controller))
         if 'static_dirs' in self.podspec:
             for config in self.podspec['static_dirs']:
                 if config.get('dev') and not self.pod.env.dev:
@@ -189,10 +222,12 @@ class Routes(object):
                                                      pod=self.pod)
                 rules.append(routing.Rule(serve_at, endpoint=controller))
                 if localization:
-                    localized_serve_at = localization.get('serve_at') + '<grow:filename>'
+                    localized_serve_at = localization.get(
+                        'serve_at') + '<grow:filename>'
                     static_dir = localization.get('static_dir')
                     localized_static_dir = static_dir + '<grow:filename>'
-                    rule_path = localized_serve_at.replace('{locale}', '<grow:locale>')
+                    rule_path = localized_serve_at.replace(
+                        '{locale}', '<grow:locale>')
                     rule_path = self.format_path(rule_path)
                     controller = static.StaticController(
                         path_format=localized_serve_at,
@@ -214,13 +249,13 @@ class Routes(object):
           routing.NotFound: When no controller is found.
         """
         if '/..' in path:
-            raise webob.exc.HTTPBadRequest('Invalid path.')
+            raise webob_exc.HTTPBadRequest('Invalid path.')
         urls = self.routing_map.bind_to_environ(env)
         try:
             controller, params = urls.match(path)
             return controller, params
         except routing.NotFound:
-            raise webob.exc.HTTPNotFound('{} not found.'.format(path))
+            raise webob_exc.HTTPNotFound('{} not found.'.format(path))
 
     def match_error(self, path, status=404):
         if status == 404 and self.pod.error_routes:

@@ -22,11 +22,11 @@ before_script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]];
   then brew unlink python;
   brew install python;
-  pip install virtualenv;
+  pip2 install virtualenv;
   fi
-- pip install -U pip
-- pip install -r requirements-dev.txt
-- pip install coveralls
+- pip2 install -U pip
+- pip2 install -r requirements-dev.txt
+- pip2 install coveralls
 - wget -nv https://storage.googleapis.com/appengine-sdks/featured/${GAE_ZIP}
 - unzip -q ${GAE_ZIP} -d ${HOME}
 

@@ -16,3 +16,6 @@ from .preprocessors.base import BasePreprocessor as Preprocessor
 
 # Allow `import grow; grow.Translator` for custom translators.
 from .translators.base import Translator
+
+# Allow `import grow; grow.FrozenImportFixer`.
+from .common.extensions import FrozenImportFixer

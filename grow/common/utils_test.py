@@ -119,6 +119,14 @@ class UtilsTestCase(unittest.TestCase):
         ]
         self.assertEqual(expected_docs, result['docs'])
 
+        # Test that deep linking to yaml files works.
+        expected_deep_yaml = {
+            'test': 'deep',
+            'deep': 'deeper',
+        }
+        self.assertEqual(expected_deep_yaml, result['deep'])
+        self.assertEqual(None, result['unfathomable'])
+
     def test_process_google_comments(self):
         # Google comment link.
         raw = '<div><a id="cmnt" href="https://grow.io/">Link</a></div>'

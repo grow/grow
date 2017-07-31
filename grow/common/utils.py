@@ -127,7 +127,7 @@ def validate_name(name):
     # TODO: better validation.
     if ('//' in name
         or '..' in name
-        or ' ' in name):
+            or ' ' in name):
         raise errors.BadNameError(
             'Names must be lowercase and only contain letters, numbers, '
             'backslashes, and dashes. Found: "{}"'.format(name))
@@ -224,6 +224,8 @@ def make_yaml_loader(pod, doc=None):
             return func(node.value)
 
         def construct_csv(self, node):
+            if doc:
+                pod.podcache.dependency_graph.add(doc.pod_path, node.value)
             return self._construct_func(node, pod.read_csv)
 
         def construct_doc(self, node):
@@ -239,20 +241,43 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, gettext.gettext)
 
         def construct_json(self, node):
+            if doc:
+                pod.podcache.dependency_graph.add(doc.pod_path, node.value)
             return self._construct_func(node, pod.read_json)
 
         def construct_static(self, node):
             locale = doc._locale_kwarg if doc else None
-            func = lambda path: pod.get_static(path, locale=locale)
+            def func(path):
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return pod.get_static(path, locale=locale)
             return self._construct_func(node, func)
 
         def construct_url(self, node):
             locale = doc._locale_kwarg if doc else None
-            func = lambda path: pod.get_url(path, locale=locale)
+            def func(path):
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return pod.get_url(path, locale=locale)
             return self._construct_func(node, func)
 
         def construct_yaml(self, node):
-            return self._construct_func(node, pod.read_yaml)
+            def func(path):
+                if '?' in path:
+                    path, reference = path.split('?')
+                    if doc:
+                        pod.podcache.dependency_graph.add(doc.pod_path, path)
+                    data = pod.read_yaml(path)
+                    for key in reference.split('.'):
+                        if data and key in data:
+                            data = data[key]
+                        else:
+                            data = None
+                    return data
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return pod.read_yaml(path)
+            return self._construct_func(node, func)
 
     YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
     YamlLoader.add_constructor(u'!g.csv', YamlLoader.construct_csv)
@@ -327,21 +352,6 @@ def get_rows_from_csv(pod, path, locale=SENTINEL):
             data[header] = cell.decode('utf-8')
         rows.append(data)
     return rows
-
-
-def import_string(import_name, paths):
-    """Imports & returns an object using dot notation, e.g. 'A.B.C'"""
-    # ASSUMPTION: import_name refers to a value in a module (i.e. must have at
-    # least 2 parts)
-    if '.' not in import_name:
-        raise ImportError
-    part1, part2 = import_name.split('.', 1)
-    if '.' in part2:
-        f, part1_path, desc = imp.find_module(part1, paths)
-        return import_string(part2, [part1_path])
-    else:
-        module = imp.load_module(part1, *imp.find_module(part1, paths))
-        return getattr(module, part2)
 
 
 class ProgressBarThread(threading.Thread):

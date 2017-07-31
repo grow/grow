@@ -42,6 +42,9 @@ destination, you'll just have to implement the following methods/properties:
   write_file(self, path, content)
     Writes a file at the destination, given the file's pod path and its content.
 
+  write_files(self, paths_to_contents)
+    Writes files in bulk, given a mapping of paths to file contents.
+
   KIND
     A string identifying the deployment.
 
@@ -160,7 +163,12 @@ class BaseDestination(object):
         """Returns a file-like object."""
         raise NotImplementedError
 
+    def write_files(self, paths_to_contents):
+        """Writes files in bulk."""
+        raise NotImplementedError
+
     def write_file(self, path, content):
+        """Writes an individual file."""
         raise NotImplementedError
 
     def delete_file(self, path):
@@ -194,7 +202,7 @@ class BaseDestination(object):
         if self._has_custom_control_dir:
             return self.storage.write(path, content)
         if self.batch_writes:
-            return self.write_file(path, content)
+            return self.write_files({path: content})
         return self.write_file(path, content)
 
     def test(self):
@@ -218,12 +226,12 @@ class BaseDestination(object):
     def login(self, account, reauth=False):
         pass
 
-    def dump(self, pod):
-        pod.env = self.get_env()
-        return pod.dump()
+    def dump(self, pod, pod_paths=None):
+        pod.set_env(self.get_env())
+        return pod.dump(pod_paths=pod_paths)
 
-    def deploy(self, paths_to_contents, stats=None,
-               repo=None, dry_run=False, confirm=False, test=True):
+    def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False,
+               confirm=False, test=True, is_partial=False):
         self._confirm = confirm
         self.prelaunch(dry_run=dry_run)
         if test:
@@ -233,7 +241,8 @@ class BaseDestination(object):
             new_index = indexes.Index.create(paths_to_contents)
             if repo:
                 indexes.Index.add_repo(new_index, repo)
-            diff = indexes.Diff.create(new_index, deployed_index, repo=repo)
+            diff = indexes.Diff.create(
+                new_index, deployed_index, repo=repo, is_partial=is_partial)
             self._diff = diff
             if indexes.Diff.is_empty(diff):
                 logging.info('Finished with no diffs since the last build.')
@@ -248,15 +257,17 @@ class BaseDestination(object):
                     return
             indexes.Diff.apply(
                 diff, paths_to_contents, write_func=self.write_file,
-                delete_func=self.delete_file, threaded=self.threaded,
-                batch_writes=self.batch_writes)
-            self.write_control_file(self.index_basename, indexes.Index.to_string(new_index))
+                batch_write_func=self.write_files, delete_func=self.delete_file,
+                threaded=self.threaded, batch_writes=self.batch_writes)
+            self.write_control_file(
+                self.index_basename, indexes.Index.to_string(new_index))
             if stats is not None:
                 self.write_control_file(self.stats_basename, stats.to_string())
             else:
                 self.delete_control_file(self.stats_basename)
             if diff:
-                self.write_control_file(self.diff_basename, indexes.Diff.to_string(diff))
+                self.write_control_file(
+                    self.diff_basename, indexes.Diff.to_string(diff))
             self.success = True
         finally:
             self.postlaunch()

@@ -22,9 +22,15 @@ if sys.getfilesystemencoding() is None:
   sys.getfilesystemencoding = lambda: 'utf-8'
 
 import click
-import werkzeug  # Fixes PyInstaller issue with werkzeug.
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
+
+# Fixes PyInstaller issues with below imports.
+import copy
+import exceptions
+import weakref
+import werkzeug
+from email.mime.application import MIMEApplication
 
 # Fixes simplejson and PyInstaller.
 import json

@@ -201,6 +201,7 @@ class GoogleSheetsTranslator(base.Translator):
         }
 
     def _create_catalog_row(self, id, value, comments, locations):
+        comments = [] if comments is None else comments
         return {
             'values': [
                 {'userEnteredValue': {'stringValue': id}},

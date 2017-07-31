@@ -1,45 +1,52 @@
-import unittest
+"""
+Tests for the document front matter.
+"""
 
+import unittest
+import textwrap
+from grow.testing import testing
 from . import document_front_matter
 from . import pods
 from . import storage
-from grow.testing import testing
-import textwrap
 
 
 class DocumentFrontmatterTestCase(unittest.TestCase):
+    """Tests for document front matter."""
 
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
     def test_bad_format(self):
+        """Tests case for badly formatted raw content."""
         doc = self.pod.get_doc('/content/pages/html.html')
-        input = 'testing: > 2'
+        content = 'testing: > 2'
 
         with self.assertRaises(document_front_matter.BadFormatError):
             document_front_matter.DocumentFrontMatter(
-                doc, raw_front_matter=input)
+                doc, raw_front_matter=content)
 
         doc = self.pod.get_doc('/content/pages/html.html')
-        input = textwrap.dedent("""
+        content = textwrap.dedent("""
             name: Jane Doe
             ---
             foo: bar
             """).lstrip()
         with self.assertRaises(document_front_matter.BadFormatError):
             document_front_matter.DocumentFrontMatter(
-                doc, raw_front_matter=input)
+                doc, raw_front_matter=content)
 
     def test_empty_raw_front_matter(self):
+        """Test for empty or missing front matter."""
         doc = self.pod.get_doc('/content/pages/html.html')
 
         document_front_matter.DocumentFrontMatter(
             doc, raw_front_matter=None)
 
     def test_split_front_matter(self):
+        """Test splitting valid front matter from content."""
         # Normal front matter.
-        input = textwrap.dedent("""
+        content = textwrap.dedent("""
             ---
             name: Jane Doe
             ---
@@ -49,20 +56,20 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
 
         self.assertEquals(
             expected,
-            document_front_matter.DocumentFrontMatter.split_front_matter(input))
+            document_front_matter.DocumentFrontMatter.split_front_matter(content))
 
         # No front matter, so only content returned.
-        input = textwrap.dedent("""
+        content = textwrap.dedent("""
             Jane was adventuring.
             """)
         expected = (None, 'Jane was adventuring.')
 
         self.assertEquals(
             expected,
-            document_front_matter.DocumentFrontMatter.split_front_matter(input))
+            document_front_matter.DocumentFrontMatter.split_front_matter(content))
 
         # Empty front matter, so only content returned.
-        input = textwrap.dedent("""
+        content = textwrap.dedent("""
             ---
             ---
             Jane was adventuring.
@@ -71,10 +78,10 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
 
         self.assertEquals(
             expected,
-            document_front_matter.DocumentFrontMatter.split_front_matter(input))
+            document_front_matter.DocumentFrontMatter.split_front_matter(content))
 
         # Invalid front matter, too many sections.
-        input = textwrap.dedent("""
+        content = textwrap.dedent("""
             name: Jane Doe
             ---
             foo: bar
@@ -83,9 +90,10 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             """)
 
         with self.assertRaises(document_front_matter.BadFormatError):
-            document_front_matter.DocumentFrontMatter.split_front_matter(input)
+            document_front_matter.DocumentFrontMatter.split_front_matter(content)
 
     def test_export(self):
+        """Test exporting the front raw matter."""
         expected = textwrap.dedent("""
             $title@: HTML Page
             $hidden: true
@@ -97,6 +105,7 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             document_front_matter.DocumentFrontMatter(doc).export())
 
     def test_inherit(self):
+        """Test that local specific front matter inherits from upstream docs."""
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})
         pod.write_file('/content/pages/foo@en_us.yaml', textwrap.dedent("""\

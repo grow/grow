@@ -2,6 +2,7 @@
 
 import textwrap
 import unittest
+from grow.common import utils
 from grow.testing import testing
 from . import documents
 from . import locales
@@ -238,6 +239,52 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('root_key_value', fr_doc.root_key)
         keys = ['$title', '$order', '$titles', 'key', 'root_key']
         self.assertItemsEqual(keys, fr_doc.fields.keys())
+
+    def test_default_locale_override(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'en',
+                    'de',
+                    'it',
+                ]
+            }
+        })
+        pod.write_file('/views/base.html', '{{doc.foo}}')
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/base.html',
+            '$localization': {
+                'path': '/{locale}/{base}/',
+            },
+        })
+        pod.write_yaml('/content/pages/page.yaml', {
+            '$localization': {
+                'default_locale': 'de',
+            },
+            'foo': 'foo-base',
+            'foo@de': 'foo-de',
+        })
+        pod.write_yaml('/content/pages/page2.yaml', {
+            'foo': 'foo-base',
+            'foo@de': 'foo-de',
+        })
+        # Verify ability to override using the default locale.
+        controller, params = pod.match('/page/')
+        content = controller.render(params)
+        self.assertEqual('foo-de', content)
+        controller, params = pod.match('/en/page/')
+        content = controller.render(params)
+        self.assertEqual('foo-base', content)
+        # Verify default behavior otherwise.
+        controller, params = pod.match('/page2/')
+        content = controller.render(params)
+        self.assertEqual('foo-base', content)
+        controller, params = pod.match('/de/page2/')
+        content = controller.render(params)
+        self.assertEqual('foo-de', content)
 
     def test_locale_override(self):
         pod = testing.create_pod()
@@ -685,6 +732,22 @@ class DocumentsTestCase(unittest.TestCase):
             '/content/partials/partial@de.yaml',
             '/content/pages/page.yaml',
         ]), dependents)
+
+    def test_yaml_dump(self):
+        """Test if the yaml representer is working correctly."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/page.yaml', {})
+        doc = pod.get_doc('/content/pages/page.yaml')
+        input_obj = {
+            'doc': doc
+        }
+        expected = textwrap.dedent(
+            """\
+            doc: !g.doc '/content/pages/page.yaml'
+            """)
+
+        self.assertEqual(expected, utils.dump_yaml(input_obj))
 
 
 if __name__ == '__main__':

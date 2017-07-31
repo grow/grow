@@ -140,7 +140,9 @@ upload-pypi:
 	$(MAKE) ensure-master
 	git pull origin master
 	$(MAKE) prep-release
-	python setup.py sdist upload
+	python setup.py sdist bdist_wheel
+	pip2 install twine --upgrade
+	twine upload dist/grow-$(VERSION)*
 
 upload-github:
 	@github-release > /dev/null || { \
@@ -189,7 +191,7 @@ release:
 	@echo "Built: dist/$(FILENAME)"
 
 release-ci:
-	pip install git+https://github.com/pyinstaller/pyinstaller.git\#b78bfe530cdc2904f65ce098bdf2de08c9037abb
+	pip2 install git+https://github.com/pyinstaller/pyinstaller.git\#b78bfe530cdc2904f65ce098bdf2de08c9037abb
 	pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r $(FILENAME_CI) grow && cd ..

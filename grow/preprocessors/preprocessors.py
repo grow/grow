@@ -1,9 +1,8 @@
 from . import blogger
-from . import contentful_preprocessor
 from . import google_drive
 from . import gulp
 from . import sass_preprocessor
-from grow.common import utils
+from grow.common import extensions
 from protorpc import protojson
 import json
 
@@ -11,7 +10,6 @@ _preprocessor_kinds_to_classes = {}
 
 _builtins = (
     blogger.BloggerPreprocessor,
-    contentful_preprocessor.ContentfulPreprocessor,
     google_drive.GoogleDocsPreprocessor,
     google_drive.GoogleSheetsPreprocessor,
     gulp.GulpPreprocessor,
@@ -49,7 +47,7 @@ def register_builtins():
 
 def register_extensions(extension_paths, pod_root):
     for path in extension_paths:
-        cls = utils.import_string(path, [pod_root])
+        cls = extensions.import_extension(path, [pod_root])
         register_preprocessor(cls)
 
 

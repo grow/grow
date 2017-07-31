@@ -91,7 +91,6 @@ class RenderedController(controllers.BaseController):
                     content, preprocessor, translator)
             return content
         except Exception as e:
-            raise
             text = 'Error building {}: {}'
             exception = errors.BuildError(text.format(self, e))
             exception.traceback = sys.exc_info()[2]

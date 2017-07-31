@@ -10,6 +10,7 @@ import os
 import re
 import time
 import webob
+import yaml
 
 mimetypes.add_type('application/font-woff', '.woff')
 mimetypes.add_type('application/font-woff', '.woff')
@@ -310,3 +311,10 @@ class StaticController(controllers.BaseController):
                     concrete_paths.add(matched_path)
 
         return list(concrete_paths)
+
+
+# Allow the yaml dump to write out a representation of the static file.
+def static_representer(dumper, data):
+    return dumper.represent_scalar(u'!g.static', data.pod_path)
+
+yaml.SafeDumper.add_representer(StaticFile, static_representer)

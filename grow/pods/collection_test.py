@@ -262,6 +262,32 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual(3, len(collection.docs(locale='en')))
         self.assertEqual(3, len(collection.docs(locale='de')))
 
+    def test_create_doc(self):
+        pod = testing.create_pod()
+        fields = {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'de',
+                ]
+            }
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        fields = {
+            '$view': '/views/base.html',
+            '$path': '/{base}/',
+            'localization': {
+                'path': '/{locale}/{base}/',
+            }
+        }
+        pod.write_yaml('/content/pages/_blueprint.yaml', fields)
+        pod_collection = pod.get_collection('pages')
+        pod_collection.create_doc('/content/pages/foo.yaml', {
+            'testing': 'bananas',
+        })
+        doc = pod.get_doc('/content/pages/foo.yaml')
+        self.assertEqual('bananas', doc.testing)
+
     def test_owns_doc_at_path(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})

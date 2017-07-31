@@ -154,7 +154,8 @@ class Collection(object):
 
     @utils.cached_property
     def fields(self):
-        fields = document_fields.DocumentFields._untag(self.tagged_fields)
+        untag = document_fields.DocumentFields.untag
+        fields = untag(self.tagged_fields, env_name=self.pod.env.name)
         return {} if not fields else fields
 
     @utils.cached_property
@@ -246,12 +247,10 @@ class Collection(object):
             localized_path = documents.Document.localize_path(pod_path, locale)
             if self.pod.file_exists(localized_path):
                 pod_path = localized_path
-
         cached = self.pod.podcache.collection_cache.get_document(
             self, pod_path, locale)
         if cached:
             return cached
-
         doc = documents.Document(
             pod_path, locale=locale, _pod=self.pod, _collection=self)
         self.pod.podcache.collection_cache.add_document(doc)

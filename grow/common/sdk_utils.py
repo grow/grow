@@ -215,7 +215,8 @@ def install_bower(pod):
     if bower_not_found:
         pod.logger.error('[✘] The "bower" command was not found.')
         pod.logger.error(
-            '    Either add bower to package.json or install globally using: sudo npm install -g bower')
+            '    Either add bower to package.json or install globally using:'
+            ' sudo npm install -g bower')
         return
     pod.logger.info('[✓] "bower" is installed.')
     bower_command = 'bower install'
@@ -235,7 +236,8 @@ def install_gulp(pod):
     if gulp_not_found:
         pod.logger.error('[✘] The "gulp" command was not found.')
         pod.logger.error(
-            '    Either add gulp to package.json or install globally using: sudo npm install -g gulp')
+            '    Either add gulp to package.json or install globally using:'
+            ' sudo npm install -g gulp')
         return
     pod.logger.info('[✓] "gulp" is installed.')
     return True
@@ -249,15 +251,20 @@ def install_extensions(pod):
     if pip_not_found:
         pod.logger.error('[✘] The "pip" command was not found.')
         return
+    extensions_dir = pod.extensions_dir
     pod.logger.info('[✓] "pip" is installed.')
-    pip_command = 'pip install -t ext -r extensions.txt'
+    command = 'pip install -U -t {} -r extensions.txt'
+    pip_command = command.format(extensions_dir)
     process = subprocess.Popen(pip_command, shell=True, **args)
     code = process.wait()
     if not code:
-        pod.logger.info('[✓] Finished: Grow extensions install.')
+        init_file_name = '/{}/__init__.py'.format(extensions_dir)
+        if not pod.file_exists(init_file_name):
+            pod.write_file(init_file_name, '')
+        text = '[✓] Installed: extensions.txt -> {}'
+        pod.logger.info(text.format(extensions_dir))
         return True
-    pod.logger.error(
-        '[✘] There was an error running "pip install -t ext -r extensions.txt".')
+    pod.logger.error('[✘] There was an error running "{}".'.format(pip_command))
 
 
 def install_yarn(pod):

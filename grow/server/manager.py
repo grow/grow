@@ -33,10 +33,7 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
 
 def print_server_ready_message(pod, host, port):
     home_doc = pod.get_home_doc()
-    if home_doc:
-        root_path = home_doc.url.path
-    else:
-        root_path = pod.get_root_path()
+    root_path = home_doc.url.path if home_doc else '/'
     url = 'http://{}:{}{}'.format(host, port, root_path)
     logging.info('Pod: '.rjust(20) + pod.root)
     logging.info('Address: '.rjust(20) + url)
