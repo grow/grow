@@ -53,6 +53,7 @@ class TranslationStats(object):
         """Outputs the translation stats to a table formatted view."""
         results = []
 
+        # Most frequent untranslated messages.
         table = texttable.Texttable(max_width=120)
         table.set_deco(texttable.Texttable.HEADER)
         table.set_cols_dtype(['t', 'i', 't'])
@@ -71,6 +72,21 @@ class TranslationStats(object):
                 rows.append(['', num_rows-self.ROW_COUNT, '+ Additional untranslated strings...'])
 
         table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
+        results.append(table.draw())
+
+        # Untranslated messages per locale.
+        table = texttable.Texttable(max_width=120)
+        table.set_deco(texttable.Texttable.HEADER)
+        table.set_cols_dtype(['t', 'i'])
+        table.set_cols_align(['l', 'r'])
+        rows = []
+
+        for locale in self.untranslated:
+            rows.append([str(locale), len(self.untranslated[locale])])
+
+        rows = sorted(rows, key=lambda x: -x[1])
+
+        table.add_rows([['Locale', 'Untranslated']] + rows)
         results.append(table.draw())
 
         return results
