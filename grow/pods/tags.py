@@ -203,7 +203,7 @@ def make_doc_gettext(doc):
     @jinja2.contextfunction
     def gettext(__context, __string, *args, **kwargs):
         message = catalog[__string]
-        translation_stats.tick(message, doc.locale)
+        translation_stats.tick(message, doc.locale, doc.default_locale)
         return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
     return gettext
 

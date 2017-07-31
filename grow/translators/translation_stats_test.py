@@ -10,15 +10,15 @@ class TranslationStatsTestCase(unittest.TestCase):
         stats.tick(catalog.Message(
             'About',
             'Faoi',
-        ), 'ga')
+        ), 'ga', 'en')
         stats.tick(catalog.Message(
             'Home',
             'Baile',
-        ), 'ga')
+        ), 'ga', 'en')
         stats.tick(catalog.Message(
             'Home',
             'Baile',
-        ), 'ga')
+        ), 'ga', 'en')
         self.assertEqual(
             {
                 'messages': {
@@ -33,7 +33,7 @@ class TranslationStatsTestCase(unittest.TestCase):
 
     def test_tick_none(self):
         stats = translation_stats.TranslationStats()
-        stats.tick(None, 'ga')
+        stats.tick(None, 'ga', 'en')
         self.assertEqual(
             {
                 'messages': {},
@@ -46,7 +46,7 @@ class TranslationStatsTestCase(unittest.TestCase):
         stats.tick(catalog.Message(
             'About',
             None,
-        ), 'ga')
+        ), 'ga', 'en')
         self.assertEqual(
             {
                 'messages': {

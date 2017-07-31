@@ -18,8 +18,11 @@ from grow.pods import storage
 @click.option('--clear_cache',
               default=False, is_flag=True,
               help='Clear the pod cache before building.')
-@click.option('--file', '--pod_path', 'pod_paths', help='Build only pages affected by content files.', multiple=True)
-def build(pod_path, out_dir, preprocess, clear_cache, pod_paths):
+@click.option('--file', '--pod-path', 'pod_paths', help='Build only pages affected by content files.', multiple=True)
+@click.option('--display-translation-stats', 'show_translation_stats',
+              default=False, is_flag=True,
+              help='Show translation stats (slows down build).')
+def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, show_translation_stats):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -28,6 +31,8 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths):
         pod.podcache.reset(force=True)
     if preprocess:
         pod.preprocess()
+    if show_translation_stats:
+        pod.enable(pod.FEATURE_TRANSLATION_STATS)
     try:
         config = local_destination.Config(out_dir=out_dir)
         destination = local_destination.LocalDestination(config)
@@ -39,3 +44,5 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths):
         pod.podcache.write()
     except pods.Error as e:
         raise click.ClickException(str(e))
+    if show_translation_stats:
+        print pod.translation_stats.to_table()

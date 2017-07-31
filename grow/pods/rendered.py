@@ -58,7 +58,7 @@ class RenderedController(controllers.BaseController):
             return []
         return [self.doc.get_serving_path()]
 
-    def render(self, params, inject=True, message_stats=True):
+    def render(self, params, inject=True):
         doc = self.doc
         preprocessor = None
         translator = None
@@ -76,7 +76,7 @@ class RenderedController(controllers.BaseController):
         template.globals['g'] = local_tags
 
         # Track the message stats, including untranslated strings.
-        if message_stats:
+        if self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS):
             template.globals['_'] = tags.make_doc_gettext(doc)
 
         try:

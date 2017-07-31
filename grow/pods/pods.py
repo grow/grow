@@ -45,6 +45,7 @@ class PodDoesNotExistError(Error, IOError):
 class Pod(object):
     DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
     FEATURE_UI = 'ui'
+    FEATURE_TRANSLATION_STATS = 'translation_stats'
     FILE_PODCACHE = '.podcache.yaml'
     FILE_PODSPEC = 'podspec.yaml'
 
@@ -64,7 +65,9 @@ class Pod(object):
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.routes = grow_routes.Routes(pod=self)
         self._podcache = None
-        self._disabled = set()
+        self._disabled = set(
+            self.FEATURE_TRANSLATION_STATS,
+        )
 
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
@@ -231,6 +234,9 @@ class Pod(object):
             output.update(self.export_ui())
         return output
 
+    def enable(self, feature):
+        self._disabled.discard(feature)
+
     def export(self, suffix=None, append_slashes=False, pod_paths=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
         if pod_paths:
@@ -284,10 +290,6 @@ class Pod(object):
                 raise
             bar.update(bar.value + 1)
         bar.finish()
-
-        print 'Translation Stats'
-        print self.translation_stats.messages
-        print self.translation_stats.untranslated
 
         return output
 
