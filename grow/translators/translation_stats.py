@@ -74,6 +74,9 @@ class TranslationStats(object):
         table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
         results.append(table.draw())
 
+        # Spacer.
+        results.append('')
+
         # Untranslated messages per locale.
         table = texttable.Texttable(max_width=120)
         table.set_deco(texttable.Texttable.HEADER)
