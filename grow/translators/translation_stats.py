@@ -5,7 +5,7 @@ import texttable
 
 class TranslationStats(object):
 
-    ROW_COUNT = 15
+    ROW_COUNT = 7
 
     def __init__(self):
         self._locale_to_message = {}
@@ -49,8 +49,10 @@ class TranslationStats(object):
                 self._untranslated[locale] = set()
             self._untranslated[locale].add(message.id)
 
-    def to_table(self, show_untranslated=True, show_messages=False, show_all=False):
+    def to_tables(self, show_all=False):
         """Outputs the translation stats to a table formatted view."""
+        results = []
+
         table = texttable.Texttable(max_width=120)
         table.set_deco(texttable.Texttable.HEADER)
         table.set_cols_dtype(['t', 'i', 't'])
@@ -58,10 +60,9 @@ class TranslationStats(object):
         table.set_cols_width([6, 5, 109])
         rows = []
 
-        if show_untranslated:
-            for locale in self.untranslated:
-                for message in self.untranslated[locale]:
-                    rows.append([str(locale), self.untranslated[locale][message], message])
+        for locale in self.untranslated:
+            for message in self.untranslated[locale]:
+                rows.append([str(locale), self.untranslated[locale][message], message])
 
         rows = sorted(rows, key=lambda x: -x[1])
         if not show_all:
@@ -71,4 +72,6 @@ class TranslationStats(object):
                 rows.append(['', num_rows-self.ROW_COUNT, '+ Additional untranslated strings...'])
 
         table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
-        return table.draw()
+        results.append(table.draw())
+
+        return results

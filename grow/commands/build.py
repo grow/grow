@@ -19,10 +19,10 @@ from grow.pods import storage
               default=False, is_flag=True,
               help='Clear the pod cache before building.')
 @click.option('--file', '--pod-path', 'pod_paths', help='Build only pages affected by content files.', multiple=True)
-@click.option('--display-translation-stats', 'show_translation_stats',
+@click.option('--display-untranslated',
               default=False, is_flag=True,
-              help='Show translation stats (slows down build).')
-def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, show_translation_stats):
+              help='Show untranslated strings (slows down build).')
+def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, display_untranslated):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -31,7 +31,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, show_translatio
         pod.podcache.reset(force=True)
     if preprocess:
         pod.preprocess()
-    if show_translation_stats:
+    if display_untranslated:
         pod.enable(pod.FEATURE_TRANSLATION_STATS)
     try:
         config = local_destination.Config(out_dir=out_dir)
@@ -44,5 +44,6 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, show_translatio
         pod.podcache.write()
     except pods.Error as e:
         raise click.ClickException(str(e))
-    if show_translation_stats:
-        print pod.translation_stats.to_table()
+    if display_untranslated:
+        for table in pod.translation_stats.to_tables():
+            print table
