@@ -57,7 +57,6 @@ class TranslationStats(object):
         table.set_deco(texttable.Texttable.HEADER)
         table.set_cols_dtype(['t', 'i', 't'])
         table.set_cols_align(['l', 'r', 'l'])
-        table.set_cols_width([6, 5, 109])
         rows = []
 
         for locale in self.untranslated:
