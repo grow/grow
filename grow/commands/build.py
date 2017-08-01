@@ -21,7 +21,7 @@ from grow.pods import storage
 @click.option('--file', '--pod-path', 'pod_paths', help='Build only pages affected by content files.', multiple=True)
 @click.option('--display-untranslated',
               default=False, is_flag=True,
-              help='Show untranslated strings (slows down build).')
+              help='Shows untranslated message information.')
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, display_untranslated):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
