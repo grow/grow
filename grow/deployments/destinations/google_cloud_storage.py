@@ -42,7 +42,7 @@ class Config(messages.Message):
     not_found_page = messages.StringField(11, default='404.html')
     oauth2 = messages.BooleanField(12, default=False)
     headers = messages.MessageField(HeaderMessage, 13, repeated=True)
-
+    base_config = messages.MessageField(base.BaseConfig, 14)
 
 
 class GoogleCloudStorageDestination(base.BaseDestination):

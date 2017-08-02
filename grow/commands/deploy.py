@@ -36,6 +36,8 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
         deployment = pod.get_deployment(deployment_name)
         # use the deployment's environment for preprocessing and later steps.
         pod.set_env(deployment.config.env)
+        if deployment.prevent_untranslated:
+            pod.enable(pod.FEATURE_TRANSLATION_STATS)
         if auth:
             deployment.login(auth)
         if preprocess:
@@ -44,6 +46,9 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             deployment.test()
             return
         paths_to_contents = deployment.dump(pod)
+        if deployment.prevent_untranslated and pod.translation_stats.untranslated:
+            pod.translation_stats.pretty_print()
+            raise pods.Error('Aborted deploy due to untranslated strings.')
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
         deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,

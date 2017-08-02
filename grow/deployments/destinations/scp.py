@@ -19,6 +19,7 @@ class Config(messages.Message):
     username = messages.StringField(4)
     env = messages.MessageField(env.EnvConfig, 5)
     keep_control_dir = messages.BooleanField(6, default=False)
+    base_config = messages.MessageField(base.BaseConfig, 7)
 
 
 class ScpDestination(base.BaseDestination):
