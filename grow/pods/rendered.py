@@ -75,6 +75,10 @@ class RenderedController(controllers.BaseController):
         # See: https://github.com/pallets/jinja/issues/688
         template.globals['g'] = local_tags
 
+        # Track the message stats, including untranslated strings.
+        if self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS):
+            template.globals['_'] = tags.make_doc_gettext(doc)
+
         try:
             kwargs = {
                 'doc': doc,

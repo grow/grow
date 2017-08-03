@@ -15,6 +15,7 @@ from grow.common import logger
 from grow.common import sdk_utils
 from grow.common import utils
 from grow.preprocessors import preprocessors
+from grow.translators import translation_stats
 from grow.translators import translators
 from . import catalog_holder
 from . import collection
@@ -44,6 +45,7 @@ class PodDoesNotExistError(Error, IOError):
 class Pod(object):
     DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
     FEATURE_UI = 'ui'
+    FEATURE_TRANSLATION_STATS = 'translation_stats'
     FILE_PODCACHE = '.podcache.yaml'
     FILE_PODSPEC = 'podspec.yaml'
 
@@ -63,7 +65,9 @@ class Pod(object):
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.routes = grow_routes.Routes(pod=self)
         self._podcache = None
-        self._disabled = set()
+        self._disabled = set(
+            self.FEATURE_TRANSLATION_STATS,
+        )
 
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
@@ -174,6 +178,10 @@ class Pod(object):
     def title(self):
         return self.yaml.get('title')
 
+    @utils.cached_property
+    def translation_stats(self):
+        return translation_stats.TranslationStats()
+
     @property
     def extensions_dir(self):
         return self.yaml.get('extensions_dir', Pod.DEFAULT_EXTENSIONS_DIR_NAME)
@@ -225,6 +233,9 @@ class Pod(object):
         if self.ui and not self.is_enabled(self.FEATURE_UI):
             output.update(self.export_ui())
         return output
+
+    def enable(self, feature):
+        self._disabled.discard(feature)
 
     def export(self, suffix=None, append_slashes=False, pod_paths=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
@@ -279,6 +290,7 @@ class Pod(object):
                 raise
             bar.update(bar.value + 1)
         bar.finish()
+
         return output
 
     def export_ui(self):
