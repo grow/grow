@@ -51,7 +51,8 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
         paths_to_contents = deployment.dump(pod)
         if prevent_untranslated and pod.translation_stats.untranslated:
             pod.translation_stats.pretty_print()
-            raise pods.Error('Aborted deploy due to untranslated strings.')
+            raise pods.Error('Aborted deploy due to untranslated strings. '
+                             'Use the --force-untranslated flag to force deployment.')
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
         deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
