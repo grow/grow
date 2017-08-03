@@ -141,6 +141,7 @@ upload-pypi:
 	git pull origin master
 	$(MAKE) prep-release
 	python setup.py sdist bdist_wheel
+	pip2 install urllib3[secure] --upgrade
 	pip2 install twine --upgrade
 	twine upload dist/grow-$(VERSION)*
 
