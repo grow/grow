@@ -79,6 +79,7 @@ from grow.common import utils
 from grow.deployments import indexes
 from grow.deployments import tests
 from grow.pods import env
+from protorpc import messages as proto_messages
 from . import messages
 
 
@@ -112,6 +113,10 @@ class DestinationTestCase(object):
                 yield func
 
 
+class BaseConfig(proto_messages.Message):
+    prevent_untranslated = proto_messages.BooleanField(1, default=False)
+
+
 class BaseDestination(object):
     TestCase = DestinationTestCase
     diff_basename = 'diff.proto.json'
@@ -140,6 +145,13 @@ class BaseDestination(object):
         if self._has_custom_control_dir:
             return self.config.control_dir
         return self._control_dir
+
+    @property
+    def prevent_untranslated(self):
+        """Configuration for untranslated messages preventing deployment."""
+        if not self.config.base_config:
+            return False
+        return self.config.base_config.prevent_untranslated
 
     @property
     def storage(self):

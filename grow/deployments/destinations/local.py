@@ -12,6 +12,7 @@ class Config(messages.Message):
     before_deploy = messages.StringField(4, repeated=True)
     after_deploy = messages.StringField(5, repeated=True)
     control_dir = messages.StringField(6)
+    base_config = messages.MessageField(base.BaseConfig, 7)
 
 
 class LocalDestination(base.BaseDestination):

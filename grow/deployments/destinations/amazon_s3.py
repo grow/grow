@@ -20,7 +20,7 @@ class Config(messages.Message):
     redirect_trailing_slashes = messages.BooleanField(6, default=True)
     index_document = messages.StringField(7, default='index.html')
     error_document = messages.StringField(8, default='404.html')
-
+    base_config = messages.MessageField(base.BaseConfig, 9)
 
 
 class AmazonS3Destination(base.BaseDestination):
