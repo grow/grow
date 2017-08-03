@@ -19,10 +19,10 @@ from grow.pods import storage
               default=False, is_flag=True,
               help='Clear the pod cache before building.')
 @click.option('--file', '--pod-path', 'pod_paths', help='Build only pages affected by content files.', multiple=True)
-@click.option('--display-untranslated',
+@click.option('--locate-untranslated',
               default=False, is_flag=True,
               help='Shows untranslated message information.')
-def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, display_untranslated):
+def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untranslated):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -31,7 +31,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, display_untrans
         pod.podcache.reset(force=True)
     if preprocess:
         pod.preprocess()
-    if display_untranslated:
+    if locate_untranslated:
         pod.enable(pod.FEATURE_TRANSLATION_STATS)
     try:
         config = local_destination.Config(out_dir=out_dir)
@@ -44,5 +44,5 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, display_untrans
         pod.podcache.write()
     except pods.Error as e:
         raise click.ClickException(str(e))
-    if display_untranslated:
+    if locate_untranslated:
         pod.translation_stats.pretty_print()
