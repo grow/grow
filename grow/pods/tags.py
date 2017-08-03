@@ -196,6 +196,9 @@ def _gettext_alias(__context, *args, **kwargs):
 
 
 def make_doc_gettext(doc):
+    if not doc:
+        return _gettext_alias
+
     translation_stats = doc.pod.translation_stats
     catalog = doc.pod.catalogs.get(doc.locale)
     gettext_trans = doc.pod.catalogs.get_gettext_translations(doc.locale)
@@ -268,20 +271,20 @@ def wrap_locale_context(func):
     return _locale_filter
 
 
-def create_builtin_tags(pod, doc, use_cache=False):
+def create_builtin_tags(pod, doc):
     """Creates standard set of tags for rendering based on the doc."""
 
     def _wrap(func):
         # pylint: disable=unnecessary-lambda
         return lambda *args, **kwargs: func(
-            *args, _pod=pod, use_cache=use_cache, **kwargs)
+            *args, _pod=pod, **kwargs)
 
     def _wrap_dependency(func):
         def _wrapper(*args, **kwargs):
             if doc and not kwargs.get('locale', None):
                 kwargs['locale'] = str(doc.locale)
             included_docs = func(
-                *args, _pod=pod, use_cache=use_cache, **kwargs)
+                *args, _pod=pod, **kwargs)
             if doc:
                 try:
                     for included_doc in included_docs:
@@ -298,7 +301,7 @@ def create_builtin_tags(pod, doc, use_cache=False):
         def _wrapper(*args, **kwargs):
             if doc:
                 pod.podcache.dependency_graph.add(doc.pod_path, args[0])
-            return func(*args, _pod=pod, use_cache=use_cache, **kwargs)
+            return func(*args, _pod=pod, **kwargs)
         return _wrapper
 
     return {
