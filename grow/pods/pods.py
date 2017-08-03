@@ -131,7 +131,7 @@ class Pod(object):
             raise podspec.PodSpecParseError('Error parsing: {}'.format(path))
 
     def set_env(self, env):
-        if env.name:
+        if env and env.name:
             untag = document_fields.DocumentFields.untag
             content = untag(self._parse_yaml(), env_name=env.name)
             self._yaml = content

@@ -36,10 +36,12 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
     try:
         pod = pods.Pod(root, storage=storage.FileStorage)
         deployment = pod.get_deployment(deployment_name)
-        prevent_untranslated = deployment.prevent_untranslated and not force_untranslated
         # use the deployment's environment for preprocessing and later steps.
         pod.set_env(deployment.config.env)
-        if prevent_untranslated:
+        require_translations = pod.podspec.localization.get(
+            'require_translations', False)
+        require_translations = require_translations and not force_untranslated
+        if require_translations:
             pod.enable(pod.FEATURE_TRANSLATION_STATS)
         if auth:
             deployment.login(auth)
@@ -49,7 +51,7 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             deployment.test()
             return
         paths_to_contents = deployment.dump(pod)
-        if prevent_untranslated and pod.translation_stats.untranslated:
+        if require_translations and pod.translation_stats.untranslated:
             pod.translation_stats.pretty_print()
             raise pods.Error('Aborted deploy due to untranslated strings. '
                              'Use the --force-untranslated flag to force deployment.')
