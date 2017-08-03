@@ -137,3 +137,14 @@ Grow can import translation PO files from external sources. Currently Grow expec
 [sourcecode:bash]
 grow import_translations --source=<path to zip file or directory of locales>
 [/sourcecode]
+
+## Untranslated content
+
+To help find content that is in use, but not yet translated you can generate a summary of the missing translations.
+
+[sourcecode:bash]
+# Builds pod and shows untranslated strings.
+grow build --locate-untranslated
+[/sourcecode]
+
+You can also update the configuration in your podspec to prevent specific deployments when there are untranslated content.

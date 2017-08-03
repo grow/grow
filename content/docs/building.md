@@ -21,6 +21,9 @@ grow build
 
 # Builds pod to <dir>.
 grow build --out_dir=<dir>
+
+# Builds pod and shows untranslated strings.
+grow build --locate-untranslated
 [/sourcecode]
 
 ### preprocess
