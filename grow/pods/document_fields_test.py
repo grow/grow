@@ -497,6 +497,17 @@ class DocumentFieldsTestCase(unittest.TestCase):
             },
         }, untag(fields, locale='de', env_name='prod'))
 
+    def test_update(self):
+        """Test that updates properly overwrite and are untagged."""
+        doc_fields = document_fields.DocumentFields({
+            'foo@': 'bar',
+        })
+        self.assertEquals('bar', doc_fields['foo'])
+        doc_fields.update({
+            'foo@': 'bbq',
+        })
+        self.assertEquals('bbq', doc_fields['foo'])
+
 
 if __name__ == '__main__':
     unittest.main()
