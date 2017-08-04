@@ -34,10 +34,16 @@ class BuiltinsTestCase(unittest.TestCase):
         self.assertEqual(expected, tags.locales(identifiers))
 
     def test_json(self):
-        controller, params = self.pod.match('/yaml_test/')
+        controller, params = self.pod.match('/json_test/')
         html = controller.render(params)
         self.assertIn('key - value', html)
         self.assertIn('key2 - value2', html)
+
+    def test_json_encoder(self):
+        controller, params = self.pod.match('/json_test/')
+        html = controller.render(params)
+        self.assertIn('"$title": "Text Page"', html)
+        self.assertIn('"$hidden": true', html)
 
     def test_collections(self):
         collections = tags.collections(_pod=self.pod)
