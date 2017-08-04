@@ -24,7 +24,6 @@ class Config(messages.Message):
     remote = messages.StringField(8)
     subdomain = messages.StringField(9)
     subdomain_prefix = messages.StringField(10)
-    base_config = messages.MessageField(base.BaseConfig, 11)
 
 
 class WebReviewDestination(base.BaseDestination):

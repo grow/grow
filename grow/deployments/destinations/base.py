@@ -113,10 +113,6 @@ class DestinationTestCase(object):
                 yield func
 
 
-class BaseConfig(proto_messages.Message):
-    prevent_untranslated = proto_messages.BooleanField(1, default=False)
-
-
 class BaseDestination(object):
     TestCase = DestinationTestCase
     diff_basename = 'diff.proto.json'

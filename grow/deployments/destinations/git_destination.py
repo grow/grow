@@ -21,7 +21,6 @@ class Config(messages.Message):
     branch = messages.StringField(3, default='master')
     root_dir = messages.StringField(4, default='')
     keep_control_dir = messages.BooleanField(5, default=False)
-    base_config = messages.MessageField(base.BaseConfig, 6)
 
 
 class GitDestination(base.BaseDestination):
