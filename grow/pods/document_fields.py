@@ -1,6 +1,4 @@
-"""
-Document fields for accessing the meta fields parsed from the document.
-"""
+"""Document fields for accessing the meta fields parsed from the document."""
 
 from boltons import iterutils
 import re

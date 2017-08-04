@@ -10,6 +10,7 @@ import markdown
 import random
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
+from grow.common import json_encoder
 from grow.common import utils
 from grow.pods import locales as locales_lib
 from grow.pods import urls
@@ -165,7 +166,7 @@ def shuffle_filter(_ctx, seq):
 @jinja2.contextfilter
 def jsonify(_ctx, obj, *args, **kwargs):
     """Filter for JSON dumping an object."""
-    return json_lib.dumps(obj, *args, **kwargs)
+    return json_lib.dumps(obj, cls=json_encoder.GrowJSONEncoder, *args, **kwargs)
 
 
 def _deep_gettext(ctx, fields):

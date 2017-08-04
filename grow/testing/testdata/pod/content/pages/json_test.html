@@ -1,0 +1,9 @@
+---
+$title@: JSON Test
+---
+{% set data = g.yaml('/data/file.json') %}
+{% for key, value in data.iteritems() %}
+<li>{{key}} - {{value}}
+{% endfor %}
+{% set jsonify_doc = g.doc('/content/pages/text.txt') %}
+{{jsonify_doc|jsonify|safe}}
