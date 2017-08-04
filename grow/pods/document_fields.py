@@ -19,6 +19,8 @@ class DocumentFields(object):
         return self._data[key]
 
     def __init__(self, data, locale_identifier=None, env_name=None):
+        self._locale_identifier = locale_identifier
+        self._env_name = env_name
         self._data = DocumentFields.untag(data, locale_identifier, env_name)
 
     def __len__(self):
@@ -87,4 +89,6 @@ class DocumentFields(object):
         return self._data.keys()
 
     def update(self, updated):
+        updated = DocumentFields.untag(
+            updated, self._locale_identifier, self._env_name)
         self._data.update(updated)
