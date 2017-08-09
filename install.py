@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
 """Standalone Grow SDK installer. Downloads Grow SDK and sets up command aliases."""
