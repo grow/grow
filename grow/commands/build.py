@@ -2,6 +2,7 @@
 
 import os
 import click
+import logging
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
@@ -52,3 +53,4 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
             pod, dir_path=dir_path)
         for _, catalog in catalogs.iteritems():
             catalog.save()
+        logging.info('Untranslated strings exported to {}'.format(dir_path))
