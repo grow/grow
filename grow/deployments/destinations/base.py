@@ -79,6 +79,7 @@ from grow.common import utils
 from grow.deployments import indexes
 from grow.deployments import tests
 from grow.pods import env
+from grow.pods import pods
 from protorpc import messages as proto_messages
 from . import messages
 
@@ -120,7 +121,6 @@ class BaseDestination(object):
     stats_basename = 'stats.proto.json'
     threaded = True
     batch_writes = False
-    _control_dir = '/.grow/'
     success = False
 
     def __init__(self, config, name='default'):
@@ -136,11 +136,11 @@ class BaseDestination(object):
     @property
     def control_dir(self):
         if self.config.keep_control_dir:
-            control_dir = self._control_dir
+            control_dir = pods.Pod.PATH_CONTROL
             return os.path.join(self.pod.root, control_dir, 'deployments', self.name)
         if self._has_custom_control_dir:
             return self.config.control_dir
-        return self._control_dir
+        return pods.Pod.PATH_CONTROL
 
     @property
     def prevent_untranslated(self):

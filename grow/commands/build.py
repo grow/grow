@@ -42,7 +42,13 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
         destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,
                            test=False, is_partial=bool(pod_paths))
         pod.podcache.write()
-    except pods.Error as e:
-        raise click.ClickException(str(e))
+    except pods.Error as err:
+        raise click.ClickException(str(err))
     if locate_untranslated:
-        pod.translation_stats.pretty_print()
+        translation_stats = pod.translation_stats
+        translation_stats.pretty_print()
+        dir_path = '{}untranslated/'.format(pod.PATH_CONTROL)
+        catalogs = translation_stats.export_untranslated_catalogs(
+            pod, dir_path=dir_path)
+        for _, catalog in catalogs.iteritems():
+            catalog.save()

@@ -48,6 +48,7 @@ class Pod(object):
     FEATURE_TRANSLATION_STATS = 'translation_stats'
     FILE_PODCACHE = '.podcache.yaml'
     FILE_PODSPEC = 'podspec.yaml'
+    PATH_CONTROL = '/.grow/'
 
     def __eq__(self, other):
         return (isinstance(self, Pod)

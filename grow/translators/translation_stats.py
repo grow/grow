@@ -33,6 +33,18 @@ class TranslationStats(object):
             'untranslated': self.untranslated,
         }
 
+    def export_untranslated_catalogs(self, pod, dir_path=None):
+        """Export the untranslated messages into catalogs based on locale."""
+        locale_to_catalog = {}
+        for locale, messages in self.untranslated.iteritems():
+            if locale not in locale_to_catalog:
+                locale_to_catalog[locale] = pod.catalogs.get(
+                    locale, basename='untranslated.po', dir_path=dir_path)
+            catalog = locale_to_catalog[locale]
+            for message in messages:
+                catalog.add(message)
+        return locale_to_catalog
+
     def tick(self, message, locale, default_locale):
         if not message:
             return
@@ -62,14 +74,16 @@ class TranslationStats(object):
 
         for locale in self.untranslated:
             for message in self.untranslated[locale]:
-                rows.append([str(locale), self.untranslated[locale][message], message])
+                rows.append([str(locale), self.untranslated[
+                            locale][message], message])
 
         rows = sorted(rows, key=lambda x: -x[1])
         if not show_all:
             num_rows = len(rows)
             rows = rows[:self.ROW_COUNT]
             if num_rows > self.ROW_COUNT:
-                rows.append(['', num_rows-self.ROW_COUNT, '+ Additional untranslated strings...'])
+                rows.append(['', num_rows - self.ROW_COUNT,
+                             '+ Additional untranslated strings...'])
 
         table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
         logging.info('\n' + table.draw() + '\n')
