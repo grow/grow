@@ -74,13 +74,13 @@ import io
 import logging
 import os
 import subprocess
+import re
 import sys
 from grow.common import utils
 from grow.deployments import indexes
 from grow.deployments import tests
 from grow.pods import env
 from grow.pods import pods
-from protorpc import messages as proto_messages
 from . import messages
 
 
@@ -159,6 +159,16 @@ class BaseDestination(object):
             return indexes.Index.from_string(content)
         except IOError:
             return indexes.Index.create()
+
+    def export_untranslated_catalogs(self):
+        dir_path = '{}untranslated/'.format(self.control_dir)
+        catalogs = self.pod.translation_stats.export_untranslated_catalogs(
+            self.pod, dir_path=dir_path)
+        self.pod.delete_files([dir_path], recursive=True,
+                              pattern=re.compile(r'\.po$'))
+        for _, catalog in catalogs.iteritems():
+            catalog.save()
+        logging.info('Untranslated strings exported to {}'.format(dir_path))
 
     def get_env(self):
         """Returns an environment object based on the config."""

@@ -2,8 +2,6 @@
 
 import os
 import click
-import logging
-import re
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
@@ -39,6 +37,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
     try:
         config = local_destination.Config(out_dir=out_dir)
         destination = local_destination.LocalDestination(config)
+        destination.pod = pod
         paths_to_contents = destination.dump(pod, pod_paths=pod_paths)
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
@@ -48,13 +47,5 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
     except pods.Error as err:
         raise click.ClickException(str(err))
     if locate_untranslated:
-        translation_stats = pod.translation_stats
-        translation_stats.pretty_print()
-        dir_path = '{}untranslated/'.format(pod.PATH_CONTROL)
-        catalogs = translation_stats.export_untranslated_catalogs(
-            pod, dir_path=dir_path)
-        pod.delete_files([dir_path], recursive=True,
-                         pattern=re.compile(r'\.po$'))
-        for _, catalog in catalogs.iteritems():
-            catalog.save()
-        logging.info('Untranslated strings exported to {}'.format(dir_path))
+        pod.translation_stats.pretty_print()
+        destination.export_untranslated_catalogs()
