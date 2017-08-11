@@ -10,6 +10,7 @@ import yaml
 from protorpc import message_types
 from protorpc import messages
 from protorpc import protojson
+from grow.common import progressbar_non
 from grow.common import utils
 from grow.translators import errors as translator_errors
 
@@ -102,10 +103,11 @@ class Translator(object):
         if not stats_to_download:
             return
         num_files = len(stats_to_download)
-        text = 'Downloading translations: %(value)d/{} (in %(elapsed)s)'
+        text = 'Downloading translations: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
         if not inject:
-            bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+            bar = progressbar_non.create_progressbar(
+                "Downloading translations...", widgets=widgets, max_value=num_files)
             bar.start()
         threads = []
         langs_to_translations = {}
@@ -236,9 +238,10 @@ class Translator(object):
             stats = self._upload_catalogs(catalogs_to_upload, source_lang,
                                           prune=prune)
         else:
-            text = 'Uploading translations: %(value)d/{} (in %(elapsed)s)'
+            text = 'Uploading translations: %(value)d/{} (in %(seconds_elapsed)s)'
             widgets = [progressbar.FormatLabel(text.format(num_files))]
-            bar = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+            bar = progressbar_non.create_progressbar(
+                "Uploading translations...", widgets=widgets, max_value=num_files)
             bar.start()
             threads = []
 

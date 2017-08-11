@@ -13,6 +13,7 @@ from werkzeug.contrib import cache as werkzeug_cache
 from grow.common import extensions
 from grow.common import logger
 from grow.common import sdk_utils
+from grow.common import progressbar_non
 from grow.common import utils
 from grow.preprocessors import preprocessors
 from grow.translators import translation_stats
@@ -264,9 +265,10 @@ class Pod(object):
     def export_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Builds the pod, returning a mapping of paths to content."""
         output = {}
-        text = 'Building: %(value)d/{} (in %(elapsed)s)'
+        text = 'Building: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        bar = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
+        bar = progressbar_non.create_progressbar("Building pod...",
+            widgets=widgets, max_value=len(paths))
         bar.start()
         for path in paths:
             output_path = path
@@ -321,9 +323,10 @@ class Pod(object):
                 for file_name in files:
                     paths.append(os.path.join(pod_dir, file_name))
 
-        text = 'Building UI Tools: %(value)d/{} (in %(elapsed)s)'
+        text = 'Building UI Tools: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        progress = progressbar.ProgressBar(widgets=widgets, maxval=len(paths))
+        progress = progressbar_non.create_progressbar("Building UI Tools...",
+            widgets=widgets, max_value=len(paths))
         progress.start()
         for path in paths:
             output_path = path.replace(
