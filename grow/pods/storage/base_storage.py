@@ -31,7 +31,15 @@ class BaseStorage(object):
         raise NotImplementedError
 
     @staticmethod
+    def delete(filename):
+        raise NotImplementedError
+
+    @staticmethod
     def delete_dir(dirpath):
+        raise NotImplementedError
+
+    @staticmethod
+    def delete_files(dirpaths, recursive=False, pattern=None):
         raise NotImplementedError
 
     @staticmethod

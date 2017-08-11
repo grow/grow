@@ -80,6 +80,17 @@ class FileStorage(base_storage.BaseStorage):
         shutil.rmtree(dirpath)
 
     @staticmethod
+    def delete_files(dirpaths, recursive=False, pattern=None):
+        """Delete files from within the dirpaths that match a pattern."""
+        for dirpath in dirpaths:
+            for root, _, files in os.walk(dirpath, followlinks=True):
+                for filename in files:
+                    if not pattern or pattern.search(filename):
+                        os.remove(os.path.join(root, filename))
+                if not recursive:
+                    break
+
+    @staticmethod
     def copy_to(paths, target_paths):
         # TODO(jeremydw): Rename to bulk_copy_to.
         for i, path in enumerate(paths):

@@ -3,6 +3,7 @@
 import os
 import click
 import logging
+import re
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
@@ -19,7 +20,8 @@ from grow.pods import storage
 @click.option('--clear_cache',
               default=False, is_flag=True,
               help='Clear the pod cache before building.')
-@click.option('--file', '--pod-path', 'pod_paths', help='Build only pages affected by content files.', multiple=True)
+@click.option('--file', '--pod-path', 'pod_paths',
+              help='Build only pages affected by content files.', multiple=True)
 @click.option('--locate-untranslated',
               default=False, is_flag=True,
               help='Shows untranslated message information.')
@@ -51,6 +53,8 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
         dir_path = '{}untranslated/'.format(pod.PATH_CONTROL)
         catalogs = translation_stats.export_untranslated_catalogs(
             pod, dir_path=dir_path)
+        pod.delete_files([dir_path], recursive=True,
+                         pattern=re.compile(r'\.po$'))
         for _, catalog in catalogs.iteritems():
             catalog.save()
         logging.info('Untranslated strings exported to {}'.format(dir_path))
