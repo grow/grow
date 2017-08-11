@@ -26,7 +26,7 @@ libsass==0.13.1
 # Pyinstaller ImportError: file_cache is unavailable when using oauth2client >= 4.0.0
 oauth2client==3.0.0
 paramiko==2.2.0
-progressbar2==3.17.1
+progressbar2==3.34.2
 protorpc==0.11.1
 pyasn1==0.2.3
 pycrypto==2.6.1

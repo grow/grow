@@ -6,6 +6,7 @@ import logging
 import ConfigParser
 import progressbar
 import texttable
+from grow.common import progressbar_non
 from grow.common import utils as common_utils
 from protorpc import protojson
 from . import messages
@@ -190,9 +191,10 @@ class Diff(object):
         thread_pool = pool.ThreadPool(cls.POOL_SIZE)
         diff = message
         num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
-        text = 'Deploying: %(value)d/{} (in %(elapsed)s)'
+        text = 'Deploying: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
-        progress = progressbar.ProgressBar(widgets=widgets, maxval=num_files)
+        progress = progressbar_non.create_progressbar(
+            "Deploying...", widgets=widgets, max_value=num_files)
 
         def run_with_progress(func, *args):
             func(*args)
