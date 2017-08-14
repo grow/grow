@@ -4,10 +4,10 @@ import collections as py_collections
 from datetime import datetime
 import itertools
 import json as json_lib
+import random
 import re
 import jinja2
 import markdown
-import random
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import json_encoder
@@ -212,6 +212,11 @@ def make_doc_gettext(doc):
     return gettext
 
 
+def track_dependency(pod_path, _pod=None):
+    """Blank method that gets wrapped for tracking template dependencies."""
+    pass
+
+
 @utils.memoize_tag
 def csv(path, locale=utils.SENTINEL, _pod=None):
     """Retrieves a csv file from the pod."""
@@ -321,6 +326,7 @@ def create_builtin_tags(pod, doc):
         'statics': _wrap_dependency(statics),
         'url': _wrap_dependency_path(url),
         'yaml': _wrap_dependency_path(yaml),
+        '_track_dependency': _wrap_dependency_path(track_dependency),
     }
 
 

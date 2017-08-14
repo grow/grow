@@ -30,6 +30,19 @@ class DependencyGraphTestCase(unittest.TestCase):
             },
             graph.export())
 
+    def test_add_normalize(self):
+        graph = dependency.DependencyGraph()
+        graph.add('/content/test.yaml', 'content/test1.yaml')
+        graph.add('content/test.yaml', '/content/test2.yaml')
+        self.assertEqual(
+            {
+                '/content/test.yaml': [
+                    '/content/test1.yaml',
+                    '/content/test2.yaml',
+                ],
+            },
+            graph.export())
+
     def test_export(self):
         graph = dependency.DependencyGraph()
         graph.add_references(
