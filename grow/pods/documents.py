@@ -1,16 +1,19 @@
-from . import document_fields
-from . import document_format
-from . import footnotes
-from . import locales
-from . import messages
-from . import urls
-from grow.common import utils
+"""Grow documents."""
+
 import datetime
 import json
 import logging
 import os
 import re
 import yaml
+from grow.common import utils
+from grow.translators import translation_stats
+from . import document_fields
+from . import document_format
+from . import footnotes
+from . import locales
+from . import messages
+from . import urls
 
 
 PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')
@@ -318,6 +321,10 @@ class Document(object):
     @property
     def title(self):
         return self.fields.get('$title')
+
+    @utils.cached_property
+    def translation_stats(self):
+        return translation_stats.TranslationStats()
 
     @property
     def url(self):

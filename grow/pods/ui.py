@@ -1,8 +1,10 @@
+"""Grow UI Tools"""
+
+import os
+import jinja2
 from grow.common import utils
 from grow.pods.storage import storage
-from grow.pods import tags
-import jinja2
-import os
+from grow.templates import tags
 
 
 @utils.memoize

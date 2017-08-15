@@ -16,6 +16,7 @@ from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import utils
 from grow.preprocessors import preprocessors
+from grow.templates import tags
 from grow.templates import template_dependencies
 from grow.translators import translation_stats
 from grow.translators import translators
@@ -30,7 +31,6 @@ from . import podspec
 from . import routes as grow_routes
 from . import static as grow_static
 from . import storage as grow_storage
-from . import tags
 
 
 class Error(Exception):

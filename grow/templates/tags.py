@@ -12,9 +12,9 @@ from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import json_encoder
 from grow.common import utils
+from grow.pods import collection as collection_lib
 from grow.pods import locales as locales_lib
 from grow.pods import urls
-from . import collection as collection_lib
 
 
 SLUG_REGEX = re.compile(r'[^A-Za-z0-9-._~]+')
@@ -200,14 +200,14 @@ def make_doc_gettext(doc):
     if not doc:
         return _gettext_alias
 
-    translation_stats = doc.pod.translation_stats
+    translation_stats = [doc.pod.translation_stats, doc.translation_stats]
     catalog = doc.pod.catalogs.get(doc.locale)
-    gettext_trans = doc.pod.catalogs.get_gettext_translations(doc.locale)
 
     @jinja2.contextfunction
     def gettext(__context, __string, *args, **kwargs):
         message = catalog[__string]
-        translation_stats.tick(message, doc.locale, doc.default_locale)
+        for stat in translation_stats:
+            stat.tick(message, doc.locale, doc.default_locale)
         return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
     return gettext
 
@@ -282,15 +282,13 @@ def create_builtin_tags(pod, doc):
 
     def _wrap(func):
         # pylint: disable=unnecessary-lambda
-        return lambda *args, **kwargs: func(
-            *args, _pod=pod, **kwargs)
+        return lambda *args, **kwargs: func(*args, _pod=pod, **kwargs)
 
     def _wrap_dependency(func):
         def _wrapper(*args, **kwargs):
             if doc and not kwargs.get('locale', None):
                 kwargs['locale'] = str(doc.locale)
-            included_docs = func(
-                *args, _pod=pod, **kwargs)
+            included_docs = func(*args, _pod=pod, **kwargs)
             if doc:
                 try:
                     for included_doc in included_docs:
