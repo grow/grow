@@ -20,7 +20,7 @@ class DependencyGraph(object):
     @staticmethod
     def normalize_path(pod_path):
         """Normalize a pod path."""
-        if not pod_path.startswith('/'):
+        if pod_path and not pod_path.startswith('/'):
             pod_path = '/{}'.format(pod_path)
         return pod_path
 

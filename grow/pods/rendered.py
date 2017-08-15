@@ -67,7 +67,6 @@ class RenderedController(controllers.BaseController):
             translator = self.pod.inject_translators(doc=doc)
         jinja_env = self.pod.get_jinja_env(self.locale)
         template = jinja_env.get_template(self.view.lstrip('/'))
-
         local_tags = tags.create_builtin_tags(self.pod, doc)
         # NOTE: This should be done using get_template(... globals=...) but
         # it is not available included inside macros???
