@@ -1,9 +1,11 @@
-from . import tags
+"""Tests for the template tags and filters."""
+
+import unittest
 from grow.pods import locales
 from grow.pods import pods
 from grow.pods import storage
+from grow.templates import tags
 from grow.testing import testing
-import unittest
 
 
 class BuiltinsTestCase(unittest.TestCase):

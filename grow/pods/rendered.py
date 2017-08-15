@@ -2,11 +2,11 @@
 
 import mimetypes
 import sys
+from grow.templates import tags
 from . import controllers
 from . import env
 from . import errors
 from . import messages
-from . import tags
 from . import ui
 
 

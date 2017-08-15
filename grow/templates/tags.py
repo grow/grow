@@ -12,9 +12,9 @@ from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import json_encoder
 from grow.common import utils
+from grow.pods import collection as collection_lib
 from grow.pods import locales as locales_lib
 from grow.pods import urls
-from . import collection as collection_lib
 
 
 SLUG_REGEX = re.compile(r'[^A-Za-z0-9-._~]+')
