@@ -14,17 +14,6 @@ class BuiltinsTestCase(unittest.TestCase):
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
-    def test_shuffle_filter(self):
-        words = ['foo', 'bar', 'baz']
-        self.assertIn('foo', tags.shuffle_filter(None, words))
-
-    def test_slug_filter(self):
-        words = 'Foo Bar Baz'
-        self.assertEqual('foo-bar-baz', tags.slug_filter(words))
-
-        words = 'Foo\'s b@z b**'
-        self.assertEqual('foo-s-b-z-b', tags.slug_filter(words))
-
     def test_locale(self):
         identifier = 'de'
         expected = locales.Locale.parse(identifier)
@@ -34,18 +23,6 @@ class BuiltinsTestCase(unittest.TestCase):
         identifiers = ['de']
         expected = locales.Locale.parse_codes(identifiers)
         self.assertEqual(expected, tags.locales(identifiers))
-
-    def test_json(self):
-        controller, params = self.pod.match('/json_test/')
-        html = controller.render(params)
-        self.assertIn('key - value', html)
-        self.assertIn('key2 - value2', html)
-
-    def test_json_encoder(self):
-        controller, params = self.pod.match('/json_test/')
-        html = controller.render(params)
-        self.assertIn('"$title": "Text Page"', html)
-        self.assertIn('"$hidden": true', html)
 
     def test_collections(self):
         collections = tags.collections(_pod=self.pod)

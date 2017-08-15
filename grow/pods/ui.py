@@ -4,7 +4,7 @@ import os
 import jinja2
 from grow.common import utils
 from grow.pods.storage import storage
-from grow.templates import tags
+from grow.templates import filters
 
 
 @utils.memoize
@@ -22,6 +22,6 @@ def create_jinja_env():
             'jinja2.ext.loopcontrols',
             'jinja2.ext.with_',
         ])
-    env.filters.update(tags.create_builtin_filters())
+    env.filters.update(filters.create_builtin_filters())
 
     return env

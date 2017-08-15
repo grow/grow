@@ -1,23 +1,38 @@
-"""Template tags and filters."""
+"""Template jinja tags."""
 
 import collections as py_collections
 from datetime import datetime
 import itertools
-import json as json_lib
-import random
-import re
 import jinja2
-import markdown
-from babel import dates as babel_dates
-from babel import numbers as babel_numbers
-from grow.common import json_encoder
 from grow.common import utils
 from grow.pods import collection as collection_lib
 from grow.pods import locales as locales_lib
-from grow.pods import urls
 
 
-SLUG_REGEX = re.compile(r'[^A-Za-z0-9-._~]+')
+class Menu(object):
+    """Helper class for creating navigation menus."""
+
+    def __init__(self):
+        self.items = py_collections.OrderedDict()
+
+    def build(self, nodes):
+        """Builds the menu from the set of nodes."""
+        self._recursive_build(self.items, None, nodes)
+
+    def iteritems(self):
+        """Iterate through items."""
+        return self.items.iteritems()
+
+    def _recursive_build(self, tree, parent, nodes):
+        children = [n for n in nodes if n.parent == parent]
+        for child in children:
+            tree[child] = py_collections.OrderedDict()
+            self._recursive_build(tree[child], child, nodes)
+
+
+@jinja2.contextfunction
+def _gettext_alias(__context, *args, **kwargs):
+    return __context.call(__context.resolve('gettext'), *args, **kwargs)
 
 
 # pylint: disable=redefined-outer-name
@@ -48,191 +63,15 @@ def collection(collection, _pod=None):
 
 
 @utils.memoize_tag
-def docs(collection, locale=None, order_by=None, hidden=False, recursive=True, _pod=None):
-    """Retrieves docs from the pod."""
-    collection = _pod.get_collection(collection)
-    return collection.docs(locale=locale, order_by=order_by, include_hidden=hidden,
-                           recursive=recursive)
-
-
-@utils.memoize_tag
 def collections(collection_paths=None, _pod=None):
     """Retrieves collections from the pod."""
     return _pod.list_collections(collection_paths)
 
 
 @utils.memoize_tag
-def statics(pod_path, locale=None, include_hidden=False, _pod=None):
-    """Retrieves a list of statics from the pod."""
-    return list(_pod.list_statics(pod_path, locale=locale, include_hidden=include_hidden))
-
-
-def markdown_filter(value):
-    """Filters content through a markdown processor."""
-    try:
-        if isinstance(value, unicode):
-            value = value.decode('utf-8')
-        value = value or ''
-        return markdown.markdown(value)
-    except UnicodeEncodeError:
-        return markdown.markdown(value)
-
-
-def slug_filter(value):
-    """Filters string to remove url unfriendly characters."""
-    return unicode(u'-'.join(SLUG_REGEX.split(value.lower())).strip(u'-'))
-
-
-@utils.memoize_tag
-def static_something(path, locale=None, _pod=None):
-    """Retrieves a static file from the pod."""
-    return _pod.get_static(path, locale=locale)
-
-
-class Menu(object):
-    """Helper class for creating navigation menus."""
-
-    def __init__(self):
-        self.items = py_collections.OrderedDict()
-
-    def build(self, nodes):
-        """Builds the menu from the set of nodes."""
-        self._recursive_build(self.items, None, nodes)
-
-    def iteritems(self):
-        """Iterate through items."""
-        return self.items.iteritems()
-
-    def _recursive_build(self, tree, parent, nodes):
-        children = [n for n in nodes if n.parent == parent]
-        for child in children:
-            tree[child] = py_collections.OrderedDict()
-            self._recursive_build(tree[child], child, nodes)
-
-
-@utils.memoize_tag
-def nav(collection=None, locale=None, _pod=None):
-    """Builds a navigation object for templates."""
-    collection_obj = _pod.get_collection('/content/' + collection)
-    results = collection_obj.docs(order_by='order', locale=locale)
-    menu = Menu()
-    menu.build(results)
-    return menu
-
-
-@utils.memoize_tag
-def url(pod_path, locale=None, _pod=None):
-    """Retrieves a url for a given document in the pod."""
-    return _pod.get_url(pod_path, locale=locale)
-
-
-@utils.memoize_tag
-def get_doc(pod_path, locale=None, _pod=None):
-    """Retrieves a doc from the pod."""
-    return _pod.get_doc(pod_path, locale=locale)
-
-
-@jinja2.contextfilter
-def render_filter(ctx, template):
-    """Creates jinja template from string and renders."""
-    if isinstance(template, basestring):
-        template = ctx.environment.from_string(template)
-    return template.render(ctx)
-
-
-@jinja2.contextfilter
-def parsedatetime_filter(_ctx, date_string, string_format):
-    """Filter dor parsing a datetime."""
-    return datetime.strptime(date_string, string_format)
-
-
-@jinja2.contextfilter
-def deeptrans(ctx, obj):
-    """Deep translate an object."""
-    return _deep_gettext(ctx, obj)
-
-
-@jinja2.contextfilter
-def shuffle_filter(_ctx, seq):
-    """Shuffles the list into a random order."""
-    try:
-        result = list(seq)
-        random.shuffle(result)
-        return result
-    except TypeError:
-        return seq
-
-
-@jinja2.contextfilter
-def jsonify(_ctx, obj, *args, **kwargs):
-    """Filter for JSON dumping an object."""
-    return json_lib.dumps(obj, cls=json_encoder.GrowJSONEncoder, *args, **kwargs)
-
-
-def _deep_gettext(ctx, fields):
-    if isinstance(fields, dict):
-        new_dct = {}
-        for key, val in fields.iteritems():
-            if isinstance(val, (dict, list, set)):
-                new_dct[key] = _deep_gettext(ctx, val)
-            elif isinstance(val, basestring):
-                new_dct[key] = _gettext_alias(ctx, val)
-            else:
-                new_dct[key] = val
-        return new_dct
-    elif isinstance(fields, (list, set)):
-        for i, val in enumerate(fields):
-            if isinstance(val, (dict, list, set)):
-                fields[i] = _deep_gettext(ctx, val)
-            elif isinstance(val, basestring):
-                fields[i] = _gettext_alias(ctx, val)
-            else:
-                fields[i] = val
-        return fields
-
-
-@jinja2.contextfunction
-def _gettext_alias(__context, *args, **kwargs):
-    return __context.call(__context.resolve('gettext'), *args, **kwargs)
-
-
-def make_doc_gettext(doc):
-    if not doc:
-        return _gettext_alias
-
-    translation_stats = [doc.pod.translation_stats, doc.translation_stats]
-    catalog = doc.pod.catalogs.get(doc.locale)
-
-    @jinja2.contextfunction
-    def gettext(__context, __string, *args, **kwargs):
-        message = catalog[__string]
-        for stat in translation_stats:
-            stat.tick(message, doc.locale, doc.default_locale)
-        return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
-    return gettext
-
-
-def track_dependency(pod_path, _pod=None):
-    """Blank method that gets wrapped for tracking template dependencies."""
-    pass
-
-
-@utils.memoize_tag
 def csv(path, locale=utils.SENTINEL, _pod=None):
     """Retrieves a csv file from the pod."""
     return _pod.read_csv(path, locale=locale)
-
-
-@utils.memoize_tag
-def yaml(path, _pod):
-    """Retrieves a yaml file from the pod."""
-    return _pod.read_yaml(path)
-
-
-@utils.memoize_tag
-def json(path, _pod):
-    """Retrieves a json file from the pod."""
-    return _pod.read_json(path)
 
 
 def date(datetime_obj=None, _pod=None, **kwargs):
@@ -246,9 +85,23 @@ def date(datetime_obj=None, _pod=None, **kwargs):
 
 
 @utils.memoize_tag
-def locales(codes, _pod=None):
-    """Parses locales from the given locale codes."""
-    return locales_lib.Locale.parse_codes(codes)
+def docs(collection, locale=None, order_by=None, hidden=False, recursive=True, _pod=None):
+    """Retrieves docs from the pod."""
+    collection = _pod.get_collection(collection)
+    return collection.docs(locale=locale, order_by=order_by, include_hidden=hidden,
+                           recursive=recursive)
+
+
+@utils.memoize_tag
+def get_doc(pod_path, locale=None, _pod=None):
+    """Retrieves a doc from the pod."""
+    return _pod.get_doc(pod_path, locale=locale)
+
+
+@utils.memoize_tag
+def json(path, _pod):
+    """Retrieves a json file from the pod."""
+    return _pod.read_json(path)
 
 
 @utils.memoize_tag
@@ -257,12 +110,54 @@ def locale(code, _pod=None):
     return locales_lib.Locale.parse(code)
 
 
-@jinja2.contextfilter
-def relative_filter(ctx, path):
-    """Calculates the relative path from the current url to the given url."""
-    doc = ctx['doc']
-    return urls.Url.create_relative_path(
-        path, relative_to=doc.url.path)
+@utils.memoize_tag
+def locales(codes, _pod=None):
+    """Parses locales from the given locale codes."""
+    return locales_lib.Locale.parse_codes(codes)
+
+
+def make_doc_gettext(doc):
+    """Create a gettext function that tracks translation stats."""
+    if not doc:
+        return _gettext_alias
+
+    translation_stats = doc.pod.translation_stats
+    catalog = doc.pod.catalogs.get(doc.locale)
+
+    @jinja2.contextfunction
+    def gettext(__context, __string, *args, **kwargs):
+        message = catalog[__string]
+        translation_stats.tick(message, doc.locale, doc.default_locale)
+        return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
+    return gettext
+
+
+@utils.memoize_tag
+def nav(collection=None, locale=None, _pod=None):
+    """Builds a navigation object for templates."""
+    collection_obj = _pod.get_collection('/content/' + collection)
+    results = collection_obj.docs(order_by='order', locale=locale)
+    menu = Menu()
+    menu.build(results)
+    return menu
+
+
+@utils.memoize_tag
+def static_file(path, locale=None, _pod=None):
+    """Retrieves a static file from the pod."""
+    return _pod.get_static(path, locale=locale)
+
+
+@utils.memoize_tag
+def statics(pod_path, locale=None, include_hidden=False, _pod=None):
+    """Retrieves a list of statics from the pod."""
+    return list(_pod.list_statics(pod_path, locale=locale, include_hidden=include_hidden))
+
+
+@utils.memoize_tag
+def url(pod_path, locale=None, _pod=None):
+    """Retrieves a url for a given document in the pod."""
+    return _pod.get_url(pod_path, locale=locale)
 
 
 def wrap_locale_context(func):
@@ -275,6 +170,12 @@ def wrap_locale_context(func):
             kwargs['locale'] = str(doc.locale)
         return func(value, *args, **kwargs)
     return _locale_filter
+
+
+@utils.memoize_tag
+def yaml(path, _pod):
+    """Retrieves a yaml file from the pod."""
+    return _pod.read_yaml(path)
 
 
 def create_builtin_tags(pod, doc):
@@ -320,29 +221,9 @@ def create_builtin_tags(pod, doc):
         'locale': _wrap(locale),
         'locales': _wrap(locales),
         'nav': _wrap(nav),
-        'static': _wrap_dependency(static_something),
+        'static': _wrap_dependency(static_file),
         'statics': _wrap_dependency(statics),
         'url': _wrap_dependency_path(url),
         'yaml': _wrap_dependency_path(yaml),
-        '_track_dependency': _wrap_dependency_path(track_dependency),
+        '_track_dependency': _wrap_dependency_path(lambda *args, **kwargs: None),
     }
-
-
-def create_builtin_filters():
-    """Filters standard for the template rendering."""
-    return (
-        ('currency', wrap_locale_context(babel_numbers.format_currency)),
-        ('date', wrap_locale_context(babel_dates.format_date)),
-        ('datetime', wrap_locale_context(babel_dates.format_datetime)),
-        ('decimal', wrap_locale_context(babel_numbers.format_decimal)),
-        ('deeptrans', deeptrans),
-        ('jsonify', jsonify),
-        ('markdown', markdown_filter),
-        ('number', wrap_locale_context(babel_numbers.format_number)),
-        ('percent', wrap_locale_context(babel_numbers.format_percent)),
-        ('render', render_filter),
-        ('shuffle', shuffle_filter),
-        ('slug', slug_filter),
-        ('time', wrap_locale_context(babel_dates.format_time)),
-        ('relative', relative_filter),
-    )
