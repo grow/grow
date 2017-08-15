@@ -65,10 +65,9 @@ class RenderedController(controllers.BaseController):
         if inject:
             preprocessor = self.pod.inject_preprocessors(doc=doc)
             translator = self.pod.inject_translators(doc=doc)
-        env = self.pod.get_jinja_env(self.locale)
-
+        jinja_env = self.pod.get_jinja_env(self.locale)
+        template = jinja_env.get_template(self.view.lstrip('/'))
         local_tags = tags.create_builtin_tags(self.pod, doc)
-        template = env.get_template(self.view.lstrip('/'))
         # NOTE: This should be done using get_template(... globals=...) but
         # it is not available included inside macros???
         # See: https://github.com/pallets/jinja/issues/688

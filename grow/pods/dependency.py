@@ -17,6 +17,13 @@ class DependencyGraph(object):
     def __init__(self):
         self.reset()
 
+    @staticmethod
+    def normalize_path(pod_path):
+        """Normalize a pod path."""
+        if pod_path and not pod_path.startswith('/'):
+            pod_path = '/{}'.format(pod_path)
+        return pod_path
+
     def add_all(self, path_to_dependencies):
         """Add all from a dict of paths to dependencies."""
 
@@ -27,6 +34,9 @@ class DependencyGraph(object):
         """Add reference made in a source file to the graph."""
         if not reference:
             return
+
+        source = DependencyGraph.normalize_path(source)
+        reference = DependencyGraph.normalize_path(reference)
 
         if source not in self._dependencies:
             self._dependencies[source] = set()
@@ -42,10 +52,13 @@ class DependencyGraph(object):
         if not references:
             return
 
+        source = DependencyGraph.normalize_path(source)
+
         self._dependencies[source] = set(references)
 
         # Bi-directional dependency references for easier lookup.
         for reference in references:
+            reference = DependencyGraph.normalize_path(reference)
             if reference not in self._dependents:
                 self._dependents[reference] = set()
             self._dependents[reference].add(source)
