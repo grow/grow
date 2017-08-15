@@ -18,7 +18,8 @@ from grow.pods import storage
 @click.option('--clear_cache',
               default=False, is_flag=True,
               help='Clear the pod cache before building.')
-@click.option('--file', '--pod-path', 'pod_paths', help='Build only pages affected by content files.', multiple=True)
+@click.option('--file', '--pod-path', 'pod_paths',
+              help='Build only pages affected by content files.', multiple=True)
 @click.option('--locate-untranslated',
               default=False, is_flag=True,
               help='Shows untranslated message information.')
@@ -36,13 +37,15 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
     try:
         config = local_destination.Config(out_dir=out_dir)
         destination = local_destination.LocalDestination(config)
+        destination.pod = pod
         paths_to_contents = destination.dump(pod, pod_paths=pod_paths)
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
         destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,
                            test=False, is_partial=bool(pod_paths))
         pod.podcache.write()
-    except pods.Error as e:
-        raise click.ClickException(str(e))
+    except pods.Error as err:
+        raise click.ClickException(str(err))
     if locate_untranslated:
         pod.translation_stats.pretty_print()
+        destination.export_untranslated_catalogs()

@@ -1,9 +1,33 @@
-from . import translation_stats
-from babel.messages import catalog
+"""Tests for the translation stats."""
+
 import unittest
+from babel.messages import catalog
+from grow.pods import pods
+from grow.pods import storage
+from grow.testing import testing
+from grow.translators import translation_stats
 
 
 class TranslationStatsTestCase(unittest.TestCase):
+
+    def test_export_untranslated_catalogs(self):
+        """Make sure that we can make catalogs from the untranslated strings."""
+        dir_path = testing.create_test_pod_dir()
+        pod = pods.Pod(dir_path, storage=storage.FileStorage)
+        stats = translation_stats.TranslationStats()
+        stats.tick(catalog.Message(
+            'About',
+            None,
+        ), 'ga', 'en')
+        self.assertEqual(
+            {
+                'ga': {
+                    'About': 1,
+                },
+            },
+            stats.untranslated)
+        untranslated_catalogs = stats.export_untranslated_catalogs(pod)
+        self.assertTrue('About' in untranslated_catalogs['ga'])
 
     def test_tick(self):
         stats = translation_stats.TranslationStats()

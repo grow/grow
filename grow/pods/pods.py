@@ -50,6 +50,7 @@ class Pod(object):
     FEATURE_TRANSLATION_STATS = 'translation_stats'
     FILE_PODCACHE = '.podcache.yaml'
     FILE_PODSPEC = 'podspec.yaml'
+    PATH_CONTROL = '/.grow/'
 
     def __eq__(self, other):
         return (isinstance(self, Pod)
@@ -225,6 +226,13 @@ class Pod(object):
     def delete_file(self, pod_path):
         path = self._normalize_path(pod_path)
         return self.storage.delete(path)
+
+    def delete_files(self, pod_paths, recursive=False, pattern=None):
+        """Delete matching files from the pod_paths."""
+        normal_paths = []
+        for pod_path in pod_paths:
+            normal_paths.append(self._normalize_path(pod_path))
+        return self.storage.delete_files(normal_paths, recursive=recursive, pattern=pattern)
 
     def disable(self, feature):
         self._disabled.add(feature)
