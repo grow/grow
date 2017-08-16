@@ -178,7 +178,7 @@ def yaml(path, _pod):
     return _pod.read_yaml(path)
 
 
-def create_builtin_tags(pod, doc):
+def create_builtin_tags(pod, doc, track_dependency=None):
     """Creates standard set of tags for rendering based on the doc."""
 
     def _wrap(func):
@@ -190,22 +190,20 @@ def create_builtin_tags(pod, doc):
             if doc and not kwargs.get('locale', None):
                 kwargs['locale'] = str(doc.locale)
             included_docs = func(*args, _pod=pod, **kwargs)
-            if doc:
+            if track_dependency:
                 try:
                     for included_doc in included_docs:
-                        pod.podcache.dependency_graph.add(
-                            doc.pod_path, included_doc.pod_path)
+                        track_dependency(included_doc.pod_path)
                 except TypeError:
                     # Not an interable, try it as a doc.
-                    pod.podcache.dependency_graph.add(
-                        doc.pod_path, included_docs.pod_path)
+                    track_dependency(included_docs.pod_path)
             return included_docs
         return _wrapper
 
     def _wrap_dependency_path(func):
         def _wrapper(*args, **kwargs):
-            if doc:
-                pod.podcache.dependency_graph.add(doc.pod_path, args[0])
+            if track_dependency:
+                track_dependency(args[0])
             return func(*args, _pod=pod, **kwargs)
         return _wrapper
 
@@ -225,5 +223,4 @@ def create_builtin_tags(pod, doc):
         'statics': _wrap_dependency(statics),
         'url': _wrap_dependency_path(url),
         'yaml': _wrap_dependency_path(yaml),
-        '_track_dependency': _wrap_dependency_path(lambda *args, **kwargs: None),
     }
