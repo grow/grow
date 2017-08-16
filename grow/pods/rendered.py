@@ -71,6 +71,11 @@ class RenderedController(controllers.BaseController):
         track_dependency = doc_dependency.DocDependency(doc)
         local_tags = tags.create_builtin_tags(
             self.pod, doc, track_dependency=track_dependency)
+        # NOTE: This should be done using get_template(... globals=...)
+        # or passed as an argument into render but
+        # it is not available included inside macros???
+        # See: https://github.com/pallets/jinja/issues/688
+        template.globals['g'] = local_tags
 
         # Track the message stats, including untranslated strings.
         if self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS):
@@ -81,7 +86,6 @@ class RenderedController(controllers.BaseController):
                 'doc': doc,
                 'env': self.pod.env,
                 'podspec': self.pod.podspec,
-                'g': local_tags,
                 '_track_dependency': track_dependency,
             }
             content = template.render(kwargs).lstrip()
