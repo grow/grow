@@ -16,7 +16,7 @@ from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import utils
 from grow.preprocessors import preprocessors
-from grow.templates import tags
+from grow.templates import filters
 from grow.templates import template_dependencies
 from grow.translators import translation_stats
 from grow.translators import translators
@@ -441,7 +441,7 @@ class Pod(object):
             kwargs['bytecode_cache'] = self._get_bytecode_cache()
         kwargs['extensions'].extend(self.list_jinja_extensions())
         env = template_dependencies.DepEnvironment(**kwargs)
-        env.filters.update(tags.create_builtin_filters())
+        env.filters.update(filters.create_builtin_filters())
         get_gettext_func = self.catalogs.get_gettext_translations
         # pylint: disable=no-member
         env.install_gettext_callables(
