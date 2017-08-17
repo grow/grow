@@ -1,4 +1,20 @@
-"""Track the jinja2 rendering dependencies."""
+"""Track the jinja2 rendering dependencies using a custom environment.
+
+Trying to track with a custom loader does not work since the templates are cached
+by the environment and only triggeres the loader the first time the file is used.
+
+By using a modified version of the code generator and environment the context
+is passed into _load_template method which normally does not need the context.
+Since the _load_template method is called for every template load it happens before
+the template caching and does not affect the performance of the template cache.
+
+When updating jinja to a new version:
+
+- The `visit_Include` adds `, context` as an argument to the function.
+- The `get_template`, `select_template`, `get_or_select_template` pass the `context`
+  argument to the `_load_template` method.
+- The `_load_template` method can remain unchanged.
+"""
 
 from jinja2 import nodes
 from jinja2.compiler import supports_yield_from, CodeGenerator
@@ -27,6 +43,7 @@ class DepCodeGenerator(CodeGenerator):
         # print 'Visit Include'
         self.writeline('template = environment.%s(' % func_name, node)
         self.visit(node.template, frame)
+        # Changed from upstream.
         self.write(', %r, context=context)' % self.name)
         if node.ignore_missing:
             self.outdent()
