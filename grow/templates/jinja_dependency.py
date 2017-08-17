@@ -1,12 +1,12 @@
 """Track the jinja2 rendering dependencies using a custom environment.
 
 Trying to track with a custom loader does not work since the templates are cached
-by the environment and only triggers the loader the first time the file is used.
+by the environment and only triggers the loader the first time the template is used.
 
-By using a modified version of the code generator and environment the context
-is passed into _load_template method which normally does not need the context.
-Since the _load_template method is called for every template load it happens before
-the template caching and does not affect the performance of the template cache.
+By using a modified version of the code generator and environment, the context
+is passed through to `_load_template` method which normally does not need the context.
+Since the `_load_template` method is called before the template caching and does
+not affect the performance of the template cache.
 
 When updating jinja to a new version:
 
