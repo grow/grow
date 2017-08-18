@@ -3,6 +3,7 @@
 import mimetypes
 import sys
 from grow.templates import tags
+from grow.templates import doc_dependency
 from . import controllers
 from . import env
 from . import errors
@@ -67,8 +68,11 @@ class RenderedController(controllers.BaseController):
             translator = self.pod.inject_translators(doc=doc)
         jinja_env = self.pod.get_jinja_env(self.locale)
         template = jinja_env.get_template(self.view.lstrip('/'))
-        local_tags = tags.create_builtin_tags(self.pod, doc)
-        # NOTE: This should be done using get_template(... globals=...) but
+        track_dependency = doc_dependency.DocDependency(doc)
+        local_tags = tags.create_builtin_tags(
+            self.pod, doc, track_dependency=track_dependency)
+        # NOTE: This should be done using get_template(... globals=...)
+        # or passed as an argument into render but
         # it is not available included inside macros???
         # See: https://github.com/pallets/jinja/issues/688
         template.globals['g'] = local_tags
@@ -82,6 +86,7 @@ class RenderedController(controllers.BaseController):
                 'doc': doc,
                 'env': self.pod.env,
                 'podspec': self.pod.podspec,
+                '_track_dependency': track_dependency,
             }
             content = template.render(kwargs).lstrip()
             if self.pod.is_enabled(self.pod.FEATURE_UI):
