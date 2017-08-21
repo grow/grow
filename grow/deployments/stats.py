@@ -9,18 +9,17 @@ from . import messages
 
 class Stats(object):
 
-    def __init__(self, pod, paths_to_contents=None, full=True):
+    def __init__(self, pod, paths=None, full=True):
         self.full = full
         self.pod = pod
-        if paths_to_contents is None and full:
-            paths_to_contents = pod.export()
-        self.paths_to_contents = paths_to_contents
+        self.paths = paths
 
     def get_num_files_per_type(self):
         file_counts = collections.defaultdict(int)
-        for path in self.paths_to_contents.keys():
-            ext = os.path.splitext(path)[-1]
-            file_counts[ext] += 1
+        if self.paths:
+            for path in self.paths:
+                ext = os.path.splitext(path)[-1]
+                file_counts[ext] += 1
         ms = []
         for ext, count in file_counts.iteritems():
             ms.append(messages.FileCountMessage(ext=ext, count=count))

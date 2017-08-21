@@ -243,6 +243,109 @@ class Diff(object):
         if not batch_writes:
             progress.finish()
 
+    @classmethod
+    def stream(cls, index, theirs, content_generator, write_func, delete_func,
+               repo=None, threaded=True, is_partial=False):
+        if pool is None:
+            text = 'Deployment is unavailable in this environment.'
+            raise common_utils.UnavailableError(text)
+        thread_pool = pool.ThreadPool(cls.POOL_SIZE)
+        git = common_utils.get_git()
+        diff = messages.DiffMessage()
+        diff.is_partial = is_partial
+        diff.indexes = []
+        diff.indexes.append(theirs or messages.IndexMessage())
+        diff.indexes.append(index or messages.IndexMessage())
+
+        index_paths_to_shas = {}
+        their_paths_to_shas = {}
+
+        for file_message in theirs.files:
+            their_paths_to_shas[file_message.path] = file_message.sha
+
+        for path, rendered in content_generator:
+            m = hashlib.sha1()
+            if isinstance(rendered, unicode):
+                rendered = rendered.encode('utf-8')
+            m.update(rendered)
+            sha = m.hexdigest()
+            index_paths_to_shas[path] = sha
+            # print '{} : {}'.format(sha, path)
+
+            if path in their_paths_to_shas:
+                if index_paths_to_shas[path] == their_paths_to_shas[path]:
+                    file_message = messages.FileMessage()
+                    file_message.path = path
+                    file_message.deployed = theirs.deployed
+                    file_message.deployed_by = theirs.deployed_by
+                    diff.nochanges.append(file_message)
+                else:
+                    file_message = messages.FileMessage()
+                    file_message.path = path
+                    file_message.deployed = theirs.deployed
+                    file_message.deployed_by = theirs.deployed_by
+                    diff.edits.append(file_message)
+                    if threaded:
+                        args = (file_message.path, rendered)
+                        thread_pool.apply_async(write_func, args=args)
+                    else:
+                        write_func(file_message.path, rendered)
+                del their_paths_to_shas[path]
+            else:
+                file_message = messages.FileMessage()
+                file_message.path = path
+                diff.adds.append(file_message)
+                if threaded:
+                    args = (file_message.path, rendered)
+                    thread_pool.apply_async(write_func, args=args)
+                else:
+                    write_func(file_message.path, rendered)
+
+        # When doing partial diffs we do not have enough information to know
+        # which files have been deleted.
+        if not is_partial:
+            for path, sha in their_paths_to_shas.iteritems():
+                file_message = messages.FileMessage()
+                file_message.path = path
+                file_message.deployed = theirs.deployed
+                file_message.deployed_by = theirs.deployed_by
+                diff.deletes.append(file_message)
+                if threaded:
+                    args = (file_message.path)
+                    thread_pool.apply_async(delete_func, args=args)
+                else:
+                    delete_func(file_message.path)
+
+        # What changed in the pod between deploy commits.
+        if (repo is not None and index.commit and index.commit.sha and theirs.commit
+                and theirs.commit.sha):
+            try:
+                what_changed = repo.git.log(
+                    '--date=short',
+                    '--pretty=format:[%h] %ad <%ae> %s',
+                    '{}..{}'.format(theirs.commit.sha, index.commit.sha))
+                if isinstance(what_changed, unicode):
+                    what_changed = what_changed.encode('utf-8')
+                diff.what_changed = what_changed.decode('utf-8')
+            except git.exc.GitCommandError:
+                logging.info('Unable to determine changes between deploys.')
+
+        # If on the original deploy show commit log messages only.
+        elif (repo is not None
+              and index.commit and index.commit.sha):
+            what_changed = repo.git.log(
+                '--date=short',
+                '--pretty=format:[%h] %ad <%ae> %s')
+            if isinstance(what_changed, unicode):
+                what_changed = what_changed.encode('utf-8')
+            diff.what_changed = what_changed.decode('utf-8')
+
+        if threaded:
+            thread_pool.close()
+            thread_pool.join()
+
+        return diff
+
 
 class Index(object):
 

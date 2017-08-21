@@ -248,6 +248,10 @@ class BaseDestination(object):
         pod.set_env(self.get_env())
         return pod.dump(pod_paths=pod_paths)
 
+    def dump_stream(self, pod, pod_paths=None):
+        pod.set_env(self.get_env())
+        return pod.dump_gen(pod_paths=pod_paths)
+
     def deploy(self, paths_to_contents, stats=None, repo=None, dry_run=False,
                confirm=False, test=True, is_partial=False):
         self._confirm = confirm
@@ -283,6 +287,35 @@ class BaseDestination(object):
                 self.write_control_file(self.stats_basename, stats.to_string())
             else:
                 self.delete_control_file(self.stats_basename)
+            if diff:
+                self.write_control_file(
+                    self.diff_basename, indexes.Diff.to_string(diff))
+            self.success = True
+        finally:
+            self.postlaunch()
+        return diff
+
+    def deploy_stream(self, content_generator, stats=None, repo=None, dry_run=False,
+                      confirm=False, test=True, is_partial=False):
+        self._confirm = confirm
+        self.prelaunch(dry_run=dry_run)
+        if test:
+            self.test()
+        try:
+            deployed_index = self._get_remote_index()
+            new_index = indexes.Index.create()
+            if repo:
+                indexes.Index.add_repo(new_index, repo)
+            diff = indexes.Diff.stream(
+                new_index, deployed_index, content_generator, write_func=self.write_file,
+                delete_func=self.delete_file, repo=repo)
+            self._diff = diff
+            self.write_control_file(
+                self.index_basename, indexes.Index.to_string(new_index))
+            if stats is not None:
+                self.write_control_file(self.stats_basename, stats.to_string())
+            # else:
+            #     self.delete_control_file(self.stats_basename)
             if diff:
                 self.write_control_file(
                     self.diff_basename, indexes.Diff.to_string(diff))

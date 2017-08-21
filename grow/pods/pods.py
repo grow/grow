@@ -248,8 +248,9 @@ class Pod(object):
         for output_path, rendered in self.export_gen(
                 suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths):
             yield output_path, rendered
-        # if self.ui and not self.is_enabled(self.FEATURE_UI):
-        #     output.update(self.export_ui())
+        if self.ui and not self.is_enabled(self.FEATURE_UI):
+            for output_path, rendered in self.export_ui_gen():
+                yield output_path, rendered
 
     def enable(self, feature):
         self._disabled.discard(feature)
@@ -344,6 +345,12 @@ class Pod(object):
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
         output = {}
+        for output_path, rendered in self.export_ui_gen():
+            output[output_path] = rendered
+        return output
+
+    def export_ui_gen(self):
+        """Builds the grow ui tools, returning a mapping of paths to content."""
         paths = []
         source_prefix = 'node_modules/'
         destination_root = '_grow/ui/'
@@ -355,7 +362,7 @@ class Pod(object):
         for path in ['css/ui.min.css', 'js/ui.min.js']:
             source_path = os.path.join(source_root, path)
             output_path = os.sep + os.path.join(destination_root, path)
-            output[output_path] = self.storage.read(source_path)
+            yield output_path, self.storage.read(source_path)
 
         # Add the files from each of the tools.
         for tool in self.ui.get('tools', []):
@@ -377,10 +384,9 @@ class Pod(object):
         for path in paths:
             output_path = path.replace(
                 source_prefix, '{}{}'.format(destination_root, tools_dir))
-            output[output_path] = self.read_file(path)
+            yield output_path, self.read_file(path)
             progress.update(progress.value + 1)
         progress.finish()
-        return output
 
     def file_exists(self, pod_path):
         path = self._normalize_path(pod_path)

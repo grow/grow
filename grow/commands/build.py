@@ -38,11 +38,11 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
         config = local_destination.Config(out_dir=out_dir)
         destination = local_destination.LocalDestination(config)
         destination.pod = pod
-        paths_to_contents = destination.dump(pod, pod_paths=pod_paths)
         repo = utils.get_git_repo(pod.root)
-        stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
-        destination.deploy(paths_to_contents, stats=stats_obj, repo=repo, confirm=False,
-                           test=False, is_partial=bool(pod_paths))
+        # stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
+        stats_obj = None
+        destination.deploy_stream(destination.dump_stream(pod, pod_paths=pod_paths),
+            stats=stats_obj, repo=repo, confirm=False, test=False, is_partial=bool(pod_paths))
         pod.podcache.write()
     except pods.Error as err:
         raise click.ClickException(str(err))
