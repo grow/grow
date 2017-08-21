@@ -244,6 +244,13 @@ class Pod(object):
             output.update(self.export_ui())
         return output
 
+    def dump_gen(self, suffix='index.html', append_slashes=True, pod_paths=None):
+        for output_path, rendered in self.export_gen(
+                suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths):
+            yield output_path, rendered
+        # if self.ui and not self.is_enabled(self.FEATURE_UI):
+        #     output.update(self.export_ui())
+
     def enable(self, feature):
         self._disabled.discard(feature)
 
@@ -271,13 +278,45 @@ class Pod(object):
                 output['/404.html'] = error_controller.render({})
         return output
 
+    def export_gen(self, suffix=None, append_slashes=False, pod_paths=None):
+        """Builds the pod, returning a mapping of paths to content based on pod routes."""
+        if pod_paths:
+            # When provided a list of pod_paths do a custom routing tree based on
+            # the docs that are dependent based on the dependecy graph.
+            def _gen_docs(pod_paths):
+                for pod_path in pod_paths:
+                    for dep_path in self.podcache.dependency_graph.match_dependents(
+                            self._normalize_pod_path(pod_path)):
+                        yield self.get_doc(dep_path)
+            routes = grow_routes.Routes.from_docs(self, _gen_docs(pod_paths))
+        else:
+            routes = self.get_routes()
+        paths = []
+        for items in routes.get_locales_to_paths().values():
+            paths += items
+
+        for output_path, rendered in self.export_paths_gen(
+                paths, routes, suffix=suffix, append_slashes=append_slashes):
+            yield output_path, rendered
+        if not pod_paths:
+            error_controller = routes.match_error('/404.html')
+            if error_controller:
+                yield '/404.html', error_controller.render({})
+
     def export_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Builds the pod, returning a mapping of paths to content."""
         output = {}
+        for output_path, rendered in self.export_paths_gen(
+                paths, routes, suffix=suffix, append_slashes=append_slashes):
+            output[output_path] = rendered
+        return output
+
+    def export_paths_gen(self, paths, routes, suffix=None, append_slashes=False):
+        """Builds the pod, returning a mapping of paths to content."""
         text = 'Building: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
         bar = progressbar_non.create_progressbar("Building pod...",
-            widgets=widgets, max_value=len(paths))
+                                                 widgets=widgets, max_value=len(paths))
         bar.start()
         for path in paths:
             output_path = path
@@ -295,14 +334,12 @@ class Pod(object):
                 if append_slashes and output_path.endswith('/') and suffix:
                     output_path += suffix
             try:
-                output[output_path] = controller.render(params, inject=False)
+                yield (output_path, controller.render(params, inject=False))
             except:
                 self.logger.error('Error building: {}'.format(controller))
                 raise
             bar.update(bar.value + 1)
         bar.finish()
-
-        return output
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
@@ -335,7 +372,7 @@ class Pod(object):
         text = 'Building UI Tools: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
         progress = progressbar_non.create_progressbar("Building UI Tools...",
-            widgets=widgets, max_value=len(paths))
+                                                      widgets=widgets, max_value=len(paths))
         progress.start()
         for path in paths:
             output_path = path.replace(
