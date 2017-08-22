@@ -306,8 +306,8 @@ class Pod(object):
 
         text = 'Building UI Tools: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        progress = progressbar_non.create_progressbar("Building UI Tools...",
-                                                      widgets=widgets, max_value=len(paths))
+        progress = progressbar_non.create_progressbar(
+            "Building UI Tools...", widgets=widgets, max_value=len(paths))
         progress.start()
         for path in paths:
             output_path = path.replace(
@@ -683,8 +683,8 @@ class Pod(object):
         """Builds the pod, returning a mapping of paths to content."""
         text = 'Building: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        bar = progressbar_non.create_progressbar("Building pod...",
-                                                 widgets=widgets, max_value=len(paths))
+        bar = progressbar_non.create_progressbar(
+            "Building pod...", widgets=widgets, max_value=len(paths))
         bar.start()
         for path in paths:
             output_path = path
