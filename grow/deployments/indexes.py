@@ -244,12 +244,12 @@ class Diff(object):
             progress.finish()
 
     @classmethod
-    def stream(cls, index, theirs, content_generator, write_func, delete_func,
-               repo=None, threaded=True, is_partial=False):
-        if pool is None:
-            text = 'Deployment is unavailable in this environment.'
-            raise common_utils.UnavailableError(text)
-        thread_pool = pool.ThreadPool(cls.POOL_SIZE)
+    def stream(cls, theirs, content_generator, repo=None, is_partial=False):
+        """Render the content and create a diff passing on only the changed content."""
+        index = Index.create()
+        if repo:
+            Index.add_repo(index, repo)
+        paths_to_content = {}
         git = common_utils.get_git()
         diff = messages.DiffMessage()
         diff.is_partial = is_partial
@@ -264,13 +264,7 @@ class Diff(object):
             their_paths_to_shas[file_message.path] = file_message.sha
 
         for path, rendered in content_generator:
-            m = hashlib.sha1()
-            if isinstance(rendered, unicode):
-                rendered = rendered.encode('utf-8')
-            m.update(rendered)
-            sha = m.hexdigest()
-            index_paths_to_shas[path] = sha
-            # print '{} : {}'.format(sha, path)
+            index_paths_to_shas[path] = Index.add_file(index, path, rendered).sha
 
             if path in their_paths_to_shas:
                 if index_paths_to_shas[path] == their_paths_to_shas[path]:
@@ -285,36 +279,23 @@ class Diff(object):
                     file_message.deployed = theirs.deployed
                     file_message.deployed_by = theirs.deployed_by
                     diff.edits.append(file_message)
-                    if threaded:
-                        args = (file_message.path, rendered)
-                        thread_pool.apply_async(write_func, args=args)
-                    else:
-                        write_func(file_message.path, rendered)
+                    paths_to_content[path] = rendered
                 del their_paths_to_shas[path]
             else:
                 file_message = messages.FileMessage()
                 file_message.path = path
                 diff.adds.append(file_message)
-                if threaded:
-                    args = (file_message.path, rendered)
-                    thread_pool.apply_async(write_func, args=args)
-                else:
-                    write_func(file_message.path, rendered)
+                paths_to_content[path] = rendered
 
         # When doing partial diffs we do not have enough information to know
         # which files have been deleted.
         if not is_partial:
-            for path, sha in their_paths_to_shas.iteritems():
+            for path, _ in their_paths_to_shas.iteritems():
                 file_message = messages.FileMessage()
                 file_message.path = path
                 file_message.deployed = theirs.deployed
                 file_message.deployed_by = theirs.deployed_by
                 diff.deletes.append(file_message)
-                if threaded:
-                    args = (file_message.path)
-                    thread_pool.apply_async(delete_func, args=args)
-                else:
-                    delete_func(file_message.path)
 
         # What changed in the pod between deploy commits.
         if (repo is not None and index.commit and index.commit.sha and theirs.commit
@@ -340,11 +321,7 @@ class Diff(object):
                 what_changed = what_changed.encode('utf-8')
             diff.what_changed = what_changed.decode('utf-8')
 
-        if threaded:
-            thread_pool.close()
-            thread_pool.join()
-
-        return diff
+        return diff, index, paths_to_content
 
 
 class Index(object):
@@ -363,13 +340,12 @@ class Index(object):
     @classmethod
     def add_file(cls, message, path, contents):
         pod_path = '/' + path.lstrip('/')
-        m = hashlib.sha1()
         if isinstance(contents, unicode):
             contents = contents.encode('utf-8')
-        m.update(contents)
-        sha = m.hexdigest()
-        message.files.append(messages.FileMessage(path=pod_path, sha=sha))
-        return message
+        sha = hashlib.sha1(contents).hexdigest()
+        file_message = messages.FileMessage(path=pod_path, sha=sha)
+        message.files.append(file_message)
+        return file_message
 
     @classmethod
     def add_repo(cls, message, repo):

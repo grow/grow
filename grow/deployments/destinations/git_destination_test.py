@@ -28,10 +28,12 @@ class GitDestinationTestCase(unittest.TestCase):
         })
         pod.write_file('/views/base.html', str(random.randint(0, 999)))
         deployment = pod.get_deployment('git')
-        paths_to_contents = deployment.dump(pod)
+        paths = []
+        for path, _ in deployment.dump(pod):
+            paths.append(path)
         repo = utils.get_git_repo(pod.root)
-        stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
-        deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
+        stats_obj = stats.Stats(pod, paths=paths)
+        deployment.deploy(deployment.dump(pod), stats=stats_obj, repo=repo,
                           confirm=False, test=False)
 
     def test_deploy_local(self):

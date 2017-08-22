@@ -22,11 +22,9 @@ class IndexTest(unittest.TestCase):
           '/file.txt': 'test',
           '/file2.txt': 'test',
           '/foo/file.txt': 'test',
-          '/foo/file.txt': 'test',
         })
         their_index = indexes.Index.create({
           '/file2.txt': 'change',
-          '/foo/file.txt': 'test',
           '/foo/file.txt': 'test',
           '/bar/new.txt': 'test',
         })

@@ -20,27 +20,35 @@ import os
 @click.option('--subdomain', help='Assign a subdomain to this build.')
 @click.option('--api-key',
               help='API key for authorizing staging to WebReview projects.')
+@click.option('--force-untranslated', 'force_untranslated', default=False, is_flag=True,
+              help='Whether to force untranslated strings to be uploaded.')
 @click.pass_context
-def stage(context, pod_path, remote, preprocess, subdomain, api_key):
+def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untranslated):
     """Stages a build on a WebReview server."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     auth = context.parent.params.get('auth')
     try:
         pod = pods.Pod(root, storage=storage.FileStorage)
         deployment = _get_deployment(pod, remote, subdomain, api_key)
+        # use the deployment's environment for preprocessing and later steps.
+        pod.set_env(deployment.config.env)
+        require_translations = pod.podspec.localization.get(
+            'require_translations', False)
+        require_translations = require_translations and not force_untranslated
         if auth:
             deployment.login(auth)
         if preprocess:
             pod.preprocess()
+        content_generator = deployment.dump(pod)
         repo = utils.get_git_repo(pod.root)
-        paths_to_contents = deployment.dump(pod)
-        stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
-        deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
-                          confirm=False, test=False)
-    except base.Error as e:
-        raise click.ClickException(str(e))
-    except pods.Error as e:
-        raise click.ClickException(str(e))
+        paths, _ = pod.determine_paths()
+        stats_obj = stats.Stats(pod, paths=paths)
+        deployment.deploy(content_generator, stats=stats_obj, repo=repo,
+                          confirm=False, test=False, require_translations=require_translations)
+    except base.Error as err:
+        raise click.ClickException(str(err))
+    except pods.Error as err:
+        raise click.ClickException(str(err))
 
 
 def _get_deployment(pod, remote, subdomain, api_key):
