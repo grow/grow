@@ -253,6 +253,25 @@ def make_yaml_loader(pod, doc=None):
                 return pod.get_static(path, locale=locale)
             return self._construct_func(node, func)
 
+        def construct_string(self, node):
+            def func(path):
+                if '.' not in path:
+                    return None
+                main, reference = path.split('.', 1)
+                path = '/content/string/{}.yaml'.format(main)
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                if reference:
+                    data = pod.read_yaml(path)
+                    for key in reference.split('.'):
+                        if data and key in data:
+                            data = data[key]
+                        else:
+                            return None
+                    return data
+                return None
+            return self._construct_func(node, func)
+
         def construct_url(self, node):
             locale = doc._locale_kwarg if doc else None
             def func(path):
@@ -272,7 +291,7 @@ def make_yaml_loader(pod, doc=None):
                         if data and key in data:
                             data = data[key]
                         else:
-                            data = None
+                            return None
                     return data
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
@@ -284,6 +303,7 @@ def make_yaml_loader(pod, doc=None):
     YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
     YamlLoader.add_constructor(u'!g.json', YamlLoader.construct_json)
     YamlLoader.add_constructor(u'!g.static', YamlLoader.construct_static)
+    YamlLoader.add_constructor(u'!g.string', YamlLoader.construct_string)
     YamlLoader.add_constructor(u'!g.url', YamlLoader.construct_url)
     YamlLoader.add_constructor(u'!g.yaml', YamlLoader.construct_yaml)
     return YamlLoader
