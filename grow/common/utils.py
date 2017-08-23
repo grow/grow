@@ -215,6 +215,15 @@ def every_two(l):
 def make_yaml_loader(pod, doc=None):
     class YamlLoader(yaml_Loader):
 
+        @staticmethod
+        def deep_reference(reference, data):
+            for key in reference.split('.'):
+                if data and key in data:
+                    data = data[key]
+                else:
+                    return None
+            return data
+
         def _construct_func(self, node, func):
             if isinstance(node, yaml.SequenceNode):
                 items = []
@@ -258,17 +267,12 @@ def make_yaml_loader(pod, doc=None):
                 if '.' not in path:
                     return None
                 main, reference = path.split('.', 1)
-                path = '/content/string/{}.yaml'.format(main)
+                path = '/content/strings/{}.yaml'.format(main)
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 if reference:
                     data = pod.read_yaml(path)
-                    for key in reference.split('.'):
-                        if data and key in data:
-                            data = data[key]
-                        else:
-                            return None
-                    return data
+                    return YamlLoader.deep_reference(reference, data)
                 return None
             return self._construct_func(node, func)
 
@@ -287,12 +291,7 @@ def make_yaml_loader(pod, doc=None):
                     if doc:
                         pod.podcache.dependency_graph.add(doc.pod_path, path)
                     data = pod.read_yaml(path)
-                    for key in reference.split('.'):
-                        if data and key in data:
-                            data = data[key]
-                        else:
-                            return None
-                    return data
+                    return YamlLoader.deep_reference(reference, data)
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 return pod.read_yaml(path)
