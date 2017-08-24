@@ -26,6 +26,8 @@ grow build --out_dir=<dir>
 grow build --locate-untranslated
 [/sourcecode]
 
+When using the `--locate-untranslated` flag Grow will also output all of the untranslated strings into `.po` files in the `.grow/untranslated/` directory to make it easier to request missing translations.
+
 ### preprocess
 
 Runs preprocessors.
