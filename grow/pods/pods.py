@@ -234,21 +234,8 @@ class Pod(object):
             normal_paths.append(self._normalize_path(pod_path))
         return self.storage.delete_files(normal_paths, recursive=recursive, pattern=pattern)
 
-    def disable(self, feature):
-        self._disabled.add(feature)
-
-    def dump(self, suffix='index.html', append_slashes=True, pod_paths=None):
-        output = self.export(
-            suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths)
-        if self.ui and not self.is_enabled(self.FEATURE_UI):
-            output.update(self.export_ui())
-        return output
-
-    def enable(self, feature):
-        self._disabled.discard(feature)
-
-    def export(self, suffix=None, append_slashes=False, pod_paths=None):
-        """Builds the pod, returning a mapping of paths to content based on pod routes."""
+    def determine_paths_to_build(self, pod_paths=None):
+        """Determines which paths are going to be built with optional path filtering."""
         if pod_paths:
             # When provided a list of pod_paths do a custom routing tree based on
             # the docs that are dependent based on the dependecy graph.
@@ -263,50 +250,35 @@ class Pod(object):
         paths = []
         for items in routes.get_locales_to_paths().values():
             paths += items
-        output = self.export_paths(
-            paths, routes, suffix=suffix, append_slashes=append_slashes)
+        return paths, routes
+
+    def disable(self, feature):
+        self._disabled.add(feature)
+
+    def dump(self, suffix='index.html', append_slashes=True, pod_paths=None):
+        for output_path, rendered in self.export(
+                suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths):
+            yield output_path, rendered
+        if self.ui and not self.is_enabled(self.FEATURE_UI):
+            for output_path, rendered in self.export_ui():
+                yield output_path, rendered
+
+    def enable(self, feature):
+        self._disabled.discard(feature)
+
+    def export(self, suffix=None, append_slashes=False, pod_paths=None):
+        """Builds the pod, returning a mapping of paths to content based on pod routes."""
+        paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)
+        for output_path, rendered in self.render_paths(
+                paths, routes, suffix=suffix, append_slashes=append_slashes):
+            yield output_path, rendered
         if not pod_paths:
             error_controller = routes.match_error('/404.html')
             if error_controller:
-                output['/404.html'] = error_controller.render({})
-        return output
-
-    def export_paths(self, paths, routes, suffix=None, append_slashes=False):
-        """Builds the pod, returning a mapping of paths to content."""
-        output = {}
-        text = 'Building: %(value)d/{} (in %(seconds_elapsed)s)'
-        widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        bar = progressbar_non.create_progressbar(
-            "Building pod...", widgets=widgets, max_value=len(paths))
-        bar.start()
-        for path in paths:
-            output_path = path
-            controller, params = routes.match(path, env=self.env.to_wsgi_env())
-            # Append a suffix onto rendered routes only. This supports dumping
-            # paths that would serve at URLs that terminate in "/" or without
-            # an extension to an HTML file suitable for writing to a
-            # filesystem. Static routes and other routes that may export to
-            # paths without extensions should remain unmodified.
-            if suffix and controller.KIND == messages.Kind.RENDERED:
-                if (append_slashes
-                    and not output_path.endswith('/')
-                        and not os.path.splitext(output_path)[-1]):
-                    output_path = output_path.rstrip('/') + '/'
-                if append_slashes and output_path.endswith('/') and suffix:
-                    output_path += suffix
-            try:
-                output[output_path] = controller.render(params, inject=False)
-            except:
-                self.logger.error('Error building: {}'.format(controller))
-                raise
-            bar.update(bar.value + 1)
-        bar.finish()
-
-        return output
+                yield '/404.html', error_controller.render({})
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
-        output = {}
         paths = []
         source_prefix = 'node_modules/'
         destination_root = '_grow/ui/'
@@ -318,7 +290,7 @@ class Pod(object):
         for path in ['css/ui.min.css', 'js/ui.min.js']:
             source_path = os.path.join(source_root, path)
             output_path = os.sep + os.path.join(destination_root, path)
-            output[output_path] = self.storage.read(source_path)
+            yield output_path, self.storage.read(source_path)
 
         # Add the files from each of the tools.
         for tool in self.ui.get('tools', []):
@@ -340,10 +312,9 @@ class Pod(object):
         for path in paths:
             output_path = path.replace(
                 source_prefix, '{}{}'.format(destination_root, tools_dir))
-            output[output_path] = self.read_file(path)
+            yield output_path, self.read_file(path)
             progress.update(progress.value + 1)
         progress.finish()
-        return output
 
     def file_exists(self, pod_path):
         path = self._normalize_path(pod_path)
@@ -707,6 +678,36 @@ class Pod(object):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
         untag = document_fields.DocumentFields.untag
         return untag(fields, env_name=self.env.name)
+
+    def render_paths(self, paths, routes, suffix=None, append_slashes=False):
+        """Renders the given paths and yields each path and content."""
+        text = 'Building: %(value)d/{} (in %(seconds_elapsed)s)'
+        widgets = [progressbar.FormatLabel(text.format(len(paths)))]
+        bar = progressbar_non.create_progressbar(
+            "Building pod...", widgets=widgets, max_value=len(paths))
+        bar.start()
+        for path in paths:
+            output_path = path
+            controller, params = routes.match(path, env=self.env.to_wsgi_env())
+            # Append a suffix onto rendered routes only. This supports dumping
+            # paths that would serve at URLs that terminate in "/" or without
+            # an extension to an HTML file suitable for writing to a
+            # filesystem. Static routes and other routes that may export to
+            # paths without extensions should remain unmodified.
+            if suffix and controller.KIND == messages.Kind.RENDERED:
+                if (append_slashes
+                    and not output_path.endswith('/')
+                        and not os.path.splitext(output_path)[-1]):
+                    output_path = output_path.rstrip('/') + '/'
+                if append_slashes and output_path.endswith('/') and suffix:
+                    output_path += suffix
+            try:
+                yield (output_path, controller.render(params, inject=False))
+            except:
+                self.logger.error('Error building: {}'.format(controller))
+                raise
+            bar.update(bar.value + 1)
+        bar.finish()
 
     def reset_yaml(self):
         # Tell the cached property to reset.

@@ -55,7 +55,8 @@ class PodTest(unittest.TestCase):
         self.pod.list_collections()
 
     def test_export(self):
-        self.pod.export()
+        for _ in self.pod.export():
+            pass
 
     def test_dump(self):
         paths = [
@@ -128,7 +129,9 @@ class PodTest(unittest.TestCase):
             '/json_test/index.html',
             '/yaml_test/index.html',
         ]
-        result = self.pod.dump()
+        result = {}
+        for path, rendered in self.pod.dump():
+            result[path] = rendered
         self.assertItemsEqual(paths, result)
 
     def test_to_message(self):
@@ -227,7 +230,9 @@ class PodTest(unittest.TestCase):
             '/static/file.txt',
             '/static/extensionless',
         ]
-        paths = pod.dump().keys()
+        paths = []
+        for path, _ in pod.dump():
+            paths.append(path)
         self.assertItemsEqual(expected, paths)
 
         # Verify export does not append suffix.
@@ -236,7 +241,9 @@ class PodTest(unittest.TestCase):
             '/static/file.txt',
             '/static/extensionless',
         ]
-        paths = pod.export().keys()
+        paths = []
+        for path, _ in pod.export():
+            paths.append(path)
         self.assertItemsEqual(expected, paths)
 
 

@@ -41,8 +41,6 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
         require_translations = pod.podspec.localization.get(
             'require_translations', False)
         require_translations = require_translations and not force_untranslated
-        if require_translations:
-            pod.enable(pod.FEATURE_TRANSLATION_STATS)
         if auth:
             deployment.login(auth)
         if preprocess:
@@ -50,16 +48,13 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
         if test_only:
             deployment.test()
             return
-        paths_to_contents = deployment.dump(pod)
-        if require_translations and pod.translation_stats.untranslated:
-            pod.translation_stats.pretty_print()
-            raise pods.Error('Aborted deploy due to untranslated strings. '
-                             'Use the --force-untranslated flag to force deployment.')
+        content_generator = deployment.dump(pod)
         repo = utils.get_git_repo(pod.root)
-        stats_obj = stats.Stats(pod, paths_to_contents=paths_to_contents)
-        deployment.deploy(paths_to_contents, stats=stats_obj, repo=repo,
-                          confirm=confirm, test=test)
-    except base.Error as e:
-        raise click.ClickException(str(e))
-    except pods.Error as e:
-        raise click.ClickException(str(e))
+        paths, _ = pod.determine_paths_to_build()
+        stats_obj = stats.Stats(pod, paths=paths)
+        deployment.deploy(content_generator, stats=stats_obj, repo=repo,
+                          confirm=confirm, test=test, require_translations=require_translations)
+    except base.Error as err:
+        raise click.ClickException(str(err))
+    except pods.Error as err:
+        raise click.ClickException(str(err))
