@@ -1,6 +1,7 @@
 """Common grow utility functions."""
 
 import csv as csv_lib
+import fnmatch
 import functools
 import gettext
 import imp
@@ -439,3 +440,17 @@ def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
             old_data.update(new_data)
         return old_data
     return new_data
+
+
+def fnmatches_paths(path_to_extract, paths):
+    # Special case: user doesn't want to check against any paths.
+    if paths is None:
+        return True
+    for path in paths:
+        # Support pod paths and filesystem paths for tab completion.
+        path_to_extract = path_to_extract.lstrip('/')
+        path = path.lstrip('/')
+        matched = fnmatch.fnmatch(path_to_extract, path)
+        if matched:
+            return True
+    return False

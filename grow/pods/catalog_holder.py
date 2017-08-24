@@ -2,6 +2,7 @@
 
 import cStringIO
 import collections
+import fnmatch
 import gettext
 import os
 import tokenize
@@ -172,7 +173,7 @@ class Catalogs(object):
 
     def extract(self, include_obsolete=None, localized=None, paths=None,
                 include_header=None, locales=None, use_fuzzy_matching=None,
-                audit=False):
+                audit=False, out_path=None):
         include_obsolete, localized, include_header, use_fuzzy_matching, = \
             self.get_extract_config(include_header=include_header,
                                     include_obsolete=include_obsolete, localized=localized,
@@ -264,19 +265,18 @@ class Catalogs(object):
         # scope (pod > collection > document > document part)
         last_pod_path = None
         for collection in self.pod.list_collections():
-            text = 'Extracting: {}'.format(collection.blueprint_path)
-            self.pod.logger.info(text)
-            # Extract from blueprint.
-            utils.walk(collection.tagged_fields,
-                       lambda msgid, key, node, **kwargs: _handle_field(
-                           collection.blueprint_path, collection.locales, msgid, key, node,
-                           **kwargs))
-            # Extract from docs in collection.
-            for doc in collection.docs(include_hidden=True):
-                if not self._should_extract_as_babel(paths, doc.pod_path):
-                    continue
+            if utils.fnmatches_paths(collection.blueprint_path, paths):
+                text = 'Extracting: {}'.format(collection.blueprint_path)
+                self.pod.logger.info(text)
+                # Extract from blueprint.
+                utils.walk(collection.tagged_fields,
+                           lambda msgid, key, node, **kwargs: _handle_field(
+                               collection.blueprint_path, collection.locales, msgid, key, node,
+                               **kwargs))
 
             for doc in collection.list_docs(include_hidden=True):
+                if not utils.fnmatches_paths(doc.pod_path, paths):
+                    continue
                 if doc.pod_path != last_pod_path:
                     self.pod.logger.info(
                         'Extracting: {} ({} locale{})'.format(
@@ -313,6 +313,8 @@ class Catalogs(object):
 
             # Extract from CSVs for this collection's locales
             for filepath in self.pod.list_dir(collection.pod_path):
+                if not utils.fnmatches_paths(filepath, paths):
+                    continue
                 if filepath.endswith('.csv'):
                     pod_path = os.path.join(
                         collection.pod_path, filepath.lstrip('/'))
@@ -325,6 +327,8 @@ class Catalogs(object):
 
         # Extract from root of /content/:
         for path in self.pod.list_dir('/content/', recursive=False):
+            if not utils.fnmatches_paths(path, paths):
+                continue
             if path.endswith(('.yaml', '.yml')):
                 pod_path = os.path.join('/content/', path)
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
@@ -339,7 +343,8 @@ class Catalogs(object):
         # (htm, html, tpl, dtml, jtml, ...)
         if not audit:
             for path in self.pod.list_dir('/views/'):
-                if path.startswith('.'):
+                if not utils.fnmatches_paths(path, paths) \
+                        or path.startswith('.'):
                     continue
                 pod_path = os.path.join('/views/', path)
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
@@ -347,15 +352,17 @@ class Catalogs(object):
                     _babel_extract(f, self.pod.list_locales(), pod_path)
 
         # Extract from podspec.yaml:
-        self.pod.logger.info('Extracting: /podspec.yaml')
-        utils.walk(
-            self.pod.get_podspec().get_config(),
-            lambda msgid, key, node, **kwargs: _handle_field(
-                '/podspec.yaml', self.pod.list_locales(), msgid, key, node, **kwargs)
-        )
+        if utils.fnmatches_paths('/podspec.yaml', paths):
+            self.pod.logger.info('Extracting: /podspec.yaml')
+            utils.walk(
+                self.pod.get_podspec().get_config(),
+                lambda msgid, key, node, **kwargs: _handle_field(
+                    '/podspec.yaml', self.pod.list_locales(), msgid, key, node, **kwargs)
+            )
 
         # Save it out: behavior depends on --localized and --locale flags
-        if localized:
+        # If an out path is specified, always collect strings into the one catalog.
+        if localized and not out_path:
             # Save each localized catalog
             for locale, new_catalog in localized_catalogs.items():
                 # Skip if `locales` defined but doesn't include this locale
@@ -379,7 +386,7 @@ class Catalogs(object):
             return untagged_strings, localized_catalogs.items()
         else:
             # --localized omitted / --no-localized
-            template_catalog = self.get_template()
+            template_catalog = self.get_template(self.template_path)
             template_catalog.update_using_catalog(
                 unlocalized_catalog,
                 include_obsolete=include_obsolete)
