@@ -234,17 +234,6 @@ deployments:
       port: 9000
 [/sourcecode]
 
-For each deployment you can also set the option to prevent deploying when there are untranslated strings found during the deployment.
-
-<div class="badge badge-docs-incomplete">The configuration for blocking untranslated strings will be changing in the next release of Grow. Feel free to try out the feature, but your config will need to be updated once Grow is past version 0.2.2.</div>
-
-[sourcecode:yaml]
-deployments:
-  production:
-    base_config:
-      prevent_untranslated: true
-[/sourcecode]
-
 ### footnotes
 
 Add `footnotes` to configure how footnotes are [generated in documents]([url('/content/docs/documents.md')]#footnotes).
