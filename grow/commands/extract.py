@@ -43,8 +43,16 @@ import os
 @click.option('--audit', default=False, is_flag=True,
               help='Audit content files for all untagged strings instead of'
                    ' actually extracting.')
+@click.option('--path', type=str, multiple=True,
+              help='Which paths to extract strings from. By default, all paths'
+                   ' are extracted. This option is useful if you\'d like to'
+                   ' generate a partial messages file representing just a'
+                   ' specific set of files.')
+@click.option('-o', type=str, default=None,
+              help='Where to write the extracted translation catalog. The path'
+                   ' must be relative to the pod\'s root.')
 def extract(pod_path, init, update, include_obsolete, localized,
-            include_header, locale, fuzzy_matching, audit):
+            include_header, locale, fuzzy_matching, audit, path, o):
     """Extracts tagged messages from source files into a template catalog."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
@@ -53,12 +61,12 @@ def extract(pod_path, init, update, include_obsolete, localized,
             include_obsolete=include_obsolete, localized=localized,
             use_fuzzy_matching=fuzzy_matching)
     locales = validate_locales(pod.list_locales(), locale)
-    catalogs = pod.get_catalogs()
+    catalogs = pod.get_catalogs(template_path=o)
     untagged_strings, extracted_catalogs = \
         catalogs.extract(include_obsolete=include_obsolete, localized=localized,
                          include_header=include_header,
                          use_fuzzy_matching=fuzzy_matching, locales=locales,
-                         audit=audit)
+                         audit=audit, paths=path, out_path=o)
     if audit:
         tables = catalog_holder.Catalogs.format_audit(
             untagged_strings, extracted_catalogs)
