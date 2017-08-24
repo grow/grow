@@ -50,7 +50,7 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             return
         content_generator = deployment.dump(pod)
         repo = utils.get_git_repo(pod.root)
-        paths, _ = pod.determine_paths()
+        paths, _ = pod.determine_paths_to_build()
         stats_obj = stats.Stats(pod, paths=paths)
         deployment.deploy(content_generator, stats=stats_obj, repo=repo,
                           confirm=confirm, test=test, require_translations=require_translations)

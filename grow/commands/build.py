@@ -38,7 +38,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
         config = local_destination.Config(out_dir=out_dir)
         destination = local_destination.LocalDestination(config)
         destination.pod = pod
-        paths, _ = pod.determine_paths(pod_paths=pod_paths)
+        paths, _ = pod.determine_paths_to_build(pod_paths=pod_paths)
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths=paths)
         content_generator = destination.dump(pod, pod_paths=pod_paths)

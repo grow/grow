@@ -41,7 +41,7 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untra
             pod.preprocess()
         content_generator = deployment.dump(pod)
         repo = utils.get_git_repo(pod.root)
-        paths, _ = pod.determine_paths()
+        paths, _ = pod.determine_paths_to_build()
         stats_obj = stats.Stats(pod, paths=paths)
         deployment.deploy(content_generator, stats=stats_obj, repo=repo,
                           confirm=False, test=False, require_translations=require_translations)

@@ -234,7 +234,7 @@ class Pod(object):
             normal_paths.append(self._normalize_path(pod_path))
         return self.storage.delete_files(normal_paths, recursive=recursive, pattern=pattern)
 
-    def determine_paths(self, pod_paths=None):
+    def determine_paths_to_build(self, pod_paths=None):
         """Determines which paths are going to be built with optional path filtering."""
         if pod_paths:
             # When provided a list of pod_paths do a custom routing tree based on
@@ -268,7 +268,7 @@ class Pod(object):
 
     def export(self, suffix=None, append_slashes=False, pod_paths=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
-        paths, routes = self.determine_paths(pod_paths=pod_paths)
+        paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)
         for output_path, rendered in self.render_paths(
                 paths, routes, suffix=suffix, append_slashes=append_slashes):
             yield output_path, rendered
