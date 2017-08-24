@@ -36,6 +36,8 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
       import_as:
         en_uk:
         - en_GB
+      require_translations: false
+      require_translations@env.prod: true
 
     preprocessors:
     - kind: sass
@@ -157,6 +159,15 @@ A mapping of external to internal locales, used when translations are imported. 
 import_as:
   en_uk:
   - en_GB
+[/sourcecode]
+
+#### require_translations
+
+Flag for determining if the build requires all strings in use to be translated before being successful. To target a specific deployment use the `@env.<deployment name>` format.
+
+[sourcecode:yaml]
+require_translations: false
+require_translations@env.prod: true
 [/sourcecode]
 
 ### preprocessors
