@@ -2,7 +2,6 @@
 
 import cStringIO
 import collections
-import fnmatch
 import gettext
 import os
 import tokenize
