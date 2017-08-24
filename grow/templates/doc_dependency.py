@@ -7,8 +7,8 @@ class DocDependency(object):
 
     def __init__(self, doc):
         self.doc = doc
-        self.dependency_graph = self.doc.pod.podcache.dependency_graph
+        self.dependency_graph = self.doc.pod.podcache.dependency_graph if doc else None
 
     def __call__(self, pod_path):
-        if pod_path:
+        if self.dependency_graph and pod_path:
             self.dependency_graph.add(self.doc.pod_path, pod_path)
