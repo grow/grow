@@ -13,7 +13,7 @@ Grow comes with a built-in development server. The development server dynamicall
 
 You can start the server with the `grow run` command:
 
-```
+```text
 grow run
 ```
 
@@ -25,7 +25,7 @@ The development server does not currently integrate with any other preprocessing
 
 By default, the development server binds to `localhost` to avoid accidentally providing anyone from accessing your development server. If you need to access the development server from other devices on your local network, use the `--host` and `--port` flags to explicitly set the host and port parameters, respectively.
 
-```
+```text
 grow run --host=0.0.0.0 --port=8080
 ```
 
