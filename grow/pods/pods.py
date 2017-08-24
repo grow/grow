@@ -680,7 +680,7 @@ class Pod(object):
         return untag(fields, env_name=self.env.name)
 
     def render_paths(self, paths, routes, suffix=None, append_slashes=False):
-        """Builds the pod, returning a mapping of paths to content."""
+        """Renders the given paths and yields each path and content."""
         text = 'Building: %(value)d/{} (in %(seconds_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
         bar = progressbar_non.create_progressbar(
