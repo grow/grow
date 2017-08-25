@@ -134,6 +134,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         output_style = messages.StringField(4, default='compressed')
         format = messages.StringField(5, default='list')
         preserve = messages.StringField(6, default='builtins')
+        gids = messages.IntegerField(7, repeated=True)
+        collection = messages.StringField(8)
+        output_format = messages.StringField(9, default='yaml')
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -161,48 +164,87 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return results
 
     @staticmethod
+    def column_to_letter(column_num):
+        div = column_num
+        string = ""
+        temp = 0
+        while div > 0:
+            module = (div - 1) % 26
+            string = chr(65 + module) + string
+            div = int((div - module) / 26)
+        return string
+
+    @staticmethod
     def format_as_map(fp):
         reader = csv.reader(fp)
         results = GoogleSheetsPreprocessor._convert_rows_to_mapping(reader)
         return results
 
     @classmethod
-    def download(cls, path, sheet_id, gid=None, logger=None,
-                 raise_errors=False):
+    def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None):
+        service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         logger = logger or logging
-        ext = os.path.splitext(path)[1]
-        service = BaseGooglePreprocessor.create_service()
+        format_as_map = format_as in ['map', 'string']
         # pylint: disable=no-member
-        resp = service.files().get(fileId=sheet_id).execute()
-        if 'exportLinks' not in resp:
-            text = 'Unable to export Google Sheet: {} / Received: {}'
-            logger.error(text.format(path, resp))
-            if raise_errors:
-                raise base.PreprocessorError(text)
-            return
-        for mimetype, url in resp['exportLinks'].iteritems():
-            if not mimetype.endswith('csv'):
-                continue
-            if gid is not None:
-                url += '&gid={}'.format(gid)
-            resp, content = service._http.request(url)
-            if resp.status != 200:
-                text = 'Error {} downloading Google Sheet: {}'
-                text = text.format(resp.status, path)
-                logger.error(text)
-                if raise_errors:
-                    raise base.PreprocessorError(text)
-            # Weak test to defend against critical errors while still
-            # permitting 404s. We may want to remove the "raise_errors = False"
-            # code path in its entirety in the future.
-            # https://github.com/grow/grow/issues/283
-            if content.startswith('<!DOCTYPE'):
-                text = 'Error downloading Google Sheet. Received: {}'
-                raise base.PreprocessorError(text.format(content))
-            return content
-        if raise_errors:
-            text = 'No file to export from Google Sheets: {}'.format(path)
-            raise base.PreprocessorError(text)
+        spreadsheet = service.spreadsheets().get(
+            spreadsheetId=spreadsheet_id).execute()
+
+        gid_to_sheet = {}
+        for sheet in spreadsheet['sheets']:
+            gid_to_sheet[sheet['properties']['sheetId']] = sheet['properties']
+
+        if not gids:
+            gids = gid_to_sheet.keys()
+
+        gid_to_data = {}
+        for gid in gids:
+            if format_as_map:
+                max_column = 'B'
+            else:
+                max_column = GoogleSheetsPreprocessor.column_to_letter(
+                    gid_to_sheet[gid]['gridProperties']['columnCount'])
+            range_name = "'{}'!A:{}".format(
+                gid_to_sheet[gid]['title'], max_column)
+
+            # pylint: disable=no-member
+            resp = service.spreadsheets().values().get(
+                spreadsheetId=spreadsheet_id, range=range_name).execute()
+
+            if format_as_map:
+                gid_to_data[gid] = {}
+            else:
+                gid_to_data[gid] = []
+
+            if not 'values' in resp:
+                logger.info(
+                    'No values found in sheet -> {}'.format(gid_to_sheet[gid]['title']))
+            else:
+                if gid_to_sheet[gid]['title'].startswith('_'):
+                    logger.info(
+                        'Skipping sheet -> {}'.format(gid_to_sheet[gid]['title']))
+                    continue
+                headers = None
+                for row in resp['values']:
+                    if format_as_map:
+                        if not headers:
+                            headers = row
+                            continue
+                        key = row[0].strip()
+                        if key and not key.startswith('#'):
+                            if format_as == 'string' and '@' not in key:
+                                key = '{}@'.format(key)
+                            gid_to_data[gid][key] = (
+                                row[1] if len(row) == 2 else '')
+                    else:
+                        if not headers:
+                            headers = row
+                            continue
+                        row_values = {}
+                        for idx, column in enumerate(headers):
+                            row_values[column] = (
+                                row[idx] if len(row) > idx else '')
+                        gid_to_data[gid].append(row_values)
+        return gid_to_sheet, gid_to_data
 
     def _parse_path(self, path):
         if ':' in path:
@@ -210,25 +252,55 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return path, None
 
     def execute(self, config):
-        path, key_to_update = self._parse_path(config.path)
-        sheet_id = config.id
-        gid = config.gid
-        content = GoogleSheetsPreprocessor.download(
-            path=path, sheet_id=sheet_id, gid=gid, logger=self.pod.logger)
-        existing_data = None
-        if (path.endswith(('.yaml', '.yml'))
-                and self.config.preserve
-                and self.pod.file_exists(path)):
-            existing_data = self.pod.read_yaml(path)
-        content = GoogleSheetsPreprocessor.format_content(
-            content=content, path=path, format_as=self.config.format,
-            preserve=self.config.preserve,
-            existing_data=existing_data, key_to_update=key_to_update)
-        content = GoogleSheetsPreprocessor.serialize_content(
-            formatted_data=content, path=path,
-            output_style=self.config.output_style)
-        self.pod.write_file(path, content)
-        self.logger.info('Downloaded Google Sheet -> {}'.format(path))
+        spreadsheet_id = config.id
+        gids = config.gids or []
+        if config.gid is not None:
+            gids.append(config.gid)
+        format_as = config.format
+        if config.collection and format_as not in ['map', 'string']:
+            format_as = 'map'
+        gid_to_sheet, gid_to_data = GoogleSheetsPreprocessor.download(
+            spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
+            logger=self.pod.logger)
+
+        if config.path:
+            # Single sheet import.
+            path, key_to_update = self._parse_path(config.path)
+
+            for gid in gids:
+                # Preserve existing yaml data.
+                if (path.endswith(('.yaml', '.yml'))
+                        and self.config.preserve and self.pod.file_exists(path)):
+                    existing_data = self.pod.read_yaml(path)
+                    gid_to_data[gid] = utils.format_existing_data(
+                        old_data=existing_data, new_data=gid_to_data[gid],
+                        preserve=self.config.preserve, key_to_update=key_to_update)
+
+                content = GoogleSheetsPreprocessor.serialize_content(
+                    formatted_data=gid_to_data[gid], path=path,
+                    output_style=self.config.output_style)
+
+                self.pod.write_file(path, content)
+                self.logger.info(
+                    'Downloaded {} ({}) -> {}'.format(
+                        gid_to_sheet[gid]['title'], gid, path))
+        else:
+            # Multi sheet import.
+            collection_path = config.collection
+
+            if not gids:
+                gids = gid_to_sheet.keys()
+
+            for gid in gids:
+                if gid_to_sheet[gid]['title'].strip().startswith('_'):
+                    continue
+                file_name = '{}.yaml'.format(
+                    utils.slugify(gid_to_sheet[gid]['title']))
+                output_path = os.path.join(collection_path, file_name)
+                self.pod.write_yaml(output_path, gid_to_data[gid])
+                self.logger.info(
+                    'Downloaded {} ({}) -> {}'.format(
+                        gid_to_sheet[gid]['title'], gid, output_path))
 
     @classmethod
     def get_convert_to(cls, path):
@@ -293,24 +365,39 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return json.load(fp)
 
     def inject(self, doc):
-        path, key_to_update = self._parse_path(self.config.path)
-        try:
-            content = GoogleSheetsPreprocessor.download(
-                path=path, sheet_id=self.config.id, gid=self.config.gid,
-                raise_errors=True)
-        except (errors.HttpError, base.PreprocessorError):
-            doc.pod.logger.error('Error downloading sheet -> %s', path)
-            raise
-        if not content:
-            return
-        existing_data = doc.pod.read_yaml(doc.pod_path)
-        fields = GoogleSheetsPreprocessor.format_content(
-            content, path=path, format_as=self.config.format,
-            preserve=self.config.preserve, existing_data=existing_data,
-            key_to_update=key_to_update)
-        fields = self._normalize_formatted_content(fields)
-        fields = document_fields.DocumentFields.untag(fields)
-        doc.inject(fields=fields)
+        spreadsheet_id = self.config.id
+        gids = self.config.gids or []
+        if self.config.gid is not None:
+            gids.append(self.config.gid)
+        format_as = self.config.format
+        if self.config.collection and format_as not in ['map', 'string']:
+            format_as = 'map'
+        _, gid_to_data = GoogleSheetsPreprocessor.download(
+            spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
+            logger=self.pod.logger)
+
+        if self.config.path:
+            if format_as in ['list']:
+                self.pod.logger.info(
+                    'Cannot inject list formatted spreadsheet -> {}'.format(self.config.path))
+                return
+            # Single sheet import.
+            path, key_to_update = self._parse_path(self.config.path)
+
+            for gid in gids:
+                # Preserve existing yaml data.
+                if (path.endswith(('.yaml', '.yml'))
+                        and self.config.preserve and self.pod.file_exists(path)):
+                    existing_data = self.pod.read_yaml(path)
+                    gid_to_data[gid] = utils.format_existing_data(
+                        old_data=existing_data, new_data=gid_to_data[gid],
+                        preserve=self.config.preserve, key_to_update=key_to_update)
+
+                gid_to_data[gid] = document_fields.DocumentFields.untag(gid_to_data[gid])
+                doc.inject(fields=gid_to_data[gid])
+        else:
+            # TODO Multi sheet import.
+            pass
 
     def get_edit_url(self, doc=None):
         """Returns the URL to edit in Google Sheets."""
