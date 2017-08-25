@@ -32,7 +32,7 @@ pyasn1==0.2.3
 pycrypto==2.6.1
 pygments==2.2.0
 pytz==2017.2
-requests==2.13.0
+requests==2.18.4
 semantic_version==2.6.0
 texttable-fixed==0.8.3
 translitcodec==0.4.0
