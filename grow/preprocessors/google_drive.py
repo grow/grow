@@ -374,6 +374,10 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             logger=self.pod.logger)
 
         if self.config.path:
+            if format_as in ['list']:
+                self.pod.logger.info(
+                    'Cannot inject list formatted spreadsheet -> {}'.format(self.config.path))
+                return
             # Single sheet import.
             path, key_to_update = self._parse_path(self.config.path)
 
