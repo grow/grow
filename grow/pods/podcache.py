@@ -107,7 +107,7 @@ class PodCache(object):
                 yaml[self.KEY_OBJECTS][key] = {
                     'can_reset': meta['can_reset'],
                     'write_to_file': meta['write_to_file'],
-                    'values': meta.cache.export(),
+                    'values': meta['cache'].export(),
                 }
 
         self._pod.write_yaml('/{}'.format(self._pod.FILE_PODCACHE), yaml)
