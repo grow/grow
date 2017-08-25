@@ -27,6 +27,3 @@ deployments:
       fields:
       - name: Cache-Control
         value: "max-age=60, must-revalidate"
-  growsdk.org:
-    destination: gcs
-    bucket: growsdk.org

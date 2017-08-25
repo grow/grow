@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/growio
+    docker:
+      - image: grow/baseimage:0.2.3
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - grow-cache-{{ .Branch }}-{{ checksum "bower.json" }}
+            - grow-cache-{{ .Branch }}
+            - grow-cache
+
+      - run:
+          name: Grow Install
+          command: grow install
+
+      - save_cache:
+          key: grow-cache-{{ .Branch }}-{{ checksum "bower.json" }}
+          paths:
+            - node_modules
+
+      - save_cache:
+          key: grow-cache-{{ .Branch }}
+          paths:
+            - node_modules
+
+      - save_cache:
+          key: grow-cache
+          paths:
+            - node_modules
+
+      - run:
+          name: Build for Staging
+          command: grow build
+
+      - run:
+          name: Deploy to Prod
+          command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io ; fi
