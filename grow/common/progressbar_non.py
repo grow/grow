@@ -86,6 +86,8 @@ class NonInteractiveProgressBar(object):
 
 def create_progressbar(message, *args, **kwargs):
     """Create the correct progressbar based on availability of interactive shell."""
-    if hasattr(sys.stdout, 'fileno') and os.isatty(sys.stdout.fileno()):
-        return progressbar.ProgressBar(*args, **kwargs)
-    return NonInteractiveProgressBar(message, *args, **kwargs)
+    return progressbar.ProgressBar(*args, **kwargs)
+    # Removing for now to see if it is causing an issue with
+    # if hasattr(sys.stdout, 'fileno') and os.isatty(sys.stdout.fileno()):
+    #     return progressbar.ProgressBar(*args, **kwargs)
+    # return NonInteractiveProgressBar(message, *args, **kwargs)
