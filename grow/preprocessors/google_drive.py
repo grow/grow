@@ -184,7 +184,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None):
         service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         logger = logger or logging
-        format_as_map = format_as == 'map'
+        format_as_map = format_as in ['map', 'string']
         # pylint: disable=no-member
         spreadsheet = service.spreadsheets().get(
             spreadsheetId=spreadsheet_id).execute()
@@ -231,15 +231,18 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             continue
                         key = row[0].strip()
                         if key and not key.startswith('#'):
-                            gid_to_data[gid][key] = row[
-                                1] if len(row) == 2 else ''
+                            if format_as == 'string' and '@' not in key:
+                                key = '{}@'.format(key)
+                            gid_to_data[gid][key] = (
+                                row[1] if len(row) == 2 else '')
                     else:
                         if not headers:
                             headers = row
                             continue
                         row_values = {}
                         for idx, column in enumerate(headers):
-                            row_values[column] = row[idx] if len(row) > idx else ''
+                            row_values[column] = (
+                                row[idx] if len(row) > idx else '')
                         gid_to_data[gid].append(row_values)
         return gid_to_sheet, gid_to_data
 
@@ -253,7 +256,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         gids = config.gids or []
         if config.gid is not None:
             gids.append(config.gid)
-        format_as = 'map' if config.collection else config.format
+        format_as = config.format
+        if config.collection and format_as not in ['map', 'string']:
+            format_as = 'map'
         gid_to_sheet, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
             logger=self.pod.logger)
