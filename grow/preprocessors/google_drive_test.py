@@ -13,6 +13,14 @@ from . import google_drive
 
 class GoogleSheetsPreprocessorTest(unittest.TestCase):
 
+    def test_column_to_letter(self):
+        preprocessor = google_drive.GoogleSheetsPreprocessor
+        self.assertEqual('A', preprocessor.column_to_letter(1))
+        self.assertEqual('Z', preprocessor.column_to_letter(26))
+        self.assertEqual('AA', preprocessor.column_to_letter(27))
+        self.assertEqual('AZ', preprocessor.column_to_letter(52))
+        self.assertEqual('BA', preprocessor.column_to_letter(53))
+
     def test_convert_rows_to_mapping(self):
         rows = [
             ['# Comment', True],
