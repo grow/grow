@@ -7,33 +7,8 @@ jobs:
     steps:
       - checkout
 
-      - restore_cache:
-          keys:
-            - grow-cache-{{ .Branch }}-{{ checksum "package.json" }}
-            - grow-cache-{{ .Branch }}
-            - grow-cache
-
       - run:
-          name: Grow Install
-          command: grow install
-
-      - save_cache:
-          key: grow-cache-{{ .Branch }}-{{ checksum "package.json" }}
-          paths:
-            - node_modules
-
-      - save_cache:
-          key: grow-cache-{{ .Branch }}
-          paths:
-            - node_modules
-
-      - save_cache:
-          key: grow-cache
-          paths:
-            - node_modules
-
-      - run:
-          name: Build for Staging
+          name: Test Build
           command: grow build
 
       - run:
