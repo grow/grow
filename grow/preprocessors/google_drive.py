@@ -281,7 +281,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     output_style=self.config.output_style)
 
                 self.pod.write_file(path, content)
-                self.logger.info('Downloaded Google Sheet -> {}'.format(path))
+                self.logger.info(
+                    'Downloaded {} ({}) -> {}'.format(
+                        gid_to_sheet[gid]['title'], gid, path))
         else:
             # Multi sheet import.
             collection_path = config.collection
@@ -297,7 +299,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 output_path = os.path.join(collection_path, file_name)
                 self.pod.write_yaml(output_path, gid_to_data[gid])
                 self.logger.info(
-                    'Downloaded {} -> {}'.format(gid_to_sheet[gid]['title'], output_path))
+                    'Downloaded {} ({}) -> {}'.format(
+                        gid_to_sheet[gid]['title'], gid, output_path))
 
     @classmethod
     def get_convert_to(cls, path):
