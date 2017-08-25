@@ -439,6 +439,8 @@ def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
         else:
             old_data.update(new_data)
         return old_data
+    if key_to_update:
+        return {key_to_update: new_data}
     return new_data
 
 
