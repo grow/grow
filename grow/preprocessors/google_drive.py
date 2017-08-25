@@ -362,24 +362,35 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return json.load(fp)
 
     def inject(self, doc):
-        path, key_to_update = self._parse_path(self.config.path)
-        try:
-            content = GoogleSheetsPreprocessor.download(
-                path=path, sheet_id=self.config.id, gid=self.config.gid,
-                raise_errors=True)
-        except (errors.HttpError, base.PreprocessorError):
-            doc.pod.logger.error('Error downloading sheet -> %s', path)
-            raise
-        if not content:
-            return
-        existing_data = doc.pod.read_yaml(doc.pod_path)
-        fields = GoogleSheetsPreprocessor.format_content(
-            content, path=path, format_as=self.config.format,
-            preserve=self.config.preserve, existing_data=existing_data,
-            key_to_update=key_to_update)
-        fields = self._normalize_formatted_content(fields)
-        fields = document_fields.DocumentFields.untag(fields)
-        doc.inject(fields=fields)
+        spreadsheet_id = self.config.id
+        gids = self.config.gids or []
+        if self.config.gid is not None:
+            gids.append(self.config.gid)
+        format_as = self.config.format
+        if self.config.collection and format_as not in ['map', 'string']:
+            format_as = 'map'
+        _, gid_to_data = GoogleSheetsPreprocessor.download(
+            spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
+            logger=self.pod.logger)
+
+        if self.config.path:
+            # Single sheet import.
+            path, key_to_update = self._parse_path(self.config.path)
+
+            for gid in gids:
+                # Preserve existing yaml data.
+                if (path.endswith(('.yaml', '.yml'))
+                        and self.config.preserve and self.pod.file_exists(path)):
+                    existing_data = self.pod.read_yaml(path)
+                    gid_to_data[gid] = utils.format_existing_data(
+                        old_data=existing_data, new_data=gid_to_data[gid],
+                        preserve=self.config.preserve, key_to_update=key_to_update)
+
+                gid_to_data[gid] = document_fields.DocumentFields.untag(gid_to_data[gid])
+                doc.inject(fields=gid_to_data[gid])
+        else:
+            # TODO Multi sheet import.
+            pass
 
     def get_edit_url(self, doc=None):
         """Returns the URL to edit in Google Sheets."""
