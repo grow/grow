@@ -73,10 +73,10 @@ class PodCache(object):
 
         return cache
 
-    def get_object_cache(self, key):
+    def get_object_cache(self, key, **kwargs):
         """Get an existing object cache or create a new cache with defaults."""
         if key not in self._object_caches:
-            return self.create_object_cache(key)
+            return self.create_object_cache(key, **kwargs)
         return self._object_caches[key]['cache']
 
     def has_object_cache(self, key):
