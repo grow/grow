@@ -148,7 +148,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         for row in reader:
             key = row[0]
             value = row[1]
-            if key.startswith('#'):
+            if key.startswith('_'):
                 continue
             if '.' in key:
                 parts = key.split('.')
