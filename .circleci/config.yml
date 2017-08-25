@@ -9,7 +9,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - grow-cache-{{ .Branch }}-{{ checksum "bower.json" }}
+            - grow-cache-{{ .Branch }}-{{ checksum "package.json" }}
             - grow-cache-{{ .Branch }}
             - grow-cache
 
@@ -18,7 +18,7 @@ jobs:
           command: grow install
 
       - save_cache:
-          key: grow-cache-{{ .Branch }}-{{ checksum "bower.json" }}
+          key: grow-cache-{{ .Branch }}-{{ checksum "package.json" }}
           paths:
             - node_modules
 
