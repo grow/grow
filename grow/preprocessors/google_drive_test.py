@@ -264,6 +264,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
             765: []
         }, gid_to_data)
 
+
     def test_format_content(self):
         rows = [
             ['key', 'value'],
@@ -372,6 +373,11 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         preprocessor = pod.list_preprocessors()[0]
         self.assertEqual('https://docs.google.com/document/d/012345/edit',
                          preprocessor.get_edit_url(doc))
+
+    def test_parse_path(self):
+        preprocessor = google_drive.GoogleSheetsPreprocessor
+        self.assertEqual(('/path/a.yaml', None), preprocessor.parse_path('/path/a.yaml'))
+        self.assertEqual(['/path/a.yaml', 'b'], preprocessor.parse_path('/path/a.yaml:b'))
 
 
 if __name__ == '__main__':

@@ -248,7 +248,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         gid_to_data[gid].append(row_values)
         return gid_to_sheet, gid_to_data
 
-    def _parse_path(self, path):
+    @staticmethod
+    def parse_path(path):
         if ':' in path:
             return path.rsplit(':', 1)
         return path, None
@@ -267,7 +268,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
         if config.path:
             # Single sheet import.
-            path, key_to_update = self._parse_path(config.path)
+            path, key_to_update = self.parse_path(config.path)
 
             for gid in gids:
                 # Preserve existing yaml data.
@@ -353,7 +354,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     def can_inject(self, doc=None, collection=None):
         if not self.injected:
             return False
-        path, key_to_update = self._parse_path(self.config.path)
+        path, key_to_update = self.parse_path(self.config.path)
         if doc and doc.pod_path == path:
             return True
         return False
@@ -384,7 +385,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     'Cannot inject list formatted spreadsheet -> {}'.format(self.config.path))
                 return
             # Single sheet import.
-            path, key_to_update = self._parse_path(self.config.path)
+            path, key_to_update = self.parse_path(self.config.path)
 
             for gid in gids:
                 # Preserve existing yaml data.
