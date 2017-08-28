@@ -74,7 +74,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                     'title': 'sheet1',
                     'sheetId': 765,
                     'gridProperties': {
-                        'columnCount': 2,
+                        'columnCount': 4,
                         'rowCount': 1000
                     },
                 },
@@ -82,6 +82,15 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                 'properties': {
                     'title': 'sheet2',
                     'sheetId': 193,
+                    'gridProperties': {
+                        'columnCount': 2,
+                        'rowCount': 1000
+                    },
+                },
+            }, {
+                'properties': {
+                    'title': '_sheet3',
+                    'sheetId': 922,
                     'gridProperties': {
                         'columnCount': 2,
                         'rowCount': 1000
@@ -103,13 +112,21 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                 'title': 'sheet1',
                 'sheetId': 765,
                 'gridProperties': {
-                    'columnCount': 2,
+                    'columnCount': 4,
                     'rowCount': 1000
                 },
             },
             193: {
                 'title': 'sheet2',
                 'sheetId': 193,
+                'gridProperties': {
+                    'columnCount': 2,
+                    'rowCount': 1000
+                },
+            },
+            922: {
+                'title': '_sheet3',
+                'sheetId': 922,
                 'gridProperties': {
                     'columnCount': 2,
                     'rowCount': 1000
@@ -121,7 +138,8 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
             193: [{'age': 27, 'id': '1', 'name': 'Jim'},
                   {'age': 23, 'id': '2', 'name': 'Sue'}],
             765: [{'age': 27, 'id': '1', 'name': 'Jim'},
-                  {'age': 23, 'id': '2', 'name': 'Sue'}]
+                  {'age': 23, 'id': '2', 'name': 'Sue'}],
+            922: [],
         }, gid_to_data)
 
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
@@ -210,6 +228,40 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                 'jimbo@': 'Jim',
                 'suzette@': 'Sue',
             }
+        }, gid_to_data)
+
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_sheets_download_empty(self, mock_service_sheets):
+        preprocessor = google_drive.GoogleSheetsPreprocessor
+        mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'sheet1',
+                    'sheetId': 765,
+                    'gridProperties': {
+                        'columnCount': 2,
+                        'rowCount': 1000
+                    },
+                },
+            }]
+        }, sheets_values={})
+        mock_service_sheets.return_value = mock_sheets_service['service']
+        gid_to_sheet, gid_to_data = preprocessor.download('A1B2C3D4E5F6')
+
+        self.assertEqual({
+            765: {
+                'title': 'sheet1',
+                'sheetId': 765,
+                'gridProperties': {
+                    'columnCount': 2,
+                    'rowCount': 1000
+                },
+            },
+        }, gid_to_sheet)
+
+        self.assertEqual({
+            765: []
         }, gid_to_data)
 
     def test_format_content(self):
