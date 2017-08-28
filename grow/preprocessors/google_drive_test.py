@@ -65,6 +65,71 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         self.assertDictEqual(expected, result)
 
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_sheets_export_path_list(self, mock_service_sheets):
+        path = '/content/pages/sheet.yaml'
+        config = google_drive.GoogleSheetsPreprocessor.Config(
+            id='A1B2C3D4E5F6', format='list', gid=765, path=path)
+        preprocessor = google_drive.GoogleSheetsPreprocessor(self.pod, config)
+        mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'sheet1',
+                    'sheetId': 765,
+                    'gridProperties': {
+                        'columnCount': 4,
+                        'rowCount': 1000
+                    },
+                },
+            }]
+        }, sheets_values={
+            'values': [
+                ['id', 'name', 'age', '_comment'],
+                ['1', 'Jim', 27, 'commenting'],
+                ['2', 'Sue', 23, 'something'],
+            ],
+        })
+        mock_service_sheets.return_value = mock_sheets_service['service']
+        preprocessor.execute(config)
+        formatted_data = [{'age': 27, 'id': '1', 'name': 'Jim'},
+                          {'age': 23, 'id': '2', 'name': 'Sue'}]
+        result = self.pod.read_yaml(path)
+        self.assertEqual(formatted_data, result)
+
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_sheets_export_collection_string(self, mock_service_sheets):
+        config = google_drive.GoogleSheetsPreprocessor.Config(
+            id='A1B2C3D4E5F6', format='string', collection='/content/pages/')
+        preprocessor = google_drive.GoogleSheetsPreprocessor(self.pod, config)
+        mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'sheet1',
+                    'sheetId': 765,
+                    'gridProperties': {
+                        'columnCount': 2,
+                        'rowCount': 1000
+                    },
+                },
+            }]
+        }, sheets_values={
+            'values': [
+                ['id', 'name'],
+                ['key', 'value'],
+                ['other_key', 'foo'],
+            ],
+        })
+        mock_service_sheets.return_value = mock_sheets_service['service']
+        preprocessor.execute(config)
+        formatted_data = {
+            'key': 'value',
+            'other_key': 'foo',
+        }
+        result = self.pod.read_yaml('/content/pages/sheet1.yaml')
+        self.assertEqual(formatted_data, result)
+
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
     def test_sheets_download_list(self, mock_service_sheets):
         preprocessor = google_drive.GoogleSheetsPreprocessor
         mock_sheets_service = self._setup_mocks(sheets_get={
@@ -264,7 +329,6 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
             765: []
         }, gid_to_data)
 
-
     def test_format_content(self):
         rows = [
             ['key', 'value'],
@@ -284,9 +348,8 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         result = google_drive.GoogleSheetsPreprocessor.format_content(
             content=content, path=path, format_as='map')
         self.assertEqual(content_dict, result)
-        serialized_result = \
-            google_drive.GoogleSheetsPreprocessor.serialize_content(
-                formatted_data=result, path=path)
+        serialized_result = google_drive.GoogleSheetsPreprocessor.serialize_content(
+            formatted_data=result, path=path)
         expected = yaml.safe_dump(content_dict, default_flow_style=False)
         self.assertEqual(expected, serialized_result)
 
@@ -296,9 +359,8 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         result = google_drive.GoogleSheetsPreprocessor.format_content(
             content=content, path=path, existing_data=existing_data,
             format_as='map', key_to_update='address')
-        serialized_result = \
-            google_drive.GoogleSheetsPreprocessor.serialize_content(
-                formatted_data=result, path=path)
+        serialized_result = google_drive.GoogleSheetsPreprocessor.serialize_content(
+            formatted_data=result, path=path)
         expected = copy.deepcopy(content_dict)
         expected['address'] = {
             'color': 'red',
@@ -313,9 +375,8 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
             content=content, path=path, format_as='map')
         self.assertEqual(content_dict, result)
 
-        serialized_result = \
-            google_drive.GoogleSheetsPreprocessor.serialize_content(
-                formatted_data=result, path=path)
+        serialized_result = google_drive.GoogleSheetsPreprocessor.serialize_content(
+            formatted_data=result, path=path)
         expected = json.dumps(content_dict)
         self.assertEqual(expected, serialized_result)
 
@@ -376,8 +437,10 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
 
     def test_parse_path(self):
         preprocessor = google_drive.GoogleSheetsPreprocessor
-        self.assertEqual(('/path/a.yaml', None), preprocessor.parse_path('/path/a.yaml'))
-        self.assertEqual(['/path/a.yaml', 'b'], preprocessor.parse_path('/path/a.yaml:b'))
+        self.assertEqual(('/path/a.yaml', None),
+                         preprocessor.parse_path('/path/a.yaml'))
+        self.assertEqual(['/path/a.yaml', 'b'],
+                         preprocessor.parse_path('/path/a.yaml:b'))
 
 
 if __name__ == '__main__':
