@@ -7,6 +7,7 @@ from grow.preprocessors import google_drive
 from grow.common import oauth
 from grow.pods import pods
 from grow.pods import storage
+from grow.testing import google_service
 from grow.testing import testing
 from . import google_sheets
 
@@ -33,54 +34,6 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
 
 class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
 
-    def _get_batch_requests(self, mocked):
-        requests = []
-        for args, kwargs in mocked.call_args_list:
-            requests += kwargs['body']['requests']
-        return requests
-
-    def _mock_drive_service(self, create=None):
-        mock_service = mock.Mock()
-
-        mock_permissions = mock.Mock()
-        mock_service.permissions.return_value = mock_permissions
-
-        mock_permissions_create = mock.Mock()
-        mock_permissions.create.return_value = mock_permissions_create
-
-        mock_permissions_create.execute.return_value = create
-
-        return {
-            'service': mock_service,
-            'permissions': mock_permissions,
-            'permissions.create': mock_permissions_create,
-        }
-
-    def _mock_sheets_service(self, create=None, get=None):
-        mock_service = mock.Mock()
-
-        mock_spreadsheets = mock.Mock()
-        mock_service.spreadsheets.return_value = mock_spreadsheets
-
-        mock_batch_update = mock.Mock()
-        mock_spreadsheets.batchUpdate = mock_batch_update
-
-        mock_create = mock.Mock()
-        mock_create.execute.return_value = create
-        mock_spreadsheets.create.return_value = mock_create
-
-        mock_get = mock.Mock()
-        mock_get.execute.return_value = get
-        mock_spreadsheets.get.return_value = mock_get
-
-        return {
-            'service': mock_service,
-            'spreadsheets': mock_spreadsheets,
-            'spreadsheets.batchUpdate': mock_batch_update,
-            'spreadsheets.create': mock_create,
-            'spreadsheets.get': mock_get,
-        }
-
     def _setup_mocks(self, sheets_create=None, sheets_get=None):
         if sheets_create is None:
             sheets_create = {
@@ -99,8 +52,8 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
                 'spreadsheetId': 76543,
             }
 
-        mock_drive_service = self._mock_drive_service()
-        mock_sheets_service = self._mock_sheets_service(
+        mock_drive_service = google_service.GoogleServiceMock.mock_drive_service()
+        mock_sheets_service = google_service.GoogleServiceMock.mock_sheets_service(
             create=sheets_create, get=sheets_get)
 
         return mock_drive_service, mock_sheets_service
@@ -121,7 +74,7 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         translator = self.pod.get_translator('google_sheets')
         translator.upload(locales=['de'])
 
-        requests = self._get_batch_requests(
+        requests = google_service.GoogleServiceMock.get_batch_requests(
             mock_sheets_service['spreadsheets.batchUpdate'])
 
         # Creates the sheet.
@@ -212,7 +165,7 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         })
         translator.update_meta(locales=['de'])
 
-        requests = self._get_batch_requests(
+        requests = google_service.GoogleServiceMock.get_batch_requests(
             mock_sheets_service['spreadsheets.batchUpdate'])
 
         # Style the header cells.
