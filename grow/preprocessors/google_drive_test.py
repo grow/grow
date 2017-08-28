@@ -252,7 +252,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         }, gid_to_data)
 
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
-    def test_sheets_download_string(self, mock_service_sheets):
+    def test_sheets_download_strings(self, mock_service_sheets):
         preprocessor = google_drive.GoogleSheetsPreprocessor
         mock_sheets_service = self._setup_mocks(sheets_get={
             'spreadsheetId': 'A1B2C3D4E5F6',
@@ -275,7 +275,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         })
         mock_service_sheets.return_value = mock_sheets_service['service']
         gid_to_sheet, gid_to_data = preprocessor.download(
-            'A1B2C3D4E5F6', format_as='string')
+            'A1B2C3D4E5F6', format_as='strings')
 
         self.assertEqual({
             765: {
@@ -296,7 +296,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         }, gid_to_data)
 
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
-    def test_sheets_download_string_generate(self, mock_service_sheets):
+    def test_sheets_download_strings_generate(self, mock_service_sheets):
         preprocessor = google_drive.GoogleSheetsPreprocessor
         mock_sheets_service = self._setup_mocks(sheets_get={
             'spreadsheetId': 'A1B2C3D4E5F6',
@@ -321,7 +321,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         })
         mock_service_sheets.return_value = mock_sheets_service['service']
         gid_to_sheet, gid_to_data = preprocessor.download(
-            'A1B2C3D4E5F6', format_as='string', generate_ids=True)
+            'A1B2C3D4E5F6', format_as='strings', generate_ids=True)
 
         self.assertEqual({
             765: {

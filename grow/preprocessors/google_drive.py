@@ -126,6 +126,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
 
 class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     KIND = 'google_sheets'
+    MAP_TYPES = ['map', 'strings']
     _edit_url_format = 'https://docs.google.com/spreadsheets/d/{id}/edit#gid={gid}'
 
     class Config(messages.Message):
@@ -187,7 +188,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                  generate_ids=False):
         service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         logger = logger or logging
-        format_as_map = format_as in ['map', 'string']
+        format_as_map = format_as in cls.MAP_TYPES
         # pylint: disable=no-member
         spreadsheet = service.spreadsheets().get(
             spreadsheetId=spreadsheet_id).execute()
@@ -238,7 +239,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             key = 'untranslated_{}'.format(generated_key_index)
                             generated_key_index += 1
                         if key and not key.startswith(IGNORE_INITIAL):
-                            if format_as == 'string' and '@' not in key:
+                            if format_as == 'strings' and '@' not in key:
                                 key = '{}@'.format(key)
                             gid_to_data[gid][key] = (
                                 row[1] if len(row) == 2 else '')
@@ -266,7 +267,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         if config.gid is not None:
             gids.append(config.gid)
         format_as = config.format
-        if config.collection and format_as not in ['map', 'string']:
+        if config.collection and format_as not in GoogleSheetsPreprocessor.MAP_TYPES:
             format_as = 'map'
         gid_to_sheet, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
@@ -379,7 +380,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         if self.config.gid is not None:
             gids.append(self.config.gid)
         format_as = self.config.format
-        if self.config.collection and format_as not in ['map', 'string']:
+        if self.config.collection and format_as not in self.MAP_TYPES:
             format_as = 'map'
         _, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
