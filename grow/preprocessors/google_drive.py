@@ -29,6 +29,7 @@ from . import base
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
 STORAGE_KEY = 'Grow SDK'
+IGNORE_INITIAL = ('_', '#')
 
 
 # Silence extra logging from googleapiclient.
@@ -148,7 +149,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         for row in reader:
             key = row[0]
             value = row[1]
-            if key.startswith('_'):
+            if key.startswith(IGNORE_INITIAL):
                 continue
             if '.' in key:
                 parts = key.split('.')
@@ -219,7 +220,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 logger.info(
                     'No values found in sheet -> {}'.format(gid_to_sheet[gid]['title']))
             else:
-                if gid_to_sheet[gid]['title'].startswith('_'):
+                if gid_to_sheet[gid]['title'].startswith(IGNORE_INITIAL):
                     logger.info(
                         'Skipping sheet -> {}'.format(gid_to_sheet[gid]['title']))
                     continue
@@ -230,7 +231,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             headers = row
                             continue
                         key = row[0].strip()
-                        if key and not key.startswith('#'):
+                        if key and not key.startswith(IGNORE_INITIAL):
                             if format_as == 'string' and '@' not in key:
                                 key = '{}@'.format(key)
                             gid_to_data[gid][key] = (
@@ -241,8 +242,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             continue
                         row_values = {}
                         for idx, column in enumerate(headers):
-                            row_values[column] = (
-                                row[idx] if len(row) > idx else '')
+                            if not column.startswith(IGNORE_INITIAL):
+                                row_values[column] = (
+                                    row[idx] if len(row) > idx else '')
                         gid_to_data[gid].append(row_values)
         return gid_to_sheet, gid_to_data
 
@@ -292,7 +294,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 gids = gid_to_sheet.keys()
 
             for gid in gids:
-                if gid_to_sheet[gid]['title'].strip().startswith('_'):
+                if gid_to_sheet[gid]['title'].strip().startswith(IGNORE_INITIAL):
                     continue
                 file_name = '{}.yaml'.format(
                     utils.slugify(gid_to_sheet[gid]['title']))
