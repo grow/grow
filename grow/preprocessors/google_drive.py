@@ -271,7 +271,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             format_as = 'map'
         gid_to_sheet, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
-            logger=self.pod.logger)
+            logger=self.pod.logger, generate_ids=config.generate_ids)
 
         if config.path:
             # Single sheet import.
@@ -384,7 +384,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             format_as = 'map'
         _, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
-            logger=self.pod.logger)
+            logger=self.pod.logger, generate_ids=self.config.generate_ids)
 
         if self.config.path:
             if format_as in ['list']:
