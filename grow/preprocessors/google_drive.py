@@ -138,6 +138,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         gids = messages.IntegerField(7, repeated=True)
         collection = messages.StringField(8)
         output_format = messages.StringField(9, default='yaml')
+        generate_ids = messages.BooleanField(10, default=False)
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -182,7 +183,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return results
 
     @classmethod
-    def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None):
+    def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None,
+                 generate_ids=False):
         service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         logger = logger or logging
         format_as_map = format_as in ['map', 'string']
@@ -198,6 +200,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             gids = gid_to_sheet.keys()
 
         gid_to_data = {}
+        generated_key_index = 0
         for gid in gids:
             if format_as_map:
                 max_column = 'B'
@@ -231,6 +234,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             headers = row
                             continue
                         key = row[0].strip()
+                        if not key and generate_ids:
+                            key = 'untranslated_{}'.format(generated_key_index)
+                            generated_key_index += 1
                         if key and not key.startswith(IGNORE_INITIAL):
                             if format_as == 'string' and '@' not in key:
                                 key = '{}@'.format(key)
@@ -396,7 +402,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         old_data=existing_data, new_data=gid_to_data[gid],
                         preserve=self.config.preserve, key_to_update=key_to_update)
 
-                gid_to_data[gid] = document_fields.DocumentFields.untag(gid_to_data[gid])
+                gid_to_data[gid] = document_fields.DocumentFields.untag(gid_to_data[
+                                                                        gid])
                 doc.inject(fields=gid_to_data[gid])
         else:
             # TODO Multi sheet import.

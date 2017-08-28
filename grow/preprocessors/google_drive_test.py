@@ -296,6 +296,54 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         }, gid_to_data)
 
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_sheets_download_string_generate(self, mock_service_sheets):
+        preprocessor = google_drive.GoogleSheetsPreprocessor
+        mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'sheet1',
+                    'sheetId': 765,
+                    'gridProperties': {
+                        'columnCount': 2,
+                        'rowCount': 1000
+                    },
+                },
+            }]
+        }, sheets_values={
+            'values': [
+                ['id', 'value'],
+                ['jimbo', 'Jim'],
+                ['suzette@', 'Sue'],
+                ['', 'Lauren'],
+                ['', 'Franz'],
+            ],
+        })
+        mock_service_sheets.return_value = mock_sheets_service['service']
+        gid_to_sheet, gid_to_data = preprocessor.download(
+            'A1B2C3D4E5F6', format_as='string', generate_ids=True)
+
+        self.assertEqual({
+            765: {
+                'title': 'sheet1',
+                'sheetId': 765,
+                'gridProperties': {
+                    'columnCount': 2,
+                    'rowCount': 1000
+                },
+            },
+        }, gid_to_sheet)
+
+        self.assertEqual({
+            765: {
+                'jimbo@': 'Jim',
+                'suzette@': 'Sue',
+                'untranslated_0@': 'Lauren',
+                'untranslated_1@': 'Franz',
+            }
+        }, gid_to_data)
+
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
     def test_sheets_download_empty(self, mock_service_sheets):
         preprocessor = google_drive.GoogleSheetsPreprocessor
         mock_sheets_service = self._setup_mocks(sheets_get={
