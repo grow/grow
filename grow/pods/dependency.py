@@ -4,15 +4,8 @@ import fnmatch
 import os
 
 
-class Error(Exception):
-    pass
-
-
-class BadFieldsError(Error, ValueError):
-    pass
-
-
 class DependencyGraph(object):
+    """Dependency graph for tracking relationships between the pod content."""
 
     def __init__(self):
         self.reset()
@@ -64,6 +57,7 @@ class DependencyGraph(object):
             self._dependents[reference].add(source)
 
     def export(self):
+        """Formats the dependency graph for export."""
         result = {}
 
         for key in self._dependencies:
@@ -83,6 +77,7 @@ class DependencyGraph(object):
                 | set([reference]))
 
     def get_dependencies(self, source):
+        """Get the dependencies of a specific source."""
         return self._dependencies.get(source, set())
 
     def match_dependents(self, reference):
@@ -98,5 +93,6 @@ class DependencyGraph(object):
         return matched_dependents
 
     def reset(self):
+        """Reset all the dependency tracking."""
         self._dependents = {}
         self._dependencies = {}
