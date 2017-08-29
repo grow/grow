@@ -126,6 +126,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
 
 class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     KIND = 'google_sheets'
+    MAP_TYPES = ['map', 'strings']
     _edit_url_format = 'https://docs.google.com/spreadsheets/d/{id}/edit#gid={gid}'
 
     class Config(messages.Message):
@@ -138,6 +139,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         gids = messages.IntegerField(7, repeated=True)
         collection = messages.StringField(8)
         output_format = messages.StringField(9, default='yaml')
+        generate_ids = messages.BooleanField(10, default=False)
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -182,10 +184,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return results
 
     @classmethod
-    def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None):
+    def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None,
+                 generate_ids=False):
         service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         logger = logger or logging
-        format_as_map = format_as in ['map', 'string']
+        format_as_map = format_as in cls.MAP_TYPES
         # pylint: disable=no-member
         spreadsheet = service.spreadsheets().get(
             spreadsheetId=spreadsheet_id).execute()
@@ -198,6 +201,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             gids = gid_to_sheet.keys()
 
         gid_to_data = {}
+        generated_key_index = 0
         for gid in gids:
             if format_as_map:
                 max_column = 'B'
@@ -231,8 +235,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             headers = row
                             continue
                         key = row[0].strip()
+                        if not key and generate_ids:
+                            key = 'untranslated_{}'.format(generated_key_index)
+                            generated_key_index += 1
                         if key and not key.startswith(IGNORE_INITIAL):
-                            if format_as == 'string' and '@' not in key:
+                            if format_as == 'strings' and '@' not in key:
                                 key = '{}@'.format(key)
                             gid_to_data[gid][key] = (
                                 row[1] if len(row) == 2 else '')
@@ -260,11 +267,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         if config.gid is not None:
             gids.append(config.gid)
         format_as = config.format
-        if config.collection and format_as not in ['map', 'string']:
+        if config.collection and format_as not in GoogleSheetsPreprocessor.MAP_TYPES:
             format_as = 'map'
         gid_to_sheet, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
-            logger=self.pod.logger)
+            logger=self.pod.logger, generate_ids=config.generate_ids)
 
         if config.path:
             # Single sheet import.
@@ -373,11 +380,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         if self.config.gid is not None:
             gids.append(self.config.gid)
         format_as = self.config.format
-        if self.config.collection and format_as not in ['map', 'string']:
+        if self.config.collection and format_as not in self.MAP_TYPES:
             format_as = 'map'
         _, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
-            logger=self.pod.logger)
+            logger=self.pod.logger, generate_ids=self.config.generate_ids)
 
         if self.config.path:
             if format_as in ['list']:
@@ -396,7 +403,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         old_data=existing_data, new_data=gid_to_data[gid],
                         preserve=self.config.preserve, key_to_update=key_to_update)
 
-                gid_to_data[gid] = document_fields.DocumentFields.untag(gid_to_data[gid])
+                gid_to_data[gid] = document_fields.DocumentFields.untag(gid_to_data[
+                                                                        gid])
                 doc.inject(fields=gid_to_data[gid])
         else:
             # TODO Multi sheet import.
