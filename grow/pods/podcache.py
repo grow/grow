@@ -100,6 +100,8 @@ class PodCache(object):
         yaml[self.KEY_DEPENDENCIES] = self._dependency_graph.export()
         yaml[self.KEY_OBJECTS] = {}
 
+        self._dependency_graph.mark_clean()
+
         # Write out any of the object caches that request to be exported to
         # file.
         for key, meta in self._object_caches.iteritems():

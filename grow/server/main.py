@@ -70,6 +70,10 @@ def serve_pod(pod, request, values):
     content = controller.render(params)
     response = Response(body=content)
     response.headers.update(headers)
+
+    if pod.podcache.dependency_graph.is_dirty:
+        pod.podcache.write()
+
     return response
 
 
@@ -96,6 +100,9 @@ class PodServer(object):
             rule('/_grow', endpoint=serve_console),
             rule('/<path:path>', endpoint=serve_pod),
         ], strict_slashes=False)
+
+        # Start off the server with a clean dependency graph.
+        self.pod.podcache.dependency_graph.mark_clean()
 
     def dispatch_request(self, request):
         adapter = self.url_map.bind_to_environ(request.environ)

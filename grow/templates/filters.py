@@ -42,6 +42,11 @@ def deeptrans(ctx, obj):
     """Deep translate an object."""
     return _deep_gettext(ctx, obj)
 
+@jinja2.contextfilter
+def expand_partial(_ctx, partial_name):
+    """Filter for expanding partial path from name of partial."""
+    return '/partials/{0}/{0}.html'.format(partial_name)
+
 
 @jinja2.contextfilter
 def jsonify(_ctx, obj, *args, **kwargs):
@@ -117,6 +122,7 @@ def create_builtin_filters():
         ('datetime', wrap_locale_context(babel_dates.format_datetime)),
         ('decimal', wrap_locale_context(babel_numbers.format_decimal)),
         ('deeptrans', deeptrans),
+        ('expand_partial', expand_partial),
         ('jsonify', jsonify),
         ('markdown', markdown_filter),
         ('number', wrap_locale_context(babel_numbers.format_number)),
