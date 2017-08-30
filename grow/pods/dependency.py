@@ -4,18 +4,13 @@ import fnmatch
 import os
 
 
-class Error(Exception):
-    pass
-
-
-class BadFieldsError(Error, ValueError):
-    pass
-
-
 class DependencyGraph(object):
+    """Dependency graph for tracking relationships between the pod content."""
 
     def __init__(self):
-        self.reset()
+        self._dependents = {}
+        self._dependencies = {}
+        self._is_dirty = False
 
     @staticmethod
     def normalize_path(pod_path):
@@ -23,6 +18,11 @@ class DependencyGraph(object):
         if pod_path and not pod_path.startswith('/'):
             pod_path = '/{}'.format(pod_path)
         return pod_path
+
+    @property
+    def is_dirty(self):
+        """Have the contents of the dependency graph been modified?"""
+        return self._is_dirty
 
     def add_all(self, path_to_dependencies):
         """Add all from a dict of paths to dependencies."""
@@ -45,6 +45,11 @@ class DependencyGraph(object):
         # Bi-directional dependency references for easier lookup.
         if reference not in self._dependents:
             self._dependents[reference] = set()
+
+        # Track when the dependency graph has changed.
+        if source not in self._dependents[reference]:
+            self._is_dirty = True
+
         self._dependents[reference].add(source)
 
     def add_references(self, source, references):
@@ -61,9 +66,15 @@ class DependencyGraph(object):
             reference = DependencyGraph.normalize_path(reference)
             if reference not in self._dependents:
                 self._dependents[reference] = set()
+
+            # Track when the dependency graph has changed.
+            if source not in self._dependents[reference]:
+                self._is_dirty = True
+
             self._dependents[reference].add(source)
 
     def export(self):
+        """Formats the dependency graph for export."""
         result = {}
 
         for key in self._dependencies:
@@ -83,7 +94,12 @@ class DependencyGraph(object):
                 | set([reference]))
 
     def get_dependencies(self, source):
+        """Get the dependencies of a specific source."""
         return self._dependencies.get(source, set())
+
+    def mark_clean(self):
+        """Mark that the dependency graph is clean."""
+        self._is_dirty = False
 
     def match_dependents(self, reference):
         """
@@ -98,5 +114,7 @@ class DependencyGraph(object):
         return matched_dependents
 
     def reset(self):
+        """Reset all the dependency tracking."""
         self._dependents = {}
         self._dependencies = {}
+        self._is_dirty = False
