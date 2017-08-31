@@ -297,6 +297,15 @@ dependencies:
   - /static/css/main.min.css
   - /static/images/grow.svg
   - /static/images/icon.png
+  /content/docs/partials.md:
+  - /content/codelab/0.md
+  - /content/docs/index.md
+  - /content/pages/index.html
+  - /content/pages/project.html
+  - /content/pages/themes.html
+  - /static/css/main.min.css
+  - /static/images/grow.svg
+  - /static/images/icon.png
   /content/docs/podspec.md:
   - /content/codelab/0.md
   - /content/docs/index.md
