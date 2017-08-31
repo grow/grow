@@ -1,4 +1,4 @@
-grow.io  [![Build Status](https://travis-ci.org/grow/grow.io.png?branch=master)](https://travis-ci.org/grow/grow.io)
+grow.io  [![Circle CI](https://circleci.com/gh/grow/grow.io.png?style=shield)]
 ===========
 
 Grow's documentation and open source project page.
