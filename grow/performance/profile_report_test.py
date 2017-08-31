@@ -14,7 +14,7 @@ class TimerReportTestCase(unittest.TestCase):
 
     def test_analyze_empty(self):
         """Test report."""
-        self.assertEqual([], self.report.analyze())
+        self.assertEqual(None, self.report.analyze())
 
 
 if __name__ == '__main__':
