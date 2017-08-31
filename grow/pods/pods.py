@@ -15,6 +15,7 @@ from grow.common import logger
 from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import utils
+from grow.performance import profile
 from grow.preprocessors import preprocessors
 from grow.templates import filters
 from grow.templates import jinja_dependency
@@ -176,6 +177,11 @@ class Pod(object):
     @property
     def podspec(self):
         return podspec.PodSpec(yaml=self.yaml, pod=self)
+
+    @utils.cached_property
+    def profile(self):
+        """Profile object for code timing."""
+        return profile.Profile()
 
     @property
     def title(self):
@@ -686,27 +692,33 @@ class Pod(object):
         bar = progressbar_non.create_progressbar(
             "Building pod...", widgets=widgets, max_value=len(paths))
         bar.start()
-        for path in paths:
-            output_path = path
-            controller, params = routes.match(path, env=self.env.to_wsgi_env())
-            # Append a suffix onto rendered routes only. This supports dumping
-            # paths that would serve at URLs that terminate in "/" or without
-            # an extension to an HTML file suitable for writing to a
-            # filesystem. Static routes and other routes that may export to
-            # paths without extensions should remain unmodified.
-            if suffix and controller.KIND == messages.Kind.RENDERED:
-                if (append_slashes
-                    and not output_path.endswith('/')
-                        and not os.path.splitext(output_path)[-1]):
-                    output_path = output_path.rstrip('/') + '/'
-                if append_slashes and output_path.endswith('/') and suffix:
-                    output_path += suffix
-            try:
-                yield (output_path, controller.render(params, inject=False))
-            except:
-                self.logger.error('Error building: {}'.format(controller))
-                raise
-            bar.update(bar.value + 1)
+        with self.profile.timer('pod.render_paths'):
+            for path in paths:
+                output_path = path
+                controller, params = routes.match(
+                    path, env=self.env.to_wsgi_env())
+                # Append a suffix onto rendered routes only. This supports dumping
+                # paths that would serve at URLs that terminate in "/" or without
+                # an extension to an HTML file suitable for writing to a
+                # filesystem. Static routes and other routes that may export to
+                # paths without extensions should remain unmodified.
+                if suffix and controller.KIND == messages.Kind.RENDERED:
+                    if (append_slashes and not output_path.endswith('/')
+                            and not os.path.splitext(output_path)[-1]):
+                        output_path = output_path.rstrip('/') + '/'
+                    if append_slashes and output_path.endswith('/') and suffix:
+                        output_path += suffix
+                try:
+                    key = 'pod.render_paths.render'
+                    if isinstance(controller, grow_static.StaticController):
+                        key = 'pod.render_paths.render.static'
+
+                    with self.profile.timer(key, {'path': output_path}):
+                        yield (output_path, controller.render(params, inject=False))
+                except:
+                    self.logger.error('Error building: {}'.format(controller))
+                    raise
+                bar.update(bar.value + 1)
         bar.finish()
 
     def reset_yaml(self):

@@ -7,8 +7,10 @@ from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
 from grow.pods import pods
 from grow.pods import storage
+from grow.performance import profile_report
 
 
+# pylint: disable=too-many-locals
 @click.command()
 @click.argument('pod_path', default='.')
 @click.option('--out_dir', help='Where to output built files.')
@@ -23,7 +25,10 @@ from grow.pods import storage
 @click.option('--locate-untranslated',
               default=False, is_flag=True,
               help='Shows untranslated message information.')
-def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untranslated):
+@click.option('--profile',
+              default=False, is_flag=True,
+              help='Show report of pod operation timing for performance analysis.')
+def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untranslated, profile):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -50,3 +55,6 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
     if locate_untranslated:
         pod.translation_stats.pretty_print()
         destination.export_untranslated_catalogs()
+    if profile:
+        report = profile_report.ProfileReport(pod.profile)
+        report.pretty_print()
