@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/growio
     docker:
-      - image: grow/baseimage:0.2.4
+      - image: grow/baseimage:latest
     steps:
       - checkout
 
