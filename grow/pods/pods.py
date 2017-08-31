@@ -713,7 +713,7 @@ class Pod(object):
                     if isinstance(controller, grow_static.StaticController):
                         key = 'pod.render_paths.render.static'
 
-                    with self.profile.timer(key, {'path': output_path}):
+                    with self.profile.timer(key, label=output_path, meta={'path': output_path}):
                         yield (output_path, controller.render(params, inject=False))
                 except:
                     self.logger.error('Error building: {}'.format(controller))

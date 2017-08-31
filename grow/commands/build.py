@@ -58,3 +58,4 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
     if profile:
         report = profile_report.ProfileReport(pod.profile)
         report.pretty_print()
+        destination.export_profile_report()

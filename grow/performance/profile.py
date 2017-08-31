@@ -35,6 +35,7 @@ class Timer(object):
         """Export the timer data."""
         return {
             'key': self.key,
+            'label': self.label,
             'meta': self.meta,
             'start': self.start,
             'end': self.end,

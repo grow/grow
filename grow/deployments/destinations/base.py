@@ -79,6 +79,7 @@ import sys
 from grow.common import utils
 from grow.deployments import indexes
 from grow.deployments import tests
+from grow.performance import profile_report
 from grow.pods import env
 from grow.pods import pods
 from . import messages
@@ -159,6 +160,13 @@ class BaseDestination(object):
             return indexes.Index.from_string(content)
         except IOError:
             return indexes.Index.create()
+
+    def export_profile_report(self):
+        """Write the results of the profiling timers."""
+        report = profile_report.ProfileReport(self.pod.profile)
+        file_name = '{}profile.yaml'.format(self.control_dir)
+        self.pod.write_yaml(file_name, report.export())
+        logging.info('Profiling data exported to {}'.format(file_name))
 
     def export_untranslated_catalogs(self):
         dir_path = '{}untranslated/'.format(self.control_dir)
