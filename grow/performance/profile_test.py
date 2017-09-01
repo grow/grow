@@ -10,7 +10,7 @@ class TimerTestCase(unittest.TestCase):
     def setUp(self):
         self.profile = profile.Profile()
 
-    def test_add(self):
+    def test_timer(self):
         """Test timer."""
 
         timer = self.profile.timer('test')
@@ -25,6 +25,7 @@ class TimerTestCase(unittest.TestCase):
 
         self.assertEqual([{
             'key': 'test',
+            'label': 'test',
             'meta': None,
             'start': 0,
             'end': 10,
