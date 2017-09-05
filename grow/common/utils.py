@@ -17,6 +17,7 @@ import yaml
 import bs4
 import html2text
 import translitcodec  # pylint: disable=unused-import
+from grow.pods import document_fields
 from grow.pods import errors
 
 # The CLoader implementation of the PyYaml loader is orders of magnitutde
@@ -241,6 +242,7 @@ def make_yaml_loader(pod, doc=None):
         def construct_doc(self, node):
             locale = doc._locale_kwarg if doc else None
             pod_path = doc.pod_path if doc else None
+
             def func(path):
                 doc = pod.get_doc(path, locale=locale)
                 pod.podcache.dependency_graph.add(pod_path, doc.pod_path)
@@ -257,6 +259,7 @@ def make_yaml_loader(pod, doc=None):
 
         def construct_static(self, node):
             locale = doc._locale_kwarg if doc else None
+
             def func(path):
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
@@ -272,13 +275,17 @@ def make_yaml_loader(pod, doc=None):
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 if reference:
-                    data = pod.read_yaml(path)
+                    locale = None
+                    if doc:
+                        locale = str(doc._locale_kwarg)
+                    data = pod.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)
                 return None
             return self._construct_func(node, func)
 
         def construct_url(self, node):
             locale = doc._locale_kwarg if doc else None
+
             def func(path):
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
@@ -289,9 +296,11 @@ def make_yaml_loader(pod, doc=None):
             def func(path):
                 if '?' in path:
                     path, reference = path.split('?')
+                    locale = None
                     if doc:
                         pod.podcache.dependency_graph.add(doc.pod_path, path)
-                    data = pod.read_yaml(path)
+                        locale = str(doc._locale_kwarg)
+                    data = pod.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
