@@ -674,10 +674,10 @@ class Pod(object):
         fp = self.open_file(path)
         return json.load(fp)
 
-    def read_yaml(self, path):
+    def read_yaml(self, path, locale=None):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
         untag = document_fields.DocumentFields.untag
-        return untag(fields, env_name=self.env.name)
+        return untag(fields, env_name=self.env.name, locale=locale)
 
     def render_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Renders the given paths and yields each path and content."""

@@ -275,10 +275,10 @@ def make_yaml_loader(pod, doc=None):
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 if reference:
-                    data = pod.read_yaml(path)
+                    locale = None
                     if doc:
-                        data = document_fields.DocumentFields.untag(
-                            data, locale=doc.locale)
+                        locale = str(doc._locale_kwarg)
+                    data = pod.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)
                 return None
             return self._construct_func(node, func)
@@ -296,12 +296,11 @@ def make_yaml_loader(pod, doc=None):
             def func(path):
                 if '?' in path:
                     path, reference = path.split('?')
+                    locale = None
                     if doc:
                         pod.podcache.dependency_graph.add(doc.pod_path, path)
-                    data = pod.read_yaml(path)
-                    if doc:
-                        data = document_fields.DocumentFields.untag(
-                            data, locale=doc.locale)
+                        locale = str(doc._locale_kwarg)
+                    data = pod.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
