@@ -446,7 +446,7 @@ def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
 
 def fnmatches_paths(path_to_extract, paths):
     # Special case: user doesn't want to check against any paths.
-    if paths is None:
+    if not paths:
         return True
     for path in paths:
         # Support pod paths and filesystem paths for tab completion.
