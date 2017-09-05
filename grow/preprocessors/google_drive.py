@@ -235,6 +235,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             headers = row
                             continue
                         key = row[0].strip()
+                        if isinstance(key, unicode):
+                            key = key.encode('utf-8')
                         if not key and generate_ids:
                             key = 'untranslated_{}'.format(generated_key_index)
                             generated_key_index += 1
