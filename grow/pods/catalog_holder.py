@@ -350,6 +350,18 @@ class Catalogs(object):
                 with self.pod.open_file(pod_path) as f:
                     _babel_extract(f, self.pod.list_locales(), pod_path)
 
+        # Extract from /partials/:
+        if not audit:
+            for path in self.pod.list_dir('/partials/'):
+                if not utils.fnmatches_paths(path, paths) \
+                        or path.startswith('.'):
+                    continue
+                if path.endswith(('.yaml', '.yml', '.html', '.htm')):
+                    pod_path = os.path.join('/partials/', path)
+                    self.pod.logger.info('Extracting: {}'.format(pod_path))
+                    with self.pod.open_file(pod_path) as f:
+                        _babel_extract(f, self.pod.list_locales(), pod_path)
+
         # Extract from podspec.yaml:
         if utils.fnmatches_paths('/podspec.yaml', paths):
             self.pod.logger.info('Extracting: /podspec.yaml')
