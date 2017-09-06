@@ -18,12 +18,12 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
         pod_path = event.src_path[len(self.pod.root):]
         try:
             self.pod.on_file_changed(pod_path)
-        except Exception as err:
+        except Exception:
             # Avoid an inconsistent state where preprocessor doesn't run again
             # if it encounters an exception. https://github.com/grow/grow/issues/528
-            text = colorize('Preprocessor error.', ansi=197)
-            self.pod.logger.exception(text)
-            self.pod.logger.exception(err)
+            colored_pod_path = colorize(pod_path, ansi=197)
+            self.pod.logger.exception(
+                'Found an error -> {}'.format(colored_pod_path))
         self.managed_observer.reschedule_children()
 
     def on_created(self, event):
