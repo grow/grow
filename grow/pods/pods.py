@@ -598,7 +598,6 @@ class Pod(object):
             self.podcache.collection_cache.remove_collection(doc.collection)
             self.routes.reset_cache(rebuild=True)
         elif pod_path.startswith(collection.Collection.CONTENT_PATH):
-            print
             trigger_doc = self.get_doc(pod_path)
             col = trigger_doc.collection
             base_docs = []
