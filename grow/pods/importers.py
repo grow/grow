@@ -41,8 +41,9 @@ class Error(Exception):
 
 class Importer(object):
 
-    def __init__(self, pod):
+    def __init__(self, pod, include_obsolete=True):
         self.pod = pod
+        self.include_obsolete = include_obsolete
 
     def _validate_path(self, path):
         if not os.path.isfile(path):
@@ -72,6 +73,20 @@ class Importer(object):
     def import_dir(self, dir_path):
         # Track if the imported content is actually changing the translations.
         has_changed_content = False
+
+        # Detect whether importing from another pod.
+        podspec_path = os.path.join(dir_path, 'podspec.yaml')
+        if os.path.exists(podspec_path):
+            text = 'Importing from pod -> {}'.format(podspec_path)
+            self.pod.logger.info(text)
+            translations_dir = os.path.join(dir_path, 'translations')
+            for locale in os.listdir(translations_dir):
+                po_path = os.path.join(
+                        translations_dir, locale, 'LC_MESSAGES', 'messages.po')
+                if os.path.exists(po_path):
+                    if self.import_file(locale, po_path):
+                        has_changed_content = True
+            return has_changed_content
 
         # TODO(jeremydw): Allow a custom syntax for translation importers.
         # Currently, assume one directory per locale.
@@ -130,6 +145,10 @@ class Importer(object):
                 num_imported = 0
                 for message in catalog_to_merge:
                     if message.id not in existing_catalog:
+                        # Skip messages that don't exist if we are not
+                        # including obsolete messages.
+                        if not self.include_obsolete:
+                            continue
                         existing_catalog[message.id] = message
                         if message.id:  # Only count the non-header messages.
                             num_imported += 1
@@ -153,6 +172,9 @@ class Importer(object):
                     message = text.format(babel_locale)
                     self.pod.logger.info(message)
             else:
+                # Skip new catalogs if not including obsolete messages.
+                if not self.include_obsolete:
+                    continue
                 has_changed_content = True
                 self.pod.write_file(pod_po_path, content)
                 message = 'Imported new catalog: {}'.format(babel_locale)
