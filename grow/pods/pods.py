@@ -306,7 +306,7 @@ class Pod(object):
                 for file_name in files:
                     paths.append(os.path.join(pod_dir, file_name))
 
-        text = 'Building UI Tools: %(value)d/{} (in %(seconds_elapsed)s)'
+        text = 'Building UI Tools: %(value)d/{} (in %(time_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
         progress = progressbar_non.create_progressbar(
             "Building UI Tools...", widgets=widgets, max_value=len(paths))
@@ -699,7 +699,7 @@ class Pod(object):
 
     def render_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Renders the given paths and yields each path and content."""
-        text = 'Building: %(value)d/{} (in %(seconds_elapsed)s)'
+        text = 'Building: %(value)d/{} (in %(time_elapsed)s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
         bar = progressbar_non.create_progressbar(
             "Building pod...", widgets=widgets, max_value=len(paths))
