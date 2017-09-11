@@ -24,4 +24,6 @@ def import_translations(pod_path, source, locale):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if not pod.exists:
         raise click.ClickException('Pod does not exist: {}'.format(pod.root))
-    pod.catalogs.import_translations(source, locale=locale)
+    with pod.profile.timer('grow_import_translations'):
+        pod.catalogs.import_translations(source, locale=locale)
+    return pod

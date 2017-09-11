@@ -48,3 +48,4 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
                       update_check=update_check)
     except pods.Error as e:
         raise click.ClickException(str(e))
+    return pod

@@ -6,20 +6,20 @@ import sys
 
 
 def is_packaged_app():
-  try:
-    sys._MEIPASS
-    return True
-  except AttributeError:
-    return False
+    try:
+        sys._MEIPASS
+        return True
+    except AttributeError:
+        return False
 
 if not is_packaged_app():
-  base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-  sys.path.extend([base_dir])
+    base_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    sys.path.extend([base_dir])
 
 # Fixes PyInstaller issue when sys.getsystemencoding is None.
 # https://github.com/mitsuhiko/click/issues/355
 if sys.getfilesystemencoding() is None:
-  sys.getfilesystemencoding = lambda: 'utf-8'
+    sys.getfilesystemencoding = lambda: 'utf-8'
 
 import click
 
@@ -49,6 +49,8 @@ unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 from grow import commands
 from grow.common import sdk_utils
 from grow.common import utils
+from grow.deployments.destinations import local as local_destination
+from grow.performance import profile_report
 
 _grow_dir = utils.get_grow_dir()
 ver = open(os.path.join(_grow_dir, 'VERSION')).read().strip()
@@ -56,7 +58,8 @@ text = ('Grow is a declarative file-based website generator. Read docs at '
         'https://grow.io. This is version {}.'.format(ver))
 
 
-@click.group(help=text)
+# pylint: disable=unused-argument
+@click.group(help=text, chain=True)
 @click.version_option(sdk_utils.get_this_version(), message='%(version)s')
 @click.option('--auth', help='Information used to sign in to services that'
               ' require authentication. --auth should be an email address.',
@@ -74,19 +77,41 @@ text = ('Grow is a declarative file-based website generator. Read docs at '
          ' you may use --interactive-auth to automatically open the web'
          ' browser. By default, this option is turned off, requiring you to'
          ' manually copy and paste an authorization code.')
-def grow(auth, clear_auth, auth_key_file, interactive_auth):
-  if interactive_auth not in (None, False):
-    os.environ['INTERACTIVE_AUTH'] = str(interactive_auth)
-  if auth is not None:
-    os.environ['AUTH_EMAIL_ADDRESS'] = str(auth)
-  if auth_key_file is not None:
-    os.environ['AUTH_KEY_FILE'] = str(auth_key_file)
-  if clear_auth:
-    os.environ['CLEAR_AUTH'] = '1'
+@click.option('--profile',
+              default=False, is_flag=True,
+              help='Show report of pod operation timing for performance analysis.')
+def grow(auth, clear_auth, auth_key_file, interactive_auth, profile):
+    """Grow CLI."""
+    if interactive_auth not in (None, False):
+        os.environ['INTERACTIVE_AUTH'] = str(interactive_auth)
+    if auth is not None:
+        os.environ['AUTH_EMAIL_ADDRESS'] = str(auth)
+    if auth_key_file is not None:
+        os.environ['AUTH_KEY_FILE'] = str(auth_key_file)
+    if clear_auth:
+        os.environ['CLEAR_AUTH'] = '1'
+
+
+@grow.resultcallback()
+def process_subcommands(pods, profile=False, **_):
+    """Handle flags that need to process after the sub command."""
+    if not pods:
+        return
+
+    pod = pods[0]
+
+    if profile:
+        report = profile_report.ProfileReport(pod.profile)
+        report.pretty_print()
+        destination = local_destination.LocalDestination(
+            local_destination.Config())
+        destination.pod = pod
+        destination.export_profile_report()
 
 
 commands.add(grow)
 
 
 if __name__ == '__main__':
-  grow()
+    # pylint: disable=no-value-for-parameter
+    grow()

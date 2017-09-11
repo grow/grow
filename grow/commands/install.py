@@ -19,4 +19,6 @@ def install(pod_path, gerrit):
     Gerrit Code Review commit hook."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage, load_extensions=False)
-    sdk_utils.install(pod, gerrit=gerrit)
+    with pod.profile.timer('grow_install'):
+        sdk_utils.install(pod, gerrit=gerrit)
+    return pod

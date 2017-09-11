@@ -14,4 +14,6 @@ def init(theme, pod_path, force):
     """Initializes a pod with a theme."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    themes.init(pod, theme, force=force)
+    with pod.profile.timer('grow_init'):
+        themes.init(pod, theme, force=force)
+    return pod
