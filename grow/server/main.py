@@ -1,5 +1,6 @@
 """Grow local development server."""
 
+import cStringIO
 import logging
 import mimetypes
 import os
@@ -45,6 +46,7 @@ def serve_console(pod, request, values):
     kwargs = {'pod': pod}
     values_to_templates = {
         'content': 'collections.html',
+        'preprocessors': 'preprocessors.html',
         'translations': 'catalogs.html',
     }
     value = values.get('page')
@@ -86,6 +88,18 @@ def serve_ui_tool(pod, request, values):
     return response
 
 
+def serve_run_preprocessor(pod, request, values):
+    name = values.get('name')
+    if name:
+        pod.preprocess([name])
+        out = 'Finished preprocessor run -> {}'.format(name)
+    else:
+        out = 'No preprocessor found.'
+    response = wrappers.Response(out)
+    response.headers['Content-Type'] = 'text/plain'
+    return response
+
+
 class PodServer(object):
 
     def __init__(self, pod, debug=False):
@@ -95,6 +109,7 @@ class PodServer(object):
         self.url_map = routing.Map([
             rule('/', endpoint=serve_pod),
             rule('/_grow/ui/tools/<path:tool>', endpoint=serve_ui_tool),
+            rule('/_grow/preprocessors/run/<path:name>', endpoint=serve_run_preprocessor),
             rule('/_grow/<any("translations"):page>/<path:locale>', endpoint=serve_console),
             rule('/_grow/<path:page>', endpoint=serve_console),
             rule('/_grow', endpoint=serve_console),

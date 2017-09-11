@@ -11,7 +11,12 @@ import os
 @click.option('--locale', type=str,
               help='Locale of the message catalog to import. This option is'
                    ' only applicable when --source is a .po file.')
-def import_translations(pod_path, source, locale):
+@click.option('--include-obsolete/--no-include-obsolete',
+              default=True,
+              help='Whether to include potentially obsolete messages or just'
+                   ' include translations for strings that already exist in'
+                   ' catalogs.')
+def import_translations(pod_path, source, locale, include_obsolete):
     """Imports translations from an external source."""
     if source.endswith('.po') and locale is None:
         text = 'Must specify --locale when --source is a .po file.'
@@ -25,5 +30,6 @@ def import_translations(pod_path, source, locale):
     if not pod.exists:
         raise click.ClickException('Pod does not exist: {}'.format(pod.root))
     with pod.profile.timer('grow_import_translations'):
-        pod.catalogs.import_translations(source, locale=locale)
+        pod.catalogs.import_translations(
+            source, locale=locale, include_obsolete=include_obsolete)
     return pod

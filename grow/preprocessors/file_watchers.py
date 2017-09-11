@@ -14,15 +14,25 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
         self.managed_observer = managed_observer
         super(PodFileEventHandler, self).__init__(*args, **kwargs)
 
+    def trigger_file_changed(self, pod_path):
+        try:
+            self.pod.on_file_changed(pod_path)
+        except Exception:
+            # Avoid an inconsistent state where preprocessor doesn't run again
+            # if it encounters an exception. https://github.com/grow/grow/issues/528
+            colored_pod_path = colorize(pod_path, ansi=197)
+            self.pod.logger.exception(
+                'Found an error -> {}'.format(colored_pod_path))
+
     def handle(self, event=None):
-        pod_path = event.src_path[len(self.pod.root):]
-        self.pod.on_file_changed(pod_path)
+        if hasattr(event, 'src_path'):
+            self.trigger_file_changed(event.src_path[len(self.pod.root):])
+        if hasattr(event, 'dest_path'):
+            self.trigger_file_changed(event.dest_path[len(self.pod.root):])
+
         self.managed_observer.reschedule_children()
 
-    def on_created(self, event):
-        self.handle(event)
-
-    def on_modified(self, event):
+    def on_any_event(self, event):
         self.handle(event)
 
 

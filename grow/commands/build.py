@@ -16,7 +16,7 @@ from grow.pods import storage
 @click.option('--preprocess/--no-preprocess', '-p/-np',
               default=True, is_flag=True,
               help='Whether to run preprocessors.')
-@click.option('--clear_cache',
+@click.option('--clear-cache',
               default=False, is_flag=True,
               help='Clear the pod cache before building.')
 @click.option('--file', '--pod-path', 'pod_paths',

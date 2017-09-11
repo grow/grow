@@ -21,6 +21,8 @@ from grow.templates import filters
 from grow.templates import jinja_dependency
 from grow.translators import translation_stats
 from grow.translators import translators
+# NOTE: exc imported directly, webob.exc doesn't work when frozen.
+from webob import exc as webob_exc
 from . import catalog_holder
 from . import collection
 from . import document_fields
@@ -602,9 +604,11 @@ class Pod(object):
             self.podcache.collection_cache.remove_collection(doc.collection)
             self.routes.reset_cache(rebuild=True)
         elif pod_path.startswith(collection.Collection.CONTENT_PATH):
-            col = self.get_doc(pod_path).collection
+            trigger_doc = self.get_doc(pod_path)
+            col = trigger_doc.collection
             base_docs = []
             original_docs = []
+            trigger_docs = col.list_servable_document_locales(pod_path)
             updated_docs = []
 
             for dep_path in self.podcache.dependency_graph.get_dependents(
@@ -619,7 +623,12 @@ class Pod(object):
             # The routing map should remain unchanged most of the time.
             added_docs = []
             removed_docs = []
-            for i, original_doc in enumerate(original_docs):
+            for original_doc in original_docs:
+                # Removed documents should be removed.
+                if not original_doc.exists:
+                    removed_docs.append(original_doc)
+                    continue
+
                 updated_doc = self.get_doc(
                     original_doc.pod_path, original_doc._locale_kwarg)
 
@@ -645,6 +654,15 @@ class Pod(object):
                     if removed_doc.has_serving_path():
                         if removed_doc not in removed_docs:
                             removed_docs.append(removed_doc)
+
+            # Check for new docs.
+            route_env = self.env.to_wsgi_env()
+            for trigger_doc in trigger_docs:
+                if trigger_doc.has_serving_path():
+                    try:
+                        _ = self.routes.match(trigger_doc.get_serving_path(), env=route_env)
+                    except webob_exc.HTTPNotFound:
+                        added_docs.append(trigger_doc)
             if added_docs or removed_docs:
                 self.routes.reconcile_documents(
                     remove_docs=removed_docs, add_docs=added_docs)
@@ -680,10 +698,10 @@ class Pod(object):
         fp = self.open_file(path)
         return json.load(fp)
 
-    def read_yaml(self, path):
+    def read_yaml(self, path, locale=None):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
         untag = document_fields.DocumentFields.untag
-        return untag(fields, env_name=self.env.name)
+        return untag(fields, env_name=self.env.name, locale=locale)
 
     def render_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Renders the given paths and yields each path and content."""

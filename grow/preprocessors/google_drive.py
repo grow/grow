@@ -224,9 +224,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 logger.info(
                     'No values found in sheet -> {}'.format(gid_to_sheet[gid]['title']))
             else:
-                if gid_to_sheet[gid]['title'].startswith(IGNORE_INITIAL):
-                    logger.info(
-                        'Skipping sheet -> {}'.format(gid_to_sheet[gid]['title']))
+                title = gid_to_sheet[gid]['title']
+                if title.startswith(IGNORE_INITIAL):
+                    logger.info('Skipping sheet -> {}'.format(title))
                     continue
                 headers = None
                 for row in resp['values']:
@@ -234,7 +234,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         if not headers:
                             headers = row
                             continue
+                        if not row:  # Skip empty rows.
+                            continue
                         key = row[0].strip()
+                        if isinstance(key, unicode):
+                            key = key.encode('utf-8')
                         if not key and generate_ids:
                             key = 'untranslated_{}'.format(generated_key_index)
                             generated_key_index += 1
