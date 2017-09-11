@@ -36,7 +36,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
     if locate_untranslated:
         pod.enable(pod.FEATURE_TRANSLATION_STATS)
     try:
-        with pod.profile.timer('build'):
+        with pod.profile.timer('grow_build'):
             config = local_destination.Config(out_dir=out_dir)
             destination = local_destination.LocalDestination(config)
             destination.pod = pod

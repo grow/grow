@@ -30,7 +30,7 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untra
     auth = context.parent.params.get('auth')
     try:
         pod = pods.Pod(root, storage=storage.FileStorage)
-        with pod.profile.timer('stage'):
+        with pod.profile.timer('grow_stage'):
             deployment = _get_deployment(pod, remote, subdomain, api_key)
             # use the deployment's environment for preprocessing and later
             # steps.

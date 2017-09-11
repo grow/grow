@@ -93,7 +93,7 @@ def grow(auth, clear_auth, auth_key_file, interactive_auth, profile):
 
 
 @grow.resultcallback()
-def process_subcommands(pods, profile=False, **_):
+def process_subcommands(pods, profile, **_):
     """Handle flags that need to process after the sub command."""
     if not pods:
         return

@@ -16,7 +16,7 @@ def stats(pod_path, full):
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     try:
-        with pod.profile.timer('stats'):
+        with pod.profile.timer('grow_stats'):
             stats = stats_lib.Stats(pod, full=full)
             click.echo_via_pager('\n\n'.join(stats.to_tables()))
     except pods.Error as e:
