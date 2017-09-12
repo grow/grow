@@ -191,7 +191,7 @@ class Diff(object):
         thread_pool = pool.ThreadPool(cls.POOL_SIZE)
         diff = message
         num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
-        text = 'Deploying: %(value)d/{} (in %(time_elapsed)s)'
+        text = 'Deploying: %(value)d/{} (in %(time_elapsed).9s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
         progress = progressbar_non.create_progressbar(
             "Deploying...", widgets=widgets, max_value=num_files)
