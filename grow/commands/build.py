@@ -28,6 +28,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untransl
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
+
     pod = pods.Pod(root, storage=storage.FileStorage)
     if clear_cache:
         pod.podcache.reset(force=True)
