@@ -103,7 +103,7 @@ class Translator(object):
         if not stats_to_download:
             return
         num_files = len(stats_to_download)
-        text = 'Downloading translations: %(value)d/{} (in %(seconds_elapsed)s)'
+        text = 'Downloading translations: %(value)d/{} (in %(time_elapsed).9s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
         if not inject:
             bar = progressbar_non.create_progressbar(
@@ -238,7 +238,7 @@ class Translator(object):
             stats = self._upload_catalogs(catalogs_to_upload, source_lang,
                                           prune=prune)
         else:
-            text = 'Uploading translations: %(value)d/{} (in %(seconds_elapsed)s)'
+            text = 'Uploading translations: %(value)d/{} (in %(time_elapsed).9s)'
             widgets = [progressbar.FormatLabel(text.format(num_files))]
             bar = progressbar_non.create_progressbar(
                 "Uploading translations...", widgets=widgets, max_value=num_files)
