@@ -95,6 +95,8 @@ class GoogleSheetsTranslator(base.Translator):
         source_lang, lang, _, _ = values.pop(0)
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
+            if not row:  # Skip empty rows.
+                continue
             source = row[0]
             translation = row[1] if len(row) > 1 else None
             babel_catalog.add(source, translation, auto_comments=[],
@@ -231,6 +233,8 @@ class GoogleSheetsTranslator(base.Translator):
         removed_rows = []
 
         for value in existing_values:
+            if not value:  # Skip empty rows.
+                continue
             existing_rows.append({
                 'source': value[0],
                 'translation': value[1] if len(value) > 1 else None,
@@ -666,6 +670,8 @@ class GoogleSheetsTranslator(base.Translator):
             for x in range(self.HEADER_ROW_COUNT):
                 existing_values.pop(0)  # Remove header rows.
             for value in existing_values:
+                if not value:  # Skip empty rows.
+                    continue
                 if value not in catalog:
                     source = value[0]
                     translation = value[1] if len(value) > 1 else None

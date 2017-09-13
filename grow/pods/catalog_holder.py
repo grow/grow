@@ -225,6 +225,8 @@ class Catalogs(object):
             #   field@#: Extracted comment for field@.
             auto_comments = []
             if isinstance(node, dict):
+                if isinstance(key, unicode):
+                    key = key.encode('utf-8')
                 auto_comment = node.get('{}#'.format(key))
                 if auto_comment:
                     auto_comments.append(auto_comment)
