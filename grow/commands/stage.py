@@ -8,6 +8,7 @@ import click
 import os
 
 
+# pylint: disable=too-many-locals
 @click.command()
 @click.argument('pod_path', default='.')
 @click.option('--preprocess/--no-preprocess', '-p/-np', default=True,
@@ -29,26 +30,29 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untra
     auth = context.parent.params.get('auth')
     try:
         pod = pods.Pod(root, storage=storage.FileStorage)
-        deployment = _get_deployment(pod, remote, subdomain, api_key)
-        # use the deployment's environment for preprocessing and later steps.
-        pod.set_env(deployment.config.env)
-        require_translations = pod.podspec.localization.get(
-            'require_translations', False)
-        require_translations = require_translations and not force_untranslated
-        if auth:
-            deployment.login(auth)
-        if preprocess:
-            pod.preprocess()
-        content_generator = deployment.dump(pod)
-        repo = utils.get_git_repo(pod.root)
-        paths, _ = pod.determine_paths_to_build()
-        stats_obj = stats.Stats(pod, paths=paths)
-        deployment.deploy(content_generator, stats=stats_obj, repo=repo,
-                          confirm=False, test=False, require_translations=require_translations)
+        with pod.profile.timer('grow_stage'):
+            deployment = _get_deployment(pod, remote, subdomain, api_key)
+            # use the deployment's environment for preprocessing and later
+            # steps.
+            pod.set_env(deployment.config.env)
+            require_translations = pod.podspec.localization.get(
+                'require_translations', False)
+            require_translations = require_translations and not force_untranslated
+            if auth:
+                deployment.login(auth)
+            if preprocess:
+                pod.preprocess()
+            content_generator = deployment.dump(pod)
+            repo = utils.get_git_repo(pod.root)
+            paths, _ = pod.determine_paths_to_build()
+            stats_obj = stats.Stats(pod, paths=paths)
+            deployment.deploy(content_generator, stats=stats_obj, repo=repo,
+                              confirm=False, test=False, require_translations=require_translations)
     except base.Error as err:
         raise click.ClickException(str(err))
     except pods.Error as err:
         raise click.ClickException(str(err))
+    return pod
 
 
 def _get_deployment(pod, remote, subdomain, api_key):

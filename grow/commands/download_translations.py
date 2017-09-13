@@ -18,5 +18,7 @@ def download_translations(pod_path, locale, service):
     """Downloads translations from a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    translator = pod.get_translator(service)
-    translator.download(locales=locale)
+    with pod.profile.timer('grow_download_translations'):
+        translator = pod.get_translator(service)
+        translator.download(locales=locale)
+    return pod

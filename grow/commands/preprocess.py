@@ -28,4 +28,6 @@ def preprocess(pod_path, preprocessor, run_all, tag, ratelimit):
     """Runs preprocessors."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.preprocess(preprocessor, run_all=run_all, tags=tag, ratelimit=ratelimit)
+    with pod.profile.timer('grow_preprocess'):
+        pod.preprocess(preprocessor, run_all=run_all, tags=tag, ratelimit=ratelimit)
+    return pod

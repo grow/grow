@@ -68,4 +68,6 @@ def upload_translations(pod_path, locale, force, service, update_acl,
             catalogs.update(locales=locales, include_header=include_header,
                             use_fuzzy_matching=use_fuzzy_matching)
 
-    translator.upload(locales=locale, force=force, verbose=True, prune=prune)
+    with pod.profile.timer('grow_upload_translations'):
+        translator.upload(locales=locale, force=force, verbose=True, prune=prune)
+    return pod

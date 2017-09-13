@@ -19,3 +19,4 @@ def convert(pod_path, type):
         raise click.UsageError(
             'Unable to convert files without a --type option.\n'
             'Run `grow convert --help` to see valid --type values.')
+    return pod

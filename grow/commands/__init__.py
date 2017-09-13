@@ -1,9 +1,11 @@
+"""Grow CLI commands."""
+
 from . import build
 from . import convert
 from . import deploy
 from . import download_translations
 from . import extract
-from . import filter
+from . import filter as grow_filter
 from . import import_translations
 from . import init
 from . import install
@@ -22,7 +24,7 @@ def add(group):
     group.add_command(deploy.deploy)
     group.add_command(download_translations.download_translations)
     group.add_command(extract.extract)
-    group.add_command(filter.filter)
+    group.add_command(grow_filter.filter)
     group.add_command(import_translations.import_translations)
     group.add_command(init.init)
     group.add_command(machine_translate.machine_translate)

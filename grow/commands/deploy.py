@@ -35,26 +35,30 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     try:
         pod = pods.Pod(root, storage=storage.FileStorage)
-        deployment = pod.get_deployment(deployment_name)
-        # use the deployment's environment for preprocessing and later steps.
-        pod.set_env(deployment.config.env)
-        require_translations = pod.podspec.localization.get(
-            'require_translations', False)
-        require_translations = require_translations and not force_untranslated
-        if auth:
-            deployment.login(auth)
-        if preprocess:
-            pod.preprocess()
-        if test_only:
-            deployment.test()
-            return
-        content_generator = deployment.dump(pod)
-        repo = utils.get_git_repo(pod.root)
-        paths, _ = pod.determine_paths_to_build()
-        stats_obj = stats.Stats(pod, paths=paths)
-        deployment.deploy(content_generator, stats=stats_obj, repo=repo,
-                          confirm=confirm, test=test, require_translations=require_translations)
+        with pod.profile.timer('grow_deploy'):
+            deployment = pod.get_deployment(deployment_name)
+            # use the deployment's environment for preprocessing and later
+            # steps.
+            pod.set_env(deployment.config.env)
+            require_translations = pod.podspec.localization.get(
+                'require_translations', False)
+            require_translations = require_translations and not force_untranslated
+            if auth:
+                deployment.login(auth)
+            if preprocess:
+                pod.preprocess()
+            if test_only:
+                deployment.test()
+                return
+            content_generator = deployment.dump(pod)
+            repo = utils.get_git_repo(pod.root)
+            paths, _ = pod.determine_paths_to_build()
+            stats_obj = stats.Stats(pod, paths=paths)
+            deployment.deploy(
+                content_generator, stats=stats_obj, repo=repo, confirm=confirm,
+                test=test, require_translations=require_translations)
     except base.Error as err:
         raise click.ClickException(str(err))
     except pods.Error as err:
         raise click.ClickException(str(err))
+    return pod

@@ -41,15 +41,17 @@ def filter(pod_path, locale, o, include_obsolete, localized, path,
     """Filters untranslated messages from catalogs into new catalogs."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    catalogs = pod.get_catalogs()
-    if not locale:
-        locale = catalogs.list_locales()
-    if out_dir and pod.file_exists(out_dir) and not f:
-        raise click.UsageError(
-            '{} exists. You must specify a directory that does not exist, or '
-            'use the "-f" flag, which will force update catalogs within the '
-            'specified directory.'.format(out_dir))
-    catalogs.filter(out_path=o, out_dir=out_dir,
-                    include_obsolete=include_obsolete,
-                    localized=localized, paths=path,
-                    include_header=include_header, locales=locale)
+    with pod.profile.timer('grow_filter'):
+        catalogs = pod.get_catalogs()
+        if not locale:
+            locale = catalogs.list_locales()
+        if out_dir and pod.file_exists(out_dir) and not f:
+            raise click.UsageError(
+                '{} exists. You must specify a directory that does not exist, or '
+                'use the "-f" flag, which will force update catalogs within the '
+                'specified directory.'.format(out_dir))
+        catalogs.filter(out_path=o, out_dir=out_dir,
+                        include_obsolete=include_obsolete,
+                        localized=localized, paths=path,
+                        include_header=include_header, locales=locale)
+    return pod

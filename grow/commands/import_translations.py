@@ -29,5 +29,7 @@ def import_translations(pod_path, source, locale, include_obsolete):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if not pod.exists:
         raise click.ClickException('Pod does not exist: {}'.format(pod.root))
-    pod.catalogs.import_translations(source, locale=locale,
-            include_obsolete=include_obsolete)
+    with pod.profile.timer('grow_import_translations'):
+        pod.catalogs.import_translations(
+            source, locale=locale, include_obsolete=include_obsolete)
+    return pod
