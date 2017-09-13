@@ -59,8 +59,8 @@ $localization:
 
 Use these formatters to configure serving paths for static files in `podspec.yaml`.
 
-| Path formatters
-|-|-|
+| Path formatter | Description
+|----------------|------------|
 | `{env.fingerprint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerprint: <fingerprint>` in a deployment configuration.
 | `{fingerprint}` | A fingerprint uniquely identifying a static file. The fingerprint is an md5 hash of the corresponding static file's contents. Can be used for cache-busting on a per-file basis.
 | `{locale}` | The static file's locale (or its alias, if one exists).
