@@ -1,4 +1,4 @@
-"""Subommand to run the preprocessors for the pod."""
+"""Subcommand to run the preprocessors for the pod."""
 
 import os
 import click

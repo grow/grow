@@ -9,6 +9,6 @@ def pod_path_argument(func):
 
 
 def deployment_option(func):
-    """Option for deployment."""
+    """Option for changing env based on deployment name."""
     return click.option(
-        '--deployment', default=None, help='Name of the deployment to use.')(func)
+        '--deployment', default=None, help='Name of the deployment config to use.')(func)
