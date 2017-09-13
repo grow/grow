@@ -25,16 +25,22 @@ from grow.pods import storage
 @click.option('--locate-untranslated',
               default=False, is_flag=True,
               help='Shows untranslated message information.')
-def build(pod_path, out_dir, preprocess, clear_cache, pod_paths, locate_untranslated):
+@shared.deployment_option
+def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
+          locate_untranslated, deployment):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
 
     pod = pods.Pod(root, storage=storage.FileStorage)
+    if deployment:
+        deployment_obj = pod.get_deployment(deployment)
+        pod.set_env(deployment_obj.config.env)
     if clear_cache:
         pod.podcache.reset(force=True)
     if preprocess:
-        pod.preprocess()
+        with pod.profile.timer('grow_preprocess'):
+            pod.preprocess()
     if locate_untranslated:
         pod.enable(pod.FEATURE_TRANSLATION_STATS)
     try:
