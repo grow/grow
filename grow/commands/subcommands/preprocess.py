@@ -1,13 +1,14 @@
-"""Command to run the preprocessors for the project."""
+"""Subommand to run the preprocessors for the pod."""
 
 import os
 import click
+from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--all', '-A', 'run_all', is_flag=True, default=False,
               help='Whether to run all preprocessors, even if a preprocessor'
                    ' has autorun disabled.')

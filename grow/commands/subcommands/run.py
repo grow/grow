@@ -2,14 +2,16 @@
 
 import os
 import click
+from grow.commands import shared
 from grow.pods import env
 from grow.pods import pods
 from grow.pods import storage
 from grow.server import manager
 
 
+# pylint: disable=too-many-locals, invalid-name
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--host', default='localhost')
 @click.option('--port', default=8080)
 @click.option('--https', default=False,
@@ -26,8 +28,7 @@ from grow.server import manager
               help='Whether to run preprocessors on server start.')
 @click.option('--ui/--no-ui', is_flag=True, default=True,
               help='Whether to inject the Grow UI Tools.')
-@click.option('--deployment', default=None,
-              help='Name of the deployment to use.')
+@shared.deployment_option
 def run(host, port, https, debug, browser, update_check, preprocess, ui,
         pod_path, deployment):
     """Starts a development server for a single pod."""

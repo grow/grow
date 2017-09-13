@@ -1,14 +1,15 @@
-"""Command to install grow project dependencies."""
+"""Subcommand to install grow project dependencies."""
 
 import os
 import click
+from grow.commands import shared
 from grow.common import sdk_utils
 from grow.pods import pods
 from grow.pods import storage
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--gerrit/--no-gerrit', default=None,
               help='Whether to install the Gerrit Code Review commit hook. '
                    'If omitted, Grow will attempt to detect whether there is a '

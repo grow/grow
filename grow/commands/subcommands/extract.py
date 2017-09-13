@@ -1,12 +1,15 @@
+"""Subcommand for extracting messages for translation."""
+
+import os
+import click
+from grow.commands import shared
 from grow.pods import catalog_holder
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--include-obsolete/--no-include-obsolete', default=None,
               is_flag=True,
               help='Whether to include obsolete messages. If false, obsolete'
@@ -92,6 +95,7 @@ def extract(pod_path, init, update, include_obsolete, localized,
 
 
 def validate_locales(valid_locales, locales):
+    """Validate that the locale is a valid local based on the list of locales."""
     valid_locales = sorted(valid_locales)
     for each in locales:
         if each not in valid_locales:

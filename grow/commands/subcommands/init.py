@@ -1,13 +1,16 @@
+"""Subcommand to initialize a new pod."""
+
+import os
+import click
+from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
 from grow.pods import themes
-import click
-import os
 
 
 @click.command()
 @click.argument('theme')
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--force', default=False, is_flag=True,
               help='Whether to overwrite existing files.')
 def init(theme, pod_path, force):

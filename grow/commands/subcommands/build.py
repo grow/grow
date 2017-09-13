@@ -2,6 +2,7 @@
 
 import os
 import click
+from grow.commands import shared
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
@@ -11,7 +12,7 @@ from grow.pods import storage
 
 # pylint: disable=too-many-locals
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--out_dir', help='Where to output built files.')
 @click.option('--preprocess/--no-preprocess', '-p/-np',
               default=True, is_flag=True,

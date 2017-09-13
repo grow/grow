@@ -1,11 +1,14 @@
+"""Subcommand for importing translations."""
+
+import os
+import click
+from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--source', type=click.Path(), required=True,
               help='Path to source (either zip file, directory, or file).')
 @click.option('--locale', type=str,

@@ -1,11 +1,14 @@
+"""Subcommand for filtering untranslated messages."""
+
+import os
+import click
+from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--include-obsolete/--no-include-obsolete', default=False,
               is_flag=True,
               help='Whether to include obsolete messages. If false, obsolete'
