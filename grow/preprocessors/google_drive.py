@@ -270,6 +270,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         gids = config.gids or []
         if config.gid is not None:
             gids.append(config.gid)
+        if not gids and not config.collection:
+            gids.append(0)
         format_as = config.format
         if config.collection and format_as not in GoogleSheetsPreprocessor.MAP_TYPES:
             format_as = 'map'
