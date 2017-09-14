@@ -12,7 +12,7 @@ from grow.pods import storage
 # pylint: disable=too-many-locals
 @click.command()
 @click.argument('pod_path', default='.')
-@click.option('--out_dir', help='Where to output built files.')
+@click.option('--out_dir', '--out-dir', help='Where to output built files.')
 @click.option('--preprocess/--no-preprocess', '-p/-np',
               default=True, is_flag=True,
               help='Whether to run preprocessors.')
