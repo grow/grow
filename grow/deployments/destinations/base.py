@@ -159,6 +159,7 @@ class BaseDestination(object):
             content = self.read_control_file(self.index_basename)
             return indexes.Index.from_string(content)
         except IOError:
+            logging.info('Unable to find remote index: {}'.format(self.index_basename))
             return indexes.Index.create()
 
     def export_profile_report(self):

@@ -700,8 +700,12 @@ class Pod(object):
 
     def read_yaml(self, path, locale=None):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
-        untag = document_fields.DocumentFields.untag
-        return untag(fields, env_name=self.env.name, locale=locale)
+        try:
+            untag = document_fields.DocumentFields.untag
+            return untag(fields, env_name=self.env.name, locale=locale)
+        except Exception as e:
+            logging.error('Error parsing -> {}'.format(path))
+            raise
 
     def render_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Renders the given paths and yields each path and content."""
