@@ -260,6 +260,7 @@ class BaseDestination(object):
     def deploy(self, content_generator, stats=None, repo=None, dry_run=False,
                confirm=False, test=True, is_partial=False, require_translations=False):
         self._confirm = confirm
+        logging.info('Debug: Deploy with confirmation? {}'.format(confirm))
         self.prelaunch(dry_run=dry_run)
         if test:
             self.test()
