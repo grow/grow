@@ -272,12 +272,13 @@ def make_yaml_loader(pod, doc=None):
                     return None
                 main, reference = path.split('.', 1)
                 path = '/content/strings/{}.yaml'.format(main)
+                locale = None
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
+                    locale = str(
+                        doc._locale_kwarg or doc.collection.default_locale)
                 if reference:
-                    locale = None
-                    if doc:
-                        locale = str(doc._locale_kwarg)
+                    # TODO: This is not using any cache...
                     data = pod.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)
                 return None
@@ -299,7 +300,9 @@ def make_yaml_loader(pod, doc=None):
                     locale = None
                     if doc:
                         pod.podcache.dependency_graph.add(doc.pod_path, path)
-                        locale = str(doc._locale_kwarg)
+                        locale = str(
+                            doc._locale_kwarg or doc.collection.default_locale)
+                    # TODO: This is not using any cache...
                     data = pod.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)
                 if doc:
