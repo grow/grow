@@ -448,6 +448,50 @@ class DocumentFieldsTestCase(unittest.TestCase):
             },
         }, document_fields.DocumentFields.untag(fields, locale='de'))
 
+    def test_untag_with_trailing_extract(self):
+        """Test that trailing @ used for extracting does not interfere with untag."""
+        fields_to_test = {
+            'foo@': 'bar-base',
+            'foo@de@': 'bar-de',
+            'foo@(.*_FR|.*_SG)@': 'bar-fr',
+            'nested': {
+                'nested@': 'nested-base',
+                'nested@de_AT@': 'nested-de',
+                'nested@(.*_FR|.*_SG)@': 'nested-fr',
+            },
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'bar-base',
+            'nested': {
+                'nested': 'nested-base',
+            },
+        }, document_fields.DocumentFields.untag(fields, locale='fr'))
+        self.assertDictEqual({
+            'foo': 'bar-fr',
+            'nested': {
+                'nested': 'nested-fr',
+            },
+        }, document_fields.DocumentFields.untag(fields, locale='fr_FR'))
+        self.assertDictEqual({
+            'foo': 'bar-base',
+            'nested': {
+                'nested': 'nested-base',
+            },
+        }, document_fields.DocumentFields.untag(fields, locale='fr_CA'))
+        self.assertDictEqual({
+            'foo': 'bar-de',
+            'nested': {
+                'nested': 'nested-base',
+            },
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
+        self.assertDictEqual({
+            'foo': 'bar-base',
+            'nested': {
+                'nested': 'nested-de',
+            },
+        }, document_fields.DocumentFields.untag(fields, locale='de_AT'))
+
     def test_untag_env_name(self):
         untag = document_fields.DocumentFields.untag
         fields_to_test = {
