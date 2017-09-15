@@ -1,12 +1,15 @@
+"""Subcommand for running machine translation on a pod."""
+
+import os
+import click
+from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
 from xtermcolor import colorize
-import click
-import os
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--locale', type=str, multiple=True)
 def machine_translate(pod_path, locale):
     """Translates the pod message catalog using machine translation."""

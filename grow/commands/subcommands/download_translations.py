@@ -2,12 +2,13 @@
 
 import os
 import click
+from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to download. If unspecified,'
                    ' translations for all locales will be downloaded.')

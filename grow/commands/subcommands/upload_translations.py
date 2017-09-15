@@ -1,14 +1,15 @@
-"""Command for uploading translations to a remote source."""
+"""Subommand for uploading translations to a remote source."""
 
 import os
 import click
-from grow.commands.extract import validate_locales
+from grow.commands import shared
+from grow.commands.subcommands.extract import validate_locales
 from grow.pods import pods
 from grow.pods import storage
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to upload. If unspecified,'
                    ' translations for all catalogs will be uploaded.')
@@ -69,5 +70,6 @@ def upload_translations(pod_path, locale, force, service, update_acl,
                             use_fuzzy_matching=use_fuzzy_matching)
 
     with pod.profile.timer('grow_upload_translations'):
-        translator.upload(locales=locale, force=force, verbose=True, prune=prune)
+        translator.upload(locales=locale, force=force,
+                          verbose=True, prune=prune)
     return pod

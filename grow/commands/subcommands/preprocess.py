@@ -1,13 +1,14 @@
-"""Command to run the preprocessors for the project."""
+"""Subcommand to run the preprocessors for the pod."""
 
 import os
 import click
+from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 @click.option('--all', '-A', 'run_all', is_flag=True, default=False,
               help='Whether to run all preprocessors, even if a preprocessor'
                    ' has autorun disabled.')
@@ -24,10 +25,14 @@ from grow.pods import storage
                    'useful when using mulitple Google APIs-based '
                    'preprocessors on the same resource to avoid rate limit '
                    'errors.')
-def preprocess(pod_path, preprocessor, run_all, tag, ratelimit):
+@shared.deployment_option
+def preprocess(pod_path, preprocessor, run_all, tag, ratelimit, deployment):
     """Runs preprocessors."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
+    if deployment:
+        deployment_obj = pod.get_deployment(deployment)
+        pod.set_env(deployment_obj.config.env)
     with pod.profile.timer('grow_preprocess'):
         pod.preprocess(preprocessor, run_all=run_all, tags=tag, ratelimit=ratelimit)
     return pod

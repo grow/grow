@@ -1,15 +1,18 @@
+"""Subcommand for deploying pod."""
+
+import os
+import click
+from grow.commands import shared
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
 from grow.pods import pods
 from grow.pods import storage
-import click
-import os
 
 
 @click.command()
-@click.argument('deployment_name', required=False, default='default')
-@click.argument('pod_path', default='.')
+@click.argument('deployment_name', default='default')
+@shared.pod_path_argument
 @click.option('--preprocess/--no-preprocess', '-p/-np', default=True,
               is_flag=True, help='Whether to run preprocessors.')
 @click.option('--confirm/--noconfirm', '-c/-f', default=True, is_flag=True,

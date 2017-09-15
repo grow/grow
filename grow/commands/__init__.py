@@ -1,24 +1,25 @@
 """Grow CLI commands."""
 
-from . import build
-from . import convert
-from . import deploy
-from . import download_translations
-from . import extract
-from . import filter as grow_filter
-from . import import_translations
-from . import init
-from . import install
-from . import machine_translate
-from . import preprocess
-from . import routes
-from . import run
-from . import stage
-from . import stats
-from . import upload_translations
+from grow.commands.subcommands import build
+from grow.commands.subcommands import convert
+from grow.commands.subcommands import deploy
+from grow.commands.subcommands import download_translations
+from grow.commands.subcommands import extract
+from grow.commands.subcommands import filter as grow_filter
+from grow.commands.subcommands import import_translations
+from grow.commands.subcommands import init
+from grow.commands.subcommands import install
+from grow.commands.subcommands import machine_translate
+from grow.commands.subcommands import preprocess
+from grow.commands.subcommands import routes
+from grow.commands.subcommands import run
+from grow.commands.subcommands import stage
+from grow.commands.subcommands import stats
+from grow.commands.subcommands import upload_translations
 
 
-def add(group):
+def add_subcommands(group):
+    """Add all subcommands to a group."""
     group.add_command(build.build)
     group.add_command(convert.convert)
     group.add_command(deploy.deploy)

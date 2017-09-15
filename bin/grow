@@ -49,10 +49,10 @@ from watchdog.utils import unicode_paths
 unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
 from grow import commands
-from grow.commands import grow_command
+from grow.commands import group
 
-commands.add(grow_command.grow)
+commands.add_subcommands(group.grow)
 
 if __name__ == '__main__':
     # pylint: disable=no-value-for-parameter
-    grow_command.grow()
+    group.grow()

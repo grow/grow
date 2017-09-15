@@ -1,21 +1,24 @@
-from grow.pods import pods
-from grow.pods import storage
-import click
+"""Subcommand for displaying all routes of a pod."""
+
 import collections
 import os
+import click
+from grow.commands import shared
+from grow.pods import pods
+from grow.pods import storage
 
 
 @click.command()
-@click.argument('pod_path', default='.')
+@shared.pod_path_argument
 def routes(pod_path):
     """Lists routes handled by a pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     with pod.profile.timer('grow_routes'):
-        routes = pod.get_routes()
+        pod_routes = pod.get_routes()
         out = []
         controllers_to_paths = collections.defaultdict(set)
-        for route in routes:
+        for route in pod_routes:
             name = str(route.endpoint)
             paths = route.endpoint.list_concrete_paths()
             controllers_to_paths[name].update(paths)
