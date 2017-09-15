@@ -82,6 +82,25 @@ preprocessors:
   id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI
 [/sourcecode]
 
+Spreadsheets can also be imported as a collection into Grow. Each sheet will be imported as a separate yaml file that maps the first column to the second column.
+
+[sourcecode:yaml]
+preprocessors:
+- kind: google_sheets
+  collection: /content/strings/
+  id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI
+[/sourcecode]
+
+An alternative to the `map` format is the `string` format which will is the same as the `map` except it appends a `@` to the key name to mark the string for translation.
+
+[sourcecode:yaml]
+preprocessors:
+- kind: google_sheets
+  collection: /content/strings/
+  id: 1ZhJshmT2pZq_IALA6leXJ0oRuKVO12N9BbjAarAT8kI
+  format: string
+[/sourcecode]
+
 ### Gulp
 
 The Gulp preprocessor simplifies using Gulp in conjunction with Grow. Instead of running Gulp and Grow separately, Grow can manage Gulp as a subprocess and run different Gulp tasks at build and run time.
