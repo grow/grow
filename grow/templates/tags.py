@@ -127,6 +127,9 @@ def make_doc_gettext(doc):
 
     @jinja2.contextfunction
     def gettext(__context, __string, *args, **kwargs):
+        # Elegantly handle non-strings passed to gettext.
+        if not isinstance(__string, basestring):
+            return __string
         # Use the message from the catalog. If there is none (if `extract`
         # hasn't been run yet to create empty messages), create a stub message
         # used for tracking untranslated strings.
