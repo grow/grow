@@ -218,7 +218,7 @@ class Document(object):
 
     @utils.cached_property
     def fields(self):
-        locale_identifier = str(self._locale_kwarg or self.default_locale)
+        locale_identifier = str(self.locale_safe)
         return document_fields.DocumentFields(
             self.format.front_matter.data, locale_identifier,
             env_name=self.pod.env.name)
@@ -258,6 +258,14 @@ class Document(object):
         if self._locale is utils.SENTINEL:
             self._locale = self._init_locale(self._locale_kwarg, self.pod_path)
         return self._locale
+
+    @utils.cached_property
+    def locale_safe(self):
+        # During the initialization of the document the locale is used,
+        # but the fields cannot be used to modify the locale. This is a 'safe'
+        # way of getting the locale defined in the constructor with a fallback
+        # to the collection default locale.
+        return self._locale_kwarg or self.collection.default_locale
 
     @utils.cached_property
     def locale_paths(self):
