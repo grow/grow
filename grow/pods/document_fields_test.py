@@ -69,8 +69,8 @@ class DocumentFieldsTestCase(unittest.TestCase):
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'title': 'value-fr',
-            'list': [{'list-item-title': 'value-fr'},],
-            'nested': {'nested-title': 'nested-value-fr',},
+            'list': [{'list-item-title': 'value-fr'}, ],
+            'nested': {'nested-title': 'nested-value-fr', },
             'sub-nested': {
                 'sub-nested': {
                     'nested': 'sub-sub-nested-value',
@@ -81,7 +81,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'title': 'value-none',
-            'list': ['list-item-de',],
+            'list': ['list-item-de', ],
             'nested': {
                 'nested-none': 'nested-value-none',
                 'nested-title': 'nested-value-none',
@@ -492,7 +492,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
             },
         }, document_fields.DocumentFields.untag(fields, locale='de_AT'))
 
-    def test_untag_env_name(self):
+    def test_untag_params(self):
         untag = document_fields.DocumentFields.untag
         fields_to_test = {
             'foo': 'base',
@@ -502,13 +502,13 @@ class DocumentFieldsTestCase(unittest.TestCase):
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
             'foo': 'base',
-        }, untag(fields, locale=None, env_name=None))
+        }, untag(fields, locale=None, params={'env': None}))
         self.assertDictEqual({
             'foo': 'dev',
-        }, untag(fields, locale=None, env_name='dev'))
+        }, untag(fields, locale=None, params={'env': 'dev'}))
         self.assertDictEqual({
             'foo': 'prod',
-        }, untag(fields, locale=None, env_name='prod'))
+        }, untag(fields, locale=None, params={'env': 'prod'}))
         fields_to_test = {
             'nested': {
                 'foo': 'nested-base',
@@ -524,22 +524,22 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'nested': {
                 'foo': 'nested-base',
             },
-        }, untag(fields, locale=None, env_name=None))
+        }, untag(fields, locale=None, params={'env': None}))
         self.assertDictEqual({
             'nested': {
                 'foo': 'nested-base',
             },
-        }, untag(fields, locale=None, env_name='dev'))
+        }, untag(fields, locale=None, params={'env': 'dev'}))
         self.assertDictEqual({
             'nested': {
                 'foo': 'nested-de-dev',
             },
-        }, untag(fields, locale='de', env_name='dev'))
+        }, untag(fields, locale='de', params={'env': 'dev'}))
         self.assertDictEqual({
             'nested': {
                 'foo': 'nested-de-prod',
             },
-        }, untag(fields, locale='de', env_name='prod'))
+        }, untag(fields, locale='de', params={'env': 'prod'}))
 
     def test_update(self):
         """Test that updates properly overwrite and are untagged."""

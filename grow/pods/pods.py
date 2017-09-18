@@ -139,7 +139,7 @@ class Pod(object):
     def set_env(self, env):
         if env and env.name:
             untag = document_fields.DocumentFields.untag
-            content = untag(self._parse_yaml(), env_name=env.name)
+            content = untag(self._parse_yaml(), params={'env': env.name})
             self._yaml = content
             # Preprocessors may depend on env, reset cache.
             # pylint: disable=no-member
@@ -660,7 +660,8 @@ class Pod(object):
             for trigger_doc in trigger_docs:
                 if trigger_doc.has_serving_path():
                     try:
-                        _ = self.routes.match(trigger_doc.get_serving_path(), env=route_env)
+                        _ = self.routes.match(
+                            trigger_doc.get_serving_path(), env=route_env)
                     except webob_exc.HTTPNotFound:
                         added_docs.append(trigger_doc)
             if added_docs or removed_docs:
@@ -702,7 +703,7 @@ class Pod(object):
         fields = utils.parse_yaml(self.read_file(path), pod=self)
         try:
             untag = document_fields.DocumentFields.untag
-            return untag(fields, env_name=self.env.name, locale=locale)
+            return untag(fields, locale=locale, params={'env': self.env.name})
         except Exception as e:
             logging.error('Error parsing -> {}'.format(path))
             raise
