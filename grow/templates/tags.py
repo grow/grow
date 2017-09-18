@@ -1,5 +1,6 @@
 """Template jinja tags."""
 
+from babel.messages import catalog as babel_catalog
 import collections as py_collections
 from datetime import datetime
 import itertools
@@ -126,7 +127,14 @@ def make_doc_gettext(doc):
 
     @jinja2.contextfunction
     def gettext(__context, __string, *args, **kwargs):
-        message = catalog[__string]
+        # Elegantly handle non-strings passed to gettext.
+        if not isinstance(__string, basestring):
+            return __string
+        # Use the message from the catalog. If there is none (if `extract`
+        # hasn't been run yet to create empty messages), create a stub message
+        # used for tracking untranslated strings.
+        message = catalog[__string] \
+                or babel_catalog.Message(__string, locations=[(doc.pod_path, 0)])
         translation_stats.tick(message, doc.locale, doc.default_locale)
         return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
     return gettext
