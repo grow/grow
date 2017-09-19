@@ -47,7 +47,6 @@ class DocumentFields(object):
             if params:
                 param_regex = re.compile(
                     r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())))
-                print param_regex.pattern
                 param_match = param_regex.match(key)
                 if param_match:
                     untagged_key, param_key, param_value = param_match.groups()
