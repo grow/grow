@@ -10,6 +10,7 @@ import progressbar
 import yaml
 import jinja2
 from werkzeug.contrib import cache as werkzeug_cache
+from grow.cache import podcache
 from grow.common import extensions
 from grow.common import logger
 from grow.common import sdk_utils
@@ -29,7 +30,6 @@ from . import document_fields
 from . import env as environment
 from . import locales
 from . import messages
-from . import podcache
 from . import podspec
 from . import routes as grow_routes
 from . import static as grow_static

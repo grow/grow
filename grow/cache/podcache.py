@@ -1,9 +1,9 @@
 """Caching for pod meta information."""
 
-from . import collection_cache
-from . import document_cache
-from . import dependency
-from . import object_cache
+from grow.cache import collection_cache
+from grow.cache import document_cache
+from grow.cache import object_cache
+from grow.pods import dependency
 
 
 class Error(Exception):
