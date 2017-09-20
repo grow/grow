@@ -14,15 +14,15 @@ class BuiltinsTestCase(unittest.TestCase):
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
-    def test_locale(self):
+    def test_locale_tag(self):
         identifier = 'de'
         expected = locales.Locale.parse(identifier)
-        self.assertEqual(expected, tags.locale(identifier))
+        self.assertEqual(expected, tags.locale_tag(identifier))
 
-    def test_locales(self):
+    def test_locales_tag(self):
         identifiers = ['de']
         expected = locales.Locale.parse_codes(identifiers)
-        self.assertEqual(expected, tags.locales(identifiers))
+        self.assertEqual(expected, tags.locales_tag(identifiers))
 
     def test_collections(self):
         collections = tags.collections(_pod=self.pod)

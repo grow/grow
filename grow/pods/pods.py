@@ -594,6 +594,9 @@ class Pod(object):
 
     def on_file_changed(self, pod_path):
         """Handle when a single file has changed in the pod."""
+        # Remove any raw file in the cache.
+        self.podcache.file_cache.remove(pod_path)
+
         if pod_path == '/{}'.format(self.FILE_PODSPEC):
             self.reset_yaml()
             self.podcache.reset()
