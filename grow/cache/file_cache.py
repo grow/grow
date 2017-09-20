@@ -11,14 +11,21 @@ class FileCache(object):
     def __init__(self):
         self.reset()
 
-    def add(self, pod_path, value):
-        """Add a value to the cache by pod_path."""
-        self._cache[pod_path] = value
+    def _ensure_exists(self, pod_path, value=None):
+        if pod_path not in self._cache:
+            self._cache[pod_path] = value or {}
+        return self._cache[pod_path]
 
-    def add_all(self, pod_path_to_cached):
+    def add(self, pod_path, value, locale=None):
+        """Add a value to the cache by pod_path."""
+        container = self._ensure_exists(pod_path)
+        container[locale] = value
+
+    def add_all(self, pod_path_to_cached, locale=None):
         """Add a multiple values to the cache by pod_paths."""
         for pod_path, value in pod_path_to_cached.iteritems():
-            self._cache[pod_path] = value
+            container = self._ensure_exists(pod_path)
+            container[locale] = value
 
     def remove(self, pod_path):
         """Remove a value from the cache by pod_path."""
@@ -28,13 +35,10 @@ class FileCache(object):
         """Exports all the file cache data."""
         return self._cache
 
-    def get(self, pod_path):
+    def get(self, pod_path, locale=None):
         """Retrieve a cache value by pod_path or None."""
-        return self._cache.get(pod_path, None)
-
-    def path_changed(self, pod_path):
-        """Triggers that a path has changed and the value is invalid."""
-        return self.remove(pod_path)
+        container = self._ensure_exists(pod_path)
+        return container.get(locale, None)
 
     def reset(self):
         """Resets the internal cache reference."""

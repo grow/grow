@@ -2,6 +2,7 @@
 
 from grow.cache import collection_cache
 from grow.cache import document_cache
+from grow.cache import file_cache
 from grow.cache import object_cache
 from grow.pods import dependency
 
@@ -28,6 +29,7 @@ class PodCache(object):
 
         self._collection_cache = collection_cache.CollectionCache()
         self._document_cache = document_cache.DocumentCache()
+        self._file_cache = file_cache.FileCache()
 
         self._dependency_graph = dependency.DependencyGraph()
         self._dependency_graph.add_all(yaml.get(self.KEY_DEPENDENCIES, {}))
@@ -54,6 +56,11 @@ class PodCache(object):
     def document_cache(self):
         """Cache for specific document properties."""
         return self._document_cache
+
+    @property
+    def file_cache(self):
+        """Cache for raw file contents."""
+        return self._file_cache
 
     @property
     def object_cache(self):
@@ -88,6 +95,7 @@ class PodCache(object):
         self._collection_cache.reset()
         self._dependency_graph.reset()
         self._document_cache.reset()
+        self._file_cache.reset()
 
         # Only reset the object caches if permitted.
         for meta in self._object_caches.itervalues():

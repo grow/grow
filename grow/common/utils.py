@@ -226,6 +226,36 @@ def make_yaml_loader(pod, doc=None):
                     return None
             return data
 
+        @staticmethod
+        def read_csv(pod_path, locale):
+            """Reads a csv file using a cache."""
+            file_cache = pod.podcache.file_cache
+            contents = file_cache.get(pod_path, locale=locale)
+            if contents is None:
+                contents = pod.read_csv(pod_path, locale=locale)
+                file_cache.add(pod_path, contents, locale=locale)
+            return contents
+
+        @staticmethod
+        def read_json(pod_path):
+            """Reads a json file using a cache."""
+            file_cache = pod.podcache.file_cache
+            contents = file_cache.get(pod_path)
+            if contents is None:
+                contents = pod.read_json(pod_path)
+                file_cache.add(pod_path, contents)
+            return contents
+
+        @staticmethod
+        def read_yaml(pod_path, locale):
+            """Reads a yaml file using a cache."""
+            file_cache = pod.podcache.file_cache
+            contents = file_cache.get(pod_path, locale=locale)
+            if contents is None:
+                contents = pod.read_yaml(pod_path, locale=locale)
+                file_cache.add(pod_path, contents, locale=locale)
+            return contents
+
         def _construct_func(self, node, func):
             if isinstance(node, yaml.SequenceNode):
                 items = []
@@ -235,9 +265,13 @@ def make_yaml_loader(pod, doc=None):
             return func(node.value)
 
         def construct_csv(self, node):
-            if doc:
-                pod.podcache.dependency_graph.add(doc.pod_path, node.value)
-            return self._construct_func(node, pod.read_csv)
+            locale = str(doc.locale_safe) if doc else None
+
+            def func(path):
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return self.read_csv(path, locale=locale)
+            return self._construct_func(node, func)
 
         def construct_doc(self, node):
             locale = str(doc.locale_safe) if doc else None
@@ -255,7 +289,7 @@ def make_yaml_loader(pod, doc=None):
         def construct_json(self, node):
             if doc:
                 pod.podcache.dependency_graph.add(doc.pod_path, node.value)
-            return self._construct_func(node, pod.read_json)
+            return self._construct_func(node, self.read_json)
 
         def construct_static(self, node):
             locale = str(doc.locale_safe) if doc else None
@@ -276,8 +310,7 @@ def make_yaml_loader(pod, doc=None):
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 if reference:
-                    # TODO: This is not using any cache...
-                    data = pod.read_yaml(path, locale=locale)
+                    data = self.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)
                 return None
             return self._construct_func(node, func)
@@ -293,17 +326,16 @@ def make_yaml_loader(pod, doc=None):
 
         def construct_yaml(self, node):
             def func(path):
+                locale = str(doc.locale_safe) if doc else None
                 if '?' in path:
                     path, reference = path.split('?')
-                    locale = str(doc.locale_safe) if doc else None
                     if doc:
                         pod.podcache.dependency_graph.add(doc.pod_path, path)
-                    # TODO: This is not using any cache...
-                    data = pod.read_yaml(path, locale=locale)
+                    data = self.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
-                return pod.read_yaml(path)
+                return self.read_yaml(path, locale=locale)
             return self._construct_func(node, func)
 
     YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)

@@ -36,6 +36,36 @@ def _gettext_alias(__context, *args, **kwargs):
     return __context.call(__context.resolve('gettext'), *args, **kwargs)
 
 
+def _read_csv(pod, pod_path, locale):
+    """Reads a csv file using a cache."""
+    file_cache = pod.podcache.file_cache
+    contents = file_cache.get(pod_path, locale=locale)
+    if contents is None:
+        contents = pod.read_csv(pod_path, locale=locale)
+        file_cache.add(pod_path, contents, locale=locale)
+    return contents
+
+
+def _read_json(pod, pod_path):
+    """Reads a json file using a cache."""
+    file_cache = pod.podcache.file_cache
+    contents = file_cache.get(pod_path)
+    if contents is None:
+        contents = pod.read_json(pod_path)
+        file_cache.add(pod_path, contents)
+    return contents
+
+
+def _read_yaml(pod, pod_path, locale):
+    """Reads a yaml file using a cache."""
+    file_cache = pod.podcache.file_cache
+    contents = file_cache.get(pod_path, locale)
+    if contents is None:
+        contents = pod.read_yaml(pod_path, locale=locale)
+        file_cache.add(pod_path, contents, locale=locale)
+    return contents
+
+
 # pylint: disable=redefined-outer-name
 def categories(collection=None, reverse=None, recursive=True,
                locale=utils.SENTINEL, _pod=None):
@@ -72,7 +102,7 @@ def collections(collection_paths=None, _pod=None):
 @utils.memoize_tag
 def csv(path, locale=utils.SENTINEL, _pod=None):
     """Retrieves a csv file from the pod."""
-    return _pod.read_csv(path, locale=locale)
+    return _read_csv(_pod, path, locale=locale)
 
 
 def date(datetime_obj=None, _pod=None, **kwargs):
@@ -102,17 +132,17 @@ def get_doc(pod_path, locale=None, _pod=None):
 @utils.memoize_tag
 def json(path, _pod):
     """Retrieves a json file from the pod."""
-    return _pod.read_json(path)
+    return _read_json(_pod, path)
 
 
 @utils.memoize_tag
-def locale(code, _pod=None):
+def locale_tag(code, _pod=None):
     """Parses locale from a given locale code."""
     return locales_lib.Locale.parse(code)
 
 
 @utils.memoize_tag
-def locales(codes, _pod=None):
+def locales_tag(codes, _pod=None):
     """Parses locales from the given locale codes."""
     return locales_lib.Locale.parse_codes(codes)
 
@@ -134,7 +164,7 @@ def make_doc_gettext(doc):
         # hasn't been run yet to create empty messages), create a stub message
         # used for tracking untranslated strings.
         message = catalog[__string] \
-                or babel_catalog.Message(__string, locations=[(doc.pod_path, 0)])
+            or babel_catalog.Message(__string, locations=[(doc.pod_path, 0)])
         translation_stats.tick(message, doc.locale, doc.default_locale)
         return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
     return gettext
@@ -181,9 +211,10 @@ def wrap_locale_context(func):
 
 
 @utils.memoize_tag
-def yaml(path, _pod):
+def yaml(path, _pod, _doc=None):
     """Retrieves a yaml file from the pod."""
-    return _pod.read_yaml(path)
+    locale = str(_doc.locale_safe) if _doc else None
+    return _read_yaml(_pod, path, locale=locale)
 
 
 def create_builtin_tags(pod, doc, track_dependency=None):
@@ -215,6 +246,13 @@ def create_builtin_tags(pod, doc, track_dependency=None):
             return func(*args, _pod=pod, **kwargs)
         return _wrapper
 
+    def _wrap_doc(func):
+        def _wrapper(*args, **kwargs):
+            if doc:
+                kwargs['_doc'] = doc
+            return func(*args, **kwargs)
+        return _wrapper
+
     return {
         'categories': _wrap(categories),
         'collection': _wrap(collection),
@@ -224,11 +262,11 @@ def create_builtin_tags(pod, doc, track_dependency=None):
         'doc': _wrap_dependency(get_doc),
         'docs': _wrap_dependency(docs),
         'json': _wrap_dependency_path(json),
-        'locale': _wrap(locale),
-        'locales': _wrap(locales),
+        'locale': _wrap(locale_tag),
+        'locales': _wrap(locales_tag),
         'nav': _wrap(nav),
         'static': _wrap_dependency(static_file),
         'statics': _wrap_dependency(statics),
         'url': _wrap_dependency_path(url),
-        'yaml': _wrap_dependency_path(yaml),
+        'yaml': _wrap_dependency_path(_wrap_doc(yaml)),
     }
