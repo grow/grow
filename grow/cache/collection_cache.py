@@ -4,7 +4,7 @@ Supports caching the collection and caching documents within those collections.
 """
 
 import os
-from . import collection
+from grow.pods import collection
 
 class CollectionCache(object):
 
