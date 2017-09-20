@@ -2,10 +2,10 @@
 
 import re
 import unittest
+from grow.pods import pods
+from grow.pods import storage
 from grow.testing import testing
 from . import object_cache
-from . import pods
-from . import storage
 
 
 class ObjectCacheTestCase(unittest.TestCase):
