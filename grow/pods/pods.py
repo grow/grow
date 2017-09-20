@@ -689,24 +689,27 @@ class Pod(object):
                 time.sleep(ratelimit)
 
     def read_csv(self, path, locale=utils.SENTINEL):
-        return utils.get_rows_from_csv(pod=self, path=path, locale=locale)
+        with self.profile.timer('pod.read_csv', label=path, meta={'path': path}):
+            return utils.get_rows_from_csv(pod=self, path=path, locale=locale)
 
     def read_file(self, pod_path):
         path = self._normalize_path(pod_path)
-        return self.storage.read(path)
+        with self.profile.timer('pod.read_file', label=path, meta={'path': path}):
+            return self.storage.read(path)
 
     def read_json(self, path):
         fp = self.open_file(path)
         return json.load(fp)
 
     def read_yaml(self, path, locale=None):
-        fields = utils.parse_yaml(self.read_file(path), pod=self)
-        try:
-            untag = document_fields.DocumentFields.untag
-            return untag(fields, locale=locale, params={'env': self.env.name})
-        except Exception as e:
-            logging.error('Error parsing -> {}'.format(path))
-            raise
+        with self.profile.timer('pod.read_yaml', label=path, meta={'path': path}):
+            fields = utils.parse_yaml(self.read_file(path), pod=self)
+            try:
+                return document_fields.DocumentFields.untag(
+                    fields, locale=locale, params={'env': self.env.name})
+            except Exception as e:
+                logging.error('Error parsing -> {}'.format(path))
+                raise
 
     def render_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Renders the given paths and yields each path and content."""
@@ -760,11 +763,15 @@ class Pod(object):
         return self.storage.walk(path)
 
     def write_file(self, pod_path, content):
-        path = self._normalize_path(pod_path)
-        self.storage.write(path, content)
+        with self.profile.timer(
+                'pod.write_file', label=pod_path, meta={'path': pod_path}):
+            path = self._normalize_path(pod_path)
+            self.storage.write(path, content)
 
     def write_yaml(self, path, content):
-        self.podcache.collection_cache.remove_by_path(path)
-        self.podcache.document_cache.remove_by_path(path)
-        content = utils.dump_yaml(content)
-        self.write_file(path, content)
+        with self.profile.timer(
+                'pod.write_yaml', label=path, meta={'path': path}):
+            self.podcache.collection_cache.remove_by_path(path)
+            self.podcache.document_cache.remove_by_path(path)
+            content = utils.dump_yaml(content)
+            self.write_file(path, content)
