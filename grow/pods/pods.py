@@ -139,7 +139,7 @@ class Pod(object):
     def set_env(self, env):
         if env and env.name:
             untag = document_fields.DocumentFields.untag
-            content = untag(self._parse_yaml(), env_name=env.name)
+            content = untag(self._parse_yaml(), params={'env': env.name})
             self._yaml = content
             # Preprocessors may depend on env, reset cache.
             # pylint: disable=no-member
@@ -706,7 +706,7 @@ class Pod(object):
             fields = utils.parse_yaml(self.read_file(path), pod=self)
             try:
                 return document_fields.DocumentFields.untag(
-                    fields, env_name=self.env.name, locale=locale)
+                    fields, locale=locale, params={'env': self.env.name})
             except Exception as e:
                 logging.error('Error parsing -> {}'.format(path))
                 raise

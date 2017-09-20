@@ -240,13 +240,13 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, pod.read_csv)
 
         def construct_doc(self, node):
-            locale = doc._locale_kwarg if doc else None
+            locale = str(doc.locale_safe) if doc else None
             pod_path = doc.pod_path if doc else None
 
             def func(path):
-                doc = pod.get_doc(path, locale=locale)
-                pod.podcache.dependency_graph.add(pod_path, doc.pod_path)
-                return doc
+                contructed_doc = pod.get_doc(path, locale=locale)
+                pod.podcache.dependency_graph.add(pod_path, contructed_doc.pod_path)
+                return contructed_doc
             return self._construct_func(node, func)
 
         def construct_gettext(self, node):
@@ -258,7 +258,7 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, pod.read_json)
 
         def construct_static(self, node):
-            locale = doc._locale_kwarg if doc else None
+            locale = str(doc.locale_safe) if doc else None
 
             def func(path):
                 if doc:
@@ -272,11 +272,9 @@ def make_yaml_loader(pod, doc=None):
                     return None
                 main, reference = path.split('.', 1)
                 path = '/content/strings/{}.yaml'.format(main)
-                locale = None
+                locale = str(doc.locale_safe) if doc else None
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
-                    locale = str(
-                        doc._locale_kwarg or doc.collection.default_locale)
                 if reference:
                     # TODO: This is not using any cache...
                     data = pod.read_yaml(path, locale=locale)
@@ -285,7 +283,7 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, func)
 
         def construct_url(self, node):
-            locale = doc._locale_kwarg if doc else None
+            locale = str(doc.locale_safe) if doc else None
 
             def func(path):
                 if doc:
@@ -297,11 +295,9 @@ def make_yaml_loader(pod, doc=None):
             def func(path):
                 if '?' in path:
                     path, reference = path.split('?')
-                    locale = None
+                    locale = str(doc.locale_safe) if doc else None
                     if doc:
                         pod.podcache.dependency_graph.add(doc.pod_path, path)
-                        locale = str(
-                            doc._locale_kwarg or doc.collection.default_locale)
                     # TODO: This is not using any cache...
                     data = pod.read_yaml(path, locale=locale)
                     return YamlLoader.deep_reference(reference, data)

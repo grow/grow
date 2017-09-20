@@ -113,7 +113,8 @@ class Collection(object):
         """Creates a new collection by writing a blueprint."""
         collection = cls.get(collection_path, pod)
         if collection.exists:
-            raise CollectionExistsError('{} already exists.'.format(collection))
+            raise CollectionExistsError(
+                '{} already exists.'.format(collection))
         fields = utils.dump_yaml(fields)
         pod.write_file(collection.blueprint_path, fields)
         return collection
@@ -155,7 +156,7 @@ class Collection(object):
     @utils.cached_property
     def fields(self):
         untag = document_fields.DocumentFields.untag
-        fields = untag(self.tagged_fields, env_name=self.pod.env.name)
+        fields = untag(self.tagged_fields, params={'env': self.pod.env.name})
         return {} if not fields else fields
 
     @utils.cached_property
@@ -269,7 +270,8 @@ class Collection(object):
             injected_docs = self.pod.inject_preprocessors(collection=self)
             if injected_docs is not None:
                 sorted_docs = injected_docs
-                self.pod.logger.info('Injected collection -> {}'.format(self.pod_path))
+                self.pod.logger.info(
+                    'Injected collection -> {}'.format(self.pod_path))
             return reversed(sorted_docs) if reverse else sorted_docs
         for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
@@ -287,7 +289,8 @@ class Collection(object):
                 if locale_from_path:
                     if (locale is not None
                             and locale in [utils.SENTINEL, locale_from_path]):
-                        new_doc = self.get_doc(pod_path, locale=locale_from_path)
+                        new_doc = self.get_doc(
+                            pod_path, locale=locale_from_path)
                         if not include_hidden and new_doc.hidden:
                             continue
                         sorted_docs.insert(new_doc)
@@ -302,7 +305,8 @@ class Collection(object):
                 if locale == doc.default_locale:
                     sorted_docs.insert(doc)
                 else:
-                    self._add_localized_docs(sorted_docs, pod_path, locale, doc)
+                    self._add_localized_docs(
+                        sorted_docs, pod_path, locale, doc)
             except Exception as e:
                 logging.error('Error loading doc: {}'.format(pod_path))
                 raise
@@ -314,10 +318,11 @@ class Collection(object):
     docs = list_docs
 
     def list_servable_documents(self, include_hidden=False, locales=None,
-            inject=None, doc_list=None):
+                                inject=None, doc_list=None):
         if not doc_list:
             inject = False if inject is None else inject
-            doc_list = self.list_docs(include_hidden=include_hidden, inject=inject)
+            doc_list = self.list_docs(
+                include_hidden=include_hidden, inject=inject)
         docs = []
         for doc in doc_list:
             if (self._get_builtin_field('draft')
@@ -339,7 +344,7 @@ class Collection(object):
         return docs
 
     def list_servable_document_locales(self, pod_path, include_hidden=False,
-            locales=None):
+                                       locales=None):
         sorted_docs = structures.SortedCollection(key=None)
         doc = self.get_doc(pod_path)
         sorted_docs.insert(doc)
