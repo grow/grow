@@ -221,7 +221,7 @@ class Document(object):
         locale_identifier = str(self._locale_kwarg or self.default_locale)
         return document_fields.DocumentFields(
             self.format.front_matter.data, locale_identifier,
-            env_name=self.pod.env.name)
+            params={'env': self.pod.env.name})
 
     @utils.cached_property
     def footnotes(self):

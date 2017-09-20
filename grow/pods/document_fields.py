@@ -4,8 +4,7 @@ from boltons import iterutils
 import re
 
 
-ENV_KEY_REGEX = re.compile('(.*)@env\.([^@]+)$')
-LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
+LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
 
 
 class DocumentFields(object):
@@ -16,21 +15,23 @@ class DocumentFields(object):
     def __getitem__(self, key):
         return self._data[key]
 
-    def __init__(self, data, locale_identifier=None, env_name=None):
+    def __init__(self, data, locale_identifier=None, params=None):
         self._locale_identifier = locale_identifier
-        self._env_name = env_name
-        self._data = DocumentFields.untag(data, locale_identifier, env_name)
+        self._params = params
+        self._data = DocumentFields.untag(
+            data, locale_identifier, params=params)
 
     def __len__(self):
         return len(self._data)
 
     @staticmethod
-    def untag(data, locale=None, env_name=None):
+    def untag(data, locale=None, params=None):
         """Untags fields, handling translation priority."""
         updated_localized_paths = set()
         paths_to_keep_tagged = set()
 
         def visit(path, key, value):
+            """Function for each key and value in the data."""
             if not isinstance(key, basestring):
                 return key, value
             if (path, key.rstrip('@')) in updated_localized_paths:
@@ -41,15 +42,20 @@ class DocumentFields(object):
                 if isinstance(value, list):
                     paths_to_keep_tagged.add((path, key))
                 key = key[:-1]
-            # Support <key>@env.<name regex>: <value>.
-            env_match = ENV_KEY_REGEX.match(key)
-            if env_match:
-                untagged_key, env_name_from_key = env_match.groups()
-                env_regex = r'^{}$'.format(env_name_from_key)
-                if not env_name or not re.match(env_regex, env_name):
-                    return False
-                updated_localized_paths.add((path, untagged_key.rstrip('@')))
-                return untagged_key, value
+
+            # Support <key>@<param key>.<param value>: <value>.
+            if params:
+                param_regex = re.compile(
+                    r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())))
+                param_match = param_regex.match(key)
+                if param_match:
+                    untagged_key, param_key, param_value = param_match.groups()
+                    param_value_regex = r'^{}$'.format(param_value)
+                    if not params[param_key] or not re.match(param_value_regex, params[param_key]):
+                        return False
+                    updated_localized_paths.add((path, untagged_key.rstrip('@')))
+                    return untagged_key, value
+
             # Support <key>@<locale regex>: <value>.
             match = LOCALIZED_KEY_REGEX.match(key)
             if not match:
@@ -88,5 +94,5 @@ class DocumentFields(object):
 
     def update(self, updated):
         updated = DocumentFields.untag(
-            updated, self._locale_identifier, self._env_name)
+            updated, self._locale_identifier, params=self._params)
         self._data.update(updated)
