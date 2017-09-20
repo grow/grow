@@ -227,13 +227,13 @@ def make_yaml_loader(pod, doc=None):
             return data
 
         @staticmethod
-        def read_csv(pod_path, locale):
+        def read_csv(pod_path):
             """Reads a csv file using a cache."""
             file_cache = pod.podcache.file_cache
-            contents = file_cache.get(pod_path, locale=locale)
+            contents = file_cache.get(pod_path)
             if contents is None:
-                contents = pod.read_csv(pod_path, locale=locale)
-                file_cache.add(pod_path, contents, locale=locale)
+                contents = pod.read_csv(pod_path)
+                file_cache.add(pod_path, contents)
             return contents
 
         @staticmethod
@@ -265,12 +265,10 @@ def make_yaml_loader(pod, doc=None):
             return func(node.value)
 
         def construct_csv(self, node):
-            locale = str(doc.locale_safe) if doc else None
-
             def func(path):
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
-                return self.read_csv(path, locale=locale)
+                return self.read_csv(path)
             return self._construct_func(node, func)
 
         def construct_doc(self, node):
