@@ -260,6 +260,14 @@ class Document(object):
         return self._locale
 
     @utils.cached_property
+    def locale_safe(self):
+        # During the initialization of the document the locale is used,
+        # but the fields cannot be used to modify the locale. This is a 'safe'
+        # way of getting the locale defined in the constructor with a fallback
+        # to the collection default locale.
+        return self._locale_kwarg or self.collection.default_locale
+
+    @utils.cached_property
     def locale_paths(self):
         return Document._locale_paths(self.pod_path)
 
