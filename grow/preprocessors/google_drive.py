@@ -126,6 +126,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
 
 class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     KIND = 'google_sheets'
+    GRID_TYPES = ['grid']
     MAP_TYPES = ['map', 'strings']
     _edit_url_format = 'https://docs.google.com/spreadsheets/d/{id}/edit#gid={gid}'
 
@@ -188,6 +189,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                  generate_ids=False):
         service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         logger = logger or logging
+        format_as_grid = format_as in cls.GRID_TYPES
         format_as_map = format_as in cls.MAP_TYPES
         # pylint: disable=no-member
         spreadsheet = service.spreadsheets().get(
@@ -215,7 +217,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             resp = service.spreadsheets().values().get(
                 spreadsheetId=spreadsheet_id, range=range_name).execute()
 
-            if format_as_map:
+            if format_as_map or format_as_grid:
                 gid_to_data[gid] = {}
             else:
                 gid_to_data[gid] = []
@@ -230,7 +232,30 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     continue
                 headers = None
                 for row in resp['values']:
-                    if format_as_map:
+                    if format_as_grid:
+                        if not headers:
+                            # Ignore first column as a header.
+                            headers = row[1:]
+                            continue
+                        if not row:  # Skip empty rows.
+                            continue
+                        key = row[0].strip()
+                        if isinstance(key, unicode):
+                            key = key.encode('utf-8')
+                        if key and not key.startswith(IGNORE_INITIAL):
+                            # Grids use the first column as the key and make
+                            # object out of the remaining columns.
+                            grid_obj = {}
+                            row = row[1:]
+                            row_len = len(row)
+                            for col, grid_key in enumerate(headers):
+                                if isinstance(grid_key, unicode):
+                                    grid_key = grid_key.encode('utf-8')
+                                value = (row[col] if row_len > col else '').strip()
+                                if value:
+                                    grid_obj[grid_key] = value
+                            gid_to_data[gid][key] = grid_obj
+                    elif format_as_map:
                         if not headers:
                             headers = row
                             continue
@@ -273,7 +298,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         if not gids and not config.collection:
             gids.append(0)
         format_as = config.format
-        if config.collection and format_as not in GoogleSheetsPreprocessor.MAP_TYPES:
+        if (config.collection and
+                format_as not in GoogleSheetsPreprocessor.MAP_TYPES and
+                format_as not in GoogleSheetsPreprocessor.GRID_TYPES):
             format_as = 'map'
         gid_to_sheet, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
