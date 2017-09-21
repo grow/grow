@@ -6,9 +6,6 @@ cache:
   - "./env/"
   - "./gaenv/"
 
-env:
-- TRAVIS_NODE_VERSION="8"
-
 matrix:
   include:
   - os: linux
@@ -23,6 +20,7 @@ before_script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew unlink python; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip2 install -U virtualenv; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then nvm install node --reinstall-packages-from=node; fi
 - node --version
 - pip2 install -U pip
 - pip2 install -r requirements-dev.txt
