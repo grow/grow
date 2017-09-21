@@ -251,8 +251,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             for col, grid_key in enumerate(headers):
                                 if isinstance(grid_key, unicode):
                                     grid_key = grid_key.encode('utf-8')
-                                value = row[col] if row_len > col else ''
-                                grid_obj[grid_key] = value.strip()
+                                value = (row[col] if row_len > col else '').strip()
+                                if value:
+                                    grid_obj[grid_key] = value
                             gid_to_data[gid][key] = grid_obj
                     elif format_as_map:
                         if not headers:
