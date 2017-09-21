@@ -7,7 +7,6 @@ cache:
   - "./gaenv/"
 
 env:
-- GAE_ZIP=google_appengine_1.9.36.zip
 - TRAVIS_NODE_VERSION="8"
 
 matrix:
@@ -24,12 +23,13 @@ before_script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew unlink python; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip2 install -U virtualenv; fi
+- node --version
 - pip2 install -U pip
 - pip2 install -r requirements-dev.txt
 - pip2 install coveralls
+- export GAE_ZIP=google_appengine_1.9.36.zip
 - wget -nv https://storage.googleapis.com/appengine-sdks/featured/${GAE_ZIP}
 - unzip -q ${GAE_ZIP} -d ${HOME}
-- node --version
 
 script:
 - make test-ci
