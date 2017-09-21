@@ -12,7 +12,7 @@ matrix:
     python: 2.7
   - os: osx
     language: generic
-    osx_image: xcode6.4
+    osx_image: xcode8.3
 
 # https://github.com/travis-ci/travis-ci/issues/738#issuecomment-11179888
 before_script:
