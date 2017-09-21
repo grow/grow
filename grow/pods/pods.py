@@ -267,7 +267,7 @@ class Pod(object):
         for output_path, rendered in self.export(
                 suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths):
             yield output_path, rendered
-        if self.ui and not self.is_enabled(self.FEATURE_UI):
+        if self.ui and self.is_enabled(self.FEATURE_UI):
             for output_path, rendered in self.export_ui():
                 yield output_path, rendered
 
