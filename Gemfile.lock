@@ -1,0 +1,31 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    commander (4.4.3)
+      highline (~> 1.7.2)
+    faraday (0.13.1)
+      multipart-post (>= 1.2, < 3)
+    highline (1.7.8)
+    httpclient (2.8.3)
+    multipart-post (2.0.0)
+    percy-cli (1.2.9)
+      commander (~> 4.3)
+      percy-client (~> 1.12)
+      thread (~> 0.2)
+    percy-client (1.13.4)
+      addressable
+      faraday (>= 0.9)
+      httpclient (>= 2.6)
+    public_suffix (3.0.0)
+    thread (0.2.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  percy-cli
+
+BUNDLED WITH
+   1.15.4
