@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/growio
+    working_directory: ~/grow
     docker:
       - image: grow/baseimage:latest
     steps:
@@ -14,3 +14,32 @@ jobs:
       - run:
           name: Deploy to Prod
           command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io ; fi
+
+      - restore_cache:
+          keys:
+            - gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            - gem-cache-{{ .Branch }}
+            - gem-cache
+
+      - run:
+          name: Install Gems
+          command: bundle install
+
+      - save_cache:
+          key: gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      - save_cache:
+          key: gem-cache-{{ .Branch }}
+          paths:
+            - vendor/bundle
+
+      - save_cache:
+          key: gem-cache
+          paths:
+            - vendor/bundle
+
+      - run:
+          name: Percy Snapshots
+          command: percy snapshot --widths "412,1280" --enable_javascript build/
