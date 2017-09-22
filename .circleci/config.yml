@@ -16,5 +16,9 @@ jobs:
           command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io ; fi
 
       - run:
+          name: Install Gems
+          command: gem install compass percy-cli
+
+      - run:
           name: Percy Snapshots
           command: percy snapshot --widths "412,1280" --enable_javascript build/
