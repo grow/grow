@@ -23,8 +23,8 @@ before_script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then nvm install node --reinstall-packages-from=node; fi
 - node --version
 - pip2 install -U pip
-- pip2 install -r requirements-dev.txt
-- pip2 install coveralls
+- pip2 install --user -r requirements-dev.txt
+- pip2 install --user coveralls
 - export GAE_ZIP=google_appengine_1.9.36.zip
 - wget -nv https://storage.googleapis.com/appengine-sdks/featured/${GAE_ZIP}
 - unzip -q ${GAE_ZIP} -d ${HOME}
