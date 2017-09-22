@@ -16,6 +16,7 @@ matrix:
 
 # https://github.com/travis-ci/travis-ci/issues/738#issuecomment-11179888
 before_script:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip2 install -U virtualenv; fi
 - node --version
 - pip2 install -U pip
 - virtualenv env --distribute
