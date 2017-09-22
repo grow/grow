@@ -8,13 +8,13 @@ jobs:
       - checkout
 
       - run:
-        name: Test Build
-        command: grow build
+          name: Test Build
+          command: grow build
 
       - run:
-        name: Deploy to Prod
-        command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io ; fi
+          name: Deploy to Prod
+          command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io ; fi
 
       - run:
-        name: Percy Snapshots
-        command: percy snapshot --widths "412,1280" --enable_javascript build/
+          name: Percy Snapshots
+          command: percy snapshot --widths "412,1280" --enable_javascript build/
