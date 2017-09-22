@@ -6,27 +6,26 @@ cache:
   - "./env/"
   - "./gaenv/"
 
-env:
-- GAE_ZIP=google_appengine_1.9.36.zip
-
 matrix:
   include:
   - os: linux
     python: 2.7
   - os: osx
     language: generic
-    osx_image: xcode6.4
+    osx_image: xcode8.3
 
 # https://github.com/travis-ci/travis-ci/issues/738#issuecomment-11179888
 before_script:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]];
-  then brew unlink python;
-  brew install python;
-  pip2 install -U virtualenv;
-  fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew unlink python; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install python; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip2 install -U virtualenv; fi
+- node --version
 - pip2 install -U pip
+- virtualenv env --distribute
+- . env/bin/activate
 - pip2 install -r requirements-dev.txt
 - pip2 install coveralls
+- export GAE_ZIP=google_appengine_1.9.36.zip
 - wget -nv https://storage.googleapis.com/appengine-sdks/featured/${GAE_ZIP}
 - unzip -q ${GAE_ZIP} -d ${HOME}
 
