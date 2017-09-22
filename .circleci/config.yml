@@ -15,9 +15,24 @@ jobs:
           name: Deploy to Prod
           command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io ; fi
 
-      - run:
-          name: Install Gems
-          command: gem install compass percy-cli
+      - restore_cache:
+          keys:
+            - gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            - gem-cache-{{ .Branch }}
+            - gem-cache
+      - run: gem install compass percy-cli
+      - save_cache:
+          key: gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+      - save_cache:
+          key: gem-cache-{{ .Branch }}
+          paths:
+            - vendor/bundle
+      - save_cache:
+          key: gem-cache
+          paths:
+            - vendor/bundle
 
       - run:
           name: Percy Snapshots
