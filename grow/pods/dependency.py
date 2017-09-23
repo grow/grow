@@ -2,6 +2,7 @@
 
 import fnmatch
 import os
+from collections import OrderedDict
 
 
 class DependencyGraph(object):
@@ -75,13 +76,9 @@ class DependencyGraph(object):
 
     def export(self):
         """Formats the dependency graph for export."""
-        result = {}
-
-        for key in self._dependencies:
-            values = list(self._dependencies[key])
-            values.sort()
-            result[key] = values
-
+        result = OrderedDict()
+        for key in sorted(self._dependencies.iterkeys()):
+            result[key] = sorted(list(self._dependencies[key]))
         return result
 
     def get_dependents(self, reference):
