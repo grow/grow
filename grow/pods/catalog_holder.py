@@ -360,8 +360,15 @@ class Catalogs(object):
                 if not utils.fnmatches_paths(path, paths) \
                         or path.startswith('.'):
                     continue
-                if path.endswith(('.yaml', '.yml', '.html', '.htm')):
-                    pod_path = os.path.join('/partials/', path)
+                pod_path = os.path.join('/partials/', path)
+                if path.endswith(('.yaml', '.yml')):
+                    self.pod.logger.info('Extracting: {}'.format(pod_path))
+                    utils.walk(
+                        self.pod.get_doc(pod_path).format.front_matter.data,
+                        lambda msgid, key, node, **kwargs: _handle_field(
+                            pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
+                    )
+                if path.endswith(('.html', '.htm')):
                     self.pod.logger.info('Extracting: {}'.format(pod_path))
                     with self.pod.open_file(pod_path) as f:
                         _babel_extract(f, self.pod.list_locales(), pod_path)
