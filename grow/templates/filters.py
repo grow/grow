@@ -97,6 +97,18 @@ def shuffle_filter(_ctx, seq):
     except TypeError:
         return seq
 
+def regex_replace():
+    """A regex replace filter with regex cache."""
+    regex_cache = {}
+
+    def regex_replace_filter(string, find, replace):
+        """A template regex filter"""
+        if find not in regex_cache:
+            regex_cache[find] = re.compile(find)
+        return regex_cache[find].sub(replace, string)
+
+    return regex_replace_filter
+
 
 def slug_filter(value):
     """Filters string to remove url unfriendly characters."""
@@ -128,6 +140,7 @@ def create_builtin_filters():
         ('number', wrap_locale_context(babel_numbers.format_number)),
         ('percent', wrap_locale_context(babel_numbers.format_percent)),
         ('relative', relative_filter),
+        ('re_replace', regex_replace()),
         ('render', render_filter),
         ('shuffle', shuffle_filter),
         ('slug', slug_filter),
