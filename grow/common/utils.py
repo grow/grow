@@ -17,6 +17,7 @@ import yaml
 import bs4
 import html2text
 import translitcodec  # pylint: disable=unused-import
+from collections import OrderedDict
 from grow.pods import document_fields
 from grow.pods import errors
 
@@ -277,7 +278,8 @@ def make_yaml_loader(pod, doc=None):
 
             def func(path):
                 contructed_doc = pod.get_doc(path, locale=locale)
-                pod.podcache.dependency_graph.add(pod_path, contructed_doc.pod_path)
+                pod.podcache.dependency_graph.add(
+                    pod_path, contructed_doc.pod_path)
                 return contructed_doc
             return self._construct_func(node, func)
 
@@ -362,6 +364,13 @@ def parse_yaml(content, pod=None):
 def dump_yaml(obj):
     return yaml.safe_dump(
         obj, allow_unicode=True, width=800, default_flow_style=False)
+
+
+def ordered_dict_representer(dumper, data):
+    return dumper.represent_mapping('tag:yaml.org,2002:map', data.items())
+
+
+yaml.SafeDumper.add_representer(OrderedDict, ordered_dict_representer)
 
 
 def slugify(text, delim=u'-'):
