@@ -63,6 +63,16 @@ class PodCache(object):
         return self._file_cache
 
     @property
+    def is_dirty(self):
+        """Have the contents of the dependency graph or caches been modified?"""
+        if self.dependency_graph.is_dirty:
+            return True
+        for meta in self._object_caches.itervalues():
+            if meta['write_to_file'] and meta['cache'].is_dirty:
+                return True
+        return False
+
+    @property
     def object_cache(self):
         """Global object cache."""
         return self.get_object_cache(self.KEY_GLOBAL)
@@ -119,5 +129,6 @@ class PodCache(object):
                     'write_to_file': meta['write_to_file'],
                     'values': meta['cache'].export(),
                 }
+                meta['cache'].mark_clean()
 
         self._pod.write_yaml('/{}'.format(self._pod.FILE_PODCACHE), yaml)
