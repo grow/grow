@@ -77,10 +77,10 @@ def check_sdk_version(pod):
 def check_for_sdk_updates(auto_update_prompt=False):
     try:
         theirs = get_latest_version()
-        yours = config.VERSION
+        yours = get_this_version()
     except LatestVersionCheckError:
         return
-    if theirs <= yours:
+    if semantic_version.Version(theirs) <= semantic_version.Version(yours):
         return
     url = 'https://github.com/grow/grow/releases/tag/{}'.format(theirs)
     logging.info('')
