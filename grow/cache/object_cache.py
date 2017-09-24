@@ -9,6 +9,7 @@ be shared between locales.
 
 import re
 
+
 class ObjectCache(object):
     """Object cache for caching arbitrary data in a pod."""
 
@@ -16,19 +17,20 @@ class ObjectCache(object):
         return key in self._cache
 
     def __init__(self):
+        self._cache = {}
+        self._is_dirty = False
         self.reset()
 
     def add(self, key, value):
         """Add a new item to the cache or overwrite an existing value."""
+        if not self._is_dirty and (key not in self._cache or self._cache[key] != value):
+            self._is_dirty = True
         self._cache[key] = value
 
     def add_all(self, key_to_cached):
         """Update the cache with a preexisting set of data."""
-        self._cache.update(key_to_cached)
-
-    def remove(self, key):
-        """Removes a single element from the cache."""
-        return self._cache.pop(key)
+        for key, value in key_to_cached.iteritems():
+            self.add(key, value)
 
     def export(self):
         """Returns the raw cache data."""
@@ -38,9 +40,24 @@ class ObjectCache(object):
         """Retrieve the value from the cache."""
         return self._cache.get(key, None)
 
+    @property
+    def is_dirty(self):
+        """Have the contents of the object cache been modified?"""
+        return self._is_dirty
+
+    def mark_clean(self):
+        """Mark that the object cache is clean."""
+        self._is_dirty = False
+
+    def remove(self, key):
+        """Removes a single element from the cache."""
+        self._is_dirty = True
+        return self._cache.pop(key, None)
+
     def reset(self):
         """Reset the internal cache object."""
         self._cache = {}
+        self._is_dirty = False
 
     def search(self, pattern):
         """Search through the cache and return all the matching elements."""

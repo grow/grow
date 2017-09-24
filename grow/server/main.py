@@ -73,7 +73,7 @@ def serve_pod(pod, request, values):
     response = Response(body=content)
     response.headers.update(headers)
 
-    if pod.podcache.dependency_graph.is_dirty:
+    if pod.podcache.is_dirty:
         pod.podcache.write()
 
     return response
