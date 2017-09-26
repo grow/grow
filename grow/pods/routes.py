@@ -118,9 +118,37 @@ class Routes(object):
 
     def _clean_doc_locales(self, docs):
         """Fixes docs loaded without a locale but that define a different default locale."""
+
+        root_to_locale = {}
+
         for doc in docs:
-            if doc._locale_kwarg is None and str(doc.locale_safe) != str(doc.locale):
-                yield doc.localize(str(doc.locale))
+            # Ignore the docs that are the same as the default locale.
+            root_path = doc.root_pod_path
+            current_locale = str(doc.locale)
+            if root_path in root_to_locale and current_locale in root_to_locale[root_path]:
+                continue
+            if doc._locale_kwarg is None and str(doc.locale_safe) != current_locale:
+                col_default_locale = str(doc.collection.default_locale)
+
+                # The None locale is now invalid in the cache since the front-matter differs.
+                self.pod.podcache.collection_cache.remove_document_locale(doc, doc.locale_safe)
+
+                # Need to also yield the collection default if it differs.
+                if str(col_default_locale != current_locale):
+                    default_doc = doc.localize(col_default_locale)
+                    if default_doc.exists and col_default_locale == str(default_doc.locale):
+                        yield default_doc
+
+                clean_doc = doc.localize(current_locale)
+
+                # Store the actual default locale (based off front-matter) to the cache.
+                self.pod.podcache.collection_cache.add_document_locale(doc, None)
+
+                if root_path not in root_to_locale:
+                    root_to_locale[root_path] = []
+                if current_locale not in root_to_locale[root_path]:
+                    root_to_locale[root_path].append(current_locale)
+                yield clean_doc
             else:
                 yield doc
 

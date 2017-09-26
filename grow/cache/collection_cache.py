@@ -30,6 +30,20 @@ class CollectionCache(object):
             doc.pod_path, doc.locale_safe)
         self._cache[col.collection_path]['docs'][cache_key] = doc
 
+    def add_document_locale(self, doc, locale):
+        """Force a doc to be saved to a specific locale.
+
+        When docs have a default locale that differs from the collection default
+        it causes issues since the cache does not know that None locale is not correct.
+        This allows for the None locale to be forced to the default locale from the
+        doc.
+        """
+        col = doc.collection
+        self.ensure_collection(col)
+        cache_key = CollectionCache.generate_cache_key(
+            doc.pod_path, locale)
+        self._cache[col.collection_path]['docs'][cache_key] = doc
+
     def remove_by_path(self, path):
         """Removes the collection or document based on the path."""
         if path.startswith(collection.Collection.CONTENT_PATH):
@@ -66,6 +80,14 @@ class CollectionCache(object):
         if col.collection_path in self._cache:
             cache_key = CollectionCache.generate_cache_key(
                 doc.pod_path, doc.locale_safe)
+            if cache_key in self._cache[col.collection_path]['docs']:
+                del self._cache[col.collection_path]['docs'][cache_key]
+
+    def remove_document_locale(self, doc, locale):
+        col = doc.collection
+        if col.collection_path in self._cache:
+            cache_key = CollectionCache.generate_cache_key(
+                doc.pod_path, locale)
             if cache_key in self._cache[col.collection_path]['docs']:
                 del self._cache[col.collection_path]['docs'][cache_key]
 

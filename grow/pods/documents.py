@@ -73,7 +73,8 @@ class Document(object):
         self._locale_kwarg = locale
         utils.validate_name(pod_path)
         self.pod_path = pod_path
-        self.root_pod_path = pod_path  # For multi-file localization.
+        # For multi-file localization and comparison.
+        self.root_pod_path, _ = Document.parse_localized_path(pod_path)
         self.basename = Document._clean_basename(pod_path)
         self.base, self.ext = os.path.splitext(self.basename)
         self.pod = _pod
@@ -169,8 +170,7 @@ class Document(object):
 
     def _init_locale(self, locale, pod_path):
         try:
-            self.root_pod_path, locale_from_path = \
-                Document.parse_localized_path(pod_path)
+            _, locale_from_path = Document.parse_localized_path(pod_path)
             if locale_from_path:
                 locale = locale_from_path
             return self.pod.normalize_locale(
