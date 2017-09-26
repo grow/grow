@@ -91,7 +91,7 @@ class Routes(object):
 
         # Content documents.
         with self.pod.profile.timer('routes._build_rules_from_docs'):
-            for doc in docs:
+            for doc in self._clean_doc_locales(docs):
                 rule, serving_path = self._create_rule_for_doc(doc)
                 if not rule:
                     continue
@@ -116,6 +116,14 @@ class Routes(object):
                 rules, converters=Routes.converters)
             return [rule.empty() for rule in rules]
 
+    def _clean_doc_locales(self, docs):
+        """Fixes docs loaded without a locale but that define a different default locale."""
+        for doc in docs:
+            if doc._locale_kwarg is None and str(doc.locale_safe) != str(doc.locale):
+                yield doc.localize(str(doc.locale))
+            else:
+                yield doc
+
     def _create_rule_for_doc(self, doc):
         if not doc.has_serving_path():
             return None, None
@@ -127,7 +135,8 @@ class Routes(object):
     def _recreate_routing_map(self):
         with self.pod.profile.timer('routes._recreate_routing_map'):
             rules = [rule.empty() for rule in self._routing_rules]
-            self._routing_map = routing.Map(rules, converters=Routes.converters)
+            self._routing_map = routing.Map(
+                rules, converters=Routes.converters)
 
     def _remove_document(self, doc):
         rule, serving_path = self._create_rule_for_doc(doc)

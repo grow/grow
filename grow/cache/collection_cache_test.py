@@ -25,7 +25,7 @@ class DocumentCacheTestCase(unittest.TestCase):
         col = doc.collection
         col_cache.add_document(doc)
         self.assertEquals(doc, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
 
     def test_remove_by_path(self):
         col_cache = collection_cache.CollectionCache()
@@ -35,10 +35,10 @@ class DocumentCacheTestCase(unittest.TestCase):
 
         # Deleting a document's path removes the document.
         self.assertEquals(doc, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
         col_cache.remove_by_path('/content/pages/intro.md')
         self.assertEquals(None, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
 
         # Deleting a collection blueprint removes the entire collection.
         col_cache.add_collection(col)
@@ -60,10 +60,10 @@ class DocumentCacheTestCase(unittest.TestCase):
         # Test that documents in the collection are removed.
         col_cache.add_document(doc)
         self.assertEquals(doc, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
         col_cache.remove_collection(col)
         self.assertEquals(None, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
 
     def test_remove_document(self):
         col_cache = collection_cache.CollectionCache()
@@ -71,10 +71,10 @@ class DocumentCacheTestCase(unittest.TestCase):
         col = doc.collection
         col_cache.add_document(doc)
         self.assertEquals(doc, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
         col_cache.remove_document(doc)
         self.assertEquals(None, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
 
     def test_remove_document_locales(self):
         col_cache = collection_cache.CollectionCache()
@@ -84,14 +84,14 @@ class DocumentCacheTestCase(unittest.TestCase):
         col_cache.add_document(doc_it)
         col = doc.collection
         self.assertEquals(doc, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
         self.assertEquals(doc_it, col_cache.get_document(
-            col, '/content/pages/intro.md', doc_it._locale_kwarg))
+            col, '/content/pages/intro.md', doc_it.locale_safe))
         col_cache.remove_document_locales(doc)
         self.assertEquals(None, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
         self.assertEquals(None, col_cache.get_document(
-            col, '/content/pages/intro.md', doc_it._locale_kwarg))
+            col, '/content/pages/intro.md', doc_it.locale_safe))
 
     def test_get_collection(self):
         col_cache = collection_cache.CollectionCache()
@@ -105,10 +105,10 @@ class DocumentCacheTestCase(unittest.TestCase):
         doc = self.pod.get_doc('/content/pages/intro.md')
         col = doc.collection
         self.assertEquals(None, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
         col_cache.add_document(doc)
         self.assertEquals(doc, col_cache.get_document(
-            col, '/content/pages/intro.md', doc._locale_kwarg))
+            col, '/content/pages/intro.md', doc.locale_safe))
 
 
 if __name__ == '__main__':
