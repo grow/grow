@@ -121,6 +121,10 @@ class Routes(object):
 
         root_to_locale = {}
 
+        # Track the paths that have been cleaned to not return default_doc if it
+        # already has been yielded.
+        yield_paths = []
+
         for doc in docs:
             # Ignore the docs that are the same as the default locale.
             root_path = doc.root_pod_path
@@ -129,14 +133,18 @@ class Routes(object):
                 continue
             if doc._locale_kwarg is None and str(doc.locale_safe) != current_locale:
                 col_default_locale = str(doc.collection.default_locale)
+                valid_locales = [str(l) for l in doc.locales]
 
                 # The None locale is now invalid in the cache since the front-matter differs.
                 self.pod.podcache.collection_cache.remove_document_locale(doc, doc.locale_safe)
 
-                # Need to also yield the collection default if it differs.
-                if str(col_default_locale != current_locale):
+                # Need to also yield the collection default if it differs and is available.
+                if col_default_locale != current_locale and col_default_locale in valid_locales:
                     default_doc = doc.localize(col_default_locale)
-                    if default_doc.exists and col_default_locale == str(default_doc.locale):
+                    if (default_doc.exists
+                            and col_default_locale == str(default_doc.locale)
+                            and default_doc.get_serving_path() not in yield_paths):
+                        yield_paths.append(default_doc.get_serving_path())
                         yield default_doc
 
                 clean_doc = doc.localize(current_locale)
@@ -148,8 +156,10 @@ class Routes(object):
                     root_to_locale[root_path] = []
                 if current_locale not in root_to_locale[root_path]:
                     root_to_locale[root_path].append(current_locale)
+                yield_paths.append(clean_doc.get_serving_path())
                 yield clean_doc
             else:
+                yield_paths.append(doc.get_serving_path())
                 yield doc
 
     def _create_rule_for_doc(self, doc):
