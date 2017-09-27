@@ -492,6 +492,23 @@ class DocumentFieldsTestCase(unittest.TestCase):
             },
         }, document_fields.DocumentFields.untag(fields, locale='de_AT'))
 
+    def test_untag_with_no_base(self):
+        """Test that not having a base key does not interfere with untag and locales."""
+        fields_to_test = {
+            'foo@de': 'bar-de',
+            'baz@de': {
+                'fum@de': 'boo-de'
+            },
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({}, document_fields.DocumentFields.untag(fields))
+        self.assertDictEqual({
+            'foo': 'bar-de',
+            'baz': {
+                'fum': 'boo-de',
+            },
+        }, document_fields.DocumentFields.untag(fields, locale='de'))
+
     def test_untag_params(self):
         untag = document_fields.DocumentFields.untag
         fields_to_test = {
