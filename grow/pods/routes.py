@@ -123,6 +123,7 @@ class Routes(object):
 
         # Track the paths that have been cleaned to not return default_doc if it
         # already has been yielded.
+        cleaned_paths = []
         yield_paths = []
 
         for doc in docs:
@@ -145,6 +146,7 @@ class Routes(object):
                             and col_default_locale == str(default_doc.locale)
                             and default_doc.get_serving_path() not in yield_paths):
                         yield_paths.append(default_doc.get_serving_path())
+                        cleaned_paths.append(default_doc.get_serving_path())
                         yield default_doc
 
                 clean_doc = doc.localize(current_locale)
@@ -157,8 +159,11 @@ class Routes(object):
                 if current_locale not in root_to_locale[root_path]:
                     root_to_locale[root_path].append(current_locale)
                 yield_paths.append(clean_doc.get_serving_path())
+                cleaned_paths.append(clean_doc.get_serving_path())
                 yield clean_doc
             else:
+                if doc.get_serving_path() in cleaned_paths:
+                    continue
                 yield_paths.append(doc.get_serving_path())
                 yield doc
 
