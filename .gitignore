@@ -7,8 +7,7 @@ gaenv
 htmlcov
 growsdk
 
-grow/**/.podcache.yaml
-grow/**/.podcache.json
+grow/**/podcache.json
 
 # C extensions
 *.so
