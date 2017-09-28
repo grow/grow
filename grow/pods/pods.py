@@ -114,28 +114,29 @@ class Pod(object):
         return pod_path
 
     def _parse_cache_file(self):
-        podcache_file_name = '/{}'.format(self.FILE_PODCACHE)
+        with self.profile.timer('pod._parse_cache_file'):
+            podcache_file_name = '/{}'.format(self.FILE_PODCACHE)
 
-        # TODO Remove deprecated cachefile support.
-        # Convert legacy yaml cache files.
-        legacy_podcache_file_name = '/.podcache.yaml'
-        if self.file_exists(legacy_podcache_file_name):
-            logging.info(
-                'Converting {} to {}.'.format(legacy_podcache_file_name, podcache_file_name))
-            # Do not use the utils.parse_yaml as that has extra constructors
-            # that should not be run when the cache file is being parsed.
-            temp_data = yaml.load(
-                self.read_file(legacy_podcache_file_name)) or {}
-            self.write_file(podcache_file_name, json.dumps(temp_data))
-            self.delete_file(legacy_podcache_file_name)
+            # TODO Remove deprecated cachefile support.
+            # Convert legacy yaml cache files.
+            legacy_podcache_file_name = '/.podcache.yaml'
+            if self.file_exists(legacy_podcache_file_name):
+                logging.info(
+                    'Converting {} to {}.'.format(legacy_podcache_file_name, podcache_file_name))
+                # Do not use the utils.parse_yaml as that has extra constructors
+                # that should not be run when the cache file is being parsed.
+                temp_data = yaml.load(
+                    self.read_file(legacy_podcache_file_name)) or {}
+                self.write_file(podcache_file_name, json.dumps(temp_data))
+                self.delete_file(legacy_podcache_file_name)
 
-        if not self.file_exists(podcache_file_name):
-            return {}
-        try:
-            return self.read_json(podcache_file_name) or {}
-        except IOError:
-            path = self.abs_path(podcache_file_name)
-            raise podcache.PodCacheParseError('Error parsing: {}'.format(path))
+            if not self.file_exists(podcache_file_name):
+                return {}
+            try:
+                return self.read_json(podcache_file_name) or {}
+            except IOError:
+                path = self.abs_path(podcache_file_name)
+                raise podcache.PodCacheParseError('Error parsing: {}'.format(path))
 
     @utils.memoize
     def _parse_yaml(self):

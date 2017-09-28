@@ -115,23 +115,24 @@ class PodCache(object):
 
     def write(self):
         """Persist the cache information to a yaml file."""
-        output = {}
-        output[self.KEY_DEPENDENCIES] = self._dependency_graph.export()
-        output[self.KEY_OBJECTS] = {}
+        with self._pod.profile.timer('podcache.write'):
+            output = {}
+            output[self.KEY_DEPENDENCIES] = self._dependency_graph.export()
+            output[self.KEY_OBJECTS] = {}
 
-        self._dependency_graph.mark_clean()
+            self._dependency_graph.mark_clean()
 
-        # Write out any of the object caches that request to be exported to
-        # file.
-        for key, meta in self._object_caches.iteritems():
-            if meta['write_to_file']:
-                output[self.KEY_OBJECTS][key] = {
-                    'can_reset': meta['can_reset'],
-                    'write_to_file': meta['write_to_file'],
-                    'values': meta['cache'].export(),
-                }
-                meta['cache'].mark_clean()
+            # Write out any of the object caches that request to be exported to
+            # file.
+            for key, meta in self._object_caches.iteritems():
+                if meta['write_to_file']:
+                    output[self.KEY_OBJECTS][key] = {
+                        'can_reset': meta['can_reset'],
+                        'write_to_file': meta['write_to_file'],
+                        'values': meta['cache'].export(),
+                    }
+                    meta['cache'].mark_clean()
 
-        self._pod.write_file(
-            '/{}'.format(self._pod.FILE_PODCACHE),
-            json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
+            self._pod.write_file(
+                '/{}'.format(self._pod.FILE_PODCACHE),
+                json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
