@@ -60,6 +60,7 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             deployment.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=confirm,
                 test=test, require_translations=require_translations)
+            pod.podcache.write()
     except base.Error as err:
         raise click.ClickException(str(err))
     except pods.Error as err:

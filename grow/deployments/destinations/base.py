@@ -71,6 +71,7 @@ using deployments.register_destination.
 
 import inspect
 import io
+import json
 import logging
 import os
 import subprocess
@@ -165,8 +166,8 @@ class BaseDestination(object):
     def export_profile_report(self):
         """Write the results of the profiling timers."""
         report = profile_report.ProfileReport(self.pod.profile)
-        file_name = '{}profile.yaml'.format(self.control_dir)
-        self.pod.write_yaml(file_name, report.export())
+        file_name = '{}profile.json'.format(self.control_dir)
+        self.pod.write_file(file_name, json.dumps(report.export()))
         logging.info('Profiling data exported to {}'.format(file_name))
 
     def export_untranslated_catalogs(self):

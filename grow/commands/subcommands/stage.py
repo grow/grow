@@ -51,6 +51,7 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untra
             stats_obj = stats.Stats(pod, paths=paths)
             deployment.deploy(content_generator, stats=stats_obj, repo=repo,
                               confirm=False, test=False, require_translations=require_translations)
+            pod.podcache.write()
     except base.Error as err:
         raise click.ClickException(str(err))
     except pods.Error as err:
