@@ -48,6 +48,10 @@ class Routes(object):
         """Uses a path to attempt to match a path in the routes."""
         return self._root.match(path)
 
+    def remove(self, path):
+        """Removes a path from the routes."""
+        return self._root.remove(path)
+
     def update(self, other):
         """Allow updating the current routes with other Routes."""
         # Add all the docs from the other Routes.
@@ -103,6 +107,11 @@ class RouteTrie(object):
         segments = self.segments(path)
         return self._root.match(segments)
 
+    def remove(self, path):
+        """Removes a path from the trie."""
+        segments = self.segments(path)
+        return self._root.remove(segments)
+
 
 class RouteNode(object):
     """Individual node in the routes trie."""
@@ -153,4 +162,17 @@ class RouteNode(object):
         segment = segments.popleft()
         if segment in self._children:
             return self._children[segment].match(segments)
+        return None, None, None
+
+    def remove(self, segments):
+        """Finds and removes a path in the trie."""
+        if not segments:
+            removed = self.path, self.pod_path, self.locale
+            self.path = None
+            self.pod_path = None
+            self.locale = None
+            return removed
+        segment = segments.popleft()
+        if segment in self._children:
+            return self._children[segment].remove(segments)
         return None, None, None

@@ -1,4 +1,4 @@
-"""Tests for the router."""
+"""Tests for the routes."""
 
 import unittest
 from grow.routing import routes as grow_routes
@@ -18,7 +18,7 @@ class DummyDoc(object):
 
 
 class RoutesTestCase(unittest.TestCase):
-    """Test the router."""
+    """Test the routes."""
 
     def _add_doc(self, custom_routes=None, *args, **kwargs):
         doc = DummyDoc(*args, **kwargs)
@@ -132,6 +132,18 @@ class RoutesTestCase(unittest.TestCase):
         ]
         actual = [path for path, _, _ in self.routes.docs]
         self.assertEquals(expected, actual)
+
+    def test_remove(self):
+        """Tests that paths can be removed."""
+
+        doc = self._add_doc(path='/foo', pod_path='/content/foo')
+        _, pod_path, _ = self.routes.match('/foo')
+        self.assertEquals(doc.pod_path, pod_path)
+        _, pod_path, _ = self.routes.remove('/foo')
+        self.assertEquals(doc.pod_path, pod_path)
+        _, pod_path, _ = self.routes.match('/foo')
+        self.assertEquals(None, pod_path)
+
 
 
 if __name__ == '__main__':
