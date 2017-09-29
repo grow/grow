@@ -38,6 +38,8 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untra
             # use the deployment's environment for preprocessing and later
             # steps.
             pod.set_env(deployment.config.env)
+            # Always clear the cache when building.
+            pod.podcache.reset()
             require_translations = pod.podspec.localization.get(
                 'require_translations', False)
             require_translations = require_translations and not force_untranslated
