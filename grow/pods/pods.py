@@ -116,14 +116,14 @@ class Pod(object):
 
     def _parse_object_cache_file(self):
         with self.profile.timer('pod._parse_object_cache_file'):
-            podcache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
+            object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
 
-            if not self.file_exists(podcache_file_name):
+            if not self.file_exists(object_cache_file_name):
                 return {}
             try:
-                return self.read_json(podcache_file_name) or {}
+                return self.read_json(object_cache_file_name) or {}
             except IOError:
-                path = self.abs_path(podcache_file_name)
+                path = self.abs_path(object_cache_file_name)
                 raise podcache.PodCacheParseError(
                     'Error parsing: {}'.format(path))
 
@@ -141,7 +141,9 @@ class Pod(object):
                 # that should not be run when the cache file is being parsed.
                 temp_data = yaml.load(
                     self.read_file(legacy_podcache_file_name)) or {}
-                self.write_file(podcache_file_name, json.dumps(temp_data))
+                if 'objects' in temp_data:
+                    object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
+                    self.write_file(object_cache_file_name, json.dumps(temp_data['objects']))
                 self.delete_file(legacy_podcache_file_name)
 
             if not self.file_exists(podcache_file_name):
@@ -700,6 +702,9 @@ class Pod(object):
             if added_docs or removed_docs:
                 self.routes.reconcile_documents(
                     remove_docs=removed_docs, add_docs=added_docs)
+        elif pod_path == '/{}'.format(self.FILE_OBJECT_CACHE):
+            logging.info('Object cache changed, updating with new data.')
+            self.podcache.update(obj_cache=self._parse_object_cache_file())
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)

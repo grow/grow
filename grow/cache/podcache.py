@@ -22,7 +22,6 @@ class PodCache(object):
     """Caching container for the pod."""
 
     KEY_GLOBAL = '__global__'
-    KEY_OBJECTS = 'objects'
 
     def __init__(self, dep_cache, obj_cache, pod):
         self._pod = pod
@@ -111,6 +110,19 @@ class PodCache(object):
         for meta in self._object_caches.itervalues():
             if meta['can_reset']:
                 meta['cache'].reset()
+
+    def update(self, dep_cache=None, obj_cache=None):
+        if dep_cache:
+            self._dependency_graph.add_all(dep_cache)
+
+        if obj_cache:
+            for key, meta in obj_cache.iteritems():
+                if not key in self._object_caches:
+                    self.create_object_cache(key, **meta)
+                else:
+                    self._object_caches[key]['cache'].add_all(meta['values'])
+                    self._object_caches[key]['write_to_file'] = meta['write_to_file']
+                    self._object_caches[key]['can_reset'] = meta['can_reset']
 
     def write(self):
         """Persist the cache information to a yaml file."""
