@@ -703,8 +703,11 @@ class Pod(object):
                 self.routes.reconcile_documents(
                     remove_docs=removed_docs, add_docs=added_docs)
         elif pod_path == '/{}'.format(self.FILE_OBJECT_CACHE):
-            logging.info('Object cache changed, updating with new data.')
             self.podcache.update(obj_cache=self._parse_object_cache_file())
+            if self.podcache.is_dirty:
+                logging.info('Object cache changed, updating with new data.')
+                self.podcache.write()
+
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
