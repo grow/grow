@@ -8,7 +8,7 @@ class PodCacheTestCase(unittest.TestCase):
     """Tests the PodCache object."""
 
     def setUp(self):
-        self.cache = podcache.PodCache({}, None)
+        self.cache = podcache.PodCache({}, {}, None)
 
     def test_global_object_cache(self):
         """Using a global object cache."""
@@ -25,22 +25,21 @@ class PodCacheTestCase(unittest.TestCase):
 
     def test_init(self):
         """Ability to initialize with an existing yaml file."""
-        yaml = {
-            'dependencies': {
-                '/content/test': [
-                    '/content/test1',
-                    '/content/test2',
-                ]
-            },
-            'objects': {
-                'named': {
-                    'values': {
-                        'answer': 42,
-                    }
+        dep_cache = {
+            '/content/test': [
+                '/content/test1',
+                '/content/test2',
+            ]
+        }
+        obj_cache = {
+            'named': {
+                'values': {
+                    'answer': 42,
                 }
             }
         }
-        cache = podcache.PodCache(yaml, None)
+        cache = podcache.PodCache(
+            dep_cache=dep_cache, obj_cache=obj_cache, pod=None)
 
         self.assertEqual(
             {

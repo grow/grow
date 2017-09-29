@@ -39,6 +39,8 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
     try:
         pod = pods.Pod(root, storage=storage.FileStorage)
         with pod.profile.timer('grow_deploy'):
+            # Always clear the cache when building.
+            pod.podcache.reset()
             deployment = pod.get_deployment(deployment_name)
             # use the deployment's environment for preprocessing and later
             # steps.

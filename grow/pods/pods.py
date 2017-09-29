@@ -51,7 +51,8 @@ class Pod(object):
     DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
     FEATURE_UI = 'ui'
     FEATURE_TRANSLATION_STATS = 'translation_stats'
-    FILE_PODCACHE = 'podcache.json'
+    FILE_DEP_CACHE = '.depcache.json'
+    FILE_OBJECT_CACHE = 'objectcache.json'
     FILE_PODSPEC = 'podspec.yaml'
     PATH_CONTROL = '/.grow/'
 
@@ -113,9 +114,22 @@ class Pod(object):
             pod_path = '/{}'.format(pod_path)
         return pod_path
 
-    def _parse_cache_file(self):
-        with self.profile.timer('pod._parse_cache_file'):
-            podcache_file_name = '/{}'.format(self.FILE_PODCACHE)
+    def _parse_object_cache_file(self):
+        with self.profile.timer('pod._parse_object_cache_file'):
+            object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
+
+            if not self.file_exists(object_cache_file_name):
+                return {}
+            try:
+                return self.read_json(object_cache_file_name) or {}
+            except IOError:
+                path = self.abs_path(object_cache_file_name)
+                raise podcache.PodCacheParseError(
+                    'Error parsing: {}'.format(path))
+
+    def _parse_dep_cache_file(self):
+        with self.profile.timer('pod._parse_dep_cache_file'):
+            podcache_file_name = '/{}'.format(self.FILE_DEP_CACHE)
 
             # TODO Remove deprecated cachefile support.
             # Convert legacy yaml cache files.
@@ -127,7 +141,9 @@ class Pod(object):
                 # that should not be run when the cache file is being parsed.
                 temp_data = yaml.load(
                     self.read_file(legacy_podcache_file_name)) or {}
-                self.write_file(podcache_file_name, json.dumps(temp_data))
+                if 'objects' in temp_data:
+                    object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
+                    self.write_file(object_cache_file_name, json.dumps(temp_data['objects']))
                 self.delete_file(legacy_podcache_file_name)
 
             if not self.file_exists(podcache_file_name):
@@ -136,7 +152,8 @@ class Pod(object):
                 return self.read_json(podcache_file_name) or {}
             except IOError:
                 path = self.abs_path(podcache_file_name)
-                raise podcache.PodCacheParseError('Error parsing: {}'.format(path))
+                raise podcache.PodCacheParseError(
+                    'Error parsing: {}'.format(path))
 
     @utils.memoize
     def _parse_yaml(self):
@@ -186,7 +203,9 @@ class Pod(object):
     def podcache(self):
         if not self._podcache:
             self._podcache = podcache.PodCache(
-                yaml=self._parse_cache_file(), pod=self)
+                dep_cache=self._parse_dep_cache_file(),
+                obj_cache=self._parse_object_cache_file(),
+                pod=self)
         return self._podcache
 
     @property
@@ -683,6 +702,9 @@ class Pod(object):
             if added_docs or removed_docs:
                 self.routes.reconcile_documents(
                     remove_docs=removed_docs, add_docs=added_docs)
+        elif pod_path == '/{}'.format(self.FILE_OBJECT_CACHE):
+            logging.info('Object cache changed, updating with new data.')
+            self.podcache.update(obj_cache=self._parse_object_cache_file())
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)

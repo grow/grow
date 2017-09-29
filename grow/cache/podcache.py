@@ -21,11 +21,9 @@ class PodCacheParseError(Error):
 class PodCache(object):
     """Caching container for the pod."""
 
-    KEY_DEPENDENCIES = 'dependencies'
     KEY_GLOBAL = '__global__'
-    KEY_OBJECTS = 'objects'
 
-    def __init__(self, yaml, pod):
+    def __init__(self, dep_cache, obj_cache, pod):
         self._pod = pod
 
         self._collection_cache = collection_cache.CollectionCache()
@@ -33,13 +31,13 @@ class PodCache(object):
         self._file_cache = file_cache.FileCache()
 
         self._dependency_graph = dependency.DependencyGraph()
-        self._dependency_graph.add_all(yaml.get(self.KEY_DEPENDENCIES, {}))
+        self._dependency_graph.add_all(dep_cache)
 
         self._object_caches = {}
         self.create_object_cache(
             self.KEY_GLOBAL, write_to_file=False, can_reset=True)
 
-        existing_object_caches = yaml.get(self.KEY_OBJECTS, {})
+        existing_object_caches = obj_cache
         for key, item in existing_object_caches.iteritems():
             self.create_object_cache(key, **item)
 
@@ -113,26 +111,40 @@ class PodCache(object):
             if meta['can_reset'] or force:
                 meta['cache'].reset()
 
+    def update(self, dep_cache=None, obj_cache=None):
+        if dep_cache:
+            self._dependency_graph.add_all(dep_cache)
+
+        if obj_cache:
+            for key, meta in obj_cache.iteritems():
+                if not key in self._object_caches:
+                    self.create_object_cache(key, **meta)
+                else:
+                    self._object_caches[key]['cache'].add_all(meta['values'])
+                    self._object_caches[key]['write_to_file'] = meta['write_to_file']
+                    self._object_caches[key]['can_reset'] = meta['can_reset']
+
     def write(self):
         """Persist the cache information to a yaml file."""
         with self._pod.profile.timer('podcache.write'):
+            if self._dependency_graph.is_dirty:
+                output = self._dependency_graph.export()
+                self._dependency_graph.mark_clean()
+                self._pod.write_file(
+                    '/{}'.format(self._pod.FILE_DEP_CACHE),
+                    json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
+
+            # Write out any of the object caches configured for write_to_file.
             output = {}
-            output[self.KEY_DEPENDENCIES] = self._dependency_graph.export()
-            output[self.KEY_OBJECTS] = {}
-
-            self._dependency_graph.mark_clean()
-
-            # Write out any of the object caches that request to be exported to
-            # file.
             for key, meta in self._object_caches.iteritems():
                 if meta['write_to_file']:
-                    output[self.KEY_OBJECTS][key] = {
+                    output[key] = {
                         'can_reset': meta['can_reset'],
                         'write_to_file': meta['write_to_file'],
                         'values': meta['cache'].export(),
                     }
                     meta['cache'].mark_clean()
-
-            self._pod.write_file(
-                '/{}'.format(self._pod.FILE_PODCACHE),
-                json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
+            if output:
+                self._pod.write_file(
+                    '/{}'.format(self._pod.FILE_OBJECT_CACHE),
+                    json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
