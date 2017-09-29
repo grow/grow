@@ -1,5 +1,5 @@
 # Grow
-[![Build Status](https://api.travis-ci.org/grow/grow.svg)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
+[![Build Status](https://api.travis-ci.org/grow/grow.svg?branch=master)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
 [![Gitter](https://badges.gitter.im/grow/grow.svg)](https://gitter.im/grow/grow)
 [![Coverage Status](https://coveralls.io/repos/github/grow/grow/badge.svg?branch=master)](https://coveralls.io/github/grow/grow?branch=master)
 
