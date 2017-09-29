@@ -97,10 +97,10 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         convert_to_markdown = ext == '.md' and convert is not False
         content = utils.clean_html(
             content, convert_to_markdown=convert_to_markdown)
-        # Preserve any existing frontmatter.
+        # Preserve any existing frontmatter, return new content.
         if existing_data:
             if doc_front_matter.BOUNDARY_REGEX.search(existing_data):
-                front_matter, content = doc_front_matter.DocumentFrontMatter.split_front_matter(
+                front_matter, old_content = doc_front_matter.DocumentFrontMatter.split_front_matter(
                     existing_data)
                 return document_format.DocumentFormat.format_doc(front_matter, content)
         return content
