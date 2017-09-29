@@ -108,7 +108,7 @@ class PodCache(object):
 
         # Only reset the object caches if permitted.
         for meta in self._object_caches.itervalues():
-            if meta['can_reset']:
+            if meta['can_reset'] or force:
                 meta['cache'].reset()
 
     def update(self, dep_cache=None, obj_cache=None):
