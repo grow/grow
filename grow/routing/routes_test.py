@@ -12,10 +12,6 @@ class DummyDoc(object):
         self.pod_path = pod_path
         self.locale = locale
 
-    def get_serving_path(self):
-        """Get the path it was created with."""
-        return self.path
-
 
 class RoutesTestCase(unittest.TestCase):
     """Test the routes."""
@@ -23,7 +19,7 @@ class RoutesTestCase(unittest.TestCase):
     def _add_doc(self, custom_routes=None, *args, **kwargs):
         doc = DummyDoc(*args, **kwargs)
         routes = custom_routes if custom_routes else self.routes
-        routes.add_doc(doc)
+        routes.add(doc.path, doc.pod_path, doc.locale)
         return doc
 
     def setUp(self):
@@ -114,10 +110,10 @@ class RoutesTestCase(unittest.TestCase):
         _, pod_path, _ = new_routes.match('/foo/bar')
         self.assertEquals(None, pod_path)
 
-    def test_docs(self):
-        """Tests that routes' docs can be retrieved."""
+    def test_nodes(self):
+        """Tests that routes' nodes can be retrieved."""
 
-        # Add docs in random order.
+        # Add nodes in random order.
         self._add_doc(path='/foo')
         self._add_doc(path='/bax/coo/lib')
         self._add_doc(path='/bax/bar')
@@ -125,12 +121,12 @@ class RoutesTestCase(unittest.TestCase):
         self._add_doc(path='/bax/coo/vin')
         self._add_doc(path='/tem/pon')
 
-        # Expect the yielded docs to be in order.
+        # Expect the yielded nodes to be in order.
         expected = [
             '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
             '/foo', '/tem/pon',
         ]
-        actual = [path for path, _, _ in self.routes.docs]
+        actual = [path for path, _, _ in self.routes.nodes]
         self.assertEquals(expected, actual)
 
     def test_remove(self):

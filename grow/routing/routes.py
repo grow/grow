@@ -29,9 +29,9 @@ class Routes(object):
         self._root = RouteTrie()
 
     @property
-    def docs(self):
-        """Generator for returning all the docs in the routes."""
-        for item in self._root.docs:
+    def nodes(self):
+        """Generator for returning all the nodes in the routes."""
+        for item in self._root.nodes:
             yield item
 
     def add(self, path, pod_path, locale):
@@ -39,10 +39,6 @@ class Routes(object):
         if not path:
             return
         self._root.add(path, pod_path, locale)
-
-    def add_doc(self, doc):
-        """Adds a document to the routes trie."""
-        self.add(doc.get_serving_path(), doc.pod_path, str(doc.locale))
 
     def match(self, path):
         """Uses a path to attempt to match a path in the routes."""
@@ -54,18 +50,18 @@ class Routes(object):
 
     def update(self, other):
         """Allow updating the current routes with other Routes."""
-        # Add all the docs from the other Routes.
-        for item in other.docs:
+        # Add all the nodes from the other Routes.
+        for item in other.nodes:
             self.add(*item)
 
     def __add__(self, other):
         """Allow adding routes togethers to form a new routes."""
         routes = self.__class__()
-        # Add all the docs from the current Routes.
-        for item in self.docs:
+        # Add all the nodes from the current Routes.
+        for item in self.nodes:
             routes.add(*item)
-        # Add all the docs from the other Routes.
-        for item in other.docs:
+        # Add all the nodes from the other Routes.
+        for item in other.nodes:
             routes.add(*item)
         return routes
 
@@ -92,9 +88,9 @@ class RouteTrie(object):
         return collections.deque(path.split(URL_SEPARATOR))
 
     @property
-    def docs(self):
-        """Generator for returning all docs in the trie."""
-        for item in self._root.docs:
+    def nodes(self):
+        """Generator for returning all nodes in the trie."""
+        for item in self._root.nodes:
             yield item
 
     def add(self, path, pod_path, locale):
@@ -124,8 +120,8 @@ class RouteNode(object):
         self._children = {}
 
     @property
-    def docs(self):
-        """Generator for walking through the node docs.
+    def nodes(self):
+        """Generator for walking through the node nodes.
 
         Yields:
             Path, pod_path, and locale at this node and all children.
@@ -133,9 +129,9 @@ class RouteNode(object):
         if self.path is not None:
             yield self.path, self.pod_path, self.locale
 
-        # Yield docs in the path order.
+        # Yield nodes in the path order.
         for key in sorted(self._children):
-            for item in self._children[key].docs:
+            for item in self._children[key].nodes:
                 yield item
 
     def add(self, segments, path, pod_path, locale):
