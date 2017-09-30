@@ -104,7 +104,6 @@ class WebReviewDestination(base.BaseDestination):
                     ' Commit first then deploy to WebReview.')
         result = super(WebReviewDestination, self).deploy(*args, **kwargs)
         if self.success:
-            logging.info('DEBUG: Deployment successful, finalizing webreview.')
             finalize_response = self.webreview.finalize()
             if 'fileset' in finalize_response:
                 url = finalize_response['fileset']['url']
@@ -140,24 +139,21 @@ class WebReviewDestination(base.BaseDestination):
         except webreview.RpcError as e:
             raise base.Error(e.message)
 
-    def write_files(self, paths_to_contents):
+    def write_files(self, paths_to_rendered_doc):
         try:
-            for path, content in paths_to_contents.iteritems():
-                if isinstance(content, unicode):
-                    paths_to_contents[path] = content.encode('utf-8')
-            paths_to_contents, errors = self.webreview.write(paths_to_contents)
+            paths_to_rendered_doc, errors = self.webreview.write(paths_to_rendered_doc)
             if errors:
                 raise base.Error(errors)
-            return paths_to_contents
+            return paths_to_rendered_doc
         except webreview.RpcError as e:
             raise base.Error(e.message)
 
     def delete_file(self, paths):
         try:
-            paths_to_contents, errors = self.webreview.delete(paths)
+            paths, errors = self.webreview.delete(paths)
             if errors:
                 raise base.Error(errors)
-            return paths_to_contents
+            return paths
         except webreview.RpcError as e:
             raise base.Error(e.message)
 

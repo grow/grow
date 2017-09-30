@@ -135,8 +135,8 @@ class PodTest(unittest.TestCase):
             '/yaml_test/index.html',
         ]
         result = {}
-        for path, rendered in self.pod.dump():
-            result[path] = rendered
+        for rendered_doc in self.pod.dump():
+            result[rendered_doc.path] = None
         self.assertItemsEqual(paths, result)
 
     def test_to_message(self):
@@ -236,8 +236,8 @@ class PodTest(unittest.TestCase):
             '/static/extensionless',
         ]
         paths = []
-        for path, _ in pod.dump():
-            paths.append(path)
+        for rendered_doc in pod.dump():
+            paths.append(rendered_doc.path)
         self.assertItemsEqual(expected, paths)
 
         # Verify export does not append suffix.
@@ -247,8 +247,8 @@ class PodTest(unittest.TestCase):
             '/static/extensionless',
         ]
         paths = []
-        for path, _ in pod.export():
-            paths.append(path)
+        for rendered_doc in pod.export():
+            paths.append(rendered_doc.path)
         self.assertItemsEqual(expected, paths)
 
 
