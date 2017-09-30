@@ -227,11 +227,9 @@ class BaseDestination(object):
     def write_control_file(self, path, content):
         path = os.path.join(self.control_dir, path.lstrip('/'))
         if self.config.keep_control_dir:
-            return self.pod.write_file(
-                rendered_document.RenderedDocument(path, content))
+            return self.pod.write_file(path, content)
         if self._has_custom_control_dir:
-            return self.storage.write(
-                rendered_document.RenderedDocument(path, content))
+            return self.storage.write(path, content)
         if self.batch_writes:
             return self.write_files({
                 path: rendered_document.RenderedDocument(path, content)
