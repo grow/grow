@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import sys
+import threading
 import time
 import progressbar
 import yaml
@@ -84,10 +85,11 @@ class Pod(object):
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.routes = grow_routes.Routes(pod=self)
+        self._jinja_env_lock = threading.RLock()
         self._podcache = None
-        self._disabled = set(
+        self._disabled = set([
             self.FEATURE_TRANSLATION_STATS,
-        )
+        ])
 
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
@@ -459,31 +461,32 @@ class Pod(object):
 
     @utils.memoize
     def get_jinja_env(self, locale='', root=None):
-        kwargs = {
-            'autoescape': True,
-            'extensions': [
-                'jinja2.ext.autoescape',
-                'jinja2.ext.do',
-                'jinja2.ext.i18n',
-                'jinja2.ext.loopcontrols',
-                'jinja2.ext.with_',
-            ],
-            'loader': self.storage.JinjaLoader(self.root if root is None else root),
-            'lstrip_blocks': True,
-            'trim_blocks': True,
-        }
-        if self.env.cached:
-            kwargs['bytecode_cache'] = self._get_bytecode_cache()
-        kwargs['extensions'].extend(self.list_jinja_extensions())
-        env = jinja_dependency.DepEnvironment(**kwargs)
-        env.filters.update(filters.create_builtin_filters())
-        get_gettext_func = self.catalogs.get_gettext_translations
-        # pylint: disable=no-member
-        env.install_gettext_callables(
-            lambda x: get_gettext_func(locale).ugettext(x),
-            lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n),
-            newstyle=True)
-        return env
+        with self._jinja_env_lock:
+            kwargs = {
+                'autoescape': True,
+                'extensions': [
+                    'jinja2.ext.autoescape',
+                    'jinja2.ext.do',
+                    'jinja2.ext.i18n',
+                    'jinja2.ext.loopcontrols',
+                    'jinja2.ext.with_',
+                ],
+                'loader': self.storage.JinjaLoader(self.root if root is None else root),
+                'lstrip_blocks': True,
+                'trim_blocks': True,
+            }
+            if self.env.cached:
+                kwargs['bytecode_cache'] = self._get_bytecode_cache()
+            kwargs['extensions'].extend(self.list_jinja_extensions())
+            env = jinja_dependency.DepEnvironment(**kwargs)
+            env.filters.update(filters.create_builtin_filters())
+            get_gettext_func = self.catalogs.get_gettext_translations
+            # pylint: disable=no-member
+            env.install_gettext_callables(
+                lambda x: get_gettext_func(locale).ugettext(x),
+                lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n),
+                newstyle=True)
+            return env
 
     def get_routes(self):
         return self.routes
