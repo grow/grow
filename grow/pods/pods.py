@@ -72,11 +72,11 @@ class Pod(object):
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.routes = grow_routes.Routes(pod=self)
-        self._podcache = None
-        self._disabled = set(
-            self.FEATURE_TRANSLATION_STATS,
-        )
         self._jinja_env_lock = threading.RLock()
+        self._podcache = None
+        self._disabled = set([
+            self.FEATURE_TRANSLATION_STATS,
+        ])
 
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by

@@ -18,9 +18,14 @@ class PodTest(unittest.TestCase):
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
     def test_disable(self):
-        self.assertTrue(self.pod.is_enabled('ui'))
-        self.pod.disable('ui')
-        self.assertFalse(self.pod.is_enabled('ui'))
+        self.assertTrue(self.pod.is_enabled('testing'))
+        self.pod.disable('testing')
+        self.assertFalse(self.pod.is_enabled('testing'))
+
+    def test_enable(self):
+        self.assertFalse(self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS))
+        self.pod.enable(self.pod.FEATURE_TRANSLATION_STATS)
+        self.assertTrue(self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS))
 
     def test_eq(self):
         pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
