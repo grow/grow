@@ -1,7 +1,6 @@
 """Indexes for tracking the changes to pods across deployments and builds."""
 
 import datetime
-import hashlib
 import logging
 import ConfigParser
 import progressbar
@@ -183,7 +182,7 @@ class Diff(object):
         return protojson.encode_message(message)
 
     @classmethod
-    def apply(cls, message, paths_to_content, write_func, batch_write_func, delete_func,
+    def apply(cls, message, paths_to_rendered_doc, write_func, batch_write_func, delete_func,
               threaded=True, batch_writes=False):
         if pool is None:
             text = 'Deployment is unavailable in this environment.'
@@ -201,35 +200,35 @@ class Diff(object):
             progress.update(progress.value + 1)
 
         if batch_writes:
-            writes_paths_to_contents = {}
+            writes_paths_to_rendered_doc = {}
             for file_message in diff.adds:
-                writes_paths_to_contents[file_message.path] = \
-                    paths_to_content[file_message.path]
+                writes_paths_to_rendered_doc[file_message.path] = \
+                    paths_to_rendered_doc[file_message.path]
             for file_message in diff.edits:
-                writes_paths_to_contents[file_message.path] = \
-                    paths_to_content[file_message.path]
+                writes_paths_to_rendered_doc[file_message.path] = \
+                    paths_to_rendered_doc[file_message.path]
             deletes_paths = [
                 file_message.path for file_message in diff.deletes]
-            if writes_paths_to_contents:
-                batch_write_func(writes_paths_to_contents)
+            if writes_paths_to_rendered_doc:
+                batch_write_func(writes_paths_to_rendered_doc)
             if deletes_paths:
                 delete_func(deletes_paths)
         else:
             progress.start()
             for file_message in diff.adds:
-                content = paths_to_content[file_message.path]
+                rendered_doc = paths_to_rendered_doc[file_message.path]
                 if threaded:
-                    args = (write_func, file_message.path, content)
+                    args = (write_func, rendered_doc)
                     thread_pool.apply_async(run_with_progress, args=args)
                 else:
-                    run_with_progress(write_func, file_message.path, content)
+                    run_with_progress(write_func, rendered_doc)
             for file_message in diff.edits:
-                content = paths_to_content[file_message.path]
+                rendered_doc = paths_to_rendered_doc[file_message.path]
                 if threaded:
-                    args = (write_func, file_message.path, content)
+                    args = (write_func, rendered_doc)
                     thread_pool.apply_async(run_with_progress, args=args)
                 else:
-                    run_with_progress(write_func, file_message.path, content)
+                    run_with_progress(write_func, file_message.path, rendered_doc)
             for file_message in diff.deletes:
                 if threaded:
                     args = (delete_func, file_message.path)
@@ -249,7 +248,7 @@ class Diff(object):
         index = Index.create()
         if repo:
             Index.add_repo(index, repo)
-        paths_to_content = {}
+        paths_to_rendered_doc = {}
         git = common_utils.get_git()
         diff = messages.DiffMessage()
         diff.is_partial = is_partial
@@ -263,8 +262,9 @@ class Diff(object):
         for file_message in theirs.files:
             their_paths_to_shas[file_message.path] = file_message.sha
 
-        for path, rendered in content_generator:
-            index_paths_to_shas[path] = Index.add_file(index, path, rendered).sha
+        for rendered_doc in content_generator:
+            path = rendered_doc.path
+            index_paths_to_shas[path] = Index.add_file(index, rendered_doc).sha
 
             if path in their_paths_to_shas:
                 if index_paths_to_shas[path] == their_paths_to_shas[path]:
@@ -279,13 +279,13 @@ class Diff(object):
                     file_message.deployed = theirs.deployed
                     file_message.deployed_by = theirs.deployed_by
                     diff.edits.append(file_message)
-                    paths_to_content[path] = rendered
+                    paths_to_rendered_doc[path] = rendered_doc
                 del their_paths_to_shas[path]
             else:
                 file_message = messages.FileMessage()
                 file_message.path = path
                 diff.adds.append(file_message)
-                paths_to_content[path] = rendered
+                paths_to_rendered_doc[path] = rendered_doc
 
         # When doing partial diffs we do not have enough information to know
         # which files have been deleted.
@@ -321,29 +321,27 @@ class Diff(object):
                 what_changed = what_changed.encode('utf-8')
             diff.what_changed = what_changed.decode('utf-8')
 
-        return diff, index, paths_to_content
+        return diff, index, paths_to_rendered_doc
 
 
 class Index(object):
 
     @classmethod
-    def create(cls, paths_to_contents=None):
+    def create(cls, paths_to_rendered_doc=None):
         message = messages.IndexMessage()
         message.deployed = datetime.datetime.now()
         message.files = []
-        if paths_to_contents is None:
+        if paths_to_rendered_doc is None:
             return message
-        for pod_path, contents in paths_to_contents.iteritems():
-            cls.add_file(message, pod_path, contents)
+        for _, rendered_doc in paths_to_rendered_doc.iteritems():
+            cls.add_file(message, rendered_doc)
         return message
 
     @classmethod
-    def add_file(cls, message, path, contents):
-        pod_path = '/' + path.lstrip('/')
-        if isinstance(contents, unicode):
-            contents = contents.encode('utf-8')
-        sha = hashlib.sha1(contents).hexdigest()
-        file_message = messages.FileMessage(path=pod_path, sha=sha)
+    def add_file(cls, message, rendered_doc):
+        pod_path = '/' + rendered_doc.path.lstrip('/')
+        file_message = messages.FileMessage(
+            path=pod_path, sha=rendered_doc.hash)
         message.files.append(file_message)
         return file_message
 

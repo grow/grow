@@ -34,9 +34,9 @@ class LocalDestination(base.BaseDestination):
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
         self.storage.delete(out_path)
 
-    def write_file(self, path, content):
-        if isinstance(content, unicode):
-            content = content.encode('utf-8')
+    def write_file(self, rendered_doc):
+        path = rendered_doc.path
+        content = rendered_doc.content
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
         fp = self.storage.write(out_path, content)
         fp.close()

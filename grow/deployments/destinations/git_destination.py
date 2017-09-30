@@ -136,9 +136,9 @@ class GitDestination(base.BaseDestination):
             self.adds.remove(out_path)
         return out_path
 
-    def write_file(self, path, content):
-        if isinstance(content, unicode):
-            content = content.encode('utf-8')
+    def write_file(self, rendered_doc):
+        path = rendered_doc.path
+        content = rendered_doc.content
         out_path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),
                                 path.lstrip('/'))
         self.storage.write(out_path, content)

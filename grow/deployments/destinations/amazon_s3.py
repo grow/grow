@@ -9,6 +9,7 @@ import cStringIO
 import logging
 import os
 import mimetypes
+from grow.pods import rendered_document
 
 
 class Config(messages.Message):
@@ -59,7 +60,8 @@ class AmazonS3Destination(base.BaseDestination):
 
     def write_control_file(self, path, content):
         path = os.path.join(self.control_dir, path.lstrip('/'))
-        return self.write_file(path, content, policy='private')
+        return self.write_file(
+            rendered_document.RenderedDocument(path, content), policy='private')
 
     def read_file(self, path):
         file_key = key.Key(self.bucket)
@@ -76,7 +78,9 @@ class AmazonS3Destination(base.BaseDestination):
         bucket_key.key = path.lstrip('/')
         self.bucket.delete_key(bucket_key)
 
-    def write_file(self, path, content, policy='public-read'):
+    def write_file(self, rendered_doc, policy='public-read'):
+        path = rendered_doc.path
+        content = rendered_doc.content
         path = path.lstrip('/')
         path = path if path != '' else self.config.index_document
         if isinstance(content, unicode):

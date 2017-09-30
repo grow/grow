@@ -60,9 +60,9 @@ class ScpDestination(base.BaseDestination):
         path = os.path.join(self.root_dir, path.lstrip('/'))
         self.sftp.remove(path)
 
-    def write_file(self, path, content):
-        if isinstance(content, unicode):
-            content = content.encode('utf-8')
+    def write_file(self, rendered_doc):
+        path = rendered_doc.path
+        content = rendered_doc.content
         path = os.path.join(self.root_dir, path.lstrip('/'))
         self._mkdirs(os.path.dirname(path))
         fp = self.sftp.open(path, 'w')

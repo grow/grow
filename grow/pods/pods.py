@@ -17,6 +17,7 @@ from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import utils
 from grow.performance import profile
+from grow.pods import rendered_document
 from grow.preprocessors import preprocessors
 from grow.templates import filters
 from grow.templates import jinja_dependency
@@ -296,12 +297,12 @@ class Pod(object):
         self._disabled.add(feature)
 
     def dump(self, suffix='index.html', append_slashes=True, pod_paths=None):
-        for output_path, rendered in self.export(
+        for rendered_doc in self.export(
                 suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths):
-            yield output_path, rendered
+            yield rendered_doc
         if self.ui and self.is_enabled(self.FEATURE_UI):
-            for output_path, rendered in self.export_ui():
-                yield output_path, rendered
+            for rendered_doc in self.export_ui():
+                yield rendered_doc
 
     def enable(self, feature):
         self._disabled.discard(feature)
@@ -309,13 +310,14 @@ class Pod(object):
     def export(self, suffix=None, append_slashes=False, pod_paths=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
         paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)
-        for output_path, rendered in self.render_paths(
+        for rendered_doc in self.render_paths(
                 paths, routes, suffix=suffix, append_slashes=append_slashes):
-            yield output_path, rendered
+            yield rendered_doc
         if not pod_paths:
             error_controller = routes.match_error('/404.html')
             if error_controller:
-                yield '/404.html', error_controller.render({})
+                yield rendered_document.RenderedDocument(
+                    '/404.html', error_controller.render({}))
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
@@ -780,7 +782,8 @@ class Pod(object):
                     key = 'pod.render_paths.render.static'
 
                 with self.profile.timer(key, label=output_path, meta={'path': output_path}):
-                    yield (output_path, controller.render(params, inject=False))
+                    yield rendered_document.RenderedDocument(
+                        output_path, controller.render(params, inject=False))
             except:
                 self.logger.error('Error building: {}'.format(controller))
                 raise
