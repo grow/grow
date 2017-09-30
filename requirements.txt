@@ -39,5 +39,5 @@ six==1.10.0
 texttable-fixed==0.8.3
 translitcodec==0.4.0
 watchdog==0.8.3
-webreview==0.0.68
+webreview==0.0.69
 xtermcolor==1.3
