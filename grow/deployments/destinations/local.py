@@ -36,7 +36,7 @@ class LocalDestination(base.BaseDestination):
 
     def write_file(self, rendered_doc):
         path = rendered_doc.path
-        content = rendered_doc.content
+        content = rendered_doc.read()
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
         fp = self.storage.write(out_path, content)
         fp.close()

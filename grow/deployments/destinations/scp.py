@@ -62,7 +62,7 @@ class ScpDestination(base.BaseDestination):
 
     def write_file(self, rendered_doc):
         path = rendered_doc.path
-        content = rendered_doc.content
+        content = rendered_doc.read()
         path = os.path.join(self.root_dir, path.lstrip('/'))
         self._mkdirs(os.path.dirname(path))
         fp = self.sftp.open(path, 'w')

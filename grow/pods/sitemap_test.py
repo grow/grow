@@ -83,7 +83,7 @@ class SitemapTest(unittest.TestCase):
         pod.write_file('/views/base.html', '{{doc.html}}')
         paths_to_contents = {}
         for rendered_doc in pod.export():
-            paths_to_contents[rendered_doc.path] = rendered_doc.content
+            paths_to_contents[rendered_doc.path] = rendered_doc.read()
         content = paths_to_contents['/sitemap.xml']
         self.assertEqual(content, 'foo')
 

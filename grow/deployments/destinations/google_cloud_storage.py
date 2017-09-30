@@ -107,7 +107,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
 
     def write_file(self, rendered_doc, policy='public-read'):
         path = rendered_doc.path
-        content = rendered_doc.content
+        content = rendered_doc.read()
         path = path.lstrip('/')
         path = path if path != '' else self.config.main_page_suffix
         fp = cStringIO.StringIO()

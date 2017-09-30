@@ -138,7 +138,7 @@ class GitDestination(base.BaseDestination):
 
     def write_file(self, rendered_doc):
         path = rendered_doc.path
-        content = rendered_doc.content
+        content = rendered_doc.read()
         out_path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),
                                 path.lstrip('/'))
         self.storage.write(out_path, content)
