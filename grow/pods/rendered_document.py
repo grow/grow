@@ -19,13 +19,13 @@ class RenderedDocument(object):
             with open(self.filename, "w") as tmp_file:
                 tmp_file.write(content)
         else:
-            self.content = content
+            self._content = content
 
     @property
     def content(self):
         """Reads the content when it needs it."""
         if not self.tmp_dir:
-            return self.content
+            return self._content
 
         with open(self.filename, "r") as tmp_file:
             file_contents = tmp_file.read()
