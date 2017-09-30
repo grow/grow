@@ -36,8 +36,8 @@ class RenderedDocument(object):
 
         self.hash = hashlib.sha1(content).hexdigest()
 
-        if tmp_dir:
-            with open(self.filename, "w") as tmp_file:
+        if self.tmp_dir:
+            with open(self._get_tmp_filename(), "w") as tmp_file:
                 tmp_file.write(content)
         else:
             self._content = content
