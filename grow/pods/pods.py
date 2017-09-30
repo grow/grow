@@ -1,6 +1,7 @@
 """A pod encapsulates all files used to build a site."""
 
 import copy
+import atexit
 import json
 import logging
 import os
@@ -9,6 +10,8 @@ import time
 import progressbar
 import yaml
 import jinja2
+import shutil
+import tempfile
 from werkzeug.contrib import cache as werkzeug_cache
 from grow.cache import podcache
 from grow.common import extensions
@@ -44,6 +47,15 @@ class Error(Exception):
 class PodDoesNotExistError(Error, IOError):
     pass
 
+
+# Pods can create temp directories. Need to track pods that are created and
+# cleanup the temp directories.
+_PODS = []
+
+@atexit.register
+def goodbye_pods():
+    for pod in _PODS:
+        shutil.rmtree(pod.tmp_dir, ignore_errors=True)
 
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
@@ -92,6 +104,9 @@ class Pod(object):
             sdk_utils.check_sdk_version(self)
         except PodDoesNotExistError:
             pass  # Pod doesn't exist yet, simply pass.
+
+        # Track this pod so temp files can be cleaned up.
+        _PODS.append(self)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -143,8 +158,10 @@ class Pod(object):
                 temp_data = yaml.load(
                     self.read_file(legacy_podcache_file_name)) or {}
                 if 'objects' in temp_data:
-                    object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
-                    self.write_file(object_cache_file_name, json.dumps(temp_data['objects']))
+                    object_cache_file_name = '/{}'.format(
+                        self.FILE_OBJECT_CACHE)
+                    self.write_file(object_cache_file_name,
+                                    json.dumps(temp_data['objects']))
                 self.delete_file(legacy_podcache_file_name)
 
             if not self.file_exists(podcache_file_name):
@@ -217,6 +234,11 @@ class Pod(object):
     def profile(self):
         """Profile object for code timing."""
         return profile.Profile()
+
+    @utils.cached_property
+    def tmp_dir(self):
+        """Profile object for code timing."""
+        return tempfile.mkdtemp()
 
     @property
     def title(self):
@@ -317,7 +339,7 @@ class Pod(object):
             error_controller = routes.match_error('/404.html')
             if error_controller:
                 yield rendered_document.RenderedDocument(
-                    '/404.html', error_controller.render({}))
+                    '/404.html', error_controller.render({}), tmp_dir=self.tmp_dir)
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
@@ -710,7 +732,6 @@ class Pod(object):
                 logging.info('Object cache changed, updating with new data.')
                 self.podcache.write()
 
-
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
         return self.storage.open(path, mode=mode)
@@ -783,7 +804,8 @@ class Pod(object):
 
                 with self.profile.timer(key, label=output_path, meta={'path': output_path}):
                     yield rendered_document.RenderedDocument(
-                        output_path, controller.render(params, inject=False))
+                        output_path, controller.render(params, inject=False),
+                        tmp_dir=self.tmp_dir)
             except:
                 self.logger.error('Error building: {}'.format(controller))
                 raise
