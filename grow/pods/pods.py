@@ -354,7 +354,8 @@ class Pod(object):
         for path in ['css/ui.min.css', 'js/ui.min.js']:
             source_path = os.path.join(source_root, path)
             output_path = os.sep + os.path.join(destination_root, path)
-            yield output_path, self.storage.read(source_path)
+            yield rendered_document.RenderedDocument(
+                output_path, self.storage.read(source_path))
 
         # Add the files from each of the tools.
         for tool in self.ui.get('tools', []):
@@ -376,7 +377,8 @@ class Pod(object):
         for path in paths:
             output_path = path.replace(
                 source_prefix, '{}{}'.format(destination_root, tools_dir))
-            yield output_path, self.read_file(path)
+            yield rendered_document.RenderedDocument(
+                output_path, self.read_file(path))
             progress.update(progress.value + 1)
         progress.finish()
 
