@@ -104,7 +104,6 @@ class WebReviewDestination(base.BaseDestination):
                     ' Commit first then deploy to WebReview.')
         result = super(WebReviewDestination, self).deploy(*args, **kwargs)
         if self.success:
-            logging.info('DEBUG: Deployment successful, finalizing webreview.')
             finalize_response = self.webreview.finalize()
             if 'fileset' in finalize_response:
                 url = finalize_response['fileset']['url']
