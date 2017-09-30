@@ -49,14 +49,13 @@ class PodDoesNotExistError(Error, IOError):
     pass
 
 
-# Pods can create temp directories. Need to track pods that are created and
-# cleanup the temp directories.
-_PODS = []
+# Pods can create temp directories. Need to track temp dirs for cleanup.
+_POD_TEMP_DIRS = []
 
 @atexit.register
 def goodbye_pods():
-    for pod in _PODS:
-        shutil.rmtree(pod.tmp_dir, ignore_errors=True)
+    for tmp_dir in _POD_TEMP_DIRS:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
@@ -106,9 +105,6 @@ class Pod(object):
             sdk_utils.check_sdk_version(self)
         except PodDoesNotExistError:
             pass  # Pod doesn't exist yet, simply pass.
-
-        # Track this pod so temp files can be cleaned up.
-        _PODS.append(self)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -240,7 +236,9 @@ class Pod(object):
     @utils.cached_property
     def tmp_dir(self):
         """Profile object for code timing."""
-        return tempfile.mkdtemp()
+        dir_name = tempfile.mkdtemp()
+        _POD_TEMP_DIRS.append(dir_name)
+        return dir_name
 
     @property
     def title(self):
