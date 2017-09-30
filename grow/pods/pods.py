@@ -49,8 +49,7 @@ class PodDoesNotExistError(Error, IOError):
     pass
 
 
-# Pods can create temp directories. Need to track pods that are created and
-# cleanup the temp directories.
+# Pods can create temp directories. Need to track temp dirs for cleanup.
 _POD_TEMP_DIRS = []
 
 @atexit.register
