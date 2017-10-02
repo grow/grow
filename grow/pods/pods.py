@@ -155,7 +155,7 @@ class Pod(object):
                 # that should not be run when the cache file is being parsed.
                 temp_data = yaml.load(
                     self.read_file(legacy_podcache_file_name)) or {}
-                if 'objects' in temp_data:
+                if 'objects' in temp_data and temp_data['objects']:
                     object_cache_file_name = '/{}'.format(
                         self.FILE_OBJECT_CACHE)
                     self.write_file(object_cache_file_name,
