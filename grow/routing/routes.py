@@ -14,12 +14,11 @@ class Error(Exception):
 class PathConflictError(Error):
     """Error when there is a conflict of paths in the routes trie."""
 
-    def __init__(self, path, pod_path, locale):
+    def __init__(self, path, value):
         super(PathConflictError, self).__init__(
-            'Path already exists: {} ({} : {})'.format(path, pod_path, locale))
+            'Path already exists: {} ({})'.format(path, value))
         self.path = path
-        self.pod_path = pod_path
-        self.locale = locale
+        self.value = value
 
 
 class Routes(object):
@@ -28,17 +27,29 @@ class Routes(object):
     def __init__(self):
         self._root = RouteTrie()
 
+    def __len__(self):
+        i = 0
+        for _ in self.nodes:
+            i = i + 1
+        return i
+
     @property
     def nodes(self):
         """Generator for returning all the nodes in the routes."""
         for item in self._root.nodes:
             yield item
 
-    def add(self, path, pod_path, locale):
+    @property
+    def paths(self):
+        """Generator for returning all the paths in the routes."""
+        for path, _ in self._root.nodes:
+            yield path
+
+    def add(self, path, value):
         """Adds a document to the routes trie."""
         if not path:
             return
-        self._root.add(path, pod_path, locale)
+        self._root.add(path, value)
 
     def match(self, path):
         """Uses a path to attempt to match a path in the routes."""
@@ -93,10 +104,10 @@ class RouteTrie(object):
         for item in self._root.nodes:
             yield item
 
-    def add(self, path, pod_path, locale):
+    def add(self, path, value):
         """Add a new doc to the route trie."""
         segments = self.segments(path)
-        self._root.add(segments, path, pod_path, locale)
+        self._root.add(segments, path, value)
 
     def match(self, path):
         """Matches a path against the known trie looking for a match."""
@@ -115,8 +126,7 @@ class RouteNode(object):
     def __init__(self):
         super(RouteNode, self).__init__()
         self.path = None
-        self.pod_path = None
-        self.locale = None
+        self.value = None
         self._children = {}
 
     @property
@@ -124,24 +134,23 @@ class RouteNode(object):
         """Generator for walking through the node nodes.
 
         Yields:
-            Path, pod_path, and locale at this node and all children.
+            Path, value at this node and all children.
         """
         if self.path is not None:
-            yield self.path, self.pod_path, self.locale
+            yield self.path, self.value
 
         # Yield nodes in the path order.
         for key in sorted(self._children):
             for item in self._children[key].nodes:
                 yield item
 
-    def add(self, segments, path, pod_path, locale):
+    def add(self, segments, path, value):
         """Recursively add into the trie based upon the given segments."""
         if not segments:
-            if self.pod_path:
-                raise PathConflictError(path, pod_path, locale)
-            self.pod_path = pod_path
-            self.locale = locale
+            if self.value:
+                raise PathConflictError(path, value)
             self.path = path
+            self.value = value
             return
 
         segment = segments.popleft()
@@ -149,26 +158,25 @@ class RouteNode(object):
         # Add a normal node.
         if segment not in self._children:
             self._children[segment] = RouteNode()
-        self._children[segment].add(segments, path, pod_path, locale)
+        self._children[segment].add(segments, path, value)
 
     def match(self, segments):
         """Performs the trie matching to find a doc in the trie."""
         if not segments:
-            return self.path, self.pod_path, self.locale
+            return self.path, self.value
         segment = segments.popleft()
         if segment in self._children:
             return self._children[segment].match(segments)
-        return None, None, None
+        return None, None
 
     def remove(self, segments):
         """Finds and removes a path in the trie."""
         if not segments:
-            removed = self.path, self.pod_path, self.locale
+            removed = self.path, self.value
             self.path = None
-            self.pod_path = None
-            self.locale = None
+            self.value = None
             return removed
         segment = segments.popleft()
         if segment in self._children:
             return self._children[segment].remove(segments)
-        return None, None, None
+        return None, None
