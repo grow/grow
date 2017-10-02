@@ -17,6 +17,7 @@ class RenderedController(controllers.BaseController):
     def __init__(self, view=None, doc=None, path=None, _pod=None):
         self.view = view
         self.path = path
+        self._pod = _pod
         if doc:
             self._pod_path = doc.pod_path
             self._locale = str(doc.locale)
@@ -99,6 +100,8 @@ class RenderedController(controllers.BaseController):
             exception.traceback = sys.exc_info()[2]
             exception.controller = self
             exception.exception = e
+            if self._pod:
+                self._pod.logger.error(text.format(self, e))
             raise exception
 
     def _inject_ui(self, content, preprocessor, translator):
