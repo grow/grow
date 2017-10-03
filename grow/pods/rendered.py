@@ -35,7 +35,7 @@ class RenderedController(controllers.BaseController):
         return '<Rendered(view=\'{}\', doc=\'{}\')>'.format(
             self.view, doc.pod_path)
 
-    def get_mimetype(self, params=None):
+    def get_mimetype(self):
         return mimetypes.guess_type(self.view)[0]
 
     @property
@@ -59,6 +59,7 @@ class RenderedController(controllers.BaseController):
             return []
         return [self.doc.get_serving_path()]
 
+    # pylint: disable=unused-argument
     def render(self, params, inject=True):
         doc = self.doc
         preprocessor = None

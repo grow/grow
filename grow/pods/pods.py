@@ -17,6 +17,8 @@ from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import utils
 from grow.performance import profile
+from grow.routing import path_format as grow_path_format
+from grow.routing import router as grow_router
 from grow.preprocessors import preprocessors
 from grow.templates import filters
 from grow.templates import jinja_dependency
@@ -199,6 +201,11 @@ class Pod(object):
     def logger(self):
         return logger.LOGGER
 
+    @utils.cached_property
+    def path_format(self):
+        """Format utility for url paths."""
+        return grow_path_format.PathFormat(self)
+
     @property
     def podcache(self):
         if not self._podcache:
@@ -216,6 +223,11 @@ class Pod(object):
     def profile(self):
         """Profile object for code timing."""
         return profile.Profile()
+
+    @utils.cached_property
+    def router(self):
+        """Router object for routing."""
+        return grow_router.Router(self)
 
     @property
     def title(self):
