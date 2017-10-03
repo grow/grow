@@ -18,9 +18,14 @@ class PodTest(unittest.TestCase):
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
     def test_disable(self):
-        self.assertTrue(self.pod.is_enabled('ui'))
-        self.pod.disable('ui')
-        self.assertFalse(self.pod.is_enabled('ui'))
+        self.assertTrue(self.pod.is_enabled('testing'))
+        self.pod.disable('testing')
+        self.assertFalse(self.pod.is_enabled('testing'))
+
+    def test_enable(self):
+        self.assertFalse(self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS))
+        self.pod.enable(self.pod.FEATURE_TRANSLATION_STATS)
+        self.assertTrue(self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS))
 
     def test_eq(self):
         pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
@@ -130,8 +135,8 @@ class PodTest(unittest.TestCase):
             '/yaml_test/index.html',
         ]
         result = {}
-        for path, rendered in self.pod.dump():
-            result[path] = rendered
+        for rendered_doc in self.pod.dump():
+            result[rendered_doc.path] = None
         self.assertItemsEqual(paths, result)
 
     def test_to_message(self):
@@ -231,8 +236,8 @@ class PodTest(unittest.TestCase):
             '/static/extensionless',
         ]
         paths = []
-        for path, _ in pod.dump():
-            paths.append(path)
+        for rendered_doc in pod.dump():
+            paths.append(rendered_doc.path)
         self.assertItemsEqual(expected, paths)
 
         # Verify export does not append suffix.
@@ -242,8 +247,8 @@ class PodTest(unittest.TestCase):
             '/static/extensionless',
         ]
         paths = []
-        for path, _ in pod.export():
-            paths.append(path)
+        for rendered_doc in pod.export():
+            paths.append(rendered_doc.path)
         self.assertItemsEqual(expected, paths)
 
 

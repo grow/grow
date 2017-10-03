@@ -95,6 +95,80 @@ class BuiltinsTestCase(unittest.TestCase):
         expected = ['Category3', 'Category6',]
         self.assertEqual(expected, result)
 
+    def test_default_locale_versus_no_locale(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en_US',
+                'locales': [
+                    'en_US',
+                    'ja_JP',
+                ],
+            },
+        })
+        fields = {
+            'path': '/{locale}/{base}/',
+            'view': '/views/base.html',
+            'localization': {
+                'path': '/{locale}/{base}/',
+            },
+        }
+        pod.write_yaml('/content/pages/_blueprint.yaml', fields)
+        pod.write_yaml('/content/pages/doc1.yaml', {
+            '$localization': {
+                'default_locale': 'ja_JP',
+                'locales': [
+                    'ja_JP',
+                ],
+            }
+        })
+        pod.write_yaml('/content/pages/doc2.yaml', {
+            '$localization': {
+                'locales': [
+                    'en_US',
+                ],
+            }
+        })
+        pod.write_yaml('/content/pages/doc3.yaml', {})
+
+        # Verify `docs` locale kwarg behavior, should default to calling
+        # document's locale. Verify a calling en_US doc only gets en_US docs.
+        doc = pod.get_doc('/content/pages/doc3.yaml')
+        tags_in_context = tags.create_builtin_tags(pod, doc)
+        docs = tags_in_context['docs']('pages')
+        self.assertItemsEqual([
+            '/content/pages/doc2.yaml',
+            '/content/pages/doc3.yaml',
+        ], [doc.pod_path for doc in docs])
+
+        # Verify a calling ja_JP doc only gets ja_JP docs.
+        doc = pod.get_doc('/content/pages/doc1.yaml')
+        tags_in_context = tags.create_builtin_tags(pod, doc)
+        docs = tags_in_context['docs']('pages')
+        self.assertItemsEqual([
+            '/content/pages/doc1.yaml',
+            '/content/pages/doc3.yaml',
+        ], [doc.pod_path for doc in docs])
+
+        # Verify an explicit `locale=None` returns all docs regardless of the
+        # calling document's locale.
+        doc = pod.get_doc('/content/pages/doc1.yaml')
+        tags_in_context = tags.create_builtin_tags(pod, doc)
+        docs = tags_in_context['docs']('pages', locale=None)
+        self.assertItemsEqual([
+            '/content/pages/doc1.yaml',
+            '/content/pages/doc2.yaml',
+            '/content/pages/doc3.yaml',
+        ], [doc.pod_path for doc in docs])
+        doc = pod.get_doc('/content/pages/doc2.yaml')
+        tags_in_context = tags.create_builtin_tags(pod, doc)
+        docs = tags_in_context['docs']('pages', locale=None)
+        self.assertItemsEqual([
+            '/content/pages/doc1.yaml',
+            '/content/pages/doc2.yaml',
+            '/content/pages/doc3.yaml',
+        ], [doc.pod_path for doc in docs])
+
 
 if __name__ == '__main__':
     unittest.main()

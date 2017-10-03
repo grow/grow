@@ -39,11 +39,11 @@ destination, you'll just have to implement the following methods/properties:
   read_file(self, path)
     Reads a file at the destination, returning the file's content.
 
-  write_file(self, path, content)
-    Writes a file at the destination, given the file's pod path and its content.
+  write_file(self, rendered_doc)
+    Writes a file at the destination, given the file's rendered_document.
 
-  write_files(self, paths_to_contents)
-    Writes files in bulk, given a mapping of paths to file contents.
+  write_files(self, paths_to_rendered_doc)
+    Writes files in bulk, given a mapping of paths to rendered_document.
 
   KIND
     A string identifying the deployment.
@@ -83,6 +83,7 @@ from grow.deployments import tests
 from grow.performance import profile_report
 from grow.pods import env
 from grow.pods import pods
+from grow.pods import rendered_document
 from . import messages
 
 
@@ -191,11 +192,11 @@ class BaseDestination(object):
         """Returns a file-like object."""
         raise NotImplementedError
 
-    def write_files(self, paths_to_contents):
+    def write_files(self, paths_to_rendered_doc):
         """Writes files in bulk."""
         raise NotImplementedError
 
-    def write_file(self, path, content):
+    def write_file(self, rendered_doc):
         """Writes an individual file."""
         raise NotImplementedError
 
@@ -230,8 +231,11 @@ class BaseDestination(object):
         if self._has_custom_control_dir:
             return self.storage.write(path, content)
         if self.batch_writes:
-            return self.write_files({path: content})
-        return self.write_file(path, content)
+            return self.write_files({
+                path: rendered_document.RenderedDocument(path, content)
+            })
+        return self.write_file(
+            rendered_document.RenderedDocument(path, content))
 
     def test(self):
         results = messages.TestResultsMessage(test_results=[])
@@ -268,7 +272,7 @@ class BaseDestination(object):
             deployed_index = self._get_remote_index()
             if require_translations:
                 self.pod.enable(self.pod.FEATURE_TRANSLATION_STATS)
-            diff, new_index, paths_to_content = indexes.Diff.stream(
+            diff, new_index, paths_to_rendered_doc = indexes.Diff.stream(
                 deployed_index, content_generator, repo=repo, is_partial=is_partial)
             self._diff = diff
             if indexes.Diff.is_empty(diff):
@@ -287,7 +291,7 @@ class BaseDestination(object):
                     logging.info('Aborted.')
                     return
             indexes.Diff.apply(
-                diff, paths_to_content, write_func=self.write_file,
+                diff, paths_to_rendered_doc, write_func=self.write_file,
                 batch_write_func=self.write_files, delete_func=self.delete_file,
                 threaded=self.threaded, batch_writes=self.batch_writes)
             self.write_control_file(

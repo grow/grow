@@ -1,14 +1,18 @@
 """A pod encapsulates all files used to build a site."""
 
 import copy
+import atexit
 import json
 import logging
 import os
 import sys
+import threading
 import time
 import progressbar
 import yaml
 import jinja2
+import shutil
+import tempfile
 from werkzeug.contrib import cache as werkzeug_cache
 from grow.cache import podcache
 from grow.common import extensions
@@ -17,6 +21,7 @@ from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import utils
 from grow.performance import profile
+from grow.pods import rendered_document
 from grow.routing import path_format as grow_path_format
 from grow.routing import router as grow_router
 from grow.preprocessors import preprocessors
@@ -46,6 +51,14 @@ class PodDoesNotExistError(Error, IOError):
     pass
 
 
+# Pods can create temp directories. Need to track temp dirs for cleanup.
+_POD_TEMP_DIRS = []
+
+@atexit.register
+def goodbye_pods():
+    for tmp_dir in _POD_TEMP_DIRS:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
 
@@ -73,10 +86,11 @@ class Pod(object):
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self.routes = grow_routes.Routes(pod=self)
+        self._jinja_env_lock = threading.RLock()
         self._podcache = None
-        self._disabled = set(
+        self._disabled = set([
             self.FEATURE_TRANSLATION_STATS,
-        )
+        ])
 
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
@@ -143,9 +157,11 @@ class Pod(object):
                 # that should not be run when the cache file is being parsed.
                 temp_data = yaml.load(
                     self.read_file(legacy_podcache_file_name)) or {}
-                if 'objects' in temp_data:
-                    object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
-                    self.write_file(object_cache_file_name, json.dumps(temp_data['objects']))
+                if 'objects' in temp_data and temp_data['objects']:
+                    object_cache_file_name = '/{}'.format(
+                        self.FILE_OBJECT_CACHE)
+                    self.write_file(object_cache_file_name,
+                                    json.dumps(temp_data['objects']))
                 self.delete_file(legacy_podcache_file_name)
 
             if not self.file_exists(podcache_file_name):
@@ -229,6 +245,13 @@ class Pod(object):
         """Router object for routing."""
         return grow_router.Router(self)
 
+    @utils.cached_property
+    def tmp_dir(self):
+        """Profile object for code timing."""
+        dir_name = tempfile.mkdtemp()
+        _POD_TEMP_DIRS.append(dir_name)
+        return dir_name
+
     @property
     def title(self):
         return self.yaml.get('title')
@@ -308,12 +331,12 @@ class Pod(object):
         self._disabled.add(feature)
 
     def dump(self, suffix='index.html', append_slashes=True, pod_paths=None):
-        for output_path, rendered in self.export(
+        for rendered_doc in self.export(
                 suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths):
-            yield output_path, rendered
+            yield rendered_doc
         if self.ui and self.is_enabled(self.FEATURE_UI):
-            for output_path, rendered in self.export_ui():
-                yield output_path, rendered
+            for rendered_doc in self.export_ui():
+                yield rendered_doc
 
     def enable(self, feature):
         self._disabled.discard(feature)
@@ -321,13 +344,14 @@ class Pod(object):
     def export(self, suffix=None, append_slashes=False, pod_paths=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
         paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)
-        for output_path, rendered in self.render_paths(
+        for rendered_doc in self.render_paths(
                 paths, routes, suffix=suffix, append_slashes=append_slashes):
-            yield output_path, rendered
+            yield rendered_doc
         if not pod_paths:
             error_controller = routes.match_error('/404.html')
             if error_controller:
-                yield '/404.html', error_controller.render({})
+                yield rendered_document.RenderedDocument(
+                    '/404.html', error_controller.render({}), tmp_dir=self.tmp_dir)
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
@@ -342,7 +366,8 @@ class Pod(object):
         for path in ['css/ui.min.css', 'js/ui.min.js']:
             source_path = os.path.join(source_root, path)
             output_path = os.sep + os.path.join(destination_root, path)
-            yield output_path, self.storage.read(source_path)
+            yield rendered_document.RenderedDocument(
+                output_path, self.storage.read(source_path))
 
         # Add the files from each of the tools.
         for tool in self.ui.get('tools', []):
@@ -364,7 +389,8 @@ class Pod(object):
         for path in paths:
             output_path = path.replace(
                 source_prefix, '{}{}'.format(destination_root, tools_dir))
-            yield output_path, self.read_file(path)
+            yield rendered_document.RenderedDocument(
+                output_path, self.read_file(path))
             progress.update(progress.value + 1)
         progress.finish()
 
@@ -447,31 +473,32 @@ class Pod(object):
 
     @utils.memoize
     def get_jinja_env(self, locale='', root=None):
-        kwargs = {
-            'autoescape': True,
-            'extensions': [
-                'jinja2.ext.autoescape',
-                'jinja2.ext.do',
-                'jinja2.ext.i18n',
-                'jinja2.ext.loopcontrols',
-                'jinja2.ext.with_',
-            ],
-            'loader': self.storage.JinjaLoader(self.root if root is None else root),
-            'lstrip_blocks': True,
-            'trim_blocks': True,
-        }
-        if self.env.cached:
-            kwargs['bytecode_cache'] = self._get_bytecode_cache()
-        kwargs['extensions'].extend(self.list_jinja_extensions())
-        env = jinja_dependency.DepEnvironment(**kwargs)
-        env.filters.update(filters.create_builtin_filters())
-        get_gettext_func = self.catalogs.get_gettext_translations
-        # pylint: disable=no-member
-        env.install_gettext_callables(
-            lambda x: get_gettext_func(locale).ugettext(x),
-            lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n),
-            newstyle=True)
-        return env
+        with self._jinja_env_lock:
+            kwargs = {
+                'autoescape': True,
+                'extensions': [
+                    'jinja2.ext.autoescape',
+                    'jinja2.ext.do',
+                    'jinja2.ext.i18n',
+                    'jinja2.ext.loopcontrols',
+                    'jinja2.ext.with_',
+                ],
+                'loader': self.storage.JinjaLoader(self.root if root is None else root),
+                'lstrip_blocks': True,
+                'trim_blocks': True,
+            }
+            if self.env.cached:
+                kwargs['bytecode_cache'] = self._get_bytecode_cache()
+            kwargs['extensions'].extend(self.list_jinja_extensions())
+            env = jinja_dependency.DepEnvironment(**kwargs)
+            env.filters.update(filters.create_builtin_filters())
+            get_gettext_func = self.catalogs.get_gettext_translations
+            # pylint: disable=no-member
+            env.install_gettext_callables(
+                lambda x: get_gettext_func(locale).ugettext(x),
+                lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n),
+                newstyle=True)
+            return env
 
     def get_routes(self):
         return self.routes
@@ -720,7 +747,6 @@ class Pod(object):
                 logging.info('Object cache changed, updating with new data.')
                 self.podcache.write()
 
-
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
         return self.storage.open(path, mode=mode)
@@ -792,7 +818,9 @@ class Pod(object):
                     key = 'pod.render_paths.render.static'
 
                 with self.profile.timer(key, label=output_path, meta={'path': output_path}):
-                    yield (output_path, controller.render(params, inject=False))
+                    yield rendered_document.RenderedDocument(
+                        output_path, controller.render(params, inject=False),
+                        tmp_dir=self.tmp_dir)
             except:
                 self.logger.error('Error building: {}'.format(controller))
                 raise

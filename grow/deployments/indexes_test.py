@@ -2,6 +2,7 @@ from . import indexes
 from . import messages
 from grow.common import utils
 from grow.pods import pods
+from grow.pods import rendered_document
 from grow.pods import storage
 from grow.testing import testing
 import unittest
@@ -19,14 +20,14 @@ class IndexTest(unittest.TestCase):
 
     def test_diff(self):
         my_index = indexes.Index.create({
-          '/file.txt': 'test',
-          '/file2.txt': 'test',
-          '/foo/file.txt': 'test',
+            '/file.txt': rendered_document.RenderedDocument('/file.txt', 'test'),
+            '/file2.txt': rendered_document.RenderedDocument('/file2.txt', 'test'),
+            '/foo/file.txt': rendered_document.RenderedDocument('/foo/file.txt', 'test'),
         })
         their_index = indexes.Index.create({
-          '/file2.txt': 'change',
-          '/foo/file.txt': 'test',
-          '/bar/new.txt': 'test',
+            '/file2.txt': rendered_document.RenderedDocument('/file2.txt', 'change'),
+            '/foo/file.txt': rendered_document.RenderedDocument('/foo/file.txt', 'test'),
+            '/bar/new.txt': rendered_document.RenderedDocument('/bar/new.txt', 'test'),
         })
         expected = messages.DiffMessage(
             adds=[messages.FileMessage(path='/file.txt')],

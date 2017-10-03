@@ -227,7 +227,13 @@ def create_builtin_tags(pod, doc, track_dependency=None):
     def _wrap_dependency(func):
         def _wrapper(*args, **kwargs):
             if doc and not kwargs.get('locale', None):
-                kwargs['locale'] = str(doc.locale)
+                # Only override the locale kwarg if it is absent. Avoid
+                # replacing an explicit `locale=None` with the document's
+                # current locale. The presence of a `locale=None` indicates
+                # caller specifies "no locale" rather than "the current
+                # document's default locale".
+                if 'locale' not in kwargs:
+                    kwargs['locale'] = str(doc.locale)
             included_docs = func(*args, _pod=pod, **kwargs)
             if track_dependency:
                 try:
