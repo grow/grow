@@ -35,7 +35,7 @@ class RenderedController(controllers.BaseController):
         return '<Rendered(view=\'{}\', doc=\'{}\')>'.format(
             self.view, doc.pod_path)
 
-    def get_mimetype(self):
+    def get_mimetype(self, params=None):
         return mimetypes.guess_type(self.view)[0]
 
     @property
