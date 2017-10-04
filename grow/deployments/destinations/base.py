@@ -83,7 +83,7 @@ from grow.deployments import tests
 from grow.performance import profile_report
 from grow.pods import env
 from grow.pods import pods
-from grow.pods import rendered_document
+from grow.rendering import rendered_document
 from . import messages
 
 

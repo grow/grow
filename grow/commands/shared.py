@@ -12,3 +12,10 @@ def deployment_option(func):
     """Option for changing env based on deployment name."""
     return click.option(
         '--deployment', default=None, help='Name of the deployment config to use.')(func)
+
+
+def reroute_option(func):
+    """Option for using new age router and rendering pipeline."""
+    return click.option(
+        '--re-route', 'use_reroute', is_flag=True, default=False,
+        help='Use experimental routing/rendering pipeline.')(func)

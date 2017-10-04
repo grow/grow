@@ -9,7 +9,7 @@ import cStringIO
 import logging
 import os
 import mimetypes
-from grow.pods import rendered_document
+from grow.rendering import rendered_document
 
 
 class Config(messages.Message):

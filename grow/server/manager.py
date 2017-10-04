@@ -43,7 +43,7 @@ def print_server_ready_message(pod, host, port):
 
 
 def start(pod, host=None, port=None, open_browser=False, debug=False,
-          preprocess=True, update_check=False):
+          preprocess=True, update_check=False, use_reroute=False):
     observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
     if preprocess:
         thread = threading.Thread(target=pod.preprocess, kwargs={'build': False})
@@ -57,7 +57,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     CallbackHTTPServer.open_browser = open_browser
     CallbackHTTPServer.update_check = update_check
     serving.ThreadedWSGIServer = CallbackHTTPServer
-    app = main_lib.create_wsgi_app(pod, debug=debug)
+    app = main_lib.create_wsgi_app(pod, debug=debug, use_reroute=use_reroute)
     serving._log = lambda *args, **kwargs: ''
     handler = main_lib.RequestHandler
     num_tries = 0

@@ -21,10 +21,11 @@ from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import utils
 from grow.performance import profile
-from grow.pods import rendered_document
+from grow.preprocessors import preprocessors
+from grow.rendering import rendered_document
+from grow.rendering import render_pool as grow_render_pool
 from grow.routing import path_format as grow_path_format
 from grow.routing import router as grow_router
-from grow.preprocessors import preprocessors
 from grow.templates import filters
 from grow.templates import jinja_dependency
 from grow.translators import translation_stats
@@ -114,9 +115,9 @@ class Pod(object):
     def __repr__(self):
         return '<Pod: {}>'.format(self.root)
 
-    @utils.memoize
+    # DEPRECATED: Remove when no longer needed after re-route stable release.
     def _get_bytecode_cache(self):
-        return jinja2.MemcachedBytecodeCache(client=self.cache)
+        return self.jinja_bytecode_cache
 
     def _normalize_path(self, pod_path):
         if '..' in pod_path:
@@ -213,6 +214,10 @@ class Pod(object):
     def grow_version(self):
         return self.podspec.grow_version
 
+    @utils.cached_property
+    def jinja_bytecode_cache(self):
+        return jinja2.MemcachedBytecodeCache(client=self.cache)
+
     @property
     def logger(self):
         return logger.LOGGER
@@ -239,6 +244,12 @@ class Pod(object):
     def profile(self):
         """Profile object for code timing."""
         return profile.Profile()
+
+    @utils.cached_property
+    def render_pool(self):
+        """Render pool rendering documents."""
+        # TODO: Update pool size based on podspec.
+        return grow_render_pool.RenderPool(self)
 
     @utils.cached_property
     def router(self):

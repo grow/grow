@@ -9,7 +9,7 @@ from grow.pods import storage
 from grow.server import manager
 
 
-# pylint: disable=too-many-locals, invalid-name
+# pylint: disable=too-many-locals, invalid-name, too-many-arguments
 @click.command()
 @shared.pod_path_argument
 @click.option('--host', default='localhost')
@@ -29,8 +29,9 @@ from grow.server import manager
 @click.option('--ui/--no-ui', is_flag=True, default=True,
               help='Whether to inject the Grow UI Tools.')
 @shared.deployment_option
+@shared.reroute_option
 def run(host, port, https, debug, browser, update_check, preprocess, ui,
-        pod_path, deployment):
+        pod_path, deployment, use_reroute):
     """Starts a development server for a single pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     scheme = 'https' if https else 'http'
@@ -46,7 +47,7 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
     try:
         manager.start(pod, host=host, port=port, open_browser=browser,
                       debug=debug, preprocess=preprocess,
-                      update_check=update_check)
+                      update_check=update_check, use_reroute=use_reroute)
     except pods.Error as e:
         raise click.ClickException(str(e))
     return pod

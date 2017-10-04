@@ -27,6 +27,10 @@ class Request(wrappers.BaseRequest):
     pass
 
 
+class ReRouteRequest(webob.Request):
+    pass
+
+
 class Response(webob.Response):
     default_conditional_response = True
 
@@ -70,6 +74,26 @@ def serve_pod(pod, request, values):
     if 'X-AppEngine-BlobKey' in headers:
         return Response(headers=headers)
     content = controller.render(params)
+    response = Response(body=content)
+    response.headers.update(headers)
+
+    if pod.podcache.is_dirty:
+        pod.podcache.write()
+
+    return response
+
+
+def serve_pod_reroute(pod, request, matched):
+    """Serve pod contents using the new routing."""
+    # TODO Feel the fully operational routes.
+    route_info = matched.value
+    controller = pod.router.get_render_controller(route_info)
+    response = None
+    headers = controller.get_http_headers()
+    if 'X-AppEngine-BlobKey' in headers:
+        return Response(headers=headers)
+    rendered_document = controller.render()
+    content = rendered_document.read()
     response = Response(body=content)
     response.headers.update(headers)
 
@@ -184,8 +208,65 @@ class PodServer(object):
         return response
 
 
-def create_wsgi_app(pod, debug=False):
-    podserver_app = PodServer(pod, debug=debug)
+class PodServerReRoute(PodServer):
+
+    def __init__(self, pod, debug=False):
+        logging.warn('WARNING: Using experimental routing')
+
+        self.pod = pod
+        self.debug = debug
+        self.pod.router.add_all_docs(concrete=False)
+        self.routes = self.pod.router.routes
+
+        self.routes.add('/_grow/ui/tools/:tool', {
+            'kind': 'ui_tool',
+        })
+        self.routes.add('/_grow/preprocessors/run/:name', {
+            'kind': 'preprocessor',
+        })
+        self.routes.add('/_grow/:page/:locale', {
+            'kind': 'console',
+        })
+        self.routes.add('/_grow/:page', {
+            'kind': 'console',
+        })
+        self.routes.add('/_grow', {
+            'kind': 'console',
+        })
+
+        # Start off the server with a clean dependency graph.
+        self.pod.podcache.dependency_graph.mark_clean()
+
+    def dispatch_request(self, request):
+        path = urllib.unquote(request.path)  # Support escaped paths.
+        matched = self.routes.match(path)
+
+        # TODO Determine the correct handler based on the matched value.
+        kind = matched.value.kind
+        if kind == 'ui_tool':
+            pass
+        elif kind == 'preprocessor':
+            pass
+        elif kind == 'console':
+            pass
+        else:
+            return serve_pod_reroute(self.pod, request, matched)
+
+        response = wrappers.Response('Path not found.', status=404)
+        response.headers['Content-Type'] = 'text/html'
+        return response
+
+    def wsgi_app(self, environ, start_response):
+        request = ReRouteRequest(environ)
+        response = self.dispatch_request(request)
+        return response(environ, start_response)
+
+
+def create_wsgi_app(pod, debug=False, use_reroute=False):
+    if use_reroute:
+        podserver_app = PodServerReRoute(pod, debug=debug)
+    else:
+        podserver_app = PodServer(pod, debug=debug)
     assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'assets')
     ui_path = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
     return wsgi.SharedDataMiddleware(podserver_app, {
