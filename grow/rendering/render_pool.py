@@ -57,8 +57,7 @@ class RenderPool(object):
                         'env': self._create_jinja_env(locale=locale_str),
                     })
             elif pool_size < existing_size:
-                # TODO: Remove extra environments when reducing size.
-                pass
+                self._pool[locale_str] = self._pool[locale_str][:pool_size]
 
     def _create_jinja_env(self, locale='', root=None):
         kwargs = {
