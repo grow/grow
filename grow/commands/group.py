@@ -55,7 +55,7 @@ def process_subcommands(pods, profile, **_):
 
     if profile:
         report = profile_report.ProfileReport(pod.profile)
-        report.pretty_print()
+        # report.pretty_print()
         destination = local_destination.LocalDestination(
             local_destination.Config())
         destination.pod = pod

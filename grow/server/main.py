@@ -222,7 +222,7 @@ class PodServerReRoute(PodServer):
         self.pod = pod
         self.pod.render_pool.pool_size = 1
         self.debug = debug
-        self.pod.router.add_all_docs(concrete=False)
+        self.pod.router.add_all(concrete=False)
         self.routes = self.pod.router.routes
 
         self.routes.add('/_grow/ui/tools/:tool', {

@@ -39,18 +39,18 @@ class RenderController(object):
             return RenderSitemapController(pod, serving_path, route_info)
         raise UnknownKindError('Do not have a controller for: {}'.format(kind))
 
+    @property
+    def mimetype(self):
+        """Guess the mimetype of the content."""
+        return 'text/plain'
+
     def get_http_headers(self):
         """Determine headers to serve for https requests."""
         headers = {}
-        mimetype = self.get_mimetype()
+        mimetype = self.mimetype
         if mimetype:
             headers['Content-Type'] = mimetype
         return headers
-
-    # pylint: disable=no-self-use
-    def get_mimetype(self):
-        """Guess the mimetype of the content."""
-        return 'text/plain'
 
     def render(self):
         """Render the pod content."""
@@ -60,16 +60,32 @@ class RenderController(object):
 class RenderDocumentController(RenderController):
     """Controller for handling rendering for documents."""
 
+    def __init__(self, pod, serving_path, route_info):
+        super(RenderDocumentController, self).__init__(
+            pod, serving_path, route_info)
+        self._doc = None
+
     @property
     def doc(self):
         """Doc for the controller."""
-        pod_path = self.route_info.meta['pod_path']
-        locale = self.route_info.meta['locale']
-        return self.pod.get_doc(pod_path, locale=locale)
+        if not self._doc:
+            pod_path = self.route_info.meta['pod_path']
+            locale = self.route_info.meta['locale']
+            self._doc = self.pod.get_doc(pod_path, locale=locale)
+        return self._doc
 
-    def get_mimetype(self):
+    @property
+    def mimetype(self):
         """Determine headers to serve for https requests."""
         return mimetypes.guess_type(self.doc.view)[0]
+
+    @property
+    def suffix(self):
+        """Determine headers to serve for https requests."""
+        _, ext = os.path.splitext(self.doc.view)
+        if ext == '.html':
+            return 'index.html'
+        return ''
 
     def render(self):
         """Render the document using the render pool."""
@@ -91,8 +107,11 @@ class RenderDocumentController(RenderController):
                 template.globals['_'] = tags.make_doc_gettext(doc)
 
             try:
+                serving_path = doc.get_serving_path()
+                if serving_path.endswith('/'):
+                    serving_path = '{}{}'.format(serving_path, self.suffix)
                 return rendered_document.RenderedDocument(
-                    doc.get_serving_path(), template.render({
+                    serving_path, template.render({
                         'doc': doc,
                         'env': self.pod.env,
                         'podspec': self.pod.podspec,
@@ -131,7 +150,8 @@ class RenderStaticDocumentController(RenderController):
             self._static_doc = self.pod.get_static(pod_path, locale=locale)
         return self._static_doc
 
-    def get_mimetype(self):
+    @property
+    def mimetype(self):
         """Determine headers to serve for https requests."""
         return mimetypes.guess_type(self.serving_path)[0]
 

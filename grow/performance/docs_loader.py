@@ -1,5 +1,6 @@
 """Threaded loader that forces a list of docs to be loaded from filesystem."""
 
+import logging
 from grow.common import utils as common_utils
 
 if common_utils.is_appengine():
@@ -13,26 +14,66 @@ else:
 class DocsLoader(object):
     """Loader that threads the docs' file system reads."""
 
-    POOL_SIZE = 50
+    POOL_SIZE = 10
 
     @classmethod
     def load(cls, docs):
         """Force load the provided docs to read from file system."""
+        if not docs:
+            return
+
+        pod = docs[0].pod
 
         def load_func(doc):
             """Force the doc to read the source file."""
             # pylint: disable=pointless-statement
-            doc.format.raw_content # raw_content forces file read.
+            doc.hidden  # Using doc fields forces file read.
 
-        if pool is None or len(docs) < 10:
+        with pod.profile.timer('DocsLoader.load'):
+            if pool is None or len(docs) < 10:
+                for doc in docs:
+                    load_func(doc)
+                return
+            thread_pool = pool.ThreadPool(cls.POOL_SIZE)
+            results = thread_pool.imap_unordered(load_func, docs)
+            for _ in results:
+                pass
+            thread_pool.close()
+            thread_pool.join()
+
+    @staticmethod
+    def fix_default_locale(pod, docs):
+        """Fixes docs loaded without with the wronge default locale."""
+        with pod.profile.timer('DocsLoader.fix_default_locale'):
+            root_to_locale = {}
             for doc in docs:
-                load_func(doc)
-            return
+                # Ignore the docs that are the same as the default locale.
+                kw_locale = doc._locale_kwarg
+                if kw_locale is not None:
+                    continue
+                root_path = doc.root_pod_path
+                current_locale = str(doc.locale)
+                safe_locale = str(doc.locale_safe)
+                if (root_path in root_to_locale
+                        and current_locale in root_to_locale[root_path]):
+                    continue
+                if safe_locale != current_locale:
+                    # The None and safe locale is now invalid in the cache
+                    # since the front-matter differs.
+                    pod.podcache.collection_cache.remove_document_locale(
+                        doc, None)
+                    pod.podcache.collection_cache.remove_document_locale(
+                        doc, doc.locale_safe)
 
-        thread_pool = pool.ThreadPool(cls.POOL_SIZE)
+                    # Get the doc for the correct default locale.
+                    clean_doc = doc.localize(current_locale)
 
-        for doc in docs:
-            thread_pool.apply_async(load_func, args=(doc))
+                    # Cache default locale (based off front-matter).
+                    pod.podcache.collection_cache.add_document_locale(
+                        clean_doc, None)
 
-        thread_pool.close()
-        thread_pool.join()
+                    # If we have already fixed it, ignore any other locales.
+                    if root_path not in root_to_locale:
+                        root_to_locale[root_path] = []
+                    if current_locale not in root_to_locale[root_path]:
+                        root_to_locale[root_path].append(current_locale)

@@ -136,10 +136,13 @@ class Routes(object):
                 col_default_locale = str(doc.collection.default_locale)
                 valid_locales = [str(l) for l in doc.locales]
 
-                # The None locale is now invalid in the cache since the front-matter differs.
-                self.pod.podcache.collection_cache.remove_document_locale(doc, doc.locale_safe)
+                # The None locale is now invalid in the cache since the
+                # front-matter differs.
+                self.pod.podcache.collection_cache.remove_document_locale(
+                    doc, doc.locale_safe)
 
-                # Need to also yield the collection default if it differs and is available.
+                # Need to also yield the collection default if it differs and
+                # is available.
                 if col_default_locale != current_locale and col_default_locale in valid_locales:
                     default_doc = doc.localize(col_default_locale)
                     if (default_doc.exists
@@ -151,8 +154,10 @@ class Routes(object):
 
                 clean_doc = doc.localize(current_locale)
 
-                # Store the actual default locale (based off front-matter) to the cache.
-                self.pod.podcache.collection_cache.add_document_locale(doc, None)
+                # Store the actual default locale (based off front-matter) to
+                # the cache.
+                self.pod.podcache.collection_cache.add_document_locale(
+                    clean_doc, None)
 
                 if root_path not in root_to_locale:
                     root_to_locale[root_path] = []

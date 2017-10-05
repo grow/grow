@@ -26,8 +26,9 @@ from grow.pods import storage
               default=False, is_flag=True,
               help='Shows untranslated message information.')
 @shared.deployment_option
+@shared.reroute_option
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
-          locate_untranslated, deployment):
+          locate_untranslated, deployment, use_reroute):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -48,12 +49,24 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
             config = local_destination.Config(out_dir=out_dir)
             destination = local_destination.LocalDestination(config)
             destination.pod = pod
-            paths, _ = pod.determine_paths_to_build(pod_paths=pod_paths)
             repo = utils.get_git_repo(pod.root)
-            stats_obj = stats.Stats(pod, paths=paths)
-            content_generator = destination.dump(pod, pod_paths=pod_paths)
-            destination.deploy(content_generator, stats=stats_obj, repo=repo, confirm=False,
-                               test=False, is_partial=bool(pod_paths))
+            if use_reroute:
+                pod.router.add_all()
+                routes = pod.router.routes
+                stats_obj = stats.Stats(pod, paths=routes.paths)
+                content_generator = destination.content_generator(
+                    pod, routes)
+                destination.deploy(
+                    content_generator, stats=stats_obj, repo=repo, confirm=False,
+                    test=False, is_partial=bool(pod_paths))
+            else:
+                paths, _ = pod.determine_paths_to_build(pod_paths=pod_paths)
+                stats_obj = stats.Stats(pod, paths=paths)
+                content_generator = destination.dump(pod, pod_paths=pod_paths)
+                destination.deploy(
+                    content_generator, stats=stats_obj, repo=repo, confirm=False,
+                    test=False, is_partial=bool(pod_paths))
+
             pod.podcache.write()
     except pods.Error as err:
         raise click.ClickException(str(err))

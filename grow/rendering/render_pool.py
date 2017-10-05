@@ -10,16 +10,13 @@ class Error(Exception):
     """Base rendering pool error."""
     pass
 
-class MissingLocaleError(Exception):
-    """Rendering pool error when missing locale."""
-    pass
-
 
 class RenderPool(object):
     """Rendering pool for rendering pods."""
 
     def __init__(self, pod, pool_size=1):
         self.pod = pod
+        self._locales = self.pod.list_locales()
         self._pool_size = pool_size
         self._pool = {}
         self._adjust_pool_size(pool_size)
@@ -45,7 +42,7 @@ class RenderPool(object):
         rendering using the environment to prevent the same environment from
         being used in multiple threads at the same time.
         """
-        for locale in self.pod.list_locales():
+        for locale in self._locales:
             locale_str = str(locale)
             if locale_str not in self._pool:
                 self._pool[locale_str] = []
@@ -101,8 +98,10 @@ class RenderPool(object):
         """
         locale = str(locale)
         if locale not in self._pool:
-            raise MissingLocaleError(
-                '{} locale does not exist in the render pool.'.format(locale))
+            # Add the new locale to the pool.
+            self._locales.append(locale)
+            self._adjust_pool_size(self._pool_size)
+
         pool = self._pool[locale]
         # Randomly select which pool item to use. This should distribute
         # rendering fairly evenly across the pool. Since render times are fairly

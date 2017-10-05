@@ -77,6 +77,8 @@ import os
 import subprocess
 import re
 import sys
+import progressbar
+from grow.common import progressbar_non
 from grow.common import utils
 from grow.deployments import indexes
 from grow.deployments import tests
@@ -84,6 +86,7 @@ from grow.performance import profile_report
 from grow.pods import env
 from grow.pods import pods
 from grow.rendering import rendered_document
+from grow.rendering import render_controller
 from . import messages
 
 
@@ -136,6 +139,26 @@ class BaseDestination(object):
     def __str__(self):
         return self.__class__.__name__
 
+    @staticmethod
+    def content_generator(pod, routes):
+        """Generate the rendered documents for the given routes."""
+        routes_len = len(routes)
+        text = 'Building: %(value)d/{} (in %(time_elapsed).9s)'
+        widgets = [progressbar.FormatLabel(text.format(routes_len))]
+        bar = progressbar_non.create_progressbar(
+            "Building pod...", widgets=widgets, max_value=routes_len)
+        bar.start()
+        for path, route_info in routes.nodes:
+            controller = pod.router.get_render_controller(path, route_info)
+            key = 'pod.render_paths.render'
+            if isinstance(
+                    controller, render_controller.RenderStaticDocumentController):
+                key = 'pod.render_paths.render.static'
+            with pod.profile.timer(key, label=path, meta={'path': path}):
+                yield controller.render()
+            bar.update(bar.value + 1)
+        bar.finish()
+
     @property
     def control_dir(self):
         if self.config.keep_control_dir:
@@ -161,7 +184,8 @@ class BaseDestination(object):
             content = self.read_control_file(self.index_basename)
             return indexes.Index.from_string(content)
         except IOError:
-            logging.info('Unable to find remote index: {}'.format(self.index_basename))
+            logging.info('Unable to find remote index: {}'.format(
+                self.index_basename))
             return indexes.Index.create()
 
     def export_profile_report(self):
