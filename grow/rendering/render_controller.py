@@ -1,6 +1,7 @@
 """Controller for rendering pod content."""
 
 import mimetypes
+import os
 import sys
 from grow.pods import errors
 from grow.rendering import rendered_document
@@ -21,20 +22,21 @@ class UnknownKindError(Exception):
 class RenderController(object):
     """Controls how the content is rendered and evaluated."""
 
-    def __init__(self, pod, route_info):
+    def __init__(self, pod, serving_path, route_info):
         self.pod = pod
+        self.serving_path = serving_path
         self.route_info = route_info
 
     @staticmethod
-    def from_route_info(pod, route_info):
+    def from_route_info(pod, serving_path, route_info):
         """Create the correct controller based on the route info."""
         kind = route_info.kind
         if kind == 'doc':
-            return RenderDocumentController(pod, route_info)
+            return RenderDocumentController(pod, serving_path, route_info)
         elif kind == 'static':
-            return RenderStaticDocumentController(pod, route_info)
+            return RenderStaticDocumentController(pod, serving_path, route_info)
         elif kind == 'sitemap':
-            return RenderSitemapController(pod, route_info)
+            return RenderSitemapController(pod, serving_path, route_info)
         raise UnknownKindError('Do not have a controller for: {}'.format(kind))
 
     def get_http_headers(self):
@@ -89,8 +91,8 @@ class RenderDocumentController(RenderController):
                 template.globals['_'] = tags.make_doc_gettext(doc)
 
             try:
-                return rendered_document.RenderedDocument(doc.get_serving_path(),
-                    template.render({
+                return rendered_document.RenderedDocument(
+                    doc.get_serving_path(), template.render({
                         'doc': doc,
                         'env': self.pod.env,
                         'podspec': self.pod.podspec,
@@ -114,4 +116,39 @@ class RenderSitemapController(RenderController):
 
 class RenderStaticDocumentController(RenderController):
     """Controller for handling rendering for static documents."""
-    pass
+
+    def __init__(self, pod, serving_path, route_info):
+        super(RenderStaticDocumentController, self).__init__(
+            pod, serving_path, route_info)
+        self._static_doc = None
+
+    @property
+    def static_doc(self):
+        """Static doc for the controller."""
+        if not self._static_doc:
+            pod_path = self.route_info.meta['pod_path']
+            locale = self.route_info.meta['locale']
+            self._static_doc = self.pod.get_static(pod_path, locale=locale)
+        return self._static_doc
+
+    def get_mimetype(self):
+        """Determine headers to serve for https requests."""
+        return mimetypes.guess_type(self.serving_path)[0]
+
+    def render(self):
+        """Read the static file."""
+        pod_path = None
+        if 'pod_path' in self.route_info.meta:
+            pod_path = self.route_info.meta['pod_path']
+        else:
+            pod_path = self.serving_path[
+                len(self.route_info.meta['path_format']):]
+            pod_path = os.path.join(self.route_info.meta[
+                                    'source_format'], pod_path)
+
+        if not self.pod.file_exists(pod_path):
+            text = '{} was not found in static files.'
+            raise errors.RouteNotFoundError(text.format(self.serving_path))
+
+        return rendered_document.RenderedDocument(
+            self.serving_path, self.pod.read_file(pod_path))

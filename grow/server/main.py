@@ -87,7 +87,7 @@ def serve_pod_reroute(pod, request, matched):
     """Serve pod contents using the new routing."""
     # TODO Feel the fully operational routes.
     route_info = matched.value
-    controller = pod.router.get_render_controller(route_info)
+    controller = pod.router.get_render_controller(request.path, route_info)
     response = None
     headers = controller.get_http_headers()
     if 'X-AppEngine-BlobKey' in headers:
@@ -169,6 +169,12 @@ class PodServer(object):
         if isinstance(exc, webob_exc.HTTPException):
             status = exc.status_int
             log('{}: {}'.format(status, request.path))
+        elif isinstance(exc, errors.RouteNotFoundError):
+            status = 404
+            response = wrappers.Response('{}: {} - {}'.format(
+                status, request.path, exc), status=status)
+            response.headers['Content-Type'] = 'text/html'
+            return response
         else:
             status = 500
             log('{}: {} - {}'.format(status, request.path, exc))
@@ -214,6 +220,7 @@ class PodServerReRoute(PodServer):
         logging.warn('WARNING: Using experimental routing')
 
         self.pod = pod
+        self.pod.render_pool.pool_size = 1
         self.debug = debug
         self.pod.router.add_all_docs(concrete=False)
         self.routes = self.pod.router.routes
@@ -240,6 +247,10 @@ class PodServerReRoute(PodServer):
     def dispatch_request(self, request):
         path = urllib.unquote(request.path)  # Support escaped paths.
         matched = self.routes.match(path)
+
+        if not matched:
+            text = '{} was not found in routes.'
+            raise errors.RouteNotFoundError(text.format(path))
 
         # TODO Determine the correct handler based on the matched value.
         kind = matched.value.kind
