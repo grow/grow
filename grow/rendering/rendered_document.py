@@ -12,6 +12,10 @@ class RenderedDocument(object):
         self.tmp_dir = tmp_dir
         self.hash = None
 
+        # When doing threaded rendering the thread cannot update the timer.
+        # Keep the timer with the rendered document to add to the normal timers.
+        self.render_timer = None
+
         if content:
             self.write(content)
 

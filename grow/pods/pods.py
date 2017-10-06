@@ -248,7 +248,6 @@ class Pod(object):
     @utils.cached_property
     def render_pool(self):
         """Render pool rendering documents."""
-        # TODO: Update pool size based on podspec.
         return grow_render_pool.RenderPool(self)
 
     @utils.cached_property

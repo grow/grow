@@ -72,6 +72,7 @@ class RenderPool(object):
         }
         if self.pod.env.cached:
             kwargs['bytecode_cache'] = self.pod.jinja_bytecode_cache
+        kwargs['bytecode_cache'] = self.pod.jinja_bytecode_cache
         kwargs['extensions'].extend(self.pod.list_jinja_extensions())
         env = jinja_dependency.DepEnvironment(**kwargs)
         env.filters.update(filters.create_builtin_filters())
@@ -85,7 +86,10 @@ class RenderPool(object):
 
     def custom_jinja_env(self, locale='', root=None):
         """Create a custom jinja env that is not part of the pool."""
-        return self._create_jinja_env(locale, root)
+        return {
+            'lock': threading.RLock(),
+            'env': self._create_jinja_env(locale, root),
+        }
 
     def get_jinja_env(self, locale=''):
         """Retrieves a jinja environment and lock to use to render.

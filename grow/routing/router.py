@@ -40,6 +40,11 @@ class Router(object):
             for collection in self.pod.list_collections():
                 for doc in collection.list_docs_unread():
                     docs.append(doc)
+
+            # Force preload the docs before expanding out to all locales.
+            docs_loader.DocsLoader.load(docs)
+            docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
+
             self.add_docs(docs)
 
     def add_all_other(self):
@@ -129,15 +134,15 @@ class Router(object):
             # the doc to be loaded. Attempts to thread this process.
             docs_loader.DocsLoader.load(docs)
             docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
-            # docs_loader.DocsLoader.expand_locales(self.pod, docs)
 
-            for doc in docs:
-                if doc.hidden or not doc.has_serving_path():
-                    continue
-                self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
-                    'pod_path': doc.pod_path,
-                    'locale': str(doc.locale),
-                }))
+            with self.pod.profile.timer('Router.add_docs.loop'):
+                for doc in docs:
+                    if doc.hidden or not doc.has_serving_path():
+                        continue
+                    self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
+                        'pod_path': doc.pod_path,
+                        'locale': str(doc.locale),
+                    }))
 
     def get_render_controller(self, path, route_info):
         """Find the correct render controller for the given route info."""

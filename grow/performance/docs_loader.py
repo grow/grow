@@ -13,7 +13,7 @@ else:
 class DocsLoader(object):
     """Loader that threads the docs' file system reads."""
 
-    POOL_SIZE = 10
+    POOL_SIZE = 5
 
     @classmethod
     def load(cls, docs):
@@ -40,6 +40,16 @@ class DocsLoader(object):
                 pass
             thread_pool.close()
             thread_pool.join()
+
+    @staticmethod
+    def expand_locales(pod, docs):
+        """Expand out the docs list to have the docs for all locales."""
+        with pod.profile.timer('DocsLoader.expand_locales'):
+            expanded_docs = []
+            for doc in docs:
+                for locale in doc.locales:
+                    expanded_docs.append(pod.get_doc(doc.pod_path, str(locale)))
+            return expanded_docs
 
     @staticmethod
     def fix_default_locale(pod, docs):

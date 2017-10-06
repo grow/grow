@@ -22,10 +22,12 @@ class UnknownKindError(Exception):
 class RenderController(object):
     """Controls how the content is rendered and evaluated."""
 
-    def __init__(self, pod, serving_path, route_info):
+    def __init__(self, pod, serving_path, route_info, is_threaded=False):
         self.pod = pod
         self.serving_path = serving_path
         self.route_info = route_info
+        self.render_timer = None
+        self.is_threaded = is_threaded
 
     @staticmethod
     def from_route_info(pod, serving_path, route_info):
@@ -52,7 +54,7 @@ class RenderController(object):
             headers['Content-Type'] = mimetype
         return headers
 
-    def render(self):
+    def render(self, jinja_env):
         """Render the pod content."""
         raise NotImplementedError
 
@@ -60,9 +62,9 @@ class RenderController(object):
 class RenderDocumentController(RenderController):
     """Controller for handling rendering for documents."""
 
-    def __init__(self, pod, serving_path, route_info):
+    def __init__(self, pod, serving_path, route_info, is_threaded=False):
         super(RenderDocumentController, self).__init__(
-            pod, serving_path, route_info)
+            pod, serving_path, route_info, is_threaded=is_threaded)
         self._doc = None
 
     @property
@@ -87,10 +89,16 @@ class RenderDocumentController(RenderController):
             return 'index.html'
         return ''
 
-    def render(self):
+    def render(self, jinja_env=None):
         """Render the document using the render pool."""
+        timer = self.pod.profile.timer(
+            'RenderDocumentController.render',
+            label='{} ({})'.format(self.doc.pod_path, self.doc.locale),
+            meta={
+                'path': self.doc.pod_path,
+                'locale': str(self.doc.locale)}
+            ).start_timer()
         doc = self.doc
-        jinja_env = self.pod.render_pool.get_jinja_env(doc.locale)
         with jinja_env['lock']:
             template = jinja_env['env'].get_template(doc.view.lstrip('/'))
             track_dependency = doc_dependency.DocDependency(doc)
@@ -110,13 +118,16 @@ class RenderDocumentController(RenderController):
                 serving_path = doc.get_serving_path()
                 if serving_path.endswith('/'):
                     serving_path = '{}{}'.format(serving_path, self.suffix)
-                return rendered_document.RenderedDocument(
+                rendered_doc = rendered_document.RenderedDocument(
                     serving_path, template.render({
                         'doc': doc,
                         'env': self.pod.env,
                         'podspec': self.pod.podspec,
                         '_track_dependency': track_dependency,
                     }).lstrip())
+                # rendered_doc.render_timer = timer.stop_timer()
+                timer.stop_timer()
+                return rendered_doc
             except Exception as err:
                 text = 'Error building {}: {}'
                 exception = errors.BuildError(text.format(self, err))
@@ -136,9 +147,9 @@ class RenderSitemapController(RenderController):
 class RenderStaticDocumentController(RenderController):
     """Controller for handling rendering for static documents."""
 
-    def __init__(self, pod, serving_path, route_info):
+    def __init__(self, pod, serving_path, route_info, is_threaded=False):
         super(RenderStaticDocumentController, self).__init__(
-            pod, serving_path, route_info)
+            pod, serving_path, route_info, is_threaded=is_threaded)
         self._static_doc = None
 
     @property
@@ -155,20 +166,26 @@ class RenderStaticDocumentController(RenderController):
         """Determine headers to serve for https requests."""
         return mimetypes.guess_type(self.serving_path)[0]
 
-    def render(self):
+    def render(self, jinja_env=None):
         """Read the static file."""
+        timer = self.pod.profile.timer(
+            'RenderStaticDocumentController.render', label=self.serving_path,
+            meta={'path': self.serving_path}).start_timer()
         pod_path = None
         if 'pod_path' in self.route_info.meta:
             pod_path = self.route_info.meta['pod_path']
         else:
             pod_path = self.serving_path[
                 len(self.route_info.meta['path_format']):]
-            pod_path = os.path.join(self.route_info.meta[
-                                    'source_format'], pod_path)
+            pod_path = os.path.join(
+                self.route_info.meta['source_format'], pod_path)
 
         if not self.pod.file_exists(pod_path):
             text = '{} was not found in static files.'
             raise errors.RouteNotFoundError(text.format(self.serving_path))
 
-        return rendered_document.RenderedDocument(
+        rendered_doc = rendered_document.RenderedDocument(
             self.serving_path, self.pod.read_file(pod_path))
+        # rendered_doc.render_timer = timer.stop_timer()
+        timer.stop_timer()
+        return rendered_doc

@@ -15,11 +15,10 @@ class Timer(object):
         self.end = None
 
     def __enter__(self):
-        self.start = self._time.time()
-        return self
+        return self.start_timer()
 
     def __exit__(self, *args):
-        self.end = self._time.time()
+        self.stop_timer()
 
     def __repr__(self):
         if self.label != self.key:
@@ -41,6 +40,16 @@ class Timer(object):
             'end': self.end,
         }
 
+    def start_timer(self):
+        """Starts the timer."""
+        self.start = self._time.time()
+        return self
+
+    def stop_timer(self):
+        """Stops the timer."""
+        self.end = self._time.time()
+        return self
+
 
 class Profile(object):
     """Keeps track of all of the timer usage."""
@@ -51,6 +60,13 @@ class Profile(object):
     def __iter__(self):
         for timer in self.timers:
             yield timer
+
+    def add_timer(self, timer):
+        """Adds a new timer."""
+        if timer is None:
+            return
+        self.timers.append(timer)
+        return timer
 
     def timer(self, *args, **kwargs):
         """Create a new timer."""

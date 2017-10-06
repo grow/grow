@@ -21,9 +21,9 @@ class Error(Exception):
 class RenderError(Error):
     """Errors that occured during the rendering."""
 
-    def __init__(self, message, exc, err_tb):
+    def __init__(self, message, err, err_tb):
         super(RenderError, self).__init__(message)
-        self.exc = exc
+        self.err = err
         self.err_tb = err_tb
 
 
@@ -37,21 +37,23 @@ class RenderErrors(Error):
 
 class Renderer(object):
     """Handles the rendering and threading of the controllers."""
-    POOL_SIZE = 10  # Thread pool size for rendering.
+    POOL_SIZE = 2  # Thread pool size for rendering.
 
     # pylint: disable=too-many-locals
     @staticmethod
     def rendered_docs(pod, routes):
         """Generate the rendered documents for the given routes."""
         cont_generator = Renderer.controller_generator(pod, routes)
+        # pool = None
 
         # Preload the render_pool before attempting to use.
         _ = pod.render_pool
 
-        def render_func(controller):
+        def render_func(args):
             """Render the content."""
+            controller = args['controller']
             try:
-                return controller.render()
+                return controller.render(jinja_env=args['jinja_env'])
             # pylint: disable=broad-except
             except Exception as err:
                 _, _, err_tb = sys.exc_info()
@@ -69,21 +71,41 @@ class Renderer(object):
         rendered_docs = []
         if not pool:
             for controller in cont_generator:
-                rendered_docs.append(render_func(controller))
+                rendered_docs.append(render_func({
+                    'controller': controller,
+                    'jinja_env': pod.render_pool.get_jinja_env(
+                        controller.doc.locale),
+                }))
                 progress.update(progress.value + 1)
             progress.finish()
             return rendered_docs
 
+        pod.render_pool.pool_size = Renderer.POOL_SIZE
+
         thread_pool = pool.ThreadPool(Renderer.POOL_SIZE)
-        results = thread_pool.imap_unordered(render_func, cont_generator)
+        threaded_args = []
+        for controller in cont_generator:
+            threaded_args.append({
+                'controller': controller,
+                'jinja_env': pod.render_pool.get_jinja_env(
+                    controller.doc.locale),
+            })
+        results = thread_pool.imap_unordered(render_func, threaded_args)
 
         render_errors = []
+        rendered_paths = []
+        import logging
 
         for result in results:
             if isinstance(result, Exception):
                 render_errors.append(result)
             else:
+                if result.path in rendered_paths:
+                    logging.warn('Path already rendered: {}'.format(result.path))
+                else:
+                    rendered_paths.append(result.path)
                 rendered_docs.append(result)
+                pod.profile.add_timer(result.render_timer)
             progress.update(progress.value + 1)
         thread_pool.close()
         thread_pool.join()
@@ -91,7 +113,10 @@ class Renderer(object):
 
         if render_errors:
             for error in render_errors:
+                print error.message
+                print error.err.message
                 traceback.print_tb(error.err_tb)
+                print ''
             text = 'There were {} errors during rendering.'
             raise RenderErrors(text.format(len(render_errors)), render_errors)
 
