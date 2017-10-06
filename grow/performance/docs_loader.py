@@ -26,7 +26,7 @@ class DocsLoader(object):
         def load_func(doc):
             """Force the doc to read the source file."""
             # pylint: disable=pointless-statement
-            doc.hidden  # Using doc fields forces file read.
+            doc.has_serving_path()  # Using doc fields forces file read.
 
         with pod.profile.timer('DocsLoader.load'):
             if pool is None or len(docs) < 10:

@@ -43,7 +43,9 @@ class Router(object):
 
             # Force preload the docs before expanding out to all locales.
             docs_loader.DocsLoader.load(docs)
+            docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
             docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
+            docs_loader.DocsLoader.load(docs)
 
             self.add_docs(docs)
 
@@ -130,15 +132,10 @@ class Router(object):
         """Add docs to the router."""
 
         with self.pod.profile.timer('Router.add_docs'):
-            # Force preload the docs since retrieving the doc locale and path require
-            # the doc to be loaded. Attempts to thread this process.
-            docs_loader.DocsLoader.load(docs)
-            docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
-
-            with self.pod.profile.timer('Router.add_docs.loop'):
-                for doc in docs:
-                    if doc.hidden or not doc.has_serving_path():
-                        continue
+            for doc in docs:
+                if doc.hidden or not doc.has_serving_path():
+                    continue
+                with self.pod.profile.timer('Router.add_docs.add'):
                     self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
                         'pod_path': doc.pod_path,
                         'locale': str(doc.locale),

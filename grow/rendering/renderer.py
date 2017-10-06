@@ -44,7 +44,10 @@ class Renderer(object):
     def rendered_docs(pod, routes):
         """Generate the rendered documents for the given routes."""
         cont_generator = Renderer.controller_generator(pod, routes)
-        # pool = None
+
+        # Turn off the pooling until it becomes faster than not pooling.
+        # pylint: disable=redefined-outer-name
+        pool = None
 
         # Preload the render_pool before attempting to use.
         _ = pod.render_pool
