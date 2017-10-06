@@ -1,6 +1,5 @@
 """Threaded loader that forces a list of docs to be loaded from filesystem."""
 
-import logging
 from grow.common import utils as common_utils
 
 if common_utils.is_appengine():
@@ -36,6 +35,7 @@ class DocsLoader(object):
                 return
             thread_pool = pool.ThreadPool(cls.POOL_SIZE)
             results = thread_pool.imap_unordered(load_func, docs)
+            # Loop results to make sure that the threads are all processed.
             for _ in results:
                 pass
             thread_pool.close()

@@ -30,7 +30,7 @@ class Router(object):
 
         self.add_all_docs()
         self.add_all_static(concrete=concrete)
-        self.add_all_other()
+        # self.add_all_other()
 
     def add_all_docs(self):
         """Add all pod docs to the router."""

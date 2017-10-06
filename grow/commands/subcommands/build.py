@@ -8,6 +8,7 @@ from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
 from grow.pods import pods
 from grow.pods import storage
+from grow.rendering import renderer
 
 
 # pylint: disable=too-many-locals
@@ -54,11 +55,10 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 pod.router.add_all()
                 routes = pod.router.routes
                 stats_obj = stats.Stats(pod, paths=routes.paths)
-                content_generator = destination.content_generator(
-                    pod, routes)
+                rendered_docs = renderer.Renderer.rendered_docs(pod, routes)
                 destination.deploy(
-                    content_generator, stats=stats_obj, repo=repo, confirm=False,
-                    test=False, is_partial=bool(pod_paths))
+                    rendered_docs, stats=stats_obj, repo=repo,
+                    confirm=False, test=False, is_partial=bool(pod_paths))
             else:
                 paths, _ = pod.determine_paths_to_build(pod_paths=pod_paths)
                 stats_obj = stats.Stats(pod, paths=paths)
