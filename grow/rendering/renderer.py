@@ -8,9 +8,8 @@ from grow.common import utils
 
 if utils.is_appengine():
     # pylint: disable=invalid-name
-    pool = None
+    ThreadPool = None
 else:
-    from multiprocessing import pool
     from multiprocessing.dummy import Pool as ThreadPool
 
 
@@ -38,7 +37,7 @@ class RenderErrors(Error):
 
 class Renderer(object):
     """Handles the rendering and threading of the controllers."""
-    POOL_SIZE = 2  # Thread pool size for rendering.
+    POOL_SIZE = 20  # Thread pool size for rendering.
 
     # pylint: disable=too-many-locals
     @staticmethod
@@ -47,8 +46,8 @@ class Renderer(object):
         cont_generator = Renderer.controller_generator(pod, routes)
 
         # Turn off the pooling until it becomes faster than not pooling.
-        # pylint: disable=redefined-outer-name
-        pool = None
+        # pylint: disable=redefined-outer-name, invalid-name
+        ThreadPool = None
 
         # Preload the render_pool before attempting to use.
         _ = pod.render_pool
@@ -73,7 +72,7 @@ class Renderer(object):
         progress.start()
 
         rendered_docs = []
-        if not pool:
+        if not ThreadPool:
             for controller in cont_generator:
                 rendered_docs.append(render_func({
                     'controller': controller,

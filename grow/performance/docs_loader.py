@@ -4,16 +4,18 @@ from grow.common import utils as common_utils
 
 if common_utils.is_appengine():
     # pylint: disable=invalid-name
-    pool = None
+    ThreadPool = None
 else:
-    from multiprocessing import pool
+    from multiprocessing.dummy import Pool as ThreadPool
 
 
 # pylint: disable=too-few-public-methods
 class DocsLoader(object):
     """Loader that threads the docs' file system reads."""
 
-    POOL_SIZE = 5
+    MAX_POOL_SIZE = 100
+    MIN_POOL_COUNT = 50
+    POOL_RATIO = 0.02
 
     @classmethod
     def load(cls, docs):
@@ -29,11 +31,13 @@ class DocsLoader(object):
             doc.has_serving_path()  # Using doc fields forces file read.
 
         with pod.profile.timer('DocsLoader.load'):
-            if pool is None or len(docs) < 10:
+            if ThreadPool is None or len(docs) < cls.MIN_POOL_COUNT:
                 for doc in docs:
                     load_func(doc)
                 return
-            thread_pool = pool.ThreadPool(cls.POOL_SIZE)
+            pool_size = min(cls.MAX_POOL_SIZE, len(docs) * cls.POOL_RATIO)
+            pool_size = int(round(pool_size))
+            thread_pool = ThreadPool(pool_size)
             results = thread_pool.imap_unordered(load_func, docs)
             # Loop results to make sure that the threads are all processed.
             for _ in results:
