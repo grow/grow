@@ -85,6 +85,7 @@ class Renderer(object):
 
         pod.render_pool.pool_size = Renderer.POOL_SIZE
 
+        # pylint: disable=not-callable
         thread_pool = ThreadPool(Renderer.POOL_SIZE)
         threaded_args = []
         for controller in cont_generator:
