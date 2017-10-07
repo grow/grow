@@ -11,6 +11,7 @@ if utils.is_appengine():
     pool = None
 else:
     from multiprocessing import pool
+    from multiprocessing.dummy import Pool as ThreadPool
 
 
 class Error(Exception):
@@ -85,7 +86,7 @@ class Renderer(object):
 
         pod.render_pool.pool_size = Renderer.POOL_SIZE
 
-        thread_pool = pool.ThreadPool(Renderer.POOL_SIZE)
+        thread_pool = ThreadPool(Renderer.POOL_SIZE)
         threaded_args = []
         for controller in cont_generator:
             threaded_args.append({

@@ -13,7 +13,7 @@ class RendererTestCase(unittest.TestCase):
     def setUp(self):
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
-        self.render = renderer.Renderer(self.pod)
+        self.render = renderer.Renderer()
 
     def test_renderer(self):
         """?"""
