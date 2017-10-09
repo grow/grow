@@ -460,5 +460,160 @@ class RoutesTestCase(unittest.TestCase):
         })
 
 
+class RoutesSimpleTestCase(unittest.TestCase):
+    """Test the routes."""
+
+    def _add(self, path, value=None, custom_routes=None):
+        routes = custom_routes if custom_routes is not None else self.routes
+        routes.add(path, value)
+        return {
+            'path': path,
+            'value': value,
+        }
+
+    def setUp(self):
+        self.routes = grow_routes.RoutesSimple()
+
+    def test_routes_add(self):
+        """Tests that routes can be added."""
+
+        doc = self._add('/', '/content/pages/home')
+        result = self.routes.match('/')
+        self.assertEquals(doc['value'], result.value)
+        doc_foo_bar = self._add('/foo/bar', '/content/pages/foo')
+        result = self.routes.match('/foo/bar')
+        self.assertEquals(doc_foo_bar['value'], result.value)
+
+    def test_routes_add_conflict(self):
+        """Tests that routes can be added but not conflicting."""
+
+        doc = self._add('/', '/content/pages/home')
+        result = self.routes.match('/')
+        self.assertEquals(doc['value'], result.value)
+        with self.assertRaises(grow_routes.PathConflictError):
+            self._add('/', '/content/pages/bar')
+
+    def test_routes_add_operation(self):
+        """Tests that routes can be added together."""
+
+        doc = self._add('/', '/content/pages/home')
+        result = self.routes.match('/')
+        self.assertEquals(doc['value'], result.value)
+        doc_foo_bar = self._add('/foo/bar', '/content/pages/foo')
+        result = self.routes.match('/foo/bar')
+        self.assertEquals(doc_foo_bar['value'], result.value)
+
+        new_routes = grow_routes.RoutesSimple()
+        doc_bar = self._add('/bar', '/content/pages/bar',
+                            custom_routes=new_routes)
+        result = new_routes.match('/bar')
+        self.assertEquals(doc_bar['value'], result.value)
+
+        added_routes = self.routes + new_routes
+
+        # Verify that the new routes has both the other route paths.
+        result = added_routes.match('/')
+        self.assertEquals(doc['value'], result.value)
+        result = added_routes.match('/foo/bar')
+        self.assertEquals(doc_foo_bar['value'], result.value)
+        result = added_routes.match('/bar')
+        self.assertEquals(doc_bar['value'], result.value)
+
+        # Verify that the originals were not changed.
+        result = self.routes.match('/')
+        self.assertEquals(doc['value'], result.value)
+        result = self.routes.match('/bar')
+        self.assertEquals(None, result)
+        result = self.routes.match('/foo/bar')
+        self.assertEquals(doc_foo_bar['value'], result.value)
+        result = new_routes.match('/bar')
+        self.assertEquals(doc_bar['value'], result.value)
+        result = new_routes.match('/foo/bar')
+        self.assertEquals(None, result)
+
+    def test_routes_update_operation(self):
+        """Tests that routes can be updated."""
+
+        doc = self._add('/', '/content/pages/home')
+        result = self.routes.match('/')
+        self.assertEquals(doc['value'], result.value)
+        doc_foo_bar = self._add('/foo/bar', '/content/pages/foo/bar')
+        result = self.routes.match('/foo/bar')
+        self.assertEquals(doc_foo_bar['value'], result.value)
+
+        new_routes = grow_routes.RoutesSimple()
+        doc_bar = self._add(
+            '/bar', '/content/pages/bar', custom_routes=new_routes)
+        result = new_routes.match('/bar')
+        self.assertEquals(doc_bar['value'], result.value)
+
+        self.routes.update(new_routes)
+
+        # Verify that the original routes has both the route paths.
+        result = self.routes.match('/')
+        self.assertEquals(doc['value'], result.value)
+        result = self.routes.match('/foo/bar')
+        self.assertEquals(doc_foo_bar['value'], result.value)
+        result = self.routes.match('/bar')
+        self.assertEquals(doc_bar['value'], result.value)
+
+        # Verify that the new routes were not changed.
+        result = self.routes.match('/foo/bar')
+        self.assertEquals(doc_foo_bar['value'], result.value)
+        result = new_routes.match('/bar')
+        self.assertEquals(doc_bar['value'], result.value)
+        result = new_routes.match('/foo/bar')
+        self.assertEquals(None, result)
+
+    def test_nodes(self):
+        """Tests that routes' nodes can be retrieved."""
+
+        # Add nodes in random order.
+        self._add('/foo')
+        self._add('/bax/coo/lib')
+        self._add('/bax/bar')
+        self._add('/bax/pan')
+        self._add('/bax/coo/vin')
+        self._add('/tem/pon')
+
+        # Expect the yielded nodes to be in order.
+        expected = [
+            '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
+            '/foo', '/tem/pon',
+        ]
+        actual = [path for path, _ in self.routes.nodes]
+        self.assertEquals(expected, actual)
+
+    def test_paths(self):
+        """Tests that routes' paths can be retrieved."""
+
+        # Add nodes in random order.
+        self._add('/foo')
+        self._add('/bax/coo/lib')
+        self._add('/bax/bar')
+        self._add('/bax/pan')
+        self._add('/bax/coo/vin')
+        self._add('/tem/pon')
+
+        # Expect the yielded nodes to be in order.
+        expected = [
+            '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
+            '/foo', '/tem/pon',
+        ]
+        actual = list(self.routes.paths)
+        self.assertEquals(expected, actual)
+
+    def test_remove(self):
+        """Tests that paths can be removed."""
+
+        doc = self._add('/foo', '/content/foo')
+        result = self.routes.match('/foo')
+        self.assertEquals(doc['value'], result.value)
+        result = self.routes.remove('/foo')
+        self.assertEquals(doc['value'], result.value)
+        result = self.routes.match('/foo')
+        self.assertEquals(None, result)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -42,10 +42,7 @@ class Routes(object):
         self._root = RouteTrie()
 
     def __len__(self):
-        i = 0
-        for _ in self.nodes:
-            i = i + 1
-        return i
+        return len(self._root)
 
     @property
     def nodes(self):
@@ -91,11 +88,61 @@ class Routes(object):
         return routes
 
 
+class RoutesSimple(Routes):
+    """Routes container for mapping simple paths to values."""
+
+    def __init__(self):
+        super(RoutesSimple, self).__init__()
+        self._root = RoutesDict()
+
+
+class RoutesDict(object):
+    """Dictionary based routing tree for faster creation."""
+
+    def __init__(self):
+        self._root = {}
+
+    def __len__(self):
+        return len(self._root)
+
+    @property
+    def nodes(self):
+        """Generator for returning all nodes in the trie."""
+        for path in sorted(self._root):
+            yield path, self._root[path]
+
+    def add(self, path, value):
+        """Add a new doc to the route trie."""
+        if path in self._root:
+            raise PathConflictError(path, value)
+        self._root[path] = value
+
+    def match(self, path):
+        """Matches a path against the known routes looking for a match."""
+        value = self._root.get(path, None)
+        if value is None:
+            return None
+        return MatchResult(path, value)
+
+    def remove(self, path):
+        """Removes a path from the trie."""
+        value = self._root.pop(path, None)
+        if value is None:
+            return None
+        return MatchResult(path, value)
+
+
 class RouteTrie(object):
     """A trie for routes."""
 
     def __init__(self):
         self._root = RouteNode()
+
+    def __len__(self):
+        i = 0
+        for _ in self.nodes:
+            i = i + 1
+        return i
 
     @staticmethod
     def clean_path(path):
