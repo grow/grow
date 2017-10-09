@@ -51,8 +51,16 @@ class DocsLoader(object):
         with pod.profile.timer('DocsLoader.expand_locales'):
             expanded_docs = []
             for doc in docs:
+                locales = doc.locales
+                if not locales:
+                    expanded_docs.append(pod.get_doc(doc.pod_path, None))
+                    continue
                 for locale in doc.locales:
-                    expanded_docs.append(pod.get_doc(doc.pod_path, str(locale)))
+                    expanded_docs.append(
+                        pod.get_doc(doc.pod_path, str(locale)))
+                if doc.default_locale not in locales:
+                    expanded_docs.append(
+                        pod.get_doc(doc.pod_path, doc.default_locale))
             return expanded_docs
 
     @staticmethod
