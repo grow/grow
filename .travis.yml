@@ -21,8 +21,9 @@ before_script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip2 install -U virtualenv; fi
 - node --version
 - pip2 install -U pip
-- virtualenv env --distribute
-- . env/bin/activate
+# Linux is already in a virtualenv.
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then virtualenv env --distribute; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then . env/bin/activate; fi
 - pip2 install -r requirements-dev.txt
 - pip2 install coveralls
 - export GAE_ZIP=google_appengine_1.9.36.zip
