@@ -52,6 +52,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
             destination.pod = pod
             repo = utils.get_git_repo(pod.root)
             if use_reroute:
+                pod.router.use_simple()
                 pod.router.add_all()
                 routes = pod.router.routes
                 stats_obj = stats.Stats(pod, paths=routes.paths)

@@ -16,13 +16,11 @@ class Router(object):
 
     def __init__(self, pod):
         self.pod = pod
-        self._routes = None
+        self._routes = grow_routes.Routes()
 
     @property
     def routes(self):
         """Routes reflective of the docs."""
-        if not self._routes:
-            self._routes = grow_routes.Routes()
         return self._routes
 
     def add_all(self, concrete=True):
@@ -34,7 +32,6 @@ class Router(object):
 
     def add_all_docs(self):
         """Add all pod docs to the router."""
-
         with self.pod.profile.timer('Router.add_all_docs'):
             docs = []
             for collection in self.pod.list_collections():
@@ -130,22 +127,27 @@ class Router(object):
 
     def add_docs(self, docs):
         """Add docs to the router."""
-
         with self.pod.profile.timer('Router.add_docs'):
             for doc in docs:
                 if doc.hidden or not doc.has_serving_path():
                     continue
-                with self.pod.profile.timer('Router.add_docs.add'):
-                    self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
-                        'pod_path': doc.pod_path,
-                        'locale': str(doc.locale),
-                    }))
+                self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
+                    'pod_path': doc.pod_path,
+                    'locale': str(doc.locale),
+                }))
 
     def get_render_controller(self, path, route_info):
         """Find the correct render controller for the given route info."""
         return render_controller.RenderController.from_route_info(
             self.pod, path, route_info)
 
+    def use_simple(self):
+        """Switches the routes to be a simple routes object."""
+        previous_routes = self._routes
+        self._routes = grow_routes.RoutesSimple()
+        if previous_routes is not None:
+            for path, value in previous_routes.nodes:
+                self._routes.add(path, value)
 
 # pylint: disable=too-few-public-methods
 class RouteInfo(object):

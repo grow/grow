@@ -49,82 +49,75 @@ class Renderer(object):
         # pylint: disable=redefined-outer-name, invalid-name
         ThreadPool = None
 
-        # Preload the render_pool before attempting to use.
-        _ = pod.render_pool
+        with pod.profile.timer('renderer.Renderer.render_docs'):
+            # Preload the render_pool before attempting to use.
+            _ = pod.render_pool
 
-        def render_func(args):
-            """Render the content."""
-            controller = args['controller']
-            try:
-                return controller.render(jinja_env=args['jinja_env'])
-            # pylint: disable=broad-except
-            except Exception as err:
-                _, _, err_tb = sys.exc_info()
-                return RenderError(
-                    "Error rendering {}".format(controller.serving_path),
-                    err, err_tb)
+            def render_func(args):
+                """Render the content."""
+                controller = args['controller']
+                try:
+                    return controller.render(jinja_env=args['jinja_env'])
+                # pylint: disable=broad-except
+                except Exception as err:
+                    _, _, err_tb = sys.exc_info()
+                    return RenderError(
+                        "Error rendering {}".format(controller.serving_path),
+                        err, err_tb)
 
-        routes_len = len(routes)
-        text = 'Building: %(value)d/{} (in %(time_elapsed).9s)'
-        widgets = [progressbar.FormatLabel(text.format(routes_len))]
-        progress = progressbar_non.create_progressbar(
-            "Building pod...", widgets=widgets, max_value=routes_len)
-        progress.start()
+            routes_len = len(routes)
+            text = 'Building: %(value)d/{} (in %(time_elapsed).9s)'
+            widgets = [progressbar.FormatLabel(text.format(routes_len))]
+            progress = progressbar_non.create_progressbar(
+                "Building pod...", widgets=widgets, max_value=routes_len)
+            progress.start()
 
-        rendered_docs = []
-        if not ThreadPool:
+            rendered_docs = []
+            if not ThreadPool:
+                for controller in cont_generator:
+                    rendered_docs.append(render_func({
+                        'controller': controller,
+                        'jinja_env': pod.render_pool.get_jinja_env(
+                            controller.doc.locale),
+                    }))
+                    progress.update(progress.value + 1)
+                progress.finish()
+                return rendered_docs
+
+            pod.render_pool.pool_size = Renderer.POOL_SIZE
+
+            # pylint: disable=not-callable
+            thread_pool = ThreadPool(Renderer.POOL_SIZE)
+            threaded_args = []
             for controller in cont_generator:
-                rendered_docs.append(render_func({
+                threaded_args.append({
                     'controller': controller,
                     'jinja_env': pod.render_pool.get_jinja_env(
                         controller.doc.locale),
-                }))
-                progress.update(progress.value + 1)
-            progress.finish()
-            return rendered_docs
+                })
+            results = thread_pool.imap_unordered(render_func, threaded_args)
 
-        pod.render_pool.pool_size = Renderer.POOL_SIZE
-
-        # pylint: disable=not-callable
-        thread_pool = ThreadPool(Renderer.POOL_SIZE)
-        threaded_args = []
-        for controller in cont_generator:
-            threaded_args.append({
-                'controller': controller,
-                'jinja_env': pod.render_pool.get_jinja_env(
-                    controller.doc.locale),
-            })
-        results = thread_pool.imap_unordered(render_func, threaded_args)
-
-        render_errors = []
-        rendered_paths = []
-        import logging
-
-        for result in results:
-            if isinstance(result, Exception):
-                render_errors.append(result)
-            else:
-                if result.path in rendered_paths:
-                    logging.warn('Path already rendered: {}'.format(result.path))
+            render_errors = []
+            for result in results:
+                if isinstance(result, Exception):
+                    render_errors.append(result)
                 else:
-                    rendered_paths.append(result.path)
-                rendered_docs.append(result)
-                pod.profile.add_timer(result.render_timer)
-            progress.update(progress.value + 1)
-        thread_pool.close()
-        thread_pool.join()
-        progress.finish()
+                    pod.profile.add_timer(result.render_timer)
+                progress.update(progress.value + 1)
+            thread_pool.close()
+            thread_pool.join()
+            progress.finish()
 
-        if render_errors:
-            for error in render_errors:
-                print error.message
-                print error.err.message
-                traceback.print_tb(error.err_tb)
-                print ''
-            text = 'There were {} errors during rendering.'
-            raise RenderErrors(text.format(len(render_errors)), render_errors)
-
-        return rendered_docs
+            if render_errors:
+                for error in render_errors:
+                    print error.message
+                    print error.err.message
+                    traceback.print_tb(error.err_tb)
+                    print ''
+                text = 'There were {} errors during rendering.'
+                raise RenderErrors(text.format(
+                    len(render_errors)), render_errors)
+            return rendered_docs
 
     @staticmethod
     def controller_generator(pod, routes):
