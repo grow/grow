@@ -41,8 +41,6 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             - alpha
             - beta
             - charlie
-            ---
-            foo: bar
             """).lstrip()
         with self.assertRaises(document_front_matter.BadFormatError):
             document_front_matter.DocumentFrontMatter(

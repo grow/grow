@@ -82,8 +82,8 @@ class DocumentFrontMatter(object):
             new_data = self._load_yaml(self._raw_front_matter)
             if not isinstance(new_data, dict):
                 raise BadFormatError(
-                    'Front matter needs to be a dictionary, found {}'.format(
-                        type(new_data)))
+                    'Front matter needs to be a dictionary, found <{}>'.format(
+                        type(new_data).__name__))
             _update_deep(self.data, new_data)
 
     def _load_yaml(self, raw_yaml):
