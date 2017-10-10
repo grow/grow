@@ -117,7 +117,7 @@ def check_for_sdk_updates(auto_update_prompt=False):
                 colorize(theirs, ansi=82)))
         else:
             choice = raw_input(
-                'Auto update now? [Y]es [n]o [a]lways: ').strip().lower()
+                'Auto update now? [Y]es / [n]o / [a]lways: ').strip().lower()
             if choice not in ('y', 'a', ''):
                 return
             if choice == 'a':
