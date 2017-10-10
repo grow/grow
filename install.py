@@ -91,14 +91,27 @@ def get_existing_aliases():
     return files_to_alias
 
 
+def get_release_for_platform(releases, platform):
+    """Find the latest release available for the platform."""
+    for release in releases:
+        for each_asset in release['assets']:
+            if platform in each_asset.get('name', '').lower():
+                return release
+    return None
+
+
 def install(rc_path=None, bin_path=None, force=False):
     resp = json.loads(urllib.urlopen(RELEASES_API).read())
     try:
-        release = resp[0]
+        release = get_release_for_platform(resp, PLATFORM)
     except KeyError:
         print 'There was a problem accessing the GitHub Releases API.'
         if 'message' in resp:
             print resp['message']
+        sys.exit(-1)
+
+    if release is None:
+        print 'Not available for platform: {}.'.format(platform.system())
         sys.exit(-1)
 
     version = release['tag_name']
@@ -107,10 +120,6 @@ def install(rc_path=None, bin_path=None, force=False):
         if PLATFORM in each_asset.get('name', '').lower():
             asset = each_asset
             break
-    if asset is None:
-        print 'Release not yet available for platform: {}.'.format(platform.system())
-        print 'Please try again in a few minutes.'
-        sys.exit(-1)
 
     download_url = DOWNLOAD_URL_FORMAT.format(
         version=version, name=asset['name'])
