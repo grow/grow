@@ -36,6 +36,16 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             document_front_matter.DocumentFrontMatter(
                 doc, raw_front_matter=content)
 
+        doc = self.pod.get_doc('/content/pages/html.html')
+        content = textwrap.dedent("""
+            - alpha
+            - beta
+            - charlie
+            """).lstrip()
+        with self.assertRaises(document_front_matter.BadFormatError):
+            document_front_matter.DocumentFrontMatter(
+                doc, raw_front_matter=content)
+
     def test_empty_raw_front_matter(self):
         """Test for empty or missing front matter."""
         doc = self.pod.get_doc('/content/pages/html.html')
