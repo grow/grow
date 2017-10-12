@@ -315,9 +315,12 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 if (path.endswith(('.yaml', '.yml'))
                         and self.config.preserve and self.pod.file_exists(path)):
                     existing_data = self.pod.read_yaml(path)
-                    gid_to_data[gid] = utils.format_existing_data(
-                        old_data=existing_data, new_data=gid_to_data[gid],
-                        preserve=self.config.preserve, key_to_update=key_to_update)
+                    # Skip trying to update lists, because there would be no
+                    # expectation of merging old and new list data.
+                    if isinstance(existing_data, dict):
+                        gid_to_data[gid] = utils.format_existing_data(
+                            old_data=existing_data, new_data=gid_to_data[gid],
+                            preserve=self.config.preserve, key_to_update=key_to_update)
 
                 content = GoogleSheetsPreprocessor.serialize_content(
                     formatted_data=gid_to_data[gid], path=path,
