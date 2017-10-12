@@ -75,10 +75,11 @@ class Renderer(object):
             rendered_docs = []
             if not ThreadPool:
                 for controller in cont_generator:
+                    jinja_env = pod.render_pool.get_jinja_env(
+                        controller.doc.locale) if controller.use_jinja else None
                     rendered_docs.append(render_func({
                         'controller': controller,
-                        'jinja_env': pod.render_pool.get_jinja_env(
-                            controller.doc.locale),
+                        'jinja_env': jinja_env,
                     }))
                     progress.update(progress.value + 1)
                 progress.finish()
@@ -90,10 +91,11 @@ class Renderer(object):
             thread_pool = ThreadPool(Renderer.POOL_SIZE)
             threaded_args = []
             for controller in cont_generator:
+                jinja_env = pod.render_pool.get_jinja_env(
+                    controller.doc.locale) if controller.use_jinja else None
                 threaded_args.append({
                     'controller': controller,
-                    'jinja_env': pod.render_pool.get_jinja_env(
-                        controller.doc.locale),
+                    'jinja_env': jinja_env,
                 })
             results = thread_pool.imap_unordered(render_func, threaded_args)
 

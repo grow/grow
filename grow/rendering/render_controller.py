@@ -27,6 +27,7 @@ class RenderController(object):
         self.serving_path = serving_path
         self.route_info = route_info
         self.render_timer = None
+        self.use_jinja = False
         self.is_threaded = is_threaded
 
     @staticmethod
@@ -66,6 +67,7 @@ class RenderDocumentController(RenderController):
         super(RenderDocumentController, self).__init__(
             pod, serving_path, route_info, is_threaded=is_threaded)
         self._doc = None
+        self.use_jinja = True
 
     @property
     def doc(self):
