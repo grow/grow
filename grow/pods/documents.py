@@ -303,7 +303,7 @@ class Document(object):
         """Path format for current document."""
         if (self.locale
                 and self.locale != self.default_locale
-                and self.path_format_localized):
+                and self.path_format_localized is not None):
             return self.path_format_localized
         return self.path_format_base
 
