@@ -90,7 +90,7 @@ class Routes(object):
         duplicate_paths = collections.defaultdict(list)
 
         # Content documents.
-        with self.pod.profile.timer('routes._build_rules_from_docs'):
+        with self.pod.profile.timer('Routes._build_rules_from_docs'):
             for doc in self._clean_doc_locales(docs):
                 rule, serving_path = self._create_rule_for_doc(doc)
                 if not rule:
@@ -110,7 +110,7 @@ class Routes(object):
 
     def _build_static_routing_map_and_return_rules(self):
         with self.pod.profile.timer(
-                'routes._build_static_routing_map_and_return_rules'):
+                'Routes._build_static_routing_map_and_return_rules'):
             rules = self.list_static_routes()
             self._static_routing_map = routing.Map(
                 rules, converters=Routes.converters)
@@ -181,7 +181,7 @@ class Routes(object):
         return routing.Rule(serving_path, endpoint=controller), serving_path
 
     def _recreate_routing_map(self):
-        with self.pod.profile.timer('routes._recreate_routing_map'):
+        with self.pod.profile.timer('Routes._recreate_routing_map'):
             rules = [rule.empty() for rule in self._routing_rules]
             self._routing_map = routing.Map(
                 rules, converters=Routes.converters)

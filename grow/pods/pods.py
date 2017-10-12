@@ -137,7 +137,7 @@ class Pod(object):
         return pod_path
 
     def _parse_object_cache_file(self):
-        with self.profile.timer('pod._parse_object_cache_file'):
+        with self.profile.timer('Pod._parse_object_cache_file'):
             object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
 
             if not self.file_exists(object_cache_file_name):
@@ -150,7 +150,7 @@ class Pod(object):
                     'Error parsing: {}'.format(path))
 
     def _parse_dep_cache_file(self):
-        with self.profile.timer('pod._parse_dep_cache_file'):
+        with self.profile.timer('Pod._parse_dep_cache_file'):
             podcache_file_name = '/{}'.format(self.FILE_DEP_CACHE)
 
             # TODO Remove deprecated cachefile support.
@@ -784,12 +784,12 @@ class Pod(object):
                 time.sleep(ratelimit)
 
     def read_csv(self, path, locale=utils.SENTINEL):
-        with self.profile.timer('pod.read_csv', label=path, meta={'path': path}):
+        with self.profile.timer('Pod.read_csv', label=path, meta={'path': path}):
             return utils.get_rows_from_csv(pod=self, path=path, locale=locale)
 
     def read_file(self, pod_path):
         path = self._normalize_path(pod_path)
-        with self.profile.timer('pod.read_file', label=path, meta={'path': path}):
+        with self.profile.timer('Pod.read_file', label=path, meta={'path': path}):
             return self.storage.read(path)
 
     def read_json(self, path):
@@ -797,7 +797,7 @@ class Pod(object):
         return json.load(fp)
 
     def read_yaml(self, path, locale=None):
-        with self.profile.timer('pod.read_yaml', label=path, meta={'path': path}):
+        with self.profile.timer('Pod.read_yaml', label=path, meta={'path': path}):
             fields = utils.parse_yaml(self.read_file(path), pod=self)
             try:
                 return document_fields.DocumentFields.untag(
@@ -829,9 +829,9 @@ class Pod(object):
                 if append_slashes and output_path.endswith('/') and suffix:
                     output_path += suffix
             try:
-                key = 'pod.render_paths.render'
+                key = 'Pod.render_paths.render'
                 if isinstance(controller, grow_static.StaticController):
-                    key = 'pod.render_paths.render.static'
+                    key = 'Pod.render_paths.render.static'
 
                 with self.profile.timer(key, label=output_path, meta={'path': output_path}):
                     yield rendered_document.RenderedDocument(
@@ -861,13 +861,13 @@ class Pod(object):
 
     def write_file(self, pod_path, content):
         with self.profile.timer(
-                'pod.write_file', label=pod_path, meta={'path': pod_path}):
+                'Pod.write_file', label=pod_path, meta={'path': pod_path}):
             path = self._normalize_path(pod_path)
             self.storage.write(path, content)
 
     def write_yaml(self, path, content):
         with self.profile.timer(
-                'pod.write_yaml', label=path, meta={'path': path}):
+                'Pod.write_yaml', label=path, meta={'path': path}):
             self.podcache.collection_cache.remove_by_path(path)
             self.podcache.document_cache.remove_by_path(path)
             content = utils.dump_yaml(content)
