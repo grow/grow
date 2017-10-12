@@ -47,9 +47,13 @@ def hai(text, *args):
     })
 
 
-def orly(text):
-    resp = raw_input(text)
-    return resp.lower() == 'y'
+def orly(text, default=False):
+    resp = raw_input(text).strip().lower()
+    if resp == 'y':
+        return True
+    elif resp == 'n':
+        return False
+    return default
 
 
 def find_conflicting_aliases(existing_aliases, bin_path):
@@ -151,7 +155,7 @@ def install(rc_path=None, bin_path=None, force=False):
         hai('{blue}==>{/blue} {green}An alias for "grow" will be created in:{/green} {}', rc_path)
 
     if not force:
-        result = orly('Continue? [y/N]: ')
+        result = orly('Continue installation? [Y]es / [n]o: ', default=True)
         if not result:
             hai('Aborted installation.')
             sys.exit(-1)
