@@ -433,6 +433,29 @@ class Document(object):
             logging.error('Error with path format: {}'.format(path_format))
             raise
 
+    @utils.memoize
+    def get_serving_path_base(self):
+        """Get the base (default locale) serving path."""
+        return self.pod.path_format.format_doc(
+            self, self.path_format_base, locale=self.default_locale.alias)
+
+    @utils.memoize
+    def get_serving_path_localized(self):
+        """Get the serving paths for each non-default locale."""
+        return self.pod.path_format.format_doc(
+            self, self.path_format_localized, parameterize=True)
+
+    @utils.memoize
+    def get_serving_paths_localized(self):
+        """Get the serving paths for each non-default locale."""
+        paths = {}
+        for locale in self.locales:
+            if locale == self.default_locale:
+                continue
+            paths[locale] = self.pod.path_format.format_doc(
+                self, self.path_format_localized, locale=locale)
+        return paths
+
     def localize(self, locale):
         return self.collection.get_doc(self.root_pod_path, locale=locale)
 

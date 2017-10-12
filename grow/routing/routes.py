@@ -357,6 +357,4 @@ class MatchResult(object):
     def __init__(self, path, value, params=None):
         self.path = path
         self.value = value
-        if params is None:
-            params = {}
-        self.params = params
+        self.params = params if params is not None else {}

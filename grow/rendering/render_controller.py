@@ -22,24 +22,30 @@ class UnknownKindError(Exception):
 class RenderController(object):
     """Controls how the content is rendered and evaluated."""
 
-    def __init__(self, pod, serving_path, route_info, is_threaded=False):
+    def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
         self.pod = pod
         self.serving_path = serving_path
         self.route_info = route_info
+        self.params = params if params is not None else {}
         self.render_timer = None
         self.use_jinja = False
         self.is_threaded = is_threaded
 
     @staticmethod
-    def from_route_info(pod, serving_path, route_info):
+    def from_route_info(pod, serving_path, route_info, params=None):
         """Create the correct controller based on the route info."""
+        if params is None:
+            params = {}
         kind = route_info.kind
         if kind == 'doc':
-            return RenderDocumentController(pod, serving_path, route_info)
+            return RenderDocumentController(
+                pod, serving_path, route_info, params=params)
         elif kind == 'static':
-            return RenderStaticDocumentController(pod, serving_path, route_info)
+            return RenderStaticDocumentController(
+                pod, serving_path, route_info, params=params)
         elif kind == 'sitemap':
-            return RenderSitemapController(pod, serving_path, route_info)
+            return RenderSitemapController(
+                pod, serving_path, route_info, params=params)
         raise UnknownKindError('Do not have a controller for: {}'.format(kind))
 
     @property
@@ -63,9 +69,9 @@ class RenderController(object):
 class RenderDocumentController(RenderController):
     """Controller for handling rendering for documents."""
 
-    def __init__(self, pod, serving_path, route_info, is_threaded=False):
+    def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
         super(RenderDocumentController, self).__init__(
-            pod, serving_path, route_info, is_threaded=is_threaded)
+            pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self._doc = None
         self.use_jinja = True
 
@@ -74,7 +80,8 @@ class RenderDocumentController(RenderController):
         """Doc for the controller."""
         if not self._doc:
             pod_path = self.route_info.meta['pod_path']
-            locale = self.route_info.meta['locale']
+            locale = self.route_info.meta.get(
+                'locale', self.params.get('locale'))
             self._doc = self.pod.get_doc(pod_path, locale=locale)
         return self._doc
 
@@ -149,9 +156,9 @@ class RenderSitemapController(RenderController):
 class RenderStaticDocumentController(RenderController):
     """Controller for handling rendering for static documents."""
 
-    def __init__(self, pod, serving_path, route_info, is_threaded=False):
+    def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
         super(RenderStaticDocumentController, self).__init__(
-            pod, serving_path, route_info, is_threaded=is_threaded)
+            pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self._static_doc = None
 
     @property

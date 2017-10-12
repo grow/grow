@@ -38,7 +38,9 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
     config = env.EnvConfig(host=host, port=port, name=env.Name.DEV,
                            scheme=scheme, cached=False, dev=True)
     environment = env.Env(config)
-    pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
+    pod = pods.Pod(
+        root, storage=storage.FileStorage, env=environment,
+        use_reroute=use_reroute)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
         pod.set_env(deployment_obj.config.env)
@@ -47,7 +49,7 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
     try:
         manager.start(pod, host=host, port=port, open_browser=browser,
                       debug=debug, preprocess=preprocess,
-                      update_check=update_check, use_reroute=use_reroute)
+                      update_check=update_check)
     except pods.Error as e:
         raise click.ClickException(str(e))
     return pod

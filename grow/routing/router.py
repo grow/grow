@@ -26,11 +26,11 @@ class Router(object):
     def add_all(self, concrete=True):
         """Add all documents and static content."""
 
-        self.add_all_docs()
+        self.add_all_docs(concrete=concrete)
         self.add_all_static(concrete=concrete)
         # self.add_all_other()
 
-    def add_all_docs(self):
+    def add_all_docs(self, concrete=True):
         """Add all pod docs to the router."""
         with self.pod.profile.timer('Router.add_all_docs'):
             docs = []
@@ -41,10 +41,12 @@ class Router(object):
             # Force preload the docs before expanding out to all locales.
             docs_loader.DocsLoader.load(docs)
             docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
-            docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
-            docs_loader.DocsLoader.load(docs)
+            if concrete:
+                # Will need all of the docs, so expand them out and preload.
+                docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
+                docs_loader.DocsLoader.load(docs)
 
-            self.add_docs(docs)
+            self.add_docs(docs, concrete=concrete)
 
     def add_all_other(self):
         """Add all pod docs to the router."""
@@ -125,21 +127,43 @@ class Router(object):
             'locale': str(doc.locale),
         }))
 
-    def add_docs(self, docs):
+    def add_docs(self, docs, concrete=True):
         """Add docs to the router."""
         with self.pod.profile.timer('Router.add_docs'):
             for doc in docs:
                 if doc.hidden or not doc.has_serving_path():
                     continue
-                self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
-                    'pod_path': doc.pod_path,
-                    'locale': str(doc.locale),
-                }))
+                if concrete:
+                    # Concrete iterates all possible documents.
+                    self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
+                        'pod_path': doc.pod_path,
+                        'locale': str(doc.locale),
+                    }))
+                else:
+                    # Use the raw paths to parameterize the routing.
+                    base_path = doc.get_serving_path_base()
+                    if base_path:
+                        self.routes.add(base_path, RouteInfo('doc', {
+                            'pod_path': doc.pod_path,
+                            'locale': str(doc.locale),
+                        }))
+                    localized_path = doc.get_serving_path_localized()
+                    if not localized_path or ':locale' not in localized_path:
+                        localized_paths = doc.get_serving_paths_localized()
+                        for locale, path in localized_paths.iteritems():
+                            self.routes.add(path, RouteInfo('doc', {
+                                'pod_path': doc.pod_path,
+                                'locale': str(locale),
+                            }))
+                    else:
+                        self.routes.add(localized_path, RouteInfo('doc', {
+                            'pod_path': doc.pod_path,
+                        }))
 
-    def get_render_controller(self, path, route_info):
+    def get_render_controller(self, path, route_info, params=None):
         """Find the correct render controller for the given route info."""
         return render_controller.RenderController.from_route_info(
-            self.pod, path, route_info)
+            self.pod, path, route_info, params=params)
 
     def use_simple(self):
         """Switches the routes to be a simple routes object."""

@@ -77,7 +77,7 @@ class Pod(object):
                 and isinstance(other, Pod)
                 and self.root == other.root)
 
-    def __init__(self, root, storage=grow_storage.auto, env=None, load_extensions=True):
+    def __init__(self, root, storage=grow_storage.auto, env=None, load_extensions=True, use_reroute=False):
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
@@ -86,7 +86,12 @@ class Pod(object):
                     else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
-        self.routes = grow_routes.Routes(pod=self)
+        # TODO: Remove the use_reroute when it is default.
+        self.use_reroute = use_reroute
+        if not use_reroute:
+            self.routes = grow_routes.Routes(pod=self)
+        else:
+            self.routes = None
         self._jinja_env_lock = threading.RLock()
         self._podcache = None
         self._disabled = set([
@@ -655,7 +660,8 @@ class Pod(object):
                 yield self.get_static(pod_path + path, locale=locale)
 
     def load(self):
-        self.routes.routing_map
+        if self.routes:
+            self.routes.routing_map
 
     def match(self, path):
         return self.routes.match(path, env=self.env.to_wsgi_env())

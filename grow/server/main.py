@@ -18,6 +18,7 @@ from werkzeug import wrappers
 from werkzeug import serving
 from werkzeug import wsgi
 from ..common import sdk_utils
+from ..common import timer
 from ..common import utils
 from ..pods import errors
 from ..pods import ui
@@ -85,14 +86,16 @@ def serve_pod(pod, request, values):
 
 def serve_pod_reroute(pod, request, matched):
     """Serve pod contents using the new routing."""
-    # TODO Feel the fully operational routes.
     route_info = matched.value
-    controller = pod.router.get_render_controller(request.path, route_info)
+    controller = pod.router.get_render_controller(
+        request.path, route_info, params=matched.params)
     response = None
     headers = controller.get_http_headers()
     if 'X-AppEngine-BlobKey' in headers:
         return Response(headers=headers)
-    rendered_document = controller.render()
+    jinja_env = pod.render_pool.get_jinja_env(
+        controller.doc.locale) if controller.use_jinja else None
+    rendered_document = controller.render(jinja_env=jinja_env)
     content = rendered_document.read()
     response = Response(body=content)
     response.headers.update(headers)
@@ -133,8 +136,10 @@ class PodServer(object):
         self.url_map = routing.Map([
             rule('/', endpoint=serve_pod),
             rule('/_grow/ui/tools/<path:tool>', endpoint=serve_ui_tool),
-            rule('/_grow/preprocessors/run/<path:name>', endpoint=serve_run_preprocessor),
-            rule('/_grow/<any("translations"):page>/<path:locale>', endpoint=serve_console),
+            rule('/_grow/preprocessors/run/<path:name>',
+                 endpoint=serve_run_preprocessor),
+            rule('/_grow/<any("translations"):page>/<path:locale>',
+                 endpoint=serve_console),
             rule('/_grow/<path:page>', endpoint=serve_console),
             rule('/_grow', endpoint=serve_console),
             rule('/<path:path>', endpoint=serve_pod),
@@ -165,6 +170,7 @@ class PodServer(object):
             return response(environ, start_response)
 
     def handle_exception(self, request, exc):
+        self.debug = True
         log = logging.exception if self.debug else self.pod.logger.error
         if isinstance(exc, webob_exc.HTTPException):
             status = exc.status_int
@@ -204,7 +210,7 @@ class PodServer(object):
         if (isinstance(exc, errors.BuildError)):
             kwargs['build_error'] = exc.exception
         if (isinstance(exc, errors.BuildError)
-           and isinstance(exc.exception, jinja2.TemplateSyntaxError)):
+                and isinstance(exc.exception, jinja2.TemplateSyntaxError)):
             kwargs['template_exception'] = exc.exception
         elif isinstance(exc, jinja2.TemplateSyntaxError):
             kwargs['template_exception'] = exc
@@ -222,7 +228,6 @@ class PodServerReRoute(PodServer):
         self.pod = pod
         self.pod.render_pool.pool_size = 1
         self.debug = debug
-        self.pod.router.add_all(concrete=False)
         self.routes = self.pod.router.routes
 
         self.routes.add('/_grow/ui/tools/:tool', {
@@ -273,8 +278,8 @@ class PodServerReRoute(PodServer):
         return response(environ, start_response)
 
 
-def create_wsgi_app(pod, debug=False, use_reroute=False):
-    if use_reroute:
+def create_wsgi_app(pod, debug=False):
+    if pod.use_reroute:
         podserver_app = PodServerReRoute(pod, debug=debug)
     else:
         podserver_app = PodServer(pod, debug=debug)
