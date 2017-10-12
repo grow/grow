@@ -796,14 +796,8 @@ class Pod(object):
 
     def read_json(self, path):
         """Read and parse a json file."""
-        contents = self.podcache.file_cache.get(path)
-        if contents is None:
-            meta = {'path': path}
-            with self.profile.timer('Pod.read_json', label=path, meta=meta):
-                with self.open_file(path, 'r') as json_file:
-                    contents = json.load(json_file)
-                self.podcache.file_cache.add(path, contents)
-        return contents
+        with self.open_file(path, 'r') as json_file:
+            return json.load(json_file)
 
     def read_yaml(self, path, locale=None):
         """Read, parse, and untag a yaml file."""
