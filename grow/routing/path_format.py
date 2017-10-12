@@ -65,13 +65,13 @@ class PathFormat(object):
 
         params = SafeDict()
 
+        if locale is None:
+            locale = doc.locale
         if locale is not None:
             if not isinstance(locale, basestring) and locale.alias is not None:
                 params['locale'] = locale.alias
             else:
                 params['locale'] = locale
-        elif doc.locale is not None:
-            params['locale'] = doc.locale.alias
         else:
             params['locale'] = ''
         params['locale'] = str(params['locale']).lower()
