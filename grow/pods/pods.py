@@ -795,8 +795,15 @@ class Pod(object):
             return self.storage.read(path)
 
     def read_json(self, path):
-        fp = self.open_file(path)
-        return json.load(fp)
+        """Read and parse a json file."""
+        contents = self.podcache.file_cache.get(path)
+        if contents is None:
+            meta = {'path': path}
+            with self.profile.timer('Pod.read_json', label=path, meta=meta):
+                with self.open_file(path, 'r') as json_file:
+                    contents = json.load(json_file)
+                self.podcache.file_cache.add(path, contents)
+        return contents
 
     def read_yaml(self, path, locale=None):
         """Read, parse, and untag a yaml file."""
@@ -808,7 +815,8 @@ class Pod(object):
                 fields = self.podcache.file_cache.get(path, locale='__raw__')
                 if fields is None:
                     fields = utils.parse_yaml(self.read_file(path), pod=self)
-                    self.podcache.file_cache.add(path, fields, locale='__raw__')
+                    self.podcache.file_cache.add(
+                        path, fields, locale='__raw__')
                 try:
                     contents = document_fields.DocumentFields.untag(
                         fields, locale=locale, params={'env': self.env.name})
