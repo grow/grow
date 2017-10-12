@@ -110,7 +110,7 @@ def check_for_sdk_updates(auto_update_prompt=False):
 
     if utils.is_packaged_app() and auto_update_prompt:
         rc_config = get_rc_config()
-        use_auto_update = rc_config.get('always_update', False)
+        use_auto_update = rc_config.get('update', {}).get('always', False)
 
         if use_auto_update:
             logging.info('  > Auto-updating to version: {}'.format(
@@ -121,7 +121,9 @@ def check_for_sdk_updates(auto_update_prompt=False):
             if choice not in ('y', 'a', ''):
                 return
             if choice == 'a':
-                rc_config['always_update'] = True
+                rc_config['update'] = {
+                    'always': True,
+                }
                 write_rc_config(rc_config)
 
         if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
@@ -297,7 +299,8 @@ def install_extensions(pod):
         text = '[✓] Installed: extensions.txt -> {}'
         pod.logger.info(text.format(extensions_dir))
         return True
-    pod.logger.error('[✘] There was an error running "{}".'.format(pip_command))
+    pod.logger.error(
+        '[✘] There was an error running "{}".'.format(pip_command))
 
 
 def install_yarn(pod):
