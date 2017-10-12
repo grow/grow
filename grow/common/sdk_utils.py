@@ -9,11 +9,13 @@ import sys
 import urlparse
 import requests
 import semantic_version
+import yaml
 from grow.common import config
 from grow.common import utils
 from xtermcolor import colorize
 
 
+RC_FILE_NAME = '.growrc.yaml'
 VERSION = config.VERSION
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
@@ -32,6 +34,23 @@ class Error(Exception):
 
 class LatestVersionCheckError(Error):
     pass
+
+
+def get_rc_config():
+    """Reads the RC config from the system."""
+    rc_file = os.path.expanduser('~/{}'.format(RC_FILE_NAME))
+    if not os.path.isfile(rc_file):
+        return {}
+    with open(rc_file, 'r') as conf:
+        contents = yaml.load(conf.read())
+    return contents
+
+
+def write_rc_config(rc_config):
+    """Writes the RC config to the system."""
+    rc_file = os.path.expanduser('~/{}'.format(RC_FILE_NAME))
+    with open(rc_file, 'w') as conf:
+        conf.write(yaml.safe_dump(rc_config))
 
 
 def get_this_version():
@@ -88,9 +107,25 @@ def check_for_sdk_updates(auto_update_prompt=False):
     logging.info('  See release notes: {}'.format(url))
     logging.info('  Your version: {}, latest version: {}'.format(
         colorize(yours, ansi=226), colorize(theirs, ansi=82)))
+
     if utils.is_packaged_app() and auto_update_prompt:
-        if raw_input('Auto update now? [y/N]: ').lower() != 'y':
-            return
+        rc_config = get_rc_config()
+        use_auto_update = rc_config.get('update', {}).get('always', False)
+
+        if use_auto_update:
+            logging.info('  > Auto-updating to version: {}'.format(
+                colorize(theirs, ansi=82)))
+        else:
+            choice = raw_input(
+                'Auto update now? [Y]es / [n]o / [a]lways: ').strip().lower()
+            if choice not in ('y', 'a', ''):
+                return
+            if choice == 'a':
+                rc_config['update'] = {
+                    'always': True,
+                }
+                write_rc_config(rc_config)
+
         if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
             logging.info('Restarting...')
             os.execl(sys.argv[0], *sys.argv)  # Restart on successful install.
@@ -264,7 +299,8 @@ def install_extensions(pod):
         text = '[✓] Installed: extensions.txt -> {}'
         pod.logger.info(text.format(extensions_dir))
         return True
-    pod.logger.error('[✘] There was an error running "{}".'.format(pip_command))
+    pod.logger.error(
+        '[✘] There was an error running "{}".'.format(pip_command))
 
 
 def install_yarn(pod):
