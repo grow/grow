@@ -179,6 +179,13 @@ class Router(object):
         return render_controller.RenderController.from_route_info(
             self.pod, path, route_info, params=params)
 
+    def reconcile_documents(self, remove_docs=None, add_docs=None):
+        """Remove old docs and add new docs to the routes."""
+        for doc in remove_docs if remove_docs else []:
+            self.routes.remove(doc.get_serving_path())
+        for doc in add_docs if add_docs else []:
+            self.add_doc(doc)
+
     def use_simple(self):
         """Switches the routes to be a simple routes object."""
         previous_routes = self._routes
@@ -187,9 +194,8 @@ class Router(object):
             for path, value in previous_routes.nodes:
                 self._routes.add(path, value)
 
+
 # pylint: disable=too-few-public-methods
-
-
 class RouteInfo(object):
     """Organize information stored in the routes."""
 

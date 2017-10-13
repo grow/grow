@@ -19,6 +19,7 @@ from grow.common import extensions
 from grow.common import logger
 from grow.common import sdk_utils
 from grow.common import progressbar_non
+from grow.common import timer
 from grow.common import utils
 from grow.performance import profile
 from grow.preprocessors import preprocessors
@@ -689,12 +690,26 @@ class Pod(object):
         if pod_path == '/{}'.format(self.FILE_PODSPEC):
             self.reset_yaml()
             self.podcache.reset()
-            self.routes.reset_cache(rebuild=True)
+            if self.use_reroute:
+                with timer.Timer() as router_time:
+                    self.pod.router.routes.reset()
+                    self.pod.router.add_all(concrete=False)
+                self.pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
+                    len(self.pod.router.routes), router_time.secs))
+            else:
+                self.routes.reset_cache(rebuild=True)
         elif (pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
                 and pod_path.startswith(collection.Collection.CONTENT_PATH)):
             doc = self.get_doc(pod_path)
             self.podcache.collection_cache.remove_collection(doc.collection)
-            self.routes.reset_cache(rebuild=True)
+            if self.use_reroute:
+                with timer.Timer() as router_time:
+                    self.pod.router.routes.reset()
+                    self.pod.router.add_all(concrete=False)
+                self.pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
+                    len(self.pod.router.routes), router_time.secs))
+            else:
+                self.routes.reset_cache(rebuild=True)
         elif pod_path.startswith(collection.Collection.CONTENT_PATH):
             trigger_doc = self.get_doc(pod_path)
             col = trigger_doc.collection
@@ -757,8 +772,12 @@ class Pod(object):
                     except webob_exc.HTTPNotFound:
                         added_docs.append(trigger_doc)
             if added_docs or removed_docs:
-                self.routes.reconcile_documents(
-                    remove_docs=removed_docs, add_docs=added_docs)
+                if self.use_reroute:
+                    self.router.reconcile_documents(
+                        remove_docs=removed_docs, add_docs=added_docs)
+                else:
+                    self.routes.reconcile_documents(
+                        remove_docs=removed_docs, add_docs=added_docs)
         elif pod_path == '/{}'.format(self.FILE_OBJECT_CACHE):
             self.podcache.update(obj_cache=self._parse_object_cache_file())
             if self.podcache.is_dirty:

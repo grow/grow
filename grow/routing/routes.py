@@ -38,6 +38,17 @@ class PathParamNameConflictError(Error):
 class Routes(object):
     """Routes container for mapping paths to documents."""
 
+    def __add__(self, other):
+        """Allow adding routes togethers to form a new routes."""
+        routes = self.__class__()
+        # Add all the nodes from the current Routes.
+        for item in self.nodes:
+            routes.add(*item)
+        # Add all the nodes from the other Routes.
+        for item in other.nodes:
+            routes.add(*item)
+        return routes
+
     def __init__(self):
         self._root = RouteTrie()
 
@@ -75,17 +86,6 @@ class Routes(object):
         # Add all the nodes from the other Routes.
         for item in other.nodes:
             self.add(*item)
-
-    def __add__(self, other):
-        """Allow adding routes togethers to form a new routes."""
-        routes = self.__class__()
-        # Add all the nodes from the current Routes.
-        for item in self.nodes:
-            routes.add(*item)
-        # Add all the nodes from the other Routes.
-        for item in other.nodes:
-            routes.add(*item)
-        return routes
 
 
 class RoutesSimple(Routes):
