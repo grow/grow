@@ -115,6 +115,15 @@ class DependencyGraphTestCase(unittest.TestCase):
             '/content/ref2.yaml',
             ['/content/test2.yaml'])
         self.assertEqual(
+            set(['/content/ref.yaml']),
+            graph.match_dependents('/content/ref.yaml'))
+        self.assertEqual(
+            set(['/content/ref1.yaml']),
+            graph.match_dependents('/content/ref1.yaml'))
+        self.assertEqual(
+            set(['/content/ref2.yaml']),
+            graph.match_dependents('/content/ref2.yaml'))
+        self.assertEqual(
             set(['/content/test1.yaml', '/content/ref.yaml', '/content/ref1.yaml']),
             graph.match_dependents('/content/test1.yaml'))
         self.assertEqual(
