@@ -27,15 +27,32 @@ Here's an example pod. Folders and files marked with __*__ are *builtins*, and t
 |         ├──  /_blueprint.yaml*
 |         ├──  /my-first-post.md
 |         └──  /hello-grow.md
-├──  /source                       # Source files.
-|    ├──  /sass
-|         ├──  /_header.sass
-|         ├──  /_carousel.sass
-|         └──  /main.sass
+├──  /dist                         # Compiled files like minified js and css.
+|    ├──  /css                     # Used for static serving of minified files.
+|         └──  /composite
+|              ├──  global.min.css
+|              └──  main.min.css
 |    └──  /js
-|         ├──  /carousel.js
-|         ├──  /main.js
-|         └──  /widget.js
+|         └──  /composite
+|              ├──  global.min.js
+|              └──  main.min.js
+├──  /partials*                    # Partial files.
+|    └──  /hero
+|         ├──  /hero.html
+|         ├──  /hero.js
+|         └──  /hero.sass
+├──  /source                       # Source files.
+|    ├──  /js
+|         └──  /composite
+|              ├──  /global.js
+|              └──  /main.js
+|    └──  /sass
+|         └──  /composite
+|              ├──  /global.sass
+|              └──  /main.sass
+├──  /static                       # Static files.
+|    ├──  /images
+|         └──  /favicon.png
 ├──  /translations*                # All your translation data.
 |    ├──  /messages.pot            # Message catalog template.
 |    └──  /de
@@ -48,5 +65,6 @@ Here's an example pod. Folders and files marked with __*__ are *builtins*, and t
 |    └──  /base.html
 |    └──  /pages.html
 |    └──  /posts.html
+├──  /package.json                 # JS dependencies.
 └──  /podspec.yaml*                # Pod specification.
 [/sourcecode]
