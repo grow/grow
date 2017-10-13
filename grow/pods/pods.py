@@ -21,6 +21,7 @@ from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import timer
 from grow.common import utils
+from grow.documents import static_document
 from grow.performance import profile
 from grow.preprocessors import preprocessors
 from grow.rendering import rendered_document
@@ -262,6 +263,15 @@ class Pod(object):
     def router(self):
         """Router object for routing."""
         return grow_router.Router(self)
+
+    @property
+    def static_configs(self):
+        """Yields each of the static configurations."""
+        podspec_config = self.podspec.get_config()
+        if 'static_dirs' not in podspec_config:
+            return
+        for config in podspec_config['static_dirs']:
+            yield config
 
     @utils.cached_property
     def tmp_dir(self):
@@ -523,15 +533,20 @@ class Pod(object):
 
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
-        for route in self.routes.static_routing_map.iter_rules():
-            controller = route.endpoint
-            if controller.KIND == messages.Kind.STATIC:
-                serving_path = controller.match_pod_path(pod_path)
-                if serving_path:
-                    return grow_static.StaticFile(pod_path, serving_path, locale=locale,
-                                                  pod=self, controller=controller,
-                                                  fingerprinted=controller.fingerprinted,
-                                                  localization=controller.localization)
+        if self.use_reroute:
+            document = static_document.StaticDocument(self, pod_path, locale=locale)
+            if document.exists:
+                return document
+        else:
+            for route in self.routes.static_routing_map.iter_rules():
+                controller = route.endpoint
+                if controller.KIND == messages.Kind.STATIC:
+                    serving_path = controller.match_pod_path(pod_path)
+                    if serving_path:
+                        return grow_static.StaticFile(
+                            pod_path, serving_path, locale=locale, pod=self,
+                            controller=controller, fingerprinted=controller.fingerprinted,
+                            localization=controller.localization)
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
                 'not configured for this path in {}.'.format(
                     pod_path, self.FILE_PODSPEC))
@@ -767,8 +782,12 @@ class Pod(object):
             for trigger_doc in trigger_docs:
                 if trigger_doc.has_serving_path():
                     try:
-                        _ = self.routes.match(
-                            trigger_doc.get_serving_path(), env=route_env)
+                        if self.use_reroute:
+                            _ = self.router.routes.match(
+                                trigger_doc.get_serving_path())
+                        else:
+                            _ = self.routes.match(
+                                trigger_doc.get_serving_path(), env=route_env)
                     except webob_exc.HTTPNotFound:
                         added_docs.append(trigger_doc)
             if added_docs or removed_docs:

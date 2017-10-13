@@ -34,7 +34,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
 
-    pod = pods.Pod(root, storage=storage.FileStorage)
+    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
     if not pod_paths or clear_cache:
         # Clear the cache when building all, only force if the flag is used.
         pod.podcache.reset(force=clear_cache)

@@ -7,6 +7,7 @@ from grow.common import utils
 
 
 class SafeDict(dict):
+    """Keeps the unmatched format params in place."""
 
     def __missing__(self, key):
         return '{' + key + '}'
@@ -34,6 +35,14 @@ class PathFormat(object):
         while '//' in path:
             path = path.replace('//', '/')
         return path
+
+    @staticmethod
+    def _locale_or_alias(locale):
+        if not locale:
+            return ''
+        if not isinstance(locale, basestring) and locale.alias is not None:
+            return locale.alias.lower()
+        return str(locale).lower()
 
     def format_doc(self, doc, path, locale=None, parameterize=False):
         """Format a URL path using the doc information."""
@@ -67,26 +76,40 @@ class PathFormat(object):
 
         if locale is None:
             locale = doc.locale
-        if locale is not None:
-            if not isinstance(locale, basestring) and locale.alias is not None:
-                params['locale'] = locale.alias
-            else:
-                params['locale'] = locale
-        else:
-            params['locale'] = ''
-        params['locale'] = str(params['locale']).lower()
+        params['locale'] = self._locale_or_alias(locale)
 
         path = self.formatter.vformat(path, (), params)
-        return PathFormat.strip_double_slash(path)
+        return self.strip_double_slash(path)
 
-    def format_pod(self, path):
+    def format_pod(self, path, parameterize=False):
         """Format a URL path using the pod information."""
         path = '' if path is None else path
+
         params = SafeDict()
-        if 'root' in self.pod.podspec:
-            params['root'] = self.pod.podspec['root']
+        podspec = self.pod.podspec.get_config()
+        if 'root' in podspec:
+            params['root'] = podspec['root']
         else:
             params['root'] = ''
         params['env'] = self.pod.env
         path = self.formatter.vformat(path, (), params)
-        return PathFormat.strip_double_slash(path)
+
+        if parameterize:
+            path = self.parameterize(path)
+
+        return self.strip_double_slash(path)
+
+    def format_static(self, static_doc, parameterize=False):
+        """Format a static document url."""
+        path = static_doc.path_format
+        path = self.format_pod(path)
+
+        if parameterize:
+            path = self.parameterize(path)
+
+        params = SafeDict()
+
+        params['locale'] = self._locale_or_alias(static_doc.locale)
+
+        path = self.formatter.vformat(path, (), params)
+        return self.strip_double_slash(path)

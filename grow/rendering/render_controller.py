@@ -139,12 +139,12 @@ class RenderDocumentController(RenderController):
                 return rendered_doc
             except Exception as err:
                 text = 'Error building {}: {}'
+                if self.pod:
+                    self.pod.logger.exception(text.format(self, err))
                 exception = errors.BuildError(text.format(self, err))
                 exception.traceback = sys.exc_info()[2]
                 exception.controller = self
                 exception.exception = err
-                if self.pod:
-                    self.pod.logger.error(text.format(self, err))
                 raise exception
 
 
@@ -168,6 +168,7 @@ class RenderStaticDocumentController(RenderController):
             pod_path = self.route_info.meta['pod_path']
             locale = self.route_info.meta['locale']
             self._static_doc = self.pod.get_static(pod_path, locale=locale)
+            print self._static_doc
         return self._static_doc
 
     @property

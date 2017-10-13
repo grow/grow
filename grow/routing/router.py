@@ -11,6 +11,11 @@ class Error(Exception):
     pass
 
 
+class MissingStaticConfigError(Exception):
+    """Error for missing a configuration for a static file."""
+    pass
+
+
 class Router(object):
     """Router for pods."""
 
@@ -69,56 +74,54 @@ class Router(object):
     def add_all_static(self, concrete=True):
         """Add all pod docs to the router."""
         with self.pod.profile.timer('Router.add_all_static'):
-            podspec = self.pod.podspec.get_config()
-            if 'static_dirs' in podspec:
-                for config in podspec['static_dirs']:
-                    if config.get('dev') and not self.pod.env.dev:
-                        continue
+            for config in self.pod.static_configs:
+                if config.get('dev') and not self.pod.env.dev:
+                    continue
 
-                    fingerprinted = config.get('fingerprinted', False)
-                    localization = config.get('localization')
+                fingerprinted = config.get('fingerprinted', False)
+                localization = config.get('localization')
 
-                    if concrete or fingerprinted:
-                        # Enumerate static files.
-                        for root, dirs, files in self.pod.walk(config.get('static_dir')):
-                            for directory in dirs:
-                                if directory.startswith('.'):
-                                    dirs.remove(directory)
-                            pod_dir = root.replace(self.pod.root, '')
-                            for file_name in files:
-                                pod_path = os.path.join(pod_dir, file_name)
-                                # TODO figure out locale...
-                                static_doc = self.pod.get_static(
-                                    pod_path, locale=None)
-                                self.routes.add(
-                                    static_doc.serving_path, RouteInfo('static', {
-                                        'pod_path': static_doc.pod_path,
-                                        'locale': None,
-                                        'localized': False,
-                                        'localization': localization,
-                                        'fingerprinted': fingerprinted,
-                                    }))
-                    else:
-                        serve_at = self.pod.path_format.format_pod(
-                            config['serve_at'])
-                        self.routes.add(serve_at + '*', RouteInfo('static', {
-                            'path_format': serve_at,
-                            'source_format': config.get('static_dir'),
-                            'localized': False,
+                if concrete or fingerprinted:
+                    # Enumerate static files.
+                    for root, dirs, files in self.pod.walk(config.get('static_dir')):
+                        for directory in dirs:
+                            if directory.startswith('.'):
+                                dirs.remove(directory)
+                        pod_dir = root.replace(self.pod.root, '')
+                        for file_name in files:
+                            pod_path = os.path.join(pod_dir, file_name)
+                            # TODO figure out locale...
+                            static_doc = self.pod.get_static(
+                                pod_path, locale=None)
+                            self.routes.add(
+                                static_doc.serving_path, RouteInfo('static', {
+                                    'pod_path': static_doc.pod_path,
+                                    'locale': None,
+                                    'localized': False,
+                                    'localization': localization,
+                                    'fingerprinted': fingerprinted,
+                                }))
+                else:
+                    serve_at = self.pod.path_format.format_pod(
+                        config['serve_at'], parameterize=True)
+                    self.routes.add(serve_at + '*', RouteInfo('static', {
+                        'path_format': serve_at,
+                        'source_format': config.get('static_dir'),
+                        'localized': False,
+                        'localization': localization,
+                        'fingerprinted': fingerprinted,
+                    }))
+
+                    if localization:
+                        localized_serve_at = self.pod.path_format.format_pod(
+                            localization.get('serve_at'), parameterize=True)
+                        self.routes.add(localized_serve_at + '*', RouteInfo('static', {
+                            'path_format': localized_serve_at,
+                            'source_format': localization.get('static_dir'),
+                            'localized': True,
                             'localization': localization,
                             'fingerprinted': fingerprinted,
                         }))
-
-                        if localization:
-                            localized_serve_at = self.pod.path_format.format_pod(
-                                localization.get('serve_at'))
-                            self.routes.add(localized_serve_at + '*', RouteInfo('static', {
-                                'path_format': localized_serve_at,
-                                'source_format': localization.get('static_dir'),
-                                'localized': True,
-                                'localization': localization,
-                                'fingerprinted': fingerprinted,
-                            }))
 
     def add_doc(self, doc):
         """Add doc to the router."""
@@ -178,6 +181,20 @@ class Router(object):
         """Find the correct render controller for the given route info."""
         return render_controller.RenderController.from_route_info(
             self.pod, path, route_info, params=params)
+
+    def get_static_config_for_pod_path(self, pod_path):
+        """Return the static configuration for a pod path."""
+        for config in self.pod.static_configs:
+            if config.get('dev') and not self.pod.env.dev:
+                continue
+            if pod_path.startswith(config.get('static_dir')):
+                return config
+            intl = config.get('localization', {})
+            if intl and pod_path.startswith(intl.get('static_dir')):
+                return config
+
+        text = '{} is not found in any static file configuration in the podspec.'
+        raise MissingStaticConfigError(text.format(pod_path))
 
     def reconcile_documents(self, remove_docs=None, add_docs=None):
         """Remove old docs and add new docs to the routes."""
