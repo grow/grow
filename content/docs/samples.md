@@ -37,4 +37,4 @@ To contribute to themes on the `grow init` command, send pull requests to GitHub
 ## Other samples
 
 - [grow.io](https://github.com/grow/grow.io) – This documentation site!
-- [Test data](https://github.com/grow/pygrow/tree/master/grow/pods/testdata/pod) – Pod used by Grow's unit tests (note: you cannot clone this using `grow init`).
+- [Test data](https://github.com/grow/grow/tree/master/grow/pods/testdata/pod) – Pod used by Grow's unit tests (note: you cannot clone this using `grow init`).
