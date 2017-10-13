@@ -18,6 +18,16 @@ class Router(object):
         self.pod = pod
         self._routes = grow_routes.Routes()
 
+    def _preload_and_expand(self, docs, expand=True):
+        # Force preload the docs.
+        docs_loader.DocsLoader.load(docs)
+        docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
+        if expand:
+            # Will need all of the docs, so expand them out and preload.
+            docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
+            docs_loader.DocsLoader.load(docs)
+        return docs
+
     @property
     def routes(self):
         """Routes reflective of the docs."""
@@ -37,15 +47,7 @@ class Router(object):
             for collection in self.pod.list_collections():
                 for doc in collection.list_docs_unread():
                     docs.append(doc)
-
-            # Force preload the docs.
-            docs_loader.DocsLoader.load(docs)
-            docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
-            if concrete:
-                # Will need all of the docs, so expand them out and preload.
-                docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
-                docs_loader.DocsLoader.load(docs)
-
+            docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
     def add_all_other(self):
@@ -169,14 +171,7 @@ class Router(object):
                     pod_path)
                 for dep_path in depedents:
                     docs.append(self.pod.get_doc(dep_path))
-
-            # Force preload the docs.
-            docs_loader.DocsLoader.load(docs)
-            docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
-            if concrete:
-                # Will need all of the docs, so expand them out and preload.
-                docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
-                docs_loader.DocsLoader.load(docs)
+            docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
     def get_render_controller(self, path, route_info, params=None):
