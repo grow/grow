@@ -27,9 +27,8 @@ class DependencyGraph(object):
 
     def add_all(self, path_to_dependencies):
         """Add all from a dict of paths to dependencies."""
-
-        for key, value in path_to_dependencies.iteritems():
-            self.add_references(key, value)
+        for path, dependencies in path_to_dependencies.iteritems():
+            self.add_references(path, dependencies)
 
     def add(self, source, reference):
         """Add reference made in a source file to the graph."""
@@ -43,14 +42,18 @@ class DependencyGraph(object):
             self._dependencies[source] = set()
         self._dependencies[source].add(reference)
 
+        # Source are a dependent to themselves.
+        if source not in self._dependents:
+            self._dependents[source] = set()
+        if source not in self._dependents[source]:
+            self._is_dirty = True
+        self._dependents[source].add(source)
+
         # Bi-directional dependency references for easier lookup.
         if reference not in self._dependents:
             self._dependents[reference] = set()
-
-        # Track when the dependency graph has changed.
         if source not in self._dependents[reference]:
             self._is_dirty = True
-
         self._dependents[reference].add(source)
 
     def add_references(self, source, references):
@@ -62,6 +65,13 @@ class DependencyGraph(object):
 
         self._dependencies[source] = set(references)
 
+        # Source are a dependent to themselves.
+        if source not in self._dependents:
+            self._dependents[source] = set()
+        if source not in self._dependents[source]:
+            self._is_dirty = True
+        self._dependents[source].add(source)
+
         # Bi-directional dependency references for easier lookup.
         for reference in references:
             reference = DependencyGraph.normalize_path(reference)
@@ -71,7 +81,6 @@ class DependencyGraph(object):
             # Track when the dependency graph has changed.
             if source not in self._dependents[reference]:
                 self._is_dirty = True
-
             self._dependents[reference].add(source)
 
     def export(self):

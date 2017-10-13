@@ -35,8 +35,9 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
     out_dir = out_dir or os.path.join(root, 'build')
 
     pod = pods.Pod(root, storage=storage.FileStorage)
-    # Always clear the cache when building, only force if the flag is used.
-    pod.podcache.reset(force=clear_cache)
+    if not pod_paths or clear_cache:
+        # Clear the cache when building all, only force if the flag is used.
+        pod.podcache.reset(force=clear_cache)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
         pod.set_env(deployment_obj.config.env)
