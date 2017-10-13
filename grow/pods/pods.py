@@ -692,10 +692,10 @@ class Pod(object):
             self.podcache.reset()
             if self.use_reroute:
                 with timer.Timer() as router_time:
-                    self.pod.router.routes.reset()
-                    self.pod.router.add_all(concrete=False)
-                self.pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
-                    len(self.pod.router.routes), router_time.secs))
+                    self.router.routes.reset()
+                    self.router.add_all(concrete=False)
+                self.logger.info('{} routes rebuilt in {:.3f} s'.format(
+                    len(self.router.routes), router_time.secs))
             else:
                 self.routes.reset_cache(rebuild=True)
         elif (pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
@@ -704,10 +704,10 @@ class Pod(object):
             self.podcache.collection_cache.remove_collection(doc.collection)
             if self.use_reroute:
                 with timer.Timer() as router_time:
-                    self.pod.router.routes.reset()
-                    self.pod.router.add_all(concrete=False)
-                self.pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
-                    len(self.pod.router.routes), router_time.secs))
+                    self.router.routes.reset()
+                    self.router.add_all(concrete=False)
+                self.logger.info('{} routes rebuilt in {:.3f} s'.format(
+                    len(self.router.routes), router_time.secs))
             else:
                 self.routes.reset_cache(rebuild=True)
         elif pod_path.startswith(collection.Collection.CONTENT_PATH):

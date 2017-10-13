@@ -77,6 +77,10 @@ class Routes(object):
         """Uses a path to attempt to match a path in the routes."""
         return self._root.match(path)
 
+    def reset(self):
+        """Resets the routes."""
+        self._root = RouteTrie()
+
     def remove(self, path):
         """Removes a path from the routes."""
         return self._root.remove(path)
@@ -93,6 +97,10 @@ class RoutesSimple(Routes):
 
     def __init__(self):
         super(RoutesSimple, self).__init__()
+        self._root = RoutesDict()
+
+    def reset(self):
+        """Resets the routes."""
         self._root = RoutesDict()
 
 
