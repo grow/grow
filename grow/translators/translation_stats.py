@@ -65,6 +65,10 @@ class TranslationStats(object):
     def pretty_print(self, show_all=False):
         """Outputs the translation stats to a table formatted view."""
 
+        if not self.untranslated:
+            logging.info('\nNo untranslated strings found.\n')
+            return
+
         # Most frequent untranslated messages.
         table = texttable.Texttable(max_width=120)
         table.set_deco(texttable.Texttable.HEADER)
