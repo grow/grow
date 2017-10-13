@@ -35,6 +35,20 @@ jobs:
     steps:
       - checkout
 
+      - restore_cache:
+          keys:
+            - grow-cache-{{ .Branch }}-{{ checksum "package.json" }}
+
+      - run:
+          name: Grow Install
+          command: grow install
+
+      - save_cache:
+          key: grow-cache-{{ .Branch }}-{{ checksum "package.json" }}
+          paths:
+            - extensions
+            - node_modules
+
       - run:
           name: Test Build
           command: grow build
