@@ -41,9 +41,9 @@ deployments:
     destination: local    # Destination kind.
     out_dir: ~/out/       # Parameters for "local" destination.
 
-  growsdk.org:
+  grow.io:
     destination: gcs
-    bucket: growsdk.org
+    bucket: grow.io
 [/sourcecode]
 
 ### Commands
@@ -51,8 +51,8 @@ deployments:
 Once you've configured a deployment in `podspec.yaml`, you can use the `grow deploy` command to launch your site. This will kick off the deployment process (above).
 
 [sourcecode:bash]
-# Deploys your site to a destination named `growsdk.org`.
-grow deploy growsdk.org <pod>
+# Deploys your site to a destination named `grow.io`.
+grow deploy grow.io <pod>
 [/sourcecode]
 
 ## Destinations

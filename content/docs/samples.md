@@ -18,7 +18,7 @@ The `grow init` command accepts either a theme name (for themes owned by the [gr
 # Clones the codelab site to a directory "./foo".
 grow init codelab ./foo
 
-# Clones the grow.io site to a directory "./grow.io".
+# Clones Grow.io site to a directory "./grow.io".
 grow init https://github.com/grow/grow.io grow.io
 [/sourcecode]
 
@@ -37,4 +37,4 @@ To contribute to themes on the `grow init` command, send pull requests to GitHub
 ## Other samples
 
 - [grow.io](https://github.com/grow/grow.io) – This documentation site!
-- [Test data](https://github.com/grow/pygrow/tree/master/grow/pods/testdata/pod) – Pod used by the Grow SDK's unit tests (note: you cannot clone this using `grow init`).
+- [Test data](https://github.com/grow/pygrow/tree/master/grow/pods/testdata/pod) – Pod used by Grow's unit tests (note: you cannot clone this using `grow init`).

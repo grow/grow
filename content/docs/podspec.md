@@ -7,7 +7,7 @@ $order: 1
 
 [TOC]
 
-Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains flags and a few definitions that specify various behavior and properties of your site, such as URLs, the version of the Grow SDK compatible with the pod, and localization information.
+Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains flags and a few definitions that specify various behavior and properties of your site, such as URLs, the version of Grow compatible with the pod, and localization information.
 
 ## podspec.yaml
 
@@ -68,9 +68,9 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
 
 ### grow_version
 
-The version of the Grow SDK that works with this pod. Grow displays a warning if the version of the SDK does not match this specification in `podspec.yaml`.
+The version of Grow that works with this pod. Grow displays a warning if the version of the SDK does not match this specification in `podspec.yaml`.
 
-Grow uses [semantic versioning](http://semver.org/) which helps you know which versions of the Grow SDK will work with your pod. If your pod works with `1.2.3`, it will work at least up to `2.0.0`. Major versions (such as `2.x.x` from `1.x.x`) may introduce breaking changes when used with pods made for an older SDK version.
+Grow uses [semantic versioning](http://semver.org/) which helps you know which versions of Grow will work with your pod. If your pod works with `1.2.3`, it will work at least up to `2.0.0`. Major versions (such as `2.x.x` from `1.x.x`) may introduce breaking changes when used with pods made for an older SDK version.
 
 This value must be a semantic version *specification*.
 

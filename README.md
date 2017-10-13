@@ -6,7 +6,7 @@ Grow's documentation and open source project page.
 ## Contributing
 
     # Install Grow.
-    curl https://install.growsdk.org | bash
+    curl https://install.grow.io | bash
 
     # Clone the repo.
     git clone https://github.com/grow/grow.io.git

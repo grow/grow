@@ -9,7 +9,7 @@ $hidden: true
 
 Grow pods are backed by Git to bring joy to content management and launch workflow. Yes, thanks to Git and a branching model that integrates with Grow's SDK, Grow attempts to make everything from massive redesigns to quick hotfixes joyful and predictable. You'll be able to stop guessing about the state of your web site, and take control back of your workflow.
 
-Read on to learn how to properly use Git with Grow pods to ensure compatibility with the Grow SDK.
+Read on to learn how to properly use Git with Grow pods to ensure compatibility with Grow.
 
 ## One pod == one repo
 
@@ -29,7 +29,7 @@ The following branches contain __pod files__:
 
 The "build" branch contains __generated files__, not pod files:
 
-- `build` – When commits are made to the master branch, the Grow SDK can build a static version of the site using the state from master, and commit it to the "build" branch. Build branches should only be generated using the "grow build" command, and should never be edited manually.
+- `build` – When commits are made to the master branch, Grow can build a static version of the site using the state from master, and commit it to the "build" branch. Build branches should only be generated using the "grow build" command, and should never be edited manually.
 
 This branching model is based on [@nvie's Git branchind model](http://nvie.com/posts/a-successful-git-branching-model/).
 
