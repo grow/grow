@@ -179,7 +179,8 @@ class BaseDestination(object):
                               pattern=re.compile(r'\.po$'))
         for _, catalog in catalogs.iteritems():
             catalog.save()
-        logging.info('Untranslated strings exported to {}'.format(dir_path))
+        if catalogs:
+            logging.info('Untranslated strings exported to {}'.format(dir_path))
 
     def get_env(self):
         """Returns an environment object based on the config."""
