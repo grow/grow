@@ -38,7 +38,7 @@ class Router(object):
                 for doc in collection.list_docs_unread():
                     docs.append(doc)
 
-            # Force preload the docs before expanding out to all locales.
+            # Force preload the docs.
             docs_loader.DocsLoader.load(docs)
             docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
             if concrete:
@@ -160,6 +160,25 @@ class Router(object):
                             'pod_path': doc.pod_path,
                         }))
 
+    def add_pod_paths(self, pod_paths, concrete=True):
+        """Add pod paths to the router."""
+        with self.pod.profile.timer('Router.add_pod_paths'):
+            docs = []
+            for pod_path in pod_paths:
+                depedents = self.pod.podcache.dependency_graph.match_dependents(
+                    pod_path)
+                for dep_path in depedents:
+                    docs.append(self.pod.get_doc(dep_path))
+
+            # Force preload the docs.
+            docs_loader.DocsLoader.load(docs)
+            docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
+            if concrete:
+                # Will need all of the docs, so expand them out and preload.
+                docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
+                docs_loader.DocsLoader.load(docs)
+            self.add_docs(docs, concrete=concrete)
+
     def get_render_controller(self, path, route_info, params=None):
         """Find the correct render controller for the given route info."""
         return render_controller.RenderController.from_route_info(
@@ -174,6 +193,8 @@ class Router(object):
                 self._routes.add(path, value)
 
 # pylint: disable=too-few-public-methods
+
+
 class RouteInfo(object):
     """Organize information stored in the routes."""
 
