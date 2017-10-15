@@ -187,6 +187,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     @classmethod
     def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None,
                  generate_ids=False):
+        logger = logger or logging
         # Show metadata about the file to help the user better understand what
         # they are downloading. Also include a link in the output to permit the
         # user to quickly open the file.
@@ -207,7 +208,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 resp['webViewLink']))
 
         service = BaseGooglePreprocessor.create_service('sheets', 'v4')
-        logger = logger or logging
         format_as_grid = format_as in cls.GRID_TYPES
         format_as_map = format_as in cls.MAP_TYPES
         # pylint: disable=no-member
