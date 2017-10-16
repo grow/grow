@@ -31,13 +31,13 @@ __Remember: don't repeat yourself.__ If you can specify a path format in a colle
 
 | Path formatter | Description
 |----------------|------------|
-| `{base}` | The document's basename.
+| `{base}` | The document's basename. Ex: `my-page.yaml` -> `my-page`
 | `{collection.root}` | The document's collection's root.
 | `{env.fingerprint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerprint: <fingerprint>` in a deployment configuration.
 | `{date}` | The document's date.
 | `{locale}` | The document's locale (or its alias, if one exists).
 | `{root}` | The pod's root as defined in podspec.yaml.
-| `{slug}` | The document's slug.
+| `{slug}` | A url slug of the document's title.
 
 #### Examples
 
