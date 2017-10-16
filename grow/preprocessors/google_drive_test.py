@@ -32,6 +32,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         if files is None:
             files = {
                 'lastModifyingUser': {
+                    'displayName': 'Anonymous',
                     'emailAddress': 'user@example.com',
                 },
                 'modifiedTime': '2017-10-13T16:52:52.795Z',
