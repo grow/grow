@@ -215,7 +215,9 @@ def every_two(l):
     return zip(l[::2], l[1::2])
 
 
-def make_yaml_loader(pod, doc=None):
+def make_yaml_loader(pod, doc=None, locale=None):
+    loader_locale = locale
+
     class YamlLoader(yaml_Loader):
 
         @staticmethod
@@ -273,7 +275,7 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, func)
 
         def construct_doc(self, node):
-            locale = str(doc.locale_safe) if doc else None
+            locale = str(doc.locale_safe) if doc else loader_locale
             pod_path = doc.pod_path if doc else None
 
             def func(path):
@@ -292,7 +294,7 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, self.read_json)
 
         def construct_static(self, node):
-            locale = str(doc.locale_safe) if doc else None
+            locale = str(doc.locale_safe) if doc else loader_locale
 
             def func(path):
                 if doc:
@@ -306,7 +308,7 @@ def make_yaml_loader(pod, doc=None):
                     return None
                 main, reference = path.split('.', 1)
                 path = '/content/strings/{}.yaml'.format(main)
-                locale = str(doc.locale_safe) if doc else None
+                locale = str(doc.locale_safe) if doc else loader_locale
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 if reference:
@@ -316,7 +318,7 @@ def make_yaml_loader(pod, doc=None):
             return self._construct_func(node, func)
 
         def construct_url(self, node):
-            locale = str(doc.locale_safe) if doc else None
+            locale = str(doc.locale_safe) if doc else loader_locale
 
             def func(path):
                 if doc:
@@ -326,7 +328,7 @@ def make_yaml_loader(pod, doc=None):
 
         def construct_yaml(self, node):
             def func(path):
-                locale = str(doc.locale_safe) if doc else None
+                locale = str(doc.locale_safe) if doc else loader_locale
                 if '?' in path:
                     path, reference = path.split('?')
                     if doc:
@@ -352,13 +354,14 @@ def make_yaml_loader(pod, doc=None):
 def load_yaml(*args, **kwargs):
     pod = kwargs.pop('pod', None)
     doc = kwargs.pop('doc', None)
-    loader = make_yaml_loader(pod, doc=doc)
+    locale = kwargs.pop('locale', None)
+    loader = make_yaml_loader(pod, doc=doc, locale=locale)
     return yaml.load(*args, Loader=loader, **kwargs) or {}
 
 
 @memoize
-def parse_yaml(content, pod=None):
-    return load_yaml(content, pod=pod)
+def parse_yaml(content, pod=None, locale=None):
+    return load_yaml(content, pod=pod, locale=locale)
 
 
 def dump_yaml(obj):
