@@ -52,6 +52,7 @@ class PodDoesNotExistError(Error, IOError):
 # Pods can create temp directories. Need to track temp dirs for cleanup.
 _POD_TEMP_DIRS = []
 
+
 @atexit.register
 def goodbye_pods():
     for tmp_dir in _POD_TEMP_DIRS:
@@ -59,6 +60,7 @@ def goodbye_pods():
 
 # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
 # "podspec" class.
+
 
 class Pod(object):
     DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
@@ -770,7 +772,8 @@ class Pod(object):
 
     def read_yaml(self, path, locale=None):
         with self.profile.timer('pod.read_yaml', label=path, meta={'path': path}):
-            fields = utils.parse_yaml(self.read_file(path), pod=self)
+            fields = utils.parse_yaml(
+                self.read_file(path), pod=self, locale=locale)
             try:
                 return document_fields.DocumentFields.untag(
                     fields, locale=locale, params={'env': self.env.name})
