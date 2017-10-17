@@ -558,6 +558,47 @@ class DocumentFieldsTestCase(unittest.TestCase):
             },
         }, untag(fields, locale='de', params={'env': 'prod'}))
 
+    def test_untag_none(self):
+        """Untag when there is a none value for the tagged value."""
+        untag = document_fields.DocumentFields.untag
+        fields_to_test = {
+            'foo': 'base',
+            'foo@env.prod': None,
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'base',
+        }, untag(fields, locale=None, params={'env': None}))
+        self.assertDictEqual({
+            'foo': None,
+        }, untag(fields, locale=None, params={'env': 'prod'}))
+
+        fields_to_test = {
+            'nested': {
+                'foo': 'nested-base',
+            },
+            'nested@de': {
+                'foo': 'nested-de-base',
+                'foo@env.prod': None,
+            }
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'nested': {
+                'foo': 'nested-base',
+            },
+        }, untag(fields, locale=None, params={'env': None}))
+        self.assertDictEqual({
+            'nested': {
+                'foo': 'nested-base',
+            },
+        }, untag(fields, locale=None, params={'env': 'dev'}))
+        self.assertDictEqual({
+            'nested': {
+                'foo': None,
+            },
+        }, untag(fields, locale='de', params={'env': 'prod'}))
+
     def test_update(self):
         """Test that updates properly overwrite and are untagged."""
         doc_fields = document_fields.DocumentFields({
