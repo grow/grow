@@ -58,11 +58,11 @@ def goodbye_pods():
     for tmp_dir in _POD_TEMP_DIRS:
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
-# TODO(jeremydw): A handful of the properties of "pod" should be moved to the
-# "podspec" class.
-
 
 class Pod(object):
+    """Grow pod."""
+    # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
+    # "podspec" class.
     DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
     FEATURE_UI = 'ui'
     FEATURE_TRANSLATION_STATS = 'translation_stats'
