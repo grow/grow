@@ -60,6 +60,7 @@ class RenderedController(controllers.BaseController):
             return []
         return [self.doc.get_serving_path()]
 
+    # pylint: disable=unused-argument
     def render(self, params, inject=True):
         doc = self.doc
         preprocessor = None

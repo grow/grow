@@ -27,7 +27,7 @@ class CorruptIndexError(Error):
 
 
 class Diff(object):
-    POOL_SIZE = 100  # Thread pool size for applying a diff.
+    POOL_SIZE = 10  # Thread pool size for applying a diff.
 
     @classmethod
     def is_empty(cls, diff):

@@ -8,21 +8,26 @@ import os
 import sys
 import threading
 import time
+import shutil
+import tempfile
 import progressbar
 import yaml
 import jinja2
-import shutil
-import tempfile
 from werkzeug.contrib import cache as werkzeug_cache
 from grow.cache import podcache
 from grow.common import extensions
 from grow.common import logger
 from grow.common import sdk_utils
 from grow.common import progressbar_non
+from grow.common import timer
 from grow.common import utils
+from grow.documents import static_document
 from grow.performance import profile
-from grow.pods import rendered_document
 from grow.preprocessors import preprocessors
+from grow.rendering import rendered_document
+from grow.rendering import render_pool as grow_render_pool
+from grow.routing import path_format as grow_path_format
+from grow.routing import router as grow_router
 from grow.templates import filters
 from grow.templates import jinja_dependency
 from grow.translators import translation_stats
@@ -59,6 +64,7 @@ def goodbye_pods():
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
+
 class Pod(object):
     """Grow pod."""
     # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
@@ -76,7 +82,7 @@ class Pod(object):
                 and isinstance(other, Pod)
                 and self.root == other.root)
 
-    def __init__(self, root, storage=grow_storage.auto, env=None, load_extensions=True):
+    def __init__(self, root, storage=grow_storage.auto, env=None, load_extensions=True, use_reroute=False):
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
@@ -85,7 +91,12 @@ class Pod(object):
                     else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
-        self.routes = grow_routes.Routes(pod=self)
+        # TODO: Remove the use_reroute when it is default.
+        self.use_reroute = use_reroute
+        if not use_reroute:
+            self.routes = grow_routes.Routes(pod=self)
+        else:
+            self.routes = None
         self._jinja_env_lock = threading.RLock()
         self._podcache = None
         self._disabled = set([
@@ -114,9 +125,9 @@ class Pod(object):
     def __repr__(self):
         return '<Pod: {}>'.format(self.root)
 
-    @utils.memoize
+    # DEPRECATED: Remove when no longer needed after re-route stable release.
     def _get_bytecode_cache(self):
-        return jinja2.MemcachedBytecodeCache(client=self.cache)
+        return self.jinja_bytecode_cache
 
     def _normalize_path(self, pod_path):
         if '..' in pod_path:
@@ -131,7 +142,7 @@ class Pod(object):
         return pod_path
 
     def _parse_object_cache_file(self):
-        with self.profile.timer('pod._parse_object_cache_file'):
+        with self.profile.timer('Pod._parse_object_cache_file'):
             object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
 
             if not self.file_exists(object_cache_file_name):
@@ -144,7 +155,7 @@ class Pod(object):
                     'Error parsing: {}'.format(path))
 
     def _parse_dep_cache_file(self):
-        with self.profile.timer('pod._parse_dep_cache_file'):
+        with self.profile.timer('Pod._parse_dep_cache_file'):
             podcache_file_name = '/{}'.format(self.FILE_DEP_CACHE)
 
             # TODO Remove deprecated cachefile support.
@@ -213,9 +224,18 @@ class Pod(object):
     def grow_version(self):
         return self.podspec.grow_version
 
+    @utils.cached_property
+    def jinja_bytecode_cache(self):
+        return jinja2.MemcachedBytecodeCache(client=self.cache)
+
     @property
     def logger(self):
         return logger.LOGGER
+
+    @utils.cached_property
+    def path_format(self):
+        """Format utility for url paths."""
+        return grow_path_format.PathFormat(self)
 
     @property
     def podcache(self):
@@ -234,6 +254,25 @@ class Pod(object):
     def profile(self):
         """Profile object for code timing."""
         return profile.Profile()
+
+    @utils.cached_property
+    def render_pool(self):
+        """Render pool rendering documents."""
+        return grow_render_pool.RenderPool(self)
+
+    @utils.cached_property
+    def router(self):
+        """Router object for routing."""
+        return grow_router.Router(self)
+
+    @property
+    def static_configs(self):
+        """Yields each of the static configurations."""
+        podspec_config = self.podspec.get_config()
+        if 'static_dirs' not in podspec_config:
+            return
+        for config in podspec_config['static_dirs']:
+            yield config
 
     @utils.cached_property
     def tmp_dir(self):
@@ -495,15 +534,20 @@ class Pod(object):
 
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
-        for route in self.routes.static_routing_map.iter_rules():
-            controller = route.endpoint
-            if controller.KIND == messages.Kind.STATIC:
-                serving_path = controller.match_pod_path(pod_path)
-                if serving_path:
-                    return grow_static.StaticFile(pod_path, serving_path, locale=locale,
-                                                  pod=self, controller=controller,
-                                                  fingerprinted=controller.fingerprinted,
-                                                  localization=controller.localization)
+        if self.use_reroute:
+            document = static_document.StaticDocument(self, pod_path, locale=locale)
+            if document.exists:
+                return document
+        else:
+            for route in self.routes.static_routing_map.iter_rules():
+                controller = route.endpoint
+                if controller.KIND == messages.Kind.STATIC:
+                    serving_path = controller.match_pod_path(pod_path)
+                    if serving_path:
+                        return grow_static.StaticFile(
+                            pod_path, serving_path, locale=locale, pod=self,
+                            controller=controller, fingerprinted=controller.fingerprinted,
+                            localization=controller.localization)
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
                 'not configured for this path in {}.'.format(
                     pod_path, self.FILE_PODSPEC))
@@ -635,7 +679,8 @@ class Pod(object):
                 yield self.get_static(pod_path + path, locale=locale)
 
     def load(self):
-        self.routes.routing_map
+        if self.routes:
+            self.routes.routing_map
 
     def match(self, path):
         return self.routes.match(path, env=self.env.to_wsgi_env())
@@ -661,12 +706,26 @@ class Pod(object):
         if pod_path == '/{}'.format(self.FILE_PODSPEC):
             self.reset_yaml()
             self.podcache.reset()
-            self.routes.reset_cache(rebuild=True)
+            if self.use_reroute:
+                with timer.Timer() as router_time:
+                    self.router.routes.reset()
+                    self.router.add_all(concrete=False)
+                self.logger.info('{} routes rebuilt in {:.3f} s'.format(
+                    len(self.router.routes), router_time.secs))
+            else:
+                self.routes.reset_cache(rebuild=True)
         elif (pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
                 and pod_path.startswith(collection.Collection.CONTENT_PATH)):
             doc = self.get_doc(pod_path)
             self.podcache.collection_cache.remove_collection(doc.collection)
-            self.routes.reset_cache(rebuild=True)
+            if self.use_reroute:
+                with timer.Timer() as router_time:
+                    self.router.routes.reset()
+                    self.router.add_all(concrete=False)
+                self.logger.info('{} routes rebuilt in {:.3f} s'.format(
+                    len(self.router.routes), router_time.secs))
+            else:
+                self.routes.reset_cache(rebuild=True)
         elif pod_path.startswith(collection.Collection.CONTENT_PATH):
             trigger_doc = self.get_doc(pod_path)
             col = trigger_doc.collection
@@ -724,13 +783,21 @@ class Pod(object):
             for trigger_doc in trigger_docs:
                 if trigger_doc.has_serving_path():
                     try:
-                        _ = self.routes.match(
-                            trigger_doc.get_serving_path(), env=route_env)
+                        if self.use_reroute:
+                            _ = self.router.routes.match(
+                                trigger_doc.get_serving_path())
+                        else:
+                            _ = self.routes.match(
+                                trigger_doc.get_serving_path(), env=route_env)
                     except webob_exc.HTTPNotFound:
                         added_docs.append(trigger_doc)
             if added_docs or removed_docs:
-                self.routes.reconcile_documents(
-                    remove_docs=removed_docs, add_docs=added_docs)
+                if self.use_reroute:
+                    self.router.reconcile_documents(
+                        remove_docs=removed_docs, add_docs=added_docs)
+                else:
+                    self.routes.reconcile_documents(
+                        remove_docs=removed_docs, add_docs=added_docs)
         elif pod_path == '/{}'.format(self.FILE_OBJECT_CACHE):
             self.podcache.update(obj_cache=self._parse_object_cache_file())
             if self.podcache.is_dirty:
@@ -758,28 +825,40 @@ class Pod(object):
                 time.sleep(ratelimit)
 
     def read_csv(self, path, locale=utils.SENTINEL):
-        with self.profile.timer('pod.read_csv', label=path, meta={'path': path}):
+        with self.profile.timer('Pod.read_csv', label=path, meta={'path': path}):
             return utils.get_rows_from_csv(pod=self, path=path, locale=locale)
 
     def read_file(self, pod_path):
         path = self._normalize_path(pod_path)
-        with self.profile.timer('pod.read_file', label=path, meta={'path': path}):
+        with self.profile.timer('Pod.read_file', label=path, meta={'path': path}):
             return self.storage.read(path)
 
     def read_json(self, path):
-        fp = self.open_file(path)
-        return json.load(fp)
+        """Read and parse a json file."""
+        with self.open_file(path, 'r') as json_file:
+            return json.load(json_file)
 
     def read_yaml(self, path, locale=None):
-        with self.profile.timer('pod.read_yaml', label=path, meta={'path': path}):
-            fields = utils.parse_yaml(
-                self.read_file(path), pod=self, locale=locale)
-            try:
-                return document_fields.DocumentFields.untag(
-                    fields, locale=locale, params={'env': self.env.name})
-            except Exception as e:
-                logging.error('Error parsing -> {}'.format(path))
-                raise
+        """Read, parse, and untag a yaml file."""
+        contents = self.podcache.file_cache.get(path, locale=locale)
+        if contents is None:
+            label = '{} ({})'.format(path, locale)
+            meta = {'path': path, 'locale': locale}
+            with self.profile.timer('Pod.read_yaml', label=label, meta=meta):
+                fields = self.podcache.file_cache.get(path, locale='__raw__')
+                if fields is None:
+                    fields = utils.parse_yaml(
+                        self.read_file(path), pod=self, locale=locale)
+                    self.podcache.file_cache.add(
+                        path, fields, locale='__raw__')
+                try:
+                    contents = document_fields.DocumentFields.untag(
+                        fields, locale=locale, params={'env': self.env.name})
+                    self.podcache.file_cache.add(path, contents, locale=locale)
+                except Exception:
+                    logging.error('Error parsing -> {}'.format(path))
+                    raise
+        return contents
 
     def render_paths(self, paths, routes, suffix=None, append_slashes=False):
         """Renders the given paths and yields each path and content."""
@@ -804,9 +883,9 @@ class Pod(object):
                 if append_slashes and output_path.endswith('/') and suffix:
                     output_path += suffix
             try:
-                key = 'pod.render_paths.render'
+                key = 'Pod.render_paths.render'
                 if isinstance(controller, grow_static.StaticController):
-                    key = 'pod.render_paths.render.static'
+                    key = 'Pod.render_paths.render.static'
 
                 with self.profile.timer(key, label=output_path, meta={'path': output_path}):
                     yield rendered_document.RenderedDocument(
@@ -836,13 +915,13 @@ class Pod(object):
 
     def write_file(self, pod_path, content):
         with self.profile.timer(
-                'pod.write_file', label=pod_path, meta={'path': pod_path}):
+                'Pod.write_file', label=pod_path, meta={'path': pod_path}):
             path = self._normalize_path(pod_path)
             self.storage.write(path, content)
 
     def write_yaml(self, path, content):
         with self.profile.timer(
-                'pod.write_yaml', label=path, meta={'path': path}):
+                'Pod.write_yaml', label=path, meta={'path': path}):
             self.podcache.collection_cache.remove_by_path(path)
             self.podcache.document_cache.remove_by_path(path)
             content = utils.dump_yaml(content)

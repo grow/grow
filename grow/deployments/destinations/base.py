@@ -83,7 +83,7 @@ from grow.deployments import tests
 from grow.performance import profile_report
 from grow.pods import env
 from grow.pods import pods
-from grow.pods import rendered_document
+from grow.rendering import rendered_document
 from . import messages
 
 
@@ -118,6 +118,8 @@ class DestinationTestCase(object):
 
 
 class BaseDestination(object):
+    """Base destination for building and deploying."""
+
     TestCase = DestinationTestCase
     diff_basename = 'diff.proto.json'
     index_basename = 'index.proto.json'
@@ -161,7 +163,8 @@ class BaseDestination(object):
             content = self.read_control_file(self.index_basename)
             return indexes.Index.from_string(content)
         except IOError:
-            logging.info('Unable to find remote index: {}'.format(self.index_basename))
+            logging.info('Unable to find remote index: {}'.format(
+                self.index_basename))
             return indexes.Index.create()
 
     def export_profile_report(self):

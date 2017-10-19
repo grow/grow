@@ -300,17 +300,29 @@ class Document(object):
     @property
     @utils.memoize
     def path_format(self):
-        val = None
+        """Path format for current document."""
         if (self.locale
-                and self.locale != self.default_locale):
-            if ('$localization' in self.fields
-                    and 'path' in self.fields['$localization']):
-                val = self.fields['$localization']['path']
-            elif self.collection.localization:
-                val = self.collection.localization.get('path')
-        if val is None:
-            return self.fields.get('$path', self.collection.path_format)
-        return val
+                and self.locale != self.default_locale
+                and self.path_format_localized is not None):
+            return self.path_format_localized
+        return self.path_format_base
+
+    @property
+    @utils.memoize
+    def path_format_base(self):
+        """Path format for base document."""
+        return self.fields.get('$path', self.collection.path_format)
+
+    @property
+    @utils.memoize
+    def path_format_localized(self):
+        """Path format for localized documents."""
+        if ('$localization' in self.fields
+                and 'path' in self.fields['$localization']):
+            return self.fields['$localization']['path']
+        elif self.collection.localization:
+            return self.collection.localization.get('path')
+        return None
 
     @property  # Cached in document format.
     def raw_content(self):
@@ -420,6 +432,29 @@ class Document(object):
         except KeyError:
             logging.error('Error with path format: {}'.format(path_format))
             raise
+
+    @utils.memoize
+    def get_serving_path_base(self):
+        """Get the base (default locale) serving path."""
+        return self.pod.path_format.format_doc(
+            self, self.path_format_base, locale=self.default_locale.alias)
+
+    @utils.memoize
+    def get_serving_path_localized(self):
+        """Get the serving paths for each non-default locale."""
+        return self.pod.path_format.format_doc(
+            self, self.path_format_localized, parameterize=True)
+
+    @utils.memoize
+    def get_serving_paths_localized(self):
+        """Get the serving paths for each non-default locale."""
+        paths = {}
+        for locale in self.locales:
+            if locale == self.default_locale:
+                continue
+            paths[locale] = self.pod.path_format.format_doc(
+                self, self.path_format_localized, locale=locale)
+        return paths
 
     def localize(self, locale):
         return self.collection.get_doc(self.root_pod_path, locale=locale)

@@ -312,6 +312,41 @@ class Collection(object):
                 raise
         return reversed(sorted_docs) if reverse else sorted_docs
 
+    def list_docs_unread(self, locale=utils.SENTINEL, recursive=True, inject=False):
+        """Lists the docs without triggering a read from the storage system."""
+        docs = []
+        if inject:
+            injected_docs = self.pod.inject_preprocessors(collection=self)
+            if injected_docs is not None:
+                docs = injected_docs
+                self.pod.logger.info(
+                    'Injected collection -> {}'.format(self.pod_path))
+            return docs
+        for path in self.pod.list_dir(self.pod_path, recursive=recursive):
+            pod_path = os.path.join(self.pod_path, path.lstrip('/'))
+            # Document is owned by a different collection, skip it.
+            if not self._owns_doc_at_path(pod_path):
+                continue
+            slug, ext = os.path.splitext(os.path.basename(pod_path))
+            if (slug.startswith('_')
+                    or ext not in messages.extensions_to_formats
+                    or not pod_path):
+                continue
+            try:
+                _, locale_from_path = \
+                    documents.Document.parse_localized_path(pod_path)
+                if locale_from_path:
+                    if (locale is not None
+                            and locale in [utils.SENTINEL, locale_from_path]):
+                        docs.append(self.get_doc(
+                            pod_path, locale=locale_from_path))
+                    continue
+                docs.append(self.get_doc(pod_path))
+            except Exception:
+                logging.error('Error loading doc: {}'.format(pod_path))
+                raise
+        return docs
+
     # Aliases `collection.docs` to `collection.list_docs`. `collection.docs`
     # should be the public and supported way to retrieve documents from a
     # collection.

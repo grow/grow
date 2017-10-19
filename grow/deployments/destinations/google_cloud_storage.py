@@ -7,7 +7,7 @@ from gcs_oauth2_boto_plugin import oauth2_helper
 from grow.common import oauth
 from grow.common import utils
 from grow.pods import env
-from grow.pods import rendered_document
+from grow.rendering import rendered_document
 from protorpc import messages
 import boto
 import cStringIO

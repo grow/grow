@@ -126,7 +126,7 @@ class PodCache(object):
 
     def write(self):
         """Persist the cache information to a yaml file."""
-        with self._pod.profile.timer('podcache.write'):
+        with self._pod.profile.timer('Podcache.write'):
             if self._dependency_graph.is_dirty:
                 output = self._dependency_graph.export()
                 self._dependency_graph.mark_clean()

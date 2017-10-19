@@ -2,6 +2,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 from grow.common import sdk_utils
+from grow.common import timer
 from grow.preprocessors import file_watchers
 from grow.server import main as main_lib
 from werkzeug import serving
@@ -19,9 +20,19 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
 
     def server_activate(self):
         super(CallbackHTTPServer, self).server_activate()
-        host, port = self.server_address
+        _, port = self.server_address
         self.pod.env.port = port
-        self.pod.load()
+        if self.pod.use_reroute:
+            with timer.Timer() as router_time:
+                self.pod.router.add_all(concrete=False)
+            self.pod.logger.info('{} routes built in {:.3f} s'.format(
+                len(self.pod.router.routes), router_time.secs))
+        else:
+            with timer.Timer() as load_timer:
+                self.pod.load()
+            self.pod.logger.info('Pod loaded in {:.3f} s'.format(
+                load_timer.secs))
+
         url = print_server_ready_message(self.pod, self.pod.env.host, port)
         if self.open_browser:
             start_browser_in_thread(url)
@@ -44,7 +55,7 @@ def print_server_ready_message(pod, host, port):
 
 def start(pod, host=None, port=None, open_browser=False, debug=False,
           preprocess=True, update_check=False):
-    observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
+    _, _ = file_watchers.create_dev_server_observers(pod)
     if preprocess:
         thread = threading.Thread(target=pod.preprocess, kwargs={'build': False})
         thread.setDaemon(True)
