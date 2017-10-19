@@ -63,11 +63,12 @@ def goodbye_pods():
     for tmp_dir in _POD_TEMP_DIRS:
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
-# TODO(jeremydw): A handful of the properties of "pod" should be moved to the
-# "podspec" class.
 
 
 class Pod(object):
+    """Grow pod."""
+    # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
+    # "podspec" class.
     DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
     FEATURE_UI = 'ui'
     FEATURE_TRANSLATION_STATS = 'translation_stats'
@@ -846,7 +847,8 @@ class Pod(object):
             with self.profile.timer('Pod.read_yaml', label=label, meta=meta):
                 fields = self.podcache.file_cache.get(path, locale='__raw__')
                 if fields is None:
-                    fields = utils.parse_yaml(self.read_file(path), pod=self)
+                    fields = utils.parse_yaml(
+                        self.read_file(path), pod=self, locale=locale)
                     self.podcache.file_cache.add(
                         path, fields, locale='__raw__')
                 try:

@@ -127,6 +127,8 @@ class Routes(object):
         yield_paths = []
 
         for doc in docs:
+            if not doc.has_serving_path():
+                continue
             # Ignore the docs that are the same as the default locale.
             root_path = doc.root_pod_path
             current_locale = str(doc.locale)
