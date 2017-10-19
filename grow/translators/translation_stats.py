@@ -57,7 +57,7 @@ class TranslationStats(object):
             messages[message.id] = 0
         messages[message.id] += 1
 
-        if not message.string and locale is not default_locale:
+        if not message.string and message.id.strip() and locale is not default_locale:
             if locale not in self._untranslated:
                 self._untranslated[locale] = set()
             self._untranslated[locale].add(message.id)
