@@ -101,7 +101,7 @@ class RenderedController(controllers.BaseController):
             exception.controller = self
             exception.exception = e
             if self._pod:
-                self._pod.logger.error(text.format(self, e))
+                self._pod.logger.exception(text.format(self, e))
             raise exception
 
     def _inject_ui(self, content, preprocessor, translator):
