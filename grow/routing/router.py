@@ -219,3 +219,6 @@ class RouteInfo(object):
     def __init__(self, kind, meta=None):
         self.kind = kind
         self.meta = meta or {}
+
+    def __repr__(self):
+        return '<RouteInfo kind={} meta={}>'.format(self.kind, self.meta)
