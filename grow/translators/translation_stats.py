@@ -57,6 +57,18 @@ class TranslationStats(object):
                 break
         return tb[start:end]
 
+    def _get_message_locations(self, locale, message):
+        """Get a list of the locations for a given locale and message."""
+        locations = set()
+
+        for item in self.stacktraces:
+            if item['locale'] != locale or item['id'] != message:
+                continue
+            if item['location']:
+                locations.add(item['location'])
+
+        return [(location, None) for location in locations]
+
     def export(self):
         """Export messages and untranslated strings."""
         return {
@@ -73,7 +85,8 @@ class TranslationStats(object):
                     locale, basename='untranslated.po', dir_path=dir_path)
             catalog = locale_to_catalog[locale]
             for message in messages:
-                catalog.add(message)
+                catalog.add(message, locations=self._get_message_locations(
+                    locale, message))
         return locale_to_catalog
 
     def export_untranslated_tracebacks(self):
@@ -118,7 +131,7 @@ class TranslationStats(object):
 
             return output.getvalue().encode('utf-8')
 
-    def tick(self, message, locale, default_locale):
+    def tick(self, message, locale, default_locale, location=None):
         """Count a translation."""
         if not message:
             return
@@ -139,6 +152,7 @@ class TranslationStats(object):
             stack = traceback.format_stack()
             self._stacktraces.append({
                 'locale': locale,
+                'location': location,
                 'id': message.id,
                 'tb': self._simplify_traceback(stack),
             })

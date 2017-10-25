@@ -165,7 +165,8 @@ def make_doc_gettext(doc):
         # used for tracking untranslated strings.
         message = catalog[__string] \
             or babel_catalog.Message(__string, locations=[(doc.pod_path, 0)])
-        translation_stats.tick(message, doc.locale, doc.default_locale)
+        translation_stats.tick(
+            message, doc.locale, doc.default_locale, location=doc.pod_path)
         return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
     return gettext
 
