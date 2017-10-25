@@ -216,6 +216,9 @@ class Router(object):
 class RouteInfo(object):
     """Organize information stored in the routes."""
 
+    def __eq__(self, other):
+        return self.kind == other.kind and self.meta == other.meta
+
     def __init__(self, kind, meta=None):
         self.kind = kind
         self.meta = meta or {}
