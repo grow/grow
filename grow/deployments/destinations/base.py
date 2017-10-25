@@ -182,7 +182,10 @@ class BaseDestination(object):
                               pattern=re.compile(r'\.po$'))
         for _, catalog in catalogs.iteritems():
             catalog.save()
-        if catalogs:
+        if self.pod.translation_stats.stacktraces:
+            self.pod.write_file(os.path.join(dir_path, 'tracebacks.log'),
+                self.pod.translation_stats.export_untranslated_tracebacks())
+        if catalogs or self.pod.translation_stats.stacktraces:
             logging.info('Untranslated strings exported to {}'.format(dir_path))
 
     def get_env(self):
