@@ -18,7 +18,7 @@ class PathConflictError(Error):
 
     def __init__(self, path, value, existing):
         super(PathConflictError, self).__init__(
-            'Path already exists: {} (New: {} : Existing: {})'.format(path, value, existing))
+            'Path already exists: {} ({} != {})'.format(path, existing, value))
         self.path = path
         self.value = value
 
