@@ -16,9 +16,9 @@ class Error(Exception):
 class PathConflictError(Error):
     """Error when there is a conflict of paths in the routes trie."""
 
-    def __init__(self, path, value):
+    def __init__(self, path, value, existing):
         super(PathConflictError, self).__init__(
-            'Path already exists: {} ({})'.format(path, value))
+            'Path already exists: {} ({} != {})'.format(path, existing, value))
         self.path = path
         self.value = value
 
@@ -121,8 +121,8 @@ class RoutesDict(object):
 
     def add(self, path, value):
         """Add a new doc to the route trie."""
-        if path in self._root:
-            raise PathConflictError(path, value)
+        if path in self._root and self._root[path] != value:
+            raise PathConflictError(path, value, self._root[path])
         self._root[path] = value
 
     def match(self, path):
@@ -232,8 +232,8 @@ class RouteNode(object):
         """Recursively add into the trie based upon the given segments."""
 
         if not segments:
-            if self.path:
-                raise PathConflictError(path, value)
+            if self.path and self.value != value:
+                raise PathConflictError(path, value, self.value)
             self.path = path
             self.value = value
             return
@@ -258,8 +258,10 @@ class RouteNode(object):
         # Insert as a wildcard node.
         if segment and segment[0] is PREFIX_WILDCARD:
             segment = segment[1:]  # Don't need the prefix character.
-            if PREFIX_WILDCARD in self._dynamic_children:
-                raise PathConflictError(path, value)
+            if (PREFIX_WILDCARD in self._dynamic_children
+                    and self._dynamic_children[PREFIX_WILDCARD].value != value):
+                raise PathConflictError(
+                    path, value, self._dynamic_children[PREFIX_WILDCARD].value)
             new_node = RouteWildcardNode(param_name=segment or PREFIX_WILDCARD)
             new_node.add([], path, value)
             self._dynamic_children[PREFIX_WILDCARD] = new_node
