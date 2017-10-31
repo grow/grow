@@ -20,6 +20,12 @@ class RCConfig(base_config.BaseConfig):
         if config is None:
             self.read()
 
+    @staticmethod
+    def _is_ci_env():
+        if 'CI' in os.environ:
+            return True
+        return False
+
     @property
     def filename(self):
         """Filename of the RC File."""
@@ -38,6 +44,8 @@ class RCConfig(base_config.BaseConfig):
     @property
     def needs_update_check(self):
         """Check if the update check needs to be done."""
+        if self._is_ci_env():
+            return False
         time_passed = self._time() - self.last_checked
         return time_passed > RC_LAST_CHECKED_DELTA.total_seconds()
 
