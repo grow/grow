@@ -9,13 +9,12 @@ import sys
 import urlparse
 import requests
 import semantic_version
-import yaml
 from grow.common import config
+from grow.common import rc_config
 from grow.common import utils
 from xtermcolor import colorize
 
 
-RC_FILE_NAME = '.growrc.yaml'
 VERSION = config.VERSION
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
@@ -34,23 +33,6 @@ class Error(Exception):
 
 class LatestVersionCheckError(Error):
     pass
-
-
-def get_rc_config():
-    """Reads the RC config from the system."""
-    rc_file = os.path.expanduser('~/{}'.format(RC_FILE_NAME))
-    if not os.path.isfile(rc_file):
-        return {}
-    with open(rc_file, 'r') as conf:
-        contents = yaml.load(conf.read())
-    return contents
-
-
-def write_rc_config(rc_config):
-    """Writes the RC config to the system."""
-    rc_file = os.path.expanduser('~/{}'.format(RC_FILE_NAME))
-    with open(rc_file, 'w') as conf:
-        conf.write(yaml.safe_dump(rc_config))
 
 
 def get_this_version():
@@ -73,11 +55,11 @@ def get_latest_version():
                     return release['tag_name']
     except LatestVersionCheckError:
         raise
-    except Exception as e:
-        logging.error(colorize(str(e), ansi=198))
-        text = 'Unable to check for the latest version: {}'.format(str(e))
+    except Exception as err:
+        logging.error(colorize(str(err), ansi=198))
+        text = 'Unable to check for the latest version: {}'.format(str(err))
         logging.error(colorize(text, ansi=198))
-        raise LatestVersionCheckError(str(e))
+        raise LatestVersionCheckError(str(err))
 
 
 def check_sdk_version(pod):
@@ -94,9 +76,15 @@ def check_sdk_version(pod):
 
 
 def check_for_sdk_updates(auto_update_prompt=False):
+    grow_rc_config = rc_config.RCConfig()
+    if not grow_rc_config.needs_update_check:
+        return
     try:
         theirs = get_latest_version()
         yours = get_this_version()
+        # Mark that we have performed a check for the update.
+        grow_rc_config.reset_update_check()
+        grow_rc_config.write()
     except LatestVersionCheckError:
         return
     if semantic_version.Version(theirs) <= semantic_version.Version(yours):
@@ -109,8 +97,7 @@ def check_for_sdk_updates(auto_update_prompt=False):
         colorize(yours, ansi=226), colorize(theirs, ansi=82)))
 
     if utils.is_packaged_app() and auto_update_prompt:
-        rc_config = get_rc_config()
-        use_auto_update = rc_config.get('update', {}).get('always', False)
+        use_auto_update = grow_rc_config.get('update.always', False)
 
         if use_auto_update:
             logging.info('  > Auto-updating to version: {}'.format(
@@ -121,10 +108,8 @@ def check_for_sdk_updates(auto_update_prompt=False):
             if choice not in ('y', 'a', ''):
                 return
             if choice == 'a':
-                rc_config['update'] = {
-                    'always': True,
-                }
-                write_rc_config(rc_config)
+                grow_rc_config.set('update.always', True)
+                grow_rc_config.write()
 
         if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
             logging.info('Restarting...')
