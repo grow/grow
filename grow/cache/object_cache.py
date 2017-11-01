@@ -10,6 +10,10 @@ be shared between locales.
 import re
 
 
+FILE_OBJECT_CACHE = 'objectcache.json'
+FILE_OBJECT_SUB_CACHE = 'objectcache.{}.json'
+
+
 class ObjectCache(object):
     """Object cache for caching arbitrary data in a pod."""
 

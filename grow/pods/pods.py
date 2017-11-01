@@ -73,7 +73,6 @@ class Pod(object):
     FEATURE_UI = 'ui'
     FEATURE_TRANSLATION_STATS = 'translation_stats'
     FILE_DEP_CACHE = '.depcache.json'
-    FILE_OBJECT_CACHE = 'objectcache.json'
     FILE_PODSPEC = 'podspec.yaml'
     PATH_CONTROL = '/.grow/'
 
@@ -143,7 +142,7 @@ class Pod(object):
 
     def _parse_object_cache_file(self):
         with self.profile.timer('Pod._parse_object_cache_file'):
-            object_cache_file_name = '/{}'.format(self.FILE_OBJECT_CACHE)
+            object_cache_file_name = '/{}'.format(podcache.FILE_OBJECT_CACHE)
 
             if not self.file_exists(object_cache_file_name):
                 return {}
@@ -170,7 +169,7 @@ class Pod(object):
                     self.read_file(legacy_podcache_file_name)) or {}
                 if 'objects' in temp_data and temp_data['objects']:
                     object_cache_file_name = '/{}'.format(
-                        self.FILE_OBJECT_CACHE)
+                        podcache.FILE_OBJECT_CACHE)
                     self.write_file(object_cache_file_name,
                                     json.dumps(temp_data['objects']))
                 self.delete_file(legacy_podcache_file_name)
@@ -798,7 +797,7 @@ class Pod(object):
                 else:
                     self.routes.reconcile_documents(
                         remove_docs=removed_docs, add_docs=added_docs)
-        elif pod_path == '/{}'.format(self.FILE_OBJECT_CACHE):
+        elif pod_path == '/{}'.format(podcache.FILE_OBJECT_CACHE):
             self.podcache.update(obj_cache=self._parse_object_cache_file())
             if self.podcache.is_dirty:
                 logging.info('Object cache changed, updating with new data.')
