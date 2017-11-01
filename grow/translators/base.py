@@ -74,7 +74,7 @@ class Translator(object):
 
             # Ignore the locales without a `.PO` file.
             po_path = os.path.join(locale_path, 'LC_MESSAGES', 'messages.po')
-            if not os.path.isfile(po_path):
+            if not self.pod.file_exists(po_path):
                 self.pod.logger.info('Skipping: {} (no `.po` file)'.format(
                     str(locale)))
                 continue
