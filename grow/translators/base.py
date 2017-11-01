@@ -59,6 +59,10 @@ class Translator(object):
         """Certain locales should be ignored."""
         clean_locales = []
         default_locale = self.pod.podspec.default_locale
+        skipped = {
+            'symlink': [],
+            'po': [],
+        }
         for locale in locales:
             locale_path = os.path.join('translations', str(locale))
 
@@ -68,18 +72,25 @@ class Translator(object):
 
             # Ignore the symlinks.
             if os.path.islink(locale_path):
-                self.pod.logger.info('Skipping: {} (symlinked)'.format(
-                    str(locale)))
+                skipped['symlink'].append(str(locale))
                 continue
 
             # Ignore the locales without a `.PO` file.
             po_path = os.path.join(locale_path, 'LC_MESSAGES', 'messages.po')
             if not self.pod.file_exists(po_path):
-                self.pod.logger.info('Skipping: {} (no `.po` file)'.format(
-                    str(locale)))
+                skipped['po'].append(str(locale))
                 continue
 
             clean_locales.append(locale)
+
+        # Summary of skipped files.
+        if skipped['symlink']:
+            self.pod.logger.info('Skipping: {} (symlinked)'.format(
+                ', '.join(skipped['symlink'])))
+        if skipped['po']:
+            self.pod.logger.info('Skipping: {} (no `.po` file)'.format(
+                ', '.join(skipped['po'])))
+
         return clean_locales
 
     def _download_content(self, stat):
