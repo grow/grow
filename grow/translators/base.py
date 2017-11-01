@@ -60,8 +60,8 @@ class Translator(object):
         clean_locales = []
         default_locale = self.pod.podspec.default_locale
         skipped = {
-            'symlink': [],
-            'po': [],
+            'symlink': set(),
+            'po': set(),
         }
         for locale in locales:
             locale_path = os.path.join('translations', str(locale))
@@ -72,13 +72,13 @@ class Translator(object):
 
             # Ignore the symlinks.
             if os.path.islink(locale_path):
-                skipped['symlink'].append(str(locale))
+                skipped['symlink'].add(str(locale))
                 continue
 
             # Ignore the locales without a `.PO` file.
             po_path = os.path.join(locale_path, 'LC_MESSAGES', 'messages.po')
             if not self.pod.file_exists(po_path):
-                skipped['po'].append(str(locale))
+                skipped['po'].add(str(locale))
                 continue
 
             clean_locales.append(locale)
