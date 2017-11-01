@@ -235,6 +235,13 @@ def install_node_from_nvmrc(pod):
     return True
 
 
+def get_nvm_use_prefix(pod):
+    """Return the nvm command to run ahead of a node command (if any)."""
+    if has_nvmrc(pod):
+        return '{};'.format(format_nvm_shell_command('use'))
+    return None
+
+
 def install_npm(pod):
     args = get_popen_args(pod)
     npm_status_command = 'npm --version > /dev/null 2>&1'
@@ -256,8 +263,10 @@ def install_npm(pod):
             pod.logger.error('    Download Node.js from https://nodejs.org')
         return
     pod.logger.info('[✓] "npm" is installed.')
+    nvm_command = get_nvm_use_prefix(pod)
     npm_command = 'npm install'
-    process = subprocess.Popen(npm_command, shell=True, **args)
+    commands = [nvm_command, npm_command] if nvm_command else [npm_command]
+    process = subprocess.Popen(' '.join(commands), shell=True, **args)
     code = process.wait()
     if not code:
         pod.logger.info('[✓] Finished: npm install.')

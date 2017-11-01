@@ -18,16 +18,10 @@ class GulpPreprocessor(base.BasePreprocessor):
     KIND = 'gulp'
     Config = Config
 
-    def _get_nvm_use_prefix(self):
-        """Return the nvm command to run ahead of gulp (if any)."""
-        if sdk_utils.has_nvmrc(self.pod):
-            return '{};'.format(sdk_utils.format_nvm_shell_command('use'))
-        return None
-
     def _get_command(self, task):
         """Construct the command to run the given gulp task."""
         commands = [self.config.command, task]
-        nvm_use_command = self._get_nvm_use_prefix()
+        nvm_use_command = sdk_utils.get_nvm_use_prefix(self.pod)
         if nvm_use_command:
             commands = [nvm_use_command] + commands
         return ' '.join(commands)
