@@ -23,6 +23,13 @@ class RenderedDocument(object):
         """Temp filename if has temporary dir."""
         return os.path.join(self.tmp_dir, self.hash)
 
+    @property
+    def filename(self):
+        """Returns the temp file name if available."""
+        if not self.tmp_dir:
+            return None
+        return self._get_tmp_filename()
+
     def read(self):
         """Reads the content when it needs it."""
         if not self.tmp_dir:
