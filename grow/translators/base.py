@@ -86,10 +86,10 @@ class Translator(object):
         # Summary of skipped files.
         if skipped['symlink']:
             self.pod.logger.info('Skipping: {} (symlinked)'.format(
-                ', '.join(skipped['symlink'])))
+                ', '.join(sorted(skipped['symlink']))))
         if skipped['po']:
             self.pod.logger.info('Skipping: {} (no `.po` file)'.format(
-                ', '.join(skipped['po'])))
+                ', '.join(sorted(skipped['po']))))
 
         return clean_locales
 
