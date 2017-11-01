@@ -3,6 +3,7 @@
 import copy
 import json
 import logging
+import os
 import threading
 import progressbar
 import texttable
@@ -53,6 +54,44 @@ class Translator(object):
         self.project_title = project_title or 'Untitled Grow Website'
         self.instructions = instructions
         self._inject = inject
+
+    def _cleanup_locales(self, locales):
+        """Certain locales should be ignored."""
+        clean_locales = []
+        default_locale = self.pod.podspec.default_locale
+        skipped = {
+            'symlink': set(),
+            'po': set(),
+        }
+        for locale in locales:
+            locale_path = os.path.join('translations', str(locale))
+
+            # Silently ignore the default locale.
+            if default_locale and str(locale) == str(default_locale):
+                continue
+
+            # Ignore the symlinks.
+            if os.path.islink(locale_path):
+                skipped['symlink'].add(str(locale))
+                continue
+
+            # Ignore the locales without a `.PO` file.
+            po_path = os.path.join(locale_path, 'LC_MESSAGES', 'messages.po')
+            if not self.pod.file_exists(po_path):
+                skipped['po'].add(str(locale))
+                continue
+
+            clean_locales.append(locale)
+
+        # Summary of skipped files.
+        if skipped['symlink']:
+            self.pod.logger.info('Skipping: {} (symlinked)'.format(
+                ', '.join(sorted(skipped['symlink']))))
+        if skipped['po']:
+            self.pod.logger.info('Skipping: {} (no `.po` file)'.format(
+                ', '.join(sorted(skipped['po']))))
+
+        return clean_locales
 
     def _download_content(self, stat):
         raise NotImplementedError
@@ -157,6 +196,7 @@ class Translator(object):
 
     def update_acl(self, locales=None):
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_locales(locales)
         if not locales:
             self.pod.logger.info('No locales to found to update.')
             return
@@ -185,6 +225,7 @@ class Translator(object):
 
     def update_meta(self, locales=None):
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_locales(locales)
         if not locales:
             self.pod.logger.info('No locales to found to update.')
             return
@@ -211,6 +252,7 @@ class Translator(object):
                prune=False):
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_locales(locales)
         stats = []
         num_files = len(locales)
         if not locales:
