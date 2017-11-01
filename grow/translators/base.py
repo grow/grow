@@ -3,6 +3,7 @@
 import copy
 import json
 import logging
+import os
 import threading
 import progressbar
 import texttable
@@ -53,6 +54,17 @@ class Translator(object):
         self.project_title = project_title or 'Untitled Grow Website'
         self.instructions = instructions
         self._inject = inject
+
+    @staticmethod
+    def _cleanup_symlinks(locales):
+        """Symlinked locales should be ignored."""
+        clean_locales = []
+        for locale in locales:
+            locale_path = 'translations/{}'.format(str(locale))
+            if os.path.islink(locale_path):
+                continue
+            clean_locales.append(locale)
+        return clean_locales
 
     def _download_content(self, stat):
         raise NotImplementedError
@@ -157,6 +169,7 @@ class Translator(object):
 
     def update_acl(self, locales=None):
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_symlinks(locales)
         if not locales:
             self.pod.logger.info('No locales to found to update.')
             return
@@ -185,6 +198,7 @@ class Translator(object):
 
     def update_meta(self, locales=None):
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_symlinks(locales)
         if not locales:
             self.pod.logger.info('No locales to found to update.')
             return
@@ -211,6 +225,7 @@ class Translator(object):
                prune=False):
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_symlinks(locales)
         stats = []
         num_files = len(locales)
         if not locales:
