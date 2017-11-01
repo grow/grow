@@ -58,8 +58,13 @@ class Translator(object):
     def _cleanup_locales(self, locales):
         """Certain locales should be ignored."""
         clean_locales = []
+        default_locale = self.pod.podspec.default_locale
         for locale in locales:
             locale_path = os.path.join('translations', str(locale))
+
+            # Silently ignore the default locale.
+            if default_locale and str(locale) == str(default_locale):
+                continue
 
             # Ignore the symlinks.
             if os.path.islink(locale_path):
