@@ -55,15 +55,25 @@ class Translator(object):
         self.instructions = instructions
         self._inject = inject
 
-    def _cleanup_symlinks(self, locales):
-        """Symlinked locales should be ignored."""
+    def _cleanup_locales(self, locales):
+        """Certain locales should be ignored."""
         clean_locales = []
         for locale in locales:
-            locale_path = 'translations/{}'.format(str(locale))
+            locale_path = os.path.join('translations', str(locale))
+
+            # Ignore the symlinks.
             if os.path.islink(locale_path):
                 self.pod.logger.info('Skipping: {} (symlinked)'.format(
                     str(locale)))
                 continue
+
+            # Ignore the locales without a `.PO` file.
+            po_path = os.path.join(locale_path, 'LC_MESSAGES', 'messages.po')
+            if not os.path.isfile(po_path):
+                self.pod.logger.info('Skipping: {} (no `.po` file)'.format(
+                    str(locale)))
+                continue
+
             clean_locales.append(locale)
         return clean_locales
 
@@ -170,7 +180,7 @@ class Translator(object):
 
     def update_acl(self, locales=None):
         locales = locales or self.pod.catalogs.list_locales()
-        locales = self._cleanup_symlinks(locales)
+        locales = self._cleanup_locales(locales)
         if not locales:
             self.pod.logger.info('No locales to found to update.')
             return
@@ -199,7 +209,7 @@ class Translator(object):
 
     def update_meta(self, locales=None):
         locales = locales or self.pod.catalogs.list_locales()
-        locales = self._cleanup_symlinks(locales)
+        locales = self._cleanup_locales(locales)
         if not locales:
             self.pod.logger.info('No locales to found to update.')
             return
@@ -226,7 +236,7 @@ class Translator(object):
                prune=False):
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()
-        locales = self._cleanup_symlinks(locales)
+        locales = self._cleanup_locales(locales)
         stats = []
         num_files = len(locales)
         if not locales:
