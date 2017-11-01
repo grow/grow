@@ -142,6 +142,11 @@ def get_popen_args(pod):
 
 
 def has_nvmrc(pod):
+    """Check for the presence of a .nvmrc file in the given pod.
+
+    If a file exists, it is indicating that specific version of node is expected
+    to be used in the given project.
+    """
     return pod.file_exists('/.nvmrc')
 
 
