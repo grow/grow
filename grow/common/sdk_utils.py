@@ -141,9 +141,15 @@ def get_popen_args(pod):
     return args
 
 
+def has_nvmrc(pod):
+    return pod.file_exists('/.nvmrc')
+
+
 def install(pod, gerrit=None):
     if gerrit or has_gerrit_remote(pod) and gerrit is not False:
         install_gerrit_commit_hook(pod)
+    if has_nvmrc(pod):
+        install_node_from_nvmrc(pod)
     if pod.file_exists('/package.json'):
         if pod.file_exists('/yarn.lock'):
             success = install_yarn(pod)
@@ -194,6 +200,33 @@ def install_gerrit_commit_hook(pod):
         pod.logger.error(error_message)
         return False
     pod.logger.info('[✓] Finished: Installed Gerrit Code Review commit hook.')
+    return True
+
+
+def format_nvm_shell_command(command):
+    """Run an nvm command after sourcing the nvm bash file."""
+    return '. $NVM_DIR/nvm.sh; nvm {}'.format(command)
+
+
+def install_node_from_nvmrc(pod):
+    """Use nvm to install the node version listed in the .nvmrc file."""
+    args = get_popen_args(pod)
+    nvm_status_command = format_nvm_shell_command('--version > /dev/null 2>&1')
+    nvm_not_found = subprocess.call(nvm_status_command, shell=True, **args)
+    if nvm_not_found:
+        pod.logger.error('[✘] The "nvm" command was not found.')
+        pod.logger.error(
+            '    Download nvm following instructions on https://github.com/creationix/nvm')
+        return
+    pod.logger.info('[✓] "nvm" is installed.')
+
+    nvm_install_command = format_nvm_shell_command('install')
+    process = subprocess.Popen(nvm_install_command, shell=True, **args)
+    code = process.wait()
+    if code:
+        pod.logger.error('[✘] There was an error running "nvm install".')
+        return False
+    pod.logger.info('[✓] Finished: nvm install.')
     return True
 
 
