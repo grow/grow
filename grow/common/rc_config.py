@@ -54,6 +54,7 @@ class RCConfig(base_config.BaseConfig):
         rc_file_name = self.filename
         if not os.path.isfile(rc_file_name):
             self._config = {}
+            return
         with open(rc_file_name, 'r') as conf:
             self._config = yaml.load(conf.read())
 
