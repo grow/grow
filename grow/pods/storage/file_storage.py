@@ -64,7 +64,6 @@ class FileStorage(base_storage.BaseStorage):
                 raise
         with cls.open(path, mode='w') as fp:
             fp.write(content)
-            return fp
 
     @staticmethod
     def exists(filename):

@@ -1,11 +1,11 @@
 """Local deployment destination."""
 
 import os
+import shutil
 from grow.pods import env
 from grow.pods.storage import storage as storage_lib
 from grow.deployments.destinations import base
 from protorpc import messages
-from shutil import copyfile
 
 
 class Config(messages.Message):
@@ -40,8 +40,8 @@ class LocalDestination(base.BaseDestination):
     def write_file(self, rendered_doc):
         path = rendered_doc.path
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
-        if rendered_doc.filename:
-            copyfile(rendered_doc.filename, path)
+        if rendered_doc.file_path:
+            shutil.copyfile(rendered_doc.file_path, path)
         else:
             self.storage.write(out_path, rendered_doc.read())
 
