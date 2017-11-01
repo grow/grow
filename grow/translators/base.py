@@ -55,13 +55,14 @@ class Translator(object):
         self.instructions = instructions
         self._inject = inject
 
-    @staticmethod
-    def _cleanup_symlinks(locales):
+    def _cleanup_symlinks(self, locales):
         """Symlinked locales should be ignored."""
         clean_locales = []
         for locale in locales:
             locale_path = 'translations/{}'.format(str(locale))
             if os.path.islink(locale_path):
+                self.pod.logger.info('Skipping: {} (symlinked)'.format(
+                    str(locale)))
                 continue
             clean_locales.append(locale)
         return clean_locales
