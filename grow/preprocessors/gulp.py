@@ -25,9 +25,16 @@ class GulpPreprocessor(base.BasePreprocessor):
             return
         args = sdk_utils.get_popen_args(self.pod)
         task = self.config.build_task if build else self.config.run_task
-        raw_command = '{} {}'.format(self.config.command, task)
-        command = shlex.split(raw_command)
-        process = subprocess.Popen(command, **args)
+        if sdk_utils.has_nvmrc(self.pod):
+            nvm_use_command = '{};'.format(
+                sdk_utils.format_nvm_shell_command('use'))
+        else:
+            nvm_use_command = ''
+
+        raw_command = '{} {} {}'.format(
+            nvm_use_command, self.config.command, task)
+
+        process = subprocess.Popen(raw_command, shell=True, **args)
         if not build:
             return
         code = process.wait()

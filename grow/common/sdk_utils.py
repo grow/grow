@@ -9,12 +9,13 @@ import sys
 import urlparse
 import requests
 import semantic_version
+import yaml
 from grow.common import config
-from grow.common import rc_config
 from grow.common import utils
 from xtermcolor import colorize
 
 
+RC_FILE_NAME = '.growrc.yaml'
 VERSION = config.VERSION
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
@@ -33,6 +34,23 @@ class Error(Exception):
 
 class LatestVersionCheckError(Error):
     pass
+
+
+def get_rc_config():
+    """Reads the RC config from the system."""
+    rc_file = os.path.expanduser('~/{}'.format(RC_FILE_NAME))
+    if not os.path.isfile(rc_file):
+        return {}
+    with open(rc_file, 'r') as conf:
+        contents = yaml.load(conf.read())
+    return contents
+
+
+def write_rc_config(rc_config):
+    """Writes the RC config to the system."""
+    rc_file = os.path.expanduser('~/{}'.format(RC_FILE_NAME))
+    with open(rc_file, 'w') as conf:
+        conf.write(yaml.safe_dump(rc_config))
 
 
 def get_this_version():
@@ -55,11 +73,11 @@ def get_latest_version():
                     return release['tag_name']
     except LatestVersionCheckError:
         raise
-    except Exception as err:
-        logging.error(colorize(str(err), ansi=198))
-        text = 'Unable to check for the latest version: {}'.format(str(err))
+    except Exception as e:
+        logging.error(colorize(str(e), ansi=198))
+        text = 'Unable to check for the latest version: {}'.format(str(e))
         logging.error(colorize(text, ansi=198))
-        raise LatestVersionCheckError(str(err))
+        raise LatestVersionCheckError(str(e))
 
 
 def check_sdk_version(pod):
@@ -76,15 +94,9 @@ def check_sdk_version(pod):
 
 
 def check_for_sdk_updates(auto_update_prompt=False):
-    grow_rc_config = rc_config.RCConfig()
-    if not grow_rc_config.needs_update_check:
-        return
     try:
         theirs = get_latest_version()
         yours = get_this_version()
-        # Mark that we have performed a check for the update.
-        grow_rc_config.reset_update_check()
-        grow_rc_config.write()
     except LatestVersionCheckError:
         return
     if semantic_version.Version(theirs) <= semantic_version.Version(yours):
@@ -97,7 +109,8 @@ def check_for_sdk_updates(auto_update_prompt=False):
         colorize(yours, ansi=226), colorize(theirs, ansi=82)))
 
     if utils.is_packaged_app() and auto_update_prompt:
-        use_auto_update = grow_rc_config.get('update.always', False)
+        rc_config = get_rc_config()
+        use_auto_update = rc_config.get('update', {}).get('always', False)
 
         if use_auto_update:
             logging.info('  > Auto-updating to version: {}'.format(
@@ -108,8 +121,10 @@ def check_for_sdk_updates(auto_update_prompt=False):
             if choice not in ('y', 'a', ''):
                 return
             if choice == 'a':
-                grow_rc_config.set('update.always', True)
-                grow_rc_config.write()
+                rc_config['update'] = {
+                    'always': True,
+                }
+                write_rc_config(rc_config)
 
         if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
             logging.info('Restarting...')
@@ -141,9 +156,15 @@ def get_popen_args(pod):
     return args
 
 
+def has_nvmrc(pod):
+    return pod.file_exists('/.nvmrc')
+
+
 def install(pod, gerrit=None):
     if gerrit or has_gerrit_remote(pod) and gerrit is not False:
         install_gerrit_commit_hook(pod)
+    if has_nvmrc(pod):
+        install_node_from_nvmrc(pod)
     if pod.file_exists('/package.json'):
         if pod.file_exists('/yarn.lock'):
             success = install_yarn(pod)
@@ -194,6 +215,31 @@ def install_gerrit_commit_hook(pod):
         pod.logger.error(error_message)
         return False
     pod.logger.info('[✓] Finished: Installed Gerrit Code Review commit hook.')
+    return True
+
+
+def format_nvm_shell_command(command):
+    return '. ~/.nvm/nvm.sh; nvm {}'.format(command)
+
+
+def install_node_from_nvmrc(pod):
+    args = get_popen_args(pod)
+    nvm_status_command = format_nvm_shell_command('--version > /dev/null 2>&1')
+    nvm_not_found = subprocess.call(nvm_status_command, shell=True, **args)
+    if nvm_not_found:
+        pod.logger.error('[✘] The "nvm" command was not found.')
+        pod.logger.error(
+            '    Download nvm following instructions on https://github.com/creationix/nvm')
+        return
+    pod.logger.info('[✓] "nvm" is installed.')
+
+    nvm_install_command = format_nvm_shell_command('install')
+    process = subprocess.Popen(nvm_install_command, shell=True, **args)
+    code = process.wait()
+    if code:
+        pod.logger.error('[✘] There was an error running "nvm install".')
+        return False
+    pod.logger.info('[✓] Finished: nvm install.')
     return True
 
 
