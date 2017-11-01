@@ -209,7 +209,7 @@ def install_gerrit_commit_hook(pod):
 
 
 def format_nvm_shell_command(command):
-    """Run an nvm command after sourcing the nvm bash file."""
+    """Create command to run an nvm command after sourcing the nvm bash file."""
     return '. $NVM_DIR/nvm.sh; nvm {}'.format(command)
 
 
