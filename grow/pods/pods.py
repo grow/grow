@@ -22,6 +22,7 @@ from grow.common import progressbar_non
 from grow.common import timer
 from grow.common import utils
 from grow.documents import static_document
+from grow.performance import docs_loader
 from grow.performance import profile
 from grow.preprocessors import preprocessors
 from grow.rendering import rendered_document
@@ -731,7 +732,6 @@ class Pod(object):
             base_docs = []
             original_docs = []
             trigger_docs = col.list_servable_document_locales(pod_path)
-            updated_docs = []
 
             for dep_path in self.podcache.dependency_graph.get_dependents(
                     pod_path):
@@ -741,6 +741,10 @@ class Pod(object):
             for doc in base_docs:
                 self.podcache.document_cache.remove(doc)
                 self.podcache.collection_cache.remove_document_locales(doc)
+
+            # Force load the docs and fix locales.
+            docs_loader.DocsLoader.load(base_docs)
+            docs_loader.DocsLoader.fix_default_locale(self, base_docs)
 
             # The routing map should remain unchanged most of the time.
             added_docs = []
