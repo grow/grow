@@ -5,7 +5,7 @@ from grow.sdk.installers import base_installer
 
 
 class ExtensionsInstaller(base_installer.BaseInstaller):
-    """Grow npm and yarn installer."""
+    """Grow extensions installer."""
 
     KIND = 'extensions'
 

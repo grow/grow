@@ -150,9 +150,7 @@ def has_nvmrc(pod):
     return pod.file_exists('/.nvmrc')
 
 
-def install(pod, gerrit=None):
-    if gerrit or has_gerrit_remote(pod) and gerrit is not False:
-        install_gerrit_commit_hook(pod)
+def install(pod):
     if has_nvmrc(pod):
         install_node_from_nvmrc(pod)
     if pod.file_exists('/bower.json'):
@@ -161,42 +159,6 @@ def install(pod, gerrit=None):
             return
     if pod.file_exists('/gulpfile.js'):
         success = install_gulp(pod)
-
-
-def has_gerrit_remote(pod):
-    KNOWN_GERRIT_HOSTS = (
-        'googlesource.com',
-    )
-    repo = utils.get_git_repo(pod.root)
-    if repo is None:
-        return False
-    for remote in repo.remotes:
-        url = remote.config_reader.get('url')
-        result = urlparse.urlparse(url)
-        if result.netloc.endswith(KNOWN_GERRIT_HOSTS):
-            return True
-
-
-def install_gerrit_commit_hook(pod):
-    error_message = '[✘] There was an error installing the Gerrit commit hook.'
-    args = get_popen_args(pod)
-    curl_command = (
-        'curl -sLo '
-        '`git rev-parse --git-dir`/hooks/commit-msg '
-        'https://gerrit-review.googlesource.com/tools/hooks/commit-msg')
-    chmod_command = 'chmod +x `git rev-parse --git-dir`/hooks/commit-msg'
-    process = subprocess.Popen(curl_command, shell=True, **args)
-    code = process.wait()
-    if code:
-        pod.logger.error(error_message)
-        return False
-    process = subprocess.Popen(chmod_command, shell=True, **args)
-    code = process.wait()
-    if code:
-        pod.logger.error(error_message)
-        return False
-    pod.logger.info('[✓] Finished: Installed Gerrit Code Review commit hook.')
-    return True
 
 
 def format_nvm_shell_command(command):
