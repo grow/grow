@@ -8,7 +8,7 @@ from grow.common import base_config
 
 
 RC_FILE_NAME = '.growrc.yaml'
-RC_LAST_CHECKED_DELTA = datetime.timedelta(hours=6)
+RC_LAST_CHECKED_DELTA = datetime.timedelta(hours=1)
 
 
 class RCConfig(base_config.BaseConfig):
