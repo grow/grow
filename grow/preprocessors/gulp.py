@@ -18,6 +18,14 @@ class GulpPreprocessor(base.BasePreprocessor):
     KIND = 'gulp'
     Config = Config
 
+    def _get_command(self, task):
+        """Construct the command to run the given gulp task."""
+        commands = [self.config.command, task]
+        nvm_use_command = sdk_utils.get_nvm_use_prefix(self.pod)
+        if nvm_use_command:
+            commands = [nvm_use_command] + commands
+        return ' '.join(commands)
+
     def run(self, build=True):
         # Avoid restarting the Gulp subprocess if the preprocessor is
         # being run as a result of restarting the server.
@@ -25,12 +33,11 @@ class GulpPreprocessor(base.BasePreprocessor):
             return
         args = sdk_utils.get_popen_args(self.pod)
         task = self.config.build_task if build else self.config.run_task
-        raw_command = '{} {}'.format(self.config.command, task)
-        command = shlex.split(raw_command)
-        process = subprocess.Popen(command, **args)
+        command = self._get_command(task)
+        process = subprocess.Popen(command, shell=True, **args)
         if not build:
             return
         code = process.wait()
         if code != 0:
-            text = 'Failed to run: {}'.format(raw_command)
+            text = 'Failed to run: {}'.format(command)
             raise base.PreprocessorError(text)
