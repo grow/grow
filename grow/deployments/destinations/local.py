@@ -41,6 +41,9 @@ class LocalDestination(base.BaseDestination):
         path = rendered_doc.path
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
         if rendered_doc.file_path:
+            dir_name = os.path.dirname(out_path)
+            if not os.path.isdir(dir_name):
+                os.makedirs(dir_name)
             shutil.copyfile(rendered_doc.file_path, out_path)
         else:
             self.storage.write(out_path, rendered_doc.read())
