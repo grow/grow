@@ -124,6 +124,7 @@ class PodCache(object):
                 meta['cache'].reset()
 
     def update(self, dep_cache=None, obj_cache=None):
+        """Update the values in the dependency cache and/or the object cache."""
         if dep_cache:
             self._dependency_graph.add_all(dep_cache)
 
@@ -132,12 +133,16 @@ class PodCache(object):
                 if not key in self._object_caches:
                     self.create_object_cache(key, **meta)
                 else:
-                    self._object_caches[key]['cache'].add_all(meta['values'])
-                    self._object_caches[key][
-                        'write_to_file'] = meta['write_to_file']
-                    self._object_caches[key][
-                        'separate_file'] = meta['separate_file']
-                    self._object_caches[key]['can_reset'] = meta['can_reset']
+                    if isinstance(meta, basestring):
+                        # Ignore if the object cache is referenced to a different file.
+                        pass
+                    else:
+                        self._object_caches[key]['cache'].add_all(meta['values'])
+                        self._object_caches[key][
+                            'write_to_file'] = meta['write_to_file']
+                        self._object_caches[key][
+                            'separate_file'] = meta['separate_file']
+                        self._object_caches[key]['can_reset'] = meta['can_reset']
 
     def write(self):
         """Persist the cache information to a yaml file."""
