@@ -6,7 +6,7 @@ from grow.sdk.installers import base_installer
 
 
 EXTRA_FORMAT = '{}\n   {}'
-MESSAGE_FORMAT = '  [{}] {}'
+MESSAGE_FORMAT = '[{}] {}'
 
 
 class Error(Exception):
@@ -17,7 +17,7 @@ class Error(Exception):
 class Installer(object):
     """Grow installer for dependencies."""
 
-    def __init__(self, installers, pod=None):
+    def __init__(self, installers, pod):
         self.installers = installers
         self.pod = pod
 
@@ -52,13 +52,15 @@ class Installer(object):
             try:
                 installer.check_prerequisites()
             except base_installer.MissingPrerequisiteError as err:
-                self.failure(err.message, extras=err.install_commands)
+                self.pod.logger.error(
+                    self.failure(err.message, extras=err.install_commands))
                 return False
 
             installer.install()
 
             messages = installer.post_install_messages
             if messages:
-                self.success(messages[0], messages[1:] if len(messages) > 1 else [])
+                self.pod.logger.info(
+                    self.success(messages[0], messages[1:] if len(messages) > 1 else []))
         # All installers were successful.
         return True

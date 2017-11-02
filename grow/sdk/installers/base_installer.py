@@ -14,10 +14,19 @@ class MissingPrerequisiteError(Error):
         self.install_commands = install_commands
 
 
+class InstallError(Error):
+    """Installer had a error during install."""
+    pass
+
+
 class BaseInstaller(object):
     """Base class for grow installers."""
 
     KIND = None
+
+    def __init__(self, pod, config):
+        self.pod = pod
+        self.config = config
 
     @property
     def post_install_messages(self):
