@@ -18,7 +18,16 @@ class NpmInstallerTestCase(unittest.TestCase):
         self.installer = npm_installer.NpmInstaller(self.pod, self.config)
 
     def test_should_run(self):
-        """Test default for running the installer."""
+        """Test if installer should run."""
         self.assertFalse(self.installer.should_run)
         self.pod.write_file('package.json', '')
         self.assertTrue(self.installer.should_run)
+
+    def test_using_yarn_false(self):
+        """Test if using yarn."""
+        self.assertFalse(self.installer.using_yarn)
+
+    def test_using_yarn_true(self):
+        """Test if using yarn."""
+        self.pod.write_file('yarn.lock', '')
+        self.assertTrue(self.installer.using_yarn)
