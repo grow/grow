@@ -8,7 +8,7 @@ from grow.sdk.installers import base_installer
 class NpmInstaller(base_installer.BaseInstaller):
     """Grow npm and yarn installer."""
 
-    KIND = 'NPM'
+    KIND = 'npm'
 
     def __init__(self, pod, config):
         super(NpmInstaller, self).__init__(pod, config)
@@ -42,17 +42,17 @@ class NpmInstaller(base_installer.BaseInstaller):
             install_commands = []
             if sdk_utils.PLATFORM == 'linux':
                 install_commands.append(
-                    'On Linux, you can install npm using: apt-get install nodejs')
+                    'On Linux, you can install npm using: `apt-get install nodejs`')
             elif sdk_utils.PLATFORM == 'mac':
                 install_commands.append(
-                    'Using brew (https://brew.sh), you can install using: brew install node')
+                    'Using brew (https://brew.sh), you can install using: `brew install node`')
                 install_commands.append(('If you do not have brew, you can download '
                                          'Node.js from https://nodejs.org'))
             else:
                 install_commands.append(
                     'Download Node.js from https://nodejs.org')
             raise base_installer.MissingPrerequisiteError(
-                'The "npm" command was not found.', install_commands=install_commands)
+                'The `npm` command was not found.', install_commands=install_commands)
 
     def _check_prerequisites_yarn(self):
         """Check if required prerequisites are installed or available."""
@@ -63,7 +63,7 @@ class NpmInstaller(base_installer.BaseInstaller):
             install_commands = [
                 'Install yarn from https://yarnpkg.com/en/docs/install']
             raise base_installer.MissingPrerequisiteError(
-                'The "yarn" command was not found.', install_commands=install_commands)
+                'The `yarn` command was not found.', install_commands=install_commands)
 
     def _install_npm(self):
         """Install dependencies using npm."""

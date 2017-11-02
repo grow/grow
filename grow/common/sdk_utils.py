@@ -161,8 +161,6 @@ def install(pod, gerrit=None):
             return
     if pod.file_exists('/gulpfile.js'):
         success = install_gulp(pod)
-    if pod.file_exists('/extensions.txt'):
-        success = install_extensions(pod)
 
 
 def has_gerrit_remote(pod):
@@ -269,28 +267,3 @@ def install_gulp(pod):
         return
     pod.logger.info('[✓] "gulp" is installed.')
     return True
-
-
-def install_extensions(pod):
-    args = get_popen_args(pod)
-    pip_status_command = 'pip --version > /dev/null 2>&1'
-    pip_not_found = subprocess.call(
-        pip_status_command, shell=True, **args) == 127
-    if pip_not_found:
-        pod.logger.error('[✘] The "pip" command was not found.')
-        return
-    extensions_dir = pod.extensions_dir
-    pod.logger.info('[✓] "pip" is installed.')
-    command = 'pip install -U -t {} -r extensions.txt'
-    pip_command = command.format(extensions_dir)
-    process = subprocess.Popen(pip_command, shell=True, **args)
-    code = process.wait()
-    if not code:
-        init_file_name = '/{}/__init__.py'.format(extensions_dir)
-        if not pod.file_exists(init_file_name):
-            pod.write_file(init_file_name, '')
-        text = '[✓] Installed: extensions.txt -> {}'
-        pod.logger.info(text.format(extensions_dir))
-        return True
-    pod.logger.error(
-        '[✘] There was an error running "{}".'.format(pip_command))
