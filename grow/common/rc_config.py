@@ -66,4 +66,4 @@ class RCConfig(base_config.BaseConfig):
         """Writes the RC config to the system."""
         rc_file_name = self.filename
         with open(rc_file_name, 'w') as conf:
-            conf.write(yaml.safe_dump(self._config))
+            conf.write(yaml.safe_dump(self._config, default_flow_style=False))

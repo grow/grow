@@ -11,6 +11,10 @@ class BaseConfig(object):
     def _split_identifier(identifier):
         return identifier.split('.')
 
+    def export(self):
+        """Export the raw config."""
+        return self._config
+
     def get(self, identifier, default_value=None):
         """Retrieve the identifier value in the config."""
         parts = self._split_identifier(identifier)

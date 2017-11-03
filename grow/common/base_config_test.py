@@ -28,3 +28,9 @@ class BaseConfigTestCase(unittest.TestCase):
         self.assertEqual(None, self.config.get('update.last_checked'))
         self.config.set('update.last_checked', 12345)
         self.assertEqual(12345, self.config.get('update.last_checked'))
+        expected = {
+            'update': {
+                'last_checked': 12345,
+            },
+        }
+        self.assertEqual(expected, self.config.export())
