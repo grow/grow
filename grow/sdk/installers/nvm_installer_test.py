@@ -54,9 +54,22 @@ class NvmInstallerTestCase(unittest.TestCase):
     @mock.patch('subprocess.Popen')
     def test_install_failed(self, mock_popen):
         """Install fails using nvm."""
-        mock_process = mock.Mock()
-        mock_process.wait.return_value = 1
-        mock_popen.return_value = mock_process
+        # Install fails.
+        mock_process_install = mock.Mock()
+        mock_process_install.wait.return_value = 1
+        mock_popen.return_value = mock_process_install
+        with self.assertRaises(base_installer.InstallError):
+            self.installer.install()
+
+        # Use fails.
+        mock_process_install = mock.Mock()
+        mock_process_install.wait.return_value = 0
+        mock_process_use = mock.Mock()
+        mock_process_use.wait.return_value = 1
+        mock_popen.side_effects = [
+            mock_process_install,
+            mock_process_use,
+        ]
         with self.assertRaises(base_installer.InstallError):
             self.installer.install()
 
