@@ -52,6 +52,8 @@ class BaseConfigPrefixed(object):
     def normalize_prefix(prefix):
         """Normalize how the prefix is formatted."""
         prefix = prefix.strip()
+        if not prefix:
+            return ''
         if not prefix.endswith('.'):
             prefix = '{}.'.format(prefix)
         return prefix
