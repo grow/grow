@@ -141,33 +141,8 @@ def get_popen_args(pod):
 
 
 def install(pod):
-    if pod.file_exists('/bower.json'):
-        success = install_bower(pod)
-        if not success:
-            return
     if pod.file_exists('/gulpfile.js'):
         success = install_gulp(pod)
-
-
-def install_bower(pod):
-    args = get_popen_args(pod)
-    bower_status_command = 'bower --version > /dev/null 2>&1'
-    bower_not_found = subprocess.call(
-        bower_status_command, shell=True, **args) == 127
-    if bower_not_found:
-        pod.logger.error('[✘] The "bower" command was not found.')
-        pod.logger.error(
-            '    Either add bower to package.json or install globally using:'
-            ' sudo npm install -g bower')
-        return
-    pod.logger.info('[✓] "bower" is installed.')
-    bower_command = 'bower install'
-    process = subprocess.Popen(bower_command, shell=True, **args)
-    code = process.wait()
-    if not code:
-        pod.logger.info('[✓] Finished: bower install.')
-        return True
-    pod.logger.error('[✘] There was an error running "bower install".')
 
 
 def install_gulp(pod):
