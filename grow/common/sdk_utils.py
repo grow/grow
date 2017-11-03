@@ -123,38 +123,3 @@ def check_for_sdk_updates(auto_update_prompt=False):
         logging.info('  Update using: ' +
                      colorize('pip install --upgrade grow', ansi=200))
     print ''
-
-
-def get_popen_args(pod):
-    node_modules_path = os.path.join(pod.root, 'node_modules', '.bin')
-    env = os.environ.copy()
-    env['PATH'] = str(os.environ['PATH'] + os.path.pathsep + node_modules_path)
-    if pod.env and pod.env.name:
-        env['GROW_ENVIRONMENT_NAME'] = pod.env.name
-    args = {
-        'cwd': pod.root,
-        'env': env,
-    }
-    if os.name == 'nt':
-        args['shell'] = True
-    return args
-
-
-def install(pod):
-    if pod.file_exists('/gulpfile.js'):
-        success = install_gulp(pod)
-
-
-def install_gulp(pod):
-    args = get_popen_args(pod)
-    gulp_status_command = 'gulp --version > /dev/null 2>&1'
-    gulp_not_found = subprocess.call(
-        gulp_status_command, shell=True, **args) == 127
-    if gulp_not_found:
-        pod.logger.error('[✘] The "gulp" command was not found.')
-        pod.logger.error(
-            '    Either add gulp to package.json or install globally using:'
-            ' sudo npm install -g gulp')
-        return
-    pod.logger.info('[✓] "gulp" is installed.')
-    return True
