@@ -13,6 +13,9 @@ from grow.testing import testing
 class NpmInstallerTestCase(unittest.TestCase):
     """Test the NPM Installer."""
 
+    def _make_yarn(self):
+        self.pod.write_file('yarn.lock', '')
+
     def setUp(self):
         self.config = base_config.BaseConfig()
         self.dir_path = testing.create_test_pod_dir()
@@ -31,15 +34,23 @@ class NpmInstallerTestCase(unittest.TestCase):
     def test_check_prerequisites_yarn(self, mock_call):
         """Check prerequisites for yarn."""
         mock_call.return_value = 0
-        self.pod.write_file('yarn.lock', '')
+        self._make_yarn()
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
             'yarn --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.call')
-    def test_check_prerequisites_fail(self, mock_call):
+    def test_check_prerequisites_fail_npm(self, mock_call):
         """Fail check prerequisites for npm."""
         mock_call.return_value = 127
+        with self.assertRaises(base_installer.MissingPrerequisiteError):
+            self.installer.check_prerequisites()
+
+    @mock.patch('subprocess.call')
+    def test_check_prerequisites_fail_yarn(self, mock_call):
+        """Fail check prerequisites for yarn."""
+        mock_call.return_value = 127
+        self._make_yarn()
         with self.assertRaises(base_installer.MissingPrerequisiteError):
             self.installer.check_prerequisites()
 
@@ -59,19 +70,38 @@ class NpmInstallerTestCase(unittest.TestCase):
         mock_process = mock.Mock()
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
-        self.pod.write_file('yarn.lock', '')
+        self._make_yarn()
         self.installer.install()
         mock_popen.assert_called_once_with(
             'yarn install', **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.Popen')
-    def test_install_failed(self, mock_popen):
+    def test_install_failed_npm(self, mock_popen):
         """Install fails using npm."""
         mock_process = mock.Mock()
         mock_process.wait.return_value = 1
         mock_popen.return_value = mock_process
         with self.assertRaises(base_installer.InstallError):
             self.installer.install()
+
+    @mock.patch('subprocess.Popen')
+    def test_install_failed_yarn(self, mock_popen):
+        """Install fails using yarn."""
+        mock_process = mock.Mock()
+        mock_process.wait.return_value = 1
+        mock_popen.return_value = mock_process
+        self._make_yarn()
+        with self.assertRaises(base_installer.InstallError):
+            self.installer.install()
+
+    def test_post_install_messages_npm(self):
+        """Post install messages for npm."""
+        self.assertEqual(['Finished: npm'], self.installer.post_install_messages)
+
+    def test_post_install_messages_yarn(self):
+        """Post install messages for yarn."""
+        self._make_yarn()
+        self.assertEqual(['Finished: yarn'], self.installer.post_install_messages)
 
     def test_should_run(self):
         """Detect if should run when using npm."""

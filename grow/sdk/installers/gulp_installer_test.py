@@ -35,6 +35,10 @@ class GulpInstallerTestCase(unittest.TestCase):
         with self.assertRaises(base_installer.MissingPrerequisiteError):
             self.installer.check_prerequisites()
 
+    def test_install(self):
+        """Install should not error for gulp."""
+        self.installer.install()
+
     def test_should_run(self):
         """Installer should run."""
         self.assertFalse(self.installer.should_run)
