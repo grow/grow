@@ -16,13 +16,13 @@ class InstallerTestCase(unittest.TestCase):
         self.installer = installer.Installer([], self.pod)
 
     def test_failure(self):
-        """Test failure message formatting."""
+        """Failure message formatting."""
         message = self.installer.failure('Bring Me Another Shrubbery!')
         expected = '\x1b[38;5;1m\x1b[1m[\xe2\x9c\x98] Bring Me Another Shrubbery!\x1b[0m'
         self.assertEqual(expected, message)
 
     def test_failure_with_extras(self):
-        """Test failure message formatting with extra messages."""
+        """Failure message formatting with extra messages."""
         message = self.installer.failure('Bring Me Another Shrubbery!', extras=['1', 'A'])
         expected = ('\x1b[38;5;1m\x1b[1m[\xe2\x9c\x98] '
                     'Bring Me Another Shrubbery!'
@@ -30,13 +30,13 @@ class InstallerTestCase(unittest.TestCase):
         self.assertEqual(expected, message)
 
     def test_success(self):
-        """Test success message formatting."""
+        """Success message formatting."""
         message = self.installer.success('Holy Hand Grenade')
         expected = '\x1b[38;5;2m[\xe2\x9c\x93] Holy Hand Grenade\x1b[0m'
         self.assertEqual(expected, message)
 
     def test_success_with_extras(self):
-        """Test success message formatting with extra messages."""
+        """Success message formatting with extra messages."""
         message = self.installer.success('Holy Hand Grenade', extras=['1', 'A'])
         expected = ('\x1b[38;5;2m[\xe2\x9c\x93] '
                     'Holy Hand Grenade'

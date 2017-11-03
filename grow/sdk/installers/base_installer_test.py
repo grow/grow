@@ -18,14 +18,14 @@ class BaseInstallerTestCase(unittest.TestCase):
         self.installer = base_installer.BaseInstaller(self.pod, self.config)
 
     def test_post_install_messages(self):
-        """Test default for install messages."""
+        """Default for install messages."""
         self.assertEqual(['Finished: None'], self.installer.post_install_messages)
 
     def test_should_run(self):
-        """Test default for running the installer."""
+        """Default for running the installer."""
         self.assertTrue(self.installer.should_run)
 
     def test_install(self):
-        """Test install."""
+        """Fails without implmented install."""
         with self.assertRaises(NotImplementedError):
             self.installer.install()

@@ -24,7 +24,7 @@ class GerritInstallerTestCase(unittest.TestCase):
 
     @mock.patch('subprocess.Popen')
     def test_install(self, mock_popen):
-        """Install runs the correct processes."""
+        """Installs using gerrit."""
         mock_process = mock.Mock()
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
@@ -41,7 +41,7 @@ class GerritInstallerTestCase(unittest.TestCase):
 
     @mock.patch('subprocess.Popen')
     def test_install_failed(self, mock_popen):
-        """Install runs the correct processes."""
+        """Install fails using gerrit."""
         mock_process = mock.Mock()
         mock_process.wait.return_value = 1
         mock_popen.return_value = mock_process
@@ -54,14 +54,14 @@ class GerritInstallerTestCase(unittest.TestCase):
             self.installer.install()
 
     def test_should_run(self):
-        """Installer should run."""
+        """Detect if should run when using gerrit."""
         self.assertTrue(self.installer.should_run)
         self.config.set('gerrit', False)
         self.assertFalse(self.installer.should_run)
 
     @mock.patch.object(utils, 'get_git_repo')
     def test_should_run_git_remote(self, mock_get_repo):
-        """Installer should run based on the git remotes."""
+        """Detect if should run when using gerrit and git remotes."""
         self.config.set('gerrit', None)
 
         # Works with no repo.
