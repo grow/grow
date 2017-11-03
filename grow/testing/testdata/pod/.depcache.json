@@ -1,0 +1,93 @@
+{
+  "/content/localized/multiple-locales@de.yaml": [
+    "/public/main.css"
+  ],
+  "/content/localized/multiple-locales@fr.yaml": [
+    "/public/main.css"
+  ],
+  "/content/localized/multiple-locales@it.yaml": [
+    "/public/main.css"
+  ],
+  "/content/pages/about.yaml": [
+    "/public/main.css"
+  ],
+  "/content/pages/about@de.yaml": [
+    "/public/main.css"
+  ],
+  "/content/pages/contact.yaml": [
+    "/public/main.css"
+  ],
+  "/content/pages/home.yaml": [
+    "/content/pages/about.yaml",
+    "/content/pages/about@de.yaml",
+    "/content/pages/contact.yaml",
+    "/content/pages/home.yaml",
+    "/content/pages/intro.md",
+    "/content/pages/intro@fr.md",
+    "/content/pages/json_test.html",
+    "/content/pages/root.yaml",
+    "/content/pages/yaml_test.html",
+    "/content/posts/newer.md",
+    "/content/posts/newest.md",
+    "/content/posts/older.md",
+    "/content/posts/oldest.md",
+    "/data/file.csv",
+    "/data/file.json",
+    "/data/file.yaml",
+    "/public/main.css",
+    "/static/file with spaces.txt",
+    "/static/intl/de/test.txt",
+    "/static/sym/test_sym.txt",
+    "/static/test.txt"
+  ],
+  "/content/pages/html.html": [
+    "/public/main.css"
+  ],
+  "/content/pages/intro.md": [
+    "/public/main.css"
+  ],
+  "/content/pages/intro@fr.md": [
+    "/public/main.css"
+  ],
+  "/content/pages/json_test.html": [
+    "/content/pages/text.txt",
+    "/data/file.json",
+    "/public/main.css"
+  ],
+  "/content/pages/localized.yaml": [
+    "/public/main.css"
+  ],
+  "/content/pages/root.yaml": [
+    "/content/pages/about.yaml",
+    "/content/pages/home.yaml",
+    "/content/pages/intro.md",
+    "/content/pages/json_test.html",
+    "/content/pages/root.yaml",
+    "/content/pages/yaml_test.html",
+    "/content/posts/newer.md",
+    "/content/posts/newest.md",
+    "/content/posts/older.md",
+    "/content/posts/oldest.md",
+    "/public/main.css",
+    "/static/file with spaces.txt",
+    "/static/intl/de/test.txt",
+    "/static/sym/test_sym.txt",
+    "/static/test.txt"
+  ],
+  "/content/pages/yaml_test.html": [
+    "/data/file.yaml",
+    "/public/main.css"
+  ],
+  "/content/posts/newer.md": [
+    "/public/main.css"
+  ],
+  "/content/posts/newest.md": [
+    "/public/main.css"
+  ],
+  "/content/posts/older.md": [
+    "/public/main.css"
+  ],
+  "/content/posts/oldest.md": [
+    "/public/main.css"
+  ]
+}
