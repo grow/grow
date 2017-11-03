@@ -3,9 +3,13 @@
 import os
 import click
 from grow.common import colors
+from grow.common import rc_config
 from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
+
+
+CFG = rc_config.RC_CONFIG.prefixed('grow.machine_translate')
 
 
 @click.command()

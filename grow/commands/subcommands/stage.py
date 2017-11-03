@@ -3,6 +3,7 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
@@ -11,10 +12,13 @@ from grow.pods import pods
 from grow.pods import storage
 
 
+CFG = rc_config.RC_CONFIG.prefixed('grow.stage')
+
+
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
-@click.option('--preprocess/--no-preprocess', '-p/-np', default=True,
+@click.option('--preprocess/--no-preprocess', '-p/-np', default=CFG.get('preprocess', True),
               is_flag=True, help='Whether to run preprocessors.')
 @click.option('--remote',
               help='WebReview remote address (example: '
@@ -24,7 +28,8 @@ from grow.pods import storage
 @click.option('--subdomain', help='Assign a subdomain to this build.')
 @click.option('--api-key',
               help='API key for authorizing staging to WebReview projects.')
-@click.option('--force-untranslated', 'force_untranslated', default=False, is_flag=True,
+@click.option('--force-untranslated', 'force_untranslated',
+              default=CFG.get('force-untranslated', False), is_flag=True,
               help='Whether to force untranslated strings to be uploaded.')
 @click.pass_context
 def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untranslated):

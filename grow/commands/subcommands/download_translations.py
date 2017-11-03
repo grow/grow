@@ -3,8 +3,12 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.pods import pods
 from grow.pods import storage
+
+
+CFG = rc_config.RC_CONFIG.prefixed('grow.download_translations')
 
 
 @click.command()

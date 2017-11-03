@@ -14,9 +14,10 @@ RC_LAST_CHECKED_DELTA = datetime.timedelta(hours=1)
 class RCConfig(base_config.BaseConfig):
     """Config for Grow RC file."""
 
-    def __init__(self, config=None, internal_time=time.time):
+    def __init__(self, config=None, internal_time=time.time, prefix=None):
         super(RCConfig, self).__init__(config=config)
         self._time = internal_time
+        self._prefix = prefix
         if config is None:
             self.read()
 
@@ -67,3 +68,7 @@ class RCConfig(base_config.BaseConfig):
         rc_file_name = self.filename
         with open(rc_file_name, 'w') as conf:
             conf.write(yaml.safe_dump(self._config, default_flow_style=False))
+
+
+# Global config for working with the rc config without needing to re-read the config.
+RC_CONFIG = RCConfig()

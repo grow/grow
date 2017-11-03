@@ -3,14 +3,18 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.deployments import stats as stats_lib
 from grow.pods import pods
 from grow.pods import storage
 
 
+CFG = rc_config.RC_CONFIG.prefixed('grow.stats')
+
+
 @click.command()
 @shared.pod_path_argument
-@click.option('--full/--no-full', '-f', is_flag=True, default=False,
+@click.option('--full/--no-full', '-f', is_flag=CFG.get('full', True), default=False,
               help='Whether to show full stats. By default, only '
                    'short stats are displayed. Short stats do not '
                    'require a build and may be faster to generate.')

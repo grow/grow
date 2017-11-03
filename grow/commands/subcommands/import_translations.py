@@ -3,8 +3,12 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.pods import pods
 from grow.pods import storage
+
+
+CFG = rc_config.RC_CONFIG.prefixed('grow.import_translations')
 
 
 @click.command()
@@ -15,7 +19,7 @@ from grow.pods import storage
               help='Locale of the message catalog to import. This option is'
                    ' only applicable when --source is a .po file.')
 @click.option('--include-obsolete/--no-include-obsolete',
-              default=True,
+              default=CFG.get('include-obsolete', True),
               help='Whether to include potentially obsolete messages or just'
                    ' include translations for strings that already exist in'
                    ' catalogs.')

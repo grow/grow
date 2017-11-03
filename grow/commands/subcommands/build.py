@@ -3,6 +3,7 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
@@ -11,23 +12,27 @@ from grow.pods import storage
 from grow.rendering import renderer
 
 
+CFG = rc_config.RC_CONFIG.prefixed('grow.build')
+
+
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
-@click.option('--out_dir', '--out-dir', help='Where to output built files.')
+@click.option('--out_dir', '--out-dir', default=CFG.get('out-dir', None),
+              help='Where to output built files.')
 @click.option('--preprocess/--no-preprocess', '-p/-np',
-              default=True, is_flag=True,
+              default=CFG.get('preprocess', True), is_flag=True,
               help='Whether to run preprocessors.')
 @click.option('--clear-cache',
-              default=False, is_flag=True,
+              default=CFG.get('clear-cache', False), is_flag=True,
               help='Clear the pod cache before building.')
 @click.option('--file', '--pod-path', 'pod_paths',
               help='Build only pages affected by content files.', multiple=True)
 @click.option('--locate-untranslated',
-              default=False, is_flag=True,
+              default=CFG.get('locate-untranslated', False), is_flag=True,
               help='Shows untranslated message information.')
-@shared.deployment_option
-@shared.reroute_option
+@shared.deployment_option(CFG)
+@shared.reroute_option(CFG)
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
           locate_untranslated, deployment, use_reroute):
     """Generates static files and dumps them to a local destination."""

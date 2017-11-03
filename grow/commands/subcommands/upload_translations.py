@@ -4,8 +4,12 @@ import os
 import click
 from grow.commands import shared
 from grow.commands.subcommands.extract import validate_locales
+from grow.common import rc_config
 from grow.pods import pods
 from grow.pods import storage
+
+
+CFG = rc_config.RC_CONFIG.prefixed('grow.upload_translations')
 
 
 @click.command()
@@ -13,7 +17,7 @@ from grow.pods import storage
 @click.option('--locale', type=str, multiple=True,
               help='Which locale(s) to upload. If unspecified,'
                    ' translations for all catalogs will be uploaded.')
-@click.option('--force/--noforce', '-f', default=False, is_flag=True,
+@click.option('--force/--noforce', '-f', default=CFG.get('force', False), is_flag=True,
               help='Whether to skip the prompt prior to uploading.')
 @click.option('--service', '-s', type=str,
               help='Name of the translator service to use. This option is'
@@ -21,10 +25,10 @@ from grow.pods import storage
 @click.option('--update-acl', default=False, is_flag=True,
               help='Whether to update the ACL on uploaded resources'
                    ' instead of uploading new translation files.')
-@click.option('--download/--no-download', '-d', default=True,
+@click.option('--download/--no-download', '-d', default=CFG.get('download', True),
               help='Whether to download any existing translations prior'
                    ' to uploading.')
-@click.option('--extract/--no-extract', '-x', default=True,
+@click.option('--extract/--no-extract', '-x', default=CFG.get('extract', True),
               help='Whether to extract translations prior to uploading.')
 @click.option('--prune', default=False, is_flag=True,
               help='Whether to remove obsolete messages from spreadsheet.'
