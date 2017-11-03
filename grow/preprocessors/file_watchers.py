@@ -1,8 +1,10 @@
-from . import translation
+"""File watchers for grow."""
+
+import os
+from grow.common import colors
 from watchdog import events
 from watchdog import observers
-from xtermcolor import colorize
-import os
+from . import translation
 
 
 class PodFileEventHandler(events.PatternMatchingEventHandler):
@@ -17,10 +19,10 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
     def trigger_file_changed(self, pod_path):
         try:
             self.pod.on_file_changed(pod_path)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # Avoid an inconsistent state where preprocessor doesn't run again
             # if it encounters an exception. https://github.com/grow/grow/issues/528
-            colored_pod_path = colorize(pod_path, ansi=197)
+            colored_pod_path = colors.stylize(pod_path, colors.ERROR)
             self.pod.logger.exception(
                 'Found an error -> {}'.format(colored_pod_path))
 
@@ -51,10 +53,10 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
                 self.preprocessor.first_run()
             else:
                 self.preprocessor.run()
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # Avoid an inconsistent state where preprocessor doesn't run again
             # if it encounters an exception. https://github.com/grow/grow/issues/81
-            text = colorize('Preprocessor error.', ansi=197)
+            text = colors.stylize('Preprocessor error.', colors.ERROR)
             self.preprocessor.pod.logger.exception(text)
         self.num_runs += 1
 
@@ -66,6 +68,7 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
 
 
 class ManagedObserver(observers.Observer):
+    """Observer for pod files."""
 
     def __init__(self, pod):
         self.pod = pod
@@ -135,6 +138,7 @@ class ManagedObserver(observers.Observer):
 
 
 def create_dev_server_observers(pod):
+    """Create the file watchers for the pod."""
     main_observer = ManagedObserver(pod)
     main_observer.schedule_builtins()
     main_observer.schedule_preprocessors()

@@ -8,10 +8,10 @@ import subprocess
 import sys
 import requests
 import semantic_version
+from grow.common import colors
 from grow.common import config
 from grow.common import rc_config
 from grow.common import utils
-from xtermcolor import colorize
 
 
 VERSION = config.VERSION
@@ -44,7 +44,7 @@ def get_latest_version():
         if 'message' in releases:
             text = 'Error while downloading release information: {}'.format(
                 releases['message'])
-            logging.error(colorize(text, ansi=198))
+            logging.error(colors.stylize(text, colors.ERROR))
             raise LatestVersionCheckError(str(text))
         for release in releases:
             if release['prerelease']:
@@ -55,9 +55,9 @@ def get_latest_version():
     except LatestVersionCheckError:
         raise
     except Exception as err:
-        logging.error(colorize(str(err), ansi=198))
+        logging.error(colors.stylize(str(err), colors.ERROR))
         text = 'Unable to check for the latest version: {}'.format(str(err))
-        logging.error(colorize(text, ansi=198))
+        logging.error(colors.stylize(text, colors.ERROR))
         raise LatestVersionCheckError(str(err))
 
 
@@ -70,7 +70,7 @@ def check_sdk_version(pod):
             not in semantic_version.Spec(requires_version)):
         text = 'ERROR! Pod requires Grow SDK version: {}'.format(
             requires_version)
-        logging.error(colorize(text, ansi=197))
+        logging.error(colors.stylize(text, colors.ERROR))
         raise LatestVersionCheckError(str(text))
 
 
@@ -93,14 +93,14 @@ def check_for_sdk_updates(auto_update_prompt=False):
     logging.info('  Please update to the newest version of the Grow SDK.')
     logging.info('  See release notes: {}'.format(url))
     logging.info('  Your version: {}, latest version: {}'.format(
-        colorize(yours, ansi=226), colorize(theirs, ansi=82)))
+        colors.stylize(yours, colors.EMPHASIS), colors.stylize(theirs, colors.EMPHASIS)))
 
     if utils.is_packaged_app() and auto_update_prompt:
         use_auto_update = grow_rc_config.get('update.always', False)
 
         if use_auto_update:
             logging.info('  > Auto-updating to version: {}'.format(
-                colorize(theirs, ansi=82)))
+                colors.stylize(theirs, colors.HIGHLIGHT)))
         else:
             choice = raw_input(
                 'Auto update now? [Y]es / [n]o / [a]lways: ').strip().lower()
@@ -121,5 +121,5 @@ def check_for_sdk_updates(auto_update_prompt=False):
             sys.exit(-1)
     else:
         logging.info('  Update using: ' +
-                     colorize('pip install --upgrade grow', ansi=200))
+                     colors.stylize('pip install --upgrade grow', colors.CAUTION))
     print ''

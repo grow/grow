@@ -2,10 +2,10 @@
 
 import os
 import click
+from grow.common import colors
 from grow.commands import shared
 from grow.pods import pods
 from grow.pods import storage
-from xtermcolor import colorize
 
 
 @click.command()
@@ -21,8 +21,8 @@ def machine_translate(pod_path, locale):
             catalog = pod.catalogs.get(identifier)
             catalog.update()
             catalog.machine_translate()
-        pod.logger.info(colorize(
-            'WARNING! Use machine translations with caution.', ansi=197))
-        pod.logger.info(colorize(
-            'Machine translations are not intended for use in production.', ansi=197))
+        pod.logger.info(colors.stylize(
+            'WARNING! Use machine translations with caution.', colors.CAUTION))
+        pod.logger.info(colors.stylize(
+            'Machine translations are not intended for use in production.', colors.CAUTION))
     return pod
