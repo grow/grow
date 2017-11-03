@@ -1,29 +1,36 @@
 """Preprocessor for running gulp tasks."""
 
 import os
-import shlex
+import atexit
 import subprocess
 from protorpc import messages
-from grow.common import sdk_utils
-from . import base
+from grow.preprocessors import base
+from grow.sdk import sdk_utils
+
+
+# Keep track of any child processes to terminate on exit.
+# pylint: disable=invalid-name
+_child_processes = []
 
 
 class Config(messages.Message):
+    """Config for Gulp preprocessor."""
     build_task = messages.StringField(1, default='build')
     run_task = messages.StringField(2, default='')
     command = messages.StringField(3, default='gulp')
 
 
 class GulpPreprocessor(base.BasePreprocessor):
+    """Preprocessor for Gulp."""
+
     KIND = 'gulp'
     Config = Config
 
     def _get_command(self, task):
         """Construct the command to run the given gulp task."""
         commands = [self.config.command, task]
-        nvm_use_command = sdk_utils.get_nvm_use_prefix(self.pod)
-        if nvm_use_command:
-            commands = [nvm_use_command] + commands
+        if self.pod.file_exists('/.nvmrc'):
+            commands = ['nvm run'] + commands
         return ' '.join(commands)
 
     def run(self, build=True):
@@ -31,13 +38,26 @@ class GulpPreprocessor(base.BasePreprocessor):
         # being run as a result of restarting the server.
         if 'RESTARTED' in os.environ:
             return
-        args = sdk_utils.get_popen_args(self.pod)
         task = self.config.build_task if build else self.config.run_task
         command = self._get_command(task)
-        process = subprocess.Popen(command, shell=True, **args)
+        args = sdk_utils.subprocess_args(self.pod, shell=True)
+        process = subprocess.Popen(command, **args)
+        _child_processes.append(process)
         if not build:
             return
         code = process.wait()
         if code != 0:
             text = 'Failed to run: {}'.format(command)
             raise base.PreprocessorError(text)
+
+
+@atexit.register
+def _kill_child_process():
+    """Sometimes the child process keeps going after grow is done running."""
+    for process in _child_processes:
+        try:
+            process.terminate()
+            process.wait()
+        except OSError:
+            # Ignore the error.  The OSError doesn't seem to be documented(?)
+            pass
