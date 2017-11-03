@@ -6,7 +6,8 @@ from grow.sdk.installers import npm_installer
 
 # The order here determines the order the installers are run.
 BUILT_IN_INSTALLERS = [
-    gerrit_installer.GerritInstaller,
-    npm_installer.NpmInstaller,
     extensions_installer.ExtensionsInstaller,
+    gerrit_installer.GerritInstaller,
+    nvm_installer.NvmInstaller,  # Before any node based installers.
+    npm_installer.NpmInstaller,
 ]

@@ -6,7 +6,6 @@ import os
 import platform
 import subprocess
 import sys
-import urlparse
 import requests
 import semantic_version
 from grow.common import config
@@ -141,58 +140,13 @@ def get_popen_args(pod):
     return args
 
 
-def has_nvmrc(pod):
-    """Check for the presence of a .nvmrc file in the given pod.
-
-    If a file exists, it is indicating that specific version of node is expected
-    to be used in the given project.
-    """
-    return pod.file_exists('/.nvmrc')
-
-
 def install(pod):
-    if has_nvmrc(pod):
-        install_node_from_nvmrc(pod)
     if pod.file_exists('/bower.json'):
         success = install_bower(pod)
         if not success:
             return
     if pod.file_exists('/gulpfile.js'):
         success = install_gulp(pod)
-
-
-def format_nvm_shell_command(command):
-    """Create command to run an nvm command after sourcing the nvm bash file."""
-    return '. $NVM_DIR/nvm.sh; nvm {}'.format(command)
-
-
-def install_node_from_nvmrc(pod):
-    """Use nvm to install the node version listed in the .nvmrc file."""
-    args = get_popen_args(pod)
-    nvm_status_command = format_nvm_shell_command('--version > /dev/null 2>&1')
-    nvm_not_found = subprocess.call(nvm_status_command, shell=True, **args)
-    if nvm_not_found:
-        pod.logger.error('[✘] The "nvm" command was not found.')
-        pod.logger.error(
-            '    Download nvm following instructions on https://github.com/creationix/nvm')
-        return
-    pod.logger.info('[✓] "nvm" is installed.')
-
-    nvm_install_command = format_nvm_shell_command('install')
-    process = subprocess.Popen(nvm_install_command, shell=True, **args)
-    code = process.wait()
-    if code:
-        pod.logger.error('[✘] There was an error running "nvm install".')
-        return False
-    pod.logger.info('[✓] Finished: nvm install.')
-    return True
-
-
-def get_nvm_use_prefix(pod):
-    """Return the nvm command to run ahead of a node command (if any)."""
-    if has_nvmrc(pod):
-        return '{};'.format(format_nvm_shell_command('use'))
-    return None
 
 
 def install_bower(pod):
