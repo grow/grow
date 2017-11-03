@@ -8,7 +8,11 @@ jobs:
       - checkout
 
       - run:
-          name: Test Build
+          name: Grow Install
+          command: grow install
+
+      - run:
+          name: Grow Build
           command: grow build
 
       - run:
@@ -18,8 +22,6 @@ jobs:
       - restore_cache:
           keys:
             - gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
-            - gem-cache-{{ .Branch }}
-            - gem-cache
 
       - run:
           name: Install Gems
@@ -27,16 +29,6 @@ jobs:
 
       - save_cache:
           key: gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
-
-      - save_cache:
-          key: gem-cache-{{ .Branch }}
-          paths:
-            - vendor/bundle
-
-      - save_cache:
-          key: gem-cache
           paths:
             - vendor/bundle
 
