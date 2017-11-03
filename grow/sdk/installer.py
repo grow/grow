@@ -49,18 +49,19 @@ class Installer(object):
             if not installer.should_run:
                 continue
 
-            try:
-                installer.check_prerequisites()
-            except base_installer.MissingPrerequisiteError as err:
-                self.pod.logger.error(
-                    self.failure(err.message, extras=err.install_commands))
-                return False
+            with self.pod.profile.timer('Installer.run_installers.{}'.format(installer.KIND)):
+                try:
+                    installer.check_prerequisites()
+                except base_installer.MissingPrerequisiteError as err:
+                    self.pod.logger.error(
+                        self.failure(err.message, extras=err.install_commands))
+                    return False
 
-            installer.install()
+                installer.install()
 
-            messages = installer.post_install_messages
-            if messages:
-                self.pod.logger.info(
-                    self.success(messages[0], messages[1:] if len(messages) > 1 else []))
+                messages = installer.post_install_messages
+                if messages:
+                    self.pod.logger.info(
+                        self.success(messages[0], messages[1:] if len(messages) > 1 else []))
         # All installers were successful.
         return True
