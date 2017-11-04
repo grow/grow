@@ -8,6 +8,7 @@ htmlcov
 growsdk
 
 grow/**/podcache.json
+grow/**/.depcache.json
 
 # C extensions
 *.so
