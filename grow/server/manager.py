@@ -1,16 +1,18 @@
-import logging
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+"""Local development server manager."""
 
+import logging
+import os
+import socket
+import sys
+import threading
+from grow.common import colors
 from grow.common import sdk_utils
 from grow.common import timer
 from grow.preprocessors import file_watchers
 from grow.server import main as main_lib
 from werkzeug import serving
-from xtermcolor import colorize
-import os
-import socket
-import sys
-import threading
+
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 # Number of tries to find a free port.
 NUM_TRIES = 10
@@ -48,7 +50,7 @@ def print_server_ready_message(pod, host, port):
     url = 'http://{}:{}{}'.format(host, port, root_path)
     logging.info('Pod: '.rjust(20) + pod.root)
     logging.info('Address: '.rjust(20) + url)
-    ready_message = colorize('Server ready. '.rjust(20), ansi=47)
+    ready_message = colors.stylize('Server ready. '.rjust(20), colors.HIGHLIGHT)
     logging.info(ready_message + 'Press ctrl-c to quit.')
     return url
 
