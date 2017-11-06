@@ -75,7 +75,7 @@ def check_sdk_version(pod):
 
 
 def check_for_sdk_updates(auto_update_prompt=False):
-    grow_rc_config = rc_config.RCConfig()
+    grow_rc_config = rc_config.RC_CONFIG
     if not grow_rc_config.needs_update_check:
         return
     try:

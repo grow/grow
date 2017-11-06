@@ -17,6 +17,8 @@ class RCConfig(base_config.BaseConfig):
     def __init__(self, config=None, internal_time=time.time):
         super(RCConfig, self).__init__(config=config)
         self._time = internal_time
+        # Working directory default config.
+        self._wd_config = base_config.BaseConfig()
         if config is None:
             self.read()
 
@@ -49,14 +51,27 @@ class RCConfig(base_config.BaseConfig):
         time_passed = self._time() - self.last_checked
         return time_passed > RC_LAST_CHECKED_DELTA.total_seconds()
 
+    def get(self, identifier, default_value=None):
+        """Retrieve the identifier value in the config after checking local config."""
+        base_default = super(RCConfig, self).get(identifier, default_value)
+        return self._wd_config.get(identifier, default_value=base_default)
+
     def read(self):
         """Reads the RC config from the system."""
-        rc_file_name = self.filename
-        if not os.path.isfile(rc_file_name):
+        # Read the config from the home directory.
+        filename = self.filename
+        if not os.path.isfile(filename):
             self._config = {}
-            return
-        with open(rc_file_name, 'r') as conf:
-            self._config = yaml.load(conf.read())
+        else:
+            with open(filename, 'r') as conf:
+                self._config = yaml.load(conf.read())
+
+        # Allow for an read only override from the working directory rc file.
+        wd_filename = os.path.join(os.getcwd(), RC_FILE_NAME)
+        if os.path.isfile(wd_filename):
+            with open(wd_filename, 'r') as conf:
+                self._wd_config = base_config.BaseConfig(
+                    yaml.load(conf.read()))
 
     def reset_update_check(self):
         """Reset the timestamp of the last_checked."""
@@ -66,4 +81,9 @@ class RCConfig(base_config.BaseConfig):
         """Writes the RC config to the system."""
         rc_file_name = self.filename
         with open(rc_file_name, 'w') as conf:
-            conf.write(yaml.safe_dump(self._config))
+            conf.write(yaml.safe_dump(self._config, default_flow_style=False))
+
+
+# Global config for working with the rc config without needing to re-read
+# the config.
+RC_CONFIG = RCConfig()

@@ -28,3 +28,37 @@ class BaseConfigTestCase(unittest.TestCase):
         self.assertEqual(None, self.config.get('update.last_checked'))
         self.config.set('update.last_checked', 12345)
         self.assertEqual(12345, self.config.get('update.last_checked'))
+        expected = {
+            'update': {
+                'last_checked': 12345,
+            },
+        }
+        self.assertEqual(expected, self.config.export())
+
+
+class BaseConfigPrefixedTestCase(unittest.TestCase):
+    """Test the RC Config Prefixed utility."""
+
+    def setUp(self):
+        self.config = base_config.BaseConfig(config={})
+        self.prefixed = self.config.prefixed('base')
+
+    def test_prefix(self):
+        """Prefixed manipulation should work."""
+        # Using the config to set.
+        self.assertEqual(None, self.prefixed.get('foo'))
+        self.config.set('base.foo', 'bar')
+        self.assertEqual('bar', self.prefixed.get('foo'))
+
+        # Using the prefixed set.
+        self.prefixed.set('bar', 'faz')
+        self.assertEqual('faz', self.config.get('base.bar'))
+        self.assertEqual('faz', self.prefixed.get('bar'))
+
+    def test_normailize_prefix(self):
+        """Normalized prefixes."""
+        normalize = base_config.BaseConfigPrefixed.normalize_prefix
+        self.assertEqual('pod.', normalize('pod'))
+        self.assertEqual('', normalize(''))
+        self.assertEqual('nested.path.', normalize('nested.path'))
+        self.assertEqual('path.', normalize('   path   '))

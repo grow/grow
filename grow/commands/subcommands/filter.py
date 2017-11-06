@@ -3,8 +3,12 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.pods import pods
 from grow.pods import storage
+
+
+CFG = rc_config.RC_CONFIG.prefixed('grow.filter')
 
 
 @click.command()
@@ -16,13 +20,13 @@ from grow.pods import storage
 @click.option('-o', type=str, default=None,
               help='Where to write the extracted translation catalog. The path'
                    ' must be relative to the pod\'s root.')
-@click.option('--include-obsolete/--no-include-obsolete', default=False,
-              is_flag=True,
+@click.option('--include-obsolete/--no-include-obsolete',
+              default=CFG.get('include-obsolete', False), is_flag=True,
               help='Whether to include obsolete messages. If false, obsolete'
                    ' messages will be removed from the catalog template. By'
                    ' default, Grow cleans obsolete messages from the catalog'
                    ' template.')
-@click.option('--localized/--no-localized', default=False, is_flag=True,
+@click.option('--localized/--no-localized', default=CFG.get('localized', False), is_flag=True,
               help='Whether to create localized message catalogs. Use this'
                    ' option if content varies by locale.')
 @click.option('--path', type=str, multiple=True,
@@ -30,13 +34,13 @@ from grow.pods import storage
                    ' are extracted. This option is useful if you\'d like to'
                    ' generate a partial messages file representing just a'
                    ' specific set of files.')
-@click.option('--include-header', default=False, is_flag=True,
+@click.option('--include-header', default=CFG.get('include-header', False), is_flag=True,
               help='Whether to preserve headers at the beginning of catalogs.')
-@click.option('--out_dir', '--out-dir', type=str, default=None,
+@click.option('--out-dir', '--out_dir', type=str, default=CFG.get('out-dir', None),
               help='Where to write extracted localized translation catalogs.'
                    ' The path must be relative to the pod\'s root. This option'
                    ' is only applicable when using --localized.')
-@click.option('-f', default=False, is_flag=True,
+@click.option('-f', default=CFG.get('force', False), is_flag=True,
               help='Whether to force an update when writing localized message'
                    ' catalogs.')
 def filter(pod_path, locale, o, include_obsolete, localized, path,
