@@ -91,6 +91,7 @@ test:
 	  $(target)
 
 test-nosetests:
+	. env/bin/activate
 	nosetests \
 	  -v \
 	  --rednose \
