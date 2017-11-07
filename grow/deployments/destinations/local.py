@@ -46,7 +46,7 @@ class LocalDestination(base.BaseDestination):
             try:
                 os.makedirs(dir_name)
             except OSError as exc:
-                if exc.errno == errno.EEXIST and os.path.isdir(dir_name):
+                if exc.errno == errno.EEXIST:
                     pass
                 else:
                     raise
