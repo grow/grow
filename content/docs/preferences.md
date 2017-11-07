@@ -135,5 +135,11 @@ Some of the flags are common between different Grow commands. These can be done 
 grow:
   shared:
     deployment: null
+    force-untranslated: false
+    include-header: false
+    include-obsolete: false
+    localized: false
+    out-dir: null
+    preprocess: true
     re-route: false
 [/sourcecode]
