@@ -92,7 +92,7 @@ test:
 
 test-nosetests:
 	. env/bin/activate
-	nosetests \
+	./env/bin/nosetests \
 	  -v \
 	  --rednose \
 	  --with-coverage \
