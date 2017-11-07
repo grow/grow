@@ -96,7 +96,7 @@ def localized_option(config):
 
 def out_dir_option(config, help_text=None):
     """Option for localizing catalogs."""
-    shared_default = CFG.get('out-dir', False)
+    shared_default = CFG.get('out-dir', None)
     config_default = config.get('out-dir', shared_default)
 
     if help_text is None:
