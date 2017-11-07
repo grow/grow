@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/grow
     docker:
-      - image: grow/baseimage:latest
+      - image: grow/base:latest
     steps:
       - checkout
 

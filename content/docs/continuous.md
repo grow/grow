@@ -17,7 +17,7 @@ For security, when doing deployments from CI the CI providers allow you to set e
 
 ## Using Circle CI for automatic deploys
 
-Circle CI 2.0 makes use of docker images which can produce faster builds. Grow has a docker image ([`grow/baseimage`](https://hub.docker.com/r/grow/baseimage/)) that comes preloaded with grow and some of the common utilities used to build grow sites (like `npm` and `gcloud`).
+Circle CI 2.0 makes use of docker images which can produce faster builds. Grow has a docker image ([`grow/base`](https://hub.docker.com/r/grow/base/)) that comes preloaded with grow and some of the common utilities used to build grow sites (like `npm` and `gcloud`).
 
 1. Set up your deployment (both the host and the configuration in `podspec.yaml`).
 1. Connect your GitHub repo with Circle CI.
@@ -31,7 +31,7 @@ jobs:
   build:
     working_directory: ~/grow
     docker:
-      - image: grow/baseimage:latest
+      - image: grow/base:latest
     steps:
       - checkout
 
