@@ -1,5 +1,6 @@
 """Local deployment destination."""
 
+import errno
 import os
 import shutil
 from grow.pods import env
@@ -40,15 +41,18 @@ class LocalDestination(base.BaseDestination):
     def write_file(self, rendered_doc):
         path = rendered_doc.path
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
-        # https://github.com/grow/grow/issues/636
-        # if rendered_doc.file_path:
-        #     dir_name = os.path.dirname(out_path)
-        #     if not os.path.isdir(dir_name):
-        #         os.makedirs(dir_name)
-        #     shutil.copyfile(rendered_doc.file_path, out_path)
-        # else:
-        #     self.storage.write(out_path, rendered_doc.read())
-        self.storage.write(out_path, rendered_doc.read())
+        if rendered_doc.file_path:
+            dir_name = os.path.dirname(out_path)
+            try:
+                os.makedirs(dir_name)
+            except OSError as exc:
+                if exc.errno == errno.EEXIST:
+                    pass
+                else:
+                    raise
+            shutil.copyfile(rendered_doc.file_path, out_path)
+        else:
+            self.storage.write(out_path, rendered_doc.read())
 
     def prelaunch(self, dry_run=False):
         for command in self.config.before_deploy:

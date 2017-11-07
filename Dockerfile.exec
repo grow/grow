@@ -1,0 +1,7 @@
+ARG grow_version
+FROM grow/base:$grow_version
+MAINTAINER Grow SDK Authors <hello@grow.io>
+
+# Grow!
+ENTRYPOINT ["grow"]
+CMD ["build"]

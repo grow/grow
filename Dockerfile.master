@@ -1,10 +1,6 @@
 FROM ubuntu:xenial
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
-ARG grow_version
-
-RUN echo "Grow: $grow_version"
-
 # Update system.
 RUN apt-get update
 RUN apt-get upgrade -y
@@ -38,7 +34,7 @@ RUN npm install -g yarn
 # Install grow binary.
 RUN pip install --upgrade pip
 RUN pip install wheel
-RUN pip install grow==$grow_version
+RUN pip install git+git://github.com/grow/grow.git@master
 
 # Install ruby bundle.
 RUN gem install bundler
