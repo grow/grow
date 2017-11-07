@@ -91,6 +91,17 @@ test:
 	  $(target)
 
 test-nosetests:
+	./env/bin/nosetests \
+	  -v \
+	  --rednose \
+	  --with-coverage \
+	  --cover-erase \
+	  --cover-html \
+	  --cover-html-dir=htmlcov \
+	  --cover-package=grow \
+	  grow
+
+test-nosetests-circle:
 	. env/bin/activate
 	./env/bin/nosetests \
 	  -v \
@@ -129,6 +140,12 @@ test-pylint:
 test-ci:
 	$(MAKE) build-ui
 	$(MAKE) test-nosetests
+	$(MAKE) test-pylint
+	$(MAKE) test-gae
+
+test-circle:
+	$(MAKE) build-ui
+	$(MAKE) test-nosetests-circle
 	$(MAKE) test-pylint
 	$(MAKE) test-gae
 

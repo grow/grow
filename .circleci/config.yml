@@ -35,7 +35,7 @@ jobs:
 
       - run:
           name: Run Tests
-          command: make test-ci
+          command: make test-circle
 
       - run:
           name: Coveralls
