@@ -1,5 +1,5 @@
 # Grow
-[![Build Status](https://api.travis-ci.org/grow/grow.svg?branch=master)](https://travis-ci.org/grow/grow) [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
+[![Circle CI](https://circleci.com/gh/grow/grow.png?style=shield)] [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
 [![Coverage Status](https://coveralls.io/repos/github/grow/grow/badge.svg?branch=master)](https://coveralls.io/github/grow/grow?branch=master)
 
 Grow is a declarative tool for rapidly building, launching, and maintaining high-quality websites.
