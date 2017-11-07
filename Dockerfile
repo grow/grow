@@ -1,16 +1,53 @@
-FROM ubuntu
+FROM ubuntu:xenial
 MAINTAINER Grow SDK Authors <hello@grow.io>
-RUN apt-get update && \
-  apt-get install -y \
-  python \
-  python-pip \
-  libyaml-dev \
-  git \
-  nodejs \
-  npm
-RUN ln -s /usr/bin/nodejs /usr/bin/node
+
+ARG grow_version
+
+RUN echo "Grow: $grow_version"
+
+# Update system.
+RUN apt-get update
+RUN apt-get upgrade -y
+
+# Set environment variables.
+ENV TERM=xterm
+
+# Install Node 8.
+RUN apt-get install -y --no-install-recommends curl ca-certificates
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+
+# Install gcloud tool.
+RUN echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+# Install Grow dependencies.
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+python python-pip python-setuptools nodejs build-essential python-all-dev zip \
+libc6 libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev \
+git curl ssh google-cloud-sdk ruby ruby-dev
+
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install NPM globals.
 RUN npm install -g bower
 RUN npm install -g gulp
-RUN echo "{ \"allow_root\": true }" > $HOME/.bowerrc
-RUN pip install git+git://github.com/grow/grow.git
-ENTRYPOINT ["grow"]
+RUN npm install -g yarn
+
+# Install grow binary.
+RUN pip install --upgrade pip
+RUN pip install wheel
+RUN pip install grow==$grow_version
+
+# Install ruby bundle.
+RUN gem install bundler
+
+# Confirm versions that are installed.
+RUN grow --version
+RUN ruby -v
+RUN node -v
+RUN bower -v
+RUN gulp -v
+RUN gcloud -v
+RUN yarn --version
