@@ -2,6 +2,8 @@
 
 import datetime
 import logging
+import sys
+import traceback
 import ConfigParser
 import progressbar
 import texttable
@@ -24,6 +26,23 @@ class Error(Exception):
 
 class CorruptIndexError(Error):
     pass
+
+
+class DeploymentError(Error):
+    """Errors that occured during the rendering."""
+
+    def __init__(self, message, err, err_tb):
+        super(DeploymentError, self).__init__(message)
+        self.err = err
+        self.err_tb = err_tb
+
+
+class DeploymentErrors(Error):
+    """Errors that occured during the deployment."""
+
+    def __init__(self, message, errors):
+        super(DeploymentErrors, self).__init__(message)
+        self.errors = errors
 
 
 class Diff(object):
@@ -187,7 +206,9 @@ class Diff(object):
         if pool is None:
             text = 'Deployment is unavailable in this environment.'
             raise common_utils.UnavailableError(text)
-        thread_pool = pool.ThreadPool(cls.POOL_SIZE)
+        thread_pool = None
+        if threaded:
+            thread_pool = pool.ThreadPool(cls.POOL_SIZE)
         diff = message
         num_files = len(diff.adds) + len(diff.edits) + len(diff.deletes)
         text = 'Deploying: %(value)d/{} (in %(time_elapsed).9s)'
@@ -195,9 +216,15 @@ class Diff(object):
         progress = progressbar_non.create_progressbar(
             "Deploying...", widgets=widgets, max_value=num_files)
 
-        def run_with_progress(func, *args):
-            func(*args)
-            progress.update(progress.value + 1)
+        def run_func(kwargs):
+            """Run an arbitrary function."""
+            try:
+                kwargs['func'](*kwargs['args'])
+                return True
+            # pylint: disable=broad-except
+            except Exception as err:
+                _, _, err_tb = sys.exc_info()
+                return DeploymentError("Error deploying {}".format(kwargs['args']), err, err_tb)
 
         if batch_writes:
             writes_paths_to_rendered_doc = {}
@@ -215,32 +242,56 @@ class Diff(object):
                 delete_func(deletes_paths)
         else:
             progress.start()
+            threaded_args = []
+
             for file_message in diff.adds:
                 rendered_doc = paths_to_rendered_doc[file_message.path]
-                if threaded:
-                    args = (write_func, rendered_doc)
-                    thread_pool.apply_async(run_with_progress, args=args)
-                else:
-                    run_with_progress(write_func, rendered_doc)
+                threaded_args.append({
+                    'func': write_func,
+                    'args': (rendered_doc,),
+                })
             for file_message in diff.edits:
                 rendered_doc = paths_to_rendered_doc[file_message.path]
-                if threaded:
-                    args = (write_func, rendered_doc)
-                    thread_pool.apply_async(run_with_progress, args=args)
-                else:
-                    run_with_progress(write_func, file_message.path, rendered_doc)
+                threaded_args.append({
+                    'func': write_func,
+                    'args': (rendered_doc,),
+                })
             for file_message in diff.deletes:
-                if threaded:
-                    args = (delete_func, file_message.path)
-                    thread_pool.apply_async(run_with_progress, args=args)
-                else:
-                    run_with_progress(delete_func, file_message.path)
+                threaded_args.append({
+                    'func': delete_func,
+                    'args': (file_message.path,),
+                })
+
+            if threaded:
+                results = thread_pool.imap_unordered(run_func, threaded_args)
+                apply_errors = []
+                for result in results:
+                    if isinstance(result, Exception):
+                        apply_errors.append(result)
+                    progress.update(progress.value + 1)
+            else:
+                for kwargs in threaded_args:
+                    try:
+                        kwargs['func'](*kwargs['args'])
+                        progress.update(progress.value + 1)
+                    except DeploymentError as err:
+                        apply_errors.append(err)
 
         if threaded:
             thread_pool.close()
             thread_pool.join()
         if not batch_writes:
             progress.finish()
+
+        if apply_errors:
+            for error in apply_errors:
+                print error.message
+                print error.err.message
+                traceback.print_tb(error.err_tb)
+                print ''
+            text = 'There were {} errors during deployment.'
+            raise DeploymentErrors(text.format(
+                len(apply_errors)), apply_errors)
 
     @classmethod
     def stream(cls, theirs, content_generator, repo=None, is_partial=False):
