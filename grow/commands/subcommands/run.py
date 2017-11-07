@@ -29,12 +29,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.run')
 @click.option('--update-check/--no-update-check',
               default=CFG.get('update-check', True), is_flag=True,
               help='Whether to check for updates to Grow.')
-@click.option('--preprocess/--no-preprocess', '-p/-np',
-              default=CFG.get('preprocess', True), is_flag=True,
-              help='Whether to run preprocessors on server start.')
 @click.option('--ui/--no-ui', is_flag=CFG.get('ui', True), default=True,
               help='Whether to inject the Grow UI Tools.')
 @shared.deployment_option(CFG)
+@shared.preprocess_option(CFG)
 @shared.reroute_option(CFG)
 def run(host, port, https, debug, browser, update_check, preprocess, ui,
         pod_path, deployment, use_reroute):

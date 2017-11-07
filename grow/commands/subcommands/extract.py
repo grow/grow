@@ -14,16 +14,6 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.extract')
 
 @click.command()
 @shared.pod_path_argument
-@click.option('--include-obsolete/--no-include-obsolete',
-              default=CFG.get('include-obsolete', None), is_flag=True,
-              help='Whether to include obsolete messages. If false, obsolete'
-                   ' messages will be removed from the catalog template. By'
-                   ' default, Grow cleans obsolete messages from the catalog'
-                   ' template.')
-@click.option('--localized/--no-localized',
-              default=CFG.get('localized', None), is_flag=True,
-              help='Whether to create localized message catalogs. Use this'
-                   ' option if content varies by locale.')
 @click.option('--init/--no-init', default=False, is_flag=True,
               help='Whether to create an initial set of empty translation'
                    ' catalogs using the locales configured in podpsec.')
@@ -31,12 +21,6 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.extract')
               help='Whether to update translation catalogs with extracted'
                    ' messages. If false, only a catalog template will be'
                    ' created.')
-@click.option('--include-header', default=CFG.get('include-header', None), is_flag=True,
-              help='Whether to preserve headers at the beginning of catalogs.')
-@click.option('--locale', type=str, multiple=True,
-              help='Which locale(s) to analyze when creating template catalogs'
-                   ' that contain only untranslated messages. This option is'
-                   ' only applicable when using --update or --init.')
 @click.option('--fuzzy-matching/--no-fuzzy-matching',
               default=CFG.get('fuzzy-matching', None), is_flag=True,
               help='Whether to use fuzzy matching when updating translation'
@@ -51,14 +35,17 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.extract')
 @click.option('--audit', default=False, is_flag=True,
               help='Audit content files for all untagged strings instead of'
                    ' actually extracting.')
-@click.option('--path', type=str, multiple=True,
-              help='Which paths to extract strings from. By default, all paths'
-                   ' are extracted. This option is useful if you\'d like to'
-                   ' generate a partial messages file representing just a'
-                   ' specific set of files.')
 @click.option('-o', type=str, default=None,
               help='Where to write the extracted translation catalog. The path'
                    ' must be relative to the pod\'s root.')
+@shared.include_header_option(CFG)
+@shared.include_obsolete_option(CFG)
+@shared.locale_option(
+    help_text='Which locale(s) to analyze when creating template catalogs'
+              ' that contain only untranslated messages. This option is'
+              ' only applicable when using --update or --init.')
+@shared.localized_option(CFG)
+@shared.path_option
 def extract(pod_path, init, update, include_obsolete, localized,
             include_header, locale, fuzzy_matching, audit, path, o):
     """Extracts tagged messages from source files into a template catalog."""

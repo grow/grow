@@ -13,36 +13,24 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.filter')
 
 @click.command()
 @shared.pod_path_argument
-@click.option('--locale', type=str, multiple=True,
-              help='Which locale(s) to analyze when creating template catalogs'
-                   ' that contain only untranslated messages. This option is'
-                   ' only applicable when using --untranslated.')
 @click.option('-o', type=str, default=None,
               help='Where to write the extracted translation catalog. The path'
                    ' must be relative to the pod\'s root.')
-@click.option('--include-obsolete/--no-include-obsolete',
-              default=CFG.get('include-obsolete', False), is_flag=True,
-              help='Whether to include obsolete messages. If false, obsolete'
-                   ' messages will be removed from the catalog template. By'
-                   ' default, Grow cleans obsolete messages from the catalog'
-                   ' template.')
-@click.option('--localized/--no-localized', default=CFG.get('localized', False), is_flag=True,
-              help='Whether to create localized message catalogs. Use this'
-                   ' option if content varies by locale.')
-@click.option('--path', type=str, multiple=True,
-              help='Which paths to extract strings from. By default, all paths'
-                   ' are extracted. This option is useful if you\'d like to'
-                   ' generate a partial messages file representing just a'
-                   ' specific set of files.')
-@click.option('--include-header', default=CFG.get('include-header', False), is_flag=True,
-              help='Whether to preserve headers at the beginning of catalogs.')
-@click.option('--out-dir', '--out_dir', type=str, default=CFG.get('out-dir', None),
-              help='Where to write extracted localized translation catalogs.'
-                   ' The path must be relative to the pod\'s root. This option'
-                   ' is only applicable when using --localized.')
 @click.option('-f', default=CFG.get('force', False), is_flag=True,
               help='Whether to force an update when writing localized message'
                    ' catalogs.')
+@shared.include_header_option(CFG)
+@shared.include_obsolete_option(CFG)
+@shared.locale_option(
+    help_text='Which locale(s) to analyze when creating template catalogs'
+              ' that contain only untranslated messages. This option is'
+              ' only applicable when using --untranslated.')
+@shared.localized_option(CFG)
+@shared.out_dir_option(
+    CFG, help_text=('Where to write extracted localized translation catalogs.'
+                    ' The path must be relative to the pod\'s root. This option'
+                    ' is only applicable when using --localized.'))
+@shared.path_option
 def filter(pod_path, locale, o, include_obsolete, localized, path,
            include_header, out_dir, f):
     """Filters untranslated messages from catalogs into new catalogs."""

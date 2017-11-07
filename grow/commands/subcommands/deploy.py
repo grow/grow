@@ -18,8 +18,6 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')
 @click.command()
 @click.argument('deployment_name', default='default')
 @shared.pod_path_argument
-@click.option('--preprocess/--no-preprocess', '-p/-np', default=CFG.get('preprocess', True),
-              is_flag=True, help='Whether to run preprocessors.')
 @click.option('--confirm/--noconfirm', '-c/-f', default=CFG.get('force', True), is_flag=True,
               help='Whether to confirm prior to deployment.')
 @click.option('--test/--notest', default=CFG.get('test', True), is_flag=True,
@@ -29,9 +27,8 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')
 @click.option('--auth',
               help='(deprecated) --auth must now be specified'
                    ' before deploy. Usage: grow --auth=user@example.com deploy')
-@click.option('--force-untranslated', 'force_untranslated',
-              default=CFG.get('force-untranslated', False), is_flag=True,
-              help='Whether to force untranslated strings to be uploaded.')
+@shared.force_untranslated_option(CFG)
+@shared.preprocess_option(CFG)
 @click.pass_context
 def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
            test_only, auth, force_untranslated):
