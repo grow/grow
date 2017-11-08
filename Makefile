@@ -137,6 +137,11 @@ test-pylint:
 	pylint --errors-only \
 	  $(target)
 
+test-pylint-circle:
+	. env/bin/activate
+	./env/bin/pylint --errors-only \
+	  $(target)
+
 test-ci:
 	$(MAKE) build-ui
 	$(MAKE) test-nosetests
@@ -146,7 +151,7 @@ test-ci:
 test-circle:
 	$(MAKE) build-ui
 	$(MAKE) test-nosetests-circle
-	$(MAKE) test-pylint
+	$(MAKE) test-pylint-circle
 	$(MAKE) test-gae
 
 prep-release:
