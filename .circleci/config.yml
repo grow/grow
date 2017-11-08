@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  test:
     working_directory: ~/grow
     docker:
       - image: grow/grow-internal-image
@@ -19,7 +19,7 @@ jobs:
           command: virtualenv env --distribute
 
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
       - run:
           name: Pip Install
@@ -28,17 +28,83 @@ jobs:
             pip install -r requirements-dev.txt
             pip install coveralls
 
-      - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}
-          paths:
-            - "env"
+      - run:
+          name: Build UI
+          command: make build-ui
+
+      - run:
+          name: Pylint
+          command: make test-pylint-circle
 
       - run:
           name: Run Tests
-          command: make test-circle
+          command: make test-nosetests-circle
+
+    - save_cache:
+        key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+        paths:
+          - "env"
 
       - run:
           name: Coveralls
           command: |
             . env/bin/activate
             ./env/bin/coveralls
+  test-gae:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - checkout
+
+      - run:
+          name: Versions
+          command: |
+            node --version
+            gcloud --version
+            python --version
+
+      - run:
+          name: Virtual Env
+          command: virtualenv gaenv --distribute
+
+      - restore_cache:
+          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . gaenv/bin/activate
+            pip install -r requirements-dev.txt
+            pip install gaenv
+            pip install coveralls
+            pip install NoseGAE==0.5.10
+
+      - run:
+          # https://github.com/faisalraja/gaenv/issues/11
+          name: Hack Setup for Tests
+          command: |
+          	cat requirements.txt > ./gaenv/requirements-gae.txt
+          	echo "pyasn1-modules>=0.0.8" >> ./gaenv/requirements-gae.txt
+
+      - run:
+          name: Run Tests
+          command: make test-gae-circle
+
+    - save_cache:
+        key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+        paths:
+          - "gaenv"
+
+      - run:
+          name: Coveralls
+          command: |
+            . env/bin/activate
+            ./env/bin/coveralls
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test
+      - test-gae

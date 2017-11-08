@@ -133,6 +133,20 @@ test-gae:
 	  --gae-lib-root=$(HOME)/google_appengine/ \
 	  $(target)
 
+test-gae-circle:
+	. gaenv/bin/activate
+	./gaenv/bin/gaenv -r ./gaenv/requirements-gae.txt --lib lib --no-import .
+	NOSEGAE=1 ./gaenv/bin/nosetests \
+	  -v \
+	  --rednose \
+	  --with-coverage \
+	  --with-gae \
+	  --nocapture \
+	  --nologcapture \
+	  --gae-application=./grow/testing/testdata/pod/ \
+	  --gae-lib-root=$(HOME)/google_appengine/ \
+	  $(target)
+
 test-pylint:
 	pylint --errors-only \
 	  $(target)
