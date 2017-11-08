@@ -88,6 +88,10 @@ jobs:
             echo "pyasn1-modules>=0.0.8" >> ./gaenv/requirements-gae.txt
 
       - run:
+          name: Build UI
+          command: make build-ui
+
+      - run:
           name: Run Tests
           command: make test-gae-circle
 
