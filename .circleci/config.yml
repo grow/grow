@@ -43,4 +43,6 @@ jobs:
 
       - run:
           name: Coveralls
-          command: coveralls
+          command: |
+            . env/bin/activate
+            ./env/bin/coveralls
