@@ -58,6 +58,7 @@ jobs:
           command: |
             . env/bin/activate
             ./env/bin/coveralls
+
   test-gae:
     working_directory: ~/grow
     docker:
@@ -119,8 +120,8 @@ jobs:
       - run:
           name: Coveralls
           command: |
-            . env/bin/activate
-            ./env/bin/coveralls
+            . gaenv/bin/activate
+            ./gaenv/bin/coveralls
 
 workflows:
   version: 2
