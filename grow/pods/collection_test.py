@@ -94,8 +94,8 @@ class CollectionsTestCase(unittest.TestCase):
                 '/content/pages/contact.yaml',
             ]
         ]
-        for i, doc in enumerate(expected_docs):
-            self.assertEqual(doc, documents[i])
+        for doc in expected_docs:
+            self.assertIn(doc, documents)
 
         # List unhidden documents.
         documents = collection.docs()
