@@ -28,9 +28,17 @@ jobs:
             pip install -r requirements-dev.txt
             pip install coveralls
 
+      - restore_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+
       - run:
           name: Build UI
           command: make build-ui
+
+      - save_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+          paths:
+            - "grow/ui/node_modules"
 
       - run:
           name: Pylint
@@ -87,9 +95,17 @@ jobs:
             cat requirements.txt > ./gaenv/requirements-gae.txt
             echo "pyasn1-modules>=0.0.8" >> ./gaenv/requirements-gae.txt
 
+      - restore_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+
       - run:
           name: Build UI
           command: make build-ui
+
+      - save_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+          paths:
+            - "grow/ui/node_modules"
 
       - run:
           name: Run Tests
