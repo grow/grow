@@ -34,10 +34,6 @@ jobs:
             - "env"
 
       - run:
-          name: Path
-          command: echo $PATH
-
-      - run:
           name: Run Tests
           command: make test-circle
 
