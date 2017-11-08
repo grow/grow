@@ -40,10 +40,10 @@ jobs:
           name: Run Tests
           command: make test-nosetests-circle
 
-    - save_cache:
-        key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-        paths:
-          - "env"
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
 
       - run:
           name: Coveralls
@@ -81,20 +81,20 @@ jobs:
             pip install NoseGAE==0.5.10
 
       - run:
-          # https://github.com/faisalraja/gaenv/issues/11
           name: Hack Setup for Tests
+          # https://github.com/faisalraja/gaenv/issues/11
           command: |
-          	cat requirements.txt > ./gaenv/requirements-gae.txt
-          	echo "pyasn1-modules>=0.0.8" >> ./gaenv/requirements-gae.txt
+            cat requirements.txt > ./gaenv/requirements-gae.txt
+            echo "pyasn1-modules>=0.0.8" >> ./gaenv/requirements-gae.txt
 
       - run:
           name: Run Tests
           command: make test-gae-circle
 
-    - save_cache:
-        key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-        paths:
-          - "gaenv"
+      - save_cache:
+          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "gaenv"
 
       - run:
           name: Coveralls
