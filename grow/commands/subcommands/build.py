@@ -18,11 +18,6 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
-@click.option('--out_dir', '--out-dir', default=CFG.get('out-dir', None),
-              help='Where to output built files.')
-@click.option('--preprocess/--no-preprocess', '-p/-np',
-              default=CFG.get('preprocess', True), is_flag=True,
-              help='Whether to run preprocessors.')
 @click.option('--clear-cache',
               default=CFG.get('clear-cache', False), is_flag=True,
               help='Clear the pod cache before building.')
@@ -32,6 +27,8 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
               default=CFG.get('locate-untranslated', False), is_flag=True,
               help='Shows untranslated message information.')
 @shared.deployment_option(CFG)
+@shared.out_dir_option(CFG)
+@shared.preprocess_option(CFG)
 @shared.reroute_option(CFG)
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
           locate_untranslated, deployment, use_reroute):

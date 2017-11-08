@@ -13,12 +13,9 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.download_translations')
 
 @click.command()
 @shared.pod_path_argument
-@click.option('--locale', type=str, multiple=True,
-              help='Which locale(s) to download. If unspecified,'
-                   ' translations for all locales will be downloaded.')
-@click.option('--service', '-s', type=str,
-              help='Name of the translator service to use. This option is'
-                   ' only required if more than one service is configured.')
+@shared.locale_option(help_text='Which locale(s) to download. If unspecified,'
+                                ' translations for all locales will be downloaded.')
+@shared.service_option
 def download_translations(pod_path, locale, service):
     """Downloads translations from a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))

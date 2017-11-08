@@ -15,14 +15,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.import_translations')
 @shared.pod_path_argument
 @click.option('--source', type=click.Path(), required=True,
               help='Path to source (either zip file, directory, or file).')
-@click.option('--locale', type=str,
-              help='Locale of the message catalog to import. This option is'
-                   ' only applicable when --source is a .po file.')
-@click.option('--include-obsolete/--no-include-obsolete',
-              default=CFG.get('include-obsolete', True),
-              help='Whether to include potentially obsolete messages or just'
-                   ' include translations for strings that already exist in'
-                   ' catalogs.')
+@shared.include_obsolete_option(CFG, default_value=True)
+@shared.locale_option(
+    help_text='Locale of the message catalog to import. This option is'
+              ' only applicable when --source is a .po file.', multiple=False)
 def import_translations(pod_path, source, locale, include_obsolete):
     """Imports translations from an external source."""
     if source.endswith('.po') and locale is None:
