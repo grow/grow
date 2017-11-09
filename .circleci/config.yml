@@ -1,11 +1,64 @@
 version: 2
 jobs:
-  pylint:
+  init:
     working_directory: ~/grow
     docker:
       - image: grow/grow-internal-image
     steps:
       - checkout
+
+      - restore_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+
+      - run:
+          name: Build UI
+          command: make build-ui
+
+      - save_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+          paths:
+            - "grow/ui/node_modules"
+
+      # Setup the pip cache before running other commands.
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - persist_to_workspace:
+          root: ~/grow
+          paths:
+            - grow/*
+            - grow.spec
+            - install.py
+            - Makefile
+            - MANIFEST.in
+            - package.json
+            - pylintrc
+            - requirements-dev.txt
+            - requirements.txt
+            - setup.py
+
+  pylint:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
 
       - run:
           name: Virtual Env
@@ -34,7 +87,8 @@ jobs:
     docker:
       - image: grow/grow-internal-image
     steps:
-      - checkout
+      - attach_workspace:
+          at: ~/grow
 
       - run:
           name: Versions
@@ -89,7 +143,8 @@ jobs:
     docker:
       - image: grow/grow-internal-image
     steps:
-      - checkout
+      - attach_workspace:
+          at: ~/grow
 
       - run:
           name: Versions
@@ -152,6 +207,13 @@ workflows:
   version: 2
   build:
     jobs:
-      - pylint
-      - test
-      - test-gae
+    - init
+    - pylint:
+        requires:
+        - deploy
+    - test:
+        requires:
+        - deploy
+    - test-gae:
+        requires:
+        - deploy
