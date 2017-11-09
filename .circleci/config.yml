@@ -32,6 +32,9 @@ jobs:
           command: |
             . env/bin/activate
             pip install -r requirements-dev.txt
+            pip install gaenv
+            pip install coveralls
+            pip install NoseGAE==0.5.10
 
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -91,13 +94,6 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Versions
-          command: |
-            node --version
-            gcloud --version
-            python --version
-
-      - run:
           name: Virtual Env
           command: virtualenv env --distribute
 
@@ -110,18 +106,6 @@ jobs:
             . env/bin/activate
             pip install -r requirements-dev.txt
             pip install coveralls
-
-      - restore_cache:
-          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
-
-      - run:
-          name: Build UI
-          command: make build-ui
-
-      - save_cache:
-          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
-          paths:
-            - "grow/ui/node_modules"
 
       - run:
           name: Run Tests
@@ -147,15 +131,8 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Versions
-          command: |
-            node --version
-            gcloud --version
-            python --version
-
-      - run:
           name: Virtual Env
-          command: virtualenv gaenv --distribute
+          command: virtualenv env --distribute
 
       - restore_cache:
           key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -163,7 +140,7 @@ jobs:
       - run:
           name: Pip Install
           command: |
-            . gaenv/bin/activate
+            . env/bin/activate
             pip install -r requirements-dev.txt
             pip install gaenv
             pip install coveralls
@@ -171,22 +148,10 @@ jobs:
 
       - run:
           name: Hack Setup for Tests
-          # https://github.com/faisalraja/gaenv/issues/11
+          # https://github.com/faisalraja/env/issues/11
           command: |
-            cat requirements.txt > ./gaenv/requirements-gae.txt
-            echo "pyasn1-modules>=0.0.8" >> ./gaenv/requirements-gae.txt
-
-      - restore_cache:
-          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
-
-      - run:
-          name: Build UI
-          command: make build-ui
-
-      - save_cache:
-          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
-          paths:
-            - "grow/ui/node_modules"
+            cat requirements.txt > ./env/requirements-gae.txt
+            echo "pyasn1-modules>=0.0.8" >> ./env/requirements-gae.txt
 
       - run:
           name: Run Tests
@@ -195,13 +160,13 @@ jobs:
       - save_cache:
           key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
-            - "gaenv"
+            - "env"
 
       - run:
           name: Coveralls
           command: |
-            . gaenv/bin/activate
-            ./gaenv/bin/coveralls
+            . env/bin/activate
+            ./env/bin/coveralls
 
 workflows:
   version: 2
