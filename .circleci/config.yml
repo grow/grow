@@ -175,10 +175,10 @@ workflows:
     - init
     - pylint:
         requires:
-        - deploy
+        - init
     - test:
         requires:
-        - deploy
+        - init
     - test-gae:
         requires:
-        - deploy
+        - init
