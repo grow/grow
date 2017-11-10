@@ -40,6 +40,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
     if not pod_paths or clear_cache:
         # Clear the cache when building all, only force if the flag is used.
         pod.podcache.reset(force=clear_cache)
+    deployment_obj = None
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
         pod.set_env(deployment_obj.config.env)
@@ -51,6 +52,9 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
     try:
         with pod.profile.timer('grow_build'):
             config = local_destination.Config(out_dir=out_dir)
+            # When using a specific deployment env need to also copy over.
+            if deployment_obj:
+                config.env = deployment_obj.config.env
             destination = local_destination.LocalDestination(config)
             destination.pod = pod
             repo = utils.get_git_repo(pod.root)
