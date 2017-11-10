@@ -1,0 +1,4 @@
+[run]
+omit =
+    grow/commands/*
+    grow/common/patched_site.py
