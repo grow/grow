@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import yaml
+from grow.common import structures
 from grow.common import utils
 from grow.translators import translation_stats
 from . import document_fields
@@ -197,6 +198,11 @@ class Document(object):
     def date(self):
         return self.fields.get('$date')
 
+    @property
+    def dates(self):
+        """Built in field for dates."""
+        return structures.AttributeDict(self.fields.get('$dates', {}))
+
     @utils.cached_property
     def default_locale(self):
         # Use untagged, raw fields from front matter in order to extract
@@ -362,14 +368,14 @@ class Document(object):
         if view_format is not None:
             return self._format_path(view_format)
 
-    def dates(self, date_name=None):
+    def delete(self):
+        self.pod.delete_file(self.pod_path)
+
+    def get_date(self, date_name=None):
         if date_name is None:
             return self.date
         dates = self.fields.get('$dates', {})
         return dates.get(date_name, self.date)
-
-    def delete(self):
-        self.pod.delete_file(self.pod_path)
 
     @utils.memoize
     def has_serving_path(self):
