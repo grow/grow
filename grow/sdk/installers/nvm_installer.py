@@ -1,6 +1,8 @@
 """Nvm installer class."""
 
+import os
 import subprocess
+from grow.sdk import sdk_utils
 from grow.sdk.installers import base_installer
 
 
@@ -16,10 +18,7 @@ class NvmInstaller(base_installer.BaseInstaller):
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""
-        status_command = 'nvm --version > /dev/null 2>&1'
-        not_found = subprocess.call(
-            status_command, **self.subprocess_args(shell=True)) == 127
-        if not_found:
+        if 'NVM_DIR' not in os.environ:
             install_commands = [
                 'Download nvm from https://github.com/creationix/nvm']
             raise base_installer.MissingPrerequisiteError(
@@ -27,12 +26,12 @@ class NvmInstaller(base_installer.BaseInstaller):
 
     def install(self):
         """Install dependencies."""
-        install_command = 'nvm install'
+        install_command = sdk_utils.get_nvm_command('install')
         process = subprocess.Popen(
             install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
-            use_command = 'nvm use'
+            use_command = sdk_utils.get_nvm_command('use')
             process = subprocess.Popen(
                 use_command, **self.subprocess_args(shell=True))
             code = process.wait()

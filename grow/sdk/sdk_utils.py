@@ -4,6 +4,8 @@ import os
 import platform
 from grow.common import config
 
+# To handle sourcing nvm in shell sessions
+NVM_COMMAND = '. $NVM_DIR/nvm.sh; nvm'
 
 VERSION = config.VERSION
 PLATFORM = None
@@ -29,3 +31,7 @@ def subprocess_args(pod, shell=False):
     if shell or PLATFORM == 'win':
         args['shell'] = True
     return args
+
+
+def get_nvm_command(task):
+    return ' '.join([NVM_COMMAND, task])
