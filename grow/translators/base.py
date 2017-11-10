@@ -132,7 +132,7 @@ class Translator(object):
             stats_to_download[lang] = stat_message
         return stats_to_download
 
-    def download(self, locales, save_stats=True, inject=False, include_obsolete=True):
+    def download(self, locales, save_stats=True, inject=False, include_obsolete=False):
         # TODO: Rename to `download_and_import`.
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
