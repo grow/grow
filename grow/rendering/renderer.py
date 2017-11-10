@@ -8,9 +8,9 @@ from grow.common import utils
 
 if utils.is_appengine():
     # pylint: disable=invalid-name
-    ThreadPool = None
+    ThreadPool = None  # pragma: no cover
 else:
-    from multiprocessing.dummy import Pool as ThreadPool
+    from multiprocessing.dummy import Pool as ThreadPool  # pylint: disable=unused-import
 
 
 class Error(Exception):
