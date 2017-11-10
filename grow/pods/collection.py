@@ -263,8 +263,11 @@ class Collection(object):
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
                   include_hidden=False, recursive=True, inject=False):
         reverse = False if reverse is None else reverse
-        order_by = 'order' if order_by is None else order_by
-        key = operator.attrgetter(order_by)
+        if order_by is None:
+            order_by = ('order', 'pod_path')
+        elif isinstance(order_by, basestring):
+            order_by = (order_by, 'pod_path')
+        key = operator.attrgetter(*order_by)
         sorted_docs = structures.SortedCollection(key=key)
         if inject:
             injected_docs = self.pod.inject_preprocessors(collection=self)
