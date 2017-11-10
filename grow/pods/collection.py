@@ -8,6 +8,7 @@ import re
 import sys
 from grow.common import structures
 from grow.common import utils
+from grow.pods import document_front_matter
 from grow.pods import locales
 from . import document_fields
 from . import documents
@@ -385,6 +386,13 @@ class Collection(object):
                                        locales=None):
         sorted_docs = structures.SortedCollection(key=None)
         doc = self.get_doc(pod_path)
+
+        try:
+            doc.has_serving_path()  # Using doc fields forces file read.
+        except document_front_matter.BadFormatError:
+            # Skip adding invalid documents.
+            return []
+
         sorted_docs.insert(doc)
         self._add_localized_docs(sorted_docs, pod_path, utils.SENTINEL, doc)
         return self.list_servable_documents(
