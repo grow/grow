@@ -264,7 +264,7 @@ class Collection(object):
                   include_hidden=False, recursive=True, inject=False):
         reverse = False if reverse is None else reverse
         order_by = 'order' if order_by is None else order_by
-        key = operator.attrgetter(order_by)
+        key = operator.attrgetter(order_by, 'pod_path')
         sorted_docs = structures.SortedCollection(key=key)
         if inject:
             injected_docs = self.pod.inject_preprocessors(collection=self)
