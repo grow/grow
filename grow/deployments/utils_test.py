@@ -41,8 +41,11 @@ class UtilsTest(unittest.TestCase):
 
     def _mock_ref(self, **kwargs):
         ref = mock.Mock()
-        name = kwargs['name'] if 'name' in kwargs else 'name'
-        type(ref).name = mock.PropertyMock(return_value=name)
+        if 'name_side_effect' in kwargs:
+            type(ref).name = mock.PropertyMock(side_effect=kwargs['name_side_effect'])
+        else:
+            name = kwargs['name'] if 'name' in kwargs else 'name'
+            type(ref).name = mock.PropertyMock(return_value=name)
         return ref
 
     def _mock_repo(self, **kwargs):
@@ -60,11 +63,18 @@ class UtilsTest(unittest.TestCase):
 
     @mock.patch('grow.common.utils.get_git')
     def test_commit_message_error(self, _):
-        """Create normal commit message."""
+        """Fails without git head."""
         head = self._mock_head(commit_side_effect=ValueError('Bang!'))
         mock_repo = self._mock_repo(head=head)
         with self.assertRaises(utils.NoGitHeadError):
             utils.create_commit_message(mock_repo)
+
+    @mock.patch('grow.common.utils.get_git')
+    def test_commit_message_ref_error(self, _):
+        """Continues without head ref."""
+        ref = self._mock_ref(name_side_effect=TypeError('Bang!'))
+        mock_repo = self._mock_repo(ref=ref)
+        utils.create_commit_message(mock_repo)
 
 if __name__ == '__main__':
     unittest.main()
