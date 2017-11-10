@@ -2,6 +2,12 @@ from bisect import bisect_left
 from bisect import bisect_right
 
 
+class AttributeDict(dict):
+    """Allows using a dictionary to reference keys as attributes."""
+    __getattr__ = dict.__getitem__
+    __setattr__ = dict.__setitem__
+
+
 class SortedCollection(object):
     '''Sequence sorted by a key function.
 

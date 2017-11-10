@@ -18,11 +18,6 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
-@click.option('--out_dir', '--out-dir', default=CFG.get('out-dir', None),
-              help='Where to output built files.')
-@click.option('--preprocess/--no-preprocess', '-p/-np',
-              default=CFG.get('preprocess', True), is_flag=True,
-              help='Whether to run preprocessors.')
 @click.option('--clear-cache',
               default=CFG.get('clear-cache', False), is_flag=True,
               help='Clear the pod cache before building.')
@@ -32,6 +27,8 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
               default=CFG.get('locate-untranslated', False), is_flag=True,
               help='Shows untranslated message information.')
 @shared.deployment_option(CFG)
+@shared.out_dir_option(CFG)
+@shared.preprocess_option(CFG)
 @shared.reroute_option(CFG)
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
           locate_untranslated, deployment, use_reroute):
@@ -43,6 +40,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
     if not pod_paths or clear_cache:
         # Clear the cache when building all, only force if the flag is used.
         pod.podcache.reset(force=clear_cache)
+    deployment_obj = None
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
         pod.set_env(deployment_obj.config.env)
@@ -54,6 +52,9 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
     try:
         with pod.profile.timer('grow_build'):
             config = local_destination.Config(out_dir=out_dir)
+            # When using a specific deployment env need to also copy over.
+            if deployment_obj:
+                config.env = deployment_obj.config.env
             destination = local_destination.LocalDestination(config)
             destination.pod = pod
             repo = utils.get_git_repo(pod.root)

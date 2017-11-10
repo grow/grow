@@ -263,8 +263,11 @@ class Collection(object):
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
                   include_hidden=False, recursive=True, inject=False):
         reverse = False if reverse is None else reverse
-        order_by = 'order' if order_by is None else order_by
-        key = operator.attrgetter(order_by)
+        if order_by is None:
+            order_by = ('order', 'pod_path')
+        elif isinstance(order_by, basestring):
+            order_by = (order_by, 'pod_path')
+        key = operator.attrgetter(*order_by)
         sorted_docs = structures.SortedCollection(key=key)
         if inject:
             injected_docs = self.pod.inject_preprocessors(collection=self)
@@ -312,6 +315,11 @@ class Collection(object):
                 raise
         return reversed(sorted_docs) if reverse else sorted_docs
 
+    # Aliases `collection.docs` to `collection.list_docs`. `collection.docs`
+    # should be the public and supported way to retrieve documents from a
+    # collection.
+    docs = list_docs
+
     def list_docs_unread(self, locale=utils.SENTINEL, recursive=True, inject=False):
         """Lists the docs without triggering a read from the storage system."""
         docs = []
@@ -346,11 +354,6 @@ class Collection(object):
                 logging.error('Error loading doc: {}'.format(pod_path))
                 raise
         return docs
-
-    # Aliases `collection.docs` to `collection.list_docs`. `collection.docs`
-    # should be the public and supported way to retrieve documents from a
-    # collection.
-    docs = list_docs
 
     def list_servable_documents(self, include_hidden=False, locales=None,
                                 inject=None, doc_list=None):

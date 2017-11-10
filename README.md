@@ -1,5 +1,8 @@
 # Grow
-[![Circle CI](https://circleci.com/gh/grow/grow.png?style=shield)] [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases) [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
+
+[![Circle CI](https://circleci.com/gh/grow/grow.png?style=shield)]
+[![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases)
+[![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
 [![Coverage Status](https://coveralls.io/repos/github/grow/grow/badge.svg?branch=master)](https://coveralls.io/github/grow/grow?branch=master)
 
 Grow is a declarative tool for rapidly building, launching, and maintaining high-quality websites.
@@ -25,15 +28,16 @@ cd base
 grow run
 ```
 
-- [Read quick start documentation](https://grow.io/docs/).
-
 You can alternatively `pip install grow` if you like.
 
 ## Community
 
+Learn more about using Grow:
+
+- [Grow Documentation](https://grow.io/docs)
 - [Grow Google Group](https://groups.google.com/forum/#!forum/growsdk)
 
-## Developing Grow itself
+## Contributing to Grow
 
 Set up a development environment:
 

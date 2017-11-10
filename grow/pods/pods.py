@@ -276,7 +276,7 @@ class Pod(object):
 
     @utils.cached_property
     def tmp_dir(self):
-        """Profile object for code timing."""
+        """Temp directory for temporary file caching."""
         dir_name = tempfile.mkdtemp()
         _POD_TEMP_DIRS.append(dir_name)
         return dir_name

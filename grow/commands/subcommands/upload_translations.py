@@ -14,14 +14,8 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.upload_translations')
 
 @click.command()
 @shared.pod_path_argument
-@click.option('--locale', type=str, multiple=True,
-              help='Which locale(s) to upload. If unspecified,'
-                   ' translations for all catalogs will be uploaded.')
 @click.option('--force/--noforce', '-f', default=CFG.get('force', False), is_flag=True,
               help='Whether to skip the prompt prior to uploading.')
-@click.option('--service', '-s', type=str,
-              help='Name of the translator service to use. This option is'
-                   ' only required if more than one service is configured.')
 @click.option('--update-acl', default=False, is_flag=True,
               help='Whether to update the ACL on uploaded resources'
                    ' instead of uploading new translation files.')
@@ -40,6 +34,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.upload_translations')
                    ' resources instead of uploading new translation files.'
                    ' This updates properties that are not directly related to'
                    ' the translation data, such as styling or filters')
+@shared.locale_option(
+    help_text='Which locale(s) to upload. If unspecified,'
+              ' translations for all catalogs will be uploaded.')
+@shared.service_option
 def upload_translations(pod_path, locale, force, service, update_acl,
                         download, extract, prune, update_meta):
     """Uploads translations to a translation service."""

@@ -132,7 +132,7 @@ class Translator(object):
             stats_to_download[lang] = stat_message
         return stats_to_download
 
-    def download(self, locales, save_stats=True, inject=False):
+    def download(self, locales, save_stats=True, inject=False, include_obsolete=False):
         # TODO: Rename to `download_and_import`.
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
@@ -187,7 +187,9 @@ class Translator(object):
             if inject:
                 if self.pod.catalogs.inject_translations(locale=lang, content=translations):
                     has_changed_content = True
-            elif self.pod.catalogs.import_translations(locale=lang, content=translations):
+            elif self.pod.catalogs.import_translations(
+                    locale=lang, content=translations,
+                    include_obsolete=include_obsolete):
                 has_changed_content = True
 
         if save_stats and has_changed_content:
