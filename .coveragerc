@@ -1,4 +1,6 @@
 [run]
 omit =
     grow/commands/*
+    grow/common/ca_certs_locater.py
     grow/common/patched_site.py
+    grow/server/manager.py
