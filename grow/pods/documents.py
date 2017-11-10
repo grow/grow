@@ -423,7 +423,7 @@ class Document(object):
             re_dates = r'({dates\.(?P<date_name>\w+)(\|(?P<date_format>[a-zA-Z0-9_%-]+))?})'
             match = re.search(re_dates, path_format)
             if match:
-                formatted_date = self.dates(match.group('date_name'))
+                formatted_date = self.get_date(match.group('date_name'))
                 date_format = match.group('date_format') or '%Y-%m-%d'
                 formatted_date = formatted_date.strftime(date_format)
                 path_format = (path_format[:match.start()] + formatted_date +
