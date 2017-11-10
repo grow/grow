@@ -24,16 +24,19 @@ class UtilsTest(unittest.TestCase):
         type(commit).message = mock.PropertyMock(return_value=message)
         branch = kwargs['branch'] if 'branch' in kwargs else 'branch'
         type(commit).branch = mock.PropertyMock(return_value=branch)
-        author = kwargs['author'] if 'author' in kwargs else self._mock_author()
+        author = kwargs['author'] if 'author' in kwargs else self._mock_author(**kwargs)
         type(commit).author = mock.PropertyMock(return_value=author)
         return commit
 
     def _mock_head(self, **kwargs):
         head = mock.Mock()
-        ref = kwargs['ref'] if 'ref' in kwargs else self._mock_ref()
+        ref = kwargs['ref'] if 'ref' in kwargs else self._mock_ref(**kwargs)
         type(head).ref = mock.PropertyMock(return_value=ref)
-        commit = kwargs['commit'] if 'commit' in kwargs else self._mock_commit()
-        type(head).commit = mock.PropertyMock(return_value=commit)
+        if 'commit_side_effect' in kwargs:
+            type(head).commit = mock.PropertyMock(side_effect=kwargs['commit_side_effect'])
+        else:
+            commit = kwargs['commit'] if 'commit' in kwargs else self._mock_commit(**kwargs)
+            type(head).commit = mock.PropertyMock(return_value=commit)
         return head
 
     def _mock_ref(self, **kwargs):
@@ -42,16 +45,26 @@ class UtilsTest(unittest.TestCase):
         type(ref).name = mock.PropertyMock(return_value=name)
         return ref
 
-    def _mock_repo(self, commit=None, head=None):
+    def _mock_repo(self, **kwargs):
         repo = mock.Mock()
-        type(repo).head = mock.PropertyMock(return_value=head or self._mock_head())
+        head = kwargs['head'] if 'head' in kwargs else self._mock_head(**kwargs)
+        type(repo).head = mock.PropertyMock(return_value=head)
         return repo
 
     @mock.patch('grow.common.utils.get_git')
-    def test_to_message(self, mock_git):
+    def test_commit_message(self, _):
         """Create normal commit message."""
         mock_repo = self._mock_repo()
         message = utils.create_commit_message(mock_repo)
+        self.assertEqual(message.sha, 'sha')
+
+    @mock.patch('grow.common.utils.get_git')
+    def test_commit_message_error(self, _):
+        """Create normal commit message."""
+        head = self._mock_head(commit_side_effect=ValueError('Bang!'))
+        mock_repo = self._mock_repo(head=head)
+        with self.assertRaises(utils.NoGitHeadError):
+            utils.create_commit_message(mock_repo)
 
 if __name__ == '__main__':
     unittest.main()
