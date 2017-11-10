@@ -15,7 +15,7 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.import_translations')
 @shared.pod_path_argument
 @click.option('--source', type=click.Path(), required=True,
               help='Path to source (either zip file, directory, or file).')
-@shared.include_obsolete_option(CFG, default_value=False)
+@shared.include_obsolete_option(CFG)
 @shared.locale_option(
     help_text='Locale of the message catalog to import. This option is'
               ' only applicable when --source is a .po file.', multiple=False)
