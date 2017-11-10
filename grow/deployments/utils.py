@@ -20,7 +20,7 @@ def create_commit_message(repo):
     try:
         repo.git.diff('--quiet')
         has_unstaged_changes = False
-    except git.exc.GitCommandError:
+    except git.exc.GitCommandError:  # pragma: no cover
         has_unstaged_changes = True
     message.has_unstaged_changes = has_unstaged_changes
     message.sha = commit.hexsha
