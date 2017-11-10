@@ -24,6 +24,7 @@ from grow.common import utils
 from grow.documents import static_document
 from grow.performance import docs_loader
 from grow.performance import profile
+from grow.pods import document_front_matter
 from grow.preprocessors import preprocessors
 from grow.rendering import rendered_document
 from grow.rendering import render_pool as grow_render_pool
@@ -731,12 +732,19 @@ class Pod(object):
             col = trigger_doc.collection
             base_docs = []
             original_docs = []
-            trigger_docs = col.list_servable_document_locales(pod_path)
+
+            try:
+                trigger_docs = col.list_servable_document_locales(pod_path)
+            except document_front_matter.BadFormatError:
+                trigger_docs = []
 
             for dep_path in self.podcache.dependency_graph.get_dependents(
                     pod_path):
-                base_docs.append(self.get_doc(dep_path))
-                original_docs += col.list_servable_document_locales(dep_path)
+                try:
+                    original_docs += col.list_servable_document_locales(dep_path)
+                    base_docs.append(self.get_doc(dep_path))
+                except document_front_matter.BadFormatError:
+                    pass
 
             for doc in base_docs:
                 self.podcache.document_cache.remove(doc)
