@@ -202,7 +202,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
         if not gids:
             gids = gid_to_sheet.keys()
-        if gids:
+        if gids and len(gids) > 1:
             url = GoogleSheetsPreprocessor._sheet_edit_url_format.format(id=spreadsheet_id)
             logger.info('Downloading {} tabs -> {}'.format(len(gids), url))
 
@@ -295,11 +295,21 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return path, None
 
     def _maybe_preserve_content(self, new_data, path, key_to_update):
-        if (path.endswith(('.yaml', '.yml'))
-                and self.config.preserve and self.pod.file_exists(path)):
-            existing_data = self.pod.read_yaml(path)
+        if path.endswith(('.yaml', '.yml')) and self.config.preserve:
+            # Use existing data if it exists. If we're updating data at a
+            # specific key, and if the existing data doesn't exist, use an
+            # empty dict. If the file doesn't exist and if we're not updating
+            # at a specific key, just return the new data without reformatting.
+            if self.pod.file_exists(path):
+                existing_data = self.pod.read_yaml(path)
+            elif key_to_update:
+                existing_data = {}
+            else:
+                return new_data
             # Skip trying to update lists, because there would be no
             # expectation of merging old and new list data.
+            if not key_to_update and not isinstance(new_data, dict):
+                return new_data
             if isinstance(existing_data, dict):
                 return utils.format_existing_data(
                     old_data=existing_data, new_data=new_data,
