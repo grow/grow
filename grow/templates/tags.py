@@ -116,11 +116,10 @@ def date(datetime_obj=None, _pod=None, **kwargs):
 
 
 @utils.memoize_tag
-def docs(collection, locale=None, order_by=None, hidden=False, recursive=True, _pod=None):
+def docs(collection, _pod=None, **kwargs):
     """Retrieves docs from the pod."""
     collection = _pod.get_collection(collection)
-    return collection.docs(locale=locale, order_by=order_by, include_hidden=hidden,
-                           recursive=recursive)
+    return list(collection.list_docs(**kwargs))
 
 
 @utils.memoize_tag
