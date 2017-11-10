@@ -44,6 +44,7 @@ jobs:
       - persist_to_workspace:
           root: ~/grow
           paths:
+            - .coveragerc
             - .git/*
             - grow/*
             - grow.spec
