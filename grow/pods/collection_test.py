@@ -86,8 +86,8 @@ class CollectionsTestCase(unittest.TestCase):
         expected_docs = [
             self.pod.get_doc(pod_path, locale='fr')
             for pod_path in [
-                '/content/pages/yaml_test.html',
                 '/content/pages/json_test.html',
+                '/content/pages/yaml_test.html',
                 '/content/pages/home.yaml',
                 '/content/pages/intro@fr.md',
                 '/content/pages/about.yaml',
