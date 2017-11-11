@@ -1,6 +1,7 @@
 """Template jinja filters."""
 
 from datetime import datetime
+import copy
 import json as json_lib
 import random
 import re
@@ -40,7 +41,11 @@ def _deep_gettext(ctx, fields):
 @jinja2.contextfilter
 def deeptrans(ctx, obj):
     """Deep translate an object."""
-    return _deep_gettext(ctx, obj)
+    # Avoid issues (related to sharing the same object across locales and
+    # leaking translations from one locale to another) by copying the object
+    # before it's sent to deeptrans.
+    new_item = copy.deepcopy(obj)
+    return _deep_gettext(ctx, new_item)
 
 @jinja2.contextfilter
 def expand_partial(_ctx, partial_name):
