@@ -28,6 +28,16 @@ class TranslatorStat(messages.Message):
     downloaded = message_types.DateTimeField(9)
 
 
+def translator_stat_representer(dumper, stat):
+    content = json.loads(protojson.encode_message(stat))
+    content.pop('lang')  # Exclude from serialization.
+    return dumper.represent_mapping('tag:yaml.org,2002:map', content)
+
+
+yaml.SafeDumper.add_representer(TranslatorStat,
+                                translator_stat_representer)
+
+
 class TranslatorServiceError(Exception):
 
     def __init__(self, message, ident=None, locale=None):
@@ -324,9 +334,7 @@ class Translator(object):
         if self.KIND not in content:
             content[self.KIND] = {}
         for stat in copy.deepcopy(stats):
-            stat_json = json.loads(protojson.encode_message(stat))
-            lang = stat_json.pop('lang')
-            content[self.KIND][lang] = stat_json
+            content[self.KIND][stat.lang] = stat
         yaml_content = yaml.safe_dump(content, default_flow_style=False)
         self.pod.write_file(Translator.TRANSLATOR_STATS_PATH, yaml_content)
         if create:
