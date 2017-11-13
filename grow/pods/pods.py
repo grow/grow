@@ -23,6 +23,7 @@ from grow.common import progressbar_non
 from grow.common import timer
 from grow.common import utils
 from grow.documents import static_document
+from grow.extensions import extension_controller as ext_controller
 from grow.performance import docs_loader
 from grow.performance import profile
 from grow.preprocessors import preprocessors
@@ -66,7 +67,6 @@ def goodbye_pods():
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
-
 class Pod(object):
     """Grow pod."""
     # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
@@ -104,17 +104,23 @@ class Pod(object):
             self.FEATURE_TRANSLATION_STATS,
         ])
 
+        # Modify sys.path for built-in extension support.
+        _ext_dir = self.abs_path(self.extensions_dir)
+        if os.path.exists(_ext_dir):
+            sys.path.insert(0, _ext_dir)
+
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
         # data files (e.g. yaml constructors). Avoid loading extensions using
         # `load_extensions=False` to permit `grow install` to be used to
         # actually install extensions, prior to loading them.
         if load_extensions and self.exists:
-            # Modify sys.path for built-in extension support.
-            _ext_dir = self.abs_path(self.extensions_dir)
-            if os.path.exists(_ext_dir):
-                sys.path.insert(0, _ext_dir)
             self.list_preprocessors()
+
+        # Load extensions, ignore local extensions during install.
+        if use_reroute:
+            self._load_extensions(load_extensions)
+
         try:
             sdk_utils.check_sdk_version(self)
         except PodDoesNotExistError:
@@ -129,6 +135,14 @@ class Pod(object):
     # DEPRECATED: Remove when no longer needed after re-route stable release.
     def _get_bytecode_cache(self):
         return self.jinja_bytecode_cache
+
+    def _load_extensions(self, load_local_extensions=True):
+        self._extensions_controller = ext_controller.ExtensionController(self)
+        self._extensions_controller.register_builtins()
+
+        if load_local_extensions:
+            self._extensions_controller.register_extensions(
+                self.yaml.get('ext', []))
 
     def _normalize_path(self, pod_path):
         if '..' in pod_path:
@@ -220,6 +234,10 @@ class Pod(object):
     @property
     def exists(self):
         return self.file_exists('/{}'.format(self.FILE_PODSPEC))
+
+    @property
+    def extensions_controller(self):
+        return self._extensions_controller
 
     @property
     def grow_version(self):
@@ -538,7 +556,8 @@ class Pod(object):
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
         if self.use_reroute:
-            document = static_document.StaticDocument(self, pod_path, locale=locale)
+            document = static_document.StaticDocument(
+                self, pod_path, locale=locale)
             if document.exists:
                 return document
         else:
@@ -747,7 +766,8 @@ class Pod(object):
 
             # Force load the docs and fix locales.
             docs_loader.DocsLoader.load(base_docs, ignore_errors=True)
-            docs_loader.DocsLoader.fix_default_locale(self, base_docs, ignore_errors=True)
+            docs_loader.DocsLoader.fix_default_locale(
+                self, base_docs, ignore_errors=True)
 
             # The routing map should remain unchanged most of the time.
             added_docs = []
