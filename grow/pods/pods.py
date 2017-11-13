@@ -16,6 +16,7 @@ import jinja2
 from werkzeug.contrib import cache as werkzeug_cache
 from grow.cache import podcache
 from grow.common import extensions
+from grow.common import features
 from grow.common import logger
 from grow.common import sdk_utils
 from grow.common import progressbar_non
@@ -99,7 +100,7 @@ class Pod(object):
             self.routes = None
         self._jinja_env_lock = threading.RLock()
         self._podcache = None
-        self._disabled = set([
+        self._features = features.Features(disabled=[
             self.FEATURE_TRANSLATION_STATS,
         ])
 
@@ -357,7 +358,8 @@ class Pod(object):
         return paths, routes
 
     def disable(self, feature):
-        self._disabled.add(feature)
+        """Disable a grow feature."""
+        self._features.disable(feature)
 
     def dump(self, suffix='index.html', append_slashes=True, pod_paths=None):
         for rendered_doc in self.export(
@@ -368,7 +370,8 @@ class Pod(object):
                 yield rendered_doc
 
     def enable(self, feature):
-        self._disabled.discard(feature)
+        """Enable a grow feature."""
+        self._features.enable(feature)
 
     def export(self, suffix=None, append_slashes=False, pod_paths=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
@@ -623,7 +626,7 @@ class Pod(object):
         return translator
 
     def is_enabled(self, feature):
-        return feature not in self._disabled
+        return self._features.is_enabled(feature)
 
     def list_collections(self, paths=None):
         cols = collection.Collection.list(self)
