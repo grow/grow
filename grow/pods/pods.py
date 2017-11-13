@@ -743,8 +743,8 @@ class Pod(object):
                 self.podcache.collection_cache.remove_document_locales(doc)
 
             # Force load the docs and fix locales.
-            docs_loader.DocsLoader.load(base_docs)
-            docs_loader.DocsLoader.fix_default_locale(self, base_docs)
+            docs_loader.DocsLoader.load(base_docs, ignore_errors=True)
+            docs_loader.DocsLoader.fix_default_locale(self, base_docs, ignore_errors=True)
 
             # The routing map should remain unchanged most of the time.
             added_docs = []
