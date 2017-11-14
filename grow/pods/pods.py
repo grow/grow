@@ -104,6 +104,8 @@ class Pod(object):
             self.FEATURE_TRANSLATION_STATS,
         ])
 
+        self._extensions_controller = ext_controller.ExtensionController(self)
+
         # Modify sys.path for built-in extension support.
         _ext_dir = self.abs_path(self.extensions_dir)
         if os.path.exists(_ext_dir):
@@ -137,7 +139,6 @@ class Pod(object):
         return self.jinja_bytecode_cache
 
     def _load_extensions(self, load_local_extensions=True):
-        self._extensions_controller = ext_controller.ExtensionController(self)
         self._extensions_controller.register_builtins()
 
         if load_local_extensions:
@@ -211,6 +212,8 @@ class Pod(object):
             raise podspec.PodSpecParseError('Error parsing: {}'.format(path))
 
     def set_env(self, env):
+        if not isinstance(env, environment.Env):
+            env = environment.Env(env)
         if env and env.name:
             untag = document_fields.DocumentFields.untag
             content = untag(self._parse_yaml(), params={'env': env.name})
