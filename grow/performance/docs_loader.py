@@ -1,6 +1,7 @@
 """Threaded loader that forces a list of docs to be loaded from filesystem."""
 
 from grow.common import utils as common_utils
+from grow.pods import document_front_matter
 
 if common_utils.is_appengine():
     # pylint: disable=invalid-name
@@ -18,7 +19,7 @@ class DocsLoader(object):
     POOL_RATIO = 0.02
 
     @classmethod
-    def load(cls, docs):
+    def load(cls, docs, ignore_errors=False):
         """Force load the provided docs to read from file system."""
         if not docs:
             return
@@ -27,8 +28,12 @@ class DocsLoader(object):
 
         def load_func(doc):
             """Force the doc to read the source file."""
-            # pylint: disable=pointless-statement
-            doc.has_serving_path()  # Using doc fields forces file read.
+            try:
+                # pylint: disable=pointless-statement
+                doc.has_serving_path()  # Using doc fields forces file read.
+            except document_front_matter.BadFormatError:
+                if not ignore_errors:
+                    raise
 
         with pod.profile.timer('DocsLoader.load'):
             if ThreadPool is None or len(docs) < cls.MIN_POOL_COUNT:
@@ -64,38 +69,42 @@ class DocsLoader(object):
             return expanded_docs
 
     @staticmethod
-    def fix_default_locale(pod, docs):
+    def fix_default_locale(pod, docs, ignore_errors=False):
         """Fixes docs loaded without with the wronge default locale."""
         with pod.profile.timer('DocsLoader.fix_default_locale'):
             root_to_locale = {}
             for doc in docs:
-                # Ignore the docs that are the same as the default locale.
-                kw_locale = doc._locale_kwarg
-                if kw_locale is not None:
-                    continue
-                root_path = doc.root_pod_path
-                current_locale = str(doc.locale)
-                safe_locale = str(doc.locale_safe)
-                if (root_path in root_to_locale
-                        and current_locale in root_to_locale[root_path]):
-                    continue
-                if safe_locale != current_locale:
-                    # The None and safe locale is now invalid in the cache
-                    # since the front-matter differs.
-                    pod.podcache.collection_cache.remove_document_locale(
-                        doc, None)
-                    pod.podcache.collection_cache.remove_document_locale(
-                        doc, doc.locale_safe)
+                try:
+                    # Ignore the docs that are the same as the default locale.
+                    kw_locale = doc._locale_kwarg
+                    if kw_locale is not None:
+                        continue
+                    root_path = doc.root_pod_path
+                    current_locale = str(doc.locale)
+                    safe_locale = str(doc.locale_safe)
+                    if (root_path in root_to_locale
+                            and current_locale in root_to_locale[root_path]):
+                        continue
+                    if safe_locale != current_locale:
+                        # The None and safe locale is now invalid in the cache
+                        # since the front-matter differs.
+                        pod.podcache.collection_cache.remove_document_locale(
+                            doc, None)
+                        pod.podcache.collection_cache.remove_document_locale(
+                            doc, doc.locale_safe)
 
-                    # Get the doc for the correct default locale.
-                    clean_doc = doc.localize(current_locale)
+                        # Get the doc for the correct default locale.
+                        clean_doc = doc.localize(current_locale)
 
-                    # Cache default locale (based off front-matter).
-                    pod.podcache.collection_cache.add_document_locale(
-                        clean_doc, None)
+                        # Cache default locale (based off front-matter).
+                        pod.podcache.collection_cache.add_document_locale(
+                            clean_doc, None)
 
-                    # If we have already fixed it, ignore any other locales.
-                    if root_path not in root_to_locale:
-                        root_to_locale[root_path] = []
-                    if current_locale not in root_to_locale[root_path]:
-                        root_to_locale[root_path].append(current_locale)
+                        # If we have already fixed it, ignore any other locales.
+                        if root_path not in root_to_locale:
+                            root_to_locale[root_path] = []
+                        if current_locale not in root_to_locale[root_path]:
+                            root_to_locale[root_path].append(current_locale)
+                except document_front_matter.BadFormatError:
+                    if not ignore_errors:
+                        raise

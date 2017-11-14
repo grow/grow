@@ -223,5 +223,8 @@ class RouteInfo(object):
         self.kind = kind
         self.meta = meta or {}
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         return '<RouteInfo kind={} meta={}>'.format(self.kind, self.meta)
