@@ -170,7 +170,7 @@ jobs:
             . env/bin/activate
             ./env/bin/coveralls
 
-  osx-test:
+  test-osx:
     working_directory: ~/grow
     macos:
       xcode: "9.0"
