@@ -136,9 +136,10 @@ class Translator(object):
                                       for (lang, stat) in stats_to_download.iteritems()
                                       if lang in locales])
         for lang, stat in stats_to_download.iteritems():
+            if isinstance(stat, TranslatorStat):
+                stat = json.loads(protojson.encode_message(stat))
             stat['lang'] = lang
-            stat = json.dumps(stat)
-            stat_message = protojson.decode_message(TranslatorStat, stat)
+            stat_message = protojson.decode_message(TranslatorStat, json.dumps(stat))
             stats_to_download[lang] = stat_message
         return stats_to_download
 
