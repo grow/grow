@@ -10,7 +10,7 @@ import markdown
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import json_encoder
-from grow.pods import urls
+from grow.common import urls
 from grow.templates.tags import _gettext_alias
 
 SLUG_REGEX = re.compile(r'[^A-Za-z0-9-._~]+')
