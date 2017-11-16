@@ -8,9 +8,6 @@ class RenderedDocument(object):
     """Keeps track of the information for the rendered document."""
 
     def __init__(self, path, content=None, tmp_dir=None):
-        print 'rendered'
-        print content
-        print tmp_dir
         self.path = path
         self.tmp_dir = tmp_dir
         self.hash = None
