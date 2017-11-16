@@ -14,11 +14,13 @@ class RenderedDocument(object):
         self._content = None
 
         # When doing threaded rendering the thread cannot update the timer.
-        # Keep the timer with the rendered document to add to the normal timers.
+        # Keep the timer with the rendered document to add to the normal
+        # timers.
         self.render_timer = None
+        self.write(content)
 
-        if content:
-            self.write(content)
+    def _has_tmp_file_path(self):
+        return self.tmp_dir is not None and self.hash is not None
 
     def _get_tmp_file_path(self):
         """Temp filename if has temporary dir."""
@@ -27,13 +29,13 @@ class RenderedDocument(object):
     @property
     def file_path(self):
         """Returns the temp file name if available."""
-        if not self.tmp_dir:
+        if not self._has_tmp_file_path():
             return None
         return self._get_tmp_file_path()
 
     def read(self):
         """Reads the content when it needs it."""
-        if not self.tmp_dir:
+        if not self._has_tmp_file_path():
             return self._content
 
         with open(self._get_tmp_file_path(), "r") as tmp_file:
@@ -43,12 +45,16 @@ class RenderedDocument(object):
             return file_contents
 
     def write(self, content):
+        """Writes the content to the temp filesystem or keeps in memory."""
         if isinstance(content, unicode):
             content = content.encode('utf-8')
 
-        self.hash = hashlib.sha1(content).hexdigest()
+        if content is None:
+            self.hash = None
+        else:
+            self.hash = hashlib.sha1(content).hexdigest()
 
-        if self.tmp_dir:
+        if self._has_tmp_file_path():
             with open(self._get_tmp_file_path(), "w") as tmp_file:
                 tmp_file.write(content)
         else:
