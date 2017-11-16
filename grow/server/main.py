@@ -205,7 +205,7 @@ class PodServer(object):
             status = 500
             log('{}: {} - {}'.format(status, request.path, exc))
         env = ui.create_jinja_env()
-        template = env.get_template('error.html')
+        template = env.get_template('/views/error.html')
         if (isinstance(exc, errors.BuildError)):
             tb = exc.traceback
         else:
