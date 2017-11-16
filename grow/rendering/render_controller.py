@@ -167,7 +167,11 @@ class RenderStaticDocumentController(RenderController):
     def static_doc(self):
         """Static doc for the controller."""
         if not self._static_doc:
-            pod_path = self.route_info.meta['pod_path']
+            if 'pod_path' in self.route_info.meta:
+                pod_path = self.route_info.meta['pod_path']
+            else:
+                pod_path = '{}{}'.format(
+                    self.route_info.meta['source_format'], self.params['*'])
             locale = self.route_info.meta.get(
                 'locale', self.params.get('locale'))
             self._static_doc = self.pod.get_static(pod_path, locale=locale)
