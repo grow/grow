@@ -13,7 +13,8 @@ class ExtensionController(object):
         self._hooks = {}
 
         for hook in hooks.HOOKS:
-            self._hooks[hook.KEY] = hook_controller.HookController(self.pod, hook.KEY)
+            self._hooks[hook.KEY] = hook_controller.HookController(
+                self.pod, hook.KEY, hook(None))
 
     def register_builtins(self):
         """Add new built-in extensions."""

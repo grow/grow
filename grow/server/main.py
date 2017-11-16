@@ -67,24 +67,13 @@ def serve_console(pod, request, values):
     return response
 
 
-def serve_console_reroute(pod, request, matched):
+def serve_console_reroute(pod, _request, _matched):
+    """Serve the default console page."""
     kwargs = {'pod': pod}
-    route_info = matched.value
-    print matched.params
-    # values_to_templates = {
-    #     'content': 'collections.html',
-    #     'preprocessors': 'preprocessors.html',
-    #     'translations': 'catalogs.html',
-    # }
-    # value = values.get('page')
-    # template_path = values_to_templates.get(value, 'main.html')
-    # if value == 'translations' and values.get('locale'):
-    #     kwargs['locale'] = values.get('locale')
-    #     template_path = 'catalog.html'
-    # env = ui.create_jinja_env()
-    # template = env.get_template(template_path)
-    # content = template.render(kwargs)
-    response = wrappers.Response('Not there yet')
+    env = ui.create_jinja_env()
+    template = env.get_template('/views/base-reroute.html')
+    content = template.render(kwargs)
+    response = wrappers.Response(content)
     response.headers['Content-Type'] = 'text/html'
     return response
 
@@ -129,6 +118,15 @@ def serve_pod_reroute(pod, request, matched):
 
 
 def serve_ui_tool(pod, request, values):
+    tool_path = 'node_modules/{}'.format(values.get('tool'))
+    response = wrappers.Response(pod.read_file(tool_path))
+    guessed_type = mimetypes.guess_type(tool_path)
+    mime_type = guessed_type[0] or 'text/plain'
+    response.headers['Content-Type'] = mime_type
+    return response
+
+
+def serve_ui_tool_reroute(pod, request, values):
     tool_path = 'node_modules/{}'.format(values.get('tool'))
     response = wrappers.Response(pod.read_file(tool_path))
     guessed_type = mimetypes.guess_type(tool_path)
@@ -252,11 +250,12 @@ class PodServerReRoute(PodServer):
         self.debug = debug
         self.routes = self.pod.router.routes
 
-        self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo('ui_tool'))
-        self.routes.add('/_grow/preprocessors/run/:name', router.RouteInfo('preprocessor'))
-        self.routes.add('/_grow/:page/:locale', router.RouteInfo('console'))
-        self.routes.add('/_grow/:page', router.RouteInfo('console'))
-        self.routes.add('/_grow', router.RouteInfo('console'))
+        self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo('console', {
+            'handler': serve_ui_tool_reroute,
+        }))
+        self.routes.add('/_grow', router.RouteInfo('console', {
+            'handler': serve_console_reroute,
+        }))
 
         # Trigger the dev handler hook.
         self.pod.extensions_controller.trigger(
@@ -273,22 +272,12 @@ class PodServerReRoute(PodServer):
             text = '{} was not found in routes.'
             raise errors.RouteNotFoundError(text.format(path))
 
-        # TODO Determine the correct handler based on the matched value.
         kind = matched.value.kind
-        if kind == 'ui_tool':
-            self.pod.logger.error('Missing handler for route: {}'.format(matched.value))
-        elif kind == 'preprocessor':
-            self.pod.logger.error('Missing handler for route: {}'.format(matched.value))
-        elif kind == 'console':
+        if kind == 'console':
             if 'handler' in matched.value.meta:
                 return matched.value.meta['handler'](self.pod, request, matched)
             return serve_console_reroute(self.pod, request, matched)
-        else:
-            return serve_pod_reroute(self.pod, request, matched)
-
-        response = wrappers.Response('Path not found.', status=404)
-        response.headers['Content-Type'] = 'text/html'
-        return response
+        return serve_pod_reroute(self.pod, request, matched)
 
     def wsgi_app(self, environ, start_response):
         request = ReRouteRequest(environ)

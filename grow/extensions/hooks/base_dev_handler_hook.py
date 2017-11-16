@@ -10,6 +10,6 @@ class BaseDevHandlerHook(base_hook.BaseHook):
     NAME = 'Dev Server Handler'
 
     # pylint: disable=arguments-differ
-    def trigger(self, previous_result, pod, routes, debug=False, *_args, **_kwargs):
+    def trigger(self, previous_result, *_args, **_kwargs):
         """Trigger the dev handler hook."""
-        raise NotImplementedError()
+        return previous_result

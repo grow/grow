@@ -30,14 +30,14 @@ class BaseExtensionTestCase(unittest.TestCase):
         self.assertTrue(ext.hooks.is_enabled('a'))
         self.assertFalse(ext.hooks.is_enabled('b'))
 
+    def test_dev_handler_hook(self):
+        """Not implemented post render hook."""
+        ext = base_extension.BaseExtension(None, {})
+        with self.assertRaises(NotImplementedError):
+            ext.dev_handler_hook()
+
     def test_post_render_hook(self):
         """Not implemented post render hook."""
         ext = base_extension.BaseExtension(None, {})
         with self.assertRaises(NotImplementedError):
             ext.post_render_hook()
-
-    def test_pre_render_hook(self):
-        """Not implemented post render hook."""
-        ext = base_extension.BaseExtension(None, {})
-        with self.assertRaises(NotImplementedError):
-            ext.pre_render_hook()

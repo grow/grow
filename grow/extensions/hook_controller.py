@@ -3,10 +3,10 @@
 class HookController(object):
     """Controller for working with pod extension hooks."""
 
-    def __init__(self, pod, key):
+    def __init__(self, pod, key, default_hook):
         self.pod = pod
         self.key = key
-        self._hooks = []
+        self._hooks = [default_hook]
 
     def register_extensions(self, extensions):
         """Add new extension hooks to the controller."""

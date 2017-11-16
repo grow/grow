@@ -34,7 +34,3 @@ class BaseExtension(object):
     def post_render_hook(self):
         """Hook for post rendering."""
         raise NotImplementedError()
-
-    def pre_render_hook(self):
-        """Hook for pre rendering."""
-        raise NotImplementedError()
