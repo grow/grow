@@ -4,8 +4,9 @@
   "description": "Grow UI",
   "private": true,
   "dependencies": {
-    "browserify": "^14.4.0",
+    "browserify": "^14.5.0",
     "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^3.1.0",
     "gulp-uglify": "^3.0.0",

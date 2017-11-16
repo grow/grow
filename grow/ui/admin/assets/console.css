@@ -29,3 +29,7 @@ table tr th {
   font-weight: bold;
   text-align: left;
 }
+
+dt {
+  margin-top: 1em;
+}

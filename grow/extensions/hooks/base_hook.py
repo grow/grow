@@ -9,6 +9,6 @@ class BaseHook(object):
     def __init__(self, extension):
         self.extension = extension
 
-    def trigger(self, previous_result, *args, **kwargs):
+    def trigger(self, previous_result, *_args, **_kwargs):
         """Trigger the hook."""
         raise NotImplementedError()

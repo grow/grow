@@ -10,6 +10,7 @@ import traceback
 import urllib
 import jinja2
 import webob
+from grow.routing import router
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
 from werkzeug import routing
@@ -18,7 +19,6 @@ from werkzeug import wrappers
 from werkzeug import serving
 from werkzeug import wsgi
 from ..common import sdk_utils
-from ..common import timer
 from ..common import utils
 from ..pods import errors
 from ..pods import ui
@@ -60,9 +60,31 @@ def serve_console(pod, request, values):
         kwargs['locale'] = values.get('locale')
         template_path = 'catalog.html'
     env = ui.create_jinja_env()
-    template = env.get_template(template_path)
+    template = env.get_template('views/{}'.format(template_path))
     content = template.render(kwargs)
     response = wrappers.Response(content)
+    response.headers['Content-Type'] = 'text/html'
+    return response
+
+
+def serve_console_reroute(pod, request, matched):
+    kwargs = {'pod': pod}
+    route_info = matched.value
+    print matched.params
+    # values_to_templates = {
+    #     'content': 'collections.html',
+    #     'preprocessors': 'preprocessors.html',
+    #     'translations': 'catalogs.html',
+    # }
+    # value = values.get('page')
+    # template_path = values_to_templates.get(value, 'main.html')
+    # if value == 'translations' and values.get('locale'):
+    #     kwargs['locale'] = values.get('locale')
+    #     template_path = 'catalog.html'
+    # env = ui.create_jinja_env()
+    # template = env.get_template(template_path)
+    # content = template.render(kwargs)
+    response = wrappers.Response('Not there yet')
     response.headers['Content-Type'] = 'text/html'
     return response
 
@@ -230,21 +252,15 @@ class PodServerReRoute(PodServer):
         self.debug = debug
         self.routes = self.pod.router.routes
 
-        self.routes.add('/_grow/ui/tools/:tool', {
-            'kind': 'ui_tool',
-        })
-        self.routes.add('/_grow/preprocessors/run/:name', {
-            'kind': 'preprocessor',
-        })
-        self.routes.add('/_grow/:page/:locale', {
-            'kind': 'console',
-        })
-        self.routes.add('/_grow/:page', {
-            'kind': 'console',
-        })
-        self.routes.add('/_grow', {
-            'kind': 'console',
-        })
+        self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo('ui_tool'))
+        self.routes.add('/_grow/preprocessors/run/:name', router.RouteInfo('preprocessor'))
+        self.routes.add('/_grow/:page/:locale', router.RouteInfo('console'))
+        self.routes.add('/_grow/:page', router.RouteInfo('console'))
+        self.routes.add('/_grow', router.RouteInfo('console'))
+
+        # Trigger the dev handler hook.
+        self.pod.extensions_controller.trigger(
+            'dev_handler', self.pod, self.routes, debug=debug)
 
         # Start off the server with a clean dependency graph.
         self.pod.podcache.dependency_graph.mark_clean()
@@ -260,11 +276,13 @@ class PodServerReRoute(PodServer):
         # TODO Determine the correct handler based on the matched value.
         kind = matched.value.kind
         if kind == 'ui_tool':
-            pass
+            self.pod.logger.error('Missing handler for route: {}'.format(matched.value))
         elif kind == 'preprocessor':
-            pass
+            self.pod.logger.error('Missing handler for route: {}'.format(matched.value))
         elif kind == 'console':
-            pass
+            if 'handler' in matched.value.meta:
+                return matched.value.meta['handler'](self.pod, request, matched)
+            return serve_console_reroute(self.pod, request, matched)
         else:
             return serve_pod_reroute(self.pod, request, matched)
 
@@ -283,7 +301,7 @@ def create_wsgi_app(pod, debug=False):
         podserver_app = PodServerReRoute(pod, debug=debug)
     else:
         podserver_app = PodServer(pod, debug=debug)
-    assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'assets')
+    assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'admin', 'assets')
     ui_path = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
     return wsgi.SharedDataMiddleware(podserver_app, {
         '/_grow/ui': ui_path,

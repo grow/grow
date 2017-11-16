@@ -27,6 +27,10 @@ class BaseExtension(object):
         """Returns the available hook classes."""
         return []
 
+    def dev_handler_hook(self):
+        """Hook for post rendering."""
+        raise NotImplementedError()
+
     def post_render_hook(self):
         """Hook for post rendering."""
         raise NotImplementedError()

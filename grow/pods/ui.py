@@ -9,7 +9,7 @@ from grow.templates import filters
 
 @utils.memoize
 def create_jinja_env():
-    root = os.path.join(utils.get_grow_dir(), 'ui', 'templates')
+    root = os.path.join(utils.get_grow_dir(), 'ui', 'admin')
     loader = storage.FileStorage.JinjaLoader(root)
     env = jinja2.Environment(
         loader=loader,

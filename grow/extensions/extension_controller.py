@@ -1,6 +1,7 @@
 """Extension controller for working with extensions in the pod."""
 
 from grow.common import extensions as common_extensions
+from grow.extensions import core
 from grow.extensions import hooks
 from grow.extensions import hook_controller
 
@@ -16,7 +17,14 @@ class ExtensionController(object):
 
     def register_builtins(self):
         """Add new built-in extensions."""
-        pass
+        new_extensions = []
+        for extension_cls in core.EXTENSIONS:
+            ext = extension_cls(self.pod, {})
+            new_extensions.append(ext)
+
+        # Register the hooks with the hook controllers.
+        for _, hook in self._hooks.iteritems():
+            hook.register_extensions(new_extensions)
 
     def register_extensions(self, extension_configs):
         """Add new extensions to the controller."""
