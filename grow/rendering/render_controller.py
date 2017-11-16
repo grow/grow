@@ -175,7 +175,6 @@ class RenderStaticDocumentController(RenderController):
             locale = self.route_info.meta.get(
                 'locale', self.params.get('locale'))
             self._static_doc = self.pod.get_static(pod_path, locale=locale)
-            print self._static_doc
         return self._static_doc
 
     @property
