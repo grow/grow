@@ -4,7 +4,7 @@
     {% for path, info in partial.routes.nodes %}
       <dt><a href="{{path}}">{{path}}</a></dt>
       {% if info.kind == 'doc' %}
-        <dd>Source: {{info.meta.pod_path}} ({{info.meta.locale}})</dd>
+        <dd>Source: {{info.meta.pod_path}}{% if info.meta.locale %} ({{info.meta.locale}}){% endif %}</dd>
       {% elif info.kind == 'static' %}
         <dd>Fingerprinted: {{info.meta.fingerprinted}}</dd>
         <dd>Path Format: {{info.meta.path_format}}</dd>
