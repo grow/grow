@@ -95,6 +95,51 @@ class TocExtensionTestCase(unittest.TestCase):
         self.assertIn(header, result)
 
 
+class UrlPreprocessorTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.pod = testing.create_pod()
+        self.pod.write_yaml('/podspec.yaml', {})
+        self.pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$view': '/views/base.html',
+            '$path': '/{base}/'
+        })
+        self.pod.write_file('/content/pages/test1.md', 'Testing')
+        self.pod.write_file('/content/pages/test2.md', 'Testing')
+
+    def test_url(self):
+        """Plain url reference works."""
+        content = 'URL:[url(\'/content/pages/test1.md\')]'
+        self.pod.write_file('/content/pages/test.md', content)
+        content = '{{doc.html|safe}}'
+        self.pod.write_file('/views/base.html', content)
+        controller, params = self.pod.match('/test/')
+        result = controller.render(params)
+        self.assertIn('URL:/test1', result)
+
+    def test_url_link(self):
+        """Plain url reference works."""
+        content = '[Link]([url(\'/content/pages/test1.md\')])'
+        self.pod.write_file('/content/pages/test.md', content)
+        content = '{{doc.html|safe}}'
+        self.pod.write_file('/views/base.html', content)
+        controller, params = self.pod.match('/test/')
+        result = controller.render(params)
+        self.assertIn('href="/test1/"', result)
+
+    def test_url_link_multiple(self):
+        """Plain url reference works."""
+        content = ('[Link]([url(\'/content/pages/test1.md\')])'
+                   '[Link]([url(\'/content/pages/test2.md\')])')
+        self.pod.write_file('/content/pages/test.md', content)
+        content = '{{doc.html|safe}}'
+        self.pod.write_file('/views/base.html', content)
+        controller, params = self.pod.match('/test/')
+        result = controller.render(params)
+        self.assertIn('href="/test1/"', result)
+        self.assertIn('href="/test2/"', result)
+
+
 class CodeBlockPreprocessorTestCase(unittest.TestCase):
 
     def test_noclasses(self):
