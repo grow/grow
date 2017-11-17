@@ -210,7 +210,8 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
 
         translator.download(locales=['de'])
         # Error is caught by the base download.
-        self.assertTrue(mock_sheets_service['spreadsheets.values.get'].execute.called)
+        self.assertTrue(mock_sheets_service[
+                        'spreadsheets.values.get'].execute.called)
 
     @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
@@ -435,6 +436,119 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
                     'filterViewId': 63754494,
                     'title': u'/views/home.html'
                 }
+            }
+        }, requests)
+
+    @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_upload_translations(self, mock_service_drive, mock_service_sheets):
+        mock_drive_service, mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'de',
+                    'sheetId': 765,
+                },
+            }]
+        }, sheets_values={
+            'values': [
+                ['en', 'es'],
+                ['jimbo', 'jimmy'],
+                [],
+                [''],
+                ['suzette', 'sue'],
+            ],
+        })
+        mock_service_drive.return_value = mock_drive_service['service']
+        mock_service_sheets.return_value = mock_sheets_service['service']
+
+        translator = self.pod.get_translator('google_sheets')
+        self.pod.write_yaml(translator.TRANSLATOR_STATS_PATH, {
+            'google_sheets': {
+                'de': {
+                    'ident': 'A1B2C3D4E5F6',
+                    'source_lang': 'en',
+                    'uploaded': '2017-06-02T13:17:57.727879',
+                    'url': 'https://docs.google.com/spreadsheets/d/A1B2C3D4E5F6#gid=12345',
+                },
+            },
+        })
+
+        translator.upload(locales=['de'])
+
+        requests = google_service.GoogleServiceMock.get_batch_requests(
+            mock_sheets_service['spreadsheets.batchUpdate'])
+
+        # Expands the column count.
+        self.assertIn({
+            'appendDimension': {
+                'length': 2,
+                'sheetId': 765,
+                'dimension': 'COLUMNS'
+            }
+        }, requests)
+
+        # Update the cells.
+        self.assertIn({
+            'updateCells': {
+                'fields': 'userEnteredValue',
+                'rows': [{
+                    'values': [{
+                        'userEnteredValue': {
+                            'stringValue': 'jimbo'
+                        }
+                    }, {
+                        'userEnteredValue': {
+                            'stringValue': 'jimmy'
+                        }
+                    }, {
+                        'userEnteredValue': {
+                            'stringValue': ''
+                        }
+                    }, {
+                        'userEnteredValue': {
+                            'stringValue': ''
+                        }
+                    }]
+                }, {
+                    'values': [{
+                        'userEnteredValue': {
+                            'stringValue': 'suzette'
+                        }
+                    }, {
+                        'userEnteredValue': {
+                            'stringValue': 'sue'
+                        }
+                    }, {
+                        'userEnteredValue': {
+                            'stringValue': ''
+                        }
+                    }, {
+                        'userEnteredValue': {
+                            'stringValue': ''
+                        }
+                    }]
+                }],
+                'start': {
+                    'rowIndex': 1,
+                    'columnIndex': 0,
+                    'sheetId': 765
+                }
+            }
+        }, requests)
+
+        # Sort the range
+        self.assertIn({
+            'sortRange': {
+                'range': {
+                    'startRowIndex': 1,
+                    'sheetId': 765,
+                    'startColumnIndex': 0
+                },
+                'sortSpecs': [{
+                    'sortOrder': 'ASCENDING',
+                    'dimensionIndex': 0
+                }]
             }
         }, requests)
 

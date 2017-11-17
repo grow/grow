@@ -95,8 +95,7 @@ class GoogleSheetsTranslator(base.Translator):
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
             # Skip empty rows.
-            is_empty = bool(set(row) - set((None, ''))) is False
-            if not row or is_empty:
+            if not row or self._is_empty_row(row):
                 continue
             source = row[0]
             translation = row[1] if len(row) > 1 else None
@@ -113,6 +112,9 @@ class GoogleSheetsTranslator(base.Translator):
         fp.seek(0)
         content = fp.read()
         return updated_stat, content
+
+    def _is_empty_row(self, row):
+        return bool(set(row) - set((None, ''))) is False
 
     def _upload_catalogs(self, catalogs, source_lang, prune=False):
         project_title = self.project_title
@@ -234,7 +236,7 @@ class GoogleSheetsTranslator(base.Translator):
         removed_rows = []
 
         for value in existing_values:
-            if not value:  # Skip empty rows.
+            if not value or self._is_empty_row(value):  # Skip empty rows.
                 continue
             existing_rows.append({
                 'source': value[0],
@@ -671,7 +673,7 @@ class GoogleSheetsTranslator(base.Translator):
             for x in range(self.HEADER_ROW_COUNT):
                 existing_values.pop(0)  # Remove header rows.
             for value in existing_values:
-                if not value:  # Skip empty rows.
+                if not value or self._is_empty_row(value):  # Skip empty rows.
                     continue
                 if value not in catalog:
                     source = value[0]
@@ -719,6 +721,8 @@ class GoogleSheetsTranslator(base.Translator):
             if len(existing_rows):
                 row_data = []
                 for value in existing_rows:
+                    if not value:  # Skip empty rows.
+                        continue
                     row_data.append(self._create_catalog_row(
                         value['source'], value['translation'],
                         value['comments'], value['locations']))
