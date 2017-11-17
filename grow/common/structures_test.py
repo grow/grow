@@ -21,7 +21,8 @@ class SortedCollectionTestCase(unittest.TestCase):
     """Test the sorted collection structure."""
 
     def setUp(self):
-        self.coll = structures.SortedCollection(key=itemgetter(2))
+        self.key = itemgetter(2)
+        self.coll = structures.SortedCollection(key=self.key)
         for record in [
                 ('roger', 'young', 30),
                 ('angela', 'jones', 28),
@@ -29,10 +30,25 @@ class SortedCollectionTestCase(unittest.TestCase):
                 ('david', 'thomas', 32)]:
             self.coll.insert(record)
 
+    def test_clear(self):
+        """Clears the collection."""
+        self.assertEqual(4, len(self.coll))
+        self.coll.clear()
+        self.assertEqual(0, len(self.coll))
+
     def test_contains(self):
         """Contains matches."""
         self.assertTrue(('roger', 'young', 30) in self.coll)
         self.assertFalse(('bob', 'young', 30) in self.coll)
+
+    def test_copy(self):
+        """Copies the collection."""
+        coll_copy = self.coll.copy()
+        self.assertEqual(4, len(self.coll))
+        self.assertEqual(4, len(coll_copy))
+        self.coll.insert(('roger', 'young', 30))
+        self.assertEqual(5, len(self.coll))
+        self.assertEqual(4, len(coll_copy))
 
     def test_count(self):
         """Counts matches."""
@@ -66,8 +82,15 @@ class SortedCollectionTestCase(unittest.TestCase):
         match = self.coll.find_gt(28)
         self.assertEqual(2, self.coll.index(match))
 
+    def test_insert_right(self):
+        """Index from item."""
+        self.assertEqual(1, self.coll.count(('roger', 'young', 30)))
+        self.coll.insert_right(('roger', 'young', 30))
+        self.assertEqual(2, self.coll.count(('roger', 'young', 30)))
+
     def test_key(self):
         """Index from item."""
+        self.assertEqual(self.key, self.coll.key)
         self.coll.key = itemgetter(0)  # now sort by first name
         self.assertEqual([('angela', 'jones', 28),
                           ('bill', 'smith', 22),
@@ -94,6 +117,15 @@ class SortedCollectionTestCase(unittest.TestCase):
         self.assertTrue(item in self.coll)
         self.coll.remove(item)
         self.assertFalse(item in self.coll)
+
+    def test_repr(self):
+        """Output of repr."""
+        actual = repr(self.coll)
+        self.assertIn('SortedCollection(', actual)
+        self.assertIn("('bill', 'smith', 22)", actual)
+        self.assertIn("('angela', 'jones', 28)", actual)
+        self.assertIn("('roger', 'young', 30)", actual)
+        self.assertIn("('david', 'thomas', 32)", actual)
 
     def test_sorting(self):
         """Collection is sorted."""
