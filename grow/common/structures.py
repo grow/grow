@@ -1,3 +1,5 @@
+"""Custom structures for Grow."""
+
 from bisect import bisect_left
 from bisect import bisect_right
 
@@ -9,7 +11,7 @@ class AttributeDict(dict):
 
 
 class SortedCollection(object):
-    '''Sequence sorted by a key function.
+    """Sequence sorted by a key function.
 
     SortedCollection() is much easier to work with than using bisect() directly.
     It supports key functions like those use in sorted(), min(), and max().
@@ -75,7 +77,7 @@ class SortedCollection(object):
      ('david', 'thomas', 32),
      ('roger', 'young', 30)]
 
-    '''
+    """
 
     def __init__(self, iterable=(), key=None):
         self._given_key = key
