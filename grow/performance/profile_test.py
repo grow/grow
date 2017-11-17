@@ -31,6 +31,23 @@ class TimerTestCase(unittest.TestCase):
             'end': 10,
         }], self.profile.export())
 
+    def test_repr(self):
+        """Repr of timer"""
+        mock_time = mock.Mock()
+        mock_time.time.side_effect = [0, 10]
+        timer = self.profile.timer('test')
+
+        # pylint: disable=protected-access
+        timer._time = mock_time
+
+        with timer:
+            pass
+
+        self.assertEqual('<Timer:test : 10>', repr(timer))
+
+        timer.label = 'foobar'
+        self.assertEqual('<Timer:test foobar : 10>', repr(timer))
+
 
 if __name__ == '__main__':
     unittest.main()
