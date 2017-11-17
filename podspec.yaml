@@ -1,5 +1,5 @@
 grow_version: ">=0.0.56"
-title: Grow
+title: grow.io
 
 localization:
   default_locale: en_US
