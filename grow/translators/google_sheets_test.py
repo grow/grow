@@ -34,7 +34,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
 
 class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
 
-    def _setup_mocks(self, sheets_create=None, sheets_get=None):
+    def _setup_mocks(self, sheets_create=None, sheets_get=None, sheets_values=None):
         if sheets_create is None:
             sheets_create = {
                 'spreadsheetId': '98765',
@@ -54,7 +54,7 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
 
         mock_drive_service = google_service.GoogleServiceMock.mock_drive_service()
         mock_sheets_service = google_service.GoogleServiceMock.mock_sheets_service(
-            create=sheets_create, get=sheets_get)
+            create=sheets_create, get=sheets_get, values=sheets_values)
 
         return mock_drive_service, mock_sheets_service
 
@@ -82,11 +82,11 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
             'addSheet': {
                 'properties': {
                     'gridProperties': {
-                      'columnCount': 4,
-                      'rowCount': 2,
-                      'frozenColumnCount': 1,
-                      'frozenRowCount': 1
-                      },
+                        'columnCount': 4,
+                        'rowCount': 2,
+                        'frozenColumnCount': 1,
+                        'frozenRowCount': 1
+                    },
                     'sheetId': 765,
                     'title': 'de'
                 }
@@ -136,6 +136,44 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
                 }
             }
         }, requests)
+
+    @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_download(self, mock_service_drive, mock_service_sheets):
+        mock_drive_service, mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'de',
+                    'sheetId': 765,
+                },
+            }]
+        }, sheets_values={
+            'values': [
+                ['en', 'es'],
+                ['jimbo', 'jimmy'],
+                ['suzette', 'sue'],
+            ],
+        })
+        mock_service_drive.return_value = mock_drive_service['service']
+        mock_service_sheets.return_value = mock_sheets_service['service']
+
+        translator = self.pod.get_translator('google_sheets')
+        self.pod.write_yaml(translator.TRANSLATOR_STATS_PATH, {
+            'google_sheets': {
+                'de': {
+                    'ident': 'A1B2C3D4E5F6',
+                    'source_lang': 'en',
+                    'uploaded': '2017-06-02T13:17:57.727879',
+                    'url': 'https://docs.google.com/spreadsheets/d/A1B2C3D4E5F6#gid=12345',
+                },
+            },
+        })
+        new_stats = translator.download(locales=['de'])
+        new_stat = new_stats[0]
+        self.assertEquals('en', new_stat.source_lang)
+        self.assertEquals('de', new_stat.lang)
+        self.assertEquals('A1B2C3D4E5F6', new_stat.ident)
 
     @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')

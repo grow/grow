@@ -9,7 +9,7 @@ from grow.preprocessors import google_drive
 from grow.translators import errors as translator_errors
 try:
     import cStringIO as StringIO
-except ImportError:
+except ImportError:  # pragma: no cover
     try:
         import StringIO
     except ImportError:
@@ -86,13 +86,12 @@ class GoogleSheetsTranslator(base.Translator):
         if len(resp['values'][0]) < column_count:
             missing_columns = [None] * (column_count - len(resp['values'][0]))
             resp['values'][:] = [i + missing_columns for i in resp['values']]
-
         return resp['values']
 
     def _download_content(self, stat):
         spreadsheet_id = stat.ident
         values = self._download_sheet(spreadsheet_id, stat.lang)
-        source_lang, lang, _, _ = values.pop(0)
+        values.pop(0)
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
             if not row:  # Skip empty rows.
