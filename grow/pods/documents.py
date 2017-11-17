@@ -7,6 +7,7 @@ import os
 import re
 import yaml
 from grow.common import structures
+from grow.common import urls
 from grow.common import utils
 from grow.translators import translation_stats
 from . import document_fields
@@ -14,7 +15,6 @@ from . import document_format
 from . import footnotes
 from . import locales
 from . import messages
-from . import urls
 
 
 PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')

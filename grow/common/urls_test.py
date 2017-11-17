@@ -13,6 +13,7 @@ class UrlTest(unittest.TestCase):
         self.pod = pods.Pod(dir_path)
 
     def test_relative_path(self):
+        """Relative paths."""
         relative_path = urls.Url.create_relative_path(
             '/foo/bar/baz/', relative_to='/test/dir/')
         self.assertEqual('../../foo/bar/baz/', relative_path)
@@ -55,6 +56,32 @@ class UrlTest(unittest.TestCase):
         relative_path = urls.Url.create_relative_path(
             url, relative_to='/foo/')
         self.assertEqual('../test.html', relative_path)
+
+    def test_scheme_and_port(self):
+        """Scheme and port combinations."""
+        url = urls.Url('/', host='grow.io')
+        self.assertEqual('http://grow.io/', str(url))
+
+        url = urls.Url('/', host='grow.io', scheme='https')
+        self.assertEqual('https://grow.io/', str(url))
+
+        url = urls.Url('/', host='grow.io', port=8080)
+        self.assertEqual('http://grow.io:8080/', str(url))
+
+        url = urls.Url('/', host='grow.io', port=8080, scheme='https')
+        self.assertEqual('https://grow.io:8080/', str(url))
+
+        url = urls.Url('/', host='grow.io', port=443)
+        self.assertEqual('https://grow.io/', str(url))
+
+        url = urls.Url('/', host='grow.io', port=80)
+        self.assertEqual('http://grow.io/', str(url))
+
+        url = urls.Url('/', host='grow.io', scheme='http')
+        self.assertEqual('http://grow.io/', str(url))
+
+        url = urls.Url('/', host='grow.io', scheme='http', port=443)
+        self.assertEqual('http://grow.io:443/', str(url))
 
 
 if __name__ == '__main__':

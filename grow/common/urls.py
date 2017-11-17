@@ -1,17 +1,26 @@
+"""URL utility class."""
+
 import os
 
 
 class Url(object):
+    """Url utility class."""
 
     def __init__(self, path, host=None, port=None, scheme=None):
         self.path = path
         self.host = 'localhost' if host is None else host
-        self.port = 80 if port is None else port
         self.scheme = 'http' if scheme is None else scheme
+        default_port = 80
+        if self.scheme == 'https':
+            default_port = 443
+        self.port = default_port if port is None else port
+        if scheme is None and self.port == 443:
+            self.scheme = 'https'
 
     def __str__(self):
         url = '{}://{}'.format(self.scheme, self.host)
-        if self.port != 80:
+        if ((self.scheme == 'http' and self.port != 80)
+                or (self.scheme == 'https' and self.port != 443)):
             url += ':{}'.format(self.port)
         url += self.path
         return url
@@ -31,18 +40,15 @@ class Url(object):
         return cmp(self.path, other.path)
 
     @staticmethod
-    def format_path(path, pod):
-        pass
-
-    @staticmethod
     def create_relative_path(path, relative_to):
+        """Create a relative path to another url."""
         if isinstance(path, Url):
             path = path.path
         if path.startswith(('http://', 'https://')):
             return path
         result = os.path.relpath(path, relative_to)
         if path.endswith('/'):
-          result = result + '/'
+            result = result + '/'
         if not result.startswith(('/', '.')):
-          return './' + result
+            return './' + result
         return result

@@ -1,7 +1,7 @@
 """Grow static document."""
 
 import hashlib
-from grow.pods import urls
+from grow.common import urls
 
 
 class Error(Exception):

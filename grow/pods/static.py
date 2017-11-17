@@ -1,7 +1,7 @@
 from . import controllers
 from . import messages
+from grow.common import urls
 from grow.pods import locales
-from grow.pods import urls
 from datetime import datetime
 import fnmatch
 import hashlib
