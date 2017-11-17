@@ -3,6 +3,7 @@
 import unittest
 import mock
 from nose.plugins import skip
+from googleapiclient import errors
 from grow.preprocessors import google_drive
 from grow.common import oauth
 from grow.pods import pods
@@ -174,6 +175,40 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         self.assertEquals('en', new_stat.source_lang)
         self.assertEquals('de', new_stat.lang)
         self.assertEquals('A1B2C3D4E5F6', new_stat.ident)
+
+    @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_download_error(self, mock_service_drive, mock_service_sheets):
+        mock_drive_service, mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'de',
+                    'sheetId': 765,
+                },
+            }]
+        })
+        mock_service_drive.return_value = mock_drive_service['service']
+        mock_service_sheets.return_value = mock_sheets_service['service']
+
+        mock_sheets_service['spreadsheets.values.get'].execute.side_effect = errors.HttpError(
+            {'status': '400'}, None)
+
+        translator = self.pod.get_translator('google_sheets')
+        self.pod.write_yaml(translator.TRANSLATOR_STATS_PATH, {
+            'google_sheets': {
+                'de': {
+                    'ident': 'A1B2C3D4E5F6',
+                    'source_lang': 'en',
+                    'uploaded': '2017-06-02T13:17:57.727879',
+                    'url': 'https://docs.google.com/spreadsheets/d/A1B2C3D4E5F6#gid=12345',
+                },
+            },
+        })
+
+        translator.download(locales=['de'])
+        # Error is caught by the base download.
+        self.assertTrue(mock_sheets_service['spreadsheets.values.get'].execute.called)
 
     @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')

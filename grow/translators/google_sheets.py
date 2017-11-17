@@ -64,7 +64,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _content_hash(self, location, locale):
         return hash((location, locale)) % (10 ** 8)  # 10 Digits of the hash.
 
-    def _create_service(self):
+    def _create_service(self):  # pragma: no cover
         return google_drive.BaseGooglePreprocessor.create_service(
             'sheets', 'v4')
 
