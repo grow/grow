@@ -153,6 +153,8 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
             'values': [
                 ['en', 'es'],
                 ['jimbo', 'jimmy'],
+                [],
+                [''],
                 ['suzette', 'sue'],
             ],
         })

@@ -94,7 +94,9 @@ class GoogleSheetsTranslator(base.Translator):
         values.pop(0)
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
-            if not row:  # Skip empty rows.
+            # Skip empty rows.
+            is_empty = bool(set(row) - set((None, ''))) is False
+            if not row or is_empty:
                 continue
             source = row[0]
             translation = row[1] if len(row) > 1 else None
