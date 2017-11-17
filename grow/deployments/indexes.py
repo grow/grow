@@ -206,6 +206,7 @@ class Diff(object):
         if pool is None:
             text = 'Deployment is unavailable in this environment.'
             raise common_utils.UnavailableError(text)
+        apply_errors = []
         thread_pool = None
         if threaded:
             thread_pool = pool.ThreadPool(cls.POOL_SIZE)
@@ -264,7 +265,6 @@ class Diff(object):
 
             if threaded:
                 results = thread_pool.imap_unordered(run_func, threaded_args)
-                apply_errors = []
                 for result in results:
                     if isinstance(result, Exception):
                         apply_errors.append(result)
