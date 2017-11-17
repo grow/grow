@@ -8,17 +8,35 @@ class TimerTestCase(unittest.TestCase):
     """Tests for the Timer"""
 
     def setUp(self):
+        self.mock_time = mock.Mock()
+        self.mock_time.time.side_effect = [0, 10]
         self.profile = profile.Profile()
+
+    def test_add_timer(self):
+        """Test adding timer."""
+
+        timer = profile.Timer('test')
+
+        # pylint: disable=protected-access
+        timer._time = self.mock_time
+
+        with timer:
+            pass
+
+        self.assertEqual(0, len(self.profile))
+        self.profile.add_timer(None)
+        self.assertEqual(0, len(self.profile))
+        self.profile.add_timer(timer)
+        self.assertEqual(1, len(self.profile))
+        self.assertIn(timer, list(self.profile))
 
     def test_timer(self):
         """Test timer."""
 
         timer = self.profile.timer('test')
-        mock_time = mock.Mock()
-        mock_time.time.side_effect = [0, 10]
 
         # pylint: disable=protected-access
-        timer._time = mock_time
+        timer._time = self.mock_time
 
         with timer:
             pass
@@ -33,12 +51,10 @@ class TimerTestCase(unittest.TestCase):
 
     def test_repr(self):
         """Repr of timer"""
-        mock_time = mock.Mock()
-        mock_time.time.side_effect = [0, 10]
         timer = self.profile.timer('test')
 
         # pylint: disable=protected-access
-        timer._time = mock_time
+        timer._time = self.mock_time
 
         with timer:
             pass
