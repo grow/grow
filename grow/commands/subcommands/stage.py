@@ -28,13 +28,15 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.stage')
               help='API key for authorizing staging to WebReview projects.')
 @shared.force_untranslated_option(CFG)
 @shared.preprocess_option(CFG)
+@shared.reroute_option(CFG)
 @click.pass_context
-def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untranslated):
+def stage(context, pod_path, remote, preprocess, subdomain, api_key,
+          force_untranslated, use_reroute):
     """Stages a build on a WebReview server."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     auth = context.parent.params.get('auth')
     try:
-        pod = pods.Pod(root, storage=storage.FileStorage)
+        pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
         with pod.profile.timer('grow_stage'):
             deployment = _get_deployment(pod, remote, subdomain, api_key)
             # use the deployment's environment for preprocessing and later
