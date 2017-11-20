@@ -26,7 +26,7 @@ class Env(object):
         self.config = config
         self.host = config.host
         self.port = config.port
-        self.scheme = config.scheme or 'http'
+        self.scheme = config.scheme
         self.cached = config.cached
         self.fingerprint = config.fingerprint or str(int(time.time()))
 
