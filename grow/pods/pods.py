@@ -107,9 +107,10 @@ class Pod(object):
         self._extensions_controller = ext_controller.ExtensionController(self)
 
         # Modify sys.path for built-in extension support.
-        _ext_dir = self.abs_path(self.extensions_dir)
-        if os.path.exists(_ext_dir):
-            sys.path.insert(0, _ext_dir)
+        if self.exists:
+            _ext_dir = self.abs_path(self.extensions_dir)
+            if os.path.exists(_ext_dir):
+                sys.path.insert(0, _ext_dir)
 
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
