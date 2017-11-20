@@ -25,7 +25,7 @@ class Env(object):
         self.name = config.name
         self.config = config
         self.host = config.host
-        self.port = config.port or 80
+        self.port = config.port
         self.scheme = config.scheme or 'http'
         self.cached = config.cached
         self.fingerprint = config.fingerprint or str(int(time.time()))
@@ -43,7 +43,7 @@ class Env(object):
 
     @property
     def port(self):
-        return self.config.port or 80
+        return self.config.port
 
     @port.setter
     def port(self, value):
@@ -51,7 +51,7 @@ class Env(object):
 
     @property
     def scheme(self):
-        return self.config.scheme or 'https'
+        return self.config.scheme
 
     @scheme.setter
     def scheme(self, value):
