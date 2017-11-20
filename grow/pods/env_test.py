@@ -11,8 +11,8 @@ class EnvTest(unittest.TestCase):
         config = env.EnvConfig(host='localhost')
         environment = env.Env(config)
         self.assertEqual('localhost', environment.host)
-        self.assertEqual('http', environment.scheme)
-        self.assertEqual(80, environment.port)
+        self.assertEqual(None, environment.scheme)
+        self.assertEqual(None, environment.port)
 
     def test_constructor_full(self):
         config = env.EnvConfig(host='remotehost', scheme='https', port=443)
