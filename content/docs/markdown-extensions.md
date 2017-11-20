@@ -36,6 +36,24 @@ Generates a table of contents based on the headings in a document. [View documen
 
 The following extensions are added by Grow and have been enabled.
 
+### include
+
+Includes content from another document.
+
+[sourcecode:text]
+# Remove the extra space after `)`.
+[include('/content/shared/stuff.md') ]
+[/sourcecode]
+
+### url
+
+Url to another document in the pod.
+
+[sourcecode:text]
+# Remove the extra space after `)`.
+[url('/content/pages/archive.md') ]
+[/sourcecode]
+
 ### sourcecode
 
 Implements pygments syntax highlighting for code snippets.
