@@ -12,20 +12,25 @@ RUN apt-get upgrade -y
 # Set environment variables.
 ENV TERM=xterm
 
-# Install Node 8.
 RUN apt-get install -y --no-install-recommends curl ca-certificates
+
+# Node 8.
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 
-# Install gcloud tool.
-RUN echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+# Yarn.
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+# gcloud tool.
 RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+RUN echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 
 # Install Grow dependencies.
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
 python python-pip python-setuptools nodejs build-essential python-all-dev zip \
 libc6 libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev \
-git curl ssh google-cloud-sdk ruby ruby-dev
+git curl ssh google-cloud-sdk ruby ruby-dev yarn
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -33,7 +38,6 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 # Install NPM globals.
 RUN npm install -g bower
 RUN npm install -g gulp
-RUN npm install -g yarn
 
 # Install grow binary.
 RUN pip install --upgrade pip
