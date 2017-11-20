@@ -39,6 +39,18 @@ class Renderer(object):
     """Handles the rendering and threading of the controllers."""
     POOL_SIZE = 20  # Thread pool size for rendering.
 
+    @staticmethod
+    def _handle_render_errors(render_errors):
+        if render_errors:
+            for error in render_errors:
+                print error.message
+                print error.err.message
+                traceback.print_tb(error.err_tb)
+                print ''
+            text = 'There were {} errors during rendering.'
+            raise RenderErrors(text.format(
+                len(render_errors)), render_errors)
+
     # pylint: disable=too-many-locals
     @staticmethod
     def rendered_docs(pod, routes):
@@ -52,6 +64,7 @@ class Renderer(object):
         with pod.profile.timer('renderer.Renderer.render_docs'):
             # Preload the render_pool before attempting to use.
             _ = pod.render_pool
+            render_errors = []
 
             def render_func(args):
                 """Render the content."""
@@ -77,12 +90,17 @@ class Renderer(object):
                 for controller in cont_generator:
                     jinja_env = pod.render_pool.get_jinja_env(
                         controller.doc.locale) if controller.use_jinja else None
-                    rendered_docs.append(render_func({
+                    result = render_func({
                         'controller': controller,
                         'jinja_env': jinja_env,
-                    }))
+                    })
+                    if isinstance(result, Exception):
+                        render_errors.append(result)
+                    else:
+                        rendered_docs.append(result)
                     progress.update(progress.value + 1)
                 progress.finish()
+                Renderer._handle_render_errors(render_errors)
                 return rendered_docs
 
             pod.render_pool.pool_size = Renderer.POOL_SIZE
@@ -99,7 +117,6 @@ class Renderer(object):
                 })
             results = thread_pool.imap_unordered(render_func, threaded_args)
 
-            render_errors = []
             for result in results:
                 if isinstance(result, Exception):
                     render_errors.append(result)
@@ -110,15 +127,7 @@ class Renderer(object):
             thread_pool.join()
             progress.finish()
 
-            if render_errors:
-                for error in render_errors:
-                    print error.message
-                    print error.err.message
-                    traceback.print_tb(error.err_tb)
-                    print ''
-                text = 'There were {} errors during rendering.'
-                raise RenderErrors(text.format(
-                    len(render_errors)), render_errors)
+            Renderer._handle_render_errors(render_errors)
             return rendered_docs
 
     @staticmethod

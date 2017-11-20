@@ -9,7 +9,7 @@ from grow.preprocessors import google_drive
 from grow.translators import errors as translator_errors
 try:
     import cStringIO as StringIO
-except ImportError:
+except ImportError:  # pragma: no cover
     try:
         import StringIO
     except ImportError:
@@ -64,7 +64,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _content_hash(self, location, locale):
         return hash((location, locale)) % (10 ** 8)  # 10 Digits of the hash.
 
-    def _create_service(self):
+    def _create_service(self):  # pragma: no cover
         return google_drive.BaseGooglePreprocessor.create_service(
             'sheets', 'v4')
 
@@ -86,16 +86,16 @@ class GoogleSheetsTranslator(base.Translator):
         if len(resp['values'][0]) < column_count:
             missing_columns = [None] * (column_count - len(resp['values'][0]))
             resp['values'][:] = [i + missing_columns for i in resp['values']]
-
         return resp['values']
 
     def _download_content(self, stat):
         spreadsheet_id = stat.ident
         values = self._download_sheet(spreadsheet_id, stat.lang)
-        source_lang, lang, _, _ = values.pop(0)
+        values.pop(0)
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
-            if not row:  # Skip empty rows.
+            # Skip empty rows.
+            if not row or self._is_empty_row(row):
                 continue
             source = row[0]
             translation = row[1] if len(row) > 1 else None
@@ -112,6 +112,9 @@ class GoogleSheetsTranslator(base.Translator):
         fp.seek(0)
         content = fp.read()
         return updated_stat, content
+
+    def _is_empty_row(self, row):
+        return bool(set(row) - set((None, ''))) is False
 
     def _upload_catalogs(self, catalogs, source_lang, prune=False):
         project_title = self.project_title
@@ -233,7 +236,7 @@ class GoogleSheetsTranslator(base.Translator):
         removed_rows = []
 
         for value in existing_values:
-            if not value:  # Skip empty rows.
+            if not value or self._is_empty_row(value):  # Skip empty rows.
                 continue
             existing_rows.append({
                 'source': value[0],
@@ -670,7 +673,7 @@ class GoogleSheetsTranslator(base.Translator):
             for x in range(self.HEADER_ROW_COUNT):
                 existing_values.pop(0)  # Remove header rows.
             for value in existing_values:
-                if not value:  # Skip empty rows.
+                if not value or self._is_empty_row(value):  # Skip empty rows.
                     continue
                 if value not in catalog:
                     source = value[0]
@@ -718,6 +721,8 @@ class GoogleSheetsTranslator(base.Translator):
             if len(existing_rows):
                 row_data = []
                 for value in existing_rows:
+                    if not value:  # Skip empty rows.
+                        continue
                     row_data.append(self._create_catalog_row(
                         value['source'], value['translation'],
                         value['comments'], value['locations']))
