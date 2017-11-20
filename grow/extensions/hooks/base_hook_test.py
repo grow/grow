@@ -1,7 +1,7 @@
 """Tests for base hook."""
 
 import unittest
-from grow.extensions.base import base_hook
+from grow.extensions.hooks import base_hook
 
 
 class BaseHookTestCase(unittest.TestCase):

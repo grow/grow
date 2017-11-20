@@ -1,7 +1,7 @@
 """Tests for base dev handler hook."""
 
 import unittest
-from grow.extensions.base import base_dev_handler_hook
+from grow.extensions.hooks import base_dev_handler_hook
 
 
 class BaseDevHandlerHookTestCase(unittest.TestCase):
