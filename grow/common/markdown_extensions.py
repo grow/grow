@@ -95,7 +95,7 @@ class IncludeExtension(extensions.Extension):
 
 class UrlPreprocessor(preprocessors.Preprocessor):
 
-    REGEX = re.compile("\[url\('([^')]*)'\)\]")
+    REGEX = re.compile("\[url\('([^']*)'\)\]")
 
     def __init__(self, pod, markdown_instance):
         self.pod = pod
@@ -110,7 +110,7 @@ class UrlPreprocessor(preprocessors.Preprocessor):
             else:
                 for pod_path in pod_paths:
                     doc = self.pod.get_doc(pod_path)
-                    line = re.sub(UrlPreprocessor.REGEX, doc.url.path, line)
+                    line = re.sub(UrlPreprocessor.REGEX, doc.url.path, line, count=1)
                 new_lines.append(line)
         return new_lines
 

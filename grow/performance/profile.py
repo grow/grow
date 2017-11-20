@@ -61,6 +61,9 @@ class Profile(object):
         for timer in self.timers:
             yield timer
 
+    def __len__(self):
+        return len(self.timers)
+
     def add_timer(self, timer):
         """Adds a new timer."""
         if timer is None:

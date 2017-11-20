@@ -1,8 +1,10 @@
 """Tests for the renderer."""
 
 import unittest
+import mock
 from grow.pods import pods
 from grow.pods import storage
+from grow.rendering import render_controller
 from grow.rendering import renderer
 from grow.testing import testing
 
@@ -20,6 +22,17 @@ class RendererTestCase(unittest.TestCase):
         self.pod.router.add_all()
         routes = self.pod.router.routes
         self.render.rendered_docs(self.pod, routes)
+
+    @mock.patch.object(render_controller.RenderDocumentController, 'render')
+    def test_render(self, mock_render):
+        """Renders the docs without errors."""
+        mock_render.side_effect = ValueError()
+
+        self.pod.router.add_all()
+        routes = self.pod.router.routes
+
+        with self.assertRaises(renderer.RenderErrors):
+            self.render.rendered_docs(self.pod, routes)
 
 
 if __name__ == '__main__':
