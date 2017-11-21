@@ -212,7 +212,7 @@ workflows:
   build:
     jobs:
     - init
-    - test-osx
+    - test-osx:
         requires:
         - init
     # - pylint:
