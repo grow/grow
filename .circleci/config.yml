@@ -118,15 +118,15 @@ jobs:
       - run:
         name: Build Release
         command: |
-        . env/bin/activate
-        pyinstaller grow.spec
+          . env/bin/activate
+          pyinstaller grow.spec
 
       - run:
         name: Package
         command: |
-        cd dist
-        zip -r Grow-SDK-Linux.zip grow
-        cd ..
+          cd dist
+          zip -r Grow-SDK-Linux.zip grow
+          cd ..
 
       - run:
         name: Test Packaged Grow
