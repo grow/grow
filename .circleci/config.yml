@@ -96,6 +96,25 @@ jobs:
           at: ~/grow
 
       - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+            pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
+
+      - save_cache:
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - run:
           name: Build Release
           command: make release-ci
 
@@ -109,6 +128,25 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/grow
+
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+            pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
+
+      - save_cache:
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
 
       - run:
           name: Build Release
@@ -139,14 +177,14 @@ jobs:
             pip install -r requirements-dev.txt
             pip install coveralls
 
-      - run:
-          name: Run Tests
-          command: make test-nosetests-circle
-
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
             - "env"
+
+      - run:
+          name: Run Tests
+          command: make test-nosetests-circle
 
       - run:
           name: Coveralls
@@ -178,6 +216,11 @@ jobs:
             pip install coveralls
             pip install NoseGAE==0.5.10
 
+      - save_cache:
+          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
       - run:
           name: Hack Setup for Tests
           # https://github.com/faisalraja/env/issues/11
@@ -188,11 +231,6 @@ jobs:
       - run:
           name: Run Tests
           command: make test-gae-circle
-
-      - save_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-          paths:
-            - "env"
 
       - run:
           name: Coveralls
@@ -242,9 +280,6 @@ workflows:
   build:
     jobs:
     - init
-    - test-osx:
-        requires:
-        - init
     - pylint:
         requires:
         - init
@@ -254,9 +289,22 @@ workflows:
     - test-gae:
         requires:
         - init
+    - test-osx:
+        requires:
+          - init
     - release-package-linux:
         requires:
-        - init
+        - test
+        # filters:
+        #   tags:
+        #     only: /.*/
+        #   branches:
+        #     ignore: /.*/
     - release-package-osx:
         requires:
-        - init
+        - test-osx
+        # filters:
+        #   tags:
+        #     only: /.*/
+        #   branches:
+        #     ignore: /.*/
