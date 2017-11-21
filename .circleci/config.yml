@@ -87,6 +87,36 @@ jobs:
           paths:
             - "env"
 
+  release-package-linux:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Build Release
+          command: make release-ci
+
+      - store_artifacts:
+          path: dist/
+
+  release-package-osx:
+    working_directory: ~/grow
+    macos:
+      xcode: "9.0"
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Build Release
+          command: make release-ci
+
+      - store_artifacts:
+          path: dist/
+
   test:
     working_directory: ~/grow
     docker:
@@ -222,5 +252,11 @@ workflows:
         requires:
         - init
     - test-gae:
+        requires:
+        - init
+    - release-package-linux:
+        requires:
+        - init
+    - release-package-osx:
         requires:
         - init
