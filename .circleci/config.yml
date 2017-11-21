@@ -301,9 +301,9 @@ workflows:
         #     only: /.*/
         #   branches:
         #     ignore: /.*/
-    - release-package-osx:
-        requires:
-        - init
+    # - release-package-osx:
+    #     requires:
+    #     - init
         # - test-osx
         # filters:
         #   tags:
