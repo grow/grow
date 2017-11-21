@@ -280,21 +280,22 @@ workflows:
   build:
     jobs:
     - init
-    - pylint:
-        requires:
-        - init
-    - test:
-        requires:
-        - init
-    - test-gae:
-        requires:
-        - init
-    - test-osx:
-        requires:
-          - init
+    # - pylint:
+    #     requires:
+    #     - init
+    # - test:
+    #     requires:
+    #     - init
+    # - test-gae:
+    #     requires:
+    #     - init
+    # - test-osx:
+    #     requires:
+    #     - init
     - release-package-linux:
         requires:
-        - test
+        - init
+        # - test
         # filters:
         #   tags:
         #     only: /.*/
@@ -302,7 +303,8 @@ workflows:
         #     ignore: /.*/
     - release-package-osx:
         requires:
-        - test-osx
+        - init
+        # - test-osx
         # filters:
         #   tags:
         #     only: /.*/
