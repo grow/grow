@@ -159,6 +159,7 @@ jobs:
           command: |
             . env/bin/activate
             pip install -r requirements-dev.txt
+            pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 
       - save_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -167,7 +168,24 @@ jobs:
 
       - run:
           name: Build Release
-          command: make release-ci
+          command: |
+            . env/bin/activate
+            pyinstaller grow.spec
+
+      - run:
+          name: Package
+          command: |
+            cd dist
+            zip -r Grow-SDK-Linux.zip grow
+            cd ..
+
+      - run:
+          name: Test Packaged Grow
+          command: ./dist/grow
+
+      - run:
+          name: Test Packaged Grow Build
+          command: ./dist/grow build ./grow/testing/testdata/pod
 
       - store_artifacts:
           path: dist/
@@ -318,9 +336,9 @@ workflows:
         #     only: /.*/
         #   branches:
         #     ignore: /.*/
-    # - release-package-osx:
-    #     requires:
-    #     - init
+    - release-package-osx:
+        requires:
+        - init
         # - test-osx
         # filters:
         #   tags:
