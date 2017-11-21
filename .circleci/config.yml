@@ -125,7 +125,7 @@ jobs:
           name: Package
           command: |
             cd dist
-            zip -r Grow-SDK-Linux.zip grow
+            zip -r Grow-SDK-Linux-$(CIRCLE_TAG).zip grow
             cd ..
 
       - run:
@@ -176,7 +176,7 @@ jobs:
           name: Package
           command: |
             cd dist
-            zip -r Grow-SDK-Linux.zip grow
+            zip -r Grow-SDK-Mac-$(CIRCLE_TAG).zip grow
             cd ..
 
       - run:
