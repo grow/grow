@@ -46,6 +46,7 @@ jobs:
           paths:
             - .coveragerc
             - .git/*
+            - bin/*
             - grow/*
             - grow.spec
             - install.py
