@@ -108,7 +108,7 @@ jobs:
           command: |
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install pyinstaller
+            pip install pyinstaller==3.2
 
       - save_cache:
           key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -129,12 +129,8 @@ jobs:
             cd ..
 
       - run:
-          name: Install Packages
-          command: "apt-get update && apt-get install -y gdb"
-
-      - run:
           name: Test Packaged Grow
-          command: gdb ./dist/grow
+          command: ./dist/grow
 
       - run:
           name: Test Packaged Grow Build
