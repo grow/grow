@@ -175,29 +175,8 @@ jobs:
     macos:
       xcode: "9.0"
     steps:
-      # TODO: https://discuss.circleci.com/t/extreme-build-queue-time-for-osx-on-2-0/18170/1
-      - checkout
-
-      - restore_cache:
-          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
-
-      - run:
-          name: Build UI
-          command: make build-ui
-
-      - save_cache:
-          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
-          paths:
-            - "grow/ui/node_modules"
-
-      # Setup the pip cache before running other commands.
-      - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
-
-      # TODO: Fix when osx works as part of workflow correctly.
-      # - attach_workspace:
-      #     at: ~/grow
+      - attach_workspace:
+          at: ~/grow
 
       - run:
           name: Virtual Env
@@ -234,6 +213,8 @@ workflows:
     jobs:
     - init
     - test-osx
+        requires:
+        - init
     # - pylint:
     #     requires:
     #     - init
