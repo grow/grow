@@ -106,6 +106,7 @@ jobs:
           name: Pip Install
           command: |
             . env/bin/activate
+            pip install stdlib-list
             pip install -r requirements-dev.txt
             pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 
@@ -140,6 +141,7 @@ jobs:
           name: Pip Install
           command: |
             . env/bin/activate
+            pip install stdlib-list
             pip install -r requirements-dev.txt
             pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 
