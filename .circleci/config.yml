@@ -130,7 +130,7 @@ jobs:
 
       - run:
           name: Test Packaged Grow
-          command: ./dist/grow
+          command: gdb ./dist/grow
 
       - run:
           name: Test Packaged Grow Build
