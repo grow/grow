@@ -215,12 +215,12 @@ workflows:
     - test-osx:
         requires:
         - init
-    # - pylint:
-    #     requires:
-    #     - init
-    # - test:
-    #     requires:
-    #     - init
-    # - test-gae:
-    #     requires:
-    #     - init
+    - pylint:
+        requires:
+        - init
+    - test:
+        requires:
+        - init
+    - test-gae:
+        requires:
+        - init
