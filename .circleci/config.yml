@@ -116,25 +116,25 @@ jobs:
             - "env"
 
       - run:
-        name: Build Release
-        command: |
-          . env/bin/activate
-          pyinstaller grow.spec
+          name: Build Release
+          command: |
+            . env/bin/activate
+            pyinstaller grow.spec
 
       - run:
-        name: Package
-        command: |
-          cd dist
-          zip -r Grow-SDK-Linux.zip grow
-          cd ..
+          name: Package
+          command: |
+            cd dist
+            zip -r Grow-SDK-Linux.zip grow
+            cd ..
 
       - run:
-        name: Test Packaged Grow
-        command: ./dist/grow
+          name: Test Packaged Grow
+          command: ./dist/grow
 
       - run:
-        name: Test Packaged Grow Build
-        command: ./dist/grow build ./grow/testing/testdata/pod
+          name: Test Packaged Grow Build
+          command: ./dist/grow build ./grow/testing/testdata/pod
 
       - store_artifacts:
           path: dist/
