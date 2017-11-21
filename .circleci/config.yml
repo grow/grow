@@ -107,7 +107,6 @@ jobs:
           command: |
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 
       - save_cache:
           key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -141,7 +140,6 @@ jobs:
           command: |
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 
       - save_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
