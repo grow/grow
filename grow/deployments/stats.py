@@ -55,8 +55,13 @@ class Stats(object):
         rows.append(['Documents', len(documents)])
         locales = self.pod.list_locales()
         rows.append(['Locales', len(locales)])
-        routes = self.pod.routes
-        rows.append(['Routes', len(routes.list_concrete_paths())])
+        if self.pod.use_reroute:
+            self.pod.router.use_simple()
+            self.pod.router.add_all()
+            rows.append(['Routes', len(self.pod.router.routes)])
+        else:
+            routes = self.pod.routes
+            rows.append(['Routes', len(routes.list_concrete_paths())])
         template = self.pod.catalogs.get_template()
         rows.append(['Messages', len(template)])
         table.add_rows(rows)
