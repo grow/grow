@@ -162,8 +162,9 @@ jobs:
           command: |
             set -e
             brew install golang
+            export GOROOT=/usr/local/opt/go/libexec
             export GOPATH=$HOME/gocode
-            export PATH=$PATH:/usr/local/opt/go/libexec/bin:$GOPATH/bin
+            export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
       - run:
           name: Install ghr
