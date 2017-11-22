@@ -61,7 +61,12 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
                 return
             content_generator = deployment.dump(pod)
             repo = utils.get_git_repo(pod.root)
-            paths, _ = pod.determine_paths_to_build()
+            if use_reroute:
+                pod.router.use_simple()
+                pod.router.add_all()
+                paths = [path for path, _ in pod.router.routes.nodes]
+            else:
+                paths, _ = pod.determine_paths_to_build()
             stats_obj = stats.Stats(pod, paths=paths)
             deployment.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=confirm,

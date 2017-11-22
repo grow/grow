@@ -43,7 +43,7 @@ class Router(object):
 
         self.add_all_docs(concrete=concrete)
         self.add_all_static(concrete=concrete)
-        # self.add_all_other()
+        self.add_all_other()
 
     def add_all_docs(self, concrete=True):
         """Add all pod docs to the router."""
@@ -59,17 +59,27 @@ class Router(object):
         """Add all pod docs to the router."""
         with self.pod.profile.timer('Router.add_all_other'):
             podspec = self.pod.podspec.get_config()
-            if 'sitemap' in podspec:
-                sitemap = podspec['sitemap']
-                sitemap_path = self.pod.path_format.format_pod(
-                    sitemap.get('path'))
+            if 'error_routes' in podspec:
+                for key, error_route in podspec['error_routes'].iteritems():
+                    if key == 'default':
+                        key = 404
 
-                self.routes.add(sitemap_path, RouteInfo('sitemap', {
-                    'collections': sitemap.get('collections'),
-                    'locales': sitemap.get('locales'),
-                    'template': sitemap.get('template'),
-                    'path': sitemap_path,
-                }))
+                    self.routes.add('/{}.html'.format(key), RouteInfo('error', {
+                        'key': key,
+                        'view': error_route,
+                    }))
+            # TODO Sitemap
+            # if 'sitemap' in podspec:
+            #     sitemap = podspec['sitemap']
+            #     sitemap_path = self.pod.path_format.format_pod(
+            #         sitemap.get('path'))
+            #
+            #     self.routes.add(sitemap_path, RouteInfo('sitemap', {
+            #         'collections': sitemap.get('collections'),
+            #         'locales': sitemap.get('locales'),
+            #         'template': sitemap.get('template'),
+            #         'path': sitemap_path,
+            #     }))
 
     def add_all_static(self, concrete=True):
         """Add all pod docs to the router."""
