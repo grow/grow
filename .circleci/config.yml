@@ -161,7 +161,8 @@ jobs:
           name: Install Go
           command: |
             set -e
-            tar -C /usr/local -xzf go1.9.2.darwin-amd64.tar.gz
+            curl -o go.tar.gz https://redirector.gvt1.com/edgedl/go/go1.9.2.darwin-amd64.tar.gz
+            tar -C /usr/local -xzf go.tar.gz
             export PATH=$PATH:/usr/local/go/bin
             export GOPATH=$HOME/gocode
             export PATH=$PATH:$GOPATH/bin
