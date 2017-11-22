@@ -15,10 +15,11 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.machine_translate')
 @click.command()
 @shared.pod_path_argument
 @shared.locale_option(help_text='Locales to translate.')
-def machine_translate(pod_path, locale):
+@shared.reroute_option(CFG)
+def machine_translate(pod_path, locale, use_reroute):
     """Translates the pod message catalog using machine translation."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-    pod = pods.Pod(root, storage=storage.FileStorage)
+    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
     with pod.profile.timer('grow_machine_translate'):
         pod.catalogs.extract()
         for identifier in locale:

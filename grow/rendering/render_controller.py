@@ -46,7 +46,15 @@ class RenderController(object):
         elif kind == 'sitemap':
             return RenderSitemapController(
                 pod, serving_path, route_info, params=params)
+        elif kind == 'error':
+            return RenderErrorController(
+                pod, serving_path, route_info, params=params)
         raise UnknownKindError('Do not have a controller for: {}'.format(kind))
+
+    @property
+    def locale(self):
+        """Locale to use for rendering."""
+        return None
 
     @property
     def mimetype(self):
@@ -86,6 +94,11 @@ class RenderDocumentController(RenderController):
         return self._doc
 
     @property
+    def locale(self):
+        """Locale to use for rendering."""
+        return self.doc.locale if self.doc else None
+
+    @property
     def mimetype(self):
         """Determine headers to serve for https requests."""
         return mimetypes.guess_type(self.doc.view)[0]
@@ -106,7 +119,7 @@ class RenderDocumentController(RenderController):
             meta={
                 'path': self.doc.pod_path,
                 'locale': str(self.doc.locale)}
-            ).start_timer()
+        ).start_timer()
         doc = self.doc
         with jinja_env['lock']:
             template = jinja_env['env'].get_template(doc.view.lstrip('/'))
@@ -148,6 +161,58 @@ class RenderDocumentController(RenderController):
                 raise exception
 
 
+class RenderErrorController(RenderController):
+    """Controller for handling rendering for errors."""
+
+    def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
+        super(RenderErrorController, self).__init__(
+            pod, serving_path, route_info, params=params, is_threaded=is_threaded)
+        self.use_jinja = True
+
+    def render(self, jinja_env=None):
+        """Render the document using the render pool."""
+
+        timer = self.pod.profile.timer(
+            'RenderErrorController.render',
+            label='{} ({})'.format(
+                self.route_info.meta['key'], self.route_info.meta['view']),
+            meta={
+                'key': self.route_info.meta['key'],
+                'view': self.route_info.meta['view'],
+            }
+        ).start_timer()
+
+        with jinja_env['lock']:
+            template = jinja_env['env'].get_template(
+                self.route_info.meta['view'].lstrip('/'))
+            local_tags = tags.create_builtin_tags(self.pod, doc=None)
+            # NOTE: This should be done using get_template(... globals=...)
+            # or passed as an argument into render but
+            # it is not available included inside macros???
+            # See: https://github.com/pallets/jinja/issues/688
+            template.globals['g'] = local_tags
+
+            try:
+                serving_path = '/{}.html'.format(self.route_info.meta['key'])
+                rendered_doc = rendered_document.RenderedDocument(
+                    serving_path, template.render({
+                        'doc': None,
+                        'env': self.pod.env,
+                        'podspec': self.pod.podspec,
+                    }).lstrip())
+                timer.stop_timer()
+                return rendered_doc
+            except Exception as err:
+                text = 'Error building {}: {}'
+                if self.pod:
+                    self.pod.logger.exception(text.format(self, err))
+                exception = errors.BuildError(text.format(self, err))
+                exception.traceback = sys.exc_info()[2]
+                exception.controller = self
+                exception.exception = err
+                raise exception
+
+
 class RenderSitemapController(RenderController):
     """Controller for handling rendering for sitemaps."""
     pass
@@ -169,7 +234,6 @@ class RenderStaticDocumentController(RenderController):
             locale = self.route_info.meta.get(
                 'locale', self.params.get('locale'))
             self._static_doc = self.pod.get_static(pod_path, locale=locale)
-            print self._static_doc
         return self._static_doc
 
     @property

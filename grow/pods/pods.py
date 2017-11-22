@@ -26,6 +26,7 @@ from grow.performance import docs_loader
 from grow.performance import profile
 from grow.preprocessors import preprocessors
 from grow.rendering import rendered_document
+from grow.rendering import renderer
 from grow.rendering import render_pool as grow_render_pool
 from grow.routing import path_format as grow_path_format
 from grow.routing import router as grow_router
@@ -372,15 +373,19 @@ class Pod(object):
 
     def export(self, suffix=None, append_slashes=False, pod_paths=None):
         """Builds the pod, returning a mapping of paths to content based on pod routes."""
-        paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)
-        for rendered_doc in self.render_paths(
-                paths, routes, suffix=suffix, append_slashes=append_slashes):
-            yield rendered_doc
-        if not pod_paths:
-            error_controller = routes.match_error('/404.html')
-            if error_controller:
-                yield rendered_document.RenderedDocument(
-                    '/404.html', error_controller.render({}), tmp_dir=self.tmp_dir)
+        if self.use_reroute:
+            for rendered_doc in renderer.Renderer.rendered_docs(self, self.router.routes):
+                yield rendered_doc
+        else:
+            paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)
+            for rendered_doc in self.render_paths(
+                    paths, routes, suffix=suffix, append_slashes=append_slashes):
+                yield rendered_doc
+            if not pod_paths:
+                error_controller = routes.match_error('/404.html')
+                if error_controller:
+                    yield rendered_document.RenderedDocument(
+                        '/404.html', error_controller.render({}), tmp_dir=self.tmp_dir)
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
