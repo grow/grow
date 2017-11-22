@@ -134,9 +134,9 @@ test-gae:
 	  $(target)
 
 test-gae-circle:
-	. gaenv/bin/activate
-	./gaenv/bin/gaenv -r ./gaenv/requirements-gae.txt --lib lib --no-import .
-	NOSEGAE=1 ./gaenv/bin/nosetests \
+	. env/bin/activate
+	./env/bin/gaenv -r ./gaenv/requirements-gae.txt --lib lib --no-import .
+	NOSEGAE=1 ./env/bin/nosetests \
 	  -v \
 	  --rednose \
 	  --with-coverage \
