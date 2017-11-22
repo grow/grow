@@ -157,8 +157,16 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          command: go version
+      - run: Install Go
+          command: |
+            set -e
+            tar -C /usr/local -xzf go1.9.2.darwin-amd64.tar.gz
+            export PATH=$PATH:/usr/local/go/bin
+            export GOPATH=$HOME/gocode
+            export PATH=$PATH:$GOPATH/bin
+
+      - run: Install ghr
+          command: go get -u github.com/tcnksm/ghr
 
       - run:
           name: Virtual Env
