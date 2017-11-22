@@ -158,6 +158,9 @@ jobs:
           at: ~/grow
 
       - run:
+          command: go version
+
+      - run:
           name: Virtual Env
           command: virtualenv env --distribute
 
@@ -351,15 +354,14 @@ workflows:
     # - test-osx:
     #     requires:
     #     - init
-    - release-package-linux:
-        requires:
-        - init
-        # - test
-        # filters:
-        #   tags:
-        #     only: /.*/
-        #   branches:
-        #     ignore: /.*/
+    # - release-package-linux:
+    #     requires:
+    #     - test
+    #     filters:
+    #       tags:
+    #         only: /.*/
+    #       branches:
+    #         ignore: /.*/
     - release-package-osx:
         requires:
         - init
