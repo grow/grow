@@ -167,6 +167,10 @@ jobs:
             export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
       - run:
+          name: Go Version
+          command: go version
+
+      - run:
           name: Install ghr
           command: go get -u github.com/tcnksm/ghr
 
