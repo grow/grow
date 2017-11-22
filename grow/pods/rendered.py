@@ -114,7 +114,7 @@ class RenderedController(controllers.BaseController):
                    and (preprocessor or translator))
         if ui_settings or show_ui:
             jinja_env = ui.create_jinja_env()
-            ui_template = jinja_env.get_template('ui.html')
+            ui_template = jinja_env.get_template('views/ui.html')
             content += '\n' + ui_template.render({
                 'doc': self.doc,
                 'preprocessor': preprocessor,

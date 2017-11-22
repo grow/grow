@@ -10,6 +10,7 @@ import traceback
 import urllib
 import jinja2
 import webob
+from grow.routing import router
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
 from werkzeug import routing
@@ -18,7 +19,6 @@ from werkzeug import wrappers
 from werkzeug import serving
 from werkzeug import wsgi
 from ..common import sdk_utils
-from ..common import timer
 from ..common import utils
 from ..pods import errors
 from ..pods import ui
@@ -60,7 +60,18 @@ def serve_console(pod, request, values):
         kwargs['locale'] = values.get('locale')
         template_path = 'catalog.html'
     env = ui.create_jinja_env()
-    template = env.get_template(template_path)
+    template = env.get_template('views/{}'.format(template_path))
+    content = template.render(kwargs)
+    response = wrappers.Response(content)
+    response.headers['Content-Type'] = 'text/html'
+    return response
+
+
+def serve_console_reroute(pod, _request, _matched):
+    """Serve the default console page."""
+    kwargs = {'pod': pod}
+    env = ui.create_jinja_env()
+    template = env.get_template('/views/base-reroute.html')
     content = template.render(kwargs)
     response = wrappers.Response(content)
     response.headers['Content-Type'] = 'text/html'
@@ -107,6 +118,15 @@ def serve_pod_reroute(pod, request, matched):
 
 
 def serve_ui_tool(pod, request, values):
+    tool_path = 'node_modules/{}'.format(values.get('tool'))
+    response = wrappers.Response(pod.read_file(tool_path))
+    guessed_type = mimetypes.guess_type(tool_path)
+    mime_type = guessed_type[0] or 'text/plain'
+    response.headers['Content-Type'] = mime_type
+    return response
+
+
+def serve_ui_tool_reroute(pod, request, values):
     tool_path = 'node_modules/{}'.format(values.get('tool'))
     response = wrappers.Response(pod.read_file(tool_path))
     guessed_type = mimetypes.guess_type(tool_path)
@@ -185,7 +205,7 @@ class PodServer(object):
             status = 500
             log('{}: {} - {}'.format(status, request.path, exc))
         env = ui.create_jinja_env()
-        template = env.get_template('error.html')
+        template = env.get_template('/views/error.html')
         if (isinstance(exc, errors.BuildError)):
             tb = exc.traceback
         else:
@@ -230,21 +250,16 @@ class PodServerReRoute(PodServer):
         self.debug = debug
         self.routes = self.pod.router.routes
 
-        self.routes.add('/_grow/ui/tools/:tool', {
-            'kind': 'ui_tool',
-        })
-        self.routes.add('/_grow/preprocessors/run/:name', {
-            'kind': 'preprocessor',
-        })
-        self.routes.add('/_grow/:page/:locale', {
-            'kind': 'console',
-        })
-        self.routes.add('/_grow/:page', {
-            'kind': 'console',
-        })
-        self.routes.add('/_grow', {
-            'kind': 'console',
-        })
+        self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo('console', {
+            'handler': serve_ui_tool_reroute,
+        }))
+        self.routes.add('/_grow', router.RouteInfo('console', {
+            'handler': serve_console_reroute,
+        }))
+
+        # Trigger the dev handler hook.
+        self.pod.extensions_controller.trigger(
+            'dev_handler', self.pod, self.routes, debug=debug)
 
         # Start off the server with a clean dependency graph.
         self.pod.podcache.dependency_graph.mark_clean()
@@ -257,20 +272,12 @@ class PodServerReRoute(PodServer):
             text = '{} was not found in routes.'
             raise errors.RouteNotFoundError(text.format(path))
 
-        # TODO Determine the correct handler based on the matched value.
         kind = matched.value.kind
-        if kind == 'ui_tool':
-            pass
-        elif kind == 'preprocessor':
-            pass
-        elif kind == 'console':
-            pass
-        else:
-            return serve_pod_reroute(self.pod, request, matched)
-
-        response = wrappers.Response('Path not found.', status=404)
-        response.headers['Content-Type'] = 'text/html'
-        return response
+        if kind == 'console':
+            if 'handler' in matched.value.meta:
+                return matched.value.meta['handler'](self.pod, request, matched)
+            return serve_console_reroute(self.pod, request, matched)
+        return serve_pod_reroute(self.pod, request, matched)
 
     def wsgi_app(self, environ, start_response):
         request = ReRouteRequest(environ)
@@ -283,7 +290,7 @@ def create_wsgi_app(pod, debug=False):
         podserver_app = PodServerReRoute(pod, debug=debug)
     else:
         podserver_app = PodServer(pod, debug=debug)
-    assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'assets')
+    assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'admin', 'assets')
     ui_path = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
     return wsgi.SharedDataMiddleware(podserver_app, {
         '/_grow/ui': ui_path,

@@ -1,6 +1,7 @@
 var browserify = require('browserify');
 var buffer = require('vinyl-buffer');
 var gulp = require('gulp');
+var gulpAutoprefixer = require('gulp-autoprefixer');
 var gutil = require('gulp-util');
 var rename = require('gulp-rename');
 var sass = require('gulp-sass');
@@ -9,14 +10,17 @@ var uglify = require('gulp-uglify');
 var watchify = require('watchify');
 
 
-var Config = { 
+var config = {
   JS_SOURCES: [
     './js/ui.js'
   ],
   JS_OUT_DIR: './dist/js/',
   JS_OUT_FILE: 'ui.min.js',
-  SASS_SOURCE_FORMAT: './sass/**',
-  SASS_SOURCE: './sass/ui.sass',
+  SASS_SOURCE_DIR: './sass/**/*.sass',
+  SASS_SOURCES: [
+    './admin/partials/**/*.sass',
+    './sass/**/*.sass',
+  ],
   SASS_OUT_DIR: './dist/css/'
 };
 
@@ -74,32 +78,36 @@ function watchjs(sources, outdir, outfile, opt_options) {
 }
 
 
-gulp.task('compilejs', function() {
-    return compilejs(Config.JS_SOURCES, Config.JS_OUT_DIR, Config.JS_OUT_FILE);
+gulp.task('compile-js', function() {
+    return compilejs(config.JS_SOURCES, config.JS_OUT_DIR, config.JS_OUT_FILE);
 });
 
 
-gulp.task('watchjs', function() {
-    return watchjs(Config.JS_SOURCES, Config.JS_OUT_DIR, Config.JS_OUT_FILE);
+gulp.task('watch-js', function() {
+    return watchjs(config.JS_SOURCES, config.JS_OUT_DIR, config.JS_OUT_FILE);
+});
+
+gulp.task('compile-sass', function() {
+  gulp.src(config.SASS_SOURCE_DIR)
+  .pipe(sass({
+    outputStyle: 'compressed'
+  })).on('error', sass.logError)
+  .pipe(rename(function(path) {
+    path.basename += '.min';
+  }))
+  .pipe(gulpAutoprefixer({
+    browsers: [
+      'last 1 version',
+      'last 2 iOS versions'
+    ],
+  }))
+  .pipe(gulp.dest(config.SASS_OUT_DIR));
+});
+
+gulp.task('watch-sass', function() {
+  gulp.watch(config.SASS_SOURCES, ['compile-sass']);
 });
 
 
-gulp.task('watchcss', function() {
-  return gulp.watch(Config.SASS_SOURCE_FORMAT, ['compilecss']);
-});
-
-
-gulp.task('compilecss', function() {
-  gulp.src(Config.SASS_SOURCE)
-    .pipe(sass({
-      outputStyle: 'compressed'
-    })).on('error', sass.logError)
-    .pipe(rename(function(path) {
-      path.basename += '.min';
-    }))
-    .pipe(gulp.dest(Config.SASS_OUT_DIR));
-});
-
-
-gulp.task('build', ['compilejs', 'compilecss']);
-gulp.task('default', ['build', 'watchjs', 'watchcss']);
+gulp.task('build', ['compile-js', 'compile-sass']);
+gulp.task('default', ['build', 'watch-js', 'watch-sass']);

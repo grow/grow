@@ -140,14 +140,16 @@ class RenderDocumentController(RenderController):
                 serving_path = doc.get_serving_path()
                 if serving_path.endswith('/'):
                     serving_path = '{}{}'.format(serving_path, self.suffix)
+                rendered_content = template.render({
+                    'doc': doc,
+                    'env': self.pod.env,
+                    'podspec': self.pod.podspec,
+                    '_track_dependency': track_dependency,
+                }).lstrip()
+                rendered_content = self.pod.extensions_controller.trigger(
+                    'post_render', doc, rendered_content)
                 rendered_doc = rendered_document.RenderedDocument(
-                    serving_path, template.render({
-                        'doc': doc,
-                        'env': self.pod.env,
-                        'podspec': self.pod.podspec,
-                        '_track_dependency': track_dependency,
-                    }).lstrip())
-                # rendered_doc.render_timer = timer.stop_timer()
+                    serving_path, rendered_content)
                 timer.stop_timer()
                 return rendered_doc
             except Exception as err:
@@ -230,7 +232,11 @@ class RenderStaticDocumentController(RenderController):
     def static_doc(self):
         """Static doc for the controller."""
         if not self._static_doc:
-            pod_path = self.route_info.meta['pod_path']
+            if 'pod_path' in self.route_info.meta:
+                pod_path = self.route_info.meta['pod_path']
+            else:
+                pod_path = '{}{}'.format(
+                    self.route_info.meta['source_format'], self.params['*'])
             locale = self.route_info.meta.get(
                 'locale', self.params.get('locale'))
             self._static_doc = self.pod.get_static(pod_path, locale=locale)
@@ -259,8 +265,10 @@ class RenderStaticDocumentController(RenderController):
             text = '{} was not found in static files.'
             raise errors.RouteNotFoundError(text.format(self.serving_path))
 
+        rendered_content = self.pod.read_file(pod_path)
+        rendered_content = self.pod.extensions_controller.trigger(
+            'post_render', self.static_doc, rendered_content)
         rendered_doc = rendered_document.RenderedDocument(
-            self.serving_path, self.pod.read_file(pod_path))
-        # rendered_doc.render_timer = timer.stop_timer()
+            self.serving_path, rendered_content)
         timer.stop_timer()
         return rendered_doc
