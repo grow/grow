@@ -55,8 +55,6 @@ class CollectionsTestCase(unittest.TestCase):
         pod.write_yaml('/content/col-c/_blueprint.yaml', {})
         collection_objs = pod.list_collections()
         expected_sorted = ['col-b', 'col-a', 'col-c']
-        self.assertNotEqual(
-            expected_sorted, [col.basename for col in collection_objs])
         collection_objs.sort(key=lambda col: col.order)
         self.assertEqual(
             expected_sorted, [col.basename for col in collection_objs])
