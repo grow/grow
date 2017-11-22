@@ -157,7 +157,8 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run: Install Go
+      - run:
+          name: Install Go
           command: |
             set -e
             tar -C /usr/local -xzf go1.9.2.darwin-amd64.tar.gz
@@ -165,7 +166,8 @@ jobs:
             export GOPATH=$HOME/gocode
             export PATH=$PATH:$GOPATH/bin
 
-      - run: Install ghr
+      - run:
+          name: Install ghr
           command: go get -u github.com/tcnksm/ghr
 
       - run:
