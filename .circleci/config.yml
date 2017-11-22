@@ -137,6 +137,10 @@ jobs:
       #     name: Test Packaged Grow Build
       #     command: ./dist/grow build ./grow/testing/testdata/pod
 
+      - run:
+          name: Upload to GitHub
+          command: ghr -draft 0.3.16 dist/Grow-SDK-Linux-$(CIRCLE_TAG).zip
+
       - store_artifacts:
           path: dist/
 
@@ -187,6 +191,10 @@ jobs:
       - run:
           name: Test Packaged Grow Build
           command: ./dist/grow build ./grow/testing/testdata/pod
+
+      - run:
+          name: Upload to GitHub
+          command: ghr -draft 0.3.16 dist/Grow-SDK-Linux-$(CIRCLE_TAG).zip
 
       - store_artifacts:
           path: dist/
@@ -316,31 +324,33 @@ workflows:
   build:
     jobs:
     - init
-    - pylint:
-        requires:
-        - init
-    - test:
-        requires:
-        - init
-    - test-gae:
-        requires:
-        - init
-    - test-osx:
-        requires:
-        - init
+    # - pylint:
+    #     requires:
+    #     - init
+    # - test:
+    #     requires:
+    #     - init
+    # - test-gae:
+    #     requires:
+    #     - init
+    # - test-osx:
+    #     requires:
+    #     - init
     - release-package-linux:
         requires:
-        - test
-        filters:
-          tags:
-            only: /.*/
-          branches:
-            ignore: /.*/
+        - init
+        # - test
+        # filters:
+        #   tags:
+        #     only: /.*/
+        #   branches:
+        #     ignore: /.*/
     - release-package-osx:
         requires:
-        - test-osx
-        filters:
-          tags:
-            only: /.*/
-          branches:
-            ignore: /.*/
+        - init
+        # - test-osx
+        # filters:
+        #   tags:
+        #     only: /.*/
+        #   branches:
+        #     ignore: /.*/
