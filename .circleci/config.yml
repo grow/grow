@@ -144,7 +144,7 @@ jobs:
 
       - run:
           name: Upload to GitHub
-          command: ghr -draft -u Zoramite 0.3.16 dist/Grow-SDK-Linux-CIRCLE_TAG.zip
+          command: ghr -draft -u grow 0.3.16 dist/Grow-SDK-Linux-CIRCLE_TAG.zip
 
       - store_artifacts:
           path: dist/
@@ -202,7 +202,7 @@ jobs:
 
       - run:
           name: Upload to GitHub
-          command: ghr -draft -u Zoramite 0.3.16 dist/Grow-SDK-Mac-CIRCLE_TAG.zip
+          command: ghr -draft -u grow 0.3.16 dist/Grow-SDK-Mac-CIRCLE_TAG.zip
 
       - store_artifacts:
           path: dist/
