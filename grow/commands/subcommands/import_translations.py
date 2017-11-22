@@ -19,7 +19,8 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.import_translations')
 @shared.locale_option(
     help_text='Locale of the message catalog to import. This option is'
               ' only applicable when --source is a .po file.', multiple=False)
-def import_translations(pod_path, source, locale, include_obsolete):
+@shared.reroute_option(CFG)
+def import_translations(pod_path, source, locale, include_obsolete, use_reroute):
     """Imports translations from an external source."""
     if source.endswith('.po') and locale is None:
         text = 'Must specify --locale when --source is a .po file.'
@@ -29,7 +30,7 @@ def import_translations(pod_path, source, locale, include_obsolete):
         raise click.ClickException(text)
     source = os.path.expanduser(source)
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-    pod = pods.Pod(root, storage=storage.FileStorage)
+    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
     if not pod.exists:
         raise click.ClickException('Pod does not exist: {}'.format(pod.root))
     with pod.profile.timer('grow_import_translations'):

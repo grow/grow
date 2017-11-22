@@ -89,7 +89,7 @@ class Renderer(object):
             if not ThreadPool:
                 for controller in cont_generator:
                     jinja_env = pod.render_pool.get_jinja_env(
-                        controller.doc.locale) if controller.use_jinja else None
+                        controller.locale) if controller.use_jinja else None
                     result = render_func({
                         'controller': controller,
                         'jinja_env': jinja_env,
