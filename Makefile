@@ -91,7 +91,19 @@ test:
 	  $(target)
 
 test-nosetests:
-	nosetests \
+	./env/bin/nosetests \
+	  -v \
+	  --rednose \
+	  --with-coverage \
+	  --cover-erase \
+	  --cover-html \
+	  --cover-html-dir=htmlcov \
+	  --cover-package=grow \
+	  grow
+
+test-nosetests-circle:
+	. env/bin/activate
+	./env/bin/nosetests \
 	  -v \
 	  --rednose \
 	  --with-coverage \
@@ -121,14 +133,39 @@ test-gae:
 	  --gae-lib-root=$(HOME)/google_appengine/ \
 	  $(target)
 
+test-gae-circle:
+	. env/bin/activate
+	./env/bin/gaenv -r ./env/requirements-gae.txt --lib lib --no-import .
+	NOSEGAE=1 ./env/bin/nosetests \
+	  -v \
+	  --rednose \
+	  --with-coverage \
+	  --with-gae \
+	  --nocapture \
+	  --nologcapture \
+	  --gae-application=./grow/testing/testdata/pod/ \
+	  --gae-lib-root=$(HOME)/google_appengine/ \
+	  $(target)
+
 test-pylint:
 	pylint --errors-only \
+	  $(target)
+
+test-pylint-circle:
+	. env/bin/activate
+	./env/bin/pylint --errors-only \
 	  $(target)
 
 test-ci:
 	$(MAKE) build-ui
 	$(MAKE) test-nosetests
 	$(MAKE) test-pylint
+	$(MAKE) test-gae
+
+test-circle:
+	$(MAKE) build-ui
+	$(MAKE) test-nosetests-circle
+	$(MAKE) test-pylint-circle
 	$(MAKE) test-gae
 
 prep-release:
@@ -192,8 +229,9 @@ release:
 	@echo "Built: dist/$(FILENAME)"
 
 release-ci:
-	pip2 install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
-	pyinstaller grow.spec
+	. env/bin/activate
+	./env/bin/pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
+	./env/bin/pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r $(FILENAME_CI) grow && cd ..
 	./dist/grow

@@ -55,8 +55,6 @@ class CollectionsTestCase(unittest.TestCase):
         pod.write_yaml('/content/col-c/_blueprint.yaml', {})
         collection_objs = pod.list_collections()
         expected_sorted = ['col-b', 'col-a', 'col-c']
-        self.assertNotEqual(
-            expected_sorted, [col.basename for col in collection_objs])
         collection_objs.sort(key=lambda col: col.order)
         self.assertEqual(
             expected_sorted, [col.basename for col in collection_objs])
@@ -94,8 +92,8 @@ class CollectionsTestCase(unittest.TestCase):
                 '/content/pages/contact.yaml',
             ]
         ]
-        for i, doc in enumerate(expected_docs):
-            self.assertEqual(doc, documents[i])
+        for doc in expected_docs:
+            self.assertIn(doc, documents)
 
         # List unhidden documents.
         documents = collection.docs()

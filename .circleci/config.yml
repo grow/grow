@@ -1,0 +1,346 @@
+version: 2
+jobs:
+  init:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+
+      - run:
+          name: Build UI
+          command: make build-ui
+
+      - save_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+          paths:
+            - "grow/ui/node_modules"
+
+      # Setup the pip cache before running other commands.
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+            pip install gaenv
+            pip install coveralls
+            pip install NoseGAE==0.5.10
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - persist_to_workspace:
+          root: ~/grow
+          paths:
+            - .coveragerc
+            - .git/*
+            - bin/*
+            - grow/*
+            - grow.spec
+            - install.py
+            - Makefile
+            - MANIFEST.in
+            - package.json
+            - pylintrc
+            - requirements-dev.txt
+            - requirements.txt
+            - setup.py
+
+  pylint:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+
+      - run:
+          name: Pylint
+          command: make test-pylint-circle
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+  release-package-linux:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+            pip install pyinstaller==3.2
+
+      - save_cache:
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - run:
+          name: Build Release
+          command: |
+            . env/bin/activate
+            pyinstaller grow.spec
+
+      - run:
+          name: Package
+          command: |
+            cd dist
+            zip -r Grow-SDK-Linux-$(CIRCLE_TAG).zip grow
+            cd ..
+
+      # Currently causes a seg fault in docker.
+      # - run:
+      #     name: Test Packaged Grow
+      #     command: ./dist/grow
+      #
+      # - run:
+      #     name: Test Packaged Grow Build
+      #     command: ./dist/grow build ./grow/testing/testdata/pod
+
+      - store_artifacts:
+          path: dist/
+
+  release-package-osx:
+    working_directory: ~/grow
+    macos:
+      xcode: "9.0"
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+            pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
+
+      - save_cache:
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - run:
+          name: Build Release
+          command: |
+            . env/bin/activate
+            pyinstaller grow.spec
+
+      - run:
+          name: Package
+          command: |
+            cd dist
+            zip -r Grow-SDK-Mac-$(CIRCLE_TAG).zip grow
+            cd ..
+
+      - run:
+          name: Test Packaged Grow
+          command: ./dist/grow
+
+      - run:
+          name: Test Packaged Grow Build
+          command: ./dist/grow build ./grow/testing/testdata/pod
+
+      - store_artifacts:
+          path: dist/
+
+  test:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+            pip install coveralls
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - run:
+          name: Run Tests
+          command: make test-nosetests-circle
+
+      - run:
+          name: Coveralls
+          command: |
+            . env/bin/activate
+            ./env/bin/coveralls
+
+  test-gae:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+            pip install gaenv
+            pip install coveralls
+            pip install NoseGAE==0.5.10
+
+      - save_cache:
+          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - run:
+          name: Hack Setup for Tests
+          # https://github.com/faisalraja/env/issues/11
+          command: |
+            cat requirements.txt > ./env/requirements-gae.txt
+            echo "pyasn1-modules>=0.0.8" >> ./env/requirements-gae.txt
+
+      - run:
+          name: Run Tests
+          command: make test-gae-circle
+
+      - run:
+          name: Coveralls
+          command: |
+            . env/bin/activate
+            ./env/bin/coveralls
+
+  test-osx:
+    working_directory: ~/grow
+    macos:
+      xcode: "9.0"
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+            pip install coveralls
+
+      - run:
+          name: Run Tests
+          command: make test-nosetests-circle
+
+      - save_cache:
+          key: pip-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - run:
+          name: Coveralls
+          command: |
+            . env/bin/activate
+            ./env/bin/coveralls
+
+workflows:
+  version: 2
+  build:
+    jobs:
+    - init
+    - pylint:
+        requires:
+        - init
+    - test:
+        requires:
+        - init
+    - test-gae:
+        requires:
+        - init
+    - test-osx:
+        requires:
+        - init
+    - release-package-linux:
+        requires:
+        - test
+        filters:
+          tags:
+            only: /.*/
+          branches:
+            ignore: /.*/
+    - release-package-osx:
+        requires:
+        - test-osx
+        filters:
+          tags:
+            only: /.*/
+          branches:
+            ignore: /.*/
