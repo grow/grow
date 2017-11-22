@@ -64,7 +64,7 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             if use_reroute:
                 pod.router.use_simple()
                 pod.router.add_all()
-                paths = [path for path, _ in pod.router.routes.nodes]
+                paths = pod.router.routes.paths
             else:
                 paths, _ = pod.determine_paths_to_build()
             stats_obj = stats.Stats(pod, paths=paths)

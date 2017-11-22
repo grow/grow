@@ -64,19 +64,15 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                     pod.router.add_pod_paths(pod_paths)
                 else:
                     pod.router.add_all()
-                routes = pod.router.routes
-                stats_obj = stats.Stats(pod, paths=routes.paths)
-                rendered_docs = renderer.Renderer.rendered_docs(pod, routes)
-                destination.deploy(
-                    rendered_docs, stats=stats_obj, repo=repo,
-                    confirm=False, test=False, is_partial=bool(pod_paths))
+                paths = pod.router.routes.paths
+                content_generator = renderer.Renderer.rendered_docs(pod, pod.router.routes)
             else:
                 paths, _ = pod.determine_paths_to_build(pod_paths=pod_paths)
-                stats_obj = stats.Stats(pod, paths=paths)
                 content_generator = destination.dump(pod, pod_paths=pod_paths)
-                destination.deploy(
-                    content_generator, stats=stats_obj, repo=repo, confirm=False,
-                    test=False, is_partial=bool(pod_paths))
+            stats_obj = stats.Stats(pod, paths=paths)
+            destination.deploy(
+                content_generator, stats=stats_obj, repo=repo, confirm=False,
+                test=False, is_partial=bool(pod_paths))
 
             pod.podcache.write()
     except pods.Error as err:
