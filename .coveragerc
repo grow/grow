@@ -10,3 +10,4 @@ omit =
     grow/server/manager.py
     # Copied from upstream.
     grow/templates/jinja_dependency.py
+source=grow
