@@ -162,12 +162,14 @@ jobs:
           command: brew install golang
 
       - run:
-          name: Update Paths
-          command: |
-            set -e
-            export GOROOT=/usr/local/opt/go/libexec
-            export GOPATH=$HOME/gocode
-            export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+          name: Update GOROOT
+          command: echo 'export GOROOT=/usr/local/opt/go/libexec' >> $BASH_ENV
+      - run:
+          name: Update GOPATH
+          command: echo 'export GOPATH=$HOME/gocode' >> $BASH_ENV
+      - run:
+          name: Update PATH
+          command: echo 'export PATH=$PATH:$GOROOT/bin:$GOPATH/bin' >> $BASH_ENV
 
       - run:
           name: Go Version
