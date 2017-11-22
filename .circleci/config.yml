@@ -33,7 +33,7 @@ jobs:
             . env/bin/activate
             pip install -r requirements-dev.txt
             pip install gaenv
-            pip install coveralls
+            pip install codecov
             pip install NoseGAE==0.5.10
 
       - save_cache:
@@ -211,7 +211,7 @@ jobs:
           command: |
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install coveralls
+            pip install codecov
 
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -223,10 +223,10 @@ jobs:
           command: make test-nosetests-circle
 
       - run:
-          name: Coveralls
+          name: Code Coverage
           command: |
             . env/bin/activate
-            ./env/bin/coveralls
+            ./env/bin/codecov
 
   test-gae:
     working_directory: ~/grow
@@ -249,7 +249,7 @@ jobs:
             . env/bin/activate
             pip install -r requirements-dev.txt
             pip install gaenv
-            pip install coveralls
+            pip install codecov
             pip install NoseGAE==0.5.10
 
       - save_cache:
@@ -269,10 +269,10 @@ jobs:
           command: make test-gae-circle
 
       - run:
-          name: Coveralls
+          name: Code Coverage
           command: |
             . env/bin/activate
-            ./env/bin/coveralls
+            ./env/bin/codecov
 
   test-osx:
     working_directory: ~/grow
@@ -294,7 +294,7 @@ jobs:
           command: |
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install coveralls
+            pip install codecov
 
       - run:
           name: Run Tests
@@ -306,10 +306,10 @@ jobs:
             - "env"
 
       - run:
-          name: Coveralls
+          name: Code Coverage
           command: |
             . env/bin/activate
-            ./env/bin/coveralls
+            ./env/bin/codecov
 
 workflows:
   version: 2
