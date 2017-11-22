@@ -3,7 +3,7 @@
 [![Circle CI](https://circleci.com/gh/grow/grow.png?style=shield)]
 [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases)
 [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
-[![Coverage Status](https://coveralls.io/repos/github/grow/grow/badge.svg?branch=master)](https://coveralls.io/github/grow/grow?branch=master)
+[![Code Coverage](https://codecov.io/gh/grow/grow/branch/master/graph/badge.svg)](https://codecov.io/gh/grow/grow)
 
 Grow is a declarative tool for rapidly building, launching, and maintaining high-quality websites.
 
