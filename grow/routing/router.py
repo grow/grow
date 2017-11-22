@@ -146,7 +146,7 @@ class Router(object):
         """Add docs to the router."""
         with self.pod.profile.timer('Router.add_docs'):
             for doc in docs:
-                if doc.hidden or not doc.has_serving_path():
+                if not doc.has_serving_path():
                     continue
                 if concrete:
                     # Concrete iterates all possible documents.
