@@ -30,6 +30,7 @@ jobs:
       - run:
           name: Pip Install
           command: |
+            set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
             pip install gaenv
@@ -76,6 +77,7 @@ jobs:
       - run:
           name: Pip Install
           command: |
+            set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
 
@@ -106,9 +108,10 @@ jobs:
       - run:
           name: Pip Install
           command: |
+            set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install pyinstaller==3.2
+            pip install pyinstaller==3.3
 
       - save_cache:
           key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -118,12 +121,14 @@ jobs:
       - run:
           name: Build Release
           command: |
+            set -e
             . env/bin/activate
             pyinstaller grow.spec
 
       - run:
           name: Package
           command: |
+            set -e
             cd dist
             zip -r Grow-SDK-Linux-$(CIRCLE_TAG).zip grow
             cd ..
@@ -162,9 +167,10 @@ jobs:
       - run:
           name: Pip Install
           command: |
+            set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
+            pip install pyinstaller==3.3
 
       - save_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -174,12 +180,14 @@ jobs:
       - run:
           name: Build Release
           command: |
+            set -e
             . env/bin/activate
             pyinstaller grow.spec
 
       - run:
           name: Package
           command: |
+            set -e
             cd dist
             zip -r Grow-SDK-Mac-$(CIRCLE_TAG).zip grow
             cd ..
@@ -217,6 +225,7 @@ jobs:
       - run:
           name: Pip Install
           command: |
+            set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
             pip install coveralls
@@ -233,6 +242,7 @@ jobs:
       - run:
           name: Coveralls
           command: |
+            set -e
             . env/bin/activate
             ./env/bin/coveralls
 
@@ -254,6 +264,7 @@ jobs:
       - run:
           name: Pip Install
           command: |
+            set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
             pip install gaenv
@@ -269,6 +280,7 @@ jobs:
           name: Hack Setup for Tests
           # https://github.com/faisalraja/env/issues/11
           command: |
+            set -e
             cat requirements.txt > ./env/requirements-gae.txt
             echo "pyasn1-modules>=0.0.8" >> ./env/requirements-gae.txt
 
@@ -279,6 +291,7 @@ jobs:
       - run:
           name: Coveralls
           command: |
+            set -e
             . env/bin/activate
             ./env/bin/coveralls
 
@@ -300,6 +313,7 @@ jobs:
       - run:
           name: Pip Install
           command: |
+            set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
             pip install coveralls
@@ -316,6 +330,7 @@ jobs:
       - run:
           name: Coveralls
           command: |
+            set -e
             . env/bin/activate
             ./env/bin/coveralls
 
