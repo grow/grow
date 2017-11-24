@@ -33,9 +33,6 @@ jobs:
             set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install gaenv
-            pip install codecov
-            pip install NoseGAE==0.5.10
 
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -111,7 +108,6 @@ jobs:
             set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install pyinstaller==3.3
 
       - save_cache:
           key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -188,7 +184,6 @@ jobs:
             set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install pyinstaller==3.3
 
       - save_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -246,7 +241,6 @@ jobs:
             set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install codecov
 
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -285,9 +279,6 @@ jobs:
             set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install gaenv
-            pip install codecov
-            pip install NoseGAE==0.5.10
 
       - save_cache:
           key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -334,7 +325,6 @@ jobs:
             set -e
             . env/bin/activate
             pip install -r requirements-dev.txt
-            pip install codecov
 
       - run:
           name: Run Tests
