@@ -1,11 +1,12 @@
 -r requirements.txt
-coverage==4.4.1
+PyInstaller==3.3
+coverage==4.4.2
 enum34>=1.1.3 # https://github.com/PyCQA/pylint/issues/1388
 ez-setup==0.9
 mock==2.0.0
 nose==1.3.7
-pylint==1.7.1
-rednose==1.2.2
-setuptools==36.0.1
+pylint==1.7.4
+rednose==1.2.3
+setuptools==37.0.0
 stdlib-list==0.4.0
 webapp2==2.5.2
