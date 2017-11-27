@@ -27,6 +27,7 @@ jobs:
             - bin/*
             - grow/*
             - scripts/*
+            - description.txt
             - grow.spec
             - install.py
             - Makefile
