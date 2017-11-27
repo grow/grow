@@ -46,6 +46,7 @@ jobs:
             - .git/*
             - bin/*
             - grow/*
+            - scripts/*
             - grow.spec
             - install.py
             - Makefile
@@ -258,6 +259,11 @@ jobs:
             . env/bin/activate
             ./env/bin/codecov
 
+      - run:
+          name: Test build
+          command: ./scripts/grow build ./grow/testing/testdata/pod
+
+
   test-gae:
     working_directory: ~/grow
     docker:
@@ -304,6 +310,10 @@ jobs:
             . env/bin/activate
             ./env/bin/codecov
 
+      - run:
+          name: Test build
+          command: ./scripts/grow build ./grow/testing/testdata/pod
+
   test-osx:
     working_directory: ~/grow
     macos:
@@ -341,6 +351,10 @@ jobs:
             set -e
             . env/bin/activate
             ./env/bin/codecov
+
+      - run:
+          name: Test build
+          command: ./scripts/grow build ./grow/testing/testdata/pod
 
 workflows:
   version: 2
