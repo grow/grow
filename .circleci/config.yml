@@ -356,21 +356,31 @@ jobs:
           name: Test build
           command: ./scripts/grow build ./grow/testing/testdata/pod
 
+default_workflow: &default_workflow
+  filters:
+    tags:
+      only: /.*/
+
 workflows:
   version: 2
   build:
     jobs:
-    - init
+    - init:
+        <<: *default_workflow
     - pylint:
+        <<: *default_workflow
         requires:
         - init
     - test:
+        <<: *default_workflow
         requires:
         - init
     - test-gae:
+        <<: *default_workflow
         requires:
         - init
     - test-osx:
+        <<: *default_workflow
         requires:
         - init
     - release-package-linux:
