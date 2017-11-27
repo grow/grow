@@ -1,6 +1,6 @@
 # Grow
 
-[![Circle CI](https://circleci.com/gh/grow/grow.png?style=shield)]
+[![Circle CI](https://circleci.com/gh/grow/grow.png?style=shield)](https://circleci.com/gh/grow/grow)
 [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases)
 [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
 [![Code Coverage](https://codecov.io/gh/grow/grow/branch/master/graph/badge.svg)](https://codecov.io/gh/grow/grow)
