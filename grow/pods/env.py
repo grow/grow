@@ -24,9 +24,6 @@ class Env(object):
     def __init__(self, config):
         self.name = config.name
         self.config = config
-        self.host = config.host
-        self.port = config.port
-        self.scheme = config.scheme
         self.cached = config.cached
         self.fingerprint = config.fingerprint or str(int(time.time()))
 

@@ -27,7 +27,8 @@ libsass==0.13.4
 oauth2client==3.0.0
 paramiko==2.4.0
 progressbar2==3.34.3
-protorpc==0.12.0
+# Unable to use non-unicode strings: https://github.com/google/protorpc/issues/26
+protorpc==0.11.1
 pyasn1==0.4.2
 pycrypto==2.6.1
 pygments==2.2.0
