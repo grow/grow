@@ -46,6 +46,7 @@ jobs:
             - .git/*
             - bin/*
             - grow/*
+            - scripts/*
             - grow.spec
             - install.py
             - Makefile
@@ -260,7 +261,7 @@ jobs:
 
       - run:
           name: Test build
-          command: ./grow/scripts/grow build ./grow/testing/testdata/pod
+          command: ./scripts/grow build ./grow/testing/testdata/pod
 
 
   test-gae:
@@ -311,7 +312,7 @@ jobs:
 
       - run:
           name: Test build
-          command: ./grow/scripts/grow build ./grow/testing/testdata/pod
+          command: ./scripts/grow build ./grow/testing/testdata/pod
 
   test-osx:
     working_directory: ~/grow
@@ -353,7 +354,7 @@ jobs:
 
       - run:
           name: Test build
-          command: ./grow/scripts/grow build ./grow/testing/testdata/pod
+          command: ./scripts/grow build ./grow/testing/testdata/pod
 
 workflows:
   version: 2
