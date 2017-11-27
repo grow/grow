@@ -181,7 +181,7 @@ class Diff(object):
                 if isinstance(what_changed, unicode):
                     what_changed = what_changed.encode('utf-8')
                 diff.what_changed = what_changed.decode('utf-8')
-            except git.exc.GitCommandError:
+            except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
 
         # If on the original deploy show commit log messages only.
@@ -359,7 +359,7 @@ class Diff(object):
                 if isinstance(what_changed, unicode):
                     what_changed = what_changed.encode('utf-8')
                 diff.what_changed = what_changed.decode('utf-8')
-            except git.exc.GitCommandError:
+            except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
 
         # If on the original deploy show commit log messages only.

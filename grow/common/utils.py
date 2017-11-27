@@ -88,7 +88,7 @@ def get_git_repo(root):
     git = get_git()
     try:
         return git.Repo(root)
-    except git.exc.InvalidGitRepositoryError:
+    except git.InvalidGitRepositoryError:
         logging.info('WARNING: No Git repository found in {}'.format(root))
 
 
