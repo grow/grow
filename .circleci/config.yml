@@ -201,6 +201,40 @@ jobs:
       - store_artifacts:
           path: dist/
 
+  release-package-pypi:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Version Test
+          command: echo $(<grow/VERSION)
+
+      - run:
+          name: Create Distribution
+          command: python setup.py sdist bdist_wheel
+
+      - run:
+          name: Pip Install
+          command: |
+            set -e
+            . env/bin/activate
+            pip install urllib3[secure] --upgrade
+            pip install twine --upgrade
+
+      # - run:
+      #     name: Twine Upload
+      #     command: |
+      #       set -e
+      #       . env/bin/activate
+      #       twine upload dist/grow-$(<grow/VERSION)*
+
+      - store_artifacts:
+          path: dist/
+
   test:
     working_directory: ~/grow
     docker:
@@ -347,35 +381,44 @@ workflows:
     jobs:
     - init:
         <<: *default_workflow
-    - pylint:
-        <<: *default_workflow
+    # - pylint:
+    #     <<: *default_workflow
+    #     requires:
+    #     - init
+    # - test:
+    #     <<: *default_workflow
+    #     requires:
+    #     - init
+    # - test-gae:
+    #     <<: *default_workflow
+    #     requires:
+    #     - init
+    # - test-osx:
+    #     <<: *default_workflow
+    #     requires:
+    #     - init
+    # - release-package-linux:
+    #     requires:
+    #     - test
+    #     filters:
+    #       tags:
+    #         only: /.*/
+    #       branches:
+    #         ignore: /.*/
+    # - release-package-osx:
+    #     requires:
+    #     - test-osx
+    #     filters:
+    #       tags:
+    #         only: /.*/
+    #       branches:
+    #         ignore: /.*/
+    - release-package-pypi:
         requires:
         - init
-    - test:
-        <<: *default_workflow
-        requires:
-        - init
-    - test-gae:
-        <<: *default_workflow
-        requires:
-        - init
-    - test-osx:
-        <<: *default_workflow
-        requires:
-        - init
-    - release-package-linux:
-        requires:
-        - test
-        filters:
-          tags:
-            only: /.*/
-          branches:
-            ignore: /.*/
-    - release-package-osx:
-        requires:
-        - test-osx
-        filters:
-          tags:
-            only: /.*/
-          branches:
-            ignore: /.*/
+        # - release-package-linux
+        # filters:
+        #   tags:
+        #     only: /.*/
+        #   branches:
+        #     ignore: /.*/
