@@ -210,9 +210,20 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
       - run:
-          name: Version Test
-          command: echo $(<grow/VERSION)
+          name: Pip Install
+          command: |
+            set -e
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
 
       - run:
           name: Create Distribution
