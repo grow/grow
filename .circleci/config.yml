@@ -19,26 +19,6 @@ jobs:
           paths:
             - "grow/ui/node_modules"
 
-      # Setup the pip cache before running other commands.
-      - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
-
-      - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-
-      - run:
-          name: Pip Install
-          command: |
-            set -e
-            . env/bin/activate
-            pip install -r requirements-dev.txt
-
-      - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-          paths:
-            - "env"
-
       - persist_to_workspace:
           root: ~/grow
           paths:
