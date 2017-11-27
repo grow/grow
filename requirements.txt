@@ -1,4 +1,5 @@
-Babel==2.5.1
+# Broken support for Pyinstaller: https://github.com/python-babel/babel/issues/529
+Babel==2.4.0
 GitPython==2.1.7
 GoogleAppEngineCloudStorageClient==1.9.22.1
 Jinja2==2.10
