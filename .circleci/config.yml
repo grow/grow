@@ -210,6 +210,10 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
       - restore_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
