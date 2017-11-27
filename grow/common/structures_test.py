@@ -63,6 +63,10 @@ class SortedCollectionTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.coll.find(39)
 
+    def test_get_item(self):
+        """Greater than equal."""
+        self.assertEqual(('bill', 'smith', 22), self.coll[0])
+
     def test_ge(self):
         """Greater than equal."""
         self.assertEqual(('angela', 'jones', 28), self.coll.find_ge(28))
