@@ -57,9 +57,10 @@ def is_packaged_app():
 
 def is_appengine():
     """Returns whether the environment is Google App Engine."""
-    print os.environ
     if 'SERVER_SOFTWARE' in os.environ:
         # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled
+        print 'is_appengine:'
+        print os.environ['SERVER_SOFTWARE'].startswith(('Development/', 'Google App Engine/'))
         return os.environ['SERVER_SOFTWARE'].startswith(('Development/', 'Google App Engine/'))
     return False
 
