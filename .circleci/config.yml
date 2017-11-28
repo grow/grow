@@ -400,44 +400,44 @@ workflows:
     jobs:
     - init:
         <<: *default_workflow
-    # - pylint:
-    #     <<: *default_workflow
-    #     requires:
-    #     - init
-    # - test:
-    #     <<: *default_workflow
-    #     requires:
-    #     - init
-    # - test-gae:
-    #     <<: *default_workflow
-    #     requires:
-    #     - init
-    # - test-osx:
-    #     <<: *default_workflow
-    #     requires:
-    #     - init
-    # - release-package-linux:
-    #     requires:
-    #     - test
-    #     filters:
-    #       tags:
-    #         only: /.*/
-    #       branches:
-    #         ignore: /.*/
-    # - release-package-osx:
-    #     requires:
-    #     - test-osx
-    #     filters:
-    #       tags:
-    #         only: /.*/
-    #       branches:
-    #         ignore: /.*/
-    - release-package-pypi:
+    - pylint:
+        <<: *default_workflow
         requires:
         - init
-        # - release-package-linux
-        # filters:
-        #   tags:
-        #     only: /.*/
-        #   branches:
-        #     ignore: /.*/
+    - test:
+        <<: *default_workflow
+        requires:
+        - init
+    - test-gae:
+        <<: *default_workflow
+        requires:
+        - init
+    - test-osx:
+        <<: *default_workflow
+        requires:
+        - init
+    - release-package-linux:
+        requires:
+        - test
+        filters:
+          tags:
+            only: /.*/
+          branches:
+            ignore: /.*/
+    - release-package-osx:
+        requires:
+        - test-osx
+        filters:
+          tags:
+            only: /.*/
+          branches:
+            ignore: /.*/
+    - release-package-pypi:
+        requires:
+        - release-package-linux
+        - release-package-osx
+        filters:
+          tags:
+            only: /.*/
+          branches:
+            ignore: /.*/
