@@ -244,12 +244,12 @@ jobs:
             pip install urllib3[secure] --upgrade
             pip install twine --upgrade
 
-      # - run:
-      #     name: Twine Upload
-      #     command: |
-      #       set -e
-      #       . env/bin/activate
-      #       twine upload dist/grow-$(<grow/VERSION)*
+      - run:
+          name: Twine Upload
+          command: |
+            set -e
+            . env/bin/activate
+            twine upload dist/grow-$(<grow/VERSION)*
 
       - store_artifacts:
           path: dist/
