@@ -57,12 +57,10 @@ def is_packaged_app():
 
 def is_appengine():
     """Returns whether the environment is Google App Engine."""
-    try:
-        # pylint: disable=unused-variable
-        import google.appengine
-        return True
-    except ImportError:
-        return False
+    if 'SERVER_SOFTWARE' in os.environ:
+        # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled
+        return os.environ['SERVER_SOFTWARE'].startswith(('Development/', 'Google App Engine/'))
+    return False
 
 
 def get_git():
