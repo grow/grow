@@ -73,8 +73,8 @@ jobs:
             - "env"
 
       - run:
-        name: Pylint
-        command: make test-pylint-circle
+          name: Pylint
+          command: make test-pylint-circle
 
   release-package-linux:
     working_directory: ~/grow
