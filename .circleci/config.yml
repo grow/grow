@@ -27,6 +27,7 @@ jobs:
             - bin/*
             - grow/*
             - scripts/*
+            - description.txt
             - grow.spec
             - install.py
             - Makefile
@@ -197,6 +198,58 @@ jobs:
       - run:
           name: Upload to GitHub
           command: ghr -draft -u grow $CIRCLE_TAG "dist/Grow-SDK-Mac-${CIRCLE_TAG}.zip"
+
+      - store_artifacts:
+          path: dist/
+
+  release-package-pypi:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Virtual Env
+          command: virtualenv env --distribute
+
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+
+      - run:
+          name: Pip Install
+          command: |
+            set -e
+            . env/bin/activate
+            pip install -r requirements-dev.txt
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          paths:
+            - "env"
+
+      - run:
+          name: Create Distribution
+          command:  |
+            set -e
+            . env/bin/activate
+            python setup.py sdist bdist_wheel
+
+      - run:
+          name: Pip Install
+          command: |
+            set -e
+            . env/bin/activate
+            pip install urllib3[secure] --upgrade
+            pip install twine --upgrade
+
+      - run:
+          name: Twine Upload
+          command: |
+            set -e
+            . env/bin/activate
+            twine upload dist/grow-$(<grow/VERSION)*
 
       - store_artifacts:
           path: dist/
@@ -374,6 +427,15 @@ workflows:
     - release-package-osx:
         requires:
         - test-osx
+        filters:
+          tags:
+            only: /.*/
+          branches:
+            ignore: /.*/
+    - release-package-pypi:
+        requires:
+        - release-package-linux
+        - release-package-osx
         filters:
           tags:
             only: /.*/
