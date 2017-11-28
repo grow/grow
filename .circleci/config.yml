@@ -1,4 +1,16 @@
 version: 2
+
+pip_create_env: &pip_create_env
+  name: Virtual Env
+  command: virtualenv env --distribute
+
+pip_install: &pip_install
+  name: Pip Install
+  command: |
+    set -e
+    . env/bin/activate
+    pip install -r requirements-dev.txt
+
 jobs:
   init:
     working_directory: ~/grow
@@ -47,27 +59,22 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
+          <<: *pip_create_env
 
       - restore_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
       - run:
-          name: Pip Install
-          command: |
-            set -e
-            . env/bin/activate
-            pip install -r requirements-dev.txt
-
-      - run:
-          name: Pylint
-          command: make test-pylint-circle
+          <<: *pip_install
 
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
             - "env"
+
+      - run:
+          name: Pylint
+          command: make test-pylint-circle
 
   release-package-linux:
     working_directory: ~/grow
@@ -78,18 +85,13 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
+          <<: *pip_create_env
 
       - restore_cache:
           key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
       - run:
-          name: Pip Install
-          command: |
-            set -e
-            . env/bin/activate
-            pip install -r requirements-dev.txt
+          <<: *pip_install
 
       - save_cache:
           key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -154,18 +156,13 @@ jobs:
           command: go get -u github.com/tcnksm/ghr
 
       - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
+          <<: *pip_create_env
 
       - restore_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
       - run:
-          name: Pip Install
-          command: |
-            set -e
-            . env/bin/activate
-            pip install -r requirements-dev.txt
+          <<: *pip_install
 
       - save_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -211,18 +208,13 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
+          <<: *pip_create_env
 
       - restore_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
       - run:
-          name: Pip Install
-          command: |
-            set -e
-            . env/bin/activate
-            pip install -r requirements-dev.txt
+          <<: *pip_install
 
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -263,18 +255,13 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
+          <<: *pip_create_env
 
       - restore_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
       - run:
-          name: Pip Install
-          command: |
-            set -e
-            . env/bin/activate
-            pip install -r requirements-dev.txt
+          <<: *pip_install
 
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -306,18 +293,13 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
+          <<: *pip_create_env
 
       - restore_cache:
           key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
       - run:
-          name: Pip Install
-          command: |
-            set -e
-            . env/bin/activate
-            pip install -r requirements-dev.txt
+          <<: *pip_install
 
       - save_cache:
           key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
@@ -356,18 +338,13 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Virtual Env
-          command: virtualenv env --distribute
+          <<: *pip_create_env
 
       - restore_cache:
           key: pip-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
 
       - run:
-          name: Pip Install
-          command: |
-            set -e
-            . env/bin/activate
-            pip install -r requirements-dev.txt
+          <<: *pip_install
 
       - run:
           name: Run Tests
@@ -389,55 +366,50 @@ jobs:
           name: Test build
           command: ./scripts/grow build ./grow/testing/testdata/pod
 
-default_workflow: &default_workflow
+filter_all_tags: &filter_all_tags
   filters:
     tags:
       only: /.*/
+
+filter_only_tags: &filter_only_tags
+  filters:
+    tags:
+      only: /.*/
+    branches:
+      ignore: /.*/
 
 workflows:
   version: 2
   build:
     jobs:
     - init:
-        <<: *default_workflow
+        <<: *filter_all_tags
     - pylint:
-        <<: *default_workflow
+        <<: *filter_all_tags
         requires:
         - init
     - test:
-        <<: *default_workflow
+        <<: *filter_all_tags
         requires:
         - init
     - test-gae:
-        <<: *default_workflow
+        <<: *filter_all_tags
         requires:
         - init
     - test-osx:
-        <<: *default_workflow
+        <<: *filter_all_tags
         requires:
         - init
     - release-package-linux:
+        <<: *filter_only_tags
         requires:
         - test
-        filters:
-          tags:
-            only: /.*/
-          branches:
-            ignore: /.*/
     - release-package-osx:
+        <<: *filter_only_tags
         requires:
         - test-osx
-        filters:
-          tags:
-            only: /.*/
-          branches:
-            ignore: /.*/
     - release-package-pypi:
+        <<: *filter_only_tags
         requires:
         - release-package-linux
         - release-package-osx
-        filters:
-          tags:
-            only: /.*/
-          branches:
-            ignore: /.*/
