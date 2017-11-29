@@ -23,9 +23,15 @@ class RendererTestCase(unittest.TestCase):
         routes = self.pod.router.routes
         self.render.rendered_docs(self.pod, routes)
 
+    def test_renderer_sans_threading(self):
+        """Renders the docs without threading."""
+        self.pod.router.add_all()
+        routes = self.pod.router.routes
+        self.render.rendered_docs(self.pod, routes, use_threading=False)
+
     @mock.patch.object(render_controller.RenderDocumentController, 'render')
     def test_render(self, mock_render):
-        """Renders the docs without errors."""
+        """Renders the docs with errors."""
         mock_render.side_effect = ValueError()
 
         self.pod.router.add_all()

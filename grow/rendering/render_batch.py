@@ -72,12 +72,12 @@ class RenderBatches(object):
         batch = self._get_batch(controller.locale)
         batch.add(controller, *args, **kwargs)
 
-    def render(self):
+    def render(self, use_threading=True):
         """Render all of the batches."""
         render_errors = []
         rendered_docs = []
 
-        if not ThreadPool:
+        if not ThreadPool or not use_threading:
             for _, batch in self._batches.iteritems():
                 docs, errors = batch.render_sync()
                 render_errors = render_errors + errors

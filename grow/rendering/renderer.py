@@ -25,7 +25,7 @@ class Renderer(object):
 
     # pylint: disable=too-many-locals
     @staticmethod
-    def rendered_docs(pod, routes):
+    def rendered_docs(pod, routes, use_threading=True):
         """Generate the rendered documents for the given routes."""
         with pod.profile.timer('renderer.Renderer.render_docs'):
             routes_len = len(routes)
@@ -45,7 +45,8 @@ class Renderer(object):
             for controller in Renderer.controller_generator(pod, routes):
                 batches.add(controller)
 
-            rendered_docs, render_errors = batches.render()
+            rendered_docs, render_errors = batches.render(
+                use_threading=use_threading)
             progress.finish()
 
             if render_errors:

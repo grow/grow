@@ -30,8 +30,9 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 @shared.out_dir_option(CFG)
 @shared.preprocess_option(CFG)
 @shared.reroute_option(CFG)
+@shared.threaded_option(CFG)
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
-          locate_untranslated, deployment, use_reroute):
+          locate_untranslated, deployment, use_reroute, threaded):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -68,7 +69,8 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 content_generator = renderer.Renderer.rendered_docs(pod, pod.router.routes)
             else:
                 paths, _ = pod.determine_paths_to_build(pod_paths=pod_paths)
-                content_generator = destination.dump(pod, pod_paths=pod_paths)
+                content_generator = destination.dump(
+                    pod, pod_paths=pod_paths, use_threading=threaded)
             stats_obj = stats.Stats(pod, paths=paths)
             destination.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=False,

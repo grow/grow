@@ -150,3 +150,16 @@ def service_option(func):
     return click.option('--service', '-s', type=str,
                         help='Name of the translator service to use. This option is'
                         ' only required if more than one service is configured.')(func)
+
+
+def threaded_option(config):
+    """Option for using threading when rendering."""
+    shared_default = CFG.get('threaded', True)
+    config_default = config.get('threaded', shared_default)
+
+    def _decorator(func):
+        return click.option(
+            '--threaded/--no-threaded', '-t/-nt', is_flag=True,
+            default=config_default,
+            help='Use threading during rendering pipeline.')(func)
+    return _decorator
