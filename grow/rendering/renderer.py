@@ -21,9 +21,7 @@ class RenderErrors(Error):
 
 class Renderer(object):
     """Handles the rendering and threading of the controllers."""
-    POOL_SIZE = 20  # Thread pool size for rendering.
 
-    # pylint: disable=too-many-locals
     @staticmethod
     def rendered_docs(pod, routes, use_threading=True):
         """Generate the rendered documents for the given routes."""
