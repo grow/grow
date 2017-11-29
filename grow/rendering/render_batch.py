@@ -49,7 +49,8 @@ def render_func(batch):
 class RenderBatches(object):
     """Handles the batching of rendering."""
 
-    def __init__(self, render_pool, profile, tick=None):
+    def __init__(self, render_pool, profile, tick=None, batch_size=None):
+        self.batch_size = batch_size
         self.profile = profile
         self.render_pool = render_pool
         self.tick = tick
@@ -64,7 +65,8 @@ class RenderBatches(object):
     def _get_batch(self, locale):
         if locale not in self._batches:
             self._batches[locale] = RenderLocaleBatch(
-                self.render_pool.get_jinja_env(locale), self.profile, tick=self.tick)
+                self.render_pool.get_jinja_env(locale), self.profile, tick=self.tick,
+                batch_size=self.batch_size)
         return self._batches[locale]
 
     def add(self, controller, *args, **kwargs):
@@ -96,9 +98,10 @@ class RenderBatches(object):
 class RenderLocaleBatch(object):
     """Handles the rendering and threading of the controllers."""
 
-    BATCH_MAX_SIZE = 300  # Maximum number of documents in a batch.
+    BATCH_DEFAULT_SIZE = 300  # Default number of documents in a batch.
 
-    def __init__(self, jinja_env, profile, tick=None):
+    def __init__(self, jinja_env, profile, tick=None, batch_size=None):
+        self.batch_size = batch_size or self.BATCH_DEFAULT_SIZE
         self.jinja_env = jinja_env
         self.profile = profile
         self.tick = tick
@@ -116,7 +119,7 @@ class RenderLocaleBatch(object):
     def _get_batch(self):
         # Ensure that batch is not over the max size.
         batch = self.batches[len(self.batches) - 1]
-        if len(batch) >= self.BATCH_MAX_SIZE:
+        if len(batch) >= self.batch_size:
             self.batches.append([])
             batch = self.batches[len(self.batches) - 1]
         return batch
