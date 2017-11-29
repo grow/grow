@@ -265,9 +265,9 @@ class BaseDestination(object):
     def login(self, account, reauth=False):
         pass
 
-    def dump(self, pod, pod_paths=None):
+    def dump(self, pod, pod_paths=None, use_threading=True):
         pod.set_env(self.get_env())
-        return pod.dump(pod_paths=pod_paths)
+        return pod.dump(pod_paths=pod_paths, use_threading=use_threading)
 
     def deploy(self, content_generator, stats=None, repo=None, dry_run=False,
                confirm=False, test=True, is_partial=False, require_translations=False):

@@ -384,9 +384,11 @@ class Pod(object):
         """Disable a grow feature."""
         self._features.disable(feature)
 
-    def dump(self, suffix='index.html', append_slashes=True, pod_paths=None):
+    def dump(self, suffix='index.html', append_slashes=True, pod_paths=None, use_threading=True):
+        """Dumps the pod, yielding rendered_doc based on pod routes."""
         for rendered_doc in self.export(
-                suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths):
+                suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths,
+                use_threading=use_threading):
             yield rendered_doc
         if self.ui and self.is_enabled(self.FEATURE_UI):
             for rendered_doc in self.export_ui():
@@ -396,10 +398,11 @@ class Pod(object):
         """Enable a grow feature."""
         self._features.enable(feature)
 
-    def export(self, suffix=None, append_slashes=False, pod_paths=None):
-        """Builds the pod, returning a mapping of paths to content based on pod routes."""
+    def export(self, suffix=None, append_slashes=False, pod_paths=None, use_threading=True):
+        """Builds the pod, yielding rendered_doc based on pod routes."""
         if self.use_reroute:
-            for rendered_doc in renderer.Renderer.rendered_docs(self, self.router.routes):
+            for rendered_doc in renderer.Renderer.rendered_docs(
+                    self, self.router.routes, use_threading=use_threading):
                 yield rendered_doc
         else:
             paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)

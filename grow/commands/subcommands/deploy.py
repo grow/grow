@@ -30,9 +30,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')
 @shared.force_untranslated_option(CFG)
 @shared.preprocess_option(CFG)
 @shared.reroute_option(CFG)
+@shared.threaded_option(CFG)
 @click.pass_context
 def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
-           test_only, auth, force_untranslated, use_reroute):
+           test_only, auth, force_untranslated, use_reroute, threaded):
     """Deploys a pod to a destination."""
     if auth:
         text = ('--auth must now be specified before deploy. Usage:'
@@ -59,7 +60,7 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             if test_only:
                 deployment.test()
                 return
-            content_generator = deployment.dump(pod)
+            content_generator = deployment.dump(pod, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
             if use_reroute:
                 pod.router.use_simple()
