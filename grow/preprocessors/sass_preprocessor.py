@@ -9,7 +9,6 @@ if utils.is_appengine():
 else:
     import sass
 
-
 SUFFIXES = frozenset(['sass', 'scss'])
 SUFFIX_PATTERN = re.compile('[.](' + '|'.join(map(re.escape, SUFFIXES)) + ')$')
 
