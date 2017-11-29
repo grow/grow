@@ -36,13 +36,19 @@ class RendererTestCase(unittest.TestCase):
         self.pod.router.add_all()
 
         # Set a lower max batch size for tests.
-        self.batches.BATCH_MAX_SIZE = 10
+        self.batches.BATCH_MAX_SIZE = 3
 
         routes = self.pod.router.routes
         for controller in renderer.Renderer.controller_generator(self.pod, routes):
             self.batches.add(controller)
 
         self.assertEqual(len(routes), len(self.batches))
+
+    def test_render_batch_not_started(self):
+        """Breaks up the rendering into max sized batches."""
+        batch = render_batch.RenderLocaleBatch(None, None)
+        with self.assertRaises(render_batch.RenderNotStartedError):
+            batch.render_finish()
 
 
 if __name__ == '__main__':
