@@ -66,7 +66,8 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 else:
                     pod.router.add_all()
                 paths = pod.router.routes.paths
-                content_generator = renderer.Renderer.rendered_docs(pod, pod.router.routes)
+                content_generator = renderer.Renderer.rendered_docs(
+                    pod, pod.router.routes, use_threading=threaded)
             else:
                 paths, _ = pod.determine_paths_to_build(pod_paths=pod_paths)
                 content_generator = destination.dump(
