@@ -286,7 +286,7 @@ class Diff(object):
         if apply_errors:
             for error in apply_errors:
                 print error.message
-                print error.err.message
+                print error.err
                 traceback.print_tb(error.err_tb)
                 print ''
             text = 'There were {} errors during deployment.'
