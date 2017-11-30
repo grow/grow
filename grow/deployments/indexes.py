@@ -47,6 +47,7 @@ class DeploymentErrors(Error):
 
 class Diff(object):
     POOL_SIZE = 10  # Thread pool size for applying a diff.
+    GIT_LOG_MAX = 25
 
     @classmethod
     def is_empty(cls, diff):
@@ -370,6 +371,13 @@ class Diff(object):
                 '--pretty=format:[%h] %ad <%ae> %s')
             if isinstance(what_changed, unicode):
                 what_changed = what_changed.encode('utf-8')
+            changed_lines = what_changed.splitlines()
+            num_lines = len(changed_lines)
+            if num_lines > cls.GIT_LOG_MAX:
+                changed_lines = changed_lines[:cls.GIT_LOG_MAX]
+                changed_lines.append(
+                    ' ... +{} more commits.'.format(num_lines-cls.GIT_LOG_MAX))
+                what_changed = u'\n'.join(changed_lines)
             diff.what_changed = what_changed.decode('utf-8')
 
         return diff, index, paths_to_rendered_doc
