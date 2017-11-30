@@ -814,14 +814,14 @@ class Pod(object):
                             removed_docs.append(removed_doc)
 
             # Check for new docs.
-            route_env = self.env.to_wsgi_env()
             for trigger_doc in trigger_docs:
                 if trigger_doc.has_serving_path():
                     try:
                         if self.use_reroute:
-                            _ = self.router.routes.match(
-                                trigger_doc.get_serving_path())
+                            if not self.router.routes.match(trigger_doc.get_serving_path()):
+                                added_docs.append(trigger_doc)
                         else:
+                            route_env = self.env.to_wsgi_env()
                             _ = self.routes.match(
                                 trigger_doc.get_serving_path(), env=route_env)
                     except webob_exc.HTTPNotFound:
