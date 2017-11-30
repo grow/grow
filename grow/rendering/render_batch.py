@@ -29,7 +29,7 @@ class RenderNotStartedError(Error):
     pass
 
 
-def render_func(batch):
+def render_func(batch, tick=None):
     """Render the controller."""
     result = RenderBatchResult()
     for item in batch:
@@ -43,6 +43,9 @@ def render_func(batch):
             result.render_errors.append(RenderError(
                 "Error rendering {}".format(controller.serving_path),
                 err, err_tb))
+        finally:
+            if tick:
+                tick()
     return result
 
 
@@ -173,14 +176,9 @@ class RenderLocaleBatch(object):
         rendered_docs = []
 
         for batch in self.batches:
-            batch_result = render_func(batch)
+            batch_result = render_func(batch, tick=self.tick)
             render_errors = render_errors + batch_result.render_errors
             rendered_docs = rendered_docs + batch_result.rendered_docs
-            if self.tick:
-                for _ in batch_result.render_errors:
-                    self.tick()
-                for _ in batch_result.rendered_docs:
-                    self.tick()
 
         return rendered_docs, render_errors
 
