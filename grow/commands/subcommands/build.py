@@ -76,9 +76,10 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 content_generator = destination.dump(
                     pod, pod_paths=pod_paths, use_threading=threaded)
             stats_obj = stats.Stats(pod, paths=paths)
+            is_partial = bool(pod_paths) or bool(locale)
             destination.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=False,
-                test=False, is_partial=bool(pod_paths))
+                test=False, is_partial=is_partial)
 
             pod.podcache.write()
     except pods.Error as err:
