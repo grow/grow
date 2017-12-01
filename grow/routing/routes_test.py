@@ -182,7 +182,7 @@ class RoutesTestCase(unittest.TestCase):
         self._add('/bax/coo/lib', value=2)
         self._add('/bax/bar', value=3)
         self._add('/bax/pan', value=4)
-        self._add('/bax/coo/vin', value=5)
+        self._add('/bax/:coo/vin', value=5)
         self._add('/tem/pon', value=6)
 
         # Expect the yielded nodes to be in order.
@@ -191,6 +191,8 @@ class RoutesTestCase(unittest.TestCase):
             '/foo', '/tem/pon',
         ]
         actual = list(self.routes.paths)
+        self.assertEquals(expected, actual)
+        self.routes.filter(None)  # Does nothing.
         self.assertEquals(expected, actual)
 
         # Filter specific nodes and test new paths.

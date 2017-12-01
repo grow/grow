@@ -299,10 +299,10 @@ class RouteNode(object):
                 self.path = None
                 self.value = None
 
-        for key in sorted(self._static_children):
+        for key in self._static_children:
             self._static_children[key].filter(func)
 
-        for key in sorted(self._dynamic_children):
+        for key in self._dynamic_children:
             self._dynamic_children[key].filter(func)
 
     def match(self, segments, last_segment=None):
