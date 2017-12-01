@@ -51,7 +51,10 @@ class Router(object):
             docs = []
             for collection in self.pod.list_collections():
                 for doc in collection.list_docs_unread():
-                    docs.append(doc)
+                    # Ignore localized names in the files since they will be
+                    # picked up when the locales are expanded.
+                    if doc.root_pod_path == doc.pod_path:
+                        docs.append(doc)
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
