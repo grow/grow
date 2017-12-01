@@ -187,6 +187,20 @@ class Router(object):
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
+    def filter(self, locales=None):
+        """Filter the routes based on a criteria."""
+        if locales:
+            # Ability to specify a none locale using commanf flag.
+            if 'None' in locales:
+                print 'adding None'
+                locales.append(None)
+            def _filter_locales(route_info):
+                if 'locale' in route_info.meta:
+                    return route_info.meta['locale'] in locales
+                # Build non-locale based routes with none locale.
+                return None in locales
+            self.routes.filter(_filter_locales)
+
     def get_render_controller(self, path, route_info, params=None):
         """Find the correct render controller for the given route info."""
         return render_controller.RenderController.from_route_info(

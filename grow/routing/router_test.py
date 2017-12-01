@@ -7,7 +7,7 @@ from grow.routing import router as grow_router
 from grow.testing import testing
 
 
-class RoutesTestCase(unittest.TestCase):
+class RouterTestCase(unittest.TestCase):
     """Test the router."""
 
     def setUp(self):
@@ -15,9 +15,13 @@ class RoutesTestCase(unittest.TestCase):
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
         self.router = grow_router.Router(self.pod)
 
-    def test_router(self):
-        """."""
-        pass
+    def test_filter(self):
+        """Filtering reduces routes."""
+        self.router.add_all()
+        original_len = len(self.router.routes)
+        self.router.filter(locales=['en'])
+        modified_len = len(self.router.routes)
+        self.assertTrue(modified_len < original_len)
 
 
 if __name__ == '__main__':

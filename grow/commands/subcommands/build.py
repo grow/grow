@@ -26,13 +26,14 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 @click.option('--locate-untranslated',
               default=CFG.get('locate-untranslated', False), is_flag=True,
               help='Shows untranslated message information.')
+@shared.locale_option(help_text='Filter build routes to specific locale.')
 @shared.deployment_option(CFG)
 @shared.out_dir_option(CFG)
 @shared.preprocess_option(CFG)
 @shared.reroute_option(CFG)
 @shared.threaded_option(CFG)
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
-          locate_untranslated, deployment, use_reroute, threaded):
+          locate_untranslated, deployment, use_reroute, threaded, locale):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -65,6 +66,8 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                     pod.router.add_pod_paths(pod_paths)
                 else:
                     pod.router.add_all()
+                if locale:
+                    pod.router.filter(locales=list(locale))
                 paths = pod.router.routes.paths
                 content_generator = renderer.Renderer.rendered_docs(
                     pod, pod.router.routes, use_threading=threaded)
@@ -73,9 +76,10 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 content_generator = destination.dump(
                     pod, pod_paths=pod_paths, use_threading=threaded)
             stats_obj = stats.Stats(pod, paths=paths)
+            is_partial = bool(pod_paths) or bool(locale)
             destination.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=False,
-                test=False, is_partial=bool(pod_paths))
+                test=False, is_partial=is_partial)
 
             pod.podcache.write()
     except pods.Error as err:
