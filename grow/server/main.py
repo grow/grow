@@ -60,7 +60,7 @@ def serve_console(pod, request, values):
         kwargs['locale'] = values.get('locale')
         template_path = 'catalog.html'
     env = ui.create_jinja_env()
-    template = env.get_template('views/{}'.format(template_path))
+    template = env.get_template('/views/{}'.format(template_path))
     content = template.render(kwargs)
     response = wrappers.Response(content)
     response.headers['Content-Type'] = 'text/html'
