@@ -187,7 +187,7 @@ class RoutesTestCase(unittest.TestCase):
 
         # Expect the yielded nodes to be in order.
         expected = [
-            '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
+            '/bax/bar', '/bax/coo/lib', '/bax/pan', '/bax/:coo/vin', 
             '/foo', '/tem/pon',
         ]
         actual = list(self.routes.paths)
