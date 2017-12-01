@@ -73,6 +73,12 @@ class Routes(object):
             return
         self._root.add(path, value)
 
+    def filter(self, func):
+        """Filters out the nodes that do not match the filter."""
+        if not func:
+            return
+        self._root.filter(func)
+
     def match(self, path):
         """Uses a path to attempt to match a path in the routes."""
         return self._root.match(path)
@@ -124,6 +130,16 @@ class RoutesDict(object):
         if path in self._root and self._root[path] != value:
             raise PathConflictError(path, value, self._root[path])
         self._root[path] = value
+
+    def filter(self, func):
+        """Filters out the nodes that do not match the filter."""
+        remove_paths = []
+        for path in self._root:
+            if not func(self._root[path]):
+                remove_paths.append(path)
+
+        for path in remove_paths:
+            self._root.pop(path, None)
 
     def match(self, path):
         """Matches a path against the known routes looking for a match."""
@@ -177,6 +193,10 @@ class RouteTrie(object):
         """Add a new doc to the route trie."""
         segments = self.segments(path)
         self._root.add(segments, path, value)
+
+    def filter(self, func):
+        """Filters out the nodes that do not match the filter."""
+        self._root.filter(func)
 
     def match(self, path):
         """Matches a path against the known trie looking for a match."""
@@ -271,6 +291,19 @@ class RouteNode(object):
         if segment not in self._static_children:
             self._static_children[segment] = RouteNode()
         self._static_children[segment].add(segments, path, value)
+
+    def filter(self, func):
+        """Filters out the nodes that do not match the filter."""
+        if self.path is not None:
+            if not func(self.value):
+                self.path = None
+                self.value = None
+
+        for key in sorted(self._static_children):
+            self._static_children[key].filter(func)
+
+        for key in sorted(self._dynamic_children):
+            self._dynamic_children[key].filter(func)
 
     def match(self, segments, last_segment=None):
         """Performs the trie matching to find a doc in the trie."""
