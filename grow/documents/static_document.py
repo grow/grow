@@ -21,6 +21,8 @@ class StaticDocument(object):
         self.pod_path = pod_path
         self.locale = locale
         self.config = self.pod.router.get_static_config_for_pod_path(pod_path)
+        # When localized the base string should is removed.
+        self.base_source_path = self.config['static_dir']
         if self.locale is not None and 'localization' in self.config:
             inherited = {
                 'fingerprinted': self.config.get('fingerprinted', False),
@@ -86,7 +88,7 @@ class StaticDocument(object):
     @property
     def sub_pod_path(self):
         """Unique portion of the static file."""
-        return self.pod_path[len(self.source_path):]
+        return self.pod_path[len(self.base_source_path):]
 
     @property
     def url(self):
