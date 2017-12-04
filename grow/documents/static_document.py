@@ -1,6 +1,7 @@
 """Grow static document."""
 
 import hashlib
+import os
 from grow.common import urls
 
 
@@ -67,6 +68,11 @@ class StaticDocument(object):
         return self._create_fingerprint()
 
     @property
+    def fingerprinted(self):
+        """Fingerprint file contents?"""
+        return self.config.get('fingerprinted', False)
+
+    @property
     def path_format(self):
         """Path format for the static document."""
         return '{}{}'.format(
@@ -83,8 +89,18 @@ class StaticDocument(object):
     @property
     def serving_path(self):
         """Serving path for the static document."""
-        return self.pod.path_format.format_static(
+        path = self.pod.path_format.format_static(
             self.path_format, locale=self.locale)
+
+        if not self.fingerprinted:
+            return path
+
+        base, ext = os.path.splitext(path)
+        # Special case to preserve ".min.<ext>" extensions.
+        if base.endswith('.min'):
+            base = base[:-4]
+            return '{}-{}.min{}'.format(base, self.fingerprint, ext)
+        return '{}-{}{}'.format(base, self.fingerprint, ext)
 
     @property
     def serving_path_parameterized(self):
