@@ -118,9 +118,8 @@ class PathFormatTestCase(unittest.TestCase):
             'root': 'root_path',
         })
         path_format = grow_path_format.PathFormat(pod)
-        doc = _mock_static(pod, '/{root}/test')
         self.assertEquals(
-            '/root_path/test', path_format.format_static(doc))
+            '/root_path/test', path_format.format_static('/{root}/test'))
 
     def test_format_static_locale(self):
         """Test doc paths with locale."""
@@ -128,9 +127,9 @@ class PathFormatTestCase(unittest.TestCase):
             'root': 'root_path',
         })
         path_format = grow_path_format.PathFormat(pod)
-        doc = _mock_static(pod, '/{root}/test/{locale}', locale='es')
         self.assertEquals(
-            '/root_path/test/es', path_format.format_static(doc))
+            '/root_path/test/es', path_format.format_static(
+                '/{root}/test/{locale}', locale='es'))
 
     def test_format_static_locale_params(self):
         """Test doc paths with locale and keeping params."""
@@ -138,10 +137,9 @@ class PathFormatTestCase(unittest.TestCase):
             'root': 'root_path',
         })
         path_format = grow_path_format.PathFormat(pod)
-        doc = _mock_static(pod, '/{root}/test/{locale}', locale='es')
         self.assertEquals(
             '/root_path/test/:locale', path_format.format_static(
-                doc, parameterize=True))
+                '/{root}/test/{locale}', locale='es', parameterize=True))
 
     def test_parameterize(self):
         """Test parameters are converted."""

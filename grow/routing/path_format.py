@@ -99,17 +99,14 @@ class PathFormat(object):
 
         return self.strip_double_slash(path)
 
-    def format_static(self, static_doc, parameterize=False):
+    def format_static(self, path, locale=None, parameterize=False):
         """Format a static document url."""
-        path = static_doc.path_format
         path = self.format_pod(path)
 
         if parameterize:
             path = self.parameterize(path)
 
         params = SafeDict()
-
-        params['locale'] = self._locale_or_alias(static_doc.locale)
-
+        params['locale'] = self._locale_or_alias(locale)
         path = self.formatter.vformat(path, (), params)
         return self.strip_double_slash(path)

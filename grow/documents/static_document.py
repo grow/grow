@@ -21,7 +21,12 @@ class StaticDocument(object):
         self.pod_path = pod_path
         self.locale = locale
         self.config = self.pod.router.get_static_config_for_pod_path(pod_path)
-        if self.locale is not None and 'localization' in self.config:
+
+        # When localized the base string is changed.
+        self.base_source_path = self.config['static_dir']
+
+        self.use_locale = locale is not None and locale != pod.podspec.default_locale
+        if self.use_locale and 'localization' in self.config:
             inherited = {
                 'fingerprinted': self.config.get('fingerprinted', False),
             }
@@ -44,7 +49,7 @@ class StaticDocument(object):
     @property
     def exists(self):
         """Does the static file exist in the pod?"""
-        return self.pod.file_exists(self.pod_path)
+        return self.pod.file_exists(self.source_pod_path)
 
     @property
     def modified(self):
@@ -66,17 +71,26 @@ class StaticDocument(object):
         """Path format for the static document."""
         return '{}{}'.format(
             self.config['serve_at'],
-            self.sub_pod_path)
+            self.sub_base_pod_path)
+
+    @property
+    def source_format(self):
+        """Path format for the source of the document."""
+        return '{}{}'.format(
+            self.source_path,
+            self.sub_base_pod_path)
 
     @property
     def serving_path(self):
         """Serving path for the static document."""
-        return self.pod.path_format.format_static(self)
+        return self.pod.path_format.format_static(
+            self.path_format, locale=self.locale)
 
     @property
     def serving_path_parameterized(self):
         """Parameterized serving path for the static document."""
-        return self.pod.path_format.format_static(self, parameterize=True)
+        return self.pod.path_format.format_static(
+            self.path_format, locale=self.locale, parameterize=True)
 
     @property
     def source_path(self):
@@ -84,8 +98,24 @@ class StaticDocument(object):
         return self.config['static_dir']
 
     @property
+    def source_pod_path(self):
+        """Source path for the static document with missing file fallback."""
+        source_path = self.pod.path_format.format_static(
+            self.source_format, locale=self.locale)
+        # Fall back to the pod path if using locale and the localized
+        # version does not exist.
+        if not self.pod.file_exists(source_path) and self.use_locale:
+            source_path = self.pod_path
+        return source_path
+
+    @property
+    def sub_base_pod_path(self):
+        """Unique portion of the base static file."""
+        return self.pod_path[len(self.base_source_path):]
+
+    @property
     def sub_pod_path(self):
-        """Unique portion of the static file."""
+        """Unique portion of the full static file."""
         return self.pod_path[len(self.source_path):]
 
     @property

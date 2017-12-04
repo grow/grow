@@ -326,6 +326,8 @@ class Document(object):
         if ('$localization' in self.fields
                 and 'path' in self.fields['$localization']):
             return self.fields['$localization']['path']
+        elif '{locale}' in self.fields.get('$path', ''):
+            return self.path_format_base
         elif self.collection.localization:
             return self.collection.localization.get('path')
         return None
