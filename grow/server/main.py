@@ -197,10 +197,7 @@ class PodServer(object):
             log('{}: {}'.format(status, request.path))
         elif isinstance(exc, errors.RouteNotFoundError):
             status = 404
-            response = wrappers.Response('{}: {} - {}'.format(
-                status, request.path, exc), status=status)
-            response.headers['Content-Type'] = 'text/html'
-            return response
+            log('{}: {}'.format(status, request.path))
         else:
             status = 500
             log('{}: {} - {}'.format(status, request.path, exc))
