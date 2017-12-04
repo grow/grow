@@ -103,7 +103,6 @@ class Router(object):
                         pod_dir = root.replace(self.pod.root, '')
                         for file_name in files:
                             pod_path = os.path.join(pod_dir, file_name)
-                            # TODO figure out locale...
                             static_doc = self.pod.get_static(
                                 pod_path, locale=None)
                             self.routes.add(
