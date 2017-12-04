@@ -80,8 +80,8 @@ class StaticDocumentTestCase(unittest.TestCase):
         self.assertEquals('/static/test.txt', static_doc.source_pod_path)
 
         static_doc = static_document.StaticDocument(
-            self.pod, '/static/something.txt', locale='de')
-        self.assertEquals('/static/intl/de/something.txt', static_doc.source_pod_path)
+            self.pod, '/static/test.txt', locale='de')
+        self.assertEquals('/static/intl/de/test.txt', static_doc.source_pod_path)
 
     def test_sub_pod_path(self):
         """Static document source path."""

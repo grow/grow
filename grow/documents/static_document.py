@@ -25,8 +25,8 @@ class StaticDocument(object):
         # When localized the base string is changed.
         self.base_source_path = self.config['static_dir']
 
-        use_locale = locale is not None and locale != pod.podspec.default_locale
-        if use_locale and 'localization' in self.config:
+        self.use_locale = locale is not None and locale != pod.podspec.default_locale
+        if self.use_locale and 'localization' in self.config:
             inherited = {
                 'fingerprinted': self.config.get('fingerprinted', False),
             }
@@ -99,9 +99,14 @@ class StaticDocument(object):
 
     @property
     def source_pod_path(self):
-        """Source path for the static document."""
-        return self.pod.path_format.format_static(
+        """Source path for the static document with missing file fallback."""
+        source_path = self.pod.path_format.format_static(
             self.source_format, locale=self.locale)
+        # Fall back to the pod path if using locale and the localized
+        # version does not exist.
+        if not self.pod.file_exists(source_path) and self.use_locale:
+            source_path = self.pod_path
+        return source_path
 
     @property
     def sub_base_pod_path(self):
