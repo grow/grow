@@ -8,6 +8,7 @@ from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
 from grow.deployments.destinations import webreview_destination
+from grow.pods import env as environment
 from grow.pods import pods
 from grow.pods import storage
 
@@ -82,6 +83,8 @@ def _get_deployment(pod, remote, subdomain, api_key):
                 deployment.config.subdomain = subdomain
             if api_key:
                 deployment.webreview.api_key = api_key
+            if not deployment.config.env:
+                deployment.config.env = environment.EnvConfig()
             return deployment
         except ValueError:
             text = ('Must provide --remote or specify a deployment named '
