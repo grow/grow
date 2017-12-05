@@ -121,46 +121,45 @@ class RenderDocumentController(RenderController):
                 'locale': str(self.doc.locale)}
         ).start_timer()
         doc = self.doc
-        with jinja_env['lock']:
-            template = jinja_env['env'].get_template(doc.view.lstrip('/'))
-            track_dependency = doc_dependency.DocDependency(doc)
-            local_tags = tags.create_builtin_tags(
-                self.pod, doc, track_dependency=track_dependency)
-            # NOTE: This should be done using get_template(... globals=...)
-            # or passed as an argument into render but
-            # it is not available included inside macros???
-            # See: https://github.com/pallets/jinja/issues/688
-            template.globals['g'] = local_tags
+        template = jinja_env['env'].get_template(doc.view.lstrip('/'))
+        track_dependency = doc_dependency.DocDependency(doc)
+        local_tags = tags.create_builtin_tags(
+            self.pod, doc, track_dependency=track_dependency)
+        # NOTE: This should be done using get_template(... globals=...)
+        # or passed as an argument into render but
+        # it is not available included inside macros???
+        # See: https://github.com/pallets/jinja/issues/688
+        template.globals['g'] = local_tags
 
-            # Track the message stats, including untranslated strings.
-            if self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS):
-                template.globals['_'] = tags.make_doc_gettext(doc)
+        # Track the message stats, including untranslated strings.
+        if self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS):
+            template.globals['_'] = tags.make_doc_gettext(doc)
 
-            try:
-                serving_path = doc.get_serving_path()
-                if serving_path.endswith('/'):
-                    serving_path = '{}{}'.format(serving_path, self.suffix)
-                rendered_content = template.render({
-                    'doc': doc,
-                    'env': self.pod.env,
-                    'podspec': self.pod.podspec,
-                    '_track_dependency': track_dependency,
-                }).lstrip()
-                rendered_content = self.pod.extensions_controller.trigger(
-                    'post_render', doc, rendered_content)
-                rendered_doc = rendered_document.RenderedDocument(
-                    serving_path, rendered_content)
-                timer.stop_timer()
-                return rendered_doc
-            except Exception as err:
-                text = 'Error building {}: {}'
-                if self.pod:
-                    self.pod.logger.exception(text.format(self, err))
-                exception = errors.BuildError(text.format(self, err))
-                exception.traceback = sys.exc_info()[2]
-                exception.controller = self
-                exception.exception = err
-                raise exception
+        try:
+            serving_path = doc.get_serving_path()
+            if serving_path.endswith('/'):
+                serving_path = '{}{}'.format(serving_path, self.suffix)
+            rendered_content = template.render({
+                'doc': doc,
+                'env': self.pod.env,
+                'podspec': self.pod.podspec,
+                '_track_dependency': track_dependency,
+            }).lstrip()
+            rendered_content = self.pod.extensions_controller.trigger(
+                'post_render', doc, rendered_content)
+            rendered_doc = rendered_document.RenderedDocument(
+                serving_path, rendered_content)
+            timer.stop_timer()
+            return rendered_doc
+        except Exception as err:
+            text = 'Error building {}: {}'
+            if self.pod:
+                self.pod.logger.exception(text.format(self, err))
+            exception = errors.BuildError(text.format(self, err))
+            exception.traceback = sys.exc_info()[2]
+            exception.controller = self
+            exception.exception = err
+            raise exception
 
 
 class RenderErrorController(RenderController):
