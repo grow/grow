@@ -9,7 +9,7 @@ from grow.pods import pods
 from grow.pods import storage
 
 
-CFG = rc_config.RC_CONFIG.prefixed('grow.stats')
+CFG = rc_config.RC_CONFIG.prefixed('grow.inspect.stats')
 
 
 @click.command()
