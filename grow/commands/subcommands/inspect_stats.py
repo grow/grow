@@ -24,7 +24,7 @@ def stats(pod_path, full, use_reroute):
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
     try:
-        with pod.profile.timer('grow_stats'):
+        with pod.profile.timer('grow_inspect_stats'):
             pod_stats = stats_lib.Stats(pod, full=full)
             click.echo_via_pager('\n\n'.join(pod_stats.to_tables()))
     except pods.Error as err:
