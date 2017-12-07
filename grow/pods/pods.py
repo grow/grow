@@ -737,6 +737,9 @@ class Pod(object):
         # Remove any raw file in the cache.
         self.podcache.file_cache.remove(pod_path)
 
+        basename = os.path.basename(pod_path)
+        ignore_doc = basename.startswith(collection.Collection.IGNORE_INITIAL)
+
         if pod_path == '/{}'.format(self.FILE_PODSPEC):
             self.reset_yaml()
             self.podcache.reset()
@@ -760,7 +763,7 @@ class Pod(object):
                     len(self.router.routes), router_time.secs))
             else:
                 self.routes.reset_cache(rebuild=True)
-        elif pod_path.startswith(collection.Collection.CONTENT_PATH):
+        elif pod_path.startswith(collection.Collection.CONTENT_PATH) and not ignore_doc:
             trigger_doc = self.get_doc(pod_path)
             col = trigger_doc.collection
             base_docs = []
