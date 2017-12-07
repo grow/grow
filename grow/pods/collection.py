@@ -46,6 +46,7 @@ class NoLocalesError(Error):
 class Collection(object):
     CONTENT_PATH = '/content'
     BLUEPRINT_PATH = '_blueprint.yaml'
+    IGNORE_INITIAL = ('_',)
 
     _content_path_regex = re.compile('^' + CONTENT_PATH + '/?')
 
@@ -283,7 +284,7 @@ class Collection(object):
             if not self._owns_doc_at_path(pod_path):
                 continue
             slug, ext = os.path.splitext(os.path.basename(pod_path))
-            if (slug.startswith('_')
+            if (slug.startswith(self.IGNORE_INITIAL)
                     or ext not in messages.extensions_to_formats
                     or not pod_path):
                 continue
@@ -337,7 +338,7 @@ class Collection(object):
             if not self._owns_doc_at_path(pod_path):
                 continue
             slug, ext = os.path.splitext(os.path.basename(pod_path))
-            if (slug.startswith('_')
+            if (slug.startswith(self.IGNORE_INITIAL)
                     or ext not in messages.extensions_to_formats
                     or not pod_path):
                 continue
