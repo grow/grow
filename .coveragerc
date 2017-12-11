@@ -7,7 +7,7 @@ omit =
     # Requirement of extensions.
     grow/common/patched_site.py
     # Dev server doesn't need to be tested.
-    grow/server/manager.py
+    grow/server/*
     # Copied from upstream.
     grow/templates/jinja_dependency.py
 source=grow
