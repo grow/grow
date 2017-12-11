@@ -10,6 +10,17 @@ from grow.testing import testing
 
 class BuiltinsTestCase(unittest.TestCase):
 
+    def _render_path(self, pod, path):
+        routes = pod.router.routes
+        matched = routes.match(path)
+        print matched
+        controller = pod.router.get_render_controller(
+            matched.path, matched.value, params=matched.params)
+        jinja_env = pod.render_pool.get_jinja_env(
+            controller.doc.locale)
+        rendered_doc = controller.render(jinja_env=jinja_env)
+        return rendered_doc.read()
+
     def setUp(self):
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
@@ -168,6 +179,40 @@ class BuiltinsTestCase(unittest.TestCase):
             '/content/pages/doc2.yaml',
             '/content/pages/doc3.yaml',
         ], [doc.pod_path for doc in docs])
+
+    def test_gettext_format(self):
+        """Verify that the gettext formatting works."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'en',
+                    'es',
+                ],
+            },
+        })
+        pod.write_file('/views/format.html', '{{_(doc.foo, bar="1", foo="2")}}')
+        fields = {
+            'path': '/{locale}/{base}/',
+            'localization': {
+                'path': '/{locale}/{base}/',
+            },
+        }
+        pod.write_yaml('/content/testing/_blueprint.yaml', fields)
+        pod.write_yaml('/content/testing/format.yaml', {
+            '$view': '/views/format.html',
+            'foo': 'bar {bar} foo {foo}',
+            'foo@es': 'foo {foo} bar {bar}',
+        })
+
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format.yaml'))
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format.yaml', locale='es'))
+
+        self.assertIn('bar 1 foo 2', self._render_path(pod, '/en/format/'))
+        self.assertIn('foo 2 bar 1', self._render_path(pod, '/es/format/'))
 
 
 if __name__ == '__main__':
