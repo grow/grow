@@ -25,7 +25,7 @@ class TranslationStats(object):
     @property
     def missing(self):
         """Messages that are untagged and untranslated during rendering."""
-        untagged_messages = set([msg for _, msg in self.untagged])
+        untagged_messages = set([msg for _, msg in self.untagged.iteritems()])
         tracking = {}
         for locale, messages in self._untranslated.iteritems():
             if locale not in tracking:
@@ -34,6 +34,13 @@ class TranslationStats(object):
                 if message in untagged_messages:
                     tracking[locale][message] = self._locale_to_message[
                         locale][message]
+        # Removing empty locales.
+        blank_locales = []
+        for key in tracking:
+            if not tracking[key]:
+                blank_locales.append(key)
+        for key in blank_locales:
+            del tracking[key]
         return tracking
 
     @property
@@ -98,6 +105,7 @@ class TranslationStats(object):
         return {
             'messages': self.messages,
             'untranslated': self.untranslated,
+            'untagged': self.untagged,
         }
 
     def export_untranslated_catalogs(self, pod, dir_path=None):

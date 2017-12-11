@@ -52,6 +52,7 @@ class TranslationStatsTestCase(unittest.TestCase):
                     },
                 },
                 'untranslated': {},
+                'untagged': {},
             },
             stats.export())
 
@@ -62,8 +63,28 @@ class TranslationStatsTestCase(unittest.TestCase):
             {
                 'messages': {},
                 'untranslated': {},
+                'untagged': {},
             },
             stats.export())
+
+    def test_count_untranslated(self):
+        stats = translation_stats.TranslationStats()
+        self.assertEqual(0, stats.count_untranslated)
+        stats.tick(catalog.Message(
+            'About',
+            None,
+        ), 'ga', 'en')
+        self.assertEqual(1, stats.count_untranslated)
+        stats.tick(catalog.Message(
+            'Foo',
+            None,
+        ), 'ga', 'en')
+        stats.tick(catalog.Message(
+            'Bar',
+            None,
+        ), 'es', 'en')
+        # Uses max across any locale. Not restricted by locale.
+        self.assertEqual(3, stats.count_untranslated)
 
     def test_tick_untranslated(self):
         stats = translation_stats.TranslationStats()
@@ -83,8 +104,37 @@ class TranslationStatsTestCase(unittest.TestCase):
                         'About': 1,
                     },
                 },
+                'untagged': {},
             },
             stats.export())
+
+    def test_untagged(self):
+        stats = translation_stats.TranslationStats()
+        stats.add_untagged({
+            '/content/pages/test.yaml': 'About',
+        })
+        self.assertEqual(
+            {
+                'messages': {},
+                'untranslated': {},
+                'untagged': {
+                    '/content/pages/test.yaml': 'About',
+                },
+            },
+            stats.export())
+
+    def test_missing(self):
+        stats = translation_stats.TranslationStats()
+        stats.tick(catalog.Message(
+            'About',
+            None,
+        ), 'ga', 'en')
+        stats.add_untagged({
+            '/content/pages/test.yaml': 'About',
+        })
+        self.assertEqual({
+            'ga': {'About': 1}
+        }, stats.missing)
 
 
 if __name__ == '__main__':
