@@ -6,13 +6,6 @@ import string
 from grow.common import utils
 
 
-class SafeDict(dict):
-    """Keeps the unmatched format params in place."""
-
-    def __missing__(self, key):
-        return '{' + key + '}'
-
-
 class PathFormat(object):
     """Format url paths using the information from the pod."""
 
@@ -50,7 +43,7 @@ class PathFormat(object):
         path = self.format_pod(path)
 
         # Most params should always be replaced.
-        params = SafeDict()
+        params = {}
         params['base'] = doc.base
         params['category'] = doc.category
         params['collection'] = doc.collection
@@ -67,32 +60,32 @@ class PathFormat(object):
                 if isinstance(value, basestring):
                     params['{}|lower'.format(key)] = value.lower()
 
-        path = self.formatter.vformat(path, (), params)
+        path = utils.safe_format(path, (), params)
 
         if parameterize:
             path = self.parameterize(path)
 
-        params = SafeDict()
+        params = {}
 
         if locale is None:
             locale = doc.locale
         params['locale'] = self._locale_or_alias(locale)
 
-        path = self.formatter.vformat(path, (), params)
+        path = utils.safe_format(path, (), params)
         return self.strip_double_slash(path)
 
     def format_pod(self, path, parameterize=False):
         """Format a URL path using the pod information."""
         path = '' if path is None else path
 
-        params = SafeDict()
+        params = {}
         podspec = self.pod.podspec.get_config()
         if 'root' in podspec:
             params['root'] = podspec['root']
         else:
             params['root'] = ''
         params['env'] = self.pod.env
-        path = self.formatter.vformat(path, (), params)
+        path = utils.safe_format(path, (), params)
 
         if parameterize:
             path = self.parameterize(path)
@@ -106,7 +99,7 @@ class PathFormat(object):
         if parameterize:
             path = self.parameterize(path)
 
-        params = SafeDict()
+        params = {}
         params['locale'] = self._locale_or_alias(locale)
-        path = self.formatter.vformat(path, (), params)
+        path = utils.safe_format(path, (), params)
         return self.strip_double_slash(path)
