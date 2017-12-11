@@ -60,7 +60,7 @@ class PathFormat(object):
                 if isinstance(value, basestring):
                     params['{}|lower'.format(key)] = value.lower()
 
-        path = utils.safe_format(path, (), params)
+        path = utils.safe_format(path, **params)
 
         if parameterize:
             path = self.parameterize(path)
@@ -71,7 +71,7 @@ class PathFormat(object):
             locale = doc.locale
         params['locale'] = self._locale_or_alias(locale)
 
-        path = utils.safe_format(path, (), params)
+        path = utils.safe_format(path, **params)
         return self.strip_double_slash(path)
 
     def format_pod(self, path, parameterize=False):
@@ -85,7 +85,7 @@ class PathFormat(object):
         else:
             params['root'] = ''
         params['env'] = self.pod.env
-        path = utils.safe_format(path, (), params)
+        path = utils.safe_format(path, **params)
 
         if parameterize:
             path = self.parameterize(path)
@@ -101,5 +101,5 @@ class PathFormat(object):
 
         params = {}
         params['locale'] = self._locale_or_alias(locale)
-        path = utils.safe_format(path, (), params)
+        path = utils.safe_format(path, **params)
         return self.strip_double_slash(path)
