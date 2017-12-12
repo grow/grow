@@ -128,7 +128,7 @@ class Pod(object):
 
         try:
             update_checker = updater.Updater(self)
-            update_checker.check_for_updates()
+            update_checker.verify_required_version()
         except PodDoesNotExistError:
             pass  # Pod doesn't exist yet, simply pass.
 
