@@ -186,6 +186,21 @@ class TranslationStatsTestCase(unittest.TestCase):
     def test_export_untranslated_tracebacks(self):
         """Untranslated strings tracebacks."""
         stats = translation_stats.TranslationStats()
+        stats.datetime = mock.Mock()
+        stats.datetime.now.return_value = '2017-12-25 00:00:01.000000'
+
+        expected = textwrap.dedent("""
+        ================================================================================
+        ===                           Untranslated Strings                           ===
+        ================================================================================
+        ===                 0 occurrences of 0 untranslated strings                  ===
+        ===                        2017-12-25 00:00:01.000000                        ===
+        ================================================================================
+
+        ===                      No untranslated strings found.                      ===
+        """)
+        self.assertIn(expected.strip(), stats.export_untranslated_tracebacks())
+
         stats.tick(catalog.Message(
             'About',
             None,
@@ -193,8 +208,6 @@ class TranslationStatsTestCase(unittest.TestCase):
         stats.add_untagged({
             '/content/pages/test.yaml': 'About',
         })
-        stats.datetime = mock.Mock()
-        stats.datetime.now.return_value = '2017-12-25 00:00:01.000000'
         expected = textwrap.dedent("""
         ================================================================================
         ===                           Untranslated Strings                           ===
