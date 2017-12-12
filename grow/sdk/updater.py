@@ -46,7 +46,6 @@ class Updater(object):
         """Latest version available for current platform."""
         try:
             releases = requests.get(RELEASES_API).json()
-            print releases
             if 'message' in releases:
                 text = 'Error while downloading release information: {}'.format(
                     releases['message'])
@@ -98,11 +97,13 @@ class Updater(object):
 
         if utils.is_packaged_app() and auto_update_prompt:
             use_auto_update = grow_rc_config.get('update.always', False)
+            print 'use_auto_update'
+            print use_auto_update
 
             if use_auto_update:
                 logging.info('  > Auto-updating to version: {}'.format(
                     colors.stylize(str(sem_latest), colors.HIGHLIGHT)))
-            else:
+            else:  # pragma: no cover
                 choice = raw_input(
                     'Auto update now? [Y]es / [n]o / [a]lways: ').strip().lower()
                 if choice not in ('y', 'a', ''):
@@ -111,7 +112,7 @@ class Updater(object):
                     grow_rc_config.set('update.always', True)
                     grow_rc_config.write()
 
-            if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
+            if subprocess.call(INSTALLER_COMMAND, shell=True) == 0: # pragma: no cover
                 logging.info('Restarting...')
                 try:
                     # Restart on successful install.
