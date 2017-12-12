@@ -3,6 +3,7 @@
 import textwrap
 import unittest
 import cStringIO
+import mock
 from babel.messages import catalog
 from grow.pods import pods
 from grow.pods import storage
@@ -181,6 +182,30 @@ class TranslationStatsTestCase(unittest.TestCase):
             self.assertIn(expected.strip(), lines.getvalue())
         finally:
             lines.close()
+
+    def test_export_untranslated_tracebacks(self):
+        """Untranslated strings tracebacks."""
+        stats = translation_stats.TranslationStats()
+        stats.tick(catalog.Message(
+            'About',
+            None,
+        ), 'ga', 'en')
+        stats.add_untagged({
+            '/content/pages/test.yaml': 'About',
+        })
+        stats.datetime = mock.Mock()
+        stats.datetime.now.return_value = '2017-12-25 00:00:01.000000'
+        expected = textwrap.dedent("""
+        ================================================================================
+        ===                           Untranslated Strings                           ===
+        ================================================================================
+        ===                 1 occurrences of 1 untranslated strings                  ===
+        ===                        2017-12-25 00:00:01.000000                        ===
+        ================================================================================
+
+        ga :: About
+        """)
+        self.assertIn(expected.strip(), stats.export_untranslated_tracebacks())
 
 
 if __name__ == '__main__':

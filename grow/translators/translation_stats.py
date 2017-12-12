@@ -18,6 +18,7 @@ class TranslationStats(object):
         self._untagged = {}
         # Default to info logging.
         self.log = logging.info
+        self.datetime = datetime.datetime
 
     @property
     def messages(self):
@@ -125,7 +126,7 @@ class TranslationStats(object):
 
     def export_untranslated_tracebacks(self):
         """Export the untranslated tracebacks into a log file."""
-        width = 70
+        width = 80
         border_width = 3
         border_char = '='
 
@@ -148,7 +149,7 @@ class TranslationStats(object):
             output.write(_text_line(
                 u'{} occurrences of {} untranslated strings'.format(
                     len(self.stacktraces), self.count_untranslated)))
-            output.write(_text_line(str(datetime.datetime.now())))
+            output.write(_text_line(str(self.datetime.now())))
             output.write(_solid_line())
             output.write(_blank_line())
 
