@@ -3,6 +3,7 @@
 import mimetypes
 import os
 import sys
+from grow.common import utils
 from grow.pods import errors
 from grow.rendering import rendered_document
 from grow.templates import doc_dependency
@@ -216,7 +217,49 @@ class RenderErrorController(RenderController):
 
 class RenderSitemapController(RenderController):
     """Controller for handling rendering for sitemaps."""
-    pass
+
+    def render(self, jinja_env=None):
+        """Render the document using the render pool."""
+
+        timer = self.pod.profile.timer(
+            'RenderSitemapController.render',
+            label='{}'.format(self.serving_path),
+            meta=self.route_info.meta,
+        ).start_timer()
+
+        # Need a custom root for rendering sitemap.
+        root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
+        jinja_env = self.pod.render_pool.custom_jinja_env(root=root)
+
+        with jinja_env['lock']:
+            if self.route_info.meta.get('template'):
+                content = self.pod.read_file(self.route_info.meta['template'])
+                template = jinja_env['env'].from_string(content)
+            else:
+                template = jinja_env['env'].get_template('sitemap.xml')
+
+            try:
+                docs = []
+                locales = self.route_info.meta.get('locales')
+                collections = self.route_info.meta.get('collections')
+                for col in list(self.pod.list_collections(collections)):
+                    docs += col.list_servable_documents(locales=locales)
+                rendered_doc = rendered_document.RenderedDocument(
+                    self.serving_path, template.render({
+                        'pod': self.pod,
+                        'docs': docs,
+                    }).lstrip())
+                timer.stop_timer()
+                return rendered_doc
+            except Exception as err:
+                text = 'Error building {}: {}'
+                if self.pod:
+                    self.pod.logger.exception(text.format(self, err))
+                exception = errors.BuildError(text.format(self, err))
+                exception.traceback = sys.exc_info()[2]
+                exception.controller = self
+                exception.exception = err
+                raise exception
 
 
 class RenderStaticDocumentController(RenderController):
