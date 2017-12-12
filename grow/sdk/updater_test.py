@@ -29,7 +29,7 @@ class UpdaterTestCase(unittest.TestCase):
     @mock.patch('grow.sdk.updater.Updater.latest_version',
                 new_callable=mock.PropertyMock)
     def test_check_for_updates(self, mock_latest_version, mock_current_version, mock_config):
-        """Latest version check works."""
+        """Update check works."""
         mock_config.needs_update_check = True
         mock_latest_version.return_value = '0.1.1'
         mock_current_version.return_value = '0.1.0'
@@ -47,7 +47,7 @@ class UpdaterTestCase(unittest.TestCase):
     def test_check_for_updates_packaged_app(self, mock_latest_version, mock_current_version,
                                             mock_config, mock_is_packaged_app, mock_subprocess_call,
                                             mock_os_execl):
-        """Latest version check works."""
+        """Update check works on packaged app."""
         mock_config.needs_update_check = True
         mock_is_packaged_app.return_value = True
         mock_latest_version.return_value = '0.1.1'
@@ -57,6 +57,104 @@ class UpdaterTestCase(unittest.TestCase):
         mock_os_execl.return_value = True
         self.updater.check_for_updates(auto_update_prompt=True)
         mock_config.write.assert_called()
+
+    @mock.patch('os.execl')
+    @mock.patch('subprocess.call')
+    @mock.patch('grow.common.utils.is_packaged_app')
+    @mock.patch('grow.common.rc_config.RC_CONFIG')
+    @mock.patch('grow.sdk.updater.Updater.current_version',
+                new_callable=mock.PropertyMock)
+    @mock.patch('grow.sdk.updater.Updater.latest_version',
+                new_callable=mock.PropertyMock)
+    def test_check_for_updates_packaged_app_restart_fail(
+            self, mock_latest_version, mock_current_version, mock_config, mock_is_packaged_app,
+            mock_subprocess_call, mock_os_execl):
+        """Update check fails when error restarting."""
+        mock_config.needs_update_check = True
+        mock_is_packaged_app.return_value = True
+        mock_latest_version.return_value = '0.1.1'
+        mock_current_version.return_value = '0.1.0'
+        mock_config.get.return_value = True
+        mock_subprocess_call.return_value = 0
+        mock_os_execl.side_effect = OSError()
+        with self.assertRaises(SystemExit):
+            self.updater.check_for_updates(auto_update_prompt=True)
+        mock_config.write.assert_called()
+
+    @mock.patch('os.execl')
+    @mock.patch('subprocess.call')
+    @mock.patch('grow.common.utils.is_packaged_app')
+    @mock.patch('grow.common.rc_config.RC_CONFIG')
+    @mock.patch('grow.sdk.updater.Updater.current_version',
+                new_callable=mock.PropertyMock)
+    @mock.patch('grow.sdk.updater.Updater.latest_version',
+                new_callable=mock.PropertyMock)
+    def test_check_for_updates_packaged_app_fail(self, mock_latest_version, mock_current_version,
+                                                 mock_config, mock_is_packaged_app, mock_subprocess_call,
+                                                 _mock_os_execl):
+        """Update check fails when install fails."""
+        mock_config.needs_update_check = True
+        mock_is_packaged_app.return_value = True
+        mock_latest_version.return_value = '0.1.1'
+        mock_current_version.return_value = '0.1.0'
+        mock_config.get.return_value = True
+        mock_subprocess_call.return_value = 1
+        with self.assertRaises(SystemExit):
+            self.updater.check_for_updates(auto_update_prompt=True)
+        mock_config.write.assert_called()
+
+    @mock.patch('os.execl')
+    @mock.patch('subprocess.call')
+    @mock.patch('grow.common.utils.is_packaged_app')
+    @mock.patch('grow.common.rc_config.RC_CONFIG')
+    @mock.patch('grow.sdk.updater.Updater.current_version',
+                new_callable=mock.PropertyMock)
+    @mock.patch('grow.sdk.updater.Updater.latest_version',
+                new_callable=mock.PropertyMock)
+    def test_check_for_updates_no_update(self, mock_latest_version, mock_current_version,
+                                         mock_config, mock_is_packaged_app, mock_subprocess_call,
+                                         mock_os_execl):
+        """Update check works when no need to update."""
+        mock_config.needs_update_check = True
+        mock_is_packaged_app.return_value = True
+        mock_latest_version.return_value = '0.1.0'
+        mock_current_version.return_value = '0.1.0'
+        mock_subprocess_call.return_value = 0
+        mock_os_execl.return_value = True
+        self.updater.check_for_updates(auto_update_prompt=True)
+        mock_config.write.assert_called()
+
+    @mock.patch('os.execl')
+    @mock.patch('subprocess.call')
+    @mock.patch('grow.common.utils.is_packaged_app')
+    @mock.patch('grow.common.rc_config.RC_CONFIG')
+    @mock.patch('grow.sdk.updater.Updater.current_version',
+                new_callable=mock.PropertyMock)
+    @mock.patch('grow.sdk.updater.Updater.latest_version',
+                new_callable=mock.PropertyMock)
+    def test_check_for_updates_latest_fail(self, mock_latest_version, mock_current_version,
+                                           mock_config, mock_is_packaged_app, mock_subprocess_call,
+                                           mock_os_execl):
+        """Update check works when cannot get latest version."""
+        mock_config.needs_update_check = True
+        mock_is_packaged_app.return_value = True
+        mock_latest_version.side_effect = updater.LatestVersionCheckError()
+        mock_current_version.return_value = '0.1.0'
+        mock_subprocess_call.return_value = 0
+        mock_os_execl.return_value = True
+        self.updater.check_for_updates(auto_update_prompt=True)
+
+    @mock.patch('os.execl')
+    @mock.patch('subprocess.call')
+    @mock.patch('grow.common.rc_config.RC_CONFIG')
+    def test_check_for_updates_no_need(self, mock_config, mock_subprocess_call,
+                                       mock_os_execl):
+        """Update check is skipped for rate limiting."""
+        mock_config.needs_update_check = False
+        mock_config.get.return_value = True
+        mock_subprocess_call.return_value = 0
+        mock_os_execl.return_value = True
+        self.updater.check_for_updates(auto_update_prompt=True)
 
     @mock.patch('requests.get')
     def test_latest_version_normal(self, mock_get):

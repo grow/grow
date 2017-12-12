@@ -112,7 +112,7 @@ class Updater(object):
                     grow_rc_config.set('update.always', True)
                     grow_rc_config.write()
 
-            if subprocess.call(INSTALLER_COMMAND, shell=True) == 0: # pragma: no cover
+            if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
                 logging.info('Restarting...')
                 try:
                     # Restart on successful install.
