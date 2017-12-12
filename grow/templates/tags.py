@@ -1,10 +1,10 @@
 """Template jinja tags."""
 
-from babel.messages import catalog as babel_catalog
 import collections as py_collections
-from datetime import datetime
 import itertools
+from datetime import datetime
 import jinja2
+from babel.messages import catalog as babel_catalog
 from grow.common import utils
 from grow.pods import collection as collection_lib
 from grow.pods import locales as locales_lib
@@ -170,6 +170,33 @@ def make_doc_gettext(doc):
     return gettext
 
 
+def make_gettext(func):
+    """Create a gettext function that tracks translation stats."""
+    @jinja2.contextfunction
+    def gettext(__context, __string, **variables):
+        """Gettext and do replacement."""
+        value = __context.call(func, __string)
+        if __context.eval_ctx.autoescape:
+            value = jinja2.utils.Markup(value)
+        value = value % variables
+        return utils.safe_format(value, **variables)
+    return gettext
+
+
+def make_ngettext(func):
+    """Create a gettext function that tracks translation stats."""
+    @jinja2.contextfunction
+    def ngettext(__context, __singular, __plural, __num, **variables):
+        """Gettext and do replacement."""
+        variables.setdefault('num', __num)
+        value = __context.call(func, __singular, __plural, __num)
+        if __context.eval_ctx.autoescape:
+            value = jinja2.utils.Markup(value)
+        value = value % variables
+        return utils.safe_format(value, **variables)
+    return ngettext
+
+
 @utils.memoize_tag
 def nav(collection=None, locale=None, _pod=None):
     """Builds a navigation object for templates."""
@@ -275,4 +302,17 @@ def create_builtin_tags(pod, doc, track_dependency=None):
         'statics': _wrap_dependency(statics),
         'url': _wrap_dependency_path(url),
         'yaml': _wrap_dependency_path(_wrap_doc(yaml)),
+    }
+
+
+def create_builtin_globals(pod, locale=None):
+    """Create built in global tags."""
+    get_gettext_func = pod.catalogs.get_gettext_translations
+    gettext = make_gettext(
+        lambda x: get_gettext_func(locale).ugettext(x))
+    ngettext = make_ngettext(
+        lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n))
+    return {
+        'gettext': gettext,
+        'ngettext': ngettext,
     }

@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import re
+import string
 import sys
 import threading
 import time
@@ -18,6 +19,7 @@ import bs4
 import html2text
 import translitcodec  # pylint: disable=unused-import
 from collections import OrderedDict
+from grow.common import structures
 from grow.pods import document_fields
 from grow.pods import errors
 
@@ -102,6 +104,13 @@ def interactive_confirm(message, default=False, input_func=None):
     elif choice == 'n':
         return False
     return default
+
+
+FORMATTER = string.Formatter()
+def safe_format(base_string, *args, **kwargs):
+    """Safely format a string using the modern string formatting with fallback."""
+    safe_kwargs = structures.SafeDict(**kwargs)
+    return FORMATTER.vformat(base_string, args, safe_kwargs)
 
 
 def walk(node, callback, parent_key=None, parent_node=None):

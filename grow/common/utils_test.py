@@ -140,6 +140,17 @@ class UtilsTestCase(unittest.TestCase):
         actual = utils.clean_html(raw)
         self.assertEqual(expected, actual)
 
+    def test_safe_format(self):
+        """Use modern text formatting on a string safely."""
+        actual = utils.safe_format('Does it {0}?', 'work')
+        self.assertEqual('Does it work?', actual)
+
+        actual = utils.safe_format('Does it {work}?', work='blend')
+        self.assertEqual('Does it blend?', actual)
+
+        actual = utils.safe_format('Does it {ignore}?')
+        self.assertEqual('Does it {ignore}?', actual)
+
     def test_validate_name(self):
         with self.assertRaises(errors.BadNameError):
             utils.validate_name('//you/shall/not/pass')

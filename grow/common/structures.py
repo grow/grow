@@ -10,6 +10,13 @@ class AttributeDict(dict):
     __setattr__ = dict.__setitem__
 
 
+class SafeDict(dict):
+    """Keeps the unmatched format params in place."""
+
+    def __missing__(self, key):
+        return '{' + key + '}'
+
+
 class SortedCollection(object):
     """Sequence sorted by a key function.
 
