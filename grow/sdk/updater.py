@@ -46,6 +46,7 @@ class Updater(object):
         """Latest version available for current platform."""
         try:
             releases = requests.get(RELEASES_API).json()
+            print releases
             if 'message' in releases:
                 text = 'Error while downloading release information: {}'.format(
                     releases['message'])
