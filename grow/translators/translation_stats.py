@@ -16,6 +16,8 @@ class TranslationStats(object):
         self._untranslated = {}
         self._stacktraces = []
         self._untagged = {}
+        # Default to info logging.
+        self.log = logging.info
 
     @property
     def messages(self):
@@ -194,7 +196,7 @@ class TranslationStats(object):
         """Outputs the translation stats to a table formatted view."""
 
         if not self.untranslated and not self.untagged:
-            logging.info('\nNo untranslated strings found.\n')
+            self.log('\nNo untranslated strings found.\n')
             return
 
         # Most frequent untranslated and untagged messages.
@@ -220,7 +222,7 @@ class TranslationStats(object):
 
             table.add_rows(
                 [['Locale', '#', 'Untagged and Untranslated Message']] + rows)
-            logging.info('\n' + table.draw() + '\n')
+            self.log('\n' + table.draw() + '\n')
 
         # Most frequent untranslated messages.
         if self.untranslated:
@@ -244,7 +246,7 @@ class TranslationStats(object):
                                  '+ Additional untranslated strings...'])
 
             table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
-            logging.info('\n' + table.draw() + '\n')
+            self.log('\n' + table.draw() + '\n')
 
             # Untranslated messages per locale.
             table = texttable.Texttable(max_width=120)
@@ -259,4 +261,4 @@ class TranslationStats(object):
             rows = sorted(rows, key=lambda x: -x[1])
 
             table.add_rows([['Locale', 'Untranslated']] + rows)
-            logging.info('\n' + table.draw() + '\n')
+            self.log('\n' + table.draw() + '\n')

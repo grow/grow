@@ -1,6 +1,8 @@
 """Tests for the translation stats."""
 
+import textwrap
 import unittest
+import cStringIO
 from babel.messages import catalog
 from grow.pods import pods
 from grow.pods import storage
@@ -9,6 +11,13 @@ from grow.translators import translation_stats
 
 
 class TranslationStatsTestCase(unittest.TestCase):
+
+    @staticmethod
+    def _mock_log():
+        lines = cStringIO.StringIO()
+        def _mock_log(line):
+            lines.write(line)
+        return lines, _mock_log
 
     def test_export_untranslated_catalogs(self):
         """Make sure that we can make catalogs from the untranslated strings."""
@@ -135,6 +144,43 @@ class TranslationStatsTestCase(unittest.TestCase):
         self.assertEqual({
             'ga': {'About': 1}
         }, stats.missing)
+
+    def test_pretty_print(self):
+        lines, logger = self._mock_log()
+        try:
+            stats = translation_stats.TranslationStats()
+            # Stub out the logging.
+            stats.log = logger
+            stats.tick(catalog.Message(
+                'About',
+                None,
+            ), 'ga', 'en')
+            stats.add_untagged({
+                '/content/pages/test.yaml': 'About',
+            })
+            stats.pretty_print()
+            expected = textwrap.dedent("""
+            ==============================================
+            ga       1   About
+            """)
+            expected = 'Locale   #   Untagged and Untranslated Message ' + expected
+            self.assertIn(expected.strip(), lines.getvalue())
+
+            expected = textwrap.dedent("""
+            =================================
+            ga       1   About
+            """)
+            expected = 'Locale   #   Untranslated Message ' + expected
+            self.assertIn(expected.strip(), lines.getvalue())
+
+            expected = textwrap.dedent("""
+            =====================
+            ga                  1
+            """)
+            expected = 'Locale   Untranslated ' + expected
+            self.assertIn(expected.strip(), lines.getvalue())
+        finally:
+            lines.close()
 
 
 if __name__ == '__main__':
