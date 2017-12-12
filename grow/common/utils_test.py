@@ -4,7 +4,8 @@ import unittest
 import mock
 import semantic_version
 from grow.testing import testing
-from grow.common.sdk_utils import get_this_version, LatestVersionCheckError
+from grow.common import config
+from grow.sdk import updater
 from grow.pods import errors
 from . import utils
 
@@ -170,11 +171,10 @@ class UtilsTestCase(unittest.TestCase):
     def test_version_enforcement(self):
         with mock.patch('grow.pods.pods.Pod.grow_version',
                         new_callable=mock.PropertyMock) as mock_version:
-            this_version = get_this_version()
-            gt_version = '>{0}'.format(semantic_version.Version(this_version))
+            gt_version = '>{0}'.format(semantic_version.Version(config.VERSION))
             mock_version.return_value = gt_version
-            with self.assertRaises(LatestVersionCheckError):
-                pod = testing.create_test_pod()
+            with self.assertRaises(updater.LatestVersionCheckError):
+                _ = testing.create_test_pod()
 
     def test_walk(self):
         data = {

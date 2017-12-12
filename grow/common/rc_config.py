@@ -64,7 +64,7 @@ class RCConfig(base_config.BaseConfig):
             self._config = {}
         else:
             with open(filename, 'r') as conf:
-                self._config = yaml.load(conf.read())
+                self._config = yaml.load(conf.read()) or {}
 
         # Allow for an read only override from the working directory rc file.
         wd_filename = os.path.join(os.getcwd(), RC_FILE_NAME)
