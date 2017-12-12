@@ -19,7 +19,7 @@ def routes(pod_path, use_reroute):
     """Lists routes handled by a pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
-    with pod.profile.timer('grow_routes'):
+    with pod.profile.timer('grow_inspect_routes'):
         out = []
         if use_reroute:
             pod.router.use_simple()

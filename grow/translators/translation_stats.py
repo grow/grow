@@ -15,11 +15,41 @@ class TranslationStats(object):
         self._locale_to_message = {}
         self._untranslated = {}
         self._stacktraces = []
+        self._untagged = {}
+        # Default to info logging.
+        self.log = logging.info
+        self.datetime = datetime.datetime
 
     @property
     def messages(self):
         """All messages and counts."""
         return self._locale_to_message
+
+    @property
+    def missing(self):
+        """Messages that are untagged and untranslated during rendering."""
+        untagged_messages = set([msg for _, msg in self.untagged.iteritems()])
+        tracking = {}
+        for locale, messages in self._untranslated.iteritems():
+            if locale not in tracking:
+                tracking[locale] = {}
+            for message in messages:
+                if message in untagged_messages:
+                    tracking[locale][message] = self._locale_to_message[
+                        locale][message]
+        # Removing empty locales.
+        blank_locales = []
+        for key in tracking:
+            if not tracking[key]:
+                blank_locales.append(key)
+        for key in blank_locales:
+            del tracking[key]
+        return tracking
+
+    @property
+    def untagged(self):
+        """Untagged messages by location."""
+        return self._untagged
 
     @property
     def untranslated(self):
@@ -69,11 +99,16 @@ class TranslationStats(object):
 
         return [(location, None) for location in locations]
 
+    def add_untagged(self, paths_to_untagged):
+        """Add untagged paths and strings."""
+        self._untagged = paths_to_untagged
+
     def export(self):
         """Export messages and untranslated strings."""
         return {
             'messages': self.messages,
             'untranslated': self.untranslated,
+            'untagged': self.untagged,
         }
 
     def export_untranslated_catalogs(self, pod, dir_path=None):
@@ -91,7 +126,7 @@ class TranslationStats(object):
 
     def export_untranslated_tracebacks(self):
         """Export the untranslated tracebacks into a log file."""
-        width = 70
+        width = 80
         border_width = 3
         border_char = '='
 
@@ -114,7 +149,7 @@ class TranslationStats(object):
             output.write(_text_line(
                 u'{} occurrences of {} untranslated strings'.format(
                     len(self.stacktraces), self.count_untranslated)))
-            output.write(_text_line(str(datetime.datetime.now())))
+            output.write(_text_line(str(self.datetime.now())))
             output.write(_solid_line())
             output.write(_blank_line())
 
@@ -161,44 +196,70 @@ class TranslationStats(object):
     def pretty_print(self, show_all=False):
         """Outputs the translation stats to a table formatted view."""
 
-        if not self.untranslated:
-            logging.info('\nNo untranslated strings found.\n')
+        if not self.untranslated and not self.untagged:
+            self.log('\nNo untranslated strings found.\n')
             return
 
+        # Most frequent untranslated and untagged messages.
+        if self.untagged:
+            table = texttable.Texttable(max_width=120)
+            table.set_deco(texttable.Texttable.HEADER)
+            table.set_cols_dtype(['t', 'i', 't'])
+            table.set_cols_align(['l', 'r', 'l'])
+            rows = []
+
+            missing = self.missing
+            for locale in missing:
+                for message in missing[locale]:
+                    rows.append([str(locale), missing[locale][message], message])
+
+            rows = sorted(rows, key=lambda x: -x[1])
+            if not show_all:
+                num_rows = len(rows)
+                rows = rows[:self.ROW_COUNT]
+                if num_rows > self.ROW_COUNT:
+                    rows.append(['', num_rows - self.ROW_COUNT,
+                                 '+ Additional untranslated strings...'])
+
+            table.add_rows(
+                [['Locale', '#', 'Untagged and Untranslated Message']] + rows)
+            self.log('\n' + table.draw() + '\n')
+
         # Most frequent untranslated messages.
-        table = texttable.Texttable(max_width=120)
-        table.set_deco(texttable.Texttable.HEADER)
-        table.set_cols_dtype(['t', 'i', 't'])
-        table.set_cols_align(['l', 'r', 'l'])
-        rows = []
+        if self.untranslated:
+            table = texttable.Texttable(max_width=120)
+            table.set_deco(texttable.Texttable.HEADER)
+            table.set_cols_dtype(['t', 'i', 't'])
+            table.set_cols_align(['l', 'r', 'l'])
+            rows = []
 
-        for locale in self.untranslated:
-            for message in self.untranslated[locale]:
-                rows.append([str(locale), self.untranslated[
-                            locale][message], message])
+            for locale in self.untranslated:
+                for message in self.untranslated[locale]:
+                    rows.append([str(locale), self.untranslated[
+                                locale][message], message])
 
-        rows = sorted(rows, key=lambda x: -x[1])
-        if not show_all:
-            num_rows = len(rows)
-            rows = rows[:self.ROW_COUNT]
-            if num_rows > self.ROW_COUNT:
-                rows.append(['', num_rows - self.ROW_COUNT,
-                             '+ Additional untranslated strings...'])
+            rows = sorted(rows, key=lambda x: -x[1])
+            if not show_all:
+                num_rows = len(rows)
+                rows = rows[:self.ROW_COUNT]
+                if num_rows > self.ROW_COUNT:
+                    rows.append(['', num_rows - self.ROW_COUNT,
+                                 '+ Additional untranslated strings...'])
 
-        table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
-        logging.info('\n' + table.draw() + '\n')
+            table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
+            self.log('\n' + table.draw() + '\n')
 
-        # Untranslated messages per locale.
-        table = texttable.Texttable(max_width=120)
-        table.set_deco(texttable.Texttable.HEADER)
-        table.set_cols_dtype(['t', 'i'])
-        table.set_cols_align(['l', 'r'])
-        rows = []
+            # Untranslated messages per locale.
+            table = texttable.Texttable(max_width=120)
+            table.set_deco(texttable.Texttable.HEADER)
+            table.set_cols_dtype(['t', 'i'])
+            table.set_cols_align(['l', 'r'])
+            rows = []
 
-        for locale in self.untranslated:
-            rows.append([str(locale), len(self.untranslated[locale])])
+            for locale in self.untranslated:
+                rows.append([str(locale), len(self.untranslated[locale])])
 
-        rows = sorted(rows, key=lambda x: -x[1])
+            rows = sorted(rows, key=lambda x: -x[1])
 
-        table.add_rows([['Locale', 'Untranslated']] + rows)
-        logging.info('\n' + table.draw() + '\n')
+            table.add_rows([['Locale', 'Untranslated']] + rows)
+            self.log('\n' + table.draw() + '\n')

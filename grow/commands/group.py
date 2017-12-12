@@ -11,7 +11,7 @@ HELP_TEXT = ('Grow is a declarative file-based website generator. Read docs at '
              'https://grow.io. This is version {}.'.format(VERSION))
 
 # pylint: disable=unused-argument
-@click.group(help=HELP_TEXT, chain=True)
+@click.group(help=HELP_TEXT)
 @click.version_option(VERSION, message='%(version)s')
 @click.option('--auth', help='Information used to sign in to services that'
               ' require authentication. --auth should be an email address.',
@@ -45,17 +45,13 @@ def grow(auth, clear_auth, auth_key_file, interactive_auth, profile):
 
 
 @grow.resultcallback()
-def process_subcommands(pods, profile, **_):
+def process_subcommands(pod, profile, **_):
     """Handle flags that need to process after the sub command."""
 
-    if not pods:
+    if not pod:
         return
 
-    pod = pods[0]
-
     if profile:
-        report = profile_report.ProfileReport(pod.profile)
-        # report.pretty_print()
         destination = local_destination.LocalDestination(
             local_destination.Config())
         destination.pod = pod
