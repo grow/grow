@@ -11,7 +11,8 @@ from grow.testing import testing
 class UpdaterTestCase(unittest.TestCase):
     """Test the SDK Updater."""
 
-    def _mock_json(self, mock_get, response):
+    @staticmethod
+    def _mock_json(mock_get, response):
         mock_json = mock.Mock(return_value=response)
         mock_get_result = mock.Mock()
         mock_get_result.json = mock_json
@@ -43,7 +44,7 @@ class UpdaterTestCase(unittest.TestCase):
 
     @mock.patch('requests.get')
     def test_latest_version_prerelease(self, mock_get):
-        """Latest version check works."""
+        """Latest version check ignores prereleases."""
         self._mock_json(mock_get, [
             {
                 'prerelease': True,
@@ -75,7 +76,7 @@ class UpdaterTestCase(unittest.TestCase):
 
     @mock.patch('requests.get')
     def test_latest_version_missing(self, mock_get):
-        """Latest version check works."""
+        """Latest version check fails when missing a valid platform asset."""
         self._mock_json(mock_get, [
             {
                 'prerelease': False,
@@ -96,9 +97,16 @@ class UpdaterTestCase(unittest.TestCase):
 
     @mock.patch('requests.get')
     def test_latest_version_message(self, mock_get):
-        """Latest version check works."""
+        """Latest version check fails when a message is present in response."""
         self._mock_json(mock_get, {
             'message': 'Test'
         })
+        with self.assertRaises(updater.LatestVersionCheckError):
+            _ = self.updater.latest_version
+
+    @mock.patch('requests.get')
+    def test_latest_version_error(self, mock_get):
+        """Latest version check fails on exception."""
+        mock_get.side_effect = Exception('Testing')
         with self.assertRaises(updater.LatestVersionCheckError):
             _ = self.updater.latest_version
