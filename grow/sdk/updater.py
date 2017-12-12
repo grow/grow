@@ -97,8 +97,6 @@ class Updater(object):
 
         if utils.is_packaged_app() and auto_update_prompt:
             use_auto_update = grow_rc_config.get('update.always', False)
-            print 'use_auto_update'
-            print use_auto_update
 
             if use_auto_update:
                 logging.info('  > Auto-updating to version: {}'.format(
