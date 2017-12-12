@@ -10,6 +10,12 @@ class BaseConfigTestCase(unittest.TestCase):
     def setUp(self):
         self.config = base_config.BaseConfig(config={})
 
+    def test_get_empty(self):
+        """Test that get works on the config with default."""
+        self.config = base_config.BaseConfig(config=None)
+        self.assertEqual(42, self.config.get('foo', 42))
+        self.assertEqual(42, self.config.get('foo.bar', 42))
+
     def test_get_default(self):
         """Test that get works on the config with default."""
         self.assertEqual(42, self.config.get('foo', 42))

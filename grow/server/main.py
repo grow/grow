@@ -10,6 +10,7 @@ import traceback
 import urllib
 import jinja2
 import webob
+from grow.common import config
 from grow.routing import router
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
@@ -18,7 +19,6 @@ from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
 from werkzeug import serving
 from werkzeug import wsgi
-from ..common import sdk_utils
 from ..common import utils
 from ..pods import errors
 from ..pods import ui
@@ -41,7 +41,7 @@ class RequestHandler(serving.WSGIRequestHandler):
 
     @property
     def server_version(self):
-        return 'Grow/{}'.format(sdk_utils.VERSION)
+        return 'Grow/{}'.format(config.VERSION)
 
     def log(self, *args, **kwargs):
         pass

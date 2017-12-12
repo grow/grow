@@ -6,9 +6,9 @@ import socket
 import sys
 import threading
 from grow.common import colors
-from grow.common import sdk_utils
 from grow.common import timer
 from grow.preprocessors import file_watchers
+from grow.sdk import updater
 from grow.server import main as main_lib
 from werkzeug import serving
 
@@ -39,7 +39,8 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
         if self.open_browser:
             start_browser_in_thread(url)
         if self.update_check:
-            check_func = sdk_utils.check_for_sdk_updates
+            update_checker = updater.Updater(self.pod)
+            check_func = update_checker.check_for_updates
             thread = threading.Thread(target=check_func, args=(True,))
             thread.start()
 

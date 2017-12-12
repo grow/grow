@@ -2,17 +2,15 @@
 
 import os
 import click
-from grow.common import sdk_utils
+from grow.common import config
 from grow.deployments.destinations import local as local_destination
-from grow.performance import profile_report
 
-VERSION = sdk_utils.get_this_version()
 HELP_TEXT = ('Grow is a declarative file-based website generator. Read docs at '
-             'https://grow.io. This is version {}.'.format(VERSION))
+             'https://grow.io. This is version {}.'.format(config.VERSION))
 
 # pylint: disable=unused-argument
 @click.group(help=HELP_TEXT)
-@click.version_option(VERSION, message='%(version)s')
+@click.version_option(config.VERSION, message='%(version)s')
 @click.option('--auth', help='Information used to sign in to services that'
               ' require authentication. --auth should be an email address.',
               envvar='GROW_AUTH')

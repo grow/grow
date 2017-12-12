@@ -18,7 +18,6 @@ from grow.cache import podcache
 from grow.common import extensions
 from grow.common import features
 from grow.common import logger
-from grow.common import sdk_utils
 from grow.common import progressbar_non
 from grow.common import timer
 from grow.common import utils
@@ -32,6 +31,7 @@ from grow.rendering import renderer
 from grow.rendering import render_pool as grow_render_pool
 from grow.routing import path_format as grow_path_format
 from grow.routing import router as grow_router
+from grow.sdk import updater
 from grow.templates import filters
 from grow.templates import jinja_dependency
 from grow.templates import tags
@@ -127,7 +127,8 @@ class Pod(object):
             self._load_extensions(load_extensions)
 
         try:
-            sdk_utils.check_sdk_version(self)
+            update_checker = updater.Updater(self)
+            update_checker.check_for_updates()
         except PodDoesNotExistError:
             pass  # Pod doesn't exist yet, simply pass.
 
