@@ -60,3 +60,24 @@ class PathFilterTestCase(unittest.TestCase):
 
         # Included filter overrides the ignores.
         self.assertTrue(self.filter.is_valid('/foo/bar/foo.bar'))
+
+    def test_filter_constructor(self):
+        """Simple ignore filters work."""
+        self.filter = path_filter.PathFilter(
+            ['foo.bar'], ['/bar/foo.bar'])
+
+        # Normal files work.
+        self.assertTrue(self.filter.is_valid('/sitemap.xml'))
+        self.assertTrue(self.filter.is_valid('/index.html'))
+        self.assertTrue(self.filter.is_valid('/static/images/logo.png'))
+        self.assertTrue(self.filter.is_valid('/.grow/index.html'))
+
+        # Defaults are not kept.
+        self.assertTrue(self.filter.is_valid('/.DS_STORE'))
+        self.assertTrue(self.filter.is_valid('/.htaccess'))
+
+        # Custom filters work.
+        self.assertFalse(self.filter.is_valid('/foo.bar'))
+
+        # Included filter overrides the ignores.
+        self.assertTrue(self.filter.is_valid('/foo/bar/foo.bar'))
