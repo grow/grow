@@ -65,6 +65,6 @@ class PathFilter(object):
     def is_valid(self, path):
         """Tests if the path is valid according to the known filters."""
         if self._is_ignored(path):
-            # Includes override an ignore path.
+            # Includes override an ignores.
             return self._is_included(path)
         return True

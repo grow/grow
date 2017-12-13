@@ -29,6 +29,7 @@ from grow.preprocessors import preprocessors
 from grow.rendering import rendered_document
 from grow.rendering import renderer
 from grow.rendering import render_pool as grow_render_pool
+from grow.routing import path_filter as grow_path_filter
 from grow.routing import path_format as grow_path_format
 from grow.routing import router as grow_router
 from grow.sdk import updater
@@ -257,6 +258,20 @@ class Pod(object):
     @property
     def logger(self):
         return logger.LOGGER
+
+    @utils.cached_property
+    def path_filter(self):
+        """Filter for testing path formats."""
+        if self.env.name == environment.Name.DEV or self.env.name is None:
+            filter_config = self.yaml.get('filter', {})
+        else:
+            if 'deployments' not in self.yaml:
+                raise ValueError('No pod-specific deployments configured.')
+            filter_config = (self.yaml['deployments']
+                             .get(self.env.name, {})
+                             .get('filter', {}))
+        return grow_path_filter.PathFilter(
+            filter_config.get('ignore_paths'), filter_config.get('include_paths'))
 
     @utils.cached_property
     def path_format(self):
