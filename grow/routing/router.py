@@ -95,8 +95,11 @@ class Router(object):
                 fingerprinted = config.get('fingerprinted', False)
                 localization = config.get('localization')
                 static_filter = config.get('filter', {})
-                path_filter = grow_path_filter.PathFilter(
-                    static_filter.get('ignore_paths'), static_filter.get('include_paths'))
+                if static_filter:
+                    path_filter = grow_path_filter.PathFilter(
+                        static_filter.get('ignore_paths'), static_filter.get('include_paths'))
+                else:
+                    path_filter = self.pod.path_filter
 
                 if concrete or fingerprinted:
                     # Enumerate static files.
