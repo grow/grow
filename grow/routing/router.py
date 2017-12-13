@@ -71,18 +71,17 @@ class Router(object):
                         'key': key,
                         'view': error_route,
                     }))
-            # TODO Sitemap
-            # if 'sitemap' in podspec:
-            #     sitemap = podspec['sitemap']
-            #     sitemap_path = self.pod.path_format.format_pod(
-            #         sitemap.get('path'))
-            #
-            #     self.routes.add(sitemap_path, RouteInfo('sitemap', {
-            #         'collections': sitemap.get('collections'),
-            #         'locales': sitemap.get('locales'),
-            #         'template': sitemap.get('template'),
-            #         'path': sitemap_path,
-            #     }))
+
+            if 'sitemap' in podspec:
+                sitemap = podspec['sitemap']
+                sitemap_path = self.pod.path_format.format_pod(
+                    sitemap.get('path', '/sitemap.xml'))
+                self.routes.add(sitemap_path, RouteInfo('sitemap', {
+                    'collections': sitemap.get('collections'),
+                    'locales': sitemap.get('locales'),
+                    'template': sitemap.get('template'),
+                    'path': sitemap_path,
+                }))
 
     def add_all_static(self, concrete=True):
         """Add all pod docs to the router."""
