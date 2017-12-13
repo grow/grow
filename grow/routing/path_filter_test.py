@@ -1,6 +1,7 @@
 """Tests for the path filter."""
 
 import unittest
+import mock
 from grow.routing import path_filter
 
 
@@ -21,6 +22,13 @@ class PathFilterTestCase(unittest.TestCase):
         # Dot files should be ignored.
         self.assertFalse(self.filter.is_valid('/.DS_STORE'))
         self.assertFalse(self.filter.is_valid('/.htaccess'))
+
+    @mock.patch('grow.routing.path_filter.DEFAULT_INCLUDED', [1, 2])
+    @mock.patch('grow.routing.path_filter.DEFAULT_IGNORED', [3, 4])
+    def test_filter_default_filters(self):
+        """Default filters work."""
+        self.assertEqual([1, 2], list(self.filter.included))
+        self.assertEqual([3, 4], list(self.filter.ignored))
 
     def test_filter_ignores(self):
         """Simple ignore filters work."""
