@@ -377,7 +377,7 @@ class Diff(object):
                 changed_lines = changed_lines[:cls.GIT_LOG_MAX]
                 changed_lines.append(
                     ' ... +{} more commits.'.format(num_lines-cls.GIT_LOG_MAX))
-                what_changed = u'\n'.join(changed_lines)
+                what_changed = '\n'.join(changed_lines)
             diff.what_changed = what_changed.decode('utf-8')
 
         return diff, index, paths_to_rendered_doc
