@@ -20,6 +20,11 @@ class UnknownKindError(Exception):
     pass
 
 
+class IgnoredPathError(Exception):
+    """Document is being served at an ignored path."""
+    pass
+
+
 class RenderController(object):
     """Controls how the content is rendered and evaluated."""
 
@@ -74,6 +79,15 @@ class RenderController(object):
         """Render the pod content."""
         raise NotImplementedError
 
+    def validate_path(self, *path_filters):
+        """Validate that the path is valid against all filters."""
+        # Default test against the pod filter for deployment specific filtering.
+        path_filters = list(path_filters) or [self.pod.path_filter]
+        for path_filter in path_filters:
+            if not path_filter.is_valid(self.serving_path):
+                text = '{} is an ignored path.'
+                raise errors.RouteNotFoundError(text.format(self.serving_path))
+
 
 class RenderDocumentController(RenderController):
     """Controller for handling rendering for documents."""
@@ -121,6 +135,10 @@ class RenderDocumentController(RenderController):
                 'path': self.doc.pod_path,
                 'locale': str(self.doc.locale)}
         ).start_timer()
+
+        # Validate the path with the config filters.
+        self.validate_path()
+
         doc = self.doc
         template = jinja_env['env'].get_template(doc.view.lstrip('/'))
         track_dependency = doc_dependency.DocDependency(doc)
@@ -184,6 +202,9 @@ class RenderErrorController(RenderController):
             }
         ).start_timer()
 
+        # Validate the path with the config filters.
+        self.validate_path()
+
         with jinja_env['lock']:
             template = jinja_env['env'].get_template(
                 self.route_info.meta['view'].lstrip('/'))
@@ -226,6 +247,9 @@ class RenderSitemapController(RenderController):
             label='{}'.format(self.serving_path),
             meta=self.route_info.meta,
         ).start_timer()
+
+        # Validate the path with the config filters.
+        self.validate_path()
 
         # Need a custom root for rendering sitemap.
         root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
@@ -306,6 +330,9 @@ class RenderStaticDocumentController(RenderController):
         if not self.pod.file_exists(pod_path):
             text = '{} was not found in static files.'
             raise errors.RouteNotFoundError(text.format(self.serving_path))
+
+        # Validate the path with the static config specific filter.
+        self.validate_path(self.route_info.meta['path_filter'])
 
         rendered_content = self.pod.read_file(pod_path)
         rendered_content = self.pod.extensions_controller.trigger(

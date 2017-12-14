@@ -1,4 +1,5 @@
-# TODO(jeremydw): Implement.
+"""Podspec helper."""
+
 from grow.pods import locales
 
 
@@ -27,8 +28,9 @@ class PodSpec(object):
     def __getattr__(self, name):
         if name in self.fields:
             return self.fields[name]
-        if '{}@'.format(name) in self.fields:
-            return self.fields['{}@'.format(name)]
+        tagged_name = '{}@'.format(name)
+        if tagged_name in self.fields:
+            return self.fields[tagged_name]
         return object.__getattribute__(self, name)
 
     def __iter__(self):

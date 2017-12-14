@@ -3,6 +3,7 @@
 import os
 from grow.performance import docs_loader
 from grow.rendering import render_controller
+from grow.routing import path_filter as grow_path_filter
 from grow.routing import routes as grow_routes
 
 
@@ -86,12 +87,19 @@ class Router(object):
     def add_all_static(self, concrete=True):
         """Add all pod docs to the router."""
         with self.pod.profile.timer('Router.add_all_static'):
+            skipped_paths = []
             for config in self.pod.static_configs:
                 if config.get('dev') and not self.pod.env.dev:
                     continue
 
                 fingerprinted = config.get('fingerprinted', False)
                 localization = config.get('localization')
+                static_filter = config.get('filter', {})
+                if static_filter:
+                    path_filter = grow_path_filter.PathFilter(
+                        static_filter.get('ignore_paths'), static_filter.get('include_paths'))
+                else:
+                    path_filter = self.pod.path_filter
 
                 if concrete or fingerprinted:
                     # Enumerate static files.
@@ -104,6 +112,9 @@ class Router(object):
                             pod_path = os.path.join(pod_dir, file_name)
                             static_doc = self.pod.get_static(
                                 pod_path, locale=None)
+                            if not path_filter.is_valid(static_doc.serving_path):
+                                skipped_paths.append(static_doc.serving_path)
+                                continue
                             self.routes.add(
                                 static_doc.serving_path, RouteInfo('static', {
                                     'pod_path': static_doc.pod_path,
@@ -111,6 +122,8 @@ class Router(object):
                                     'localized': False,
                                     'localization': localization,
                                     'fingerprinted': fingerprinted,
+                                    'static_filter': static_filter,
+                                    'path_filter': path_filter,
                                 }))
                 else:
                     serve_at = self.pod.path_format.format_pod(
@@ -121,6 +134,8 @@ class Router(object):
                         'localized': False,
                         'localization': localization,
                         'fingerprinted': fingerprinted,
+                        'static_filter': static_filter,
+                        'path_filter': path_filter,
                     }))
 
                     if localization:
@@ -132,7 +147,12 @@ class Router(object):
                             'localized': True,
                             'localization': localization,
                             'fingerprinted': fingerprinted,
+                            'static_filter': static_filter,
+                            'path_filter': path_filter,
                         }))
+            if skipped_paths:
+                self.pod.logger.info(
+                    'Ignored {} static files.'.format(len(skipped_paths)))
 
     def add_doc(self, doc):
         """Add doc to the router."""
@@ -146,8 +166,12 @@ class Router(object):
     def add_docs(self, docs, concrete=True):
         """Add docs to the router."""
         with self.pod.profile.timer('Router.add_docs'):
+            skipped_paths = []
             for doc in docs:
                 if not doc.has_serving_path():
+                    continue
+                if not self.pod.path_filter.is_valid(doc.get_serving_path()):
+                    skipped_paths.append(doc.get_serving_path())
                     continue
                 if concrete:
                     # Concrete iterates all possible documents.
@@ -175,6 +199,9 @@ class Router(object):
                         self.routes.add(localized_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
                         }))
+            if skipped_paths:
+                self.pod.logger.info(
+                    'Ignored {} documents.'.format(len(skipped_paths)))
 
     def add_pod_paths(self, pod_paths, concrete=True):
         """Add pod paths to the router."""
@@ -195,6 +222,7 @@ class Router(object):
             if 'None' in locales:
                 print 'adding None'
                 locales.append(None)
+
             def _filter_locales(route_info):
                 if 'locale' in route_info.meta:
                     return route_info.meta['locale'] in locales
