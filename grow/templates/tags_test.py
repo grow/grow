@@ -179,71 +179,71 @@ class BuiltinsTestCase(unittest.TestCase):
             '/content/pages/doc3.yaml',
         ], [doc.pod_path for doc in docs])
 
-    # def test_gettext_format(self):
-    #     """Verify that the gettext formatting works."""
-    #     pod = testing.create_pod()
-    #     pod.write_yaml('/podspec.yaml', {
-    #         'localization': {
-    #             'default_locale': 'en',
-    #             'locales': [
-    #                 'en',
-    #                 'es',
-    #             ],
-    #         },
-    #     })
-    #     pod.write_file('/views/format.html', '{{_(doc.foo, bar="1", foo="2")}}')
-    #     fields = {
-    #         'path': '/{locale}/{base}/',
-    #         'localization': {
-    #             'path': '/{locale}/{base}/',
-    #         },
-    #     }
-    #     pod.write_yaml('/content/testing/_blueprint.yaml', fields)
-    #     pod.write_yaml('/content/testing/format.yaml', {
-    #         '$view': '/views/format.html',
-    #         'foo': 'bar {bar} foo {foo}',
-    #         'foo@es': 'foo {foo} bar {bar}',
-    #     })
-    #
-    #     pod.router.add_doc(
-    #         pod.get_doc('/content/testing/format.yaml'))
-    #     pod.router.add_doc(
-    #         pod.get_doc('/content/testing/format.yaml', locale='es'))
-    #
-    #     self.assertIn('bar 1 foo 2', self._render_path(pod, '/en/format/'))
-    #     self.assertIn('foo 2 bar 1', self._render_path(pod, '/es/format/'))
+    def test_gettext_format(self):
+        """Verify that the gettext formatting works."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'en',
+                    'es',
+                ],
+            },
+        })
+        pod.write_file('/views/format.html', '{{_(doc.foo, bar="1", foo="2")}}')
+        fields = {
+            'path': '/{locale}/{base}/',
+            'localization': {
+                'path': '/{locale}/{base}/',
+            },
+        }
+        pod.write_yaml('/content/testing/_blueprint.yaml', fields)
+        pod.write_yaml('/content/testing/format.yaml', {
+            '$view': '/views/format.html',
+            'foo': 'bar {bar} foo {foo}',
+            'foo@es': 'foo {foo} bar {bar}',
+        })
 
-    # def test_gettext_format_entities(self):
-    #     """Verify that the gettext formatting works with entities."""
-    #     pod = testing.create_pod()
-    #     pod.write_yaml('/podspec.yaml', {})
-    #     pod.write_file(
-    #         '/views/format-old.html',
-    #         '{{_(\'Hello %(name)s\', name=\'<strong class="awesome">Alice</strong>\')}}')
-    #     pod.write_file(
-    #         '/views/format-new.html',
-    #         '{{_(\'Hello {name}\', name=\'<strong class="awesome">Alice</strong>\')}}')
-    #     pod.write_yaml('/content/testing/_blueprint.yaml', {
-    #         'path': '/{base}/',
-    #     })
-    #     pod.write_yaml('/content/testing/format-old.yaml', {
-    #         '$view': '/views/format-old.html',
-    #     })
-    #     pod.write_yaml('/content/testing/format-new.yaml', {
-    #         '$view': '/views/format-new.html',
-    #     })
-    #
-    #     pod.router.add_doc(
-    #         pod.get_doc('/content/testing/format-old.yaml'))
-    #     pod.router.add_doc(
-    #         pod.get_doc('/content/testing/format-new.yaml'))
-    #
-    #     self.assertIn(
-    #         'Hello <strong class="awesome">Alice</strong>',
-    #         self._render_path(pod, '/format-old/'))
-    #     self.assertIn(
-    #         'Hello <strong class="awesome">Alice</strong>',
-    #         self._render_path(pod, '/format-new/'))
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format.yaml'))
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format.yaml', locale='es'))
+
+        self.assertIn('bar 1 foo 2', self._render_path(pod, '/en/format/'))
+        self.assertIn('foo 2 bar 1', self._render_path(pod, '/es/format/'))
+
+    def test_gettext_format_entities(self):
+        """Verify that the gettext formatting works with entities."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_file(
+            '/views/format-old.html',
+            '{{_(\'Hello %(name)s\', name=\'<strong class="awesome">Alice</strong>\')}}')
+        pod.write_file(
+            '/views/format-new.html',
+            '{{_(\'Hello {name}\', name=\'<strong class="awesome">Alice</strong>\')}}')
+        pod.write_yaml('/content/testing/_blueprint.yaml', {
+            'path': '/{base}/',
+        })
+        pod.write_yaml('/content/testing/format-old.yaml', {
+            '$view': '/views/format-old.html',
+        })
+        pod.write_yaml('/content/testing/format-new.yaml', {
+            '$view': '/views/format-new.html',
+        })
+
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format-old.yaml'))
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format-new.yaml'))
+
+        self.assertIn(
+            'Hello <strong class="awesome">Alice</strong>',
+            self._render_path(pod, '/format-old/'))
+        self.assertIn(
+            'Hello <strong class="awesome">Alice</strong>',
+            self._render_path(pod, '/format-new/'))
 
 
 if __name__ == '__main__':
