@@ -78,6 +78,7 @@ class RenderPool(object):
         env = jinja_dependency.DepEnvironment(**kwargs)
         env.filters.update(filters.create_builtin_filters())
         get_gettext_func = self.pod.catalogs.get_gettext_translations
+        # pylint: disable=no-member
         env.install_gettext_callables(
             lambda x: get_gettext_func(locale).ugettext(x),
             lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n),
