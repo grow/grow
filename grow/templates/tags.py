@@ -305,8 +305,10 @@ def create_builtin_tags(pod, doc, track_dependency=None):
     }
 
 
-def create_builtin_globals(pod, locale=None):
+def create_builtin_globals(env, pod, locale=None):
     """Create built in global tags."""
+    # Mark that we are using the newstyle gettext to avoid issues with escaping.
+    env.newstyle_gettext = True
     get_gettext_func = pod.catalogs.get_gettext_translations
     gettext = make_gettext(
         lambda x: get_gettext_func(locale).ugettext(x))

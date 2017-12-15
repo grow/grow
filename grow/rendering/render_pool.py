@@ -77,7 +77,12 @@ class RenderPool(object):
         kwargs['extensions'].extend(self.pod.list_jinja_extensions())
         env = jinja_dependency.DepEnvironment(**kwargs)
         env.filters.update(filters.create_builtin_filters())
-        env.globals.update(**tags.create_builtin_globals(self.pod, locale=locale))
+        get_gettext_func = self.pod.catalogs.get_gettext_translations
+        env.install_gettext_callables(
+            lambda x: get_gettext_func(locale).ugettext(x),
+            lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n),
+            newstyle=True)
+        # env.globals.update(**tags.create_builtin_globals(env, self.pod, locale=locale))
         return env
 
     def custom_jinja_env(self, locale='', root=None):
