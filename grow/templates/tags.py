@@ -176,10 +176,11 @@ def make_gettext(func):
     def gettext(__context, __string, **variables):
         """Gettext and do replacement."""
         value = __context.call(func, __string)
+        value = value % variables
+        value = utils.safe_format(value, **variables)
         if __context.eval_ctx.autoescape:
             value = jinja2.utils.Markup(value)
-        value = value % variables
-        return utils.safe_format(value, **variables)
+        return value
     return gettext
 
 
@@ -190,10 +191,11 @@ def make_ngettext(func):
         """Gettext and do replacement."""
         variables.setdefault('num', __num)
         value = __context.call(func, __singular, __plural, __num)
+        value = value % variables
+        value = utils.safe_format(value, **variables)
         if __context.eval_ctx.autoescape:
             value = jinja2.utils.Markup(value)
-        value = value % variables
-        return utils.safe_format(value, **variables)
+        return value
     return ngettext
 
 
