@@ -15,12 +15,14 @@ import yaml
 import jinja2
 from werkzeug.contrib import cache as werkzeug_cache
 from grow.cache import podcache
+from grow.collections import collection
 from grow.common import extensions
 from grow.common import features
 from grow.common import logger
 from grow.common import progressbar_non
 from grow.common import timer
 from grow.common import utils
+from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
 from grow.performance import docs_loader
@@ -41,8 +43,6 @@ from grow.translators import translators
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
 from . import catalog_holder
-from . import collection
-from . import document_fields
 from . import env as environment
 from . import locales
 from . import messages

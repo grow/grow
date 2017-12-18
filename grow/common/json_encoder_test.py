@@ -3,7 +3,7 @@
 import datetime
 import json
 import unittest
-from grow.pods import document_fields
+from grow.documents import document_fields
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing

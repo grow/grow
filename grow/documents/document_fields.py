@@ -1,7 +1,7 @@
 """Document fields for accessing the meta fields parsed from the document."""
 
-from boltons import iterutils
 import re
+from boltons import iterutils
 
 
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')

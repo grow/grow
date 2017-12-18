@@ -20,7 +20,7 @@ import html2text
 import translitcodec  # pylint: disable=unused-import
 from collections import OrderedDict
 from grow.common import structures
-from grow.pods import document_fields
+from grow.documents import document_fields
 from grow.pods import errors
 
 # The CLoader implementation of the PyYaml loader is orders of magnitutde

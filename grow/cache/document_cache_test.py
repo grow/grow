@@ -1,10 +1,10 @@
 """Tests for the document cache."""
 
 import unittest
+from grow.cache import document_cache
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
-from . import document_cache
 
 
 class DocumentCacheTestCase(unittest.TestCase):

@@ -20,9 +20,9 @@ from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
-from grow.pods import document_fields
-from grow.pods import document_format
-from grow.pods import document_front_matter as doc_front_matter
+from grow.documents import document_fields
+from grow.documents import document_format
+from grow.documents import document_front_matter as doc_front_matter
 from protorpc import messages
 from . import base
 

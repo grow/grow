@@ -1,14 +1,10 @@
-"""
-Document formatting specifics for parsing and working with documents.
-
-Defines how to handle documents formatted in various syntax formats.
-"""
+"""Document formatting specifics for parsing and working with documents."""
 
 import markdown
 from markdown.extensions import tables
 from grow.common import markdown_extensions
 from grow.common import utils
-from . import document_front_matter as doc_front_matter
+from grow.documents import document_front_matter as doc_front_matter
 
 
 BOUNDARY_SEPARATOR = '---'
@@ -27,6 +23,11 @@ class BadLocalesError(BadFormatError):
 
 
 class DocumentFormat(object):
+    """
+    Document formatting specifics for parsing and working with documents.
+
+    Defines how to handle documents formatted in various syntax formats.
+    """
 
     def __init__(self, doc):
         self._doc = doc

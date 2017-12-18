@@ -1,13 +1,11 @@
-"""
-Tests for the document front matter.
-"""
+"""Tests for the document front matter."""
 
 import unittest
 import textwrap
 from grow.testing import testing
-from . import document_front_matter
-from . import pods
-from . import storage
+from grow.documents import document_front_matter
+from grow.pods import pods
+from grow.pods import storage
 
 
 class DocumentFrontmatterTestCase(unittest.TestCase):

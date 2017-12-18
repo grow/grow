@@ -8,11 +8,11 @@ import re
 import sys
 from grow.common import structures
 from grow.common import utils
-from grow.pods import document_front_matter
+from grow.documents import documents
+from grow.documents import document_fields
+from grow.documents import document_front_matter
 from grow.pods import locales
-from . import document_fields
-from . import documents
-from . import messages
+from grow.pods import messages
 
 
 class Error(Exception):

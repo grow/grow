@@ -9,12 +9,12 @@ import yaml
 from grow.common import structures
 from grow.common import urls
 from grow.common import utils
+from grow.documents import document_fields
+from grow.documents import document_format
+from grow.pods import footnotes
+from grow.pods import locales
+from grow.pods import messages
 from grow.translators import translation_stats
-from . import document_fields
-from . import document_format
-from . import footnotes
-from . import locales
-from . import messages
 
 
 PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')
