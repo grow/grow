@@ -32,10 +32,10 @@ When using the `--locate-untranslated` flag Grow will also output all of the unt
 
 Runs preprocessors.
 
-### routes
+### inspect
 
 Shows all routes built by your pod. Useful for testing and debugging.
 
 [sourcecode:bash]
-grow routes
+grow inspect routes
 [/sourcecode]

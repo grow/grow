@@ -135,7 +135,7 @@ All URLs generated from a `Url` object are absolute. However, if you'd like to g
 
 ## Checking routes
 
-Use the `grow routes` command to quickly audit all of the routes that your site generates. You can use this command to avoid building the site and inspecting the generated fileset or saving and refreshing to check paths in the browser.
+Use the `grow inspect routes` command to quickly audit all of the routes that your site generates. You can use this command to avoid building the site and inspecting the generated fileset or saving and refreshing to check paths in the browser.
 
 Grow validates your URL path configuration and raises errors upon misconfiguration. For example, Grow will raise an error if you generate the same serving path for two different resources – no two resources may share the same serving path.
 
