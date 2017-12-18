@@ -3,6 +3,9 @@
 from grow.common import deprecated
 from grow.documents import document_format as new_ref
 
+# Alias constants.
+BOUNDARY_SEPARATOR = new_ref.BOUNDARY_SEPARATOR
+
 # pylint: disable=invalid-name
 Error = deprecated.MovedHelper(
     new_ref.Error, 'grow.pods.document_format.Error')

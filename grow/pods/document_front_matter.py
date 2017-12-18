@@ -3,6 +3,10 @@
 from grow.common import deprecated
 from grow.documents import document_front_matter as new_ref
 
+# Alias constants.
+BOUNDARY_REGEX = new_ref.BOUNDARY_REGEX
+CONVERT_MESSAGE = new_ref.CONVERT_MESSAGE
+
 # pylint: disable=invalid-name
 Error = deprecated.MovedHelper(
     new_ref.Error, 'grow.pods.document_front_matter.Error')

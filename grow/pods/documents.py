@@ -3,6 +3,10 @@
 from grow.common import deprecated
 from grow.documents import documents as new_ref
 
+# Alias constants.
+PATH_LOCALE_REGEX = new_ref.PATH_LOCALE_REGEX
+BUILT_IN_FIELDS = new_ref.BUILT_IN_FIELDS
+
 # pylint: disable=invalid-name
 Error = deprecated.MovedHelper(
     new_ref.Error, 'grow.pods.documents.Error')
