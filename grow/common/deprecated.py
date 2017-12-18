@@ -10,9 +10,13 @@ class DeprecationHelper(object):
         self.new_target = new_target
         self.message = message
         self._warning = warn
+        self._has_warned = False
 
     def _warn(self):
-        self._warning(self.message)
+        # Only warn once to prevent spamming logs.
+        if not self._has_warned:
+            self._warning(self.message)
+            self._has_warned = True
 
     def __call__(self, *args, **kwargs):
         self._warn()
