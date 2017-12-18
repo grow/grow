@@ -5,18 +5,18 @@ from grow.documents import document_format as new_ref
 
 # pylint: disable=invalid-name
 Error = deprecated.MovedHelper(
-    new_ref.Error, 'grow.pods.documents.Error')
+    new_ref.Error, 'grow.pods.document_format.Error')
 BadFormatError = deprecated.MovedHelper(
-    new_ref.BadFormatError, 'grow.pods.documents.BadFormatError')
+    new_ref.BadFormatError, 'grow.pods.document_format.BadFormatError')
 BadLocalesError = deprecated.MovedHelper(
-    new_ref.BadLocalesError, 'grow.pods.documents.BadLocalesError')
+    new_ref.BadLocalesError, 'grow.pods.document_format.BadLocalesError')
 DocumentFormat = deprecated.MovedHelper(
-    new_ref.DocumentFormat, 'grow.pods.documents.DocumentFormat')
+    new_ref.DocumentFormat, 'grow.pods.document_format.DocumentFormat')
 HtmlDocumentFormat = deprecated.MovedHelper(
-    new_ref.HtmlDocumentFormat, 'grow.pods.documents.HtmlDocumentFormat')
+    new_ref.HtmlDocumentFormat, 'grow.pods.document_format.HtmlDocumentFormat')
 MarkdownDocumentFormat = deprecated.MovedHelper(
-    new_ref.MarkdownDocumentFormat, 'grow.pods.documents.MarkdownDocumentFormat')
+    new_ref.MarkdownDocumentFormat, 'grow.pods.document_format.MarkdownDocumentFormat')
 TextDocumentFormat = deprecated.MovedHelper(
-    new_ref.TextDocumentFormat, 'grow.pods.documents.TextDocumentFormat')
+    new_ref.TextDocumentFormat, 'grow.pods.document_format.TextDocumentFormat')
 YamlDocumentFormat = deprecated.MovedHelper(
-    new_ref.YamlDocumentFormat, 'grow.pods.documents.YamlDocumentFormat')
+    new_ref.YamlDocumentFormat, 'grow.pods.document_format.YamlDocumentFormat')
