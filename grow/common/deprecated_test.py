@@ -16,7 +16,8 @@ class MovedHelperTestCase(unittest.TestCase):
         test_class = deprecated.MovedHelper(urls.Url, 'grow.common.urls.Url', warn=mock_warn)
         _ = test_class('/')
         mock_warn.assert_called_with(
-            'The grow.common.urls.Url class has moved to grow.common.urls.Url')
+            'The grow.common.urls.Url class has moved to grow.common.urls.Url and '
+            'will be removed in a future version.')
 
     # pylint: disable=no-self-use
     def test_static_method(self):
@@ -25,4 +26,5 @@ class MovedHelperTestCase(unittest.TestCase):
         test_class = deprecated.MovedHelper(urls.Url, 'grow.common.urls.Url', warn=mock_warn)
         _ = test_class.create_relative_path('/foo/bar/baz/', relative_to='/test/dir/')
         mock_warn.assert_called_with(
-            'The grow.common.urls.Url class has moved to grow.common.urls.Url')
+            'The grow.common.urls.Url class has moved to grow.common.urls.Url and '
+            'will be removed in a future version.')
