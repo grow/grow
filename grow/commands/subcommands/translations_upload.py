@@ -3,7 +3,7 @@
 import os
 import click
 from grow.commands import shared
-from grow.commands.subcommands.extract import validate_locales
+from grow.commands.subcommands.translations_extract import validate_locales
 from grow.common import rc_config
 from grow.pods import pods
 from grow.pods import storage
