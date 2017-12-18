@@ -1,5 +1,7 @@
 """Deprecated path for Grow collection."""
 
+# TODO: Remove after deprecation period.
+
 from grow.common import deprecated
 from grow.collections import collection as new_ref
 

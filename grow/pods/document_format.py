@@ -1,5 +1,7 @@
 """Deprecated path for Grow document format."""
 
+# TODO: Remove after deprecation period.
+
 from grow.common import deprecated
 from grow.documents import document_format as new_ref
 

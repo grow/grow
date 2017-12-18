@@ -1,5 +1,7 @@
 """Deprecated path for Grow catalog holder."""
 
+# TODO: Remove after deprecation period.
+
 from grow.common import deprecated
 from grow.translations import catalog_holder as new_ref
 

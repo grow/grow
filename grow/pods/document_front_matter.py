@@ -1,5 +1,7 @@
 """Deprecated path for Grow document front matter."""
 
+# TODO: Remove after deprecation period.
+
 from grow.common import deprecated
 from grow.documents import document_front_matter as new_ref
 

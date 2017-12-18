@@ -1,5 +1,7 @@
 """Deprecated path for Grow document fields."""
 
+# TODO: Remove after deprecation period.
+
 from grow.common import deprecated
 from grow.documents import document_fields as new_ref
 
