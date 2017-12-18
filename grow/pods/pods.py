@@ -14,6 +14,7 @@ import progressbar
 import yaml
 import jinja2
 from werkzeug.contrib import cache as werkzeug_cache
+from grow import storage as grow_storage
 from grow.cache import podcache
 from grow.collections import collection
 from grow.common import extensions
@@ -49,7 +50,6 @@ from . import messages
 from . import podspec
 from . import routes as grow_routes
 from . import static as grow_static
-from . import storage as grow_storage
 
 
 class Error(Exception):

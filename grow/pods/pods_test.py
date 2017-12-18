@@ -5,10 +5,10 @@ import unittest
 import mock
 import jinja2
 from grow import preprocessors
+from grow import storage
 from grow.testing import testing
 from . import pods
 from . import static
-from . import storage
 
 
 class PodTest(unittest.TestCase):
