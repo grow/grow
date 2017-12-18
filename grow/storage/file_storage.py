@@ -1,4 +1,4 @@
-from grow.pods.storage import base_storage
+from grow.storage import base_storage
 import errno
 import jinja2
 import os

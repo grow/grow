@@ -3,9 +3,9 @@
 import errno
 import os
 import shutil
-from grow.pods import env
-from grow.pods.storage import storage as storage_lib
 from grow.deployments.destinations import base
+from grow.pods import env
+from grow.storage import file_storage
 from protorpc import messages
 
 
@@ -21,7 +21,7 @@ class Config(messages.Message):
 class LocalDestination(base.BaseDestination):
     KIND = 'local'
     Config = Config
-    storage = storage_lib.FileStorage
+    storage = file_storage.FileStorage
 
     def __str__(self):
         return os.path.abspath(os.path.join(self.out_dir))

@@ -15,8 +15,8 @@ except ImportError:
 import logging
 import os
 import jinja2
-from grow.pods.storage import base_storage
-from grow.pods.storage import errors
+from grow.storage import base_storage
+from grow.storage import errors
 
 
 class CloudStorage(base_storage.BaseStorage):

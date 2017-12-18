@@ -86,7 +86,7 @@ class Pod(object):
                 and isinstance(other, Pod)
                 and self.root == other.root)
 
-    def __init__(self, root, storage=grow_storage.auto, env=None, load_extensions=True, use_reroute=False):
+    def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True, use_reroute=False):
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage

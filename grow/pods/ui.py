@@ -3,7 +3,7 @@
 import os
 import jinja2
 from grow.common import utils
-from grow.pods.storage import storage
+from grow import storage
 from grow.templates import filters
 
 

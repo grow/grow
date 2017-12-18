@@ -1,18 +1,20 @@
-from . import base
-from grow.common import utils as common_utils
-from grow.pods import env
-from grow.pods.storage import storage as storage_lib
-from protorpc import messages
+"""Git deploy destination."""
+
 import logging
 import os
 import re
 import shutil
 import subprocess
 import tempfile
+from grow.common import utils as common_utils
+from grow.pods import env
+from grow.storage import file_storage
+from protorpc import messages
+from . import base
 
 
 ONLINE_REPO_REGEX = \
-    '((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)(/)?'
+    r'((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)(/)?'
 
 
 class Config(messages.Message):
@@ -24,9 +26,10 @@ class Config(messages.Message):
 
 
 class GitDestination(base.BaseDestination):
+    """Git deploy destination."""
     KIND = 'git'
     Config = Config
-    storage = storage_lib.FileStorage
+    storage = file_storage.FileStorage
 
     def __init__(self, *args, **kwargs):
         super(GitDestination, self).__init__(*args, **kwargs)
