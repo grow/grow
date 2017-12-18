@@ -29,5 +29,6 @@ class MovedHelper(DeprecationHelper):
 
     def __init__(self, new_target, orig_class_name, *args, **kwargs):
         new_class_name = new_target.__module__ + "." + new_target.__name__
-        message = 'The {} class has moved to {}'.format(orig_class_name, new_class_name)
+        message = 'The {} class has moved to {} and will be removed in a future version.'.format(
+            orig_class_name, new_class_name)
         super(MovedHelper, self).__init__(new_target, message, *args, **kwargs)
