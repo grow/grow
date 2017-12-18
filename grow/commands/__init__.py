@@ -3,8 +3,6 @@
 from grow.commands.subcommands import build
 from grow.commands.subcommands import convert
 from grow.commands.subcommands import deploy
-from grow.commands.subcommands import extract
-from grow.commands.subcommands import filter as grow_filter
 from grow.commands.subcommands import init
 from grow.commands.subcommands import inspect
 from grow.commands.subcommands import install
@@ -19,8 +17,6 @@ def add_subcommands(group):
     group.add_command(build.build)
     group.add_command(convert.convert)
     group.add_command(deploy.deploy)
-    group.add_command(extract.extract)
-    group.add_command(grow_filter.filter)
     group.add_command(init.init)
     group.add_command(inspect.inspect)
     group.add_command(install.install)
