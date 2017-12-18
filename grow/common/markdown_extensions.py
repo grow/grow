@@ -109,7 +109,11 @@ class UrlPreprocessor(preprocessors.Preprocessor):
                 new_lines.append(line)
             else:
                 for pod_path in pod_paths:
-                    doc = self.pod.get_doc(pod_path)
+                    # Can not import `grow` from within extensions?
+                    if pod_path.startswith('/content'):
+                        doc = self.pod.get_doc(pod_path)
+                    else:
+                        doc = self.pod.get_static(pod_path)
                     line = re.sub(UrlPreprocessor.REGEX, doc.url.path, line, count=1)
                 new_lines.append(line)
         return new_lines
