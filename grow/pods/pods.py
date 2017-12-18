@@ -38,13 +38,13 @@ from grow.sdk import updater
 from grow.templates import filters
 from grow.templates import jinja_dependency
 from grow.templates import tags
+from grow.translations import catalog_holder
+from grow.translations import locales
 from grow.translators import translation_stats
 from grow.translators import translators
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
-from . import catalog_holder
 from . import env as environment
-from . import locales
 from . import messages
 from . import podspec
 from . import routes as grow_routes

@@ -1,5 +1,6 @@
+"""Grow translation importers."""
+
 import collections
-from babel.messages import pofile
 import cStringIO
 import copy
 import errno
@@ -7,6 +8,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+from babel.messages import pofile
 
 
 default_external_to_babel_locales = collections.defaultdict(list)

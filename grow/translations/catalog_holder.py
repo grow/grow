@@ -14,9 +14,9 @@ from babel.messages import pofile
 import click
 from grow.common import utils
 from grow.pods import messages
-from . import catalogs
-from . import importers
-from . import locales as grow_locales
+from grow.translations import catalogs
+from grow.translations import importers
+from grow.translations import locales as grow_locales
 
 
 _TRANSLATABLE_EXTENSIONS = (

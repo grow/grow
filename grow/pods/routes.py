@@ -6,7 +6,7 @@ from webob import exc as webob_exc
 from werkzeug import routing
 from grow.common import timer
 from grow.common import utils
-from . import locales
+from grow.translations import locales
 from . import messages
 from . import rendered
 from . import sitemap

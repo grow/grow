@@ -4,7 +4,7 @@ import os
 import click
 from grow.commands import shared
 from grow.common import rc_config
-from grow.pods import catalog_holder
+from grow.translations import catalog_holder
 from grow.pods import pods
 from grow.pods import storage
 
