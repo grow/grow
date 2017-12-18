@@ -9,7 +9,7 @@ from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')

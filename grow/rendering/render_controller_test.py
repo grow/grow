@@ -2,7 +2,7 @@
 
 import unittest
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.rendering import render_controller
 from grow.routing import router
 from grow.testing import testing

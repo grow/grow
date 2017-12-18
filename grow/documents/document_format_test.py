@@ -4,7 +4,7 @@ import textwrap
 import unittest
 from grow.documents import document_format
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.testing import testing
 
 

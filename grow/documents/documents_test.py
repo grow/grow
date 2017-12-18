@@ -8,7 +8,7 @@ from grow.documents import documents
 from grow.translations import locales
 from grow.pods import pods
 from grow.pods import routes
-from grow.pods import storage
+from grow import storage
 
 
 class DocumentsTestCase(unittest.TestCase):

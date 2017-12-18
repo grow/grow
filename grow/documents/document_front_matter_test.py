@@ -5,7 +5,7 @@ import textwrap
 from grow.testing import testing
 from grow.documents import document_front_matter
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 
 
 class DocumentFrontmatterTestCase(unittest.TestCase):

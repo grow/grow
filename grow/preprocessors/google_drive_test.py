@@ -8,7 +8,7 @@ import unittest
 import mock
 import yaml
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.testing import google_service
 from grow.testing import testing
 from . import google_drive

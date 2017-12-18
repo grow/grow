@@ -5,7 +5,7 @@ import json
 import unittest
 from grow.documents import document_fields
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.testing import testing
 from . import json_encoder
 

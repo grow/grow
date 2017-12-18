@@ -3,7 +3,7 @@ from . import messages
 from grow.common import utils
 from grow.pods import pods
 from grow.rendering import rendered_document
-from grow.pods import storage
+from grow import storage
 from grow.testing import testing
 import unittest
 
