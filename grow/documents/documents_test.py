@@ -96,6 +96,26 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEquals(expected, documents.Document.clean_localized_path(
             input, 'en'))
 
+    def test_collection_base(self):
+        about_doc = self.pod.get_doc('/content/pages/about.yaml')
+        self.assertEquals('/', about_doc.collection_base)
+
+        about_doc = self.pod.get_doc('/content/pages/sub/about.yaml')
+        self.assertEquals('/sub/', about_doc.collection_base)
+
+        about_doc = self.pod.get_doc('/content/pages/sub/foo/about.yaml')
+        self.assertEquals('/sub/foo/', about_doc.collection_base)
+
+    def test_collection_path(self):
+        about_doc = self.pod.get_doc('/content/pages/about.yaml')
+        self.assertEquals('/about.yaml', about_doc.collection_path)
+
+        about_doc = self.pod.get_doc('/content/pages/sub/about.yaml')
+        self.assertEquals('/sub/about.yaml', about_doc.collection_path)
+
+        about_doc = self.pod.get_doc('/content/pages/sub/foo/about.yaml')
+        self.assertEquals('/sub/foo/about.yaml', about_doc.collection_path)
+
     def test_get_serving_path(self):
         about_doc = self.pod.get_doc('/content/pages/about.yaml')
         self.assertEquals('/about/', about_doc.get_serving_path())

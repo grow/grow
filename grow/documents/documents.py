@@ -150,9 +150,12 @@ class Document(object):
         formatters = {
             'base': self.base,
             'category': self.category,
-            'collection.basename': self.collection.basename,
-            'collection.root': self.collection.root,
-            'env.fingerpint': self.pod.env.fingerprint,
+            'collection': structures.AttributeDict(
+                base=self.collection_base,
+                basename=self.collection.basename,
+                root=self.collection.root),
+            'env': structures.AttributeDict(
+                fingerpint=self.pod.env.fingerprint),
             'locale': locale,
             'parent': self.parent if self.parent else utils.DummyDict(),
             'root': podspec.root,
@@ -189,6 +192,16 @@ class Document(object):
     @property
     def category(self):
         return self.fields.get('$category')
+
+    @property
+    def collection_base(self):
+        """The base directory inside the collection."""
+        return self.collection_path[:-len(self.basename)]
+
+    @property
+    def collection_path(self):
+        """The pod path relative to the collection path."""
+        return self.pod_path[len(self.collection.pod_path):]
 
     @property
     def content(self):
