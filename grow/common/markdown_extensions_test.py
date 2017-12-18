@@ -99,7 +99,14 @@ class UrlPreprocessorTestCase(unittest.TestCase):
 
     def setUp(self):
         self.pod = testing.create_pod()
-        self.pod.write_yaml('/podspec.yaml', {})
+        self.pod.write_yaml('/podspec.yaml', {
+            'static_dirs': [
+                {
+                    'static_dir': '/static/',
+                    'serve_at': '/public/',
+                },
+            ],
+        })
         self.pod.write_yaml('/content/pages/_blueprint.yaml', {
             '$view': '/views/base.html',
             '$path': '/{base}/'
@@ -126,6 +133,16 @@ class UrlPreprocessorTestCase(unittest.TestCase):
         controller, params = self.pod.match('/test/')
         result = controller.render(params)
         self.assertIn('href="/test1/"', result)
+
+    def test_url_link_static(self):
+        """Plain url reference works."""
+        content = '[Link]([url(\'/static/test.txt\')])'
+        self.pod.write_file('/content/pages/test.md', content)
+        content = '{{doc.html|safe}}'
+        self.pod.write_file('/views/base.html', content)
+        controller, params = self.pod.match('/test/')
+        result = controller.render(params)
+        self.assertIn('href="/public/test.txt"', result)
 
     def test_url_link_multiple(self):
         """Plain url reference works."""
