@@ -1,6 +1,6 @@
 """Podspec helper."""
 
-from grow.pods import locales
+from grow.translations import locales
 
 
 class Error(Exception):

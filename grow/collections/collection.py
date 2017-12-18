@@ -11,7 +11,7 @@ from grow.common import utils
 from grow.documents import documents
 from grow.documents import document_fields
 from grow.documents import document_front_matter
-from grow.pods import locales
+from grow.translations import locales
 from grow.pods import messages
 
 

@@ -1,6 +1,6 @@
 from grow.pods import env
 from grow.pods import errors
-from grow.pods import locales
+from grow.translations import locales
 from grow.pods import pods
 from grow.preprocessors import base
 from grow.testing import testing

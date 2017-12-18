@@ -5,7 +5,7 @@ import unittest
 from grow.common import utils
 from grow.testing import testing
 from grow.documents import documents
-from grow.pods import locales
+from grow.translations import locales
 from grow.pods import pods
 from grow.pods import routes
 from grow.pods import storage

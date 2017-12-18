@@ -2,7 +2,7 @@
 
 import unittest
 from grow.collections import collection
-from grow.pods import locales
+from grow.translations import locales
 from grow.pods import pods
 from grow.pods import storage
 from grow.testing import testing
