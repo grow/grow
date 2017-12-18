@@ -44,11 +44,11 @@ class AmazonS3Destination(base.BaseDestination):
                 return boto_connection.create_bucket(self.config.bucket)
             raise
 
-    def dump(self, pod):
+    def dump(self, pod, use_threading=True):
         pod.set_env(self.get_env())
         return pod.dump(
             suffix=self.config.index_document,
-            append_slashes=self.config.redirect_trailing_slashes)
+            append_slashes=self.config.redirect_trailing_slashes, use_threading=use_threading)
 
     def prelaunch(self, dry_run=False):
         if dry_run:
@@ -96,5 +96,6 @@ class AmazonS3Destination(base.BaseDestination):
             'Content-Type': mimetype if mimetype else 'text/html',
         }
         fp.seek(0)
-        bucket_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy)
+        bucket_key.set_contents_from_file(
+            fp, headers=headers, replace=True, policy=policy)
         fp.close()
