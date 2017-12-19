@@ -43,7 +43,7 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
             deployment = _get_deployment(pod, remote, subdomain, api_key)
             # use the deployment's environment for preprocessing and later
             # steps.
-            pod.set_env(deployment.config.env)
+            pod.set_env(deployment.get_env())
             # Always clear the cache when building.
             pod.podcache.reset()
             require_translations = pod.podspec.localization.get(
@@ -83,8 +83,6 @@ def _get_deployment(pod, remote, subdomain, api_key):
                 deployment.config.subdomain = subdomain
             if api_key:
                 deployment.webreview.api_key = api_key
-            if not deployment.config.env:
-                deployment.config.env = environment.EnvConfig()
             return deployment
         except ValueError:
             text = ('Must provide --remote or specify a deployment named '
