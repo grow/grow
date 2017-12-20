@@ -1,4 +1,4 @@
-from . import import_translations
+from . import translations_import
 from click import testing as click_testing
 from grow.testing import testing
 import os
@@ -11,8 +11,8 @@ class ImportTranslationsTestCase(unittest.TestCase):
         self.test_pod_dir = testing.create_test_pod_dir()
         self.runner = click_testing.CliRunner()
 
-    def test_import_translations(self):
-        func = import_translations.import_translations
+    def test_translations_import(self):
+        func = translations_import.translations_import
 
         path = testing.get_testdata_dir()
         po_path_to_import = os.path.join(path, 'external', 'messages.de.po')

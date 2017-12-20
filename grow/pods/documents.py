@@ -9,7 +9,7 @@ import yaml
 from grow.common import structures
 from grow.common import urls
 from grow.common import utils
-from grow.translators import translation_stats
+from grow.translations import translation_stats
 from . import document_fields
 from . import document_format
 from . import footnotes

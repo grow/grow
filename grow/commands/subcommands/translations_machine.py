@@ -9,18 +9,18 @@ from grow.pods import pods
 from grow.pods import storage
 
 
-CFG = rc_config.RC_CONFIG.prefixed('grow.machine_translate')
+CFG = rc_config.RC_CONFIG.prefixed('grow.translations.machine')
 
 
 @click.command()
 @shared.pod_path_argument
 @shared.locale_option(help_text='Locales to translate.')
 @shared.reroute_option(CFG)
-def machine_translate(pod_path, locale, use_reroute):
+def translations_machine(pod_path, locale, use_reroute):
     """Translates the pod message catalog using machine translation."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
-    with pod.profile.timer('grow_machine_translate'):
+    with pod.profile.timer('grow_translations_machine'):
         pod.catalogs.extract()
         for identifier in locale:
             catalog = pod.catalogs.get(identifier)
