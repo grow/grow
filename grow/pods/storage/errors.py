@@ -1,10 +1,14 @@
-class Error(Exception):
-    pass
+"""Deprecated path for storage errors."""
 
+# TODO: Remove after deprecation period.
 
-class PathError(Error, ValueError):
-    pass
+from grow.common import deprecated
+from grow.storage import errors as new_ref
 
-
-class NotFoundError(Error, IOError):
-    pass
+# pylint: disable=invalid-name
+Error = deprecated.MovedHelper(
+    new_ref.Error, 'grow.pods.storage.errors.Error')
+PathError = deprecated.MovedHelper(
+    new_ref.PathError, 'grow.pods.storage.errors.PathError')
+NotFoundError = deprecated.MovedHelper(
+    new_ref.NotFoundError, 'grow.pods.storage.errors.NotFoundError')

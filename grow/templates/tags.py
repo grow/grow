@@ -5,9 +5,9 @@ import itertools
 from datetime import datetime
 import jinja2
 from babel.messages import catalog as babel_catalog
+from grow.collections import collection as collection_lib
 from grow.common import utils
-from grow.pods import collection as collection_lib
-from grow.pods import locales as locales_lib
+from grow.translations import locales as locales_lib
 
 
 class Menu(object):

@@ -5,7 +5,7 @@ import mock
 from grow.common import base_config
 from grow.common import utils
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.sdk.installers import base_installer
 from grow.sdk.installers import gerrit_installer
 from grow.testing import testing

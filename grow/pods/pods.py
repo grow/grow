@@ -14,13 +14,16 @@ import progressbar
 import yaml
 import jinja2
 from werkzeug.contrib import cache as werkzeug_cache
+from grow import storage as grow_storage
 from grow.cache import podcache
+from grow.collections import collection
 from grow.common import extensions
 from grow.common import features
 from grow.common import logger
 from grow.common import progressbar_non
 from grow.common import timer
 from grow.common import utils
+from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
 from grow.performance import docs_loader
@@ -36,20 +39,17 @@ from grow.sdk import updater
 from grow.templates import filters
 from grow.templates import jinja_dependency
 from grow.templates import tags
+from grow.translations import catalog_holder
+from grow.translations import locales
 from grow.translations import translation_stats
 from grow.translators import translators
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
-from . import catalog_holder
-from . import collection
-from . import document_fields
 from . import env as environment
-from . import locales
 from . import messages
 from . import podspec
 from . import routes as grow_routes
 from . import static as grow_static
-from . import storage as grow_storage
 
 
 class Error(Exception):
@@ -86,7 +86,7 @@ class Pod(object):
                 and isinstance(other, Pod)
                 and self.root == other.root)
 
-    def __init__(self, root, storage=grow_storage.auto, env=None, load_extensions=True, use_reroute=False):
+    def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True, use_reroute=False):
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage

@@ -1,9 +1,11 @@
-from . import collection
-from . import locales
-from . import pods
-from . import storage
-from grow.testing import testing
+"""Test the pod collections."""
+
 import unittest
+from grow.collections import collection
+from grow.translations import locales
+from grow.pods import pods
+from grow import storage
+from grow.testing import testing
 
 
 class CollectionsTestCase(unittest.TestCase):

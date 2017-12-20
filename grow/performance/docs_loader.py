@@ -1,7 +1,7 @@
 """Threaded loader that forces a list of docs to be loaded from filesystem."""
 
 from grow.common import utils as common_utils
-from grow.pods import document_front_matter
+from grow.documents import document_front_matter
 
 if common_utils.is_appengine():
     # pylint: disable=invalid-name

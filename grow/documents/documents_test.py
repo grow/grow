@@ -4,11 +4,11 @@ import textwrap
 import unittest
 from grow.common import utils
 from grow.testing import testing
-from . import documents
-from . import locales
-from . import pods
-from . import routes
-from . import storage
+from grow.documents import documents
+from grow.translations import locales
+from grow.pods import pods
+from grow.pods import routes
+from grow import storage
 
 
 class DocumentsTestCase(unittest.TestCase):

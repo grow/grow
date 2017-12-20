@@ -1,6 +1,8 @@
-from . import locales
-from grow.testing import testing
+"""Tests for Grow locales."""
+
 import unittest
+from grow.testing import testing
+from grow.translations import locales
 
 
 class LocalesTest(unittest.TestCase):

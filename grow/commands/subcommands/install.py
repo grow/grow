@@ -6,7 +6,7 @@ from grow.commands import shared
 from grow.common import base_config
 from grow.common import rc_config
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.sdk import installer
 from grow.sdk import installers
 

@@ -1,7 +1,8 @@
-import unittest
+"""Tests for the document fields."""
 
-from . import document_fields
 import copy
+import unittest
+from grow.documents import document_fields
 
 
 class DocumentFieldsTestCase(unittest.TestCase):

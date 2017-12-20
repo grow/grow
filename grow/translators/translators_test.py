@@ -2,7 +2,7 @@ from . import google_translator_toolkit
 from grow.preprocessors import google_drive
 from grow.common import oauth
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from nose.plugins import skip
 from grow.testing import testing
 import time

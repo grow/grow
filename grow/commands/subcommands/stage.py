@@ -10,7 +10,7 @@ from grow.deployments.destinations import base
 from grow.deployments.destinations import webreview_destination
 from grow.pods import env as environment
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.stage')

@@ -4,7 +4,7 @@ import textwrap
 import unittest
 from grow.common import utils
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.testing import testing
 from . import static
 

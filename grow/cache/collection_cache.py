@@ -5,7 +5,7 @@ Supports caching the collection and caching documents within those collections.
 
 import os
 import threading
-from grow.pods import collection
+from grow.collections import collection
 
 
 class CollectionCache(object):
