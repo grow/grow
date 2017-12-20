@@ -8,7 +8,7 @@ from grow.commands.subcommands import inspect_untranslated
 
 @click.group()
 def inspect():
-    """Inspects a pod."""
+    """Inspect pod files and stats."""
     pass
 
 

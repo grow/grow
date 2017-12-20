@@ -8,7 +8,7 @@ from grow.pods import pods
 from grow import storage
 
 
-CFG = rc_config.RC_CONFIG.prefixed('grow.filter')
+CFG = rc_config.RC_CONFIG.prefixed('grow.translations.filter')
 
 
 @click.command()
@@ -32,12 +32,12 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.filter')
                     ' is only applicable when using --localized.'))
 @shared.path_option
 @shared.reroute_option(CFG)
-def filter(pod_path, locale, o, include_obsolete, localized, path,
-           include_header, out_dir, f, use_reroute):
+def translations_filter(pod_path, locale, o, include_obsolete, localized, path,
+                        include_header, out_dir, f, use_reroute):
     """Filters untranslated messages from catalogs into new catalogs."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
-    with pod.profile.timer('grow_filter'):
+    with pod.profile.timer('grow_translations_filter'):
         catalogs = pod.get_catalogs()
         if not locale:
             locale = catalogs.list_locales()

@@ -1,4 +1,4 @@
-from . import extract
+from . import translations_extract
 from click import testing as click_testing
 from grow.testing import testing
 import unittest
@@ -12,7 +12,8 @@ class ExtractTestCase(unittest.TestCase):
 
     def test_extract(self):
         args = [self.test_pod_dir]
-        result = self.runner.invoke(extract.extract, args, catch_exceptions=False)
+        result = self.runner.invoke(
+            translations_extract.translations_extract, args, catch_exceptions=False)
         self.assertEqual(0, result.exit_code)
 
 

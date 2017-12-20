@@ -14,7 +14,7 @@ from grow.documents import document_format
 from grow.pods import footnotes
 from grow.translations import locales
 from grow.pods import messages
-from grow.translators import translation_stats
+from grow.translations import translation_stats
 
 
 PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')

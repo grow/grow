@@ -41,7 +41,7 @@ from grow.templates import jinja_dependency
 from grow.templates import tags
 from grow.translations import catalog_holder
 from grow.translations import locales
-from grow.translators import translation_stats
+from grow.translations import translation_stats
 from grow.translators import translators
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc

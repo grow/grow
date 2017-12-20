@@ -8,7 +8,7 @@ from babel.messages import catalog
 from grow.pods import pods
 from grow import storage
 from grow.testing import testing
-from grow.translators import translation_stats
+from grow.translations import translation_stats
 
 
 class TranslationStatsTestCase(unittest.TestCase):

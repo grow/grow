@@ -3,13 +3,13 @@
 import os
 import click
 from grow.commands import shared
-from grow.commands.subcommands.extract import validate_locales
+from grow.commands.subcommands.translations_extract import validate_locales
 from grow.common import rc_config
 from grow.pods import pods
 from grow import storage
 
 
-CFG = rc_config.RC_CONFIG.prefixed('grow.upload_translations')
+CFG = rc_config.RC_CONFIG.prefixed('grow.translations.upload')
 
 
 @click.command()
@@ -39,7 +39,7 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.upload_translations')
               ' translations for all catalogs will be uploaded.')
 @shared.service_option
 @shared.reroute_option(CFG)
-def upload_translations(pod_path, locale, force, service, update_acl,
+def translations_upload(pod_path, locale, force, service, update_acl,
                         download, extract, prune, update_meta, use_reroute):
     """Uploads translations to a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
@@ -72,7 +72,7 @@ def upload_translations(pod_path, locale, force, service, update_acl,
             catalogs.update(locales=locales, include_header=include_header,
                             use_fuzzy_matching=use_fuzzy_matching)
 
-    with pod.profile.timer('grow_upload_translations'):
+    with pod.profile.timer('grow_translations_upload'):
         translator.upload(locales=locale, force=force,
                           verbose=True, prune=prune)
     return pod
