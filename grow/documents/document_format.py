@@ -40,9 +40,9 @@ class DocumentFormat(object):
         if not doc:
             raise BadFormatError(
                 'Missing `doc` keyword argument for creating format')
-        if doc.ext == ('.html'):
+        if doc.ext == ('.html', '.htm'):
             return HtmlDocumentFormat(*args, **kwargs)
-        if doc.ext in ('.markdown', '.md', '.mdown', '.mkdn', '.mkd', '.md'):
+        if doc.ext in ('.markdown', '.mdown', '.mkdn', '.mkd', '.md'):
             return MarkdownDocumentFormat(*args, **kwargs)
         if doc.ext in ('.yaml', '.yml'):
             return YamlDocumentFormat(*args, **kwargs)
