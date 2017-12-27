@@ -13,7 +13,7 @@ Grow implements several commands to help you build and test your pod and its gen
 
 ### build
 
-Builds a pod, generating all the static files needed to render your site. By default, the `grow build` command outputs files to the `build` directory within your pod. You can specify a target directory by using an optional fourth argument. In order to deploy your site locally or to a launch destination, [see the `grow deploy` command]([url('/content/docs/deployment.md')]).
+Builds a pod, generating all the static files needed to render your site. By default, the `grow build` command outputs files to the `build/` directory within your pod. You can specify a target directory by using an optional fourth argument. In order to deploy your site locally or to a launch destination, [see the `grow deploy` command]([url('/content/docs/deployment.md')]).
 
 [sourcecode:bash]
 # Builds pod to "build" directory.
@@ -30,12 +30,22 @@ When using the `--locate-untranslated` flag Grow will also output all of the unt
 
 ### preprocess
 
-Runs preprocessors.
+Runs just the preprocessor step of the build process.
 
 ### inspect
 
-Shows all routes built by your pod. Useful for testing and debugging.
+#### routes
+
+Shows all routes from your pod. Useful for testing and debugging routing.
 
 [sourcecode:bash]
 grow inspect routes
+[/sourcecode]
+
+#### untranslated
+
+Attempts to correlate the strings that are missing translation tagging in front matter and the templates use of the `gettext` (`_(...)`) function.
+
+[sourcecode:bash]
+grow inspect untranslated
 [/sourcecode]
