@@ -16,11 +16,11 @@ Documents optionally have a `path` property which allows the document to be expo
 
 ### File types
 
-Aside from the *_blueprint.yaml* folder, files in a content collection's directory are treated as a content documents. Grow accepts content documents in the following formats, indicated by their file extensions:
+Aside from the *_blueprint.yaml* file, files in a content collection's directory are treated as a content documents. Grow accepts content documents in the following formats, indicated by their file extensions:
 
-  - HTML (`.html`)
-  - Markdown (`.md`)
-  - YAML (`.yaml`)
+  - HTML (`.html`, `.htm`)
+  - Markdown (`.markdown`, `.md`, `.mdown`, `.mkdn`, `.mkd`)
+  - YAML (`.yaml`, `.yml`)
 
 ### Document path
 
@@ -30,7 +30,7 @@ The __document path__ of a content document is its path relative to the pod's `/
 
 YAML front matter is YAML metadata that is prepended to a document's body.
 
-Front matter contains fields. Field names prefixed with a dollar sign ($) are ones which are built-in to Grow. Front matter is encapsulated by three dashes (`---`). From views, fields can be accessed using `{{doc.<field name>}}` where <field name> is the name of the field. The dollar sign prefix should be omitted from field names accessed using template variables.
+Front matter contains fields. Field names prefixed with a dollar sign ($) are ones which are built-in to Grow. Front matter is encapsulated by three dashes (`---`). From views, fields can be accessed using `{{doc.<field name>}}` where `<field name>` is the name of the field. The dollar sign prefix should be omitted from field names accessed using template variables.
 
 As long as a blueprint specifies a document's `view` and its `path`, including YAML front matter in a content document is optional.
 
@@ -53,7 +53,7 @@ A document's body is the stuff that comes after its YAML front matter. For Markd
 
 ### Rendering and serving
 
-Content documents are servable if they have a `path` (the URL path the document should be served at) and a `view` (the template used to render the document). By default, `path` and `view` are inherited from the document's blueprint.
+Content documents are servable if they have a `path` (the URL path the document should be served at) and a `view` (the template used to render the document). By default, `path` and `view` are inherited from the collection's blueprint.
 
 If the blueprint does not have a `path` and a `view` set, you may specify `$path` and `$view` at the document-level. This also means that you can override the `$path` and `$view` on a document-by-document basis.
 
@@ -192,12 +192,36 @@ The basename (minus extension) of the document's file.
     # In document /content/pages/foo.md
     {{doc.base}}        # foo
 
+### body
+
+The unprocessed body of the document.
+
 ### collection
 
 A reference to the document's collection.
 
     # In document /content/pages/foo.md
     {{doc.collection}}  # <Collection (/content/pages/)>
+
+### collection_base
+
+A reference to the collection's relative base directory.
+
+    # In document /content/pages/foo.md
+    {{doc.collection_base}}  # /
+
+    # In document /content/pages/sub/foo.md
+    {{doc.collection_base}}  # /sub/
+
+### collection_path
+
+A reference to the document's path relative collection directory.
+
+    # In document /content/pages/foo.md
+    {{doc.collection_path}}  # /foo.md
+
+    # In document /content/pages/sub/foo.md
+    {{doc.collection_path}}  # /sub/foo.md
 
 ### exists
 
@@ -261,7 +285,7 @@ Returns a list of [Locale objects](http://babel.edgewall.org/wiki/ApiDocs/babel.
 
 ### title
 
-Returns the document's canonical title.
+Returns the document's canonical title as defined by `$title`.
 
     {{doc.title}}
 
@@ -284,6 +308,30 @@ Built-in fields carry special meaning that can affect various aspects of buildin
 The category the document falls into.
 
     $category: Get Started
+
+### $date
+
+A reference to the document's date defined by the `$date` field.
+
+### $dates
+
+A function that returns a specific date based on the `$dates` field.
+
+[sourcecode:jinja]
+{{doc.dates('published')}}
+
+# This sample YAML front matter...
+
+$title: Example Hello World Document
+$dates:
+  created: 2017-12-01
+  published: 2017-12-25
+
+# ...produces the following results.
+
+{{doc.dates('created')}}     # datetime.datetime(2017, 12, 1, 0, 0)
+{{doc.dates('published')}}   # datetime.datetime(2017, 12, 25, 0, 0)
+[/sourcecode]
 
 ### $hidden
 
