@@ -8,7 +8,7 @@ import re
 import sys
 from grow.common import structures
 from grow.common import utils
-from grow.documents import documents
+from grow.documents import document
 from grow.documents import document_fields
 from grow.documents import document_front_matter
 from grow.translations import locales
@@ -245,16 +245,16 @@ class Collection(object):
 
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
-        pod_path = documents.Document.clean_localized_path(pod_path, locale)
+        pod_path = document.Document.clean_localized_path(pod_path, locale)
         if locale is not None:
-            localized_path = documents.Document.localize_path(pod_path, locale)
+            localized_path = document.Document.localize_path(pod_path, locale)
             if self.pod.file_exists(localized_path):
                 pod_path = localized_path
         cached = self.pod.podcache.collection_cache.get_document(
             self, pod_path, locale)
         if cached:
             return cached
-        doc = documents.Document(
+        doc = document.Document(
             pod_path, locale=locale, _pod=self.pod, _collection=self)
         self.pod.podcache.collection_cache.add_document(doc)
         return doc
@@ -290,7 +290,7 @@ class Collection(object):
                 continue
             try:
                 _, locale_from_path = \
-                    documents.Document.parse_localized_path(pod_path)
+                    document.Document.parse_localized_path(pod_path)
                 if locale_from_path:
                     if (locale is not None
                             and locale in [utils.SENTINEL, locale_from_path]):
@@ -344,7 +344,7 @@ class Collection(object):
                 continue
             try:
                 _, locale_from_path = \
-                    documents.Document.parse_localized_path(pod_path)
+                    document.Document.parse_localized_path(pod_path)
                 if locale_from_path:
                     if (locale is not None
                             and locale in [utils.SENTINEL, locale_from_path]):
@@ -374,8 +374,8 @@ class Collection(object):
             # If there is a localized version of the default locale
             # the base document should not be added with the same locale.
             if (doc.locale and doc.locale == doc.default_locale and
-                    not documents.Document.is_localized_path(doc.pod_path)):
-                localized_path = documents.Document.localize_path(
+                    not document.Document.is_localized_path(doc.pod_path)):
+                localized_path = document.Document.localize_path(
                     doc.pod_path, doc.locale)
                 if self.pod.file_exists(localized_path):
                     continue

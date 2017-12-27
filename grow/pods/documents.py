@@ -3,7 +3,7 @@
 # TODO: Remove after deprecation period.
 
 from grow.common import deprecated
-from grow.documents import documents as new_ref
+from grow.documents import document as new_ref
 
 # Alias constants.
 PATH_LOCALE_REGEX = new_ref.PATH_LOCALE_REGEX

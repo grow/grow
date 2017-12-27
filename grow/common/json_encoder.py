@@ -2,7 +2,7 @@
 
 import datetime
 import json
-from grow.documents import documents
+from grow.documents import document
 from grow.documents import document_fields
 
 
@@ -15,7 +15,7 @@ class GrowJSONEncoder(json.JSONEncoder):
         if isinstance(o, datetime.datetime):
             return o.isoformat()
 
-        if isinstance(o, documents.Document):
+        if isinstance(o, document.Document):
             # pylint: disable=protected-access
             return o.fields._data
 

@@ -4,7 +4,7 @@ import textwrap
 import unittest
 from grow.common import utils
 from grow.testing import testing
-from grow.documents import documents
+from grow.documents import document
 from grow.translations import locales
 from grow.pods import pods
 from grow.pods import routes
@@ -83,17 +83,17 @@ class DocumentsTestCase(unittest.TestCase):
     def test_clean_localized_path(self):
         input = '/content/pages/about.yaml'
         expected = '/content/pages/about.yaml'
-        self.assertEquals(expected, documents.Document.clean_localized_path(
+        self.assertEquals(expected, document.Document.clean_localized_path(
             input, None))
 
         input = '/content/pages/about@de.yaml'
         expected = '/content/pages/about@de.yaml'
-        self.assertEquals(expected, documents.Document.clean_localized_path(
+        self.assertEquals(expected, document.Document.clean_localized_path(
             input, 'de'))
 
         input = '/content/pages/about@de.yaml'
         expected = '/content/pages/about.yaml'
-        self.assertEquals(expected, documents.Document.clean_localized_path(
+        self.assertEquals(expected, document.Document.clean_localized_path(
             input, 'en'))
 
     def test_collection_base(self):
@@ -145,36 +145,36 @@ class DocumentsTestCase(unittest.TestCase):
         path = '/content/pages/file@en_us.ext'
         expected = ('/content/pages/file.ext', 'en_us')
         self.assertEqual(
-            expected, documents.Document.parse_localized_path(path))
+            expected, document.Document.parse_localized_path(path))
         path = '/content/pages/file@en.ext'
         expected = ('/content/pages/file.ext', 'en')
         self.assertEqual(
-            expected, documents.Document.parse_localized_path(path))
+            expected, document.Document.parse_localized_path(path))
         path = '/content/pages/file.ext'
         expected = ('/content/pages/file.ext', None)
         self.assertEqual(
-            expected, documents.Document.parse_localized_path(path))
+            expected, document.Document.parse_localized_path(path))
 
     def test_localize_path(self):
         path = '/content/pages/file.ext'
         locale = 'locale'
         expected = '/content/pages/file@locale.ext'
         self.assertEqual(
-            expected, documents.Document.localize_path(path, locale=locale))
+            expected, document.Document.localize_path(path, locale=locale))
 
         # No Locale
         path = '/content/pages/file.ext'
         locale = None
         expected = '/content/pages/file.ext'
         self.assertEqual(
-            expected, documents.Document.localize_path(path, locale=locale))
+            expected, document.Document.localize_path(path, locale=locale))
 
         # Existing Locale
         path = '/content/pages/file@locale.ext'
         locale = 'elacol'
         expected = '/content/pages/file@elacol.ext'
         self.assertEqual(
-            expected, documents.Document.localize_path(path, locale=locale))
+            expected, document.Document.localize_path(path, locale=locale))
 
     def test_next_prev(self):
         collection = self.pod.get_collection('pages')
