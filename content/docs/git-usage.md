@@ -19,7 +19,7 @@ Each pod lives within its own Git repository.
 
 In Grow, the names of Git branches carry meaning. When a user makes a change to a site, she must first decide whether the change is a "dev" change, a "feature" change, or a "hotfix".
 
-The following branches contain __pod files__:
+The following branch naming conventions are used for consistency:
 
 - `master` – The master branch is "sacred" and pod files committed here should be production-ready. Every release candidate must be commited to master.
 - `dev` – For incremental development. Typical site development should take place in the dev branch.
@@ -27,21 +27,4 @@ The following branches contain __pod files__:
 - `hotfix/<name>` – For hotfixes made to the production site. Hotfixes branch from master, and must merge back into both master and dev.
 - `translation/<name>` – Strictly for translation work. Just like hotfixes, translations branch from master, and must merge back into both master and dev.
 
-The "build" branch contains __generated files__, not pod files:
-
-- `build` – When commits are made to the master branch, Grow can build a static version of the site using the state from master, and commit it to the "build" branch. Build branches should only be generated using the "grow build" command, and should never be edited manually.
-
 This branching model is based on [@nvie's Git branchind model](http://nvie.com/posts/a-successful-git-branching-model/).
-
-## Launches and tags
-
-When the state of the build branch is ready to become a real launch, both the build branch, and the master branch used to *make* the build branch, are tagged with the same version number.
-
-In the below example, the branches are tagged for the 12th launch. The `<name>` component is optional, and can be used to help you identify the launch.
-
-- `launch-12-build-<name>`
-- `launch-12-master-<name>`
-
-Therefore, the tagged build branch should represent **exactly** what's on the production server, and the tagged master branch represents **exactly** what was used to make the build branch.
-
-Thanks to master branches, build branches, and tags, you'll be able to precisely know the state of your site (and your launch history) at any time.
