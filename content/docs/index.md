@@ -18,16 +18,15 @@ You've reached the developer's guide for Grow. This guide is intended to teach y
 
 Grow is simple yet powerful and prefers configuration over code for defining your web site's content and architecture. Our goal is to keep Grow simple so that you can learn about all its capabilities within an hour or less.
 
-You can get started by following along with the codelab, or you can jump in by browsing the pod directory structure reference.
+You can get started by following along with the codelab or you can jump in by browsing the pod directory structure reference.
 
 <div class="toolbar">
   <p><a href="[url('/content/codelab/0.md')]" class="button">
     <i class="fa fa-arrow-right"></i>
     Try the codelab
-  </a>
-  or...
+  </a></p>
   <p><a href="[url('/content/docs/directory-structure.md')]" class="button">
     <i class="fa fa-arrow-right"></i>
     Browse the directory structure reference
-  </a>
+  </a></p>
 </div>

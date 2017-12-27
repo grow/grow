@@ -4,4 +4,5 @@
 curl https://install.grow.io | bash
 [/sourcecode]
 
-Alternatively, you can also install Grow by using [pip](http://pypi.python.org/pypi/pip) (`pip install grow`) or by building from source. See the [README](https://github.com/grow/grow) for details. The source code for all Grow distributions is [totally open source](https://github.com/grow). You can learn more about the latest release from the [releases page](https://github.com/grow/grow/releases).
+Alternatively, you can also install Grow by using [pip](http://pypi.python.org/pypi/pip) (`pip install grow`) or by building from source. See the [README](https://github.com/grow/grow/blob/master/README.md) for details on building from source.
+The source code for all Grow distributions is [totally open source](https://github.com/grow). You can learn more about the latest release from the [releases page](https://github.com/grow/grow/releases).
