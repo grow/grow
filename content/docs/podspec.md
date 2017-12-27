@@ -153,7 +153,7 @@ aliases:
 
 #### import_as
 
-A mapping of external to internal locales, used when translations are imported. When translations are imported using `grow import_translations`, Grow converts external locales to internal locales. This mapping can be useful if you are working with a translation provider that uses non-standard locales.
+A mapping of external to internal locales, used when translations are imported. When translations are imported using `grow translations import_translations`, Grow converts external locales to internal locales. This mapping can be useful if you are working with a translation provider that uses non-standard locales.
 
 [sourcecode:yaml]
 import_as:
