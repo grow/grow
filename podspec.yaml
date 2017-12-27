@@ -20,6 +20,9 @@ deployments:
   grow.io:
     destination: gcs
     bucket: grow.io
+    env:
+      name: grow.io
+      port: 443
     headers:
     - extensions:
       - .png
