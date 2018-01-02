@@ -89,11 +89,14 @@ class PathFormat(object):
         """Format a static document url."""
 
         params = self.params_pod()
-        params['locale'] = self._locale_or_alias(locale)
         path = utils.safe_format(path, **params)
 
         if parameterize:
             path = self.parameterize(path)
+
+        params['locale'] = self._locale_or_alias(locale)
+        if params['locale']:
+            path = utils.safe_format(path, **params)
 
         return self.strip_double_slash(path)
 
