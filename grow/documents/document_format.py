@@ -40,7 +40,7 @@ class DocumentFormat(object):
         if not doc:
             raise BadFormatError(
                 'Missing `doc` keyword argument for creating format')
-        if doc.ext == ('.html', '.htm'):
+        if doc.ext in ('.html', '.htm'):
             return HtmlDocumentFormat(*args, **kwargs)
         if doc.ext in ('.markdown', '.mdown', '.mkdn', '.mkd', '.md'):
             return MarkdownDocumentFormat(*args, **kwargs)
