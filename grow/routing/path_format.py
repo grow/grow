@@ -40,10 +40,9 @@ class PathFormat(object):
     def format_doc(self, doc, path, locale=None, parameterize=False):
         """Format a URL path using the doc information."""
         path = '' if path is None else path
-        path = self.format_pod(path)
 
         # Most params should always be replaced.
-        params = {}
+        params = self.params_pod()
         params['base'] = doc.base
         params['category'] = doc.category
         params['collection'] = doc.collection
@@ -78,13 +77,7 @@ class PathFormat(object):
         """Format a URL path using the pod information."""
         path = '' if path is None else path
 
-        params = {}
-        podspec = self.pod.podspec.get_config()
-        if 'root' in podspec:
-            params['root'] = podspec['root']
-        else:
-            params['root'] = ''
-        params['env'] = self.pod.env
+        params = self.params_pod()
         path = utils.safe_format(path, **params)
 
         if parameterize:
@@ -94,12 +87,22 @@ class PathFormat(object):
 
     def format_static(self, path, locale=None, parameterize=False):
         """Format a static document url."""
-        path = self.format_pod(path)
+
+        params = self.params_pod()
+        params['locale'] = self._locale_or_alias(locale)
+        path = utils.safe_format(path, **params)
 
         if parameterize:
             path = self.parameterize(path)
 
-        params = {}
-        params['locale'] = self._locale_or_alias(locale)
-        path = utils.safe_format(path, **params)
         return self.strip_double_slash(path)
+
+    def params_pod(self):
+        params = {}
+        podspec = self.pod.podspec.get_config()
+        if 'root' in podspec:
+            params['root'] = podspec['root']
+        else:
+            params['root'] = ''
+        params['env'] = self.pod.env
+        return params
