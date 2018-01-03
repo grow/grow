@@ -13,6 +13,6 @@ def inspect():
 
 
 # Add the sub commands.
-inspect.add_command(inspect_routes.routes)
-inspect.add_command(inspect_stats.stats)
-inspect.add_command(inspect_untranslated.untranslated)
+inspect.add_command(inspect_routes.inspect_routes)
+inspect.add_command(inspect_stats.inspect_stats)
+inspect.add_command(inspect_untranslated.inspect_untranslated)

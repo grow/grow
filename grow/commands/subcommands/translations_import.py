@@ -11,7 +11,7 @@ from grow import storage
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.import')
 
 
-@click.command()
+@click.command(name='import')
 @shared.pod_path_argument
 @click.option('--source', type=click.Path(), required=True,
               help='Path to source (either zip file, directory, or file).')

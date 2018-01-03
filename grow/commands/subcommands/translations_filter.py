@@ -11,7 +11,7 @@ from grow import storage
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.filter')
 
 
-@click.command()
+@click.command(name='filter')
 @shared.pod_path_argument
 @click.option('-o', type=str, default=None,
               help='Where to write the extracted translation catalog. The path'
