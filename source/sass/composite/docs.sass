@@ -1,3 +1,4 @@
+@import '../common/config'
 @import '../mixins/breakpoints'
 @import '../../../partials/side_nav/side_nav'
 
@@ -16,7 +17,9 @@
     flex-flow: row
 
 .toc
+  margin-bottom: $pad
+
   ul
     display: flex
     flex-flow: column wrap
-    max-height: 30vw
+    max-height: 40vw
