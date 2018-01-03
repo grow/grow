@@ -2,6 +2,15 @@
 
 import os
 import click
+from grow.commands import deprecated
+from grow.commands.subcommands import inspect_routes
+from grow.commands.subcommands import inspect_stats
+from grow.commands.subcommands import translations_download
+from grow.commands.subcommands import translations_extract
+from grow.commands.subcommands import translations_filter
+from grow.commands.subcommands import translations_import
+from grow.commands.subcommands import translations_machine
+from grow.commands.subcommands import translations_upload
 from grow.common import config
 from grow.deployments.destinations import local as local_destination
 
@@ -9,7 +18,35 @@ HELP_TEXT = ('Grow is a declarative file-based website generator. Read docs at '
              'https://grow.io. This is version {}.'.format(config.VERSION))
 
 # pylint: disable=unused-argument
-@click.group(help=HELP_TEXT)
+@click.group(
+    cls=deprecated.DeprecatedGroup, help=HELP_TEXT,
+    # TODO: Remove after deprecation period.
+    deprecated=[
+        deprecated.DeprecatedItem(
+            'download_translations', 'translations download',
+            cmd=translations_download.translations_download),
+        deprecated.DeprecatedItem(
+            'extract', 'translations extract',
+            cmd=translations_extract.translations_extract),
+        deprecated.DeprecatedItem(
+            'filter', 'translations filter',
+            cmd=translations_filter.translations_filter),
+        deprecated.DeprecatedItem(
+            'import_translations', 'translations import',
+            cmd=translations_import.translations_import),
+        deprecated.DeprecatedItem(
+            'machine_translate', 'translations machine',
+            cmd=translations_machine.translations_machine),
+        deprecated.DeprecatedItem(
+            'routes', 'inspect routes',
+            cmd=inspect_routes.inspect_routes),
+        deprecated.DeprecatedItem(
+            'stats', 'inspect stats',
+            cmd=inspect_stats.inspect_stats),
+        deprecated.DeprecatedItem(
+            'upload_translations', 'translations upload',
+            cmd=translations_upload.translations_upload),
+    ])
 @click.version_option(config.VERSION, message='%(version)s')
 @click.option('--auth', help='Information used to sign in to services that'
               ' require authentication. --auth should be an email address.',
