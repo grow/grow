@@ -12,10 +12,18 @@
         {% include "/partials/side_nav/side_nav.html" with context %}
       {% endwith %}
       {% block main_content %}
-        <main class="pad readable_lines">
+        <main class="main_column pad readable_lines">
           <h1>{{doc.title}}</h1>
           {% include "/views/partials.html" %}
         </main>
+        {% set has_toc = 'class="toc"' in doc.html %}
+        {% if has_toc %}
+          {% set first_div = doc.html.find('</div>') %}
+          <aside class="toc_column">
+            <h3>In this document</h3>
+            {{doc.html[0:first_div + 6] | safe}}
+          </aside>
+        {% endif %}
       {% endblock %}
     </div>
   </div>

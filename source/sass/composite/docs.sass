@@ -16,10 +16,14 @@
   +md
     flex-flow: row
 
-.toc
-  margin-bottom: $pad
+.main_column
+  flex-grow: 1
 
-  ul
-    display: flex
-    flex-flow: column wrap
-    max-height: 40vw
+.toc_column
+  padding: $pad
+
+.toc
+  float: right
+
+h1:first-of-type
+  margin-top: 0

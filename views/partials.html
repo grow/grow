@@ -12,6 +12,12 @@
   {% endfor %}
 {% else %}
   <div class="content">
-    {{doc.html|safe}}
+    {% set has_toc = 'class="toc"' in doc.html %}
+    {% if has_toc %}
+      {% set first_div = doc.html.find('</div>') %}
+      {{doc.html[first_div + 6:]|safe}}
+    {% else %}
+      {{doc.html|safe}}
+    {% endif %}
   </div>
 {% endif %}
