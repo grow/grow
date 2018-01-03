@@ -8,8 +8,6 @@ $order: 3
 
 [TOC]
 
-An actual directory of samples is coming soon. In the meantime, you can view the below GitHub projects, which are all actual pods or themes.
-
 ## Getting samples
 
 The `grow init` command accepts either a theme name (for themes owned by the [growthemes organization on GitHub](http://github.com/growthemes)) or the URL to a git repo containing the theme.

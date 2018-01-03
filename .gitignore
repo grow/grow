@@ -1,3 +1,8 @@
-build
 .grow/
+.DS_Store
 .depcache.json
+dist
+build
+node_modules
+bower_components
+**.mo

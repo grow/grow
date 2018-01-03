@@ -1,0 +1,17 @@
+{% if doc.partials %}
+  {% for field in doc.partials %}
+    {% if not field.partial %}
+      {% continue %}
+    {% endif %}
+
+    {# Render the partial with the values in {{partial}}. #}
+    {% set partial_filename = field.partial|expand_partial %}
+    {% with partial = field %}
+      {% include partial_filename with context %}
+    {% endwith %}
+  {% endfor %}
+{% else %}
+  <div class="content">
+    {{doc.html|safe}}
+  </div>
+{% endif %}

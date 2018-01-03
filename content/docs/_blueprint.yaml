@@ -1,10 +1,2 @@
-title: Docs
-path: /docs/{base}/
 view: /views/docs.html
-
-categories:
-- Get Started
-- Reference
-- Content
-- Workflow
-- Style Guide
+path: /{root}/{collection.basename}/{base}/

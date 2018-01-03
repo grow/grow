@@ -1,0 +1,15 @@
+@import '../../source/sass/mixins/breakpoints'
+@import '../../source/sass/common/config'
+
+.side_nav
+  background: $color-bg-l
+  color: $color-on-bg-l
+  padding: $pad / 2 $pad
+
+  +md
+    background: $color-bg
+    width: 20vw
+
+  a
+    color: $color-on-bg-l
+    text-decoration: underline dotted

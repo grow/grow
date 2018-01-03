@@ -1,0 +1,39 @@
+@import '../mixins/breakpoints'
+@import '../common/config'
+
+body
+  background: $color-bg
+  color: $color-on-bg
+  flex-flow: column
+  font-family: $font-family
+  font-size: $font-size
+  line-height: $line-height
+  margin: 0
+  padding: 0
+  -webkit-font-smoothing: antialiased
+
+  a
+    color: $color-primary
+
+.wrapper
+  align-items: stretch
+  display: flex
+  flex-flow: column
+  min-height: 100vh
+  width: 100%
+
+.block__main
+  flex-grow: 1
+  padding-bottom: $pad * 2
+
+.content
+  padding: $pad
+
+@import '../common/button'
+@import '../common/code'
+@import '../common/nav'
+@import '../common/media'
+@import '../common/modifiers'
+@import '../common/typography'
+@import '../../../partials/header/header'
+@import '../../../partials/footer/footer'

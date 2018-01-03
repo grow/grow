@@ -30,7 +30,7 @@ The __document path__ of a content document is its path relative to the pod's `/
 
 YAML front matter is YAML metadata that is prepended to a document's body.
 
-Front matter contains fields. Field names prefixed with a dollar sign ($) are ones which are built-in to Grow. Front matter is encapsulated by three dashes (`---`). From views, fields can be accessed using `{{doc.<field name>}}` where `<field name>` is the name of the field. The dollar sign prefix should be omitted from field names accessed using template variables.
+Front matter contains fields. Field names prefixed with a dollar sign ($) are ones which are built-in to Grow. Front matter is encapsulated by three dashes (`---`). From views, fields can be accessed using `doc.<field name>` where `<field name>` is the name of the field. The dollar sign prefix should be omitted from field names accessed using template variables.
 
 As long as a blueprint specifies a document's `view` and its `path`, including YAML front matter in a content document is optional.
 
@@ -137,12 +137,12 @@ Returns the next document from a list of documents. If no list is provided, the 
 
 [sourcecode:jinja]
 # Returns the next document from the default list of documents.
-{{doc.next()}}                     # <Document>
+{{doc.next()}}                    # <Document>
 
 # Returns the next document from a custom list of documents.
 {% set doc1 = g.doc('/content/pages/foo.md') %}
 {% set doc2 = g.doc('/content/pages/bar.md') %}
-{{doc.next([doc1, doc, doc2])}}    # <Document (/content/pages/bar.md)>
+{{doc.next([doc1, doc, doc2])}}   # <Document (/content/pages/bar.md)>
 [/sourcecode]
 
 ### prev
@@ -151,13 +151,15 @@ Returns the next document from a list of documents. If no list is provided, the 
 
 Opposite of `next`. Returns the previous document from a list of documents. If no list is provided, the default document ordering within a collection is used. If there is no previous document, `None` is returned.
 
-    # Returns the previous document from the default list of documents.
-    {{doc.prev()}}                     # <Document>
+[sourcecode:jinja]
+# Returns the previous document from the default list of documents.
+{{doc.prev()}}                    # <Document>
 
-    # Returns the previous document from a custom list of documents.
-    {% set doc1 = g.doc('/content/pages/foo.md')
-    {% set doc2 = g.doc('/content/pages/bar.md')
-    {{doc.prev([doc1, doc, doc2])}}    # <Document (/content/pages/foo.md)>
+# Returns the previous document from a custom list of documents.
+{% set doc1 = g.doc('/content/pages/foo.md') %}
+{% set doc2 = g.doc('/content/pages/bar.md') %}
+{{doc.prev([doc1, doc, doc2])}}   # <Document (/content/pages/foo.md)>
+[/sourcecode]
 
 ### titles
 

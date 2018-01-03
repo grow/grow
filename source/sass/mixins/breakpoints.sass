@@ -1,0 +1,20 @@
+// Breakpoints.
+@mixin xs
+  @media only screen and (max-width: 480px)
+    @content
+
+@mixin sm
+  @media only screen and (min-width: 481px)
+    @content
+
+@mixin md
+  @media only screen and (min-width: 901px)
+    @content
+
+@mixin lg
+  @media only screen and (min-width: 1150px)
+    @content
+
+@mixin xl
+  @media only screen and (min-width: 1900px)
+    @content

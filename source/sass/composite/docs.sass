@@ -1,0 +1,16 @@
+@import '../mixins/breakpoints'
+@import '../../../partials/side_nav/side_nav'
+
+.split_columns
+  align-items: stretch
+  display: flex
+  flex-flow: column
+
+  +md
+    flex-flow: row
+
+.split_columns--reverse
+  flex-flow: column-reverse
+
+  +md
+    flex-flow: row

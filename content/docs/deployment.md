@@ -16,7 +16,6 @@ Deployment is the act of taking your pod, generating a static site, and transfer
 The launch lifecycle remains the same regardless of your deployment's destination. Here are the steps that every launch undergoes:
 
 1. __Processing__: All pre and post-processors used by your pod are run.
-1. __Pod testing:__ Built-in and pod-specific tests are run to verify your site.
 1. __Destination pre-launch__: A test is run to verify that Grow can connect to and configure your destination.
 1. __Deployment index comparison__: The deployment index is retrieved from the destination (if it exists), and a diff between what's live and what's about to be deployed is presented to you for confirmation.
 1. __Deployment__
@@ -24,9 +23,9 @@ The launch lifecycle remains the same regardless of your deployment's destinatio
     1. The destination is configured (if applicable) with things like redirects, custom error pages, etc.
 1. __Destination post-launch__: Any clean up tasks required by the destination are run.
     1. The deployment log is updated at the destination.
-    1. The local index is written to the destination.
+    1. The deployment index is written to the destination.
 
-These universal steps ensure that every deployment remains consistent – and so that future deployments have knowledge of all past deployments.
+These universal steps ensure that every deployment remains consistent – and so that future deployments have knowledge of the previous deployment.
 
 ### Configuration
 
@@ -155,5 +154,5 @@ env:
   name: prod
   host: example.com
   port: 80
-  scheme: https
+  scheme: http
 [/sourcecode]

@@ -1,34 +1,34 @@
-{% extends "/views/base.html" %}
+{% extends '/views/docs.html' %}
 
 {% block main %}
-  <div class="wrap main">
-    <ul class="codelab">
-      {% for item in g.docs('codelab') %}
-      <li
-      {% if doc == item %}class="active"{% endif %}
-      ><a href="{{item.url.path}}" title="{{item.title}}">{{item.base}}</a>
-      {% endfor %}
-    </ul>
+  <div class="block__main">
+    <div class="split_columns split_columns--reverse">
+      {% set side_partial = { 'collection': 'codelab' } %}
+      {% with partial = side_partial %}
+        {% include "/partials/side_nav/side_nav.html" with context %}
+      {% endwith %}
+      {% block main_content %}
+        <div class="pad readable_lines">
+          {% include "/views/partials.html" %}
 
-    <h1>{{doc.title}}</h1>
-    {{doc.html|safe}}
-
-    <div class="toolbar">
-      {% set prev_doc = doc.prev() %}
-      {% if prev_doc %}
-        <a href="{{prev_doc.url.path}}" class="button">
-          <i class="fa fa-arrow-left"></i>
-          Back
-        </a>
-      {% endif %}
-      {% set next_doc = doc.next() %}
-      {% if next_doc %}
-        <a href="{{next_doc.url.path}}" class="button">
-          <i class="fa fa-arrow-right"></i>
-          Next: {{next_doc.title}}
-        </a>
-      {% endif %}
+          <div class="relative_nav">
+            {% set prev_doc = doc.prev() %}
+            {% if prev_doc %}
+              <a href="{{prev_doc.url.path}}" class="button button--icon-start">
+                <i class="material-icons">arrow_back</i>
+                {{prev_doc.title}}
+              </a>
+            {% endif %}
+            {% set next_doc = doc.next() %}
+            {% if next_doc %}
+              <a href="{{next_doc.url.path}}" class="button button--icon-end">
+                {{next_doc.title}}
+                <i class="material-icons">arrow_forward</i>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% endblock %}
     </div>
-
   </div>
 {% endblock %}
