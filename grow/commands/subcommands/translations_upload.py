@@ -12,7 +12,7 @@ from grow import storage
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.upload')
 
 
-@click.command()
+@click.command(name='upload')
 @shared.pod_path_argument
 @click.option('--force/--noforce', '-f', default=CFG.get('force', False), is_flag=True,
               help='Whether to skip the prompt prior to uploading.')

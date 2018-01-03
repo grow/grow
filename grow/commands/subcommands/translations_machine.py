@@ -12,7 +12,7 @@ from grow import storage
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.machine')
 
 
-@click.command()
+@click.command(name='machine')
 @shared.pod_path_argument
 @shared.locale_option(help_text='Locales to translate.')
 @shared.reroute_option(CFG)

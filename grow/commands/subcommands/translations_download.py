@@ -11,7 +11,7 @@ from grow import storage
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.download')
 
 
-@click.command()
+@click.command(name='download')
 @shared.pod_path_argument
 @shared.locale_option(help_text='Which locale(s) to download. If unspecified,'
                                 ' translations for all locales will be downloaded.')

@@ -12,10 +12,10 @@ from grow import storage
 CFG = rc_config.RC_CONFIG.prefixed('grow.routes')
 
 
-@click.command()
+@click.command(name='routes')
 @shared.pod_path_argument
 @shared.reroute_option(CFG)
-def routes(pod_path, use_reroute):
+def inspect_routes(pod_path, use_reroute):
     """Lists routes handled by a pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)

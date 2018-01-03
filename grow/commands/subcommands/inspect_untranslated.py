@@ -12,14 +12,14 @@ from grow.rendering import renderer
 CFG = rc_config.RC_CONFIG.prefixed('grow.inspect.untranslated')
 
 
-@click.command()
+@click.command(name='untranslated')
 @shared.pod_path_argument
 @shared.locale_option(
     help_text='Which locale(s) to analyze when searching for untranslated strings.')
 @shared.localized_option(CFG)
 @shared.reroute_option(CFG)
 @shared.threaded_option(CFG)
-def untranslated(pod_path, locale, localized, threaded, use_reroute):
+def inspect_untranslated(pod_path, locale, localized, threaded, use_reroute):
     """Displays statistics about the pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)

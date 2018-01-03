@@ -12,7 +12,7 @@ from grow import storage
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.extract')
 
 
-@click.command()
+@click.command(name='extract')
 @shared.pod_path_argument
 @click.option('--init/--no-init', default=False, is_flag=True,
               help='Whether to create an initial set of empty translation'
