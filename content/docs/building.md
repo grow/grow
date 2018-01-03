@@ -3,8 +3,6 @@ $title: Building
 $category: Workflow
 $order: 1
 ---
-# Building Sites
-
 [TOC]
 
 Grow implements several commands to help you build your pod to generate files and inspect the pod for ways to improve development and deployment.

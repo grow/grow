@@ -3,8 +3,6 @@ $title: Podspec
 $category: Reference
 $order: 1
 ---
-# Pod specification file (podspec)
-
 [TOC]
 
 Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains flags and a few definitions that specify various behavior and properties of your site, such as URLs, the version of Grow compatible with the pod, and localization information.

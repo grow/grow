@@ -3,8 +3,6 @@ $title: Preprocessors
 $category: Reference
 $order: 8
 ---
-# Preprocessors
-
 [TOC]
 
 Preprocessors do things like optimization and code generation against your pod's source files. Grow runs preprocessors every time affected source files change, allowing you to "save and refresh" to preview your changes. Preprocessors are also run at build time.

@@ -3,8 +3,6 @@ $title: Command Preferences
 $category: Reference
 $order: 11
 ---
-# Grow Preferences
-
 [TOC]
 
 ## RC File

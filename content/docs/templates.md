@@ -3,9 +3,6 @@ $title: Templates
 $category: Reference
 $order: 2
 ---
-
-# Templates
-
 [TOC]
 
 Grow templates are stored in a pod's `/views/` directory. Templates are processed using the [Jinja2](http://jinja.pocoo.org/docs/) template language. Grow extends Jinja2 with a few variables and functions that make building content-rich web sites more convenient.

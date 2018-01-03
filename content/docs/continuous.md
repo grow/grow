@@ -3,8 +3,6 @@ $title: Continuous integration
 $category: Workflow
 $order: 3
 ---
-# Continuous integration
-
 [TOC]
 
 You can easily test, build, and/or deploy your website using a continuous integration (CI) system. CI systems remove extra steps from your project's lifecycle and allow you to save time on repetitive tasks.

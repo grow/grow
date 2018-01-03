@@ -3,8 +3,6 @@ $title: Development server
 $order: 0
 $category: Workflow
 ---
-# Development server
-
 [TOC]
 
 ## Using the development server

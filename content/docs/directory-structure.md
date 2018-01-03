@@ -3,8 +3,6 @@ $title: Directory structure
 $category: Reference
 $order: 0
 ---
-# Pod directory structure
-
 [TOC]
 
 Grow sites are encapsulated into directories that follow a specific structure. These directories are called "pods". Grow uses the configuration files and the structure of files in each pod to declaratively build your site. Your pod is your site: its content, the structure of its URLs, the translations, redirect behavior, etc. Everything needed by your site is in a pod.

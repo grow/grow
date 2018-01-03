@@ -4,8 +4,6 @@ $slug: samples
 $category: Get Started
 $order: 3
 ---
-# Themes and samples
-
 [TOC]
 
 ## Getting samples

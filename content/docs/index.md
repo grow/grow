@@ -7,8 +7,6 @@ $path: /docs/
 $category: Get Started
 $order: 0
 ---
-# Grow Documentation
-
 [TOC]
 
 You've reached the technical documentation for Grow. This guide is intended to teach you all about the aspects of building web sites using Grow and to provide you with a constantly updated, living reference to the system.

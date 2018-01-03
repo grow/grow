@@ -3,8 +3,6 @@ $title: Extensions
 $category: Reference
 $order: 9
 ---
-# Extensions
-
 [TOC]
 
 Grow has a powerful and simple extension system that enables you to extend the functionality of Grow with plugins.

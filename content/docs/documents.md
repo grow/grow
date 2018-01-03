@@ -3,9 +3,6 @@ $title: Documents
 $category: Reference
 $order: 4
 ---
-
-# Content documents
-
 [TOC]
 
 All content in Grow is stored inside __content documents__. Content documents are Markdown and YAML files in a pod's `/content/<collection>` directory.

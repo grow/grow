@@ -12,9 +12,10 @@
         {% include "/partials/side_nav/side_nav.html" with context %}
       {% endwith %}
       {% block main_content %}
-        <div class="pad readable_lines">
+        <main class="pad readable_lines">
+          <h1>{{doc.title}}</h1>
           {% include "/views/partials.html" %}
-        </div>
+        </main>
       {% endblock %}
     </div>
   </div>

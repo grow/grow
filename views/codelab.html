@@ -8,10 +8,11 @@
         {% include "/partials/side_nav/side_nav.html" with context %}
       {% endwith %}
       {% block main_content %}
-        <div class="pad readable_lines">
+        <main class="pad readable_lines">
+          <h1>{{doc.title}}</h1>
           {% include "/views/partials.html" %}
 
-          <div class="relative_nav">
+          <nav class="relative_nav">
             {% set prev_doc = doc.prev() %}
             {% if prev_doc %}
               <a href="{{prev_doc.url.path}}" class="button button--icon-start">
@@ -26,8 +27,8 @@
                 <i class="material-icons">arrow_forward</i>
               </a>
             {% endif %}
-          </div>
-        </div>
+          </nav>
+        </main>
       {% endblock %}
     </div>
   </div>

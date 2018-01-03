@@ -3,8 +3,6 @@ $title: Translations
 $category: Reference
 $order: 7
 ---
-# Translations
-
 [TOC]
 
 ## Translatable items

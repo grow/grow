@@ -3,8 +3,6 @@ $title: Routes and URLs
 $category: Reference
 $order: 4.1
 ---
-# Routes and URLs
-
 [TOC]
 
 Grow provides a flexible way to configure the URL serving paths for your site's routes. By leveraging the URL path configuration features, you can easily create clean, maintainable, and flexible URLs for all routes in your site.

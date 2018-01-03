@@ -3,8 +3,6 @@ $title: Deployment
 $category: Workflow
 $order: 2
 ---
-# Deployment
-
 [TOC]
 
 Deployment is the act of taking your pod, generating a static site, and transferring it to a web server (or other location), typically ready for serving it publically to the world.
