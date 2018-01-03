@@ -15,6 +15,30 @@ body
   a
     color: $color-primary
 
+  table
+    margin: $pad 0
+    width: 100%
+
+  table,
+  table tr td,
+  table tr th
+    border-collapse: collapse
+    border: 1px solid $color-primary-d
+
+  table thead
+    font-size: $font-size
+    font-weight: $weight-bold
+
+  table tr td,
+  table tr th
+    padding: 9px
+
+  table tr th
+    background: $color-primary-d
+    color: $color-on-primary-d
+    font-weight: $weight-bold
+    text-align: left
+
 .wrapper
   align-items: stretch
   display: flex
@@ -25,6 +49,7 @@ body
 .block__main
   flex-grow: 1
   padding-bottom: $pad * 2
+
 
 @import '../common/button'
 @import '../common/code'
