@@ -5,6 +5,13 @@ import mock
 from grow.routing import path_format as grow_path_format
 
 
+def _mock_collection(basename=None, root=None):
+    collection = mock.Mock()
+    type(collection).basename = mock.PropertyMock(return_value=basename)
+    type(collection).root = mock.PropertyMock(return_value=root)
+    return collection
+
+
 def _mock_env(fingerprint=None):
     env = mock.Mock()
     prop_fingerprint = mock.PropertyMock(return_value=fingerprint)
@@ -25,10 +32,14 @@ def _mock_pod(podspec=None, env=None):
     return pod
 
 
-def _mock_doc(pod, locale=None):
+def _mock_doc(pod, locale=None, collection_base=None, collection=None):
     doc = mock.Mock()
     type(doc).pod = mock.PropertyMock(return_value=pod)
     type(doc).locale = mock.PropertyMock(return_value=locale)
+    if not collection:
+        collection = _mock_collection()
+    type(doc).collection = mock.PropertyMock(return_value=collection)
+    type(doc).collection_base = mock.PropertyMock(return_value=collection_base)
     return doc
 
 
@@ -52,6 +63,18 @@ class PathFormatTestCase(unittest.TestCase):
         doc = _mock_doc(pod)
         self.assertEquals(
             '/root_path/test', path_format.format_doc(doc, '/{root}/test'))
+
+    def test_format_doc_collection(self):
+        """Test doc paths."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        path_format = grow_path_format.PathFormat(pod)
+        collection = _mock_collection(basename='/pages/')
+        doc = _mock_doc(pod, collection=collection, collection_base='/sub/')
+        self.assertEquals(
+            '/root_path/sub/test',
+            path_format.format_doc(doc, '/{root}/{collection.base}/test'))
 
     def test_format_doc_locale(self):
         """Test doc paths with locale."""
