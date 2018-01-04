@@ -3,6 +3,7 @@
 import datetime
 import re
 import string
+from grow.common import structures
 from grow.common import utils
 
 
@@ -45,7 +46,10 @@ class PathFormat(object):
         params = self.params_pod()
         params['base'] = doc.base
         params['category'] = doc.category
-        params['collection'] = doc.collection
+        params['collection'] = structures.AttributeDict(
+            base=doc.collection_base,
+            basename=doc.collection.basename,
+            root=doc.collection.root)
         params['parent'] = doc.parent if doc.parent else utils.DummyDict()
         params['slug'] = doc.slug
 
