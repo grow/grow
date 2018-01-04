@@ -1,3 +1,2 @@
-title: Codelab
-path: /start/{base}/
 view: /views/codelab.html
+path: /{root}/start/{base}/

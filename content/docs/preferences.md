@@ -1,10 +1,8 @@
 ---
-$title: Grow Preferences
+$title: Command Preferences
 $category: Reference
 $order: 11
 ---
-# Grow Preferences
-
 [TOC]
 
 ## RC File
@@ -71,8 +69,9 @@ grow:
 
 [sourcecode:yaml]
 grow:
-  import_translations:
-    include-obsolete: true
+  translations:
+    import:
+      include-obsolete: true
 [/sourcecode]
 
 ### Preprocess
@@ -121,10 +120,11 @@ grow:
 
 [sourcecode:yaml]
 grow:
-  upload_translations:
-    download: true
-    extract: true
-    force: false
+  translations:
+    upload:
+      download: true
+      extract: true
+      force: false
 [/sourcecode]
 
 ## Shared Command Flag Defaults

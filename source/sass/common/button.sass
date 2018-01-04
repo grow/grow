@@ -1,0 +1,22 @@
+@import 'config'
+
+.button
+  background-color: $color-primary
+  border-radius: 3px
+  color: $color-on-primary
+  display: inline-block
+  padding: $pad/3 $pad/2
+  text-decoration: none
+
+  .material-icons
+    vertical-align: middle
+
+  &--invert
+    background-color: $color-bg
+    color: $color-on-bg
+
+  &--icon-start
+    padding-left: $pad/2
+
+  &--icon-end
+    padding-right: $pad/2

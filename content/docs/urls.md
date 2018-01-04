@@ -3,8 +3,6 @@ $title: Routes and URLs
 $category: Reference
 $order: 4.1
 ---
-# Routes and URLs
-
 [TOC]
 
 Grow provides a flexible way to configure the URL serving paths for your site's routes. By leveraging the URL path configuration features, you can easily create clean, maintainable, and flexible URLs for all routes in your site.
@@ -33,6 +31,7 @@ __Remember: don't repeat yourself.__ If you can specify a path format in a colle
 |----------------|------------|
 | `{base}` | The document's basename. Ex: `my-page.yaml` -> `my-page`
 | `{collection.root}` | The document's collection's root.
+| `{collection.basename}` | The document's collection's base name. Ex: `/content/pages/my-page.yaml` -> `/pages`
 | `{env.fingerprint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerprint: <fingerprint>` in a deployment configuration.
 | `{date}` | The document's date.
 | `{locale}` | The document's locale (or its alias, if one exists).

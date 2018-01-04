@@ -3,8 +3,6 @@ $title: Translations
 $category: Reference
 $order: 7
 ---
-# Translations
-
 [TOC]
 
 ## Translatable items
@@ -15,7 +13,7 @@ Grow takes a __what you tag is what you translate__ approach: only things that y
 
 ### Views
 
-UI strings (and other text) in views are translatable. UI strings must be tagged with a template function that indicates the text is translatable. This template function, `gettext`, has been aliased to `{{_(<text>)}}`.
+UI strings (and other text) in views are translatable. UI strings must be tagged with a template function that indicates the text is translatable. This template function, `gettext`, has been aliased to `{{_(text)}}`.
 
 [sourcecode:html]
 <!-- /views/pages.html -->

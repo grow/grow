@@ -3,8 +3,6 @@ $title: Partials
 $category: Style Guide
 $order: 1
 ---
-# Partials System
-
 [TOC]
 
 Partial templates are a powerful concept that permit site architects to divide a design up into sections, and then freely rearrange and reuse those designs throughout the site.

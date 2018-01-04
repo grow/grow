@@ -1,0 +1,11 @@
+<nav class="side_nav">
+  {% for category, docs in g.categories(g.collection(partial.collection)) %}
+    <h3>{{category}}</h3>
+    <ul class="nav nav-stacked">
+      {% for item in docs %}
+        <li{% if doc == item %} class="active"{% endif %}>
+        <a href="{{item.url.path}}">{{item.titles('side')}}</a>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</nav>

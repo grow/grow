@@ -3,8 +3,6 @@ $title: Markdown reference
 $category: Reference
 $order: 5.1
 ---
-# Markdown reference
-
 [TOC]
 
 Grow uses the [Python-Markdown](https://github.com/waylan/Python-Markdown) package for its Markdown implementation. You can see [John Gruber's Syntax Documentation](http://daringfireball.net/projects/markdown/syntax) to learn about Markdown's default syntax rules.

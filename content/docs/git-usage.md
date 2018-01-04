@@ -1,10 +1,8 @@
 ---
-$title: Git usage
+$title: Git + Grow = ♡
 $category: Workflow
-$hidden: true
+$order: 5
 ---
-# Git + Grow = ♡
-
 [TOC]
 
 Grow pods are backed by Git to bring joy to content management and launch workflow. Yes, thanks to Git and a branching model that integrates with Grow's SDK, Grow attempts to make everything from massive redesigns to quick hotfixes joyful and predictable. You'll be able to stop guessing about the state of your web site, and take control back of your workflow.

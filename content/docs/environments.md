@@ -3,8 +3,6 @@ $title: Build Environments
 $category: Reference
 $order: 5
 ---
-# Build Environments
-
 [TOC]
 
 Environment information is defined in the [podspec]([url('/content/docs/podspec.md')]#deployments).

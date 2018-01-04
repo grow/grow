@@ -1,0 +1,39 @@
+@import 'config'
+
+.code
+  margin-bottom: $pad
+
+  .highlight
+    background: #efefef
+    border: 1px solid #ddd
+    border-radius: 3px
+
+    pre
+      font-family: 'Source Code Pro', monospace
+      font-size: 12px
+      margin: $pad
+      padding: $pad
+      white-space: pre-wrap
+
+code
+  background: #efefef
+  border: 1px solid #ddd
+  border-radius: 3px
+  font-family: 'Source Code Pro', monospace
+  font-size: 12px
+  padding: $pad/4 $pad/2
+
+.toc
+  display: none
+
+  +md
+    display: block
+
+  ul,
+  li
+    list-style: none
+    margin: 0
+    padding: 0
+
+    ul
+      margin-left: $pad

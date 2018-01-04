@@ -3,68 +3,68 @@ $title: Podspec
 $category: Reference
 $order: 1
 ---
-# Pod specification file (podspec)
-
 [TOC]
 
 Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains flags and a few definitions that specify various behavior and properties of your site, such as URLs, the version of Grow compatible with the pod, and localization information.
 
 ## podspec.yaml
 
-    grow_version: ">=0.0.1"
-    title: Project title.
-    description: Project description.
+[sourcecode:yaml]
+grow_version: ">=0.0.1"
+title: Project title.
+description: Project description.
 
-    home: /content/pages/<home>.yamls
-    static_dirs:
-    - static_dir: /static/
-      serve_at: /site/files/
+home: /content/pages/<home>.yamls
+static_dirs:
+- static_dir: /static/
+  serve_at: /site/files/
 
-    error_routes:
-      default: /views/error.html
+error_routes:
+  default: /views/error.html
 
-    localization:
-      root_path: /{locale}/
-      default_locale: en
-      locales:
-      - de
-      - en
-      - fr
-      - it
-      aliases:
-        en_uk: en_GB
-      import_as:
-        en_uk:
-        - en_GB
-      require_translations: false
-      require_translations@env.prod: true
+localization:
+  root_path: /{locale}/
+  default_locale: en
+  locales:
+  - de
+  - en
+  - fr
+  - it
+  aliases:
+    en_uk: en_GB
+  import_as:
+    en_uk:
+    - en_GB
+  require_translations: false
+  require_translations@env.prod: true
 
-    preprocessors:
-    - kind: sass
-      sass_dir: /source/sass/
-      out_dir: /static/css/
+preprocessors:
+- kind: sass
+  sass_dir: /source/sass/
+  out_dir: /static/css/
 
-    meta:
-      key: value
+meta:
+  key: value
 
-    sitemap:
-      enabled: yes
-      path: /sitemap.xml
-      collections:
-      - pages
-      locales:
-      - en
-      - fr
+sitemap:
+  enabled: yes
+  path: /sitemap.xml
+  collections:
+  - pages
+  locales:
+  - en
+  - fr
 
-    deployments:
-      default:
-        destination: local
-        out_dir: grow-codelab-build/
-        env:
-          name: prod
-          host: example.com
-          port: 80
-          scheme: https
+deployments:
+  default:
+    destination: local
+    out_dir: grow-codelab-build/
+    env:
+      name: prod
+      host: example.com
+      port: 80
+      scheme: https
+[/sourcecode]
 
 ### grow_version
 
@@ -74,25 +74,29 @@ Grow uses [semantic versioning](http://semver.org/) which helps you know which v
 
 This value must be a semantic version *specification*.
 
-    grow_version: ">=0.0.1"       # At least SDK version 0.0.1.
+[sourcecode:yaml]
+grow_version: ">=0.0.1"       # At least SDK version 0.0.1.
+[/sourcecode]
 
 ### static_dirs
 
 A list of directories in the pod to treat as servable static files. Unlike the `static_dir` shorthand flag, this config provides additional customization and control over the source directory and the path at which the files are served.
 
-    static_dirs:
+[sourcecode:yaml]
+static_dirs:
 
-    # Equivalent to the "static_dir" shorthand flag.
-    - static_dir: /static/
-      serve_at: /static/
+# Equivalent to the "static_dir" shorthand flag.
+- static_dir: /static/
+  serve_at: /static/
 
-    # Serves files in the /static/ directory of the pod at the URL path /files/.
-    - static_dir: /static/
-      serve_at: /files/
+# Serves files in the /static/ directory of the pod at the URL path /files/.
+- static_dir: /static/
+  serve_at: /files/
 
-    # Serves files in the /static/ directory of the pod at the root.
-    - static_dir: /static/
-      serve_at: /
+# Serves files in the /static/ directory of the pod at the root.
+- static_dir: /static/
+  serve_at: /
+[/sourcecode]
 
 If you do not wish to use Grow's content management or templating features, you can leverage the other features of the system (such as testing, building, and deployment) by simply creating a `podspec.yaml` file and following the last above example. This can be a good way to migrate an existing site into Grow and slowly add new site sections leveraging Grow's content and templating features.
 
@@ -100,10 +104,12 @@ If you do not wish to use Grow's content management or templating features, you 
 
 Grow can rewrite static file paths with fingerprints.
 
-    static_dirs:
-    - static_dir: /source/
-      serve_at: /static/
-      fingerprinted: true
+[sourcecode:yaml]
+static_dirs:
+- static_dir: /source/
+  serve_at: /static/
+  fingerprinted: true
+[/sourcecode]
 
 In the above example, a file at `/source/images/file.png` would be served at `/static/images/file-<fingerprint>.png` where `<fingerprint>` is an md5 hash of the file's contents.
 
@@ -111,13 +117,15 @@ In the above example, a file at `/source/images/file.png` would be served at `/s
 
 Grow can build error pages for various error codes. The error page renders a view, which can leverage the template variable `{{error}}` to gain additional information about the error. To specify a generic error page, use "default". When a pod is built and deployed to a storage provider such as Amazon S3 or Google Cloud Storage, the storage provider will be configured to use these error pages.
 
-    default: /views/errors/default.html
-    not_found: /views/errors/404.html
-    unauthorized: /views/errors/401.html
-    forbidden: /views/errors/403.html
-    method_not_allowed: /views/errors/405.html
-    bad_request: /views/errors/400.html
-    im_a_teapot: /views/errors/418.html
+[sourcecode:yaml]
+default: /views/errors/default.html
+not_found: /views/errors/404.html
+unauthorized: /views/errors/401.html
+forbidden: /views/errors/403.html
+method_not_allowed: /views/errors/405.html
+bad_request: /views/errors/400.html
+im_a_teapot: /views/errors/418.html
+[/sourcecode]
 
 ### localization
 
@@ -129,7 +137,9 @@ Sets the global, default locale to use for content when a locale is not explicit
 
 It also allows you to use a non-English language as the source language for content (for example, when translating *from* Chinese *to* English).
 
-    default_locale: en
+[sourcecode:yaml]
+default_locale: en
+[/sourcecode]
 
 #### locales
 

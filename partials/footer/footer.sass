@@ -1,0 +1,22 @@
+@import '../../source/sass/common/config'
+
+.footer
+  background: $color-bg-l
+  color: $color-on-bg-l
+  padding: $pad / 2 $pad
+
+  a
+    color: $color-on-bg-l
+    text-decoration: underline dotted
+
+
+.footer__container
+  box-sizing: border-box
+  display: flex
+  flex-direction: column
+  margin: 0 auto
+  max-width: $contained-width
+
+  +md
+    flex-direction: row
+    justify-content: space-between

@@ -1,2 +1,7 @@
-$title: Search
+$title: Search Grow Documentation
+$titles:
+  nav: Search
 $view: /views/search.html
+
+composite_files:
+- search

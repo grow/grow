@@ -1,0 +1,23 @@
+{% if doc.partials %}
+  {% for field in doc.partials %}
+    {% if not field.partial %}
+      {% continue %}
+    {% endif %}
+
+    {# Render the partial with the values in {{partial}}. #}
+    {% set partial_filename = field.partial|expand_partial %}
+    {% with partial = field %}
+      {% include partial_filename with context %}
+    {% endwith %}
+  {% endfor %}
+{% else %}
+  <div class="content">
+    {% set has_toc = 'class="toc"' in doc.html %}
+    {% if has_toc %}
+      {% set first_div = doc.html.find('</div>') %}
+      {{doc.html[first_div + 6:]|safe}}
+    {% else %}
+      {{doc.html|safe}}
+    {% endif %}
+  </div>
+{% endif %}

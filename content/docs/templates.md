@@ -3,9 +3,6 @@ $title: Templates
 $category: Reference
 $order: 2
 ---
-
-# Templates
-
 [TOC]
 
 Grow templates are stored in a pod's `/views/` directory. Templates are processed using the [Jinja2](http://jinja.pocoo.org/docs/) template language. Grow extends Jinja2 with a few variables and functions that make building content-rich web sites more convenient.
@@ -32,11 +29,13 @@ The current content document associated with the current page that's being rende
 
 The rendering environment that exists when the page is being built or served.
 
-    {{env.host}}
-    {{env.name}}
-    {{env.port}}
-    {{env.scheme}}
-    {{env.fingerprint}}
+[sourcecode:html+jinja]
+{{env.host}}
+{{env.name}}
+{{env.port}}
+{{env.scheme}}
+{{env.fingerprint}}
+[/sourcecode]
 
 ### podspec
 
@@ -55,11 +54,13 @@ Refers to the [`podspec.yaml` configuration file]([url('/content/docs/podspec.md
 
 The `_` tag is a special function used to tag strings in templates for both translation and message extraction.
 
-    # Simple translation.
-    {{_('Hello')}}
+[sourcecode:html+jinja]
+# Simple translation.
+{{_('Hello')}}
 
-    # A translation with a placeholder.
-    {{_('Hello, %(name)s', name='Alice')}
+# A translation with a placeholder.
+{{_('Hello, %(name)s', name='Alice')}}
+[/sourcecode]
 
 ### g.categories
 
@@ -114,8 +115,10 @@ Parses a CSV file and returns a list of dictionaries mapping header rows to valu
 
 Parses a string into a Date object. Uses [Python date formatting directives](https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior).
 
-    # Returns a DateTime given a string and a format.
-    {{g.date('12/31/2000', from='%m/%d/%Y')}}
+[sourcecode:html+jinja]
+# Returns a DateTime given a string and a format.
+{{g.date('12/31/2000', from='%m/%d/%Y')}}
+[/sourcecode]
 
 ### g.doc
 
@@ -128,7 +131,7 @@ Gets a single content document, given its pod path.
 {{foo}}
 
 # Returns the fr version of a document.
-{{g.doc('/content/pages/index.html', locale='fr'}}
+{{g.doc('/content/pages/index.html', locale='fr')}}
 [/sourcecode]
 
 ### g.docs

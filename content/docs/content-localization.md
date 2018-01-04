@@ -3,8 +3,6 @@ $title: Content localization
 $category: Reference
 $order: 5
 ---
-# Content localization
-
 [TOC]
 
 In addition to controlling [site-wide localization]({{g.doc('/docs/content-localization/').url.path}}#localization) in podspec.yaml, you can create and manage fully localized content at the collection-level or the document-level.

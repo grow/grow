@@ -13,7 +13,7 @@ jobs:
 
       - run:
           name: Grow Build
-          command: grow build
+          command: grow build --deployment grow.io
 
       - run:
           name: Deploy to Prod
@@ -35,3 +35,9 @@ jobs:
       - run:
           name: Percy Snapshots
           command: percy snapshot --widths "412,1280" --enable_javascript build/
+
+workflows:
+  version: 2
+  build:
+    jobs:
+    - build

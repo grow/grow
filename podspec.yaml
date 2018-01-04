@@ -1,20 +1,37 @@
-grow_version: ">=0.0.56"
+grow_version: ">=0.3.20"
 title: grow.io
 
+home: /content/pages/home.yaml
+
 localization:
-  default_locale: en_US
+  default_locale: en
 
 error_routes:
-  default: /views/errors/default.html
+  default: /views/errors.html
 
-static_dirs:
-  - static_dir: /static/
-    serve_at: /static/
+meta:
+  google_analytics_id: "UA-44018013-3"
+  google_site_verification: ""
+  favicon_path: /static/root/favicon.ico
 
 preprocessors:
-  - kind: sass
-    sass_dir: /source/sass/
-    out_dir: /static/css/
+- kind: gulp
+  build_task: grow-build
+
+static_dirs:
+- static_dir: /static/images/
+  serve_at: /static/images/
+- static_dir: /static/root/
+  serve_at: /
+- static_dir: /dist/css/
+  serve_at: /css/
+  fingerprinted: true
+- static_dir: /dist/js/
+  serve_at: /js/
+  fingerprinted: true
+
+sitemap:
+  enabled: true
 
 deployments:
   grow.io:

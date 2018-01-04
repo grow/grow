@@ -1,0 +1,27 @@
+#: /content/docs/templates.md:56
+msgid "Hello"
+msgstr ""
+
+#: /content/docs/translations.md:20
+msgid "Hello World!"
+msgstr ""
+
+#: /content/docs/templates.md:59
+#, python-format
+msgid "Hello, %(name)s"
+msgstr ""
+
+#: /content/docs/translations.md:21
+msgid "Page Title"
+msgstr ""
+
+#: /content/docs/translations.md:30
+#, python-format
+msgid "Posted: %(date)s"
+msgstr ""
+
+#. Comment for translator.
+#: /content/docs/translations.md:95
+msgid "Text to translate"
+msgstr ""
+

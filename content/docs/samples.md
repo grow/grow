@@ -4,11 +4,7 @@ $slug: samples
 $category: Get Started
 $order: 3
 ---
-# Themes and samples
-
 [TOC]
-
-An actual directory of samples is coming soon. In the meantime, you can view the below GitHub projects, which are all actual pods or themes.
 
 ## Getting samples
 

@@ -1,0 +1,35 @@
+<section class="features">
+  <div class="features__container">
+    {% for item in partial.features %}
+      <div class="features__feature">
+        <div class="features__feature__image">
+          <img src="{{item.image.path}}">
+        </div>
+        <h2 class="features__feature__title headline">
+          {{item.title}}
+        </h2>
+        {% if item.description is iterable and item.description is not string %}
+          {% for value in item.description %}
+            <p class="body-2">
+              {{value}}
+            </p>
+          {% endfor %}
+        {% else %}
+          <p class="body-2">
+            {{item.description}}
+          </p>
+        {% endif %}
+
+        {% if item.links %}
+          <div class="features__feature__links">
+            {% for link in item.links %}
+              <div class="features__feature__link">
+                <a href="{{link.url}}">{{link.title}}</a>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>

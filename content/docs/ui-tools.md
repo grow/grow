@@ -3,8 +3,6 @@ $title: UI Tools
 $category: Reference
 $order: 10
 ---
-# UI Tools
-
 [TOC]
 
 Grow's development server comes with the ability to add tools that expand the development experience.

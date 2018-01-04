@@ -1,0 +1,42 @@
+@import '../../source/sass/common/config'
+
+.header
+  align-items: center
+  background: $color-primary
+  background-image: url(../../static/images/pattern.svg)
+  background-position: bottom
+  background-size: cover
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+  padding: $pad
+
+  a
+    color: $color-on-primary
+    text-decoration: none
+
+    &.nav__items__item--active
+      color: $color-secondary
+
+.header__logo
+  a
+    align-items: center
+    display: flex
+    flex-flow: row
+    font-family: $font-family-title
+    font-size: 25px
+    font-weight: $weight-medium
+    text-transform: uppercase
+
+  img
+    border: none !important
+    height: 35px
+    width: 35px
+    margin-right: $pad/2
+
+.header__nav
+  font-size: 16px
+  font-weight: $weight-medium
+
+  +md
+    font-size: 15px

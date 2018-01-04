@@ -1,0 +1,19 @@
+<div class="hero">
+  <h1 class="display-3">
+    {% if partial.image %}<img src="{{partial.image.path}}">{% endif %}
+    {{partial.title}}
+  </h1>
+  <div class="headline">
+    {{partial.subtitle}}
+  </div>
+  {% if partial.cta %}
+  <div>
+    <a href="{{partial.cta.url}}" class="button button--invert button--icon-start">
+      {% if partial.cta.icon %}
+        <i class="material-icons">{{partial.cta.icon}}</i>
+      {% endif %}
+      {{partial.cta.title}}
+    </a>
+  </div>
+  {% endif %}
+</div>

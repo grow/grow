@@ -3,8 +3,6 @@ $title: Collections
 $category: Reference
 $order: 3
 ---
-# Content collections
-
 [TOC]
 
 All content in Grow is stored as flat files in your pod's `/content/` directory. Content is grouped into __collections__, and each collection contains a single __blueprint__ and many __documents__. Blueprints describe the structure of all documents in the collection.

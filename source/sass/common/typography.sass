@@ -1,0 +1,109 @@
+@import '../mixins/breakpoints'
+@import 'config'
+
+// https://material.io/guidelines/style/typography.html#typography-styles
+
+.display-4
+  font-family: $font-family-title
+  font-size: 112px
+  font-weight: $weight-light
+  color: rgba( $color-on-bg, .54 )
+  letter-spacing: -5px
+  line-height: 1.2
+  margin: 0 0 .2em
+
+.display-3
+  font-family: $font-family-title
+  font-size: 56px
+  font-weight: $weight-regular
+  color: rgba( $color-on-bg, .54 )
+  letter-spacing: -2px
+  line-height: 1.2
+  margin: 0 0 .2em
+
+.display-2
+  font-family: $font-family-title
+  font-size: 45px
+  font-weight: $weight-regular
+  color: rgba( $color-on-bg, .54 )
+  line-height: 1.2
+  margin: 0 0 .2em
+
+.display-1
+  font-family: $font-family-title
+  font-size: 34px
+  font-weight: $weight-regular
+  color: rgba( $color-on-bg, .54 )
+  line-height: 1.2
+  margin: 0 0 .2em
+
+.headline
+  font-family: $font-family-title
+  font-size: 24px
+  font-weight: $weight-regular
+  color: rgba( $color-on-bg, .87 )
+  line-height: 1.8
+  margin: 0 0 .3em
+
+.title
+  font-family: $font-family-title
+  font-size: 20px
+  font-weight: $weight-medium
+  color: rgba( $color-on-bg, .87 )
+  line-height: 1.8
+
+.subheading
+  font-family: $font-family-title
+  font-size: 16px
+  font-weight: $weight-regular
+  color: rgba( $color-on-bg, .87 )
+  line-height: 1.8
+
+  +md
+    font-size: 15px
+
+.body-2
+  font-family: $font-family
+  font-size: 14px
+  font-weight: $weight-medium
+  color: rgba( $color-on-bg, .87 )
+  line-height: 1.6
+
+  +md
+    font-size: 13px
+
+.body-1
+  font-family: $font-family
+  font-size: 14px
+  font-weight: $weight-regular
+  color: rgba( $color-on-bg, .87 )
+  line-height: 1.6
+
+  +md
+    font-size: 13px
+
+.caption
+  font-family: $font-family
+  font-size: 12px
+  font-weight: $weight-regular
+  color: rgba( $color-on-bg, .54 )
+  line-height: 1.6
+
+.menu
+  color: rgba( $color-on-bg, .87 )
+
+.button
+  font-family: $font-family
+  font-size: 14px
+  font-weight: $weight-medium
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+  font-family: $font-family-title
+  font-weight: $weight-medium
+  color: rgba( $color-on-bg, .87 )
+  line-height: 1.8
