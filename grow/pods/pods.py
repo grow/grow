@@ -857,6 +857,36 @@ class Pod(object):
             if self.podcache.is_dirty:
                 logging.info('Object cache changed, updating with new data.')
                 self.podcache.write()
+        elif self.use_reroute:
+            # Check if the file is a static file that needs to have the
+            # fingerprint updated.
+            for config in self.static_configs:
+                if config.get('dev') and not self.env.dev:
+                    continue
+                fingerprinted = config.get('fingerprinted', False)
+                if not fingerprinted:
+                    continue
+                if pod_path.startswith(config['static_dir']):
+                    static_filter = config.get('filter', {})
+                    if static_filter:
+                        path_filter = grow_path_filter.PathFilter(
+                            static_filter.get('ignore_paths'), static_filter.get('include_paths'))
+                    else:
+                        path_filter = self.path_filter
+                    static_doc = self.get_static(
+                        pod_path, locale=None)
+                    if not path_filter.is_valid(static_doc.serving_path):
+                        continue
+                    self.router.routes.add(
+                        static_doc.serving_path, grow_router.RouteInfo('static', {
+                            'pod_path': static_doc.pod_path,
+                            'locale': None,
+                            'localized': False,
+                            'localization': config.get('localization'),
+                            'fingerprinted': fingerprinted,
+                            'static_filter': static_filter,
+                            'path_filter': path_filter,
+                        }))
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
