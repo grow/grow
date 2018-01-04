@@ -100,18 +100,18 @@ prop@#: Comment for translator.
 
 ## Extracting translations
 
-To extract translations into a message catalog, tag all translatable items as explained above, and then use the `grow extract` command. Messages will be extracted to a file `/translations/messages.pot`. The message catalog (__messages.pot__) contains all of your pod's extracted messages.
+To extract translations into a message catalog, tag all translatable items as explained above, and then use the `grow translations extract` command. Messages will be extracted to a file `/translations/messages.pot`. The message catalog (__messages.pot__) contains all of your pod's extracted messages.
 
 This file can then be used to create translation catalogs manually using a PO file editor, or integrated with a translation provider such as Google Translator Toolkit.
 
 [sourcecode:bash]
-grow extract
+grow translations extract
 [/sourcecode]
 
 Extracted translations can also be audited to find content that is untagged for translation.
 
 [sourcecode:bash]
-grow extract --audit
+grow translations extract --audit
 [/sourcecode]
 
 ## Compiling translations
@@ -133,7 +133,7 @@ Grow can import translation PO files from external sources. Currently Grow expec
 [/sourcecode]
 
 [sourcecode:bash]
-grow import_translations --source=<path to zip file or directory of locales>
+grow translations import_translations --source=<path to zip file or directory of locales>
 [/sourcecode]
 
 ## Untranslated content
