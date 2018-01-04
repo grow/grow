@@ -1,2 +1,2 @@
 view: /views/docs.html
-path: /{root}/{collection.base}/{base}/
+path: /{root}/{collection.basename}/{collection.base}/{base}/
