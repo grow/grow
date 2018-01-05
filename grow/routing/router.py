@@ -110,21 +110,8 @@ class Router(object):
                         pod_dir = root.replace(self.pod.root, '')
                         for file_name in files:
                             pod_path = os.path.join(pod_dir, file_name)
-                            static_doc = self.pod.get_static(
-                                pod_path, locale=None)
-                            if not path_filter.is_valid(static_doc.serving_path):
-                                skipped_paths.append(static_doc.serving_path)
-                                continue
-                            self.routes.add(
-                                static_doc.serving_path, RouteInfo('static', {
-                                    'pod_path': static_doc.pod_path,
-                                    'locale': None,
-                                    'localized': False,
-                                    'localization': localization,
-                                    'fingerprinted': fingerprinted,
-                                    'static_filter': static_filter,
-                                    'path_filter': path_filter,
-                                }))
+                            static_doc = self.pod.get_static(pod_path, locale=None)
+                            self.add_static_doc(static_doc)
                 else:
                     serve_at = self.pod.path_format.format_pod(
                         config['serve_at'], parameterize=True)
@@ -214,6 +201,21 @@ class Router(object):
                     docs.append(self.pod.get_doc(dep_path))
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
+
+    def add_static_doc(self, static_doc):
+        """Add static doc to the router."""
+        if not static_doc.path_filter.is_valid(static_doc.serving_path):
+            return
+        self.routes.add(
+            static_doc.serving_path, RouteInfo('static', {
+                'pod_path': static_doc.pod_path,
+                'locale': None,
+                'localized': False,
+                'localization': static_doc.config.get('localization'),
+                'fingerprinted': static_doc.fingerprinted,
+                'static_filter': static_doc.filter,
+                'path_filter': static_doc.path_filter,
+            }))
 
     def filter(self, locales=None):
         """Filter the routes based on a criteria."""

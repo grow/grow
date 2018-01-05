@@ -24,6 +24,12 @@ class StaticDocumentTestCase(unittest.TestCase):
             self.pod, '/static/something.txt')
         self.assertFalse(static_doc.exists)
 
+    def test_filter(self):
+        """Static filter config."""
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static/test.txt')
+        self.assertEquals(static_doc.filter, {})
+
     def test_path_format(self):
         """Static document path format."""
         static_doc = static_document.StaticDocument(
@@ -39,16 +45,24 @@ class StaticDocumentTestCase(unittest.TestCase):
         self.assertEquals(
             '/app/{root}/static/somepath/{locale}/something.txt', static_doc.path_format)
 
+    def test_path_filter(self):
+        """Static path filter."""
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static/test.txt')
+        self.assertTrue(static_doc.path_filter.is_valid(static_doc.serving_path))
+
     def test_serving_path(self):
         """Static document serving path."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals('/app/static/test-db3f6eaa28bac5ae1180257da33115d8.txt', static_doc.serving_path)
+        self.assertEquals(
+            '/app/static/test-db3f6eaa28bac5ae1180257da33115d8.txt', static_doc.serving_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt', locale='de')
         self.assertEquals(
-            '/app/root/static/somepath/de/test-db3f6eaa28bac5ae1180257da33115d8.txt', static_doc.serving_path)
+            '/app/root/static/somepath/de/test-db3f6eaa28bac5ae1180257da33115d8.txt',
+            static_doc.serving_path)
 
     def test_serving_path_parameterized(self):
         """Static document parameterized serving path."""
@@ -81,7 +95,8 @@ class StaticDocumentTestCase(unittest.TestCase):
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt', locale='de')
-        self.assertEquals('/static/intl/de/test.txt', static_doc.source_pod_path)
+        self.assertEquals(
+            '/static/intl/de/test.txt', static_doc.source_pod_path)
 
     def test_sub_pod_path(self):
         """Static document source path."""
@@ -101,12 +116,14 @@ class StaticDocumentTestCase(unittest.TestCase):
         """Static document url."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals('/app/static/test-db3f6eaa28bac5ae1180257da33115d8.txt', static_doc.url.path)
+        self.assertEquals(
+            '/app/static/test-db3f6eaa28bac5ae1180257da33115d8.txt', static_doc.url.path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt', locale='de')
         self.assertEquals(
-            '/app/root/static/somepath/de/test-db3f6eaa28bac5ae1180257da33115d8.txt', static_doc.url.path)
+            '/app/root/static/somepath/de/test-db3f6eaa28bac5ae1180257da33115d8.txt',
+            static_doc.url.path)
 
 if __name__ == '__main__':
     unittest.main()

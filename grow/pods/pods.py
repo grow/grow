@@ -857,6 +857,19 @@ class Pod(object):
             if self.podcache.is_dirty:
                 logging.info('Object cache changed, updating with new data.')
                 self.podcache.write()
+        elif self.use_reroute:
+            # Check if the file is a static file that needs to have the
+            # fingerprint updated.
+            for config in self.static_configs:
+                if config.get('dev') and not self.env.dev:
+                    continue
+                fingerprinted = config.get('fingerprinted', False)
+                if not fingerprinted:
+                    continue
+                if pod_path.startswith(config['static_dir']):
+                    static_doc = self.get_static(pod_path, locale=None)
+                    self.router.add_static_doc(static_doc)
+                    break
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
