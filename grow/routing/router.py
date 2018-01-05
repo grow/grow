@@ -112,19 +112,7 @@ class Router(object):
                             pod_path = os.path.join(pod_dir, file_name)
                             static_doc = self.pod.get_static(
                                 pod_path, locale=None)
-                            if not path_filter.is_valid(static_doc.serving_path):
-                                skipped_paths.append(static_doc.serving_path)
-                                continue
-                            self.routes.add(
-                                static_doc.serving_path, RouteInfo('static', {
-                                    'pod_path': static_doc.pod_path,
-                                    'locale': None,
-                                    'localized': False,
-                                    'localization': localization,
-                                    'fingerprinted': fingerprinted,
-                                    'static_filter': static_filter,
-                                    'path_filter': path_filter,
-                                }))
+                            self.add_static_doc(static_doc)
                 else:
                     serve_at = self.pod.path_format.format_pod(
                         config['serve_at'], parameterize=True)
