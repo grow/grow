@@ -31,6 +31,15 @@ class PathFormat(object):
         return path
 
     @staticmethod
+    def trailing_slash(doc, path):
+        """Adds trailing slash when appropriate."""
+        if not doc.view.endswith(('.html', '.htm')):
+            return path
+        if not path.endswith('/'):
+            return '{}/'.format(path)
+        return path
+
+    @staticmethod
     def _locale_or_alias(locale):
         if not locale:
             return ''
@@ -75,7 +84,8 @@ class PathFormat(object):
         params['locale'] = self._locale_or_alias(locale)
 
         path = utils.safe_format(path, **params)
-        return self.strip_double_slash(path)
+        path = self.strip_double_slash(path)
+        return self.trailing_slash(doc, path)
 
     def format_pod(self, path, parameterize=False):
         """Format a URL path using the pod information."""
