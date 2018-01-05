@@ -3,6 +3,7 @@
 import hashlib
 import os
 from grow.common import urls
+from grow.routing import path_filter as grow_path_filter
 
 
 class Error(Exception):
@@ -53,6 +54,11 @@ class StaticDocument(object):
         return self.pod.file_exists(self.source_pod_path)
 
     @property
+    def filter(self):
+        """Static configuration filter."""
+        return self.config.get('filter', {})
+
+    @property
     def modified(self):
         """File modified timestamp."""
         return self.pod.file_modified(self.pod_path)
@@ -71,6 +77,15 @@ class StaticDocument(object):
     def fingerprinted(self):
         """Fingerprint file contents?"""
         return self.config.get('fingerprinted', False)
+
+    @property
+    def path_filter(self):
+        """Path filter for the static document."""
+        static_filter = self.filter
+        if static_filter:
+            return grow_path_filter.PathFilter(
+                static_filter.get('ignore_paths'), static_filter.get('include_paths'))
+        return self.pod.path_filter
 
     @property
     def path_format(self):
