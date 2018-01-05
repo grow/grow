@@ -152,7 +152,7 @@ The documents can also be sorted by multiple fields.
 
 [sourcecode:html+jinja]
 <ul>
-  {% for doc in g.docs('pages', order_by=('date', 'title')) %}
+  {% for doc in g.docs('pages', order_by=('dates.published', 'title')) %}
     <li>{{doc.title}}
   {% endfor %}
 </ul>
