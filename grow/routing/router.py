@@ -110,8 +110,7 @@ class Router(object):
                         pod_dir = root.replace(self.pod.root, '')
                         for file_name in files:
                             pod_path = os.path.join(pod_dir, file_name)
-                            static_doc = self.pod.get_static(
-                                pod_path, locale=None)
+                            static_doc = self.pod.get_static(pod_path, locale=None)
                             self.add_static_doc(static_doc)
                 else:
                     serve_at = self.pod.path_format.format_pod(
