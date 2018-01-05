@@ -40,6 +40,20 @@ Since Grow translations are opt-in instead of opt-out, it's possible to show tra
 {{_(doc.title())}}   <!-- Translated -->
 [/sourcecode]
 
+### Text replacement
+
+When doing translations there are two ways to text replacement:
+
+[sourcecode:html+jinja]
+{{_('Test out %(name)s in %(text)s', name='Julie', text='indecipherable')}}
+[/sourcecode]
+
+[sourcecode:html+jinja]
+{{_('Test out {name} in {text}', name='Julie', text='indecipherable')}}
+[/sourcecode]
+
+Named placeholders should be used as other languages may not use the words in the same order.
+
 ### Content documents
 
 Field names postfixed with an `@` symbol are translatable. Note that you should omit the `@` when referring to the field in a template. The @ is simply used to tag the field for translation in the YAML front matter.
