@@ -151,7 +151,7 @@ class Document(object):
             'base': self.base,
             'category': self.category,
             'collection': structures.AttributeDict(
-                base=self.collection_base,
+                base_path=self.collection_base_path,
                 basename=self.collection.basename,
                 root=self.collection.root),
             'env': structures.AttributeDict(
@@ -194,7 +194,7 @@ class Document(object):
         return self.fields.get('$category')
 
     @property
-    def collection_base(self):
+    def collection_base_path(self):
         """The base directory inside the collection."""
         return self.collection_path[:-len(self.basename)]
 
