@@ -162,18 +162,14 @@ Opposite of `next`. Returns the previous document from a list of documents. If n
 
 A function that returns a title, given a title name. Allows for cascading titles. Useful for giving the document a different title in different contexts (for example, a breadcrumb or a side menu). If the parameter is omitted or None, the document's canonical title is used.
 
-[sourcecode:jinja]
-{{doc.titles('nav')}}
-
-# This sample YAML front matter...
-
+[sourcecode:yaml]
 $title: Example Hello World Document
 $titles:
   nav: Hello World
   breadcrumb: Hello World Document
+[/sourcecode]
 
-# ...produces the following results.
-
+[sourcecode:html+jinja]
 {{doc.titles('nav')}}          # Hello
 {{doc.titles('breadcrumb')}}   # Hello World Document
 {{doc.titles('unknown')}}      # Example Hello World Document
@@ -188,8 +184,10 @@ Documents have a few built-in properties that cannot be overwritten by configs.
 
 The basename (minus extension) of the document's file.
 
-    # In document /content/pages/foo.md
-    {{doc.base}}        # foo
+[sourcecode:html+jinja]
+# In document /content/pages/foo.md
+{{doc.base}}        # foo
+[/sourcecode]
 
 ### body
 
@@ -199,35 +197,43 @@ The unprocessed body of the document.
 
 A reference to the document's collection.
 
-    # In document /content/pages/foo.md
-    {{doc.collection}}  # <Collection (/content/pages/)>
+[sourcecode:markdown]
+# In document /content/pages/foo.md
+{{doc.collection}}  # <Collection (/content/pages/)>
+[/sourcecode]
 
 ### collection_base
 
 A reference to the collection's relative base directory.
 
-    # In document /content/pages/foo.md
-    {{doc.collection_base}}  # /
+[sourcecode:markdown]
+# In document /content/pages/foo.md
+{{doc.collection_base}}  # /
 
-    # In document /content/pages/sub/foo.md
-    {{doc.collection_base}}  # /sub/
+# In document /content/pages/sub/foo.md
+{{doc.collection_base}}  # /sub/
+[/sourcecode]
 
 ### collection_path
 
 A reference to the document's path relative collection directory.
 
-    # In document /content/pages/foo.md
-    {{doc.collection_path}}  # /foo.md
+[sourcecode:markdown]
+# In document /content/pages/foo.md
+{{doc.collection_path}}  # /foo.md
 
-    # In document /content/pages/sub/foo.md
-    {{doc.collection_path}}  # /sub/foo.md
+# In document /content/pages/sub/foo.md
+{{doc.collection_path}}  # /sub/foo.md
+[/sourcecode]
 
 ### exists
 
 Whether a document exists.
 
-    {% set page = g.doc('/content/pages/home.yaml') %}
-    {{page.exists}}
+[sourcecode:html+jinja]
+{% set page = g.doc('/content/pages/home.yaml') %}
+{{page.exists}}
+[/sourcecode]
 
 ### footnotes
 
@@ -259,44 +265,54 @@ inherits the [podspec `footnotes` configuration]([url('/content/docs/podspec.md'
 
 Returns the document's body (for `.md` documents, the Markdown body) rendered as HTML.
 
-    {{doc.html|safe}}  # Avoid escaping the HTML by piping to the "safe" filter.
+[sourcecode:html+jinja]
+{{doc.html|safe}}  # Avoid escaping the HTML by piping to the "safe" filter.
+[/sourcecode]
 
 ### locale
 
 Returns the document's [Locale object](http://babel.edgewall.org/wiki/ApiDocs/babel.core#babel.core:Locale).
 
-    {{doc.locale}}                           # Locale object.
+[sourcecode:html+jinja]
+{{doc.locale}}                           # Locale object.
 
-    # Display name of the document's locale in the document's language.
-    {{doc.get_display_name(doc.locale)}}
+# Display name of the document's locale in the document's language.
+{{doc.get_display_name(doc.locale)}}
 
-    # Display name of the document's locale in English.
-    {{doc.get_display_name('en')}}
+# Display name of the document's locale in English.
+{{doc.get_display_name('en')}}
 
-    # Whether the locale's language is RTL (right-to-left).
-    {{doc.locale.is_rtl}}
+# Whether the locale's language is RTL (right-to-left).
+{{doc.locale.is_rtl}}
+[/sourcecode]
 
 ### locales
 
 Returns a list of [Locale objects](http://babel.edgewall.org/wiki/ApiDocs/babel.core#babel.core:Locale) for the document.
 
-    {{doc.locales}}
+[sourcecode:html+jinja]
+{{doc.locales}}
+[/sourcecode]
 
 ### title
 
 Returns the document's canonical title as defined by `$title`.
 
-    {{doc.title}}
+[sourcecode:html+jinja]
+{{doc.title}}
+[/sourcecode]
 
 ### url
 
 The document's URL object.
 
-    {{doc.url}}            # The full URL to the document (based on the environment).
-    {{doc.url.path}}       # The serving path to the document.
-    {{doc.url.host}}
-    {{doc.url.scheme}}
-    {{doc.url.port}}
+[sourcecode:html+jinja]
+{{doc.url}}            # The full URL to the document (based on the environment).
+{{doc.url.path}}       # The serving path to the document.
+{{doc.url.host}}
+{{doc.url.scheme}}
+{{doc.url.port}}
+[/sourcecode]
 
 ## Built-in fields
 
@@ -306,7 +322,9 @@ Built-in fields carry special meaning that can affect various aspects of buildin
 
 The category the document falls into.
 
-    $category: Get Started
+[sourcecode:yaml]
+$category: Get Started
+[/sourcecode]
 
 ### $date
 
@@ -316,18 +334,14 @@ A reference to the document's date defined by the `$date` field.
 
 A function that returns a specific date based on the `$dates` field.
 
-[sourcecode:jinja]
-{{doc.dates('published')}}
-
-# This sample YAML front matter...
-
+[sourcecode:yaml]
 $title: Example Hello World Document
 $dates:
   created: 2017-12-01
   published: 2017-12-25
+[/sourcecode]
 
-# ...produces the following results.
-
+[sourcecode:html+jinja]
 {{doc.dates('created')}}     # datetime.datetime(2017, 12, 1, 0, 0)
 {{doc.dates('published')}}   # datetime.datetime(2017, 12, 25, 0, 0)
 [/sourcecode]
@@ -336,73 +350,89 @@ $dates:
 
 Whether to hide the document when querying for documents with the `g.docs` tag. Note that even if a document is marked hidden, it will still be rendered and served at its URL.
 
-    # Document will not show up in g.docs() results.
-    $hidden: true
+[sourcecode:yaml]
+# Document will not show up in g.docs() results.
+$hidden: true
+[/sourcecode]
 
 ### $localization
 
 Specify custom localization rules for this document only. Overrides the collection's `localization` configuration.
 
-    # Localized documents will have a custom path.
-    $localization:
-      path: /foo/{locale}/{base}/
+[sourcecode:yaml]
+# Localized documents will have a custom path.
+$localization:
+  path: /foo/{locale}/{base}/
 
-    # Override the locales this document is available in.
-    $localization:
-      locales:
-      - de
-      - it
-      - fr
+# Override the locales this document is available in.
+$localization:
+  locales:
+  - de
+  - it
+  - fr
+[/sourcecode]
 
 ### $order
 
 Specify the order for the collection's default document order. Negative and decimal values are allowed.
 
-    $order: 2
+[sourcecode:yaml]
+$order: 2
+[/sourcecode]
 
 ### $parent
 
 Specify the parent document in terms of content hierarchy. Used to auto-generate navigation and content relationships.
 
-    # Document /content/pages/foo.md becomes the parent.
-    $parent: /content/pages/foo.md
+[sourcecode:yaml]
+# Document /content/pages/foo.md becomes the parent.
+$parent: /content/pages/foo.md
+[/sourcecode]
 
 ### $path
 
 The serving path to make the document available at. By default, individual documents inherit the path specified by their blueprint. However, it can be overriden by specifying `$path` at the document-level.
 
-    # In document /content/pages/foo.md
+[sourcecode:yaml]
+# Makes the document available at /foo/bar/.
+$path: /foo/bar/
 
-    # Makes the document available at /foo/bar/.
-    $path: /foo/bar/
-
-    # Makes the document available at /foo/.
-    $path: /{base}/
+# Makes the document available at /foo/.
+$path: /{base}/
+[/sourcecode]
 
 ### $slug
 
 Override the document's slug. By default, the document's slug is derived by slugifying its canonical title.
 
-    $slug: foo-bar-baz
+[sourcecode:yaml]
+$slug: foo-bar-baz
+[/sourcecode]
 
 ### $title
 
 The document's canonical title.
 
-    $title: Canonical Title
+[sourcecode:yaml]
+$title: Canonical Title
+[/sourcecode]
 
 ### $titles
 
 Specify custom titles for the document to be used in different contexts and by macros. Used by the `{{doc.titles()}}` function.
 
-    $title: Really Long Canonical Title
-    $titles:
-      breadcrumb: Breadcrumb Title
-      nav: Nav Title
+[sourcecode:yaml]
+$title: Really Long Canonical Title
+$titles:
+  breadcrumb: Breadcrumb Title
+  nav: Nav Title
+[/sourcecode]
 
 ### $view
 
 The view to use when rendering the page for this document. By default, individual documents inherit the view specified by their blueprint. However, it can be overriden by specifying it at the document-level.
 
-    # Renders the document with the template at /views/pages.html
-    $view: /views/pages.html
+[sourcecode:yaml]
+# Renders the document with the template at /views/pages.html
+$view: /views/pages.html
+[/sourcecode]
