@@ -140,7 +140,7 @@ def reroute_option(config):
 
     def _decorator(func):
         return click.option(
-            '--re-route', 'use_reroute', is_flag=True, default=config_default,
+            '--re-route/--no-re-route', 'use_reroute', is_flag=True, default=config_default,
             help='Use experimental routing/rendering pipeline.')(func)
     return _decorator
 
