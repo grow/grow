@@ -148,6 +148,16 @@ Searches content documents within a collection.
 </ul>
 [/sourcecode]
 
+The documents can also be sorted by multiple fields.
+
+[sourcecode:html+jinja]
+<ul>
+  {% for doc in g.docs('pages', order_by=('date', 'title')) %}
+    <li>{{doc.title}}
+  {% endfor %}
+</ul>
+[/sourcecode]
+
 ### g.json
 
 `g.json(<path to json file>)`
