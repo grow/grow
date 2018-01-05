@@ -32,14 +32,14 @@ def _mock_pod(podspec=None, env=None):
     return pod
 
 
-def _mock_doc(pod, locale=None, collection_base=None, collection=None, view=None):
+def _mock_doc(pod, locale=None, collection_base_path=None, collection=None, view=None):
     doc = mock.Mock()
     type(doc).pod = mock.PropertyMock(return_value=pod)
     type(doc).locale = mock.PropertyMock(return_value=locale)
     if not collection:
         collection = _mock_collection()
     type(doc).collection = mock.PropertyMock(return_value=collection)
-    type(doc).collection_base = mock.PropertyMock(return_value=collection_base)
+    type(doc).collection_base_path = mock.PropertyMock(return_value=collection_base_path)
     type(doc).view = mock.PropertyMock(return_value=view or '/view/base.html')
     return doc
 
@@ -72,10 +72,10 @@ class PathFormatTestCase(unittest.TestCase):
         })
         path_format = grow_path_format.PathFormat(pod)
         collection = _mock_collection(basename='/pages/')
-        doc = _mock_doc(pod, collection=collection, collection_base='/sub/')
+        doc = _mock_doc(pod, collection=collection, collection_base_path='/sub/')
         self.assertEquals(
             '/root_path/sub/test/',
-            path_format.format_doc(doc, '/{root}/{collection.base}/test'))
+            path_format.format_doc(doc, '/{root}/{collection.base_path}/test'))
 
     def test_format_doc_locale(self):
         """Test doc paths with locale."""
