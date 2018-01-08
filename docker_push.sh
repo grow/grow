@@ -11,7 +11,7 @@ docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/baseimage:$GROW_VERSION -t grow/baseimage:latest .
 
 docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION  \
-  bash -c "git clone https://github.com/grow/grow.io.git && grow install && grow build grow.io/"
+  bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
 
 docker push grow/base:$GROW_VERSION
 docker push grow/base:latest
