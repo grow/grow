@@ -32,7 +32,7 @@ def _mock_pod(podspec=None, env=None):
     return pod
 
 
-def _mock_doc(pod, locale=None, collection_base=None, collection=None):
+def _mock_doc(pod, locale=None, collection_base=None, collection=None, view=None):
     doc = mock.Mock()
     type(doc).pod = mock.PropertyMock(return_value=pod)
     type(doc).locale = mock.PropertyMock(return_value=locale)
@@ -40,6 +40,7 @@ def _mock_doc(pod, locale=None, collection_base=None, collection=None):
         collection = _mock_collection()
     type(doc).collection = mock.PropertyMock(return_value=collection)
     type(doc).collection_base = mock.PropertyMock(return_value=collection_base)
+    type(doc).view = mock.PropertyMock(return_value=view or '/view/base.html')
     return doc
 
 
@@ -62,7 +63,7 @@ class PathFormatTestCase(unittest.TestCase):
         path_format = grow_path_format.PathFormat(pod)
         doc = _mock_doc(pod)
         self.assertEquals(
-            '/root_path/test', path_format.format_doc(doc, '/{root}/test'))
+            '/root_path/test/', path_format.format_doc(doc, '/{root}/test'))
 
     def test_format_doc_collection(self):
         """Test doc paths."""
@@ -73,7 +74,7 @@ class PathFormatTestCase(unittest.TestCase):
         collection = _mock_collection(basename='/pages/')
         doc = _mock_doc(pod, collection=collection, collection_base='/sub/')
         self.assertEquals(
-            '/root_path/sub/test',
+            '/root_path/sub/test/',
             path_format.format_doc(doc, '/{root}/{collection.base}/test'))
 
     def test_format_doc_locale(self):
@@ -84,7 +85,7 @@ class PathFormatTestCase(unittest.TestCase):
         path_format = grow_path_format.PathFormat(pod)
         doc = _mock_doc(pod, locale='es')
         self.assertEquals(
-            '/root_path/test/es', path_format.format_doc(
+            '/root_path/test/es/', path_format.format_doc(
                 doc, '/{root}/test/{locale}'))
 
     def test_format_doc_locale_params(self):
@@ -95,7 +96,7 @@ class PathFormatTestCase(unittest.TestCase):
         path_format = grow_path_format.PathFormat(pod)
         doc = _mock_doc(pod, locale='es')
         self.assertEquals(
-            '/root_path/test/:locale', path_format.format_doc(
+            '/root_path/test/:locale/', path_format.format_doc(
                 doc, '/{root}/test/{locale}', parameterize=True))
 
     def test_format_pod_root(self):
@@ -183,6 +184,18 @@ class PathFormatTestCase(unittest.TestCase):
         path = grow_path_format.PathFormat.parameterize(
             '/{root}/something.{test}')
         self.assertEquals('/:root/something.{test}', path)
+
+    def test_trailing_slash(self):
+        """Slashes are added for html files if they are missing."""
+        pod = _mock_pod()
+        doc = _mock_doc(pod, view='/view/base.html')
+        self.assertEquals('/', grow_path_format.PathFormat.trailing_slash(doc, '/'))
+        self.assertEquals('/foo/bar/', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar'))
+        self.assertEquals('/foo/bar/', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar/'))
+
+        # Doesn't add for non-html views.
+        doc = _mock_doc(pod, view='/view/base.xml')
+        self.assertEquals('/foo/bar', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar'))
 
 
 if __name__ == '__main__':
