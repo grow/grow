@@ -56,7 +56,7 @@ class PathFormat(object):
         params['base'] = doc.base
         params['category'] = doc.category
         params['collection'] = structures.AttributeDict(
-            base=doc.collection_base,
+            base_path=doc.collection_base_path,
             basename=doc.collection.basename,
             root=doc.collection.root)
         params['parent'] = doc.parent if doc.parent else utils.DummyDict()
