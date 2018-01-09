@@ -44,6 +44,12 @@ url:    !g.url /content/page/about.yaml
 yaml:   !g.yaml /pod/path/to.yaml
 [/sourcecode]
 
+Yaml constructors can also reference specific keys in the referenced yaml file.
+
+[sourcecode:yaml]
+yaml:   !g.yaml /pod/path/to.yaml?key.sub_key
+[/sourcecode]
+
 ### Body
 
 A document's body is the stuff that comes after its YAML front matter. For Markdown-formatted documents, Grow provides a shortcut for accessing rendered HTML using `{{doc.html}}` (see the `html` API function below). The unprocessed body contents can be accessed with `{{doc.body}}`.
