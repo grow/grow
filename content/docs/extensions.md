@@ -11,7 +11,7 @@ Grow has a powerful and simple extension system that enables you to extend the f
 
 Grow supports an `extensions.txt` file as part of the pod. When the file is present the `grow install` command will handle the installation of the extensions.
 
-```
+```txt
 # extensions.txt
 git+git://github.com/grow/grow-ext-contentful
 ```

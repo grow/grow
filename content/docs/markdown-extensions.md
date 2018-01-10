@@ -15,7 +15,7 @@ These built-in extensions are enabled by default.
 
 Generates tables. [View documentation](http://pythonhosted.org/Markdown/extensions/tables.html).
 
-```
+```md
 | Header 1 | Header 2
 |-|-|
 | Row 1 | Content
@@ -26,7 +26,7 @@ Generates tables. [View documentation](http://pythonhosted.org/Markdown/extensio
 
 Generates a table of contents based on the headings in a document. [View documentation](http://pythonhosted.org/Markdown/extensions/toc.html).
 
-```
+```md
 [​TOC]
 ```
 
@@ -38,7 +38,7 @@ The following extensions are added by Grow and have been enabled.
 
 Includes content from another document.
 
-```
+```md
 # Remove the extra space after `)`.
 [include('/content/shared/stuff.md') ]
 ```
@@ -47,7 +47,7 @@ Includes content from another document.
 
 Url to a document or static file in the pod.
 
-```
+```md
 # Remove the extra space after `)`.
 [url('/content/pages/archive.md') ]
 ```
@@ -56,7 +56,7 @@ Url to a document or static file in the pod.
 
 Implements pygments syntax highlighting for code snippets.
 
-```
+```md
 [​sourcecode:html]
 <!doctype html>
 <meta charset="utf-8">
@@ -67,7 +67,7 @@ Implements pygments syntax highlighting for code snippets.
 
 The sourcecode extension also supports GitHub-flavor backticks.
 
-```
+```md
 `​``javascript
 console.log('Hello World');
 `​``

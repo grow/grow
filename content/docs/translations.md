@@ -89,7 +89,7 @@ items@:                    # Tagged list of strings.
 
 Messages can be extracted from CSV files by appending `@` to a header cell's value.
 
-```
+```csv
 header1,header2@,header3
 Not extracted,Extracted,Not Extracted
 ```
@@ -136,7 +136,7 @@ Grow automatically recompiles translations when the development server starts, b
 
 Grow can import translation PO files from external sources. Currently Grow expects a zip file containing one directory named after its locale. Within each directory should be a `messages.po` file. Alternatively, you can specify a directory instead of a zip file.
 
-```
+```txt
 # Structure of source zip file.
 
 /foo.zip

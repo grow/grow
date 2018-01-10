@@ -19,7 +19,7 @@ title@env.prod: Title in production
 title@env.staging: Title in staging
 ```
 
-```
+```jinja
 # Default
 {{doc.title}} -> Title
 

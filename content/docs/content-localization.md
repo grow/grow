@@ -19,7 +19,7 @@ body@fr: Body for FR
 caption@: Caption
 ```
 
-```
+```jinja
 # Default
 {{doc.title}} -> Title
 {{doc.body}} -> Body
@@ -50,7 +50,7 @@ title: Title in FR
 body: Body for FR
 ```
 
-```
+```jinja
 # Default
 {{doc.title}} -> Title
 {{doc.body}} -> Body
