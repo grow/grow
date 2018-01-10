@@ -170,7 +170,10 @@ class Document(object):
             for key, value in formatters.items():
                 if isinstance(value, basestring):
                     formatters['{}|lower'.format(key)] = value.lower()
-        return path_format.format(**formatters).replace('//', '/')
+        path = path_format.format(**formatters)
+        while '//' in path:
+            path = path.replace('//', '/')
+        return path
 
     def _init_locale(self, locale, pod_path):
         try:
