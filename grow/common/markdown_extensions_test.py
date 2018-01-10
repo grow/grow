@@ -248,7 +248,7 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         pod = pods.Pod(pod.root)
         controller, params = pod.match('/test/')
         result = controller.render(params)
-        code_sentinel = '<pre><code class="html">'
+        code_sentinel = '<div class="codehilite"><pre>'
         self.assertIn(code_sentinel, result)
 
 
