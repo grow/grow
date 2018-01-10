@@ -139,7 +139,6 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
     """
     KIND = 'sourcecode'
     pattern_tag = re.compile(r'\[sourcecode(:.*?)\](.+?)\[/sourcecode\]', re.S)
-    pattern_ticks = re.compile(r'```(.+?)\n(.+?)\n```', re.S)
 
     class Config(messages.Message):
         classes = messages.BooleanField(1, default=False)
@@ -186,7 +185,6 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
             raise ValueError(text.format(self.config.highlighter))
         content = '\n'.join(lines)
         content = self.pattern_tag.sub(repl, content)
-        content = self.pattern_ticks.sub(repl, content)
         return content.split('\n')
 
 
