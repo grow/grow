@@ -14,7 +14,8 @@ grow_version: ">=0.0.1"
 title: Project title.
 description: Project description.
 
-home: /content/pages/<home>.yamls
+home: /content/pages/<home>.yaml
+
 static_dirs:
 - static_dir: /static/
   serve_at: /site/files/
@@ -112,6 +113,28 @@ static_dirs:
 [/sourcecode]
 
 In the above example, a file at `/source/images/file.png` would be served at `/static/images/file-<fingerprint>.png` where `<fingerprint>` is an md5 hash of the file's contents.
+
+#### Filtering
+
+By default grow ignores building any static files that start with a `.`. The behavior can be changed by adding a main level `filter` or selectively by adding the filter to a `static_dirs` item.
+
+[sourcecode:yaml]
+filter:
+  ignore_paths:
+  - \.DS_STORE
+  include_paths:
+  - \.htaccess
+[/sourcecode]
+
+The `ignore_paths` defines regex patterns for which files to ignore. The `include_paths` defines regex patterns that override the ignore patterns.
+
+So if you want to ignore all files that start with a `.` except for `.htaccess` files you could do a filter like this (since the default is to ignore dot files you don't need a `ignore_paths`):
+
+[sourcecode:yaml]
+filter:
+  include_paths:
+  - \.htaccess
+[/sourcecode]
 
 ### error_routes
 

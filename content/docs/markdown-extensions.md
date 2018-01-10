@@ -45,7 +45,7 @@ Includes content from another document.
 
 ### url
 
-Url to another document in the pod.
+Url to a document or static file in the pod.
 
 [sourcecode:text]
 # Remove the extra space after `)`.
