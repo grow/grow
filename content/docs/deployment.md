@@ -29,7 +29,7 @@ These universal steps ensure that every deployment remains consistent – and so
 
 You can configure deployments by specifying them in `podspec.yaml`. The *deployments* key maps deployment names to destination configurations.
 
-[sourcecode:yaml]
+```yaml
 # podspec.yaml
 
 deployments:
@@ -41,16 +41,16 @@ deployments:
   grow.io:
     destination: gcs
     bucket: grow.io
-[/sourcecode]
+```
 
 ### Commands
 
 Once you've configured a deployment in `podspec.yaml`, you can use the `grow deploy` command to launch your site. This will kick off the deployment process (above).
 
-[sourcecode:bash]
+```bash
 # Deploys your site to a destination named `grow.io`.
 grow deploy grow.io <pod>
-[/sourcecode]
+```
 
 ## Destinations
 
@@ -60,7 +60,7 @@ Deploys a build to Google Cloud Storage, appropriate for serving directly from G
 
 There are two ways Grow can establish a connection to Google Cloud Storage. You can either use the "interoperable" method (which uses an access key and secret, similar to connections to Amazon S3), or you can use a client email address and key file.
 
-[sourcecode:yaml]
+```yaml
 # Authenticates using access key and secret.
 destination: gcs
 bucket: mybucket.example.com
@@ -71,16 +71,16 @@ bucket: mybucket.example.com
 project: project-id
 email: 606734090113-6ink7iugcv89da9sru7lii8bs3i0obqg@developer.gserviceaccount.com
 key_path: /path/to/key/file.p12
-[/sourcecode]
+```
 
 To use the "interoperable" method, obtain an access key and secret from the Cloud Console, and place them in `$HOME/.boto`. You can alternatively place them in environment variables `GS_ACCESS_KEY_ID` and `GS_SECRET_ACCESS_KEY` instead of using the `.boto` file. [See documentation on obtaining access keys](https://developers.google.com/storage/docs/migrating#keys).
 
-[sourcecode:ini]
+```ini
 # `$HOME/.boto`
 [Credentials]
 gs_access_key_id = GOOGTS7C7FUP3AIRVJTE
 gs_secret_access_key = bGoa+V7g/yqDXvKRqq+JTFn4uQZbPiQJo4pf9RzJ
-[/sourcecode]
+```
 
 To use a client email and private key file, visit the Google Developers Console (`https://console.developers.google.com/project/apps~YOUR_PROJECT/apiui/credential`) and use the *email address* for the *Service Account* and download the key using the *Generate New Key* button. If you do not have a *Service Account* listed on this screen, use the *Create new Client ID* button.
 
@@ -90,39 +90,39 @@ In addition to obtaining your service account email address and key file, you mu
 
 Deploys a build to an Amazon S3 bucket, appropriate for serving directly from S3 using the website serving feature.
 
-[sourcecode:yaml]
+```yaml
 destination: s3
 bucket: mybucket.example.com
-[/sourcecode]
+```
 
 To authenticate to Amazon S3, obtain your access key and secret and place them in `$HOME/.boto`. You can also place these environment variables `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 
-[sourcecode:ini]
+```ini
 [Credentials]
 aws_access_key_id = ...
 aws_secret_access_key  = ...
-[/sourcecode]
+```
 
 ### Local
 
 Deploys a build to a local destination on your computer.
 
-[sourcecode:yaml]
+```yaml
 destination: local
 out_dir: /path/to/out/directory/
-[/sourcecode]
+```
 
 ### SCP
 
 Authenticates using the ssh keys running in ssh-agent. The `root_dir` option uses syntax from the standard `scp` command. Values can be either absolute or relative. The `host` is required. `port` is optional and will default to 22 if not specified. `username` is optional and is used to specify the target server username if it differs from your development environment user issuing the `grow deploy` command.
 
-[sourcecode:yaml]
+```yaml
 destination: scp
 host: example.com
 port: 1111
 username: username
 root_dir: /home/username/domains/example.com/public_html/
-[/sourcecode]
+```
 
 ### Git
 
@@ -130,12 +130,12 @@ Deploys a build to a Git repository (either remote or local). Remote repositorie
 
 Git deployments can be used in conjunction with GitHub pages by specifying the `gh-pages` branch.
 
-[sourcecode:yaml]
+```yaml
 destination: git
 repo: https://github.com/owner/project.git
 branch: master
 root_dir: <optional base path within the repository>
-[/sourcecode]
+```
 
 ## Deployment index
 
@@ -147,10 +147,10 @@ The deployment index is a record of deployment for each pod. The deployment inde
 
 Deployments can specify environment parameters – for access in the `{{env}}` context variable. Use `{{env}}` to customize template behavior based on the deployment.
 
-[sourcecode:yaml]
+```yaml
 env:
   name: prod
   host: example.com
   port: 80
   scheme: http
-[/sourcecode]
+```

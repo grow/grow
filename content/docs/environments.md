@@ -13,13 +13,13 @@ by using the `--deployment` flag. This allows you to do things like test builds 
 
 You can tag front matter data based on the environment information.
 
-[sourcecode:yaml]
+```yaml
 title@: Title
 title@env.prod: Title in production
 title@env.staging: Title in staging
-[/sourcecode]
+```
 
-[sourcecode:text]
+```
 # Default
 {{doc.title}} -> Title
 
@@ -28,11 +28,11 @@ title@env.staging: Title in staging
 
 # Staging Environment
 {{doc.title}} -> Title in staging
-[/sourcecode]
+```
 
 This can also be helpful for preventing specific pages from being deployed to specific deployments.
 
-[sourcecode:yaml]
+```yaml
 $path: /styleguide/
 $path@env.prod: ""
-[/sourcecode]
+```

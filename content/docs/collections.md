@@ -13,7 +13,7 @@ Grow makes it easy to separate content from presentation, but ultimately leaves 
 
 Every content collection must have a blueprint. Blueprints define how content is structured, displayed, and served. Blueprints are stored as YAML files in your pod's *content* directory.  For example, a blueprint for a collection "people" would be `/content/people/_blueprint.yaml`
 
-[sourcecode:yaml]
+```yaml
 path: /people/{slug}/              # The URL path format for content.
 view: /views/people.html           # The template to use.
 
@@ -35,24 +35,24 @@ fields:                            # The content structure (currently unimplemen
 categories:                        # Content categories (unimplemented).
 - Teachers
 - Students
-[/sourcecode]
+```
 
 ### path
 
 Specifies the URL path format for all content in this collection. Documents inherit the `path` specified in the blueprint. If `path` is omitted, content in this collection will not be generated into pages, unless a document specifies its own `$path`. If `path` is specified, `view` is a required field. [See a list of path formatters]({{g.doc('/docs/urls/').url.path}}#content-document-path-formatters).
 
-[sourcecode:yaml]
+```yaml
 path: /{root}/{base}/
-[/sourcecode]
+```
 
 ### view
 
 Specifies which template should be used to render content in this collection. If `view` is specified, `path` is a required field.
 
-[sourcecode:yaml]
+```yaml
 # Documents in this collection will use the following template.
 view: /views/pages.html
-[/sourcecode]
+```
 
 ### localization
 
@@ -62,20 +62,20 @@ Localization configuration for content in this collection.
 
 Specifies a URL path format for localized content. By specifying both `path` and `localization:path`, you can use different formats for the URL paths for "root" and localized content.
 
-[sourcecode:yaml]
+```yaml
 path: /{locale}/people/{slug}/
-[/sourcecode]
+```
 
 #### locales
 
 Specifies a list of locales that documents in this collection are available in. Each document's *path* will be expanded using *locales* to derive the URLs that the document is available at.
 
-[sourcecode:yaml]
+```yaml
 locales:
 - de
 - fr
 - it
-[/sourcecode]
+```
 
 ### categories
 

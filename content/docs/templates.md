@@ -17,34 +17,34 @@ There are several built-in global variables available to templates. Because thes
 
 The current content document associated with the current page that's being rendered. See the [full documentation for the document API]([url('/content/docs/documents.md')]).
 
-[sourcecode:html+jinja]
+```jinja
 {{doc.category}}      # Document's category
 {{doc.title}}         # Document's canonical title.
 {{doc.titles('nav')}} # Document's "nav" title.
 {{doc.html|safe}}     # Document's rendered Markdown body.
 {{doc.foo}}           # Value of the "foo" custom field from the YAML front matter.
-[/sourcecode]
+```
 
 ### env
 
 The rendering environment that exists when the page is being built or served.
 
-[sourcecode:html+jinja]
+```jinja
 {{env.host}}
 {{env.name}}
 {{env.port}}
 {{env.scheme}}
 {{env.fingerprint}}
-[/sourcecode]
+```
 
 ### podspec
 
 Refers to the [`podspec.yaml` configuration file]([url('/content/docs/podspec.md')]) and allows you to access pod-wide settings in templates.
 
-[sourcecode:html+jinja]
+```jinja
 {{podspec.title}}         # Pod's title.
 {{podspec.project_id}}    # Pod's project ID.
-[/sourcecode]
+```
 
 ## Functions
 
@@ -54,13 +54,13 @@ Refers to the [`podspec.yaml` configuration file]([url('/content/docs/podspec.md
 
 The `_` tag is a special function used to tag strings in templates for both translation and message extraction.
 
-[sourcecode:html+jinja]
+```jinja
 # Simple translation.
 {{_('Hello')}}
 
 # A translation with a placeholder.
 {{_('Hello, %(name)s', name='Alice')}}
-[/sourcecode]
+```
 
 ### g.categories
 
@@ -68,7 +68,7 @@ The `_` tag is a special function used to tag strings in templates for both tran
 
 Lists content documents within a collection and groups them by their *$category*. Useful for generating navigation and categorized lists of documents.
 
-[sourcecode:html+jinja]
+```jinja
 {% for category, docs in g.categories('pages') %}
   <h3>{{category}}</h3>
   <ul>
@@ -77,7 +77,7 @@ Lists content documents within a collection and groups them by their *$category*
     {% endfor %}
   </ul>
 {% endfor %}
-[/sourcecode]
+```
 
 ### g.collection
 
@@ -91,10 +91,10 @@ Returns a `Collection` object, given a collection path.
 
 Returns a list of all `Collection` objects in the pod, or lists `Collection` objects given a list of collection paths.
 
-[sourcecode:html+jinja]
+```jinja
 {{g.collections()}}
 {{g.collections(['pages'])}}
-[/sourcecode]
+```
 
 ### g.csv
 
@@ -102,12 +102,12 @@ Returns a list of all `Collection` objects in the pod, or lists `Collection` obj
 
 Parses a CSV file and returns a list of dictionaries mapping header rows to values for each row. Optionally use keyword arguments to filter results. This can be particularly useful for using a spreadsheet for localization (where rows represent values for different locales).
 
-[sourcecode:html+jinja]
+```jinja
 {% set people = g.csv('/data/people.csv') %}
 {% for person in people %}
   <li>{{person.name}}
 {% endfor %}
-[/sourcecode]
+```
 
 ### g.date
 
@@ -115,10 +115,10 @@ Parses a CSV file and returns a list of dictionaries mapping header rows to valu
 
 Parses a string into a Date object. Uses [Python date formatting directives](https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior).
 
-[sourcecode:html+jinja]
+```jinja
 # Returns a DateTime given a string and a format.
 {{g.date('12/31/2000', from='%m/%d/%Y')}}
-[/sourcecode]
+```
 
 ### g.doc
 
@@ -126,13 +126,13 @@ Parses a string into a Date object. Uses [Python date formatting directives](htt
 
 Gets a single content document, given its pod path.
 
-[sourcecode:html+jinja]
+```jinja
 {% set foo = g.doc('/content/pages/index.html') %}
 {{foo}}
 
 # Returns the fr version of a document.
 {{g.doc('/content/pages/index.html', locale='fr')}}
-[/sourcecode]
+```
 
 ### g.docs
 
@@ -140,23 +140,23 @@ Gets a single content document, given its pod path.
 
 Searches content documents within a collection.
 
-[sourcecode:html+jinja]
+```jinja
 <ul>
   {% for doc in g.docs('pages') %}
     <li>{{doc.title}}
   {% endfor %}
 </ul>
-[/sourcecode]
+```
 
 The documents can also be sorted by multiple fields.
 
-[sourcecode:html+jinja]
+```jinja
 <ul>
   {% for doc in g.docs('pages', order_by=('dates.published', 'title')) %}
     <li>{{doc.title}}
   {% endfor %}
 </ul>
-[/sourcecode]
+```
 
 ### g.json
 
@@ -186,19 +186,19 @@ It is a best practice to *always* refer to static files using the `g.static` tag
 
 Prior to using `g.static`, routes must be configured in the `static_dirs` property of `podspec.yaml`.
 
-[sourcecode:html+jinja]
+```jinja
 <img src="{{g.static('/static/example.png').url.path}}">
-[/sourcecode]
+```
 
 `g.static` supports static file localization by way of the `localization` option of the `static_dirs` setting in `podspec.yaml`. If a localized static file exists, it will return the object corresponding to the localized static file. If it doesn't, it will return the object corresponding to the base static file.
 
-[sourcecode:html+jinja]
+```jinja
 # Uses the current document's locale.
 {{g.static('/static/example.png', locale=doc.locale)}}
 
 # Uses a hardcoded locale.
 {{g.static('/static/example.png', locale='de')}}
-[/sourcecode]
+```
 
 ### g.statics
 
@@ -206,11 +206,11 @@ Prior to using `g.static`, routes must be configured in the `static_dirs` proper
 
 Returns a list of StaticFile objects from in a directory within your pod.
 
-[sourcecode:html+jinja]
+```jinja
 {% for static_file in g.statics('/source/images/') %}
   <img src="{{static_file.url.path}}">
 {% endfor %}
-[/sourcecode]
+```
 
 ### g.url
 
@@ -218,9 +218,9 @@ Returns a list of StaticFile objects from in a directory within your pod.
 
 Returns the URL object for a document, given a document's pod path. Access the `path` property of the URL object to retrieve an absolute link to the document.
 
-[sourcecode:html+jinja]
+```jinja
 <a href="{{g.url('/content/pages/index.html').path}}">Home</a>
-[/sourcecode]
+```
 
 ### g.yaml
 
@@ -234,19 +234,19 @@ Returns a parsed yaml object, given a yaml file's pod path. Respects translation
 
 Formats currency in a localized format. Use's [Babel's format_currency](http://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_currency).
 
-[sourcecode:html+jinja]
+```jinja
 {{12345|currency('USD')}}
-[/sourcecode]
+```
 
 ### date
 
 Formats localized and non-localized dates. Use's [Babel's format_date](http://babel.pocoo.org/en/latest/dates.html#babel.dates.format_date).
 
-[sourcecode:html+jinja]
+```jinja
 {{date_object|date(format='short')}}
 {{date_object|date(format='short', locale='ja_JP')}}
 {{date_object|date(format="yyyy.MM.dd G 'at' HH:mm:ss zzz")}}
-[/sourcecode]
+```
 
 ### datetime
 
@@ -256,15 +256,15 @@ Formats localized and non-localized datetimes. Use's [Babel's format_datetime](h
 
 Formats decimal in a localized format. Use's [Babel's format_decimal](http://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_decimal).
 
-[sourcecode:html+jinja]
+```jinja
 {{123.45|decimal()}}
-[/sourcecode]
+```
 
 ### deeptrans
 
 Recursively applies the gettext translation function to strings within a dictionary.
 
-[sourcecode:html+jinja]
+```jinja
 {% set content = {
   'key': 'String',
   'item_list': [
@@ -273,64 +273,64 @@ Recursively applies the gettext translation function to strings within a diction
   ]
 } %}
 {{content|deeptrans}}
-[/sourcecode]
+```
 
 ### jsonify
 
 Converts a dictionary into JSON.
 
-[sourcecode:html+jinja]
+```jinja
 {{dict_object|jsonify}}
-[/sourcecode]
+```
 
 ### markdown
 
 Renders Markdown content into HTML. Use in conjunction with the `safe` filter to render HTML to a page.
 
-[sourcecode:html+jinja]
+```jinja
 {{markdown_content|markdown}}
 {{markdown_content|markdown|safe}}
-[/sourcecode]
+```
 
 ### number
 
 Formats numbers in a localized format. Use's [Babel's format_number](http://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_number).
 
-[sourcecode:html+jinja]
+```jinja
 {{1234.567|number}}
-[/sourcecode]
+```
 
 ### percent
 
 Formats percentages in a localized format. Use's [Babel's format_percent](http://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_percent).
 
-[sourcecode:html+jinja]
+```jinja
 {{0.123|percent}}
-[/sourcecode]
+```
 
 ### relative
 
 Generates a relative URL (from the perspective of the current document context) from an absolute URL path.
 
-[sourcecode:html+jinja]
+```jinja
 {{g.doc('/content/pages/home.yaml').url|relative}}
-[/sourcecode]
+```
 
 ### shuffle
 
 Randomizes the order of items in a list.
 
-[sourcecode:html+jinja]
+```jinja
 {{[1,2,3,4,5]|shuffle}}
-[/sourcecode]
+```
 
 ### slug
 
 Creates a slug from text.
 
-[sourcecode:html+jinja]
+```jinja
 {{'Hello World'|slug}}
-[/sourcecode]
+```
 
 ### time
 

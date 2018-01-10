@@ -11,15 +11,15 @@ In addition to controlling [site-wide localization]({{g.doc('/docs/content-local
 
 You can localize front matter data on a per-locale basis. If you've localized some fields, but not all fields that are specified in the blueprint or default locale, the localized fields will fall back to default locale's fields, cascading from a localized version down to the default version.
 
-[sourcecode:yaml]
+```yaml
 title@: Title
 title@fr: Title in FR
 body@: Body
 body@fr: Body for FR
 caption@: Caption
-[/sourcecode]
+```
 
-[sourcecode:text]
+```
 # Default
 {{doc.title}} -> Title
 {{doc.body}} -> Body
@@ -29,7 +29,7 @@ caption@: Caption
 {{doc.title}} -> Title in FR
 {{doc.body}} -> Body for FR
 {{doc.caption}} -> Caption
-[/sourcecode]
+```
 
 ## File based localization
 
@@ -37,20 +37,20 @@ Similar to the idea of using the `@locale` localization in the front matter, fil
 
 The file naming should follow the [CLDR codes for locales][icu] (case sensitive to support all file systems). For example, files should be named `page@en_GB.yaml` instead of `page@en_gb.yaml`.
 
-[sourcecode:yaml]
+```yaml
 # Content /content/pages/presentation.yaml
 title@: Title
 body@: Body
 caption@: Caption
-[/sourcecode]
+```
 
-[sourcecode:yaml]
+```yaml
 # Content /content/pages/presentation@fr.yaml
 title: Title in FR
 body: Body for FR
-[/sourcecode]
+```
 
-[sourcecode:text]
+```
 # Default
 {{doc.title}} -> Title
 {{doc.body}} -> Body
@@ -60,7 +60,7 @@ body: Body for FR
 {{doc.title}} -> Title in FR
 {{doc.body}} -> Body for FR
 {{doc.caption}} -> Caption
-[/sourcecode]
+```
 
 ## Locale class
 
@@ -68,10 +68,10 @@ Grow's `Locale` objects subclass the [Babel project's Locale class](http://babel
 
 [A full list of compatible locales can be found here][icu].
 
-[sourcecode:yaml]
+```yaml
 # Page /de/hello/
 {{doc.locale.get_language_name('en')}}       # German.
 {{doc.locale.get_language_name('de')}}       # Deutsch.
-[/sourcecode]
+```
 
 [icu]: http://www.localeplanet.com/icu/

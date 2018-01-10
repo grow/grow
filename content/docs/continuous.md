@@ -39,7 +39,7 @@ For large sites using a CI service it is possible to break up a build into paral
 
 To configure Travis CI, add a `.travis.yml` file in your repository's root. Any required access keys can be configured as secure environment variables in the _settings_ section of your Travis CI project.
 
-[sourcecode:yaml]
+```yaml
 language: python
 python:
 - 2.7
@@ -49,4 +49,4 @@ branches:
 cache: pip
 install: pip install grow
 script: grow deploy --noconfirm grow.io
-[/sourcecode]
+```

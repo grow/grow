@@ -1,8 +1,8 @@
 *To install Grow, paste the following command into Terminal.* This command downloads the SDK and sets up an alias. Before anything is done, you will be prompted to continue.
 
-[sourcecode:bash]
+```bash
 curl https://install.grow.io | bash
-[/sourcecode]
+```
 
 Alternatively, you can also install Grow by using [pip][pip]
 (`pip install grow`) or by building from source.

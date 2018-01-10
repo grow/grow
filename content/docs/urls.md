@@ -41,7 +41,7 @@ __Remember: don't repeat yourself.__ If you can specify a path format in a colle
 
 #### Examples
 
-[sourcecode:yaml]
+```yaml
 # In a collection's _blueprint.yaml
 path: /pages/{slug}/
 path: /pages/{base}/
@@ -53,7 +53,7 @@ localization:
 $path: /pages/home/
 $localization:
   path: /{locale}/pages/home/
-[/sourcecode]
+```
 
 ### Static file path formatters
 
@@ -68,7 +68,7 @@ Use these formatters to configure serving paths for static files in `podspec.yam
 
 #### Examples
 
-[sourcecode:yaml]
+```yaml
 # In podspec.yaml
 static_dirs:
 - static_dir: /source/images/
@@ -76,19 +76,19 @@ static_dirs:
   localization:
     static_dir: /source/{locale}/images/
     serve_at: /{locale}/static/images/
-[/sourcecode]
+```
 
 ### Specifying a site root
 
 You can specify the site root in `podspec.yaml` and then reference the root in path formats elsewhere. This provides flexibility should you need to change the site root later, and allows you to avoid repeating the site root throughout multiple configurations.
 
-[sourcecode:yaml]
+```yaml
 # In podspec.yaml
 root: /my-site/
 
 # In a collection's _blueprint.yaml
 path: /{root}/pages/{base}/
-[/sourcecode]
+```
 
 ### Specifying the homepage
 
@@ -96,10 +96,10 @@ Most sites have homepages. You can specify your site's homepage in `podspec.yaml
 
 Note that the value of the homepage should point to a content document, not a URL path. Your homepage's URL will be derived from the content document's URL.
 
-[sourcecode:yaml]
+```yaml
 # In podspec.yaml
 home: /content/pages/home.yaml
-[/sourcecode]
+```
 
 ## URLs in templates
 
@@ -111,7 +111,7 @@ In general, you should never refer to a linkable resource by its URL: you should
 
 Documents and static files both have `url` properties that return their corresponding `Url` object.
 
-[sourcecode:html+jinja]
+```jinja
 # The serving path for a content document.
 {{g.doc('/content/pages/home.yaml').url.path}}
 
@@ -123,15 +123,15 @@ Documents and static files both have `url` properties that return their correspo
 {{doc.url.host}}
 {{doc.url.scheme}}
 {{doc.url.port}}
-[/sourcecode]
+```
 
 ### Relative URLs
 
 All URLs generated from a `Url` object are absolute. However, if you'd like to generate relative URLs, you can use the `relative` template filter. The final URL generated is relative to the current document context.
 
-[sourcecode:html+jinja]
+```jinja
 {{g.doc('/content/pages/home.yaml').url|relative}}
-[/sourcecode]
+```
 
 ## Checking routes
 
@@ -143,7 +143,7 @@ Grow validates your URL path configuration and raises errors upon misconfigurati
 
 Grow can autogenerate a [`sitemap.xml`](https://support.google.com/webmasters/answer/156184) file for your site, upon build. You can enable sitemap generation in `podspec.yaml` and, optionally, customize which pages and locales are included in the sitemap.
 
-[sourcecode:yaml]
+```yaml
 # podspec.yaml
 
 sitemap:
@@ -154,4 +154,4 @@ sitemap:
   locales:                      # Optional.
   - en
   - fr
-[/sourcecode]
+```

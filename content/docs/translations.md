@@ -15,7 +15,7 @@ Grow takes a __what you tag is what you translate__ approach: only things that y
 
 UI strings (and other text) in views are translatable. UI strings must be tagged with a template function that indicates the text is translatable. This template function, `gettext`, has been aliased to `{{_(text)}}`.
 
-[sourcecode:html]
+```html
 <!-- /views/pages.html -->
 
 <!DOCTYPE html>
@@ -31,26 +31,26 @@ UI strings (and other text) in views are translatable. UI strings must be tagged
 
 <!-- Using Python-format placeholders. -->
 <p>{{_('Posted: %(date)s', date='12/25/86')}}
-[/sourcecode]
+```
 
 Since Grow translations are opt-in instead of opt-out, it's possible to show translated text from a content document right next to untranslated text.
 
-[sourcecode:html]
+```html
 {{doc.title()}}      <!-- Untranslated -->
 {{_(doc.title())}}   <!-- Translated -->
-[/sourcecode]
+```
 
 ### Text replacement
 
 When doing translations there are two ways to text replacement:
 
-[sourcecode:html+jinja]
+```jinja
 {{_('Test out %(name)s in %(text)s', name='Julie', text='indecipherable')}}
-[/sourcecode]
+```
 
-[sourcecode:html+jinja]
+```jinja
 {{_('Test out {name} in {text}', name='Julie', text='indecipherable')}}
-[/sourcecode]
+```
 
 Named placeholders should be used as other languages may not use the words in the same order.
 
@@ -58,7 +58,7 @@ Named placeholders should be used as other languages may not use the words in th
 
 Field names postfixed with an `@` symbol are translatable. Note that you should omit the `@` when referring to the field in a template. The @ is simply used to tag the field for translation in the YAML front matter.
 
-[sourcecode:yaml]
+```yaml
 # /content/pages/page.yaml (content document)
 
 $title@: Hello World!
@@ -74,25 +74,25 @@ sections:
 items@:                    # Tagged list of strings.
 - Item 1.
 - Item 2.
-[/sourcecode]
+```
 
-[sourcecode:html]
+```html
 # /views/pages.html (sample usage in a view)
 
 {% for section in doc.sections %}
   <li>{{_(doc.title)}}     <!-- Translated. -->
   <li>{{doc.content}}      <!-- Not translated. -->
 {% endfor %}
-[/sourcecode]
+```
 
 ### CSV files
 
 Messages can be extracted from CSV files by appending `@` to a header cell's value.
 
-[sourcecode:text]
+```
 header1,header2@,header3
 Not extracted,Extracted,Not Extracted
-[/sourcecode]
+```
 
 ## Translator comments
 
@@ -100,17 +100,17 @@ You can provide clarifying details about strings to translators by using transla
 
 Translator comments are particularly useful to convey restrictions about a string (such as its length) or to clarify context when a string may be ambiguous.
 
-[sourcecode:yaml]
+```yaml
 # Translator comments in YAML.
 prop@: Text to translate
 prop@#: Comment for translator.
-[/sourcecode]
+```
 
-[sourcecode:html+jinja]
+```jinja
 # Translator comments in templates.
 {#: Comment for translator. #}
 <h1>{{_('Text to translate')}}</h1>
-[/sourcecode]
+```
 
 ## Extracting translations
 
@@ -118,15 +118,15 @@ To extract translations into a message catalog, tag all translatable items as ex
 
 This file can then be used to create translation catalogs manually using a PO file editor, or integrated with a translation provider such as Google Translator Toolkit.
 
-[sourcecode:bash]
+```bash
 grow translations extract
-[/sourcecode]
+```
 
 Extracted translations can also be audited to find content that is untagged for translation.
 
-[sourcecode:bash]
+```bash
 grow translations extract --audit
-[/sourcecode]
+```
 
 ## Compiling translations
 
@@ -136,7 +136,7 @@ Grow automatically recompiles translations when the development server starts, b
 
 Grow can import translation PO files from external sources. Currently Grow expects a zip file containing one directory named after its locale. Within each directory should be a `messages.po` file. Alternatively, you can specify a directory instead of a zip file.
 
-[sourcecode:text]
+```
 # Structure of source zip file.
 
 /foo.zip
@@ -144,19 +144,19 @@ Grow can import translation PO files from external sources. Currently Grow expec
     /messages.po
   /it/
     /messages.po
-[/sourcecode]
+```
 
-[sourcecode:bash]
+```bash
 grow translations import_translations --source=<path to zip file or directory of locales>
-[/sourcecode]
+```
 
 ## Untranslated content
 
 To help find content that is in use, but not yet translated you can generate a summary of the missing translations.
 
-[sourcecode:bash]
+```bash
 # Builds pod and shows untranslated strings.
 grow build --locate-untranslated
-[/sourcecode]
+```
 
 You can also update the configuration in your podspec to prevent specific deployments when there are untranslated content.

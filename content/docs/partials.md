@@ -13,7 +13,7 @@ Most pages that can be divided up into discrete sections (such as a header, cont
 
 Setup the partial system by adding a partial loop to your page template.
 
-[sourcecode:jinja]
+```jinja
 {# /views/base.html #}
 {% if doc.partials %}
   {% for field in doc.partials %}
@@ -30,35 +30,35 @@ Setup the partial system by adding a partial loop to your page template.
 {% else %}
   {{doc.html|safe}}
 {% endif %}
-[/sourcecode]
+```
 
 ### Create partials in the `/partials` directory.
 
-[sourcecode:jinja]
+```jinja
 {# /partials/hero/hero.html #}
 <div class=”hero”>
    <h1 class=”hero__title”>{{_(partial.title)}}</h1>
 </div>
-[/sourcecode]
+```
 
-[sourcecode:jinja]
+```jinja
 {# /partials/about-me/about-me.html #}
 <div class=”about-me”>
    <h2 class=”about-me__title”>{{_(partial.title)}}</h2>
    <p>{{_(partial.description)}}</p>
 </div>
-[/sourcecode]
+```
 
-[sourcecode:jinja]
+```jinja
 {# /partials/footer/footer.html #}
 <div class=”footer”>
    <p class=”footer__copyright>{{_(partial.copyright)}}</p>
 </div>
-[/sourcecode]
+```
 
 ### Add structured partials to your page front matter
 
-[sourcecode:yaml]
+```yaml
 # /content/pages/about.yaml
 $view: /views/base.html
 $path: /about/
@@ -72,7 +72,7 @@ partials:
   description@: I am a grow.io user!
 - partial: footer  
   copyright@: 2017 Mysite.com
-[/sourcecode]
+```
 
 Now your “about” page will render a hero, about-me and footer partial.   Easily reuse partials across your site pages.
 
@@ -85,7 +85,7 @@ Partials can be easily reused across different pages.  You can even selectively 
 
 The following example would should show a different “about” page for Canada.
 
-[sourcecode:yaml]
+```yaml
 # /content/pages/about.yaml
 $view: /views/base.html
 $path: /about/
@@ -101,17 +101,17 @@ partials:
   title@: My trip to Canada
 - partial: footer
   copyright@: 2017 Mysite.com
-[/sourcecode]
+```
 
 ## Keep it DRY
 
 Don’t repeat yourself and duplicate similar partials.  Instead try to create multiple variations within same partial by passing configuration flags or by passing css classes.
 
-[sourcecode:yaml]
+```yaml
 # /content/pages/about.yaml
 partials:
 - partial: hero
   title@: My hero
   class@ja_JP: carousel--large
   carousel_disabled@en_CA: true
-[/sourcecode]
+```

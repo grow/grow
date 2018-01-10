@@ -35,20 +35,20 @@ As long as a blueprint specifies a document's `view` and its `path`, including Y
 
 Yaml constructors can be used to load in other documents or files into fields of the document.
 
-[sourcecode:yaml]
+```yaml
 csv:    !g.csv /pod/path/to.csv
 doc:    !g.doc /content/page/about.yaml
 json:   !g.json /pod/path/to.json
 static: !g.static /pod/path/to.img
 url:    !g.url /content/page/about.yaml
 yaml:   !g.yaml /pod/path/to.yaml
-[/sourcecode]
+```
 
 Yaml constructors can also reference specific keys in the referenced yaml file.
 
-[sourcecode:yaml]
+```yaml
 yaml:   !g.yaml /pod/path/to.yaml?key.sub_key
-[/sourcecode]
+```
 
 ### Body
 
@@ -60,10 +60,10 @@ Content documents are servable if they have a `path` (the URL path the document 
 
 If the blueprint does not have a `path` and a `view` set, you may specify `$path` and `$view` at the document-level. This also means that you can override the `$path` and `$view` on a document-by-document basis.
 
-[sourcecode:yaml]
+```yaml
 $path: /about/              # Serves this document at /about/.
 $view: /views/base.html     # Renders this document with /views/base.html.
-[/sourcecode]
+```
 
 ## Example documents
 
@@ -71,7 +71,7 @@ $view: /views/base.html     # Renders this document with /views/base.html.
 
 Markdown-formatted documents can have optional YAML front matter, which is delimited using `---`.
 
-[sourcecode:yaml]
+```yaml
 # /content/pages/foo.md
 
 ​---
@@ -85,13 +85,13 @@ This is a [Markdown](http://daringfireball.net/projects/markdown/) document.
 - I can use...
 - ... Markdown syntax...
 - ... to write my content.
-[/sourcecode]
+```
 
 ### YAML body
 
 YAML-formatted documents never use a separate YAML front matter. `{{doc.html}}` and `{{doc.body}}` are both `None` for YAML-formatted content documents.
 
-[sourcecode:yaml]
+```yaml
 # /content/pages/bar.yaml
 
 $title: Hello, Grow!
@@ -99,7 +99,7 @@ $category: Get Started
 
 key1: value1
 key2: value2
-[/sourcecode]
+```
 
 ### HTML body
 
@@ -107,7 +107,7 @@ HTML-formatted documents have YAML front matter and an HTML body. As you'd expec
 
 HTML-formatted documents are particularly useful when a content document has its own, unique presentation, that's closely coupled to its content structure. For example, if your collection has an index page, and if the index page has its own unique presentation that is never used anywhere else on the site, the index content document could define its own HTML template unique to itself.
 
-[sourcecode:jinja]
+```jinja
 # /content/pages/index.html
 
 ​---
@@ -126,7 +126,7 @@ sections:
   <h2>{{section.title}}</h2>
   <p>{{section.text}}
 {% endfor %}
-[/sourcecode]
+```
 
 ## Functions
 
@@ -138,7 +138,7 @@ There are several API functions available for documents. These are implemented a
 
 Returns the next document from a list of documents. If no list is provided, the default document ordering within a collection is used. If there is no next document, `None` is returned.
 
-[sourcecode:jinja]
+```jinja
 # Returns the next document from the default list of documents.
 {{doc.next()}}                    # <Document>
 
@@ -146,7 +146,7 @@ Returns the next document from a list of documents. If no list is provided, the 
 {% set doc1 = g.doc('/content/pages/foo.md') %}
 {% set doc2 = g.doc('/content/pages/bar.md') %}
 {{doc.next([doc1, doc, doc2])}}   # <Document (/content/pages/bar.md)>
-[/sourcecode]
+```
 
 ### prev
 
@@ -154,7 +154,7 @@ Returns the next document from a list of documents. If no list is provided, the 
 
 Opposite of `next`. Returns the previous document from a list of documents. If no list is provided, the default document ordering within a collection is used. If there is no previous document, `None` is returned.
 
-[sourcecode:jinja]
+```jinja
 # Returns the previous document from the default list of documents.
 {{doc.prev()}}                    # <Document>
 
@@ -162,25 +162,25 @@ Opposite of `next`. Returns the previous document from a list of documents. If n
 {% set doc1 = g.doc('/content/pages/foo.md') %}
 {% set doc2 = g.doc('/content/pages/bar.md') %}
 {{doc.prev([doc1, doc, doc2])}}   # <Document (/content/pages/foo.md)>
-[/sourcecode]
+```
 
 ### titles
 
 A function that returns a title, given a title name. Allows for cascading titles. Useful for giving the document a different title in different contexts (for example, a breadcrumb or a side menu). If the parameter is omitted or None, the document's canonical title is used.
 
-[sourcecode:yaml]
+```yaml
 $title: Example Hello World Document
 $titles:
   nav: Hello World
   breadcrumb: Hello World Document
-[/sourcecode]
+```
 
-[sourcecode:html+jinja]
+```jinja
 {{doc.titles('nav')}}          # Hello
 {{doc.titles('breadcrumb')}}   # Hello World Document
 {{doc.titles('unknown')}}      # Example Hello World Document
 {{doc.title()}}                # Example Hello World Document
-[/sourcecode]
+```
 
 ## Properties
 
@@ -190,10 +190,10 @@ Documents have a few built-in properties that cannot be overwritten by configs.
 
 The basename (minus extension) of the document's file.
 
-[sourcecode:html+jinja]
+```jinja
 # In document /content/pages/foo.md
 {{doc.base}}        # foo
-[/sourcecode]
+```
 
 ### body
 
@@ -203,66 +203,66 @@ The unprocessed body of the document.
 
 A reference to the document's collection.
 
-[sourcecode:markdown]
+```md
 # In document /content/pages/foo.md
 {{doc.collection}}  # <Collection (/content/pages/)>
-[/sourcecode]
+```
 
 ### collection_base
 
 A reference to the collection's relative base directory.
 
-[sourcecode:markdown]
+```md
 # In document /content/pages/foo.md
 {{doc.collection_base}}  # /
 
 # In document /content/pages/sub/foo.md
 {{doc.collection_base}}  # /sub/
-[/sourcecode]
+```
 
 ### collection_path
 
 A reference to the document's path relative collection directory.
 
-[sourcecode:markdown]
+```md
 # In document /content/pages/foo.md
 {{doc.collection_path}}  # /foo.md
 
 # In document /content/pages/sub/foo.md
 {{doc.collection_path}}  # /sub/foo.md
-[/sourcecode]
+```
 
 ### exists
 
 Whether a document exists.
 
-[sourcecode:html+jinja]
+```jinja
 {% set page = g.doc('/content/pages/home.yaml') %}
 {{page.exists}}
-[/sourcecode]
+```
 
 ### footnotes
 
 Manages footnotes in a document and displays corresponding symbols.
 
-[sourcecode:html+jinja]
+```jinja
 This needs to be considered.{{doc.footnotes.add('More details available.')}}
-[/sourcecode]
+```
 
 Can also make links to the list of footnotes.
 
-[sourcecode:html+jinja]
+```jinja
 {% set symbol = doc.footnotes.add('More details available.') %}
 This needs to be considered.<a href="#footnote-{{doc.footnotes.index(symbol)}}">{{symbol}}</a>
-[/sourcecode]
+```
 
 Footnotes can be displayed later on the page.
 
-[sourcecode:html+jinja]
+```jinja
 {% for symbol, value in doc.footnotes %}
   <p id="footnote-{{loop.index0}}">{{symbol}} : {{_(value)}}</p>
 {% endfor %}
-[/sourcecode]
+```
 
 The footnotes can be configured using the `$footnotes` field in the document or
 inherits the [podspec `footnotes` configuration]([url('/content/docs/podspec.md')]#footnotes).
@@ -271,15 +271,15 @@ inherits the [podspec `footnotes` configuration]([url('/content/docs/podspec.md'
 
 Returns the document's body (for `.md` documents, the Markdown body) rendered as HTML.
 
-[sourcecode:html+jinja]
+```jinja
 {{doc.html|safe}}  # Avoid escaping the HTML by piping to the "safe" filter.
-[/sourcecode]
+```
 
 ### locale
 
 Returns the document's [Locale object](http://babel.edgewall.org/wiki/ApiDocs/babel.core#babel.core:Locale).
 
-[sourcecode:html+jinja]
+```jinja
 {{doc.locale}}                           # Locale object.
 
 # Display name of the document's locale in the document's language.
@@ -290,35 +290,35 @@ Returns the document's [Locale object](http://babel.edgewall.org/wiki/ApiDocs/ba
 
 # Whether the locale's language is RTL (right-to-left).
 {{doc.locale.is_rtl}}
-[/sourcecode]
+```
 
 ### locales
 
 Returns a list of [Locale objects](http://babel.edgewall.org/wiki/ApiDocs/babel.core#babel.core:Locale) for the document.
 
-[sourcecode:html+jinja]
+```jinja
 {{doc.locales}}
-[/sourcecode]
+```
 
 ### title
 
 Returns the document's canonical title as defined by `$title`.
 
-[sourcecode:html+jinja]
+```jinja
 {{doc.title}}
-[/sourcecode]
+```
 
 ### url
 
 The document's URL object.
 
-[sourcecode:html+jinja]
+```jinja
 {{doc.url}}            # The full URL to the document (based on the environment).
 {{doc.url.path}}       # The serving path to the document.
 {{doc.url.host}}
 {{doc.url.scheme}}
 {{doc.url.port}}
-[/sourcecode]
+```
 
 ## Built-in fields
 
@@ -328,9 +328,9 @@ Built-in fields carry special meaning that can affect various aspects of buildin
 
 The category the document falls into.
 
-[sourcecode:yaml]
+```yaml
 $category: Get Started
-[/sourcecode]
+```
 
 ### $date
 
@@ -340,32 +340,32 @@ A reference to the document's date defined by the `$date` field.
 
 A function that returns a specific date based on the `$dates` field.
 
-[sourcecode:yaml]
+```yaml
 $title: Example Hello World Document
 $dates:
   created: 2017-12-01
   published: 2017-12-25
-[/sourcecode]
+```
 
-[sourcecode:html+jinja]
+```jinja
 {{doc.dates('created')}}     # datetime.datetime(2017, 12, 1, 0, 0)
 {{doc.dates('published')}}   # datetime.datetime(2017, 12, 25, 0, 0)
-[/sourcecode]
+```
 
 ### $hidden
 
 Whether to hide the document when querying for documents with the `g.docs` tag. Note that even if a document is marked hidden, it will still be rendered and served at its URL.
 
-[sourcecode:yaml]
+```yaml
 # Document will not show up in g.docs() results.
 $hidden: true
-[/sourcecode]
+```
 
 ### $localization
 
 Specify custom localization rules for this document only. Overrides the collection's `localization` configuration.
 
-[sourcecode:yaml]
+```yaml
 # Localized documents will have a custom path.
 $localization:
   path: /foo/{locale}/{base}/
@@ -376,69 +376,69 @@ $localization:
   - de
   - it
   - fr
-[/sourcecode]
+```
 
 ### $order
 
 Specify the order for the collection's default document order. Negative and decimal values are allowed.
 
-[sourcecode:yaml]
+```yaml
 $order: 2
-[/sourcecode]
+```
 
 ### $parent
 
 Specify the parent document in terms of content hierarchy. Used to auto-generate navigation and content relationships.
 
-[sourcecode:yaml]
+```yaml
 # Document /content/pages/foo.md becomes the parent.
 $parent: /content/pages/foo.md
-[/sourcecode]
+```
 
 ### $path
 
 The serving path to make the document available at. By default, individual documents inherit the path specified by their blueprint. However, it can be overriden by specifying `$path` at the document-level.
 
-[sourcecode:yaml]
+```yaml
 # Makes the document available at /foo/bar/.
 $path: /foo/bar/
 
 # Makes the document available at /foo/.
 $path: /{base}/
-[/sourcecode]
+```
 
 ### $slug
 
 Override the document's slug. By default, the document's slug is derived by slugifying its canonical title.
 
-[sourcecode:yaml]
+```yaml
 $slug: foo-bar-baz
-[/sourcecode]
+```
 
 ### $title
 
 The document's canonical title.
 
-[sourcecode:yaml]
+```yaml
 $title: Canonical Title
-[/sourcecode]
+```
 
 ### $titles
 
 Specify custom titles for the document to be used in different contexts and by macros. Used by the `{{doc.titles()}}` function.
 
-[sourcecode:yaml]
+```yaml
 $title: Really Long Canonical Title
 $titles:
   breadcrumb: Breadcrumb Title
   nav: Nav Title
-[/sourcecode]
+```
 
 ### $view
 
 The view to use when rendering the page for this document. By default, individual documents inherit the view specified by their blueprint. However, it can be overriden by specifying it at the document-level.
 
-[sourcecode:yaml]
+```yaml
 # Renders the document with the template at /views/pages.html
 $view: /views/pages.html
-[/sourcecode]
+```
