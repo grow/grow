@@ -170,8 +170,6 @@ class MarkdownDocumentFormat(DocumentFormat):
             extension_configs = {
                 'markdown.extensions.codehilite': codehilite_config,
             }
-            print 'markdown parse'
-            print extension_configs
             val = markdown.markdown(
                 val.decode('utf-8'), extensions=extensions, extension_configs=extension_configs)
         return val
