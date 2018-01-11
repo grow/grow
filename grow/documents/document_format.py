@@ -140,6 +140,8 @@ class MarkdownDocumentFormat(DocumentFormat):
                 markdown_extensions.CodeBlockExtension(self._doc.pod),
                 markdown_extensions.IncludeExtension(self._doc.pod),
                 markdown_extensions.UrlExtension(self._doc.pod),
+                'markdown.extensions.fenced_code',
+                'markdown.extensions.codehilite',
             ]
             val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
         return val
