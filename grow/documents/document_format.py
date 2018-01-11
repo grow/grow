@@ -3,6 +3,7 @@
 import markdown
 from markdown.extensions import tables
 from grow.common import markdown_extensions
+from grow.common import structures
 from grow.common import utils
 from grow.documents import document_front_matter as doc_front_matter
 
@@ -130,6 +131,17 @@ class HtmlDocumentFormat(DocumentFormat):
 
 class MarkdownDocumentFormat(DocumentFormat):
 
+    def get_markdown_config(self, kind):
+        """Get the markdown config for a specific extension."""
+        if 'markdown' in self._doc.pod.podspec:
+            markdown_config = self._doc.pod.podspec.markdown
+            if 'extensions' in markdown_config:
+                for extension in markdown_config['extensions']:
+                    if extension.get('kind', '') != kind:
+                        continue
+                    return structures.AttributeDict(extension)
+        return structures.AttributeDict({})
+
     @utils.cached_property
     def formatted(self):
         val = self.content
@@ -143,7 +155,23 @@ class MarkdownDocumentFormat(DocumentFormat):
                 'markdown.extensions.fenced_code',
                 'markdown.extensions.codehilite',
             ]
-            val = markdown.markdown(val.decode('utf-8'), extensions=extensions)
+            config = self.get_markdown_config('markdown.extensions.codehilite')
+            codehilite_config = {
+                'pygments_style': 'default',
+                'noclasses': True,
+                'css_class': 'code',
+            }
+            if 'theme' in config:
+                codehilite_config['pygments_style'] = config.theme
+            if 'classes' in config:
+                codehilite_config['noclasses'] = config.classes
+            if 'class_name' in config:
+                codehilite_config['css_class'] = config.class_name
+            extension_configs = {
+                'markdown.extensions.codehilite': codehilite_config,
+            }
+            val = markdown.markdown(
+                val.decode('utf-8'), extensions=extensions, extension_configs=extension_configs)
         return val
 
 
