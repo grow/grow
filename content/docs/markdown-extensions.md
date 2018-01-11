@@ -65,6 +65,24 @@ Implements pygments syntax highlighting for code snippets.
 [​/sourcecode]
 ```
 
+You can also highlight specific lines:
+
+```md
+[​sourcecode:html, hl_lines="1 3"]
+<!doctype html>
+<meta charset="utf-8">
+<title>Hello World!</title>
+<p>Source code highlighting.
+[​/sourcecode]
+```
+
+​[sourcecode:html, hl_lines="1 3"]
+<!doctype html>
+<meta charset="utf-8">
+<title>Hello World!</title>
+<p>Source code highlighting.
+[/sourcecode]
+
 The sourcecode extension also supports GitHub-flavor backticks using python markdown's codehilite extension.
 
 ```md
@@ -73,13 +91,13 @@ console.log('Hello World');
 `​``
 ```
 
-To style the formatted code blocks you can use the pygments tool for generating themes. For example, to generate the default styles:
+To style the codehilite formatted code blocks you can use the pygments tool for generating themes. For example, to generate the default theme styles:
 
 ```bash
 pygmentize -S default -f html -a .codehilite > styles.css
 ```
 
-The codehilite extension can also be used to highlight specific lines:
+You can also highlight specific lines:
 
 ```md
 `​``js hl_lines="1"

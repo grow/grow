@@ -14,6 +14,13 @@ meta:
   google_site_verification: ""
   favicon_path: /static/root/favicon.ico
 
+markdown:
+  extensions:
+  - kind: sourcecode
+    theme: friendly
+  - kind: markdown.extensions.codehilite
+    theme: friendly
+
 preprocessors:
 - kind: gulp
   build_task: grow-build
