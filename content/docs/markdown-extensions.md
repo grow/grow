@@ -28,6 +28,23 @@ Generates a table of contents based on the headings in a document. [View documen
 [​TOC]
 ```
 
+### Configuration
+
+Configuration options available to the [toc extension](https://python-markdown.github.io/extensions/toc/#usage) can be configured in the podspec.
+
+```yaml
+# podspec.yaml
+markdown:
+  extensions:
+  - kind: toc
+    marker: [TOC]
+    title:
+    baselevel: 1
+    anchorlink: False
+    permalink: False
+    separator: "-"
+```
+
 ## Include
 
 Includes content from another document.
