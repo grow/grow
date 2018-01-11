@@ -205,6 +205,42 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
+        fields = {
+            'markdown': {
+                'extensions': [{
+                    'kind': 'sourcecode',
+                    'highlighter': 'plain',
+                    'classes': True,
+                }],
+            }
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        pod = pods.Pod(pod.root)
+        controller, params = pod.match('/test/')
+        result = controller.render(params)
+        code_sentinel = '<div class="code"><pre>'
+        self.assertIn(code_sentinel, result)
+
+class BacktickPreprocessorTestCase(unittest.TestCase):
+
+    def test_noclasses(self):
+        pod = testing.create_pod()
+        fields = {
+            'markdown': {
+                'extensions': [{
+                    'kind': 'markdown.extensions.codehilite',
+                }],
+            }
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        fields = {
+            '$view': '/views/base.html',
+            '$path': '/{base}/'
+        }
+        pod.write_yaml('/content/pages/_blueprint.yaml', fields)
+        content = '{{doc.html|safe}}'
+        pod.write_file('/views/base.html', content)
+
         # Verify ticks.
         content = textwrap.dedent(
             """
@@ -223,7 +259,7 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         fields = {
             'markdown': {
                 'extensions': [{
-                    'kind': 'sourcecode',
+                    'kind': 'markdown.extensions.codehilite',
                     'classes': True,
                 }],
             }
@@ -234,22 +270,6 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         result = controller.render(params)
         class_sentinel = '<span class="nt">'
         self.assertIn(class_sentinel, result)
-
-        fields = {
-            'markdown': {
-                'extensions': [{
-                    'kind': 'sourcecode',
-                    'highlighter': 'plain',
-                    'classes': True,
-                }],
-            }
-        }
-        pod.write_yaml('/podspec.yaml', fields)
-        pod = pods.Pod(pod.root)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
-        code_sentinel = '<div class="codehilite"><pre>'
-        self.assertIn(code_sentinel, result)
 
 
 if __name__ == '__main__':

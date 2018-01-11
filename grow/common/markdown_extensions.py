@@ -190,8 +190,8 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
                     lexer = lexers.TextLexer()
                 return '\n{}\n'.format(highlight(content, lexer, formatter))
             elif self.config.highlighter == 'plain':
-                return '\n\n<pre><code class="%s">%s</code></pre>\n\n' \
-                    % (language, content)
+                return '\n\n<div class="{}"><pre><code class="{}">{}</code></pre></div>\n\n'.format(
+                    self.config.class_name, language, content)
             text = '{} is an invalid highlighter. Valid choices are: pygments, plain.'
             raise ValueError(text.format(self.config.highlighter))
         content = '\n'.join(lines)

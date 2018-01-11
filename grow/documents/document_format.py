@@ -164,12 +164,14 @@ class MarkdownDocumentFormat(DocumentFormat):
             if 'theme' in config:
                 codehilite_config['pygments_style'] = config.theme
             if 'classes' in config:
-                codehilite_config['noclasses'] = config.classes
+                codehilite_config['noclasses'] = not config.classes
             if 'class_name' in config:
                 codehilite_config['css_class'] = config.class_name
             extension_configs = {
                 'markdown.extensions.codehilite': codehilite_config,
             }
+            print 'markdown parse'
+            print extension_configs
             val = markdown.markdown(
                 val.decode('utf-8'), extensions=extensions, extension_configs=extension_configs)
         return val
