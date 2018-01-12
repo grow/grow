@@ -16,4 +16,4 @@ Grow's documentation and open source project page.
 
 ## Deployment
 
-`grow.io` is hosted on Google Cloud Storage. Commits on GitHub kick off a Travis CI build task that automatically deploys the site.
+`grow.io` is hosted on Google Cloud Storage. Commits on GitHub kick off a Circle CI build task that automatically deploys the site.
