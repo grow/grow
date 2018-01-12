@@ -9,7 +9,7 @@ Grow pods __must__ contain a file named `podspec.yaml`. The podspec contains fla
 
 ## podspec.yaml
 
-[sourcecode:yaml]
+```yaml
 grow_version: ">=0.0.1"
 title: Project title.
 description: Project description.
@@ -65,7 +65,7 @@ deployments:
       host: example.com
       port: 80
       scheme: https
-[/sourcecode]
+```
 
 ### grow_version
 
@@ -75,15 +75,15 @@ Grow uses [semantic versioning](http://semver.org/) which helps you know which v
 
 This value must be a semantic version *specification*.
 
-[sourcecode:yaml]
+```yaml
 grow_version: ">=0.0.1"       # At least SDK version 0.0.1.
-[/sourcecode]
+```
 
 ### static_dirs
 
 A list of directories in the pod to treat as servable static files. Unlike the `static_dir` shorthand flag, this config provides additional customization and control over the source directory and the path at which the files are served.
 
-[sourcecode:yaml]
+```yaml
 static_dirs:
 
 # Equivalent to the "static_dir" shorthand flag.
@@ -97,7 +97,7 @@ static_dirs:
 # Serves files in the /static/ directory of the pod at the root.
 - static_dir: /static/
   serve_at: /
-[/sourcecode]
+```
 
 If you do not wish to use Grow's content management or templating features, you can leverage the other features of the system (such as testing, building, and deployment) by simply creating a `podspec.yaml` file and following the last above example. This can be a good way to migrate an existing site into Grow and slowly add new site sections leveraging Grow's content and templating features.
 
@@ -105,12 +105,12 @@ If you do not wish to use Grow's content management or templating features, you 
 
 Grow can rewrite static file paths with fingerprints.
 
-[sourcecode:yaml]
+```yaml
 static_dirs:
 - static_dir: /source/
   serve_at: /static/
   fingerprinted: true
-[/sourcecode]
+```
 
 In the above example, a file at `/source/images/file.png` would be served at `/static/images/file-<fingerprint>.png` where `<fingerprint>` is an md5 hash of the file's contents.
 
@@ -118,29 +118,29 @@ In the above example, a file at `/source/images/file.png` would be served at `/s
 
 By default grow ignores building any static files that start with a `.`. The behavior can be changed by adding a main level `filter` or selectively by adding the filter to a `static_dirs` item.
 
-[sourcecode:yaml]
+```yaml
 filter:
   ignore_paths:
   - \.DS_STORE
   include_paths:
   - \.htaccess
-[/sourcecode]
+```
 
 The `ignore_paths` defines regex patterns for which files to ignore. The `include_paths` defines regex patterns that override the ignore patterns.
 
 So if you want to ignore all files that start with a `.` except for `.htaccess` files you could do a filter like this (since the default is to ignore dot files you don't need a `ignore_paths`):
 
-[sourcecode:yaml]
+```yaml
 filter:
   include_paths:
   - \.htaccess
-[/sourcecode]
+```
 
 ### error_routes
 
 Grow can build error pages for various error codes. The error page renders a view, which can leverage the template variable `{{error}}` to gain additional information about the error. To specify a generic error page, use "default". When a pod is built and deployed to a storage provider such as Amazon S3 or Google Cloud Storage, the storage provider will be configured to use these error pages.
 
-[sourcecode:yaml]
+```yaml
 default: /views/errors/default.html
 not_found: /views/errors/404.html
 unauthorized: /views/errors/401.html
@@ -148,7 +148,7 @@ forbidden: /views/errors/403.html
 method_not_allowed: /views/errors/405.html
 bad_request: /views/errors/400.html
 im_a_teapot: /views/errors/418.html
-[/sourcecode]
+```
 
 ### localization
 
@@ -160,74 +160,74 @@ Sets the global, default locale to use for content when a locale is not explicit
 
 It also allows you to use a non-English language as the source language for content (for example, when translating *from* Chinese *to* English).
 
-[sourcecode:yaml]
+```yaml
 default_locale: en
-[/sourcecode]
+```
 
 #### locales
 
 A list of locale identifiers that your site is available in. Language codes will be derived from the identifiers in this list and individual translation catalogs will be created for each language. The `{locale}` converter can be used in `path` configs (such as in `podspec.yaml` or in a blueprint).
 
-[sourcecode:yaml]
+```yaml
 locales:
 - en_US
 - de_DE
 - it_IT
-[/sourcecode]
+```
 
 #### aliases
 
 A mapping of aliases to locale identifiers. This can be used to translate a Grow locale to a locale used by your web server, should the identifiers differ.
 
-[sourcecode:yaml]
+```yaml
 aliases:
   en_uk: en_gb
-[/sourcecode]
+```
 
 #### import_as
 
 A mapping of external to internal locales, used when translations are imported. When translations are imported using `grow translations import_translations`, Grow converts external locales to internal locales. This mapping can be useful if you are working with a translation provider that uses non-standard locales.
 
-[sourcecode:yaml]
+```yaml
 import_as:
   en_uk:
   - en_GB
-[/sourcecode]
+```
 
 #### require_translations
 
 Flag for determining if the build requires all strings in use to be translated before being successful. To target a specific deployment use the `@env.<deployment name>` format.
 
-[sourcecode:yaml]
+```yaml
 require_translations: false
 require_translations@env.prod: true
-[/sourcecode]
+```
 
 ### preprocessors
 
 A list of [preprocessors]([url('/content/docs/preprocessors.md')]). The type of preprocessor is determined by the `kind` key. The remaining keys are configuration parameters for the preprocessor.
 
-[sourcecode:yaml]
+```yaml
 kind: sass
 sass_dir: /source/sass/
 out_dir: /static/css/
-[/sourcecode]
+```
 
 ### meta
 
 Metadata set at a level global to the pod. Metadata here is arbitrary, unstructured, and can be used by templates via `{{podspec.meta}}`. Typcal uses for metadata may be for setting analytics tracking IDs, site verification IDs, etc.
 
-[sourcecode:yaml]
+```yaml
 meta:
   key: value
   google_analytics: UA-12345
-[/sourcecode]
+```
 
 ### sitemap
 
 Add `sitemap` to autogenerate a `sitemap.xml` file for your project.
 
-[sourcecode:yaml]
+```yaml
 sitemap:
   enabled: yes
   path: "/{root}/sitemap.xml"   # Optional.
@@ -236,13 +236,13 @@ sitemap:
   locales:                      # Optional.
   - en
   - fr
-[/sourcecode]
+```
 
 ### deployments
 
 A mapping of named deployments. The deployment destination is determined by the `destination` key. The remaining keys are configuration parameters for the deployment. The `default` name can be used to specify the pod's default deployment. An `env` can optionally be specified.
 
-[sourcecode:yaml]
+```yaml
 default:
   destination: gcs
   bucket: staging.example.com
@@ -250,11 +250,11 @@ default:
 production:
   destination: gcs
   bucket: example.com
-[/sourcecode]
+```
 
 You can also specify the environment on a per-deployment basis. The environment properties are used in the `{{env}}` object, as well as used to derive the host, port, and scheme for the `url` properties of documents and static files. These are also used in sitemap generation.
 
-[sourcecode:yaml]
+```yaml
 deployments:
   example:
     destination: local
@@ -265,13 +265,13 @@ deployments:
       host: example.com
       scheme: https
       port: 9000
-[/sourcecode]
+```
 
 ### footnotes
 
 Add `footnotes` to configure how footnotes are [generated in documents]([url('/content/docs/documents.md')]#footnotes).
 
-[sourcecode:yaml]
+```yaml
 footnotes:
   numeric_locales_pattern: US$
   symbols:
@@ -279,7 +279,7 @@ footnotes:
   - ●
   - ◐
   - ◕
-[/sourcecode]
+```
 
 The default set of symbols follows the Chicago Manual footnote style. Symbols are repeated after the initial list is exhausted. For example, the above configuration would make the fifth footnote use ∞∞ as the symbol.
 

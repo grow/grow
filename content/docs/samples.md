@@ -10,13 +10,13 @@ $order: 3
 
 The `grow init` command accepts either a theme name (for themes owned by the [growthemes organization on GitHub](http://github.com/growthemes)) or the URL to a git repo containing the theme.
 
-[sourcecode:bash]
+```bash
 # Clones the codelab site to a directory "./foo".
 grow init codelab ./foo
 
 # Clones Grow.io site to a directory "./grow.io".
 grow init https://github.com/grow/grow.io grow.io
-[/sourcecode]
+```
 
 ## Themes
 

@@ -11,10 +11,10 @@ Grow has a powerful and simple extension system that enables you to extend the f
 
 Grow supports an `extensions.txt` file as part of the pod. When the file is present the `grow install` command will handle the installation of the extensions.
 
-[sourcecode:txt]
+```txt
 # extensions.txt
 git+git://github.com/grow/grow-ext-contentful
-[/sourcecode]
+```
 
 The `extensions.txt` follows the same format as a normal pip `requirements.txt` style. This means you can install pip packages or directly from [version control](https://pip.pypa.io/en/stable/reference/pip_install/#vcs-support).
 
@@ -34,13 +34,13 @@ In some cases it makes more sense to write the extension inside the same reposit
 
 Extensions are standard Python modules, so your site's `extensions` folder must be set up appropriately, with `__init__.py` files:
 
-[sourcecode:bash]
+```bash
 ├──  /extensions                   # All your extensions
 |    ├──  /__init__.py             # Empty file, required by Python
 |    └──  /extension_name          # Subfolder for custom extension
 |         ├──  /__init__.py        # Empty file, required by Python
 |         ├──  /extension_name.py  # Extension code
-[/sourcecode]
+```
 
 ### Jinja2 extensions
 
@@ -48,16 +48,16 @@ Sites can directly extend Grow's Jinja2 rendering environment by including custo
 
 Specify additional, site-specific Jinja2 extensions in `podspec.yaml`:
 
-[sourcecode:yaml]
+```yaml
 # podspec.yaml
 extensions:
   jinja2:
   - extensions.triplicate.triplicate.Triplicate
-[/sourcecode]
+```
 
 Define the extension in a corresponding place in the `/extensions/` folder.
 
-[sourcecode:python]
+```python
 # /extensions/triplicate/triplicate.py
 
 from jinja2.ext import Extension
@@ -72,15 +72,15 @@ class Triplicate(Extension):
     def __init__(self, environment):
         super(Triplicate, self).__init__(environment)
         environment.filters['triplicate'] = do_triplicate
-[/sourcecode]
+```
 
 Now you can use your custom `triplicate` filter in your Jinja2 templates.
 
-[sourcecode:yaml]
+```yaml
 # /views/base.html
 
 {{10|triplicate}}
-[/sourcecode]
+```
 
 ### Preprocessors
 
@@ -88,7 +88,7 @@ Sites can define custom preprocessors to do pretty much anything at build time a
 
 Specify and use your custom preprocessor in `podspec.yaml`:
 
-[sourcecode:yaml]
+```yaml
 # podspec.yaml
 
 extensions:
@@ -98,11 +98,11 @@ extensions:
 preprocessors:
 - kind: hello
   person: Zoey
-[/sourcecode]
+```
 
 Define the preprocessor in a corresponding place in the `/extensions/` folder. Grow preprocessors should subclass `grow.Preprocessor` and use ProtoRPC Messages to define their configuration.
 
-[sourcecode:python]
+```python
 # /extensions/preprocessors/hello.py
 
 import grow
@@ -119,31 +119,31 @@ class HelloPreprocessor(grow.Preprocessor):
 
     def run(self, build=True):
         print 'Hello, {}!'.format(self.config.person)
-[/sourcecode]
+```
 
 Now, you can use the preprocessor.
 
-[sourcecode:shell]
+```bash
 $ grow preprocess
 Hello, Zoey!
-[/sourcecode]
+```
 
 ### Manual Preprocessors
 
 Some preprocessors should not be run every time the site is built or the development server is started. In these cases a `name` can be added to the config and the `autorun` can be turned off.
 
-[sourcecode:yaml]
+```yaml
 # podspec.yaml
 preprocessors:
 - kind: hello
   name: hello
   autorun: false
   person: Zoey
-[/sourcecode]
+```
 
 To run a specific preprocessor use the `-p` flag:
 
-[sourcecode:shell]
+```bash
 $ grow preprocess -p hello
 Hello, Zoey!
-[/sourcecode]
+```

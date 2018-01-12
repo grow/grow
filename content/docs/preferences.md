@@ -21,7 +21,7 @@ For certain command line flags you can provide custom defaults for Grow by addin
 
 ### Build
 
-[sourcecode:yaml]
+```yaml
 grow:
   build:
     deployment: null
@@ -29,33 +29,33 @@ grow:
     clear-cache: false
     locate-untranslated: false
     re-route: false
-[/sourcecode]
+```
 
 ### Deploy
 
-[sourcecode:yaml]
+```yaml
 grow:
   deploy:
     preprocess: true
     confirm: true
     test: true
     force-untranslated: false
-[/sourcecode]
+```
 
 ### Extract
 
-[sourcecode:yaml]
+```yaml
 grow:
   extract:
     include-obsolete: null
     localized: null
     include-header: null
     fuzzy-matching: null
-[/sourcecode]
+```
 
 ### Filter
 
-[sourcecode:yaml]
+```yaml
 grow:
   filter:
     include-obsolete: false
@@ -63,28 +63,28 @@ grow:
     include-header: false
     out-dir: null
     force: false
-[/sourcecode]
+```
 
 ### Import Translations
 
-[sourcecode:yaml]
+```yaml
 grow:
   translations:
     import:
       include-obsolete: true
-[/sourcecode]
+```
 
 ### Preprocess
 
-[sourcecode:yaml]
+```yaml
 grow:
   preprocess:
     deployment: null
-[/sourcecode]
+```
 
 ### Run
 
-[sourcecode:yaml]
+```yaml
 grow:
   run:
     deployment: null
@@ -97,41 +97,41 @@ grow:
     preprocess: true
     ui: true
     re-route: false
-[/sourcecode]
+```
 
 ### Stage
 
-[sourcecode:yaml]
+```yaml
 grow:
   stage:
     preprocess: true
     force-untranslated: false
-[/sourcecode]
+```
 
 ### Stats
 
-[sourcecode:yaml]
+```yaml
 grow:
   stats:
     full: true
-[/sourcecode]
+```
 
 ### Upload Translations
 
-[sourcecode:yaml]
+```yaml
 grow:
   translations:
     upload:
       download: true
       extract: true
       force: false
-[/sourcecode]
+```
 
 ## Shared Command Flag Defaults
 
 Some of the flags are common between different Grow commands. These can be done as custom defaults in each command or in the shared settings:
 
-[sourcecode:yaml]
+```yaml
 grow:
   shared:
     deployment: null
@@ -142,4 +142,4 @@ grow:
     out-dir: null
     preprocess: true
     re-route: false
-[/sourcecode]
+```

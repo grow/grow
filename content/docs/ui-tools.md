@@ -23,17 +23,17 @@ For basic installations:
 
 Add the tool to the project's `package.json` dev dependencies:
 
-[sourcecode:json]
+```json
 "devDependencies": {
   "grow-tool-analytics-highlight": "^0.0.5"
 }
-[/sourcecode]
+```
 
 Run `grow install` to install the new dependency.
 
 Update the `podspec.yaml` to enable the new tool:
 
-[sourcecode:yaml]
+```yaml
 # Setting for specific deployments.
 deployments:
   staging:
@@ -48,20 +48,20 @@ ui:
   - kind: analytics-highlight
     options:
       prefix: event
-[/sourcecode]
+```
 
 ### CDNs and Local Sources
 
 Tools can also be hosted on third party systems such as CDNs or within the project:
 
-[sourcecode:yaml]
+```yaml
 ui:
   tools:
   - kind: analytics-highlight
     paths:
       script: https://some.cdn.com/grow/ui/tool.js
       style: https://some.cdn.com/grow/ui/tool.css
-[/sourcecode]
+```
 
 ## Custom Tools
 
