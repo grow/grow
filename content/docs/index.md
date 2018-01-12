@@ -19,4 +19,4 @@ You've reached the technical documentation for Grow. This guide is intended to t
 
 Grow is simple yet powerful and prefers configuration over code for defining your web site's content and architecture. Our goal is to keep Grow simple so that you can learn about all its capabilities within an hour or less.
 
-You can get started by following along with the [codelab](https://grow.io/start/) or you can jump in by browsing the pod directory structure reference.
+You can get started by following along with the [codelab]([url('/content/codelab/0.md')]) or you can jump in by browsing the [pod directory structure reference]([url('/content/docs/directory-structure.md')]).
