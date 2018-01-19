@@ -70,7 +70,7 @@ jobs:
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
-            - "env"
+            - "$(pipenv --venv)"
 
       - run:
           name: Pylint
@@ -96,13 +96,13 @@ jobs:
       - save_cache:
           key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
-            - "env"
+            - "$(pipenv --venv)"
 
       - run:
           name: Build Release
           command: |
             set -e
-            . env/bin/activate
+            . $(pipenv --venv)/bin/activate
             pyinstaller grow.spec
 
       - run:
@@ -167,13 +167,13 @@ jobs:
       - save_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
-            - "env"
+            - "$(pipenv --venv)"
 
       - run:
           name: Build Release
           command: |
             set -e
-            . env/bin/activate
+            . $(pipenv --venv)/bin/activate
             pyinstaller grow.spec
 
       - run:
@@ -219,20 +219,20 @@ jobs:
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
-            - "env"
+            - "$(pipenv --venv)"
 
       - run:
           name: Create Distribution
           command:  |
             set -e
-            . env/bin/activate
+            . $(pipenv --venv)/bin/activate
             python setup.py sdist bdist_wheel
 
       - run:
           name: Pip Install
           command: |
             set -e
-            . env/bin/activate
+            . $(pipenv --venv)/bin/activate
             pip install urllib3[secure] --upgrade
             pip install twine --upgrade
 
@@ -240,7 +240,7 @@ jobs:
           name: Twine Upload
           command: |
             set -e
-            . env/bin/activate
+            . $(pipenv --venv)/bin/activate
             twine upload dist/grow-$(<grow/VERSION)*
 
       - store_artifacts:
@@ -266,7 +266,7 @@ jobs:
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
-            - "env"
+            - "$(pipenv --venv)"
 
       - run:
           name: Run Tests
@@ -276,8 +276,8 @@ jobs:
           name: Code Coverage
           command: |
             set -e
-            . env/bin/activate
-            ./env/bin/codecov
+            . $(pipenv --venv)/bin/activate
+            $(pipenv --venv)/codecov
 
       - run:
           name: Test build
@@ -304,7 +304,7 @@ jobs:
       - save_cache:
           key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
-            - "env"
+            - "$(pipenv --venv)"
 
       - run:
           name: Hack Setup for Tests
@@ -322,8 +322,8 @@ jobs:
           name: Code Coverage
           command: |
             set -e
-            . env/bin/activate
-            ./env/bin/codecov
+            . $(pipenv --venv)/bin/activate
+            $(pipenv --venv)/codecov
 
       - run:
           name: Test build
@@ -353,14 +353,14 @@ jobs:
       - save_cache:
           key: pip-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
           paths:
-            - "env"
+            - "$(pipenv --venv)"
 
       - run:
           name: Code Coverage
           command: |
             set -e
-            . env/bin/activate
-            ./env/bin/codecov
+            . $(pipenv --venv)/bin/activate
+            $(pipenv --venv)/codecov
 
       - run:
           name: Test build
