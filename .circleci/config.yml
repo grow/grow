@@ -1,15 +1,15 @@
 version: 2
 
 pip_create_env: &pip_create_env
-  name: Virtual Env
-  command: virtualenv env --distribute
+  name: Pipenv Virtual Env
+  command: pipenv --two
 
 pip_install: &pip_install
-  name: Pip Install
+  name: Pipenv Install
   command: |
     set -e
-    . env/bin/activate
-    pip install -r requirements-dev.txt
+    pipenv install --dev
+    . $(pipenv --venv)/bin/activate
 
 jobs:
   init:
