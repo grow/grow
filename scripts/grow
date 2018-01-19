@@ -8,11 +8,14 @@ function realdirname() {
 
 HERE="$(realdirname "$0")"
 
-if [ -d "${HERE}/../env" ]; then
-  source "${HERE}/../env/bin/activate"
-  "${HERE}/../bin/grow" ${@}
-  deactivate
-else
-  echo 'Run make develop first.'
-  exit 1
-fi
+# Find the virtual env for grow.
+PIP_ENV=$(
+  cd "$HERE/../" && pipenv --venv;
+)
+
+# Activate the virtual environment and run the command.
+(
+  source "${PIP_ENV}/bin/activate";
+  "${HERE}/../bin/grow" ${@};
+  deactivate;
+)
