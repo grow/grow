@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "050d17d749df3462942e69e0ee6c364f6008d4879a7fb481ec46c91e8e95dc2c"
+            "sha256": "8e7923a0d4b509e94861b4275d20dcbe37eb3a74956a3aa8321b71fda17bf8dd"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -45,10 +45,10 @@
         },
         "babel": {
             "hashes": [
-                "sha256:e86ca5a3a6bb64b9bbb62b9dac37225ec0ab5dfaae3c2492ebd648266468042f",
-                "sha256:8c98f5e5f8f5f088571f2c6bd88d530e331cbbcb95a7311a0db69d3dca7ec563"
+                "sha256:ad209a68d7162c4cff4b29cdebe3dec4cef75492df501b0049a9433c96ce6f80",
+                "sha256:8ce4cb6fdd4393edd323227cba3a077bceb2a6ce5201c902c65e730046f41f14"
             ],
-            "version": "==2.4.0"
+            "version": "==2.5.3"
         },
         "bcrypt": {
             "hashes": [
@@ -143,7 +143,6 @@
                 "sha256:87f837459c3c78d75cb4f5aadf08a7104db15e8c7618a5c732e60f252279c7a6",
                 "sha256:df9083a992b17a28cd4251a3f5c879e0198bb26c9e808c4647e0a18739f1d11d"
             ],
-            "markers": "platform_python_implementation != 'PyPy'",
             "version": "==1.11.4"
         },
         "chardet": {
@@ -503,10 +502,10 @@
         },
         "six": {
             "hashes": [
-                "sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb",
-                "sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9"
+                "sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1",
+                "sha256:105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a"
             ],
-            "version": "==1.11.0"
+            "version": "==1.10.0"
         },
         "smmap2": {
             "hashes": [
