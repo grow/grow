@@ -392,10 +392,10 @@ workflows:
         <<: *filter_all_tags
         requires:
         - init
-    - test-gae:
-        <<: *filter_all_tags
-        requires:
-        - init
+    # - test-gae:
+    #     <<: *filter_all_tags
+    #     requires:
+    #     - init
     - test-osx:
         <<: *filter_all_tags
         requires:
