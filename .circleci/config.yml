@@ -62,13 +62,13 @@ jobs:
           <<: *pip_create_env
 
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -88,13 +88,13 @@ jobs:
           <<: *pip_create_env
 
       - restore_cache:
-          key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -159,13 +159,13 @@ jobs:
           <<: *pip_create_env
 
       - restore_cache:
-          key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -211,13 +211,13 @@ jobs:
           <<: *pip_create_env
 
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -258,13 +258,13 @@ jobs:
           <<: *pip_create_env
 
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -296,13 +296,13 @@ jobs:
           <<: *pip_create_env
 
       - restore_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -341,7 +341,7 @@ jobs:
           <<: *pip_create_env
 
       - restore_cache:
-          key: pip-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
 
       - run:
           <<: *pip_install
@@ -351,7 +351,7 @@ jobs:
           command: make test-nosetests-circle
 
       - save_cache:
-          key: pip-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
           paths:
             - "$(pipenv --venv)"
 
