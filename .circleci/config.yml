@@ -270,7 +270,7 @@ jobs:
 
       - run:
           name: Run Tests
-          command: make test-nosetests-circle
+          command: make test-nosetests
 
       - run:
           name: Code Coverage
@@ -348,7 +348,7 @@ jobs:
 
       - run:
           name: Run Tests
-          command: make test-nosetests-circle
+          command: make test-nosetests
 
       - save_cache:
           key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
