@@ -1,9 +1,5 @@
 version: 2
 
-pip_create_env: &pip_create_env
-  name: Pipenv Virtual Env
-  command: pipenv --two
-
 pip_install: &pip_install
   name: Pipenv Install
   command: |
@@ -57,9 +53,6 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          <<: *pip_create_env
-
       - restore_cache:
           key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
 
@@ -82,9 +75,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/grow
-
-      - run:
-          <<: *pip_create_env
 
       - restore_cache:
           key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}
@@ -154,9 +144,6 @@ jobs:
           name: Install ghr
           command: go get -u github.com/tcnksm/ghr
 
-      - run:
-          <<: *pip_create_env
-
       - restore_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
 
@@ -206,9 +193,6 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          <<: *pip_create_env
-
       - restore_cache:
           key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
 
@@ -253,9 +237,6 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          <<: *pip_create_env
-
       # - restore_cache:
       #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
 
@@ -294,9 +275,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/grow
-
-      - run:
-          <<: *pip_create_env
 
       - restore_cache:
           key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}
@@ -339,9 +317,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/grow
-
-      - run:
-          <<: *pip_create_env
 
       - restore_cache:
           key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
