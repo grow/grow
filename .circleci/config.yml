@@ -4,7 +4,7 @@ pip_install: &pip_install
   name: Pipenv Install
   command: |
     set -e
-    pipenv install --dev --verbose
+    pipenv install --dev
 
 jobs:
   init:
@@ -43,6 +43,8 @@ jobs:
             - pylintrc
             - requirements-dev.txt
             - requirements.txt
+            - Pipfile
+            - Pipfile.lock
             - setup.py
 
   pylint:
