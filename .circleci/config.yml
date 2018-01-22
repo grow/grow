@@ -70,7 +70,7 @@ jobs:
 
       - run:
           name: Pylint
-          command: make test-pylint-circle
+          command: make test-pylint
 
   release-package-linux:
     working_directory: ~/grow
