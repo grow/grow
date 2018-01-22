@@ -38,7 +38,7 @@ develop:
 	  echo " You must install libyaml from source: http://pyyaml.org/wiki/LibYAML"; \
 	fi
 	pipenv --update
-	pipenv install --dev
+	pipenv install
 	$(MAKE) build-ui
 
 build-ui:
