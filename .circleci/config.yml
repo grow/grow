@@ -6,6 +6,7 @@ pip_install: &pip_install
     set -e
     pipenv update
     pipenv install --dev
+    . $(pipenv --venv)/bin/activate
 
 jobs:
   init:
@@ -92,10 +93,7 @@ jobs:
 
       - run:
           name: Build Release
-          command: |
-            set -e
-            . $(pipenv --venv)/bin/activate
-            pyinstaller grow.spec
+          command: pyinstaller grow.spec
 
       - run:
           name: Package
@@ -160,10 +158,7 @@ jobs:
 
       - run:
           name: Build Release
-          command: |
-            set -e
-            . $(pipenv --venv)/bin/activate
-            pyinstaller grow.spec
+          command: pyinstaller grow.spec
 
       - run:
           name: Package
@@ -209,25 +204,18 @@ jobs:
 
       - run:
           name: Create Distribution
-          command:  |
-            set -e
-            . $(pipenv --venv)/bin/activate
-            python setup.py sdist bdist_wheel
+          command: python setup.py sdist bdist_wheel
 
       - run:
           name: Pip Install
           command: |
             set -e
-            . $(pipenv --venv)/bin/activate
             pip install urllib3[secure] --upgrade
             pip install twine --upgrade
 
       - run:
           name: Twine Upload
-          command: |
-            set -e
-            . $(pipenv --venv)/bin/activate
-            twine upload dist/grow-$(<grow/VERSION)*
+          command: twine upload dist/grow-$(<grow/VERSION)*
 
       - store_artifacts:
           path: dist/
@@ -261,10 +249,7 @@ jobs:
 
       - run:
           name: Code Coverage
-          command: |
-            set -e
-            . $(pipenv --venv)/bin/activate
-            $(pipenv --venv)/codecov
+          command: $(pipenv --venv)/bin/codecov
 
       - run:
           name: Test build
@@ -304,10 +289,7 @@ jobs:
 
       - run:
           name: Code Coverage
-          command: |
-            set -e
-            . $(pipenv --venv)/bin/activate
-            $(pipenv --venv)/codecov
+          command: $(pipenv --venv)/bin/codecov
 
       - run:
           name: Test build
@@ -338,10 +320,7 @@ jobs:
 
       - run:
           name: Code Coverage
-          command: |
-            set -e
-            . $(pipenv --venv)/bin/activate
-            $(pipenv --venv)/codecov
+          command: $(pipenv --venv)/bin/codecov
 
       - run:
           name: Test build
