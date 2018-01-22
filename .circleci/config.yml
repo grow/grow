@@ -58,13 +58,13 @@ jobs:
           at: ~/grow
 
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -81,13 +81,13 @@ jobs:
           at: ~/grow
 
       - restore_cache:
-          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -146,13 +146,13 @@ jobs:
           command: go get -u github.com/tcnksm/ghr
 
       - restore_cache:
-          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -192,13 +192,13 @@ jobs:
           at: ~/grow
 
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -229,13 +229,13 @@ jobs:
           at: ~/grow
 
       # - restore_cache:
-      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
+      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       # - save_cache:
-      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
+      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
       #     paths:
       #       - "$(pipenv --venv)"
 
@@ -265,13 +265,13 @@ jobs:
           at: ~/grow
 
       - restore_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
             - "$(pipenv --venv)"
 
@@ -308,7 +308,7 @@ jobs:
           command: brew install pipenv
 
       - restore_cache:
-          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
@@ -318,7 +318,7 @@ jobs:
           command: make test-nosetests
 
       - save_cache:
-          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
+          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
             - "$(pipenv --venv)"
 
