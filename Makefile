@@ -158,7 +158,7 @@ upload-github:
 setup-release:
 	make develop
 	. "${PIP_ENV}/bin/activate"
-	pip2 install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
+	$(PIP_ENV)/bin/pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 
 release:
 	. "${PIP_ENV}/bin/activate"

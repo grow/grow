@@ -269,6 +269,10 @@ jobs:
             - "$(pipenv --venv)"
 
       - run:
+          name: Has nosetests?
+          command: ls $(pipenv --venv)/bin
+
+      - run:
           name: Run Tests
           command: make test-nosetests
 
