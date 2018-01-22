@@ -73,11 +73,11 @@ develop-linux:
 	$(MAKE) develop
 
 pylint:
-	source $(PIP_ENV)/bin/activate
+	. $(PIP_ENV)/bin/activate
 	$(PIP_ENV)/bin/pylint --errors-only $(target)
 
 test:
-	. "source $(PIP_ENV)/bin/activate"
+	. ". $(PIP_ENV)/bin/activate"
 	$(PIP_ENV)/bin/nosetests \
 	  -v \
 	  --rednose \
@@ -89,7 +89,7 @@ test:
 	  $(target)
 
 test-nosetests:
-	source $(PIP_ENV)/bin/activate
+	. $(PIP_ENV)/bin/activate
 	$(PIP_ENV)/bin/nosetests \
 	  -v \
 	  --rednose \
@@ -101,7 +101,7 @@ test-nosetests:
 	  grow
 
 test-pylint:
-	source $(PIP_ENV)/bin/activate
+	. $(PIP_ENV)/bin/activate
 	$(PIP_ENV)/bin/pylint --errors-only $(target)
 
 test-circle:
@@ -114,7 +114,7 @@ prep-release:
 	$(MAKE) test
 
 upload-pypi:
-	source $(PIP_ENV)/bin/activate
+	. $(PIP_ENV)/bin/activate
 	$(MAKE) ensure-master
 	git pull origin master
 	$(MAKE) prep-release
@@ -127,7 +127,7 @@ upload-github:
 	@github-release > /dev/null || { \
 	  go get github.com/aktau/github-release; \
 	}
-	source $(PIP_ENV)/bin/activate
+	. $(PIP_ENV)/bin/activate
 	$(MAKE) ensure-master
 	git pull origin master
 	$(MAKE) prep-release
@@ -157,11 +157,11 @@ upload-github:
 # https://github.com/grow/grow/issues/302
 setup-release:
 	make develop
-	source $(PIP_ENV)/bin/activate
+	. $(PIP_ENV)/bin/activate
 	$(PIP_ENV)/bin/pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 
 release:
-	source $(PIP_ENV)/bin/activate
+	. $(PIP_ENV)/bin/activate
 	pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r $(FILENAME) grow && cd ..
@@ -170,7 +170,7 @@ release:
 	@echo "Built: dist/$(FILENAME)"
 
 release-ci:
-	source $(PIP_ENV)/bin/activate
+	. $(PIP_ENV)/bin/activate
 	pipenv install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 	pyinstaller grow.spec
 	chmod +x dist/grow
