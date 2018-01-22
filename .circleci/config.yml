@@ -4,6 +4,7 @@ pip_install: &pip_install
   name: Pipenv Install
   command: |
     set -e
+    pipenv update
     pipenv install --dev
 
 jobs:
