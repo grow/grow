@@ -4,6 +4,7 @@ pip_install: &pip_install
   name: Pipenv Install
   command: |
     set -e
+    pipenv update
     pipenv install --dev
     . $(pipenv --venv)/bin/activate
 
@@ -301,6 +302,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/grow
+
+      - run:
+          name: Install pipenv
+          command: brew install pipenv
 
       - restore_cache:
           key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}
