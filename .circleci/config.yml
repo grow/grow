@@ -9,7 +9,6 @@ pip_install: &pip_install
   command: |
     set -e
     pipenv install --dev
-    . $(pipenv --venv)/bin/activate
 
 jobs:
   init:
@@ -257,19 +256,19 @@ jobs:
       - run:
           <<: *pip_create_env
 
-      - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
+      # - restore_cache:
+      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
 
       - run:
           <<: *pip_install
 
-      - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
-          paths:
-            - "$(pipenv --venv)"
+      # - save_cache:
+      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}
+      #     paths:
+      #       - "$(pipenv --venv)"
 
       - run:
-          name: Has nosetests?
+          name: bin?
           command: ls $(pipenv --venv)/bin
 
       - run:
