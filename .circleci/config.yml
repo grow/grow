@@ -57,17 +57,16 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      # - restore_cache:
-      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
-      # Cannot use dynamic paths yet in CircleCI.
-      # - save_cache:
-      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - "$(pipenv --venv)"
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Pylint
@@ -81,17 +80,16 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      # - restore_cache:
-      #     key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+      - restore_cache:
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
-      # Cannot use dynamic paths yet in CircleCI.
-      # - save_cache:
-      #     key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - "$(pipenv --venv)"
+      - save_cache:
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Build Release
@@ -147,17 +145,16 @@ jobs:
           name: Install ghr
           command: go get -u github.com/tcnksm/ghr
 
-      # - restore_cache:
-      #     key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+      - restore_cache:
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
-      # Cannot use dynamic paths yet in CircleCI.
-      # - save_cache:
-      #     key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - "$(pipenv --venv)"
+      - save_cache:
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Build Release
@@ -194,17 +191,16 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      # - restore_cache:
-      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
-      # Cannot use dynamic paths yet in CircleCI.
-      # - save_cache:
-      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - "$(pipenv --venv)"
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Create Distribution
@@ -232,17 +228,16 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      # - restore_cache:
-      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
-      # Cannot use dynamic paths yet in CircleCI.
-      # - save_cache:
-      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - "$(pipenv --venv)"
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: bin?
@@ -269,17 +264,16 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      # - restore_cache:
-      #     key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+      - restore_cache:
+          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
-      # Cannot use dynamic paths yet in CircleCI.
-      # - save_cache:
-      #     key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - "$(pipenv --venv)"
+      - save_cache:
+          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Hack Setup for Tests
@@ -313,17 +307,16 @@ jobs:
           name: Install pipenv
           command: brew install pipenv
 
-      # - restore_cache:
-      #     key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+      - restore_cache:
+          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
-      # Cannot use dynamic paths yet in CircleCI.
-      # - save_cache:
-      #     key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - "$(pipenv --venv)"
+      - save_cache:
+          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Run Tests
