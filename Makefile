@@ -38,7 +38,7 @@ develop:
 	  echo " You must install libyaml from source: http://pyyaml.org/wiki/LibYAML"; \
 	fi
 	pipenv --update
-	pipenv install
+	pipenv install --dev
 	$(MAKE) build-ui
 
 build-ui:
@@ -153,12 +153,6 @@ upload-github:
 	  -n "$(FILENAME)" \
 	  --file dist/$(FILENAME)
 
-# https://github.com/grow/grow/issues/302
-setup-release:
-	make develop
-	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/pip install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
-
 release:
 	. $(PIP_ENV)/bin/activate
 	pyinstaller grow.spec
@@ -170,7 +164,7 @@ release:
 
 release-ci:
 	. $(PIP_ENV)/bin/activate
-	pipenv install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
+	pipenv install git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 	pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r $(FILENAME_CI) grow && cd ..
