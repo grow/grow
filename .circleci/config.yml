@@ -266,18 +266,14 @@ jobs:
       - run:
           <<: *pip_install
 
+      - run:
+          name: Install Extras
+          command: pipenv install pyasn1-modules
+
       - save_cache:
           key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
           - /root/.local/share/virtualenvs/
-
-      - run:
-          name: Hack Setup for Tests
-          # https://github.com/faisalraja/env/issues/11
-          command: |
-            set -e
-            cat requirements.txt > ./env/requirements-gae.txt
-            echo "pyasn1-modules>=0.0.8" >> ./env/requirements-gae.txt
 
       - run:
           name: Run Tests
