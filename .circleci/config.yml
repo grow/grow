@@ -240,10 +240,6 @@ jobs:
           - /root/.local/share/virtualenvs/
 
       - run:
-          name: bin?
-          command: ls $(pipenv --venv)/bin
-
-      - run:
           name: Run Tests
           command: make test-nosetests
 
