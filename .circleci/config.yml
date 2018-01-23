@@ -154,7 +154,7 @@ jobs:
       - save_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-          - /root/.local/share/virtualenvs/
+          - /Users/distiller/.local/share/virtualenvs/
 
       - run:
           name: Build Release
@@ -312,7 +312,7 @@ jobs:
       - save_cache:
           key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-          - /root/.local/share/virtualenvs/
+          - /Users/distiller/.local/share/virtualenvs/
 
       - run:
           name: Run Tests
