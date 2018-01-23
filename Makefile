@@ -76,7 +76,7 @@ pylint:
 	$(PIP_ENV)/bin/pylint --errors-only $(target)
 
 test:
-	. ". $(PIP_ENV)/bin/activate"
+	. $(PIP_ENV)/bin/activate
 	$(PIP_ENV)/bin/nosetests \
 	  -v \
 	  --rednose \
@@ -87,8 +87,8 @@ test:
 	  --cover-package=grow \
 	  $(target)
 
-test-gae-circle:
-	. ". $(PIP_ENV)/bin/activate"
+test-gae:
+	. $(PIP_ENV)/bin/activate
 	NOSEGAE=1
 	$(PIP_ENV)/bin/nosetests \
 	  -v \
