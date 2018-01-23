@@ -87,6 +87,20 @@ test:
 	  --cover-package=grow \
 	  $(target)
 
+test-gae-circle:
+	. ". $(PIP_ENV)/bin/activate"
+	NOSEGAE=1
+	$(PIP_ENV)/bin/nosetests \
+	  -v \
+	  --rednose \
+	  --with-coverage \
+	  --with-gae \
+	  --nocapture \
+	  --nologcapture \
+	  --gae-application=./grow/testing/testdata/pod/ \
+	  --gae-lib-root=$(HOME)/google_appengine/ \
+	  $(target)
+
 test-nosetests:
 	. $(PIP_ENV)/bin/activate
 	$(PIP_ENV)/bin/nosetests \
