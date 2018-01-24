@@ -1,15 +1,12 @@
 version: 2
 
-pip_create_env: &pip_create_env
-  name: Virtual Env
-  command: virtualenv env --distribute
-
 pip_install: &pip_install
-  name: Pip Install
+  name: Pipenv Install
   command: |
     set -e
-    . env/bin/activate
-    pip install -r requirements-dev.txt
+    pipenv update
+    pipenv install --dev
+    . $(pipenv --venv)/bin/activate
 
 jobs:
   init:
@@ -48,6 +45,8 @@ jobs:
             - pylintrc
             - requirements-dev.txt
             - requirements.txt
+            - Pipfile
+            - Pipfile.lock
             - setup.py
 
   pylint:
@@ -58,23 +57,20 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          <<: *pip_create_env
-
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - "env"
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Pylint
-          command: make test-pylint-circle
+          command: make test-pylint
 
   release-package-linux:
     working_directory: ~/grow
@@ -84,26 +80,20 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          <<: *pip_create_env
-
       - restore_cache:
-          key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-release-linux-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - "env"
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Build Release
-          command: |
-            set -e
-            . env/bin/activate
-            pyinstaller grow.spec
+          command: pyinstaller grow.spec
 
       - run:
           name: Package
@@ -155,26 +145,20 @@ jobs:
           name: Install ghr
           command: go get -u github.com/tcnksm/ghr
 
-      - run:
-          <<: *pip_create_env
-
       - restore_cache:
-          key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-release-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - "env"
+          - /Users/distiller/.local/share/virtualenvs/
 
       - run:
           name: Build Release
-          command: |
-            set -e
-            . env/bin/activate
-            pyinstaller grow.spec
+          command: pyinstaller grow.spec
 
       - run:
           name: Package
@@ -207,41 +191,31 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          <<: *pip_create_env
-
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - "env"
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Create Distribution
-          command:  |
-            set -e
-            . env/bin/activate
-            python setup.py sdist bdist_wheel
+          command: python setup.py sdist bdist_wheel
 
       - run:
           name: Pip Install
           command: |
             set -e
-            . env/bin/activate
             pip install urllib3[secure] --upgrade
             pip install twine --upgrade
 
       - run:
           name: Twine Upload
-          command: |
-            set -e
-            . env/bin/activate
-            twine upload dist/grow-$(<grow/VERSION)*
+          command: twine upload dist/grow-$(<grow/VERSION)*
 
       - store_artifacts:
           path: dist/
@@ -254,76 +228,24 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          <<: *pip_create_env
-
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - "env"
+          - /root/.local/share/virtualenvs/
 
       - run:
           name: Run Tests
-          command: make test-nosetests-circle
+          command: make test-nosetests
 
       - run:
           name: Code Coverage
-          command: |
-            set -e
-            . env/bin/activate
-            ./env/bin/codecov
-
-      - run:
-          name: Test build
-          command: ./scripts/grow build ./grow/testing/testdata/pod
-
-
-  test-gae:
-    working_directory: ~/grow
-    docker:
-      - image: grow/grow-internal-image
-    steps:
-      - attach_workspace:
-          at: ~/grow
-
-      - run:
-          <<: *pip_create_env
-
-      - restore_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-
-      - run:
-          <<: *pip_install
-
-      - save_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-          paths:
-            - "env"
-
-      - run:
-          name: Hack Setup for Tests
-          # https://github.com/faisalraja/env/issues/11
-          command: |
-            set -e
-            cat requirements.txt > ./env/requirements-gae.txt
-            echo "pyasn1-modules>=0.0.8" >> ./env/requirements-gae.txt
-
-      - run:
-          name: Run Tests
-          command: make test-gae-circle
-
-      - run:
-          name: Code Coverage
-          command: |
-            set -e
-            . env/bin/activate
-            ./env/bin/codecov
+          command: $(pipenv --venv)/bin/codecov
 
       - run:
           name: Test build
@@ -338,29 +260,27 @@ jobs:
           at: ~/grow
 
       - run:
-          <<: *pip_create_env
+          name: Install pipenv
+          command: brew install pipenv
 
       - restore_cache:
-          key: pip-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           <<: *pip_install
 
+      - save_cache:
+          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /Users/distiller/.local/share/virtualenvs/
+
       - run:
           name: Run Tests
-          command: make test-nosetests-circle
-
-      - save_cache:
-          key: pip-osx-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
-          paths:
-            - "env"
+          command: make test-nosetests
 
       - run:
           name: Code Coverage
-          command: |
-            set -e
-            . env/bin/activate
-            ./env/bin/codecov
+          command: $(pipenv --venv)/bin/codecov
 
       - run:
           name: Test build
@@ -389,10 +309,6 @@ workflows:
         requires:
         - init
     - test:
-        <<: *filter_all_tags
-        requires:
-        - init
-    - test-gae:
         <<: *filter_all_tags
         requires:
         - init
