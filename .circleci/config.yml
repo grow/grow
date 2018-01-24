@@ -251,43 +251,6 @@ jobs:
           name: Test build
           command: ./scripts/grow build ./grow/testing/testdata/pod
 
-
-  test-gae:
-    working_directory: ~/grow
-    docker:
-      - image: grow/grow-internal-image
-    steps:
-      - attach_workspace:
-          at: ~/grow
-
-      - restore_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          <<: *pip_install
-
-      # https://github.com/faisalraja/gaenv/issues/11
-      - run:
-          name: Install Extras
-          command: pipenv install pyasn1-modules
-
-      - save_cache:
-          key: pip-gae-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-          paths:
-          - /root/.local/share/virtualenvs/
-
-      - run:
-          name: Run Tests
-          command: make test-gae
-
-      - run:
-          name: Code Coverage
-          command: $(pipenv --venv)/bin/codecov
-
-      - run:
-          name: Test build
-          command: ./scripts/grow build ./grow/testing/testdata/pod
-
   test-osx:
     working_directory: ~/grow
     macos:
@@ -346,10 +309,6 @@ workflows:
         requires:
         - init
     - test:
-        <<: *filter_all_tags
-        requires:
-        - init
-    - test-gae:
         <<: *filter_all_tags
         requires:
         - init
