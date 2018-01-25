@@ -10,6 +10,26 @@ class AttributeDict(dict):
     __setattr__ = dict.__setitem__
 
 
+class DeepReferenceDict(dict):
+    """Deep reference dictionary using a delimited key."""
+
+    def __getitem__(self, key):
+        """Handle the ability to do a delimited key."""
+        try:
+            return super(DeepReferenceDict, self).__getitem__(key)
+        except KeyError:
+            data = None
+            for sub_key in key.split('.'):
+                if data is None:
+                    data = self.get(sub_key)
+                    continue
+                if sub_key in data:
+                    data = data[sub_key]
+                else:
+                    raise
+            return data
+
+
 class SafeDict(dict):
     """Keeps the unmatched format params in place."""
 
