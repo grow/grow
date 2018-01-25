@@ -311,7 +311,10 @@ def make_yaml_loader(pod, doc=None, locale=None):
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 if reference:
                     data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
-                    return data[reference]
+                    try:
+                        return data[reference]
+                    except KeyError:
+                        return None
                 return None
             return self._construct_func(node, func)
 
@@ -332,7 +335,10 @@ def make_yaml_loader(pod, doc=None, locale=None):
                     if doc:
                         pod.podcache.dependency_graph.add(doc.pod_path, path)
                     data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
-                    return data[reference]
+                    try:
+                        return data[reference]
+                    except KeyError:
+                        return None
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 return self.read_yaml(path, locale=locale)
