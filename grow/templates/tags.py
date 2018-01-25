@@ -6,6 +6,7 @@ from datetime import datetime
 import jinja2
 from babel.messages import catalog as babel_catalog
 from grow.collections import collection as collection_lib
+from grow.common import structures
 from grow.common import utils
 from grow.translations import locales as locales_lib
 
@@ -243,6 +244,10 @@ def wrap_locale_context(func):
 def yaml(path, _pod, _doc=None):
     """Retrieves a yaml file from the pod."""
     locale = str(_doc.locale_safe) if _doc else None
+    if '?' in path:
+        path, reference = path.split('?')
+        data = structures.DeepReferenceDict(_read_yaml(_pod, path, locale=locale))
+        return data[reference]
     return _read_yaml(_pod, path, locale=locale)
 
 

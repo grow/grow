@@ -17,6 +17,29 @@ class AttributeDictTestCase(unittest.TestCase):
         self.assertEqual('value', obj.key)
 
 
+class DeepReferenceDictTestCase(unittest.TestCase):
+    """Test the deep reference dict structure."""
+
+    def test_deep_reference(self):
+        """Delimited keys are accessible."""
+        obj = structures.DeepReferenceDict({
+            'key': {
+                'sub_key': {
+                    'value': 'foo',
+                }
+            },
+        })
+        self.assertEqual('foo', obj['key']['sub_key']['value'])
+        self.assertEqual('foo', obj['key.sub_key.value'])
+
+    def test_deep_reference_error(self):
+        """Missing keys raise error."""
+        obj = structures.DeepReferenceDict({
+            'key': {},
+        })
+        with self.assertRaises(KeyError):
+            _ = obj['key.sub_key.value']
+
 class SortedCollectionTestCase(unittest.TestCase):
     """Test the sorted collection structure."""
 

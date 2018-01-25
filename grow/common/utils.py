@@ -228,15 +228,6 @@ def make_yaml_loader(pod, doc=None, locale=None):
     class YamlLoader(yaml_Loader):
 
         @staticmethod
-        def deep_reference(reference, data):
-            for key in reference.split('.'):
-                if data and key in data:
-                    data = data[key]
-                else:
-                    return None
-            return data
-
-        @staticmethod
         def read_csv(pod_path):
             """Reads a csv file using a cache."""
             file_cache = pod.podcache.file_cache
@@ -319,8 +310,8 @@ def make_yaml_loader(pod, doc=None, locale=None):
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 if reference:
-                    data = self.read_yaml(path, locale=locale)
-                    return YamlLoader.deep_reference(reference, data)
+                    data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
+                    return data[reference]
                 return None
             return self._construct_func(node, func)
 
@@ -340,8 +331,8 @@ def make_yaml_loader(pod, doc=None, locale=None):
                     path, reference = path.split('?')
                     if doc:
                         pod.podcache.dependency_graph.add(doc.pod_path, path)
-                    data = self.read_yaml(path, locale=locale)
-                    return YamlLoader.deep_reference(reference, data)
+                    data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
+                    return data[reference]
                 if doc:
                     pod.podcache.dependency_graph.add(doc.pod_path, path)
                 return self.read_yaml(path, locale=locale)
