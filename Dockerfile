@@ -15,7 +15,7 @@ ENV TERM=xterm
 RUN apt-get install -y --no-install-recommends curl ca-certificates
 
 # Node 8.
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
 
 # Yarn.
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
