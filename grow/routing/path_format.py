@@ -35,7 +35,7 @@ class PathFormat(object):
         """Adds trailing slash when appropriate."""
         if not doc.view.endswith(('.html', '.htm')):
             return path
-        if not path.endswith('/'):
+        if path and not path.endswith('/'):
             return '{}/'.format(path)
         return path
 
