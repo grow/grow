@@ -261,7 +261,7 @@ class RouteNode(object):
         segment = segments.popleft()
 
         # Insert as a parameterized node.
-        if segment and segment[0] is PREFIX_PARAMETER:
+        if segment and segment.startswith(PREFIX_PARAMETER):
             segment = segment[1:]  # Don't need the prefix character.
             if PREFIX_PARAMETER in self._dynamic_children:
                 # If there is already a prefix in use, cannot have a conflicting
@@ -276,7 +276,7 @@ class RouteNode(object):
             return
 
         # Insert as a wildcard node.
-        if segment and segment[0] is PREFIX_WILDCARD:
+        if segment and segment.startswith(PREFIX_WILDCARD):
             segment = segment[1:]  # Don't need the prefix character.
             if (PREFIX_WILDCARD in self._dynamic_children
                     and self._dynamic_children[PREFIX_WILDCARD].value != value):
