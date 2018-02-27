@@ -207,6 +207,10 @@ jobs:
           - /root/.local/share/virtualenvs/
 
       - run:
+          name: Update requirements.txt
+          command: pipenv lock -r > requirements.txt
+
+      - run:
           name: Create Distribution
           command: pipenv run python setup.py sdist bdist_wheel
 
