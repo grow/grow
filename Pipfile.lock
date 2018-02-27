@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "00991229df2c38981a55b715a7c6ee335b8d6d098abe706b1c7852138ff01403"
+            "sha256": "66ee2aa39aa192f9813a45282de0e25fe4ed53fc1ae17f528eadf31217bd6c92"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -813,6 +813,13 @@
             ],
             "version": "==2017.11.5"
         },
+        "pkginfo": {
+            "hashes": [
+                "sha256:31a49103180ae1518b65d3f4ce09c784e2bc54e338197668b4fb7dc539521024",
+                "sha256:bb1a6aeabfc898f5df124e7e00303a5b3ec9a489535f346bfbddb081af93f89e"
+            ],
+            "version": "==1.4.1"
+        },
         "pyinstaller": {
             "hashes": [
                 "sha256:715f81f24b1ef0e5fe3b3c71e7540551838e46e9de30882aa7c0a521147fd1ce"
@@ -838,6 +845,13 @@
                 "sha256:9c443e7324ba5b85070c4a818ade28bfabedf16ea10206da1132edaa6dda237e"
             ],
             "version": "==2.18.4"
+        },
+        "requests-toolbelt": {
+            "hashes": [
+                "sha256:42c9c170abc2cacb78b8ab23ac957945c7716249206f90874651971a4acff237",
+                "sha256:f6a531936c6fa4c6cfce1b9c10d5c4f498d16528d2a54a22ca00011205a187b5"
+            ],
+            "version": "==0.8.0"
         },
         "singledispatch": {
             "hashes": [
@@ -865,6 +879,20 @@
                 "sha256:ef74b83698ea014112040cf32b1a093c1ab3d91c4dd18ecc03ec178fd99c9f9f"
             ],
             "version": "==0.1.11"
+        },
+        "tqdm": {
+            "hashes": [
+                "sha256:f66468c14ccd011a627734c9b3fd72f20ce16f8faecc47384eb2507af5924fb9",
+                "sha256:5ec0d4442358e55cdb4a0471d04c6c831518fd8837f259db5537d90feab380df"
+            ],
+            "version": "==4.19.6"
+        },
+        "twine": {
+            "hashes": [
+                "sha256:d3ce5c480c22ccfb761cd358526e862b32546d2fe4bc93d46b5cf04ea3cc46ca",
+                "sha256:caa45b7987fc96321258cd7668e3be2ff34064f5c66d2d975b641adca659c1ab"
+            ],
+            "version": "==1.9.1"
         },
         "urllib3": {
             "hashes": [

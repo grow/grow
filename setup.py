@@ -1,13 +1,13 @@
 """Grow Setup."""
 
-from pipenv.project import Project
-from pipenv.utils import convert_deps_to_pip
+import pip
+from pip import req
 from setuptools import find_packages
 from setuptools import setup
 
 
-_pfile = Project(chdir=False).parsed_pipfile
-_install_requirements = convert_deps_to_pip(pfile['packages'], r=False)
+INSTALL_REQ = req.parse_requirements(
+    'requirements.txt', session=pip.download.PipSession())
 
 
 setup(
@@ -28,7 +28,7 @@ setup(
         'lib*',
         'node_modules',
     ]),
-    install_requires=[str(ir.req) for ir in _install_requirements],
+    install_requires=[str(ir.req) for ir in INSTALL_REQ],
     scripts=[
         'bin/grow',
     ],
