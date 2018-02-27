@@ -61,6 +61,8 @@ astroid = "==1.6.1"
 codecov = "==2.0.15"
 configparser = "==3.5.0"
 coverage = "==4.5.1"
+# Dependency for pyinstaller: https://github.com/pyinstaller/pyinstaller/issues/3065
+dis3 = "==0.1.2"
 # https://github.com/PyCQA/pylint/issues/1388
 "enum34" = ">=1.1.3"
 ez-setup = "==0.9"
