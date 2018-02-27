@@ -1,10 +1,13 @@
-from pip import req
-import pip
+"""Grow Setup."""
+
+from pipenv.project import Project
+from pipenv.utils import convert_deps_to_pip
 from setuptools import find_packages
 from setuptools import setup
 
-_install_requirements = req.parse_requirements(
-        'requirements.txt', session=pip.download.PipSession())
+
+_pfile = Project(chdir=False).parsed_pipfile
+_install_requirements = convert_deps_to_pip(pfile['packages'], r=False)
 
 
 setup(
