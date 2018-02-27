@@ -211,13 +211,6 @@ jobs:
           command: python setup.py sdist bdist_wheel
 
       - run:
-          name: Pip Install
-          command: |
-            set -e
-            pip install urllib3[secure] --upgrade
-            pip install twine --upgrade
-
-      - run:
           name: Twine Upload
           command: twine upload dist/grow-$(<grow/VERSION)*
 
