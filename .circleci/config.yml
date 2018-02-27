@@ -145,6 +145,10 @@ jobs:
           name: Install ghr
           command: go get -u github.com/tcnksm/ghr
 
+      - run:
+          name: Install pipenv
+          command: pip install pipenv
+
       - restore_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
