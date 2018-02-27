@@ -39,6 +39,7 @@ develop:
 	fi
 	pipenv --update
 	pipenv install --dev
+	pipenv lock -r > requirements.txt
 	$(MAKE) build-ui
 
 build-ui:
