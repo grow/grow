@@ -93,7 +93,7 @@ jobs:
 
       - run:
           name: Build Release
-          command: pyinstaller grow.spec
+          command: pipenv run pyinstaller grow.spec
 
       - run:
           name: Package
@@ -162,7 +162,7 @@ jobs:
 
       - run:
           name: Build Release
-          command: pyinstaller grow.spec
+          command: pipenv run pyinstaller grow.spec
 
       - run:
           name: Package
@@ -208,11 +208,11 @@ jobs:
 
       - run:
           name: Create Distribution
-          command: python setup.py sdist bdist_wheel
+          command: pipenv run python setup.py sdist bdist_wheel
 
       - run:
           name: Twine Upload
-          command: twine upload dist/grow-$(<grow/VERSION)*
+          command: pipenv run twine upload dist/grow-$(<grow/VERSION)*
 
       - store_artifacts:
           path: dist/
