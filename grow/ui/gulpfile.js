@@ -14,7 +14,7 @@ var config = {
   JS_SOURCE_DIR: './js/composite/',
   JS_SOURCES: [
     './admin/partials/**/*.js',
-    './js/composite/**/*.js',
+    './js/**/*.js',
   ],
   JS_OUT_DIR: './dist/js/',
   JS_OPTIONS: {
@@ -25,7 +25,7 @@ var config = {
   SASS_SOURCE_DIR: './sass/composite/**/*.sass',
   SASS_SOURCES: [
     './admin/partials/**/*.sass',
-    './sass/composite/**/*.sass',
+    './sass/**/*.sass',
   ],
   SASS_OUT_DIR: './dist/css/'
 };
@@ -91,5 +91,4 @@ gulp.task('watch-sass', function() {
 });
 
 gulp.task('build', ['compile-js', 'compile-sass']);
-gulp.task('grow-build', ['compile-js', 'compile-sass']);
 gulp.task('default', ['watch-js', 'watch-sass']);

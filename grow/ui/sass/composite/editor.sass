@@ -1,0 +1,106 @@
+// Primary Colors
+$color-p: #455a64
+$color-p-l: #718792
+$color-p-d: #1c313a
+$color-on-p: #ffffff
+$color-on-p-l: #000000
+$color-on-p-d: #ffffff
+
+// Secondary Colors
+$color-s: #512da8
+$color-s-l: #8559da
+$color-s-d: #140078
+$color-on-s: #ffffff
+$color-on-s-l: #ffffff
+$color-on-s-d: #ffffff
+
+// Utility Colors
+$color-text: #455a64
+$color-back: #fefefe
+$color-back-l: #f5f5f5
+$color-back-d: #9e9e9e
+$color-on-back: #000000
+$color-on-back-l: #455a64
+$color-on-back-d: #455a64
+$color-shadow: #000000
+
+// Speeds
+$speed-slow: 400ms
+$speed-fast: 250ms
+
+// Padding unit
+$pad: 1em
+
+// Utility
+$shadow: 0 1px 1.5px transparentize($color-shadow,.78), 0 1px 1px transparentize($color-shadow,.74)
+$shadow-l: 0 3px 6px transparentize($color-shadow,.78), 0 3px 6px transparentize($color-shadow,.74)
+
+*
+  box-sizing: border-box
+
+body
+  background-color: $color-back-l
+  font-family: 'Roboto', sans-serif
+  margin: 0
+  padding: 0
+
+.container
+  display: flex
+  flex-flow: row
+  min-height: 100vh
+
+.content
+  display: flex
+  flex-flow: column
+  flex-grow: 1
+
+.content__header
+  padding: $pad
+
+.content__preview
+  align-items: center
+  display: flex
+  flex-grow: 1
+  justify-content: center
+
+.sidebar
+  display: flex
+  flex-flow: column
+  flex-basis: 25vw
+
+.sidebar__content
+  flex-grow: 1
+  max-height: calc(100vh - 3.5em)
+  overflow-y: auto
+
+.sidebar__save
+  background-color: $color-p-l
+  color: $color-on-p-l
+  display: flex
+  flex-flow: row
+  justify-content: space-between
+  padding: $pad
+
+  button
+    background-color: $color-s
+    border: none
+    color: $color-on-s
+    padding: $pad/2
+
+.preview
+  background-color: $color-back
+  box-shadow: $shadow-l
+  color: $color-on-back
+  width: 250px
+  height: 400px
+
+.info
+  background-color: $color-back
+  border-radius: $pad/2
+  box-shadow: $shadow
+  color: $color-on-back
+  margin: $pad
+  padding: $pad
+
+.info__info
+  background-color: #e1f5fe
