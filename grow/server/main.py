@@ -78,6 +78,17 @@ def serve_console_reroute(pod, _request, _matched):
     return response
 
 
+def serve_editor_reroute(pod, _request, _matched):
+    """Serve the default console page."""
+    kwargs = {'pod': pod}
+    env = ui.create_jinja_env()
+    template = env.get_template('/views/editor.html')
+    content = template.render(kwargs)
+    response = wrappers.Response(content)
+    response.headers['Content-Type'] = 'text/html'
+    return response
+
+
 def serve_pod(pod, request, values):
     path = urllib.unquote(request.path)  # Support escaped paths.
     controller, params = pod.routes.match(path, request.environ)
@@ -249,6 +260,9 @@ class PodServerReRoute(PodServer):
 
         self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo('console', {
             'handler': serve_ui_tool_reroute,
+        }))
+        self.routes.add('/_grow/editor/*path', router.RouteInfo('console', {
+            'handler': serve_editor_reroute,
         }))
         self.routes.add('/_grow', router.RouteInfo('console', {
             'handler': serve_console_reroute,
