@@ -16,7 +16,13 @@ export default class Document {
 
     for (const meta of this.fieldMeta) {
       const field = fieldGenerator(meta['type'], meta['key'])
+      field.value = this.frontMatter[meta['key']]
+      field.label = meta['label']
       this.fields.push(field)
     }
+  }
+
+  get servingPath() {
+    return this.servingPaths[this.defaultLocale]
   }
 }

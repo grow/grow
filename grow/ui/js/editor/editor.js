@@ -11,10 +11,17 @@ const fauxResponseDetails = {
     {
       'type': 'text',
       'key': '$path',
+      'label': 'Serving Path',
+    },
+    {
+      'type': 'textarea',
+      'key': 'description',
+      'label': 'Description',
     },
   ],
   'front_matter': {
     '$path': '/',
+    'description': 'Something really cool.',
   },
   'serving_paths': {
     'en': '/',
@@ -86,6 +93,8 @@ export default class Editor {
     for (const field of this.document.fields) {
       this.addField(field)
     }
+
+    this.previewEl.src = this.previewUrl
   }
 
   loadDetails(podPath) {

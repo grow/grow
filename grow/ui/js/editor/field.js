@@ -26,6 +26,10 @@ export default class Field {
     return this._key
   }
 
+  get label() {
+    return this.labelEl.innerText
+  }
+
   get labelEl() {
     if (!this._labelEl) {
       this._labelEl = this.fieldEl.querySelector('label')
@@ -41,8 +45,13 @@ export default class Field {
     this._key = value
   }
 
+  set label(value) {
+    this._label = value
+    this.labelEl.innerText = value
+  }
+
   set value(value) {
-    this.inputEl.setAttribute('value', value)
+    this.inputEl.value = value
   }
 }
 
@@ -58,10 +67,32 @@ export class TextField extends Field {
   }
 }
 
+export class TextAreaField extends Field {
+  constructor(key, config) {
+    super(key, 'textarea', config)
+  }
+
+  get inputEl() {
+    if (!this._inputEl) {
+      this._inputEl = this.fieldEl.querySelector('textarea')
+    }
+    return this._inputEl
+  }
+
+  set key(value) {
+    this._key = value
+    this.inputEl.setAttribute('id', value)
+    this.labelEl.setAttribute('for', value)
+  }
+}
+
 export function fieldGenerator(type, name, config) {
   switch (type) {
     case 'text':
       return new TextField(name, config)
+      break
+    case 'textarea':
+      return new TextAreaField(name, config)
       break
     default:
       throw('Unknown field type')
