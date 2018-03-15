@@ -55,7 +55,12 @@ body
   flex-grow: 1
 
 .content__header
+  display: flex
   padding: $pad
+
+.content__path
+  flex-grow: 1
+  padding: 0 $pad 0 0
 
 .content__preview
   align-items: stretch
@@ -74,23 +79,16 @@ body
   overflow-y: auto
 
 .sidebar__save
-  background-color: $color-p-l
-  color: $color-on-p-l
+  align-items: center
   display: flex
   flex-flow: row
   flex-shrink: 0
   justify-content: space-between
   padding: $pad
 
-  button
-    background-color: $color-s
-    border: none
-    color: $color-on-s
-    padding: $pad/2
-
 .preview
   background-color: $color-back
-  box-shadow: $shadow-l
+  border: none
   color: $color-on-back
   flex-grow: 1
 
@@ -98,9 +96,10 @@ body
   align-items: center
 
   .preview
-    width: 250px
-    height: 400px
+    box-shadow: $shadow-l
     flex-grow: 0
+    height: 732px
+    width: 412px
 
 .info
   background-color: $color-back
@@ -112,3 +111,6 @@ body
 
 .info__info
   background-color: #e1f5fe
+
+.field
+  margin: $pad

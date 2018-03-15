@@ -3,20 +3,24 @@
   <head>
     <meta charset="utf-8">
     <title>{% if title %}{{title}} – {% endif %}Grow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/_grow/assets/favicon.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://code.getmdl.io/1.3.0/material.blue_grey-deep_purple.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/_grow/ui/css/editor.min.css">
   </head>
   <body>
     <div class="container">
       <div class="content">
         <div class="content__header">
-          header
-        </div>
-        <div class="content__preview content__preview--mobile">
-          <div class="preview">
-            preview
+          <div class="content__path">
+            <input class="mdl-textfield__input" type="text" id="content_path" value="/content/pages/home.yaml" placeholder="Content path">
           </div>
+          <i class="material-icons">devices</i>
+        </div>
+        <div class="content__preview">
+          <iframe class="preview" src=""></iframe>
         </div>
       </div>
       <div class="sidebar">
@@ -24,17 +28,32 @@
           <div class="info info__info">
             Preview is updated on save.
           </div>
+          <div class="field field__text">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="sample1" value="/">
+              <label class="mdl-textfield__label" for="sample1">Serving Url</label>
+            </div>
+          </div>
+          <div class="field field__text">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="sample1" value="The Last Jedi">
+              <label class="mdl-textfield__label" for="sample1">Title</label>
+            </div>
+          </div>
         </div>
         <div class="sidebar__save">
-          <label>
-            <input type="checkbox" name="autosave" id="autosave">
-            Autosave
+          <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="autosave">
+            <input type="checkbox" id="autosave" class="mdl-switch__input" checked>
+            <span class="mdl-switch__label">Autosave</span>
           </label>
-          <button>Save Changes</button>
+          <button class="mdl-button mdl-button--colored mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+            Save
+          </button>
         </div>
       </div>
     </div>
 
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script src="/_grow/ui/js/editor.min.js"></script>
   </body>
 </html>
