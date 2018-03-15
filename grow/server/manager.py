@@ -71,7 +71,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     CallbackHTTPServer.open_browser = open_browser
     CallbackHTTPServer.update_check = update_check
     serving.ThreadedWSGIServer = CallbackHTTPServer
-    app = main_lib.create_wsgi_app(pod, debug=debug)
+    app = main_lib.create_wsgi_app(pod, host, port, debug=debug)
     serving._log = lambda *args, **kwargs: ''
     handler = main_lib.RequestHandler
     num_tries = 0

@@ -67,7 +67,7 @@ def serve_console(pod, request, values):
     return response
 
 
-def serve_console_reroute(pod, _request, _matched):
+def serve_console_reroute(pod, _request, _matched, **_kwargs):
     """Serve the default console page."""
     kwargs = {'pod': pod}
     env = ui.create_jinja_env()
@@ -78,9 +78,12 @@ def serve_console_reroute(pod, _request, _matched):
     return response
 
 
-def serve_editor_reroute(pod, _request, _matched):
+def serve_editor_reroute(pod, _request, _matched, meta=None, **_kwargs):
     """Serve the default console page."""
-    kwargs = {'pod': pod}
+    kwargs = {
+        'pod': pod,
+        'meta': meta,
+    }
     env = ui.create_jinja_env()
     template = env.get_template('/views/editor.html')
     content = template.render(kwargs)
@@ -106,7 +109,7 @@ def serve_pod(pod, request, values):
     return response
 
 
-def serve_pod_reroute(pod, request, matched):
+def serve_pod_reroute(pod, request, matched, **_kwargs):
     """Serve pod contents using the new routing."""
     route_info = matched.value
     controller = pod.router.get_render_controller(
@@ -250,10 +253,12 @@ class PodServer(object):
 
 class PodServerReRoute(PodServer):
 
-    def __init__(self, pod, debug=False):
+    def __init__(self, pod, host, port, debug=False):
         logging.warn('WARNING: Using experimental routing')
 
         self.pod = pod
+        self.host = host
+        self.port = port
         self.pod.render_pool.pool_size = 1
         self.debug = debug
         self.routes = self.pod.router.routes
@@ -263,9 +268,13 @@ class PodServerReRoute(PodServer):
         }))
         self.routes.add('/_grow/editor/*path', router.RouteInfo('console', {
             'handler': serve_editor_reroute,
+            'meta': {
+                'host': host,
+                'port': port,
+            },
         }))
         self.routes.add('/_grow', router.RouteInfo('console', {
-            'handler': serve_console_reroute,
+            'handler': serve_console_reroute
         }))
 
         # Trigger the dev handler hook.
@@ -286,7 +295,11 @@ class PodServerReRoute(PodServer):
         kind = matched.value.kind
         if kind == 'console':
             if 'handler' in matched.value.meta:
-                return matched.value.meta['handler'](self.pod, request, matched)
+                handler_meta = None
+                if 'meta' in matched.value.meta:
+                    handler_meta = matched.value.meta['meta']
+                return matched.value.meta['handler'](
+                    self.pod, request, matched, meta=handler_meta)
             return serve_console_reroute(self.pod, request, matched)
         return serve_pod_reroute(self.pod, request, matched)
 
@@ -296,9 +309,9 @@ class PodServerReRoute(PodServer):
         return response(environ, start_response)
 
 
-def create_wsgi_app(pod, debug=False):
+def create_wsgi_app(pod, host, port, debug=False):
     if pod.use_reroute:
-        podserver_app = PodServerReRoute(pod, debug=debug)
+        podserver_app = PodServerReRoute(pod, host, port, debug=debug)
     else:
         podserver_app = PodServer(pod, debug=debug)
     assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'admin', 'assets')
