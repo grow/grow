@@ -71,7 +71,7 @@ class PodHandlerTestCase(unittest.TestCase):
         request = webapp2.Request.blank('/_grow/ui/js/ui.min.js')
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
-        js_sentinel = '!function'
+        js_sentinel = 'function(modules)'
         self.assertIn(js_sentinel, response.body)
 
         request = webapp2.Request.blank('/_grow/ui/css/ui.min.css')
