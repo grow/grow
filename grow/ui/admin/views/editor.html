@@ -1,3 +1,5 @@
+{% set default_path = '' %}
+{% set home_doc = pod.get_home_doc() %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -15,11 +17,13 @@
       <div class="content">
         <div class="content__header">
           <div class="content__path">
-            {% set default_path = '' %}
-            {% if pod.get_home_doc() %}
-              {% set default_path = pod.get_home_doc().pod_path %}
+            {% if home_doc %}
+              {% set default_path = home_doc.pod_path %}
             {% endif %}
-            <input class="mdl-textfield__input" type="text" id="content_path" value="{{default_path}}" placeholder="Content path">
+            <div class="mdl-textfield mdl-js-textfield">
+              <input class="mdl-textfield__input" type="text" id="pod_path" value="{{default_path}}">
+              <label class="mdl-textfield__label" for="pod_path">Pod path</label>
+            </div>
           </div>
           <label class="content__device mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" for="content_device">
             <input type="checkbox" id="content_device" class="mdl-icon-toggle__input">
@@ -27,7 +31,7 @@
           </label>
         </div>
         <div class="content__preview">
-          <iframe class="preview" src="http://{{meta.host}}:{{meta.port}}"></iframe>
+          <iframe class="preview" data-host="{{meta.host}}" data-port="{{meta.port}}"></iframe>
         </div>
       </div>
       <div class="sidebar">

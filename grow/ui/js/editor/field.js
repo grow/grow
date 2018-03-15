@@ -2,14 +2,17 @@
  * Fields for the editor.
  */
 
+import Config from '../utility/config'
+
 export default class Field {
-  constructor(key, type) {
+  constructor(key, type, config) {
     // Create the field clone before setting any attributes.
     this.template = document.querySelector(`#template_field_${type}`)
     this.fieldEl = document.importNode(this.template.content, true)
 
     this.key = key
     this.type = type
+    this.config = new Config(config || {})
   }
 
   get inputEl() {
@@ -44,13 +47,23 @@ export default class Field {
 }
 
 export class TextField extends Field {
-  constructor(key) {
-    super(key, 'text')
+  constructor(key, config) {
+    super(key, 'text', config)
   }
 
   set key(value) {
     this._key = value
     this.inputEl.setAttribute('id', value)
     this.labelEl.setAttribute('for', value)
+  }
+}
+
+export function fieldGenerator(type, name, config) {
+  switch (type) {
+    case 'text':
+      return new TextField(name, config)
+      break
+    default:
+      throw('Unknown field type')
   }
 }
