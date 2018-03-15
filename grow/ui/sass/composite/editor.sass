@@ -58,7 +58,7 @@ body
   padding: $pad
 
 .content__preview
-  align-items: center
+  align-items: stretch
   display: flex
   flex-grow: 1
   justify-content: center
@@ -67,10 +67,10 @@ body
   display: flex
   flex-flow: column
   flex-basis: 25vw
+  max-height: 100vh
 
 .sidebar__content
   flex-grow: 1
-  max-height: calc(100vh - 3.5em)
   overflow-y: auto
 
 .sidebar__save
@@ -78,6 +78,7 @@ body
   color: $color-on-p-l
   display: flex
   flex-flow: row
+  flex-shrink: 0
   justify-content: space-between
   padding: $pad
 
@@ -91,8 +92,15 @@ body
   background-color: $color-back
   box-shadow: $shadow-l
   color: $color-on-back
-  width: 250px
-  height: 400px
+  flex-grow: 1
+
+.content__preview--mobile
+  align-items: center
+
+  .preview
+    width: 250px
+    height: 400px
+    flex-grow: 0
 
 .info
   background-color: $color-back
