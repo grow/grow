@@ -12,7 +12,7 @@ class PodHandlerTestCase(unittest.TestCase):
         pod = pods.Pod(self.dir_path)
 
         # When serving a pod, should 200.
-        app = main.create_wsgi_app(pod)
+        app = main.create_wsgi_app(pod, 'localhost', 8080)
         request = webapp2.Request.blank('/')
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
@@ -65,7 +65,7 @@ class PodHandlerTestCase(unittest.TestCase):
     def test_ui(self):
         dir_path = testing.create_test_pod_dir()
         pod = pods.Pod(dir_path)
-        app = main.create_wsgi_app(pod)
+        app = main.create_wsgi_app(pod, 'localhost', 8080)
 
         # Verify JS and CSS are served.
         request = webapp2.Request.blank('/_grow/ui/js/ui.min.js')
