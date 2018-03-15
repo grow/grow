@@ -15,13 +15,15 @@ const fauxResponseDetails = {
     },
     {
       'type': 'textarea',
-      'key': 'description',
+      'key': 'meta.description',
       'label': 'Description',
     },
   ],
   'front_matter': {
     '$path': '/',
-    'description': 'Something really cool.',
+    'meta': {
+      'description': 'Something really cool.',
+    }
   },
   'serving_paths': {
     'en': '/',
@@ -37,12 +39,14 @@ export default class Editor {
     this.contentPreviewEl = this.containerEl.querySelector('.content__preview')
     this.previewEl = this.containerEl.querySelector('.preview')
     this.fieldsEl = this.containerEl.querySelector('.fields')
+    this.saveEl = this.containerEl.querySelector('.sidebar__save button')
     this.host = this.previewEl.dataset.host
     this.port = this.previewEl.dataset.port
     this.fields = []
     this.document = null
 
     this.mobileToggleEl.addEventListener('click', this.handleMobileClick.bind(this))
+    this.saveEl.addEventListener('click', this.handleSaveClick.bind(this))
 
     this.loadDetails('/content/pages/home.yaml')
   }
@@ -95,6 +99,10 @@ export default class Editor {
     }
 
     this.previewEl.src = this.previewUrl
+  }
+
+  handleSaveClick(response) {
+    console.log('Your trying to save... how cute.')
   }
 
   loadDetails(podPath) {
