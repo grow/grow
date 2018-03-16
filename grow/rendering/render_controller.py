@@ -1,8 +1,10 @@
 """Controller for rendering pod content."""
 
+import datetime
 import mimetypes
 import os
 import sys
+import time
 from grow.common import utils
 from grow.pods import errors
 from grow.rendering import rendered_document
@@ -239,6 +241,11 @@ class RenderErrorController(RenderController):
 class RenderSitemapController(RenderController):
     """Controller for handling rendering for sitemaps."""
 
+    @property
+    def mimetype(self):
+        """Determine headers to serve for https requests."""
+        return mimetypes.guess_type(self.serving_path)[0]
+
     def render(self, jinja_env=None):
         """Render the document using the render pool."""
 
@@ -312,6 +319,21 @@ class RenderStaticDocumentController(RenderController):
     def mimetype(self):
         """Determine headers to serve for https requests."""
         return mimetypes.guess_type(self.serving_path)[0]
+
+    def get_http_headers(self):
+        """Determine headers to serve for http requests."""
+        headers = super(RenderStaticDocumentController, self).get_http_headers()
+        path = self.pod.abs_path(self.static_doc.pod_path)
+        self.pod.storage.update_headers(headers, path)
+        modified = self.pod.storage.modified(path)
+        time_obj = datetime.datetime.fromtimestamp(modified).timetuple()
+        time_format = '%a, %d %b %Y %H:%M:%S GMT'
+        headers['Last-Modified'] = time.strftime(time_format, time_obj)
+        headers['ETag'] = '"{}"'.format(headers['Last-Modified'])
+        headers['X-Grow-Pod-Path'] = self.static_doc.pod_path
+        if self.static_doc.locale:
+            headers['X-Grow-Locale'] = self.static_doc.locale
+        return headers
 
     def render(self, jinja_env=None):
         """Read the static file."""

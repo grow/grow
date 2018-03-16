@@ -8,8 +8,9 @@ import webapp2
 class PodHandlerTestCase(unittest.TestCase):
 
     def test_request(self):
-        self.dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(self.dir_path, use_reroute=True)
+        dir_path = testing.create_test_pod_dir()
+        pod = pods.Pod(dir_path, use_reroute=True)
+        pod.router.add_all()
 
         # When serving a pod, should 200.
         app = main.create_wsgi_app(pod, 'localhost', 8080)
@@ -43,8 +44,10 @@ class PodHandlerTestCase(unittest.TestCase):
 
         # Verify 304.
         url_path = '/public/file.txt'
-        controller, params = pod.match(url_path)
-        response_headers = controller.get_http_headers(params)
+        matched = pod.router.routes.match(url_path)
+        controller = pod.router.get_render_controller(
+            url_path, matched.value, params=matched.params)
+        response_headers = controller.get_http_headers()
         headers = {'If-None-Match': response_headers['Last-Modified']}
         request = webapp2.Request.blank(url_path, headers=headers)
         response = request.get_response(app)
@@ -56,8 +59,8 @@ class PodHandlerTestCase(unittest.TestCase):
         self.assertEqual('', response.body)
 
         # Verify sitemap on server.
-        path = '/root/sitemap.xml'
-        request = webapp2.Request.blank(path, headers=headers)
+        path = '/sitemap.xml'
+        request = webapp2.Request.blank(path)
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
         self.assertEqual('application/xml', response.headers['Content-Type'])
@@ -65,6 +68,7 @@ class PodHandlerTestCase(unittest.TestCase):
     def test_ui(self):
         dir_path = testing.create_test_pod_dir()
         pod = pods.Pod(dir_path, use_reroute=True)
+        pod.router.add_all()
         app = main.create_wsgi_app(pod, 'localhost', 8080)
 
         # Verify JS and CSS are served.

@@ -112,9 +112,8 @@ def serve_pod(pod, request, values):
 
 def serve_pod_reroute(pod, request, matched, **_kwargs):
     """Serve pod contents using the new routing."""
-    route_info = matched.value
     controller = pod.router.get_render_controller(
-        request.path, route_info, params=matched.params)
+        request.path, matched.value, params=matched.params)
     response = None
     headers = controller.get_http_headers()
     if 'X-AppEngine-BlobKey' in headers:
