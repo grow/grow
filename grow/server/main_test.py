@@ -9,7 +9,7 @@ class PodHandlerTestCase(unittest.TestCase):
 
     def test_request(self):
         self.dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(self.dir_path)
+        pod = pods.Pod(self.dir_path, use_reroute=True)
 
         # When serving a pod, should 200.
         app = main.create_wsgi_app(pod, 'localhost', 8080)
@@ -64,7 +64,7 @@ class PodHandlerTestCase(unittest.TestCase):
 
     def test_ui(self):
         dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(dir_path)
+        pod = pods.Pod(dir_path, use_reroute=True)
         app = main.create_wsgi_app(pod, 'localhost', 8080)
 
         # Verify JS and CSS are served.
