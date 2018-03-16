@@ -13,8 +13,10 @@ export default class Field {
     this.key = key
     this.type = type
     this.config = new Config(config || {})
-    this.dirty = false
-    this.original
+
+    this.isFocused = false
+    this.inputEl.addEventListener('blur', () => { this.isFocused = false })
+    this.inputEl.addEventListener('focus', () => { this.isFocused = true })
   }
 
   get inputEl() {
@@ -57,7 +59,10 @@ export default class Field {
   }
 
   update(value) {
-    // TODO: Make this respect the user's current editing to not overwrite on auto save.
+    // Respect the user focus to not overwrite on auto save.
+    if (this.isFocused) {
+      return
+    }
     this.value = value
   }
 }
