@@ -12,6 +12,7 @@ export default class Document {
     this.frontMatter = new DeepObject(frontMatter)
     this.servingPaths = servingPaths
     this.defaultLocale = defaultLocale
+    this.locale = defaultLocale
     this.fields = []
 
     for (const meta of this.fieldMeta) {
@@ -24,5 +25,19 @@ export default class Document {
 
   get servingPath() {
     return this.servingPaths[this.defaultLocale]
+  }
+
+  update(podPath, frontMatter, servingPaths, defaultLocale) {
+    this.podPath = podPath
+    this.frontMatter = new DeepObject(frontMatter)
+    this.servingPaths = servingPaths
+    this.defaultLocale = defaultLocale
+    this.locale = defaultLocale
+
+    // Check which values in the fields have changed and update.
+    for (const field of this.fields) {
+      // Field key getter not working...?!?
+      field.update(this.frontMatter.get(field._key))
+    }
   }
 }

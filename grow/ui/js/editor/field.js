@@ -13,6 +13,8 @@ export default class Field {
     this.key = key
     this.type = type
     this.config = new Config(config || {})
+    this.dirty = false
+    this.original
   }
 
   get inputEl() {
@@ -53,6 +55,11 @@ export default class Field {
   set value(value) {
     this.inputEl.value = value
   }
+
+  update(value) {
+    // TODO: Make this respect the user's current editing to not overwrite on auto save.
+    this.value = value
+  }
 }
 
 export class TextField extends Field {
@@ -61,7 +68,7 @@ export class TextField extends Field {
   }
 
   set key(value) {
-    this._key = value
+    super.key = value
     this.inputEl.setAttribute('id', value)
     this.labelEl.setAttribute('for', value)
   }
@@ -80,19 +87,19 @@ export class TextAreaField extends Field {
   }
 
   set key(value) {
-    this._key = value
+    super.key = value
     this.inputEl.setAttribute('id', value)
     this.labelEl.setAttribute('for', value)
   }
 }
 
-export function fieldGenerator(type, name, config) {
+export function fieldGenerator(type, key, config) {
   switch (type) {
     case 'text':
-      return new TextField(name, config)
+      return new TextField(key, config)
       break
     case 'textarea':
-      return new TextAreaField(name, config)
+      return new TextAreaField(key, config)
       break
     default:
       throw('Unknown field type')

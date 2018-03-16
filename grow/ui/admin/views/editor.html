@@ -1,5 +1,8 @@
-{% set default_path = '' %}
+{% set default_path = '/' ~ path %}
 {% set home_doc = pod.get_home_doc() %}
+{% if home_doc and not path %}
+  {% set default_path = home_doc.pod_path %}
+{% endif %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -17,9 +20,6 @@
       <div class="content">
         <div class="content__header">
           <div class="content__path">
-            {% if home_doc %}
-              {% set default_path = home_doc.pod_path %}
-            {% endif %}
             <div class="mdl-textfield mdl-js-textfield">
               <input class="mdl-textfield__input" type="text" id="pod_path" value="{{default_path}}">
               <label class="mdl-textfield__label" for="pod_path">Pod path</label>

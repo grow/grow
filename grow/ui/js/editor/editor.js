@@ -3,33 +3,7 @@
  */
 
 import Document from './document'
-
-// Stub for what a future request will look like.
-const fauxResponseDetails = {
-  'pod_path': '/content/pages/home.yaml',
-  'fields': [
-    {
-      'type': 'text',
-      'key': '$path',
-      'label': 'Serving Path',
-    },
-    {
-      'type': 'textarea',
-      'key': 'meta.description',
-      'label': 'Description',
-    },
-  ],
-  'front_matter': {
-    '$path': '/',
-    'meta': {
-      'description': 'Something really cool.',
-    }
-  },
-  'serving_paths': {
-    'en': '/',
-  },
-  'default_locale': 'en',
-}
+import EditorApi from './editorApi'
 
 
 export default class Editor {
@@ -40,6 +14,7 @@ export default class Editor {
     this.previewEl = this.containerEl.querySelector('.preview')
     this.fieldsEl = this.containerEl.querySelector('.fields')
     this.saveEl = this.containerEl.querySelector('.sidebar__save button')
+    this.podPathEl = this.containerEl.querySelector('#pod_path')
     this.host = this.previewEl.dataset.host
     this.port = this.previewEl.dataset.port
     this.fields = []
@@ -48,7 +23,15 @@ export default class Editor {
     this.mobileToggleEl.addEventListener('click', this.handleMobileClick.bind(this))
     this.saveEl.addEventListener('click', this.handleSaveClick.bind(this))
 
-    this.loadDetails('/content/pages/home.yaml')
+    this.api = new EditorApi({
+      host: this.host,
+      port: this.port,
+    })
+    this.loadDetails(this.podPath)
+  }
+
+  get podPath() {
+    return this.podPathEl.value
   }
 
   get previewUrl() {
@@ -84,7 +67,7 @@ export default class Editor {
     }
   }
 
-  handleDetailResponse(response) {
+  handleGetDocumentResponse(response) {
     this.document = new Document(
       response['pod_path'],
       response['fields'],
@@ -101,12 +84,27 @@ export default class Editor {
     this.previewEl.src = this.previewUrl
   }
 
+  handleSaveDocumentResponse(response) {
+    this.document.update(
+      response['pod_path'],
+      response['front_matter'],
+      response['serving_paths'],
+      response['default_locale'])
+
+    this.previewEl.src = this.previewUrl
+  }
+
   handleSaveClick(response) {
-    console.log('Your trying to save... how cute.')
+    const frontMatter = {}
+    for (const field of this.fields) {
+      // Field key getter not working...?!?
+      frontMatter[field._key] = field.value
+    }
+    const result = this.api.saveDocument(this.podPath, frontMatter, this.document.locale)
+    result.then(this.handleSaveDocumentResponse.bind(this))
   }
 
   loadDetails(podPath) {
-    // TODO: This should be done by making a request to the server.
-    this.handleDetailResponse(fauxResponseDetails)
+    this.api.getDocument(podPath).then(this.handleGetDocumentResponse.bind(this))
   }
 }
