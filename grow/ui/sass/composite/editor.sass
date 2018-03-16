@@ -31,6 +31,10 @@ $speed-fast: 250ms
 // Padding unit
 $pad: 1em
 
+// Utility
+$shadow: 0 1px 1.5px transparentize($color-shadow,.78), 0 1px 1px transparentize($color-shadow,.74)
+$shadow-l: 0 3px 6px transparentize($color-shadow,.78), 0 3px 6px transparentize($color-shadow,.74)
+
 *
   box-sizing: border-box
 
@@ -109,6 +113,7 @@ body
 .info
   background-color: $color-back
   border-radius: $pad/2
+  box-shadow: $shadow
   color: $color-on-back
   margin: $pad
   padding: $pad
