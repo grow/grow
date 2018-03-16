@@ -24,21 +24,83 @@ export default class EditorApi extends Api {
           'label': 'Serving Path',
         },
         {
+          'type': 'text',
+          'key': '$title',
+          'label': 'Title',
+        },
+        {
           'type': 'textarea',
           'key': 'meta.description',
           'label': 'Description',
         },
+        {
+          'type': 'partials',
+          'key': 'partials',
+          'label': 'Partials',
+        },
       ],
       'front_matter': {
+        '$title': 'Blinkk',
         '$path': '/',
         'meta': {
           'description': 'Something really cool.',
-        }
+        },
+        'partials': [
+          {
+            'partial': 'hero',
+            'title': 'Blinkk',
+            'subtitle': 'New to Blinkk?',
+            'description': 'Great! This site is to help you get up to speed on how Blinkk works and some of the projects that we have going.',
+            'cta': [
+              {
+                'title': 'Getting Started',
+                'url': '!g.url "/content/pages/getting-started.yaml"',
+              },
+              {
+                'title': 'Blinkk Projects',
+                'url': '!g.url "/content/pages/projects.yaml"',
+              },
+            ],
+          },
+        ],
       },
       'serving_paths': {
         'en': '/',
       },
       'default_locale': 'en',
+    })
+
+    return result.promise
+  }
+
+  getPartials(podPath) {
+    const result = new Defer()
+
+    // TODO make request to server to get partials.
+    // this.request.get(...)
+    result.resolve({
+      'partials': {
+        'hero': {
+          'label': 'Hero',
+          'fields': [
+            {
+              'type': 'text',
+              'key': 'title',
+              'label': 'Hero Title',
+            },
+            {
+              'type': 'text',
+              'key': 'subtitle',
+              'label': 'Hero Subtitle',
+            },
+            {
+              'type': 'textarea',
+              'key': 'description',
+              'label': 'Description',
+            },
+          ],
+        },
+      },
     })
 
     return result.promise
@@ -59,6 +121,7 @@ export default class EditorApi extends Api {
     result.resolve({
       'pod_path': '/content/pages/home.yaml',
       'front_matter': {
+        '$title': 'Blinkk Team',
         '$path': '/something',
         'meta': {
           'description': 'Something really really cool.',

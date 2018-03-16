@@ -4,6 +4,7 @@
 
 import Document from './document'
 import EditorApi from './editorApi'
+import Partials from './partial'
 
 
 export default class Editor {
@@ -27,6 +28,7 @@ export default class Editor {
       host: this.host,
       port: this.port,
     })
+    this.partials = new Partials(this.api)
     this.loadDetails(this.podPath)
   }
 
@@ -73,7 +75,8 @@ export default class Editor {
       response['fields'],
       response['front_matter'],
       response['serving_paths'],
-      response['default_locale'])
+      response['default_locale'],
+      this.partials)
 
     this.clearFields()
 
