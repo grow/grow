@@ -12,7 +12,10 @@
     "gulp-autoprefixer": "^4.1.0",
     "gulp-rename": "~1.2.2",
     "gulp-sass": "^3.1.0",
+    "pell": "^1.0.4",
+    "marked": "^0.3.17",
     "superagent": "^3.8.2",
+    "turndown": "^4.0.1",
     "webpack": "4.0.0",
     "webpack-stream": "4.0.2"
   }

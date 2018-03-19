@@ -94,7 +94,7 @@ export default class EditorApi extends Api {
               'label': 'Hero Subtitle',
             },
             {
-              'type': 'textarea',
+              'type': 'markdown',
               'key': 'description',
               'label': 'Description',
             },

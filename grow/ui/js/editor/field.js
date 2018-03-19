@@ -3,7 +3,12 @@
  */
 
 import Config from '../utility/config'
+import pell from 'pell'
+import marked from 'marked'
+import TurndownService from 'turndown'
 import { PartialContainer } from './partial'
+
+const availableFields = {}
 
 export default class Field {
   constructor(key, type, config) {
@@ -125,9 +130,60 @@ export class ListField extends Field {
   }
 }
 
+export class MarkdownField extends Field {
+  constructor(key, config) {
+    super(key, 'markdown', config)
+    this.monitorFocus()
+  }
+
+  get editor() {
+    if (!this._editor) {
+      this._editor = pell.init({
+        element: this.inputEl,
+        actions: ['bold', 'italic', 'heading1', 'heading2', 'olist', 'ulist', 'link'],
+        onChange: () => {}
+      })
+    }
+    return this._editor
+  }
+
+  get inputEl() {
+    if (!this._inputEl) {
+      this._inputEl = this.fieldEl.querySelector('.pell')
+    }
+    return this._inputEl
+  }
+
+  get labelEl() {
+    if (!this._labelEl) {
+      this._labelEl = this.fieldEl.querySelector('.field__markdown__label')
+    }
+    return this._labelEl
+  }
+
+  get turndownService() {
+    if (!this._turndown) {
+      this._turndown = new TurndownService({ headingStyle: 'atx' })
+    }
+    return this._turndown
+  }
+
+  get value() {
+    return this.turndownService.turndown(this.editor.content.innerHTML)
+  }
+
+  set value(value) {
+    this.editor.content.innerHTML = marked(value)
+  }
+}
+
 export class PartialsField extends ListField {
   constructor(key, config, list) {
     super(key, config, list)
+  }
+
+  get value() {
+    return super.value
   }
 
   set value(frontMatter) {
@@ -170,21 +226,15 @@ export class TextAreaField extends Field {
   }
 }
 
+availableFields['list'] = ListField
+availableFields['partials'] = PartialsField
+availableFields['text'] = TextField
+availableFields['textarea'] = TextAreaField
+availableFields['markdown'] = MarkdownField
+
 export function fieldGenerator(type, key, config, list) {
-  switch (type) {
-    case 'list':
-      return new ListField(key, config, list)
-      break
-    case 'partials':
-      return new PartialsField(key, config, list)
-      break
-    case 'text':
-      return new TextField(key, config)
-      break
-    case 'textarea':
-      return new TextAreaField(key, config)
-      break
-    default:
-      throw('Unknown field type')
+  if (!type in availableFields) {
+    throw('Unknown field type')
   }
+  return new availableFields[type](key, config, list)
 }
