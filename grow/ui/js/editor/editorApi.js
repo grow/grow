@@ -68,6 +68,7 @@ export default class EditorApi extends Api {
         'en': '/',
       },
       'default_locale': 'en',
+      'content': 'Something for content.',
     })
 
     return result.promise
