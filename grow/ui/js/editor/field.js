@@ -83,45 +83,69 @@ export class TextField extends Field {
   }
 }
 
-export class PartialsField extends Field {
-  constructor(key, config, partials) {
-    super(key, 'partials', config)
-    this.partials = partials
-    this.fieldsEl = this.fieldEl.querySelector('.partials__partials')
-    this.containers = []
+export class ListField extends Field {
+  constructor(key, config, list) {
+    super(key, 'list', config)
+    this.list = list
+    this.fieldsEl = this.fieldEl.querySelector('.list__list')
+    this.fields = []
   }
 
   get labelEl() {
     if (!this._labelEl) {
-      this._labelEl = this.fieldEl.querySelector('.partials__label')
+      this._labelEl = this.fieldEl.querySelector('.list__label')
     }
     return this._labelEl
   }
 
   get value() {
     const values = []
-    for (const container of this.containers) {
-      values.push(container.value)
+    for (const field of this.fields) {
+      values.push(field.value)
     }
     return values
   }
 
   set value(frontMatter) {
-    this.partials.deferredPartials.promise.then((partialsMeta) => {
+    for (const item of frontMatter) {
+      const field = fieldGenerator(
+        this.config.get('sub_type', 'text'), `${this.key}[]`,
+        this.config.get('sub_config', {}), this.list)
+      field.value = item
+      this.fields.push(field)
+      this.fieldsEl.appendChild(field.fieldEl)
+    }
+  }
+
+  update(value) {
+    // TODO: Figure out how to pass the updated list data into the container.
+    // for (const container of this.fields) {
+    //   container.update()
+    // }
+  }
+}
+
+export class PartialsField extends ListField {
+  constructor(key, config, list) {
+    super(key, config, list)
+  }
+
+  set value(frontMatter) {
+    this.list.deferredPartials.promise.then((listMeta) => {
       for (const item of frontMatter) {
-        const partialMeta = partialsMeta[item['partial']]
-        const container = new PartialContainer(
+        const partialMeta = listMeta[item['partial']]
+        const field = new PartialContainer(
           item['partial'], partialMeta['label'], item, partialMeta['fields'])
-        this.containers.push(container)
-        this.fieldsEl.appendChild(container.fieldEl)
+        this.fields.push(field)
+        this.fieldsEl.appendChild(field.fieldEl)
       }
     })
   }
 
   update(value) {
-    // TODO: Figure out how to pass the updated partials data into the container.
-    // for (const container of this.containers) {
-    //   container.update()
+    // TODO: Figure out how to pass the updated list data into the container.
+    // for (const field of this.fields) {
+    //   field.update()
     // }
   }
 }
@@ -146,10 +170,13 @@ export class TextAreaField extends Field {
   }
 }
 
-export function fieldGenerator(type, key, config, partials) {
+export function fieldGenerator(type, key, config, list) {
   switch (type) {
+    case 'list':
+      return new ListField(key, config, list)
+      break
     case 'partials':
-      return new PartialsField(key, config, partials)
+      return new PartialsField(key, config, list)
       break
     case 'text':
       return new TextField(key, config)

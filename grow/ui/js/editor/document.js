@@ -17,7 +17,7 @@ export default class Document {
     this.fields = []
 
     for (const meta of this.fieldMeta) {
-      const field = fieldGenerator(meta['type'], meta['key'], {}, this.partials)
+      const field = fieldGenerator(meta['type'], meta['key'], meta, this.partials)
       field.value = this.frontMatter.get(meta['key'])
       field.label = meta['label']
       this.fields.push(field)
