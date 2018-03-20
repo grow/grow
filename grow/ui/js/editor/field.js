@@ -192,10 +192,18 @@ export class PartialsField extends ListField {
         const partialMeta = listMeta[item['partial']]
         const field = new PartialContainer(
           item['partial'], partialMeta['label'], item, partialMeta['fields'])
+        field.listeners.add('remove', this.handleRemovePartial.bind(this))
         this.fields.push(field)
         this.fieldsEl.appendChild(field.fieldEl)
+        // Update the reference to be the attached element.
+        field.fieldEl = this.fieldsEl.children[this.fieldsEl.children.length - 1]
       }
     })
+  }
+
+  handleRemovePartial(partial) {
+    partial.remove()
+    this.fields = this.fields.filter(item => item !== partial)
   }
 
   update(value) {

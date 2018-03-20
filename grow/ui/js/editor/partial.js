@@ -5,6 +5,7 @@
 import Config from '../utility/config'
 import DeepObject from '../utility/deepObject'
 import Defer from '../utility/defer'
+import Listeners from '../utility/listeners'
 import { fieldGenerator } from './field'
 
 export default class Partials {
@@ -28,6 +29,8 @@ export class PartialContainer {
     this.fieldEl = document.importNode(this.template.content, true)
     this.labelEl = this.fieldEl.querySelector('.partial__label')
     this.fieldsEl = this.fieldEl.querySelector('.partial__fields')
+    this.removeEl = this.fieldEl.querySelector('.partial__remove')
+    this.listeners = new Listeners()
     this.fields = []
 
     this.key = key
@@ -44,6 +47,8 @@ export class PartialContainer {
       this.fields.push(field)
       this.fieldsEl.appendChild(field.fieldEl)
     }
+
+    this.removeEl.addEventListener('click', this.handleRemovePartial.bind(this))
   }
 
   get value() {
@@ -57,6 +62,14 @@ export class PartialContainer {
     }
 
     return value
+  }
+
+  handleRemovePartial() {
+    this.listeners.trigger('remove', this)
+  }
+
+  remove() {
+    this.fieldEl.remove()
   }
 
   update(value) {
