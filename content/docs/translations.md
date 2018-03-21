@@ -147,7 +147,7 @@ Grow can import translation PO files from external sources. Currently Grow expec
 ```
 
 ```bash
-grow translations import_translations --source=<path to zip file or directory of locales>
+grow translations import --source=<path to zip file or directory of locales>
 ```
 
 ## Untranslated content
