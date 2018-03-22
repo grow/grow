@@ -300,7 +300,6 @@ class PodServerReRoute(PodServer):
                 handler_meta = None
                 if 'meta' in matched.value.meta:
                     handler_meta = matched.value.meta['meta']
-                print matched.value.meta['handler']
                 return matched.value.meta['handler'](
                     self.pod, request, matched, meta=handler_meta)
             return serve_console_reroute(self.pod, request, matched)
