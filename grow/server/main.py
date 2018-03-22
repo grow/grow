@@ -140,7 +140,7 @@ def serve_ui_tool(pod, request, values):
     return response
 
 
-def serve_ui_tool_reroute(pod, request, values):
+def serve_ui_tool_reroute(pod, request, values, **_kwargs):
     tool_path = 'node_modules/{}'.format(values.get('tool'))
     response = wrappers.Response(pod.read_file(tool_path))
     guessed_type = mimetypes.guess_type(tool_path)
@@ -300,6 +300,7 @@ class PodServerReRoute(PodServer):
                 handler_meta = None
                 if 'meta' in matched.value.meta:
                     handler_meta = matched.value.meta['meta']
+                print matched.value.meta['handler']
                 return matched.value.meta['handler'](
                     self.pod, request, matched, meta=handler_meta)
             return serve_console_reroute(self.pod, request, matched)
