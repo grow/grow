@@ -46,19 +46,31 @@
           <div class="fields"></div>
         </div>
         <div class="sidebar__save">
-          <div class="sidebar__save__auto">
-            <div class="mdc-switch">
-              <input type="checkbox" id="autosave" class="mdc-switch__native-control"/>
-              <div class="mdc-switch__background">
-                <div class="mdc-switch__knob"></div>
-              </div>
+          <div role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate mdc-linear-progress--closed">
+            <div class="mdc-linear-progress__buffering-dots"></div>
+            <div class="mdc-linear-progress__buffer"></div>
+            <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+              <span class="mdc-linear-progress__bar-inner"></span>
             </div>
-            <label for="autosave" class="mdc-switch-label">Autosave</label>
+            <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+              <span class="mdc-linear-progress__bar-inner"></span>
+            </div>
           </div>
-          <button class="sidebar__save__save mdc-button mdc-button--raised">
-            <i class="material-icons mdc-button__icon">save</i>
-            Save
-          </button>
+          <div class="sidebar__save__content">
+            <div class="sidebar__save__auto">
+              <div class="mdc-switch">
+                <input type="checkbox" id="autosave" class="mdc-switch__native-control"/>
+                <div class="mdc-switch__background">
+                  <div class="mdc-switch__knob"></div>
+                </div>
+              </div>
+              <label for="autosave" class="mdc-switch-label">Autosave</label>
+            </div>
+            <button class="sidebar__save__save mdc-button mdc-button--raised">
+              <i class="material-icons mdc-button__icon">save</i>
+              Save
+            </button>
+          </div>
         </div>
       </div>
     </div>

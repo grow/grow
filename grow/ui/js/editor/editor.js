@@ -6,6 +6,7 @@ import Document from './document'
 import EditorApi from './editorApi'
 import Partials from './partial'
 import { MDCIconToggle } from '@material/icon-toggle'
+import { MDCLinearProgress } from '@material/linear-progress'
 import { MDCTextField } from '@material/textfield'
 
 
@@ -30,6 +31,9 @@ export default class Editor {
       'MDCIconToggle:change', this.handleMobileClick.bind(this))
     this.podPathMd = new MDCTextField(
       this.containerEl.querySelector('.content__path .mdc-text-field'))
+    this.saveProgressMd = MDCLinearProgress.attachTo(
+      this.containerEl.querySelector('.sidebar__save .mdc-linear-progress'))
+    this.saveProgressMd.close()
 
     this.api = new EditorApi({
       host: this.host,
@@ -98,6 +102,7 @@ export default class Editor {
   }
 
   handleSaveDocumentResponse(response) {
+    this.saveProgressMd.close()
     this.document.update(
       response['pod_path'],
       response['front_matter'],
@@ -108,6 +113,7 @@ export default class Editor {
   }
 
   handleSaveClick(response) {
+    this.saveProgressMd.open()
     const frontMatter = {}
     for (const field of this.fields) {
       // Field key getter not working...?!?
