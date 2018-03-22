@@ -2,6 +2,7 @@
  * Content editor.
  */
 
+ import Config from '../utility/config'
 import Document from './document'
 import EditorApi from './editorApi'
 import Partials from './partial'
@@ -11,8 +12,9 @@ import { MDCTextField } from '@material/textfield'
 
 
 export default class Editor {
-  constructor(containerEl) {
+  constructor(containerEl, config) {
     this.containerEl = containerEl
+    this.config = new Config(config || {})
     this.mobileToggleEl = this.containerEl.querySelector('#content_device')
     this.contentPreviewEl = this.containerEl.querySelector('.content__preview')
     this.previewEl = this.containerEl.querySelector('.preview')
@@ -84,6 +86,15 @@ export default class Editor {
   }
 
   handleGetDocumentResponse(response) {
+    // Update the url if the document loaded is a different pod path.
+    const basePath = this.config.get('base', '/_grow/editor')
+    const origPath = window.location.pathname
+    const newPath = `${basePath}${response['pod_path']}`
+    const isChangedPodPath = origPath != newPath
+    if (isChangedPodPath) {
+      history.pushState({}, '', newPath)
+    }
+
     this.document = new Document(
       response['pod_path'],
       response['fields'],
