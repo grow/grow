@@ -196,6 +196,11 @@ export class MarkdownField extends Field {
   set value(value) {
     this.editor.content.innerHTML = marked(value)
   }
+
+  monitorFocus() {
+    this.editor.content.addEventListener('blur', () => { this.isFocused = false })
+    this.editor.content.addEventListener('focus', () => { this.isFocused = true })
+  }
 }
 
 export class PartialsField extends ListField {
