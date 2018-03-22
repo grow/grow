@@ -62,6 +62,54 @@ export default class EditorApi extends Api {
               },
             ],
           },
+          {
+            'partial': 'hero',
+            'title': 'Blinkk',
+            'subtitle': 'New to Blinkk?',
+            'description': 'Great! This site is to help you get up to speed on how Blinkk works and some of the projects that we have going.',
+            'cta': [
+              {
+                'title': 'Getting Started',
+                'url': '!g.url "/content/pages/getting-started.yaml"',
+              },
+              {
+                'title': 'Blinkk Projects',
+                'url': '!g.url "/content/pages/projects.yaml"',
+              },
+            ],
+          },
+          {
+            'partial': 'hero',
+            'title': 'Blinkk',
+            'subtitle': 'New to Blinkk?',
+            'description': 'Great! This site is to help you get up to speed on how Blinkk works and some of the projects that we have going.',
+            'cta': [
+              {
+                'title': 'Getting Started',
+                'url': '!g.url "/content/pages/getting-started.yaml"',
+              },
+              {
+                'title': 'Blinkk Projects',
+                'url': '!g.url "/content/pages/projects.yaml"',
+              },
+            ],
+          },
+          {
+            'partial': 'hero',
+            'title': 'Blinkk',
+            'subtitle': 'New to Blinkk?',
+            'description': 'Great! This site is to help you get up to speed on how Blinkk works and some of the projects that we have going.',
+            'cta': [
+              {
+                'title': 'Getting Started',
+                'url': '!g.url "/content/pages/getting-started.yaml"',
+              },
+              {
+                'title': 'Blinkk Projects',
+                'url': '!g.url "/content/pages/projects.yaml"',
+              },
+            ],
+          },
         ],
       },
       'serving_paths': {

@@ -54,7 +54,7 @@ body
 
 .content__path
   flex-grow: 1
-  padding: 0 $pad 0 0
+  padding: 0 0 0 $pad
 
 .content__preview
   align-items: stretch
@@ -65,8 +65,8 @@ body
 .sidebar
   display: flex
   flex-flow: column
-  flex-basis: 25vw
   max-height: 100vh
+  flex-basis: 30vw
 
 .sidebar__content
   flex-grow: 1
@@ -89,13 +89,34 @@ body
   color: $color-on-back
   flex-grow: 1
 
-.content__preview--mobile
-  align-items: center
+.container--mobile
+  .content
+    flex-grow: 0
+
+  .content__preview
+    align-items: center
+    flex-grow: 0
+
+  .fields
+    display: flex
+    flex-flow: column
+    flex-wrap: wrap
+
+  .field
+    width: 50%
 
   .preview
     flex-grow: 0
     height: 732px
     width: 412px
+
+  .sidebar
+    flex-grow: 1
+
+  .sidebar__content
+    display: flex
+    flex-flow: column
+    flex-wrap: wrap
 
 .info
   background-color: $color-back

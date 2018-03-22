@@ -18,21 +18,21 @@
     <div class="container">
       <div class="content">
         <div class="content__header">
+          <i id="content_device" class="mdc-icon-toggle material-icons"
+             role="button"
+             aria-label="Toggle mobile device sizing"
+             aria-pressed="false"
+             tabindex="0"
+             data-toggle-on='{"label": "Full sized preview", "cssClass": "mdc-icon-toggle--toggled"}'
+             data-toggle-off='{"label": "Mobile sized preview"}'>
+             devices
+          </i>
           <div class="content__path">
             <div class="mdc-text-field mdc-text-field--fullwidth">
               <input type="text" id="pod_path" class="mdc-text-field__input" value="{{default_path}}" placeholder="Pod Path">
               <div class="mdc-line-ripple"></div>
             </div>
           </div>
-          <i id="content_device" class="mdc-icon-toggle material-icons"
-               role="button"
-               aria-label="Toggle mobile device sizing"
-               aria-pressed="false"
-               tabindex="0"
-               data-toggle-on='{"label": "Full sized preview", "cssClass": "mdc-icon-toggle--toggled"}'
-               data-toggle-off='{"label": "Mobile sized preview"}'>
-               devices
-            </i>
         </div>
         <div class="content__preview">
           <iframe class="preview" data-host="{{meta.host}}" data-port="{{meta.port}}"></iframe>
@@ -40,9 +40,6 @@
       </div>
       <div class="sidebar">
         <div class="sidebar__content">
-          <div class="info info__info mdl-shadow--3dp">
-            Preview is updated on save.
-          </div>
           <div class="fields"></div>
         </div>
         <div class="sidebar__save">
