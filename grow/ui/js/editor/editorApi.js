@@ -126,7 +126,25 @@ export default class EditorApi extends Api {
         '$path': '/something',
         'meta': {
           'description': 'Something really really cool.',
-        }
+        },
+        'partials': [
+          {
+            'partial': 'hero',
+            'title': 'Blinkk Hero',
+            'subtitle': 'New to Blinkk saving?',
+            'description': 'Great! This changes everything.',
+            'cta': [
+              {
+                'title': 'Getting Started',
+                'url': '!g.url "/content/pages/getting-started.yaml"',
+              },
+              {
+                'title': 'Blinkk Projects',
+                'url': '!g.url "/content/pages/projects.yaml"',
+              },
+            ],
+          },
+        ],
       },
       'serving_paths': {
         'en': '/',

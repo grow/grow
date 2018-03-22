@@ -76,6 +76,15 @@ export class PartialContainer {
   }
 
   update(value) {
-    // TODO: Figure out how to pass the updated data into the fields.
+    this.frontMatter = new DeepObject(value)
+    for (const meta of this.fieldMeta) {
+      for (const field of this.fields) {
+        // Field key getter not working...?!?
+        if (field._key == meta['key']) {
+          field.update(this.frontMatter.get(meta['key']))
+          break
+        }
+      }
+    }
   }
 }

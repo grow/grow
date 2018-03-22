@@ -143,10 +143,11 @@ export class ListField extends Field {
   }
 
   update(value) {
-    // TODO: Figure out how to pass the updated list data into the container.
-    // for (const container of this.fields) {
-    //   container.update()
-    // }
+    for (const idx in this.fields) {
+      // TODO This could break if the list change order or type externally
+      // and when the partial length doesn't match.
+      this.fields[idx].update(value[idx])
+    }
   }
 }
 
@@ -227,10 +228,11 @@ export class PartialsField extends ListField {
   }
 
   update(value) {
-    // TODO: Figure out how to pass the updated list data into the container.
-    // for (const field of this.fields) {
-    //   field.update()
-    // }
+    for (const idx in this.fields) {
+      // TODO This will break if the partials change order externally
+      // and when the partial length doesn't match.
+      this.fields[idx].update(value[idx])
+    }
   }
 }
 
