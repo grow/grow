@@ -72,10 +72,10 @@ export default class Editor {
   handleMobileClick(evt) {
     if (evt.detail.isOn) {
       this.containerEl.classList.add('container--mobile')
-      this.previewEl.classList.add('mdl-shadow--6dp')
+      this.previewEl.classList.add('mdc-elevation--z4')
     } else {
       this.containerEl.classList.remove('container--mobile')
-      this.previewEl.classList.remove('mdl-shadow--6dp')
+      this.previewEl.classList.remove('mdc-elevation--z4')
     }
   }
 

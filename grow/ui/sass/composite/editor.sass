@@ -95,7 +95,7 @@ body
 
   .content__preview
     align-items: center
-    flex-grow: 0
+    margin: $pad
 
   .fields
     display: flex
@@ -104,6 +104,16 @@ body
 
   .field
     width: 50%
+    margin: 0
+    padding: $pad
+
+  .list__items
+    .partial
+      padding: $pad $pad 0 $pad
+
+  .partial
+    .field
+      width: 100%
 
   .preview
     flex-grow: 0
@@ -116,7 +126,6 @@ body
   .sidebar__content
     display: flex
     flex-flow: column
-    flex-wrap: wrap
 
 .info
   background-color: $color-back
@@ -129,7 +138,7 @@ body
   background-color: #e1f5fe
 
 .field
-  margin: $pad
+  padding: $pad
 
 .list__items
   margin: $pad 0
@@ -139,7 +148,7 @@ body
     border-left: 3px solid $color-s
 
     .field
-      margin: $pad 0
+      padding: $pad 0
 
 .list__add
   align-items: center
