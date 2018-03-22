@@ -35,7 +35,6 @@ $pad: 1em
 
 body
   background-color: $color-back-l
-  font-family: 'Roboto', sans-serif
   margin: 0
   padding: 0
 
@@ -57,16 +56,6 @@ body
   flex-grow: 1
   padding: 0 $pad 0 0
 
-  .mdl-textfield
-    padding: 0
-    width: 100%
-
-  .mdl-textfield__label
-      top: 4px
-
-  .mdl-textfield__label:after
-    bottom: 0
-
 .content__preview
   align-items: stretch
   display: flex
@@ -82,6 +71,9 @@ body
 .sidebar__content
   flex-grow: 1
   overflow-y: auto
+
+  .mdc-text-field
+    width: 100%
 
 .sidebar__save
   align-items: center
@@ -148,6 +140,21 @@ body
   font-size: 1.1rem
   font-weight: 700
 
+
+// Material design components
+$mdc-theme-primary: $color-p
+$mdc-theme-secondary: $color-s
+$mdc-theme-background: $color-back
+
+@import '../../node_modules/material-components-web/material-components-web'
+
+.mdc-text-field--textarea
+  .mdc-floating-label
+    background-color: transparent
+
+.content__header .mdc-icon-toggle--toggled
+  @include mdc-icon-toggle-ink-color($color-s)
+  @include mdc-states-base-color($color-s)
 
 // Pell Editor
 $pell-content-height: 20vh

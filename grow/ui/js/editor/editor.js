@@ -5,6 +5,8 @@
 import Document from './document'
 import EditorApi from './editorApi'
 import Partials from './partial'
+import { MDCIconToggle } from '@material/icon-toggle'
+import { MDCTextField } from '@material/textfield'
 
 
 export default class Editor {
@@ -21,8 +23,13 @@ export default class Editor {
     this.fields = []
     this.document = null
 
-    this.mobileToggleEl.addEventListener('click', this.handleMobileClick.bind(this))
     this.saveEl.addEventListener('click', this.handleSaveClick.bind(this))
+
+    this.mobileToggleMd = MDCIconToggle.attachTo(this.mobileToggleEl)
+    this.mobileToggleEl.addEventListener(
+      'MDCIconToggle:change', this.handleMobileClick.bind(this))
+    this.podPathMd = new MDCTextField(
+      this.containerEl.querySelector('.content__path .mdc-text-field'))
 
     this.api = new EditorApi({
       host: this.host,
@@ -50,6 +57,9 @@ export default class Editor {
   addField(field) {
     this.fields.push(field)
     this.fieldsEl.appendChild(field.fieldEl)
+    // Update the reference to be the attached element.
+    field.fieldEl = this.fieldsEl.children[this.fieldsEl.children.length - 1]
+    field.setup()
   }
 
   clearFields() {
@@ -59,8 +69,8 @@ export default class Editor {
     }
   }
 
-  handleMobileClick() {
-    if (this.mobileToggleEl.checked) {
+  handleMobileClick(evt) {
+    if (evt.detail.isOn) {
       this.contentPreviewEl.classList.add('content__preview--mobile')
       this.previewEl.classList.add('mdl-shadow--6dp')
     } else {

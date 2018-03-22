@@ -12,23 +12,27 @@
     <link rel="shortcut icon" href="/_grow/assets/favicon.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://code.getmdl.io/1.3.0/material.blue_grey-deep_purple.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/_grow/ui/css/editor.min.css">
   </head>
-  <body>
+  <body class="mdc-typography">
     <div class="container">
       <div class="content">
         <div class="content__header">
           <div class="content__path">
-            <div class="mdl-textfield mdl-js-textfield">
-              <input class="mdl-textfield__input" type="text" id="pod_path" value="{{default_path}}">
-              <label class="mdl-textfield__label" for="pod_path">Pod path</label>
+            <div class="mdc-text-field mdc-text-field--fullwidth">
+              <input type="text" id="pod_path" class="mdc-text-field__input" value="{{default_path}}" placeholder="Pod Path">
+              <div class="mdc-line-ripple"></div>
             </div>
           </div>
-          <label class="content__device mdl-icon-toggle mdl-js-icon-toggle mdl-js-ripple-effect" for="content_device">
-            <input type="checkbox" id="content_device" class="mdl-icon-toggle__input">
-            <i class="mdl-icon-toggle__label material-icons">devices</i>
-          </label>
+          <i id="content_device" class="mdc-icon-toggle material-icons"
+               role="button"
+               aria-label="Toggle mobile device sizing"
+               aria-pressed="false"
+               tabindex="0"
+               data-toggle-on='{"label": "Full sized preview", "cssClass": "mdc-icon-toggle--toggled"}'
+               data-toggle-off='{"label": "Mobile sized preview"}'>
+               devices
+            </i>
         </div>
         <div class="content__preview">
           <iframe class="preview" data-host="{{meta.host}}" data-port="{{meta.port}}"></iframe>
@@ -42,11 +46,17 @@
           <div class="fields"></div>
         </div>
         <div class="sidebar__save">
-          <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="autosave">
-            <input type="checkbox" id="autosave" class="mdl-switch__input">
-            <span class="mdl-switch__label">Autosave</span>
-          </label>
-          <button class="mdl-button mdl-button--colored mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+          <div class="sidebar__save__auto">
+            <div class="mdc-switch">
+              <input type="checkbox" id="autosave" class="mdc-switch__native-control"/>
+              <div class="mdc-switch__background">
+                <div class="mdc-switch__knob"></div>
+              </div>
+            </div>
+            <label for="autosave" class="mdc-switch-label">Autosave</label>
+          </div>
+          <button class="sidebar__save__save mdc-button mdc-button--raised">
+            <i class="material-icons mdc-button__icon">save</i>
             Save
           </button>
         </div>
@@ -55,18 +65,19 @@
 
     <template id="template_field_text">
       <div class="field field__text">
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <input class="mdl-textfield__input" type="text" id="" value="">
-          <label class="mdl-textfield__label" for=""></label>
+        <div class="mdc-text-field mdc-text-field--upgraded">
+          <input type="text" id="" class="mdc-text-field__input">
+          <label class="mdc-floating-label" for=""></label>
+          <div class="mdc-line-ripple"></div>
         </div>
       </div>
     </template>
 
     <template id="template_field_textarea">
       <div class="field field__textarea">
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-          <textarea class="mdl-textfield__input" type="text" rows="3" id=""></textarea>
-          <label class="mdl-textfield__label" for=""></label>
+        <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--fullwidth mdc-text-field--dense">
+          <textarea id="" class="mdc-text-field__input" rows="4"></textarea>
+          <label for="" class="mdc-floating-label"></label>
         </div>
       </div>
     </template>
@@ -85,7 +96,8 @@
           <div class="list__items">
             <div class="list__list"></div>
             <div class="list__add">
-              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+              <button class="mdc-button mdc-button--raised">
+                <i class="material-icons mdc-button__icon">add</i>
                 Add
               </button>
             </div>
@@ -98,15 +110,14 @@
       <div class="partial">
         <div class="partial__action">
           <div class="partial__label"></div>
-          <button class="partial__remove mdl-button mdl-js-button mdl-button--icon mdl-button--colored">
-            <i class="material-icons">delete</i>
+          <button class="partial__remove mdc-button mdc-button--dense">
+            <i class="material-icons mdc-button__icon">delete</i>
           </button>
         </div>
         <div class="partial__fields"></div>
       </div>
     </template>
 
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script src="/_grow/ui/js/editor.min.js"></script>
   </body>
 </html>

@@ -72,6 +72,7 @@ gulp.task('watch-js', () => {
 gulp.task('compile-sass', function() {
   gulp.src(config.SASS_SOURCE_DIR)
   .pipe(sass({
+    includePaths: ['./node_modules/'],
     outputStyle: 'compressed'
   })).on('error', sass.logError)
   .pipe(rename(function(path) {

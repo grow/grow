@@ -46,6 +46,9 @@ export class PartialContainer {
       field.label = meta['label']
       this.fields.push(field)
       this.fieldsEl.appendChild(field.fieldEl)
+      // Update the reference to be the attached element.
+      field.fieldEl = this.fieldsEl.children[this.fieldsEl.children.length - 1]
+      field.setup()
     }
 
     this.removeEl.addEventListener('click', this.handleRemovePartial.bind(this))

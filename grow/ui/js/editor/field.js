@@ -7,6 +7,8 @@ import pell from 'pell'
 import marked from 'marked'
 import TurndownService from 'turndown'
 import { PartialContainer } from './partial'
+import { MDCTextField } from '@material/textfield'
+
 
 const availableFields = {}
 
@@ -66,6 +68,10 @@ export default class Field {
     this.inputEl.addEventListener('focus', () => { this.isFocused = true })
   }
 
+  setup() {
+    // Do nothing.
+  }
+
   update(value) {
     // Respect the user focus to not overwrite on auto save.
     if (this.isFocused) {
@@ -81,10 +87,21 @@ export class TextField extends Field {
     this.monitorFocus()
   }
 
+  get mdEl() {
+    if (!this._mdEl) {
+      this._mdEl = this.fieldEl.querySelector('.mdc-text-field')
+    }
+    return this._mdEl
+  }
+
   set key(value) {
     super.key = value
     this.inputEl.setAttribute('id', value)
     this.labelEl.setAttribute('for', value)
+  }
+
+  setup() {
+    this.fieldMd = new MDCTextField(this.mdEl)
   }
 }
 
@@ -119,6 +136,9 @@ export class ListField extends Field {
       field.value = item
       this.fields.push(field)
       this.fieldsEl.appendChild(field.fieldEl)
+      // Update the reference to be the attached element.
+      field.fieldEl = this.fieldsEl.children[this.fieldsEl.children.length - 1]
+      field.setup()
     }
   }
 
@@ -227,10 +247,21 @@ export class TextAreaField extends Field {
     return this._inputEl
   }
 
+  get mdEl() {
+    if (!this._mdEl) {
+      this._mdEl = this.fieldEl.querySelector('.mdc-text-field')
+    }
+    return this._mdEl
+  }
+
   set key(value) {
     super.key = value
     this.inputEl.setAttribute('id', value)
     this.labelEl.setAttribute('for', value)
+  }
+
+  setup() {
+    this.fieldMd = new MDCTextField(this.mdEl)
   }
 }
 
