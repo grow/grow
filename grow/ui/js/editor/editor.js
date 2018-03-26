@@ -29,7 +29,7 @@ export default class Editor {
     this.autosaveID = null
 
     this.autosaveEl.addEventListener('click', this.handleAutosaveClick.bind(this))
-    this.saveEl.addEventListener('click', this.handleSaveClick.bind(this))
+    this.saveEl.addEventListener('click', this.save.bind(this))
 
     this.mobileToggleMd = MDCIconToggle.attachTo(this.mobileToggleEl)
     this.mobileToggleEl.addEventListener(
@@ -141,10 +141,6 @@ export default class Editor {
     this.previewEl.src = this.previewUrl
   }
 
-  handleSaveClick() {
-    this.save()
-  }
-
   loadDetails(podPath) {
     this.api.getDocument(podPath).then(this.handleGetDocumentResponse.bind(this))
   }
@@ -152,12 +148,20 @@ export default class Editor {
   save() {
     this.saveProgressMd.open()
     const frontMatter = {}
+    let isClean = true
     for (const field of this.fields) {
+      if (!field.isClean) {
+        isClean = false
+      }
       // Field key getter not working...?!?
       frontMatter[field._key] = field.value
     }
-    const result = this.api.saveDocument(this.podPath, frontMatter, this.document.locale)
-    result.then(this.handleSaveDocumentResponse.bind(this))
+    if (isClean) {
+      this.saveProgressMd.close()
+    } else {
+      const result = this.api.saveDocument(this.podPath, frontMatter, this.document.locale)
+      result.then(this.handleSaveDocumentResponse.bind(this))
+    }
   }
 
   startAutosave() {
@@ -167,7 +171,7 @@ export default class Editor {
 
     this.autosaveID = window.setInterval(() => {
       this.save()
-    }, this.config.get('autosaveInterval', 1000))
+    }, this.config.get('autosaveInterval', 2000))
 
     this.autosaveEl.checked = true
   }

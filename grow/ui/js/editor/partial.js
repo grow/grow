@@ -54,6 +54,15 @@ export class PartialContainer {
     this.removeEl.addEventListener('click', this.handleRemovePartial.bind(this))
   }
 
+  get isClean() {
+    for (const field of this.fields) {
+      if (!field.isClean) {
+        return false
+      }
+    }
+    return true
+  }
+
   get value() {
     const value = {
       'partial': this.key,

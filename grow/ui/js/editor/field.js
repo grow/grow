@@ -22,6 +22,7 @@ export default class Field {
     this.type = type
     this.isFocused = false
     this.config = new Config(config || {})
+    this._cleanValue = null
   }
 
   get inputEl() {
@@ -33,6 +34,10 @@ export default class Field {
 
   get key() {
     return this._key
+  }
+
+  get isClean() {
+    return this._cleanValue == this.value
   }
 
   get label() {
@@ -61,6 +66,7 @@ export default class Field {
 
   set value(value) {
     this.inputEl.value = value
+    this._cleanValue = value
   }
 
   monitorFocus() {
@@ -75,6 +81,8 @@ export default class Field {
   update(value) {
     // Respect the user focus to not overwrite on auto save.
     if (this.isFocused) {
+      // Need to save the updated clean value for comparison.
+      this._cleanValue = value
       return
     }
     this.value = value
@@ -111,6 +119,15 @@ export class ListField extends Field {
     this.list = list
     this.fieldsEl = this.fieldEl.querySelector('.list__list')
     this.fields = []
+  }
+
+  get isClean() {
+    for (const field of this.fields) {
+      if (!field.isClean) {
+        return false
+      }
+    }
+    return true
   }
 
   get labelEl() {
@@ -195,6 +212,7 @@ export class MarkdownField extends Field {
 
   set value(value) {
     this.editor.content.innerHTML = marked(value)
+    this._cleanValue = value
   }
 
   monitorFocus() {
