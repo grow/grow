@@ -2,13 +2,14 @@
  * Content editor.
  */
 
- import Config from '../utility/config'
+import Config from '../utility/config'
 import Document from './document'
 import EditorApi from './editorApi'
 import Partials from './partial'
 import { MDCIconToggle } from '@material/icon-toggle'
 import { MDCLinearProgress } from '@material/linear-progress'
 import { MDCTextField } from '@material/textfield'
+import expandObject from '../utility/expandObject'
 
 
 export default class Editor {
@@ -147,18 +148,19 @@ export default class Editor {
 
   save() {
     this.saveProgressMd.open()
-    const frontMatter = {}
+    const shortFrontMatter = {}
     let isClean = true
     for (const field of this.fields) {
       if (!field.isClean) {
         isClean = false
       }
       // Field key getter not working...?!?
-      frontMatter[field._key] = field.value
+      shortFrontMatter[field._key] = field.value
     }
     if (isClean) {
       this.saveProgressMd.close()
     } else {
+      const frontMatter = expandObject(shortFrontMatter)
       const result = this.api.saveDocument(this.podPath, frontMatter, this.document.locale)
       result.then(this.handleSaveDocumentResponse.bind(this))
     }
