@@ -17,6 +17,7 @@ export default class Editor {
     this.config = new Config(config || {})
     this.mobileToggleEl = this.containerEl.querySelector('#content_device')
     this.contentPreviewEl = this.containerEl.querySelector('.content__preview')
+    this.autosaveEl = this.containerEl.querySelector('#autosave')
     this.previewEl = this.containerEl.querySelector('.preview')
     this.fieldsEl = this.containerEl.querySelector('.fields')
     this.saveEl = this.containerEl.querySelector('.sidebar__save button')
@@ -25,7 +26,9 @@ export default class Editor {
     this.port = this.previewEl.dataset.port
     this.fields = []
     this.document = null
+    this.autosaveID = null
 
+    this.autosaveEl.addEventListener('click', this.handleAutosaveClick.bind(this))
     this.saveEl.addEventListener('click', this.handleSaveClick.bind(this))
 
     this.mobileToggleMd = MDCIconToggle.attachTo(this.mobileToggleEl)
@@ -43,6 +46,13 @@ export default class Editor {
     })
     this.partials = new Partials(this.api)
     this.loadDetails(this.podPath)
+
+    // TODO Start the autosave depending on local storage.
+    // this.startAutosave()
+  }
+
+  get autosave() {
+    return this.autosaveEl.checked
   }
 
   get podPath() {
@@ -72,6 +82,14 @@ export default class Editor {
     this.fields = []
     while (this.fieldsEl.firstChild) {
       this.fieldsEl.removeChild(this.fieldsEl.firstChild)
+    }
+  }
+
+  handleAutosaveClick(evt) {
+    if (this.autosaveEl.checked) {
+      this.startAutosave()
+    } else {
+      this.stopAutosave()
     }
   }
 
@@ -123,7 +141,15 @@ export default class Editor {
     this.previewEl.src = this.previewUrl
   }
 
-  handleSaveClick(response) {
+  handleSaveClick() {
+    this.save()
+  }
+
+  loadDetails(podPath) {
+    this.api.getDocument(podPath).then(this.handleGetDocumentResponse.bind(this))
+  }
+
+  save() {
     this.saveProgressMd.open()
     const frontMatter = {}
     for (const field of this.fields) {
@@ -134,7 +160,23 @@ export default class Editor {
     result.then(this.handleSaveDocumentResponse.bind(this))
   }
 
-  loadDetails(podPath) {
-    this.api.getDocument(podPath).then(this.handleGetDocumentResponse.bind(this))
+  startAutosave() {
+    if (this.autosaveID) {
+      this.stopAutosave()
+    }
+
+    this.autosaveID = window.setInterval(() => {
+      this.save()
+    }, this.config.get('autosaveInterval', 1000))
+
+    this.autosaveEl.checked = true
+  }
+
+  stopAutosave() {
+    if (this.autosaveID) {
+      window.clearInterval(this.autosaveID)
+    }
+
+    this.autosaveEl.checked = false
   }
 }
