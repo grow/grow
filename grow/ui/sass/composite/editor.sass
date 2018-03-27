@@ -72,8 +72,19 @@ body
   flex-grow: 1
   overflow-y: auto
 
+  .info
+    flex-grow: 1
+
   .mdc-text-field
     width: 100%
+
+.sidebar__action
+  align-items: center
+  display: flex
+  flex-flow: row
+
+  i:last-child
+    margin-right: 1rem
 
 .sidebar__save
   display: flex
@@ -187,7 +198,7 @@ $mdc-theme-background: $color-back
   .mdc-floating-label
     background-color: transparent
 
-.content__header .mdc-icon-toggle--toggled
+.mdc-icon-toggle--toggled
   @include mdc-icon-toggle-ink-color($color-s)
   @include mdc-states-base-color($color-s)
 

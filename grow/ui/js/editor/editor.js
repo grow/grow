@@ -17,6 +17,7 @@ export default class Editor {
     this.containerEl = containerEl
     this.config = new Config(config || {})
     this.mobileToggleEl = this.containerEl.querySelector('#content_device')
+    this.sourceToggleEl = this.containerEl.querySelector('#content_source')
     this.contentPreviewEl = this.containerEl.querySelector('.content__preview')
     this.autosaveEl = this.containerEl.querySelector('#autosave')
     this.previewEl = this.containerEl.querySelector('.preview')
@@ -33,6 +34,7 @@ export default class Editor {
     this.saveEl.addEventListener('click', this.save.bind(this))
 
     this.mobileToggleMd = MDCIconToggle.attachTo(this.mobileToggleEl)
+    this.sourceToggleMd = MDCIconToggle.attachTo(this.sourceToggleEl)
     this.mobileToggleEl.addEventListener(
       'MDCIconToggle:change', this.handleMobileClick.bind(this))
     this.podPathMd = new MDCTextField(
@@ -54,6 +56,15 @@ export default class Editor {
 
   get autosave() {
     return this.autosaveEl.checked
+  }
+
+  get isClean() {
+    for (const field of this.fields) {
+      if (!field.isClean) {
+        return false
+      }
+    }
+    return true
   }
 
   get podPath() {
@@ -146,20 +157,16 @@ export default class Editor {
     this.api.getDocument(podPath).then(this.handleGetDocumentResponse.bind(this))
   }
 
-  save() {
+  save(force) {
     this.saveProgressMd.open()
-    const shortFrontMatter = {}
-    let isClean = true
-    for (const field of this.fields) {
-      if (!field.isClean) {
-        isClean = false
-      }
-      // Field key getter not working...?!?
-      shortFrontMatter[field._key] = field.value
-    }
-    if (isClean) {
+    if (this.isClean && !force) {
       this.saveProgressMd.close()
     } else {
+      const shortFrontMatter = {}
+      for (const field of this.fields) {
+        // Field key getter not working...?!?
+        shortFrontMatter[field._key] = field.value
+      }
       const frontMatter = expandObject(shortFrontMatter)
       const result = this.api.saveDocument(this.podPath, frontMatter, this.document.locale)
       result.then(this.handleSaveDocumentResponse.bind(this))

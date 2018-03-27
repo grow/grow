@@ -40,10 +40,22 @@
       </div>
       <div class="sidebar">
         <div class="sidebar__content">
-          <div class="info info__info mdc-elevation--z4">
-            Preview is updated on save.
+          <div class="sidebar__action">
+            <div class="info info__info mdc-elevation--z4">
+              Preview is updated on save.
+            </div>
+            <i id="content_source" class="mdc-icon-toggle material-icons"
+               role="button"
+               aria-label="Toggle front matter source"
+               aria-pressed="false"
+               tabindex="0"
+               data-toggle-on='{"label": "Front matter source", "cssClass": "mdc-icon-toggle--toggled"}'
+               data-toggle-off='{"label": "Front matter UI"}'>
+               code
+            </i>
           </div>
           <div class="fields"></div>
+          <div class="source"></div>
         </div>
         <div class="sidebar__save">
           <div role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate mdc-linear-progress--closed">
