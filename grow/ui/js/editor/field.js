@@ -259,6 +259,19 @@ export class PartialsField extends ListField {
   }
 }
 
+export class SourceField extends Field {
+  constructor(config) {
+    super('source', 'source', config)
+  }
+
+  get inputEl() {
+    if (!this._inputEl) {
+      this._inputEl = this.fieldEl.querySelector('textarea')
+    }
+    return this._inputEl
+  }
+}
+
 export class TextAreaField extends Field {
   constructor(key, config) {
     super(key, 'textarea', config)
@@ -295,9 +308,12 @@ availableFields['partials'] = PartialsField
 availableFields['text'] = TextField
 availableFields['textarea'] = TextAreaField
 availableFields['markdown'] = MarkdownField
+availableFields['source'] = SourceField
 
 export function fieldGenerator(type, key, config, list) {
   if (!type in availableFields) {
+    // TODO: Make a proxy field for unknown fields that can be replaced
+    // in line with new fields.
     throw('Unknown field type')
   }
   return new availableFields[type](key, config, list)

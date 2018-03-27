@@ -29,14 +29,17 @@ export default class Editor {
     this.fields = []
     this.document = null
     this.autosaveID = null
+    this._isEditingSource = false
 
     this.autosaveEl.addEventListener('click', this.handleAutosaveClick.bind(this))
-    this.saveEl.addEventListener('click', this.save.bind(this))
+    this.saveEl.addEventListener('click', () => { this.save(true) })
 
     this.mobileToggleMd = MDCIconToggle.attachTo(this.mobileToggleEl)
-    this.sourceToggleMd = MDCIconToggle.attachTo(this.sourceToggleEl)
     this.mobileToggleEl.addEventListener(
       'MDCIconToggle:change', this.handleMobileClick.bind(this))
+    this.sourceToggleMd = MDCIconToggle.attachTo(this.sourceToggleEl)
+    this.sourceToggleEl.addEventListener(
+      'MDCIconToggle:change', this.handleSourceClick.bind(this))
     this.podPathMd = new MDCTextField(
       this.containerEl.querySelector('.content__path .mdc-text-field'))
     this.saveProgressMd = MDCLinearProgress.attachTo(
@@ -48,7 +51,9 @@ export default class Editor {
       port: this.port,
     })
     this.partials = new Partials(this.api)
-    this.loadDetails(this.podPath)
+
+    // Default to loading with the UI.
+    this.loadFields(this.podPath)
 
     // TODO Start the autosave depending on local storage.
     // this.startAutosave()
@@ -65,6 +70,10 @@ export default class Editor {
       }
     }
     return true
+  }
+
+  get isEditingSource() {
+    return this._isEditingSource
   }
 
   get podPath() {
@@ -97,12 +106,41 @@ export default class Editor {
     }
   }
 
+  documentFromResponse(response) {
+    this.document = new Document(
+      response['pod_path'],
+      response['fields'],
+      response['front_matter'],
+      response['raw_front_matter'],
+      response['serving_paths'],
+      response['default_locale'],
+      this.partials)
+
+    this.clearFields()
+  }
+
   handleAutosaveClick(evt) {
     if (this.autosaveEl.checked) {
       this.startAutosave()
     } else {
       this.stopAutosave()
     }
+  }
+
+  handleLoadFieldsResponse(response) {
+    this._isEditingSource = false
+    this.documentFromResponse(response)
+    this.pushState(this.document.podPath)
+    this.showFields()
+    this.refreshPreview()
+  }
+
+  handleLoadSourceResponse(response) {
+    this._isEditingSource = true
+    this.documentFromResponse(response)
+    this.pushState(this.document.podPath)
+    this.showSource()
+    this.refreshPreview()
   }
 
   handleMobileClick(evt) {
@@ -115,52 +153,68 @@ export default class Editor {
     }
   }
 
-  handleGetDocumentResponse(response) {
-    // Update the url if the document loaded is a different pod path.
-    const basePath = this.config.get('base', '/_grow/editor')
-    const origPath = window.location.pathname
-    const newPath = `${basePath}${response['pod_path']}`
-    const isChangedPodPath = origPath != newPath
-    if (isChangedPodPath) {
-      history.pushState({}, '', newPath)
-    }
-
-    this.document = new Document(
-      response['pod_path'],
-      response['fields'],
-      response['front_matter'],
-      response['serving_paths'],
-      response['default_locale'],
-      this.partials)
-
-    this.clearFields()
-
-    for (const field of this.document.fields) {
-      this.addField(field)
-    }
-
-    this.previewEl.src = this.previewUrl
-  }
-
-  handleSaveDocumentResponse(response) {
+  handleSaveFieldsResponse(response) {
     this.saveProgressMd.close()
     this.document.update(
       response['pod_path'],
       response['front_matter'],
+      response['raw_front_matter'],
       response['serving_paths'],
       response['default_locale'])
 
-    this.previewEl.src = this.previewUrl
+    this.refreshPreview()
   }
 
-  loadDetails(podPath) {
-    this.api.getDocument(podPath).then(this.handleGetDocumentResponse.bind(this))
+  handleSaveSourceResponse(response) {
+    this.saveProgressMd.close()
+    this.document.update(
+      response['pod_path'],
+      response['front_matter'],
+      response['raw_front_matter'],
+      response['serving_paths'],
+      response['default_locale'])
+
+    this.refreshPreview()
+  }
+
+  handleSourceClick(evt) {
+    if (evt.detail.isOn) {
+      this.loadSource(this.podPath)
+    } else {
+      this.loadFields(this.podPath)
+    }
+  }
+
+  loadFields(podPath) {
+    this.api.getDocument(podPath).then(this.handleLoadFieldsResponse.bind(this))
+  }
+
+  loadSource(podPath) {
+    this.api.getDocument(podPath).then(this.handleLoadSourceResponse.bind(this))
+  }
+
+  pushState(podPath) {
+    // Update the url if the document loaded is a different pod path.
+    const basePath = this.config.get('base', '/_grow/editor')
+    const origPath = window.location.pathname
+    const newPath = `${basePath}${podPath}`
+    if (origPath != newPath) {
+      history.pushState({}, '', newPath)
+    }
+  }
+
+  refreshPreview() {
+    this.previewEl.src = this.previewUrl
   }
 
   save(force) {
     this.saveProgressMd.open()
     if (this.isClean && !force) {
       this.saveProgressMd.close()
+    } else if (this.isEditingSource) {
+      const rawFrontMatter = this.fields[0].value // Source field
+      const result = this.api.saveDocumentSource(this.podPath, rawFrontMatter)
+      result.then(this.handleSaveSourceResponse.bind(this))
     } else {
       const shortFrontMatter = {}
       for (const field of this.fields) {
@@ -168,8 +222,24 @@ export default class Editor {
         shortFrontMatter[field._key] = field.value
       }
       const frontMatter = expandObject(shortFrontMatter)
-      const result = this.api.saveDocument(this.podPath, frontMatter, this.document.locale)
-      result.then(this.handleSaveDocumentResponse.bind(this))
+      const result = this.api.saveDocumentFields(this.podPath, frontMatter, this.document.locale)
+      result.then(this.handleSaveFieldsResponse.bind(this))
+    }
+  }
+
+  showFields() {
+    this.clearFields()
+    this.containerEl.classList.remove('container--source')
+    for (const field of this.document.fields) {
+      this.addField(field)
+    }
+  }
+
+  showSource() {
+    this.clearFields()
+    this.containerEl.classList.add('container--source')
+    for (const field of this.document.sourceFields) {
+      this.addField(field)
     }
   }
 

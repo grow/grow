@@ -68,6 +68,7 @@ export default class EditorApi extends Api {
         'en': '/',
       },
       'default_locale': 'en',
+      'raw_front_matter': '$path: /\r$title: Something',
       'content': 'Something for content.',
     })
 
@@ -107,7 +108,7 @@ export default class EditorApi extends Api {
     return result.promise
   }
 
-  saveDocument(podPath, frontMatter, locale) {
+  saveDocumentFields(podPath, frontMatter, locale) {
     const result = new Defer()
     const saveRequest = {
       'pod_path': podPath,
@@ -146,6 +147,55 @@ export default class EditorApi extends Api {
           },
         ],
       },
+      'raw_front_matter': '$path: /asdf\r$title: Other',
+      'serving_paths': {
+        'en': '/',
+      },
+      'default_locale': 'en',
+    })
+
+    return result.promise
+  }
+
+  saveDocumentSource(podPath, rawFrontMatter) {
+    const result = new Defer()
+    const saveRequest = {
+      'pod_path': podPath,
+      'raw_front_matter': rawFrontMatter,
+    }
+
+    console.log('save request', saveRequest)
+
+    // TODO make request to server to save document.
+    // this.request.post(...)
+    result.resolve({
+      'pod_path': '/content/pages/home.yaml',
+      'front_matter': {
+        '$title': 'Blinkk Team',
+        '$path': '/something',
+        'meta': {
+          'description': 'Something really really cool.',
+        },
+        'partials': [
+          {
+            'partial': 'hero',
+            'title': 'Blinkk Hero',
+            'subtitle': 'New to Blinkk saving?',
+            'description': 'Great! This changes everything.',
+            'cta': [
+              {
+                'title': 'Getting Started',
+                'url': '!g.url "/content/pages/getting-started.yaml"',
+              },
+              {
+                'title': 'Blinkk Projects',
+                'url': '!g.url "/content/pages/projects.yaml"',
+              },
+            ],
+          },
+        ],
+      },
+      'raw_front_matter': '$path: /asdf\r$title: Other',
       'serving_paths': {
         'en': '/',
       },
