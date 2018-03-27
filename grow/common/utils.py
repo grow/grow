@@ -314,8 +314,13 @@ def make_yaml_loader(pod, doc=None, locale=None):
                     try:
                         value = data[reference]
                         if value is None:
-                            pod.logger.warning(
-                                'Missing string value for {}.{}'.format(main, reference))
+                            if doc:
+                                pod.logger.warning(
+                                    'Missing {}.{} in {}'.format(
+                                        main, reference, doc.pod_path))
+                            else:
+                                pod.logger.warning(
+                                    'Missing {}.{}'.format(main, reference))
                         return data[reference]
                     except KeyError:
                         return None
