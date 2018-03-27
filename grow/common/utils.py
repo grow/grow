@@ -312,6 +312,10 @@ def make_yaml_loader(pod, doc=None, locale=None):
                 if reference:
                     data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
                     try:
+                        value = data[reference]
+                        if value is None:
+                            pod.logger.warning(
+                                'Missing string value for {}.{}'.format(main, reference))
                         return data[reference]
                     except KeyError:
                         return None
