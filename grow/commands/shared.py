@@ -82,7 +82,7 @@ def locale_option(help_text=None, multiple=True):
 
 def localized_option(config):
     """Option for localizing catalogs."""
-    shared_default = CFG.get('localized', False)
+    shared_default = CFG.get('localized', None)
     config_default = config.get('localized', shared_default)
 
     def _decorator(func):
