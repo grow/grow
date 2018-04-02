@@ -3,7 +3,6 @@ version: 2
 pip_install: &pip_install
   name: Pipenv Install
   command: |
-    pip install -U pipenv
     pipenv install --dev
     . $(pipenv --venv)/bin/activate
 
