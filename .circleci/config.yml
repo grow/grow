@@ -1,0 +1,96 @@
+version: 2
+
+pip_install: &pip_install
+  name: Pipenv Install
+  command: |
+    set -e
+    pip install -U pipenv
+    pipenv install --dev
+    . $(pipenv --venv)/bin/activate
+
+jobs:
+  init:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+
+      - run:
+          name: Build UI
+          command: make build-ui
+
+      - save_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+          paths:
+            - "grow/ui/node_modules"
+
+      - persist_to_workspace:
+          root: ~/grow
+          paths:
+            - .coveragerc
+            - .git/*
+            - bin/*
+            - grow/*
+            - scripts/*
+            - description.txt
+            - grow.spec
+            - install.py
+            - Makefile
+            - MANIFEST.in
+            - package.json
+            - pylintrc
+            - requirements-dev.txt
+            - requirements.txt
+            - Pipfile
+            - Pipfile.lock
+            - setup.py
+
+  pylint:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          <<: *pip_install
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
+
+      - run:
+          name: Pylint
+          command: make test-pylint
+
+filter_all_tags: &filter_all_tags
+  filters:
+    tags:
+      only: /.*/
+
+filter_only_tags: &filter_only_tags
+  filters:
+    tags:
+      only: /.*/
+    branches:
+      ignore: /.*/
+
+workflows:
+  version: 2
+  build:
+    jobs:
+    - init:
+        <<: *filter_all_tags
+    - pylint:
+        <<: *filter_all_tags
+        requires:
+        - init
