@@ -8,6 +8,7 @@ import marked from 'marked'
 import TurndownService from 'turndown'
 import { PartialContainer } from './partial'
 import { MDCTextField } from '@material/textfield'
+import { MDCSelect } from '@material/select'
 
 
 const availableFields = {}
@@ -65,6 +66,9 @@ export default class Field {
   }
 
   set value(value) {
+    if (typeof value == 'undefined') {
+      value = ''
+    }
     this.inputEl.value = value
     this._cleanValue = value
   }
@@ -118,6 +122,11 @@ export class ListField extends Field {
     super(key, 'list', config)
     this.list = list
     this.fieldsEl = this.fieldEl.querySelector('.list__list')
+    this.addEl = this.fieldEl.querySelector('.list__add')
+    this.addSelectEl = this.addEl.querySelector('.mdc-select')
+    this.addSelectInputEl = this.addEl.querySelector('.mdc-select__native-control')
+    this.addButtonEl = this.addEl.querySelector('.mdc-button')
+    this.addButtonEl.addEventListener('click', this.handleAddClick.bind(this))
     this.fields = []
   }
 
@@ -145,6 +154,30 @@ export class ListField extends Field {
     return values
   }
 
+  set options(values) {
+    // Clear existing options.
+    while (this.addSelectInputEl.firstChild) {
+      this.addSelectInputEl.removeChild(this.addSelectInputEl.firstChild)
+    }
+
+    if (!values) {
+      this.addEl.classList.remove('list__add--select')
+      return
+    }
+
+    this.addEl.classList.add('list__add--select')
+    for (const value of values) {
+      const opt = document.createElement('option')
+      opt.value = value['value']
+      opt.innerText = value['label']
+      this.addSelectInputEl.appendChild(opt)
+    }
+    if (!this.addSelectMd) {
+      // TODO https://github.com/material-components/material-components-web/issues/2498
+      // this.addSelectMd = MDCSelect.attachTo(this.addSelectEl)
+    }
+  }
+
   set value(frontMatter) {
     for (const item of frontMatter) {
       const field = fieldGenerator(
@@ -157,6 +190,10 @@ export class ListField extends Field {
       field.fieldEl = this.fieldsEl.children[this.fieldsEl.children.length - 1]
       field.setup()
     }
+  }
+
+  handleAddClick(e) {
+    console.log('Clicked Add...');
   }
 
   update(value) {
@@ -211,7 +248,7 @@ export class MarkdownField extends Field {
   }
 
   set value(value) {
-    this.editor.content.innerHTML = marked(value)
+    this.editor.content.innerHTML = marked(value || '')
     this._cleanValue = value
   }
 
@@ -230,18 +267,43 @@ export class PartialsField extends ListField {
     return super.value
   }
 
+  set options(values) {
+    const valList = []
+
+    for (const item in values) {
+      valList.push({
+        'value': item,
+        'label': values[item]['label'],
+      })
+    }
+    super.options = valList
+  }
+
   set value(frontMatter) {
-    this.list.deferredPartials.promise.then((listMeta) => {
+    this.list.deferredPartials.promise.then((partialInfo) => {
+      this.options = partialInfo
+
       for (const item of frontMatter) {
-        const partialMeta = listMeta[item['partial']]
-        const field = new PartialContainer(
-          item['partial'], partialMeta['label'], item, partialMeta['fields'])
-        field.listeners.add('remove', this.handleRemovePartial.bind(this))
-        this.fields.push(field)
-        this.fieldsEl.appendChild(field.fieldEl)
-        // Update the reference to be the attached element.
-        field.fieldEl = this.fieldsEl.children[this.fieldsEl.children.length - 1]
+        const partialMeta = partialInfo[item['partial']]
+        this.addField(item['partial'], partialMeta['label'], item, partialMeta['fields'])
       }
+    })
+  }
+
+  addField(key, label, values, fields) {
+    const field = new PartialContainer(key, label, values, fields)
+    field.listeners.add('remove', this.handleRemovePartial.bind(this))
+    this.fields.push(field)
+    this.fieldsEl.appendChild(field.fieldEl)
+    // Update the reference to be the attached element.
+    field.fieldEl = this.fieldsEl.children[this.fieldsEl.children.length - 1]
+  }
+
+  handleAddClick(e) {
+    this.list.deferredPartials.promise.then((partialInfo) => {
+      const partialKey = this.addSelectInputEl.value
+      const partialMeta = partialInfo[partialKey]
+      this.addField(partialKey, partialMeta['label'], {}, partialMeta['fields'])
     })
   }
 

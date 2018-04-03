@@ -9,15 +9,15 @@
     "deep-extend": "^0.5.0",
     "fs-readdir-recursive": "^1.1.0",
     "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^4.1.0",
+    "gulp-autoprefixer": "^5.0.0",
     "gulp-rename": "~1.2.2",
-    "gulp-sass": "^3.1.0",
+    "gulp-sass": "^3.2.1",
     "pell": "^1.0.4",
-    "marked": "^0.3.17",
-    "material-components-web": "^0.33.0",
+    "marked": "^0.3.19",
+    "material-components-web": "^0.34.0",
     "superagent": "^3.8.2",
     "turndown": "^4.0.1",
-    "webpack": "4.0.0",
-    "webpack-stream": "4.0.2"
+    "webpack": "^4.4.1",
+    "webpack-stream": "^4.0.3"
   }
 }

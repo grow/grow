@@ -147,7 +147,7 @@ body
   .sidebar__content
     display: flex
     flex-flow: column
-  
+
   .fields
     display: flex
     flex-flow: column
@@ -193,6 +193,13 @@ body
   flex-flow: row
   justify-content: center
   padding: $pad
+
+  .mdc-select
+    display: none
+
+  &--select
+    .mdc-select
+      display: inherit
 
 .list__label
   font-size: 1.2rem
