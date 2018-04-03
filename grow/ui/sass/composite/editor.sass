@@ -215,6 +215,16 @@ body
   font-weight: 700
 
 
+.partial
+  &:first-of-type
+    .partial__up
+      display: none
+
+  &:last-of-type
+    .partial__down
+      display: none
+
+
 // Material design components
 $mdc-theme-primary: $color-p
 $mdc-theme-secondary: $color-s

@@ -30,6 +30,8 @@ export class PartialContainer {
     this.labelEl = this.fieldEl.querySelector('.partial__label')
     this.fieldsEl = this.fieldEl.querySelector('.partial__fields')
     this.removeEl = this.fieldEl.querySelector('.partial__remove')
+    this.downEl = this.fieldEl.querySelector('.partial__down')
+    this.upEl = this.fieldEl.querySelector('.partial__up')
     this.listeners = new Listeners()
     this.fields = []
 
@@ -52,6 +54,8 @@ export class PartialContainer {
     }
 
     this.removeEl.addEventListener('click', this.handleRemovePartial.bind(this))
+    this.downEl.addEventListener('click', this.handleDownPartial.bind(this))
+    this.upEl.addEventListener('click', this.handleUpPartial.bind(this))
   }
 
   get isClean() {
@@ -76,8 +80,37 @@ export class PartialContainer {
     return value
   }
 
+  handleDownPartial() {
+    let foundChild = null
+    const parent = this.fieldEl.parentNode
+    for (const child of parent.children) {
+      if (foundChild) {
+        parent.insertBefore(child, foundChild)
+        return
+      } else if (child == this.fieldEl) {
+        foundChild = child
+      }
+    }
+  }
+
   handleRemovePartial() {
     this.listeners.trigger('remove', this)
+  }
+
+  handleUpPartial() {
+    let foundChild = null
+    let previousChild = null
+    const parent = this.fieldEl.parentNode
+    for (const child of parent.children) {
+      if (child == this.fieldEl) {
+        if (previousChild) {
+          parent.insertBefore(child, previousChild)
+        }
+        return
+      } else {
+        previousChild = child
+      }
+    }
   }
 
   remove() {
