@@ -136,9 +136,9 @@ class Catalogs(object):
                            include_header=include_header)
 
     def import_translations(self, path=None, locale=None, content=None,
-                            include_obsolete=True):
+                            include_obsolete=True, untranslated=False):
         importer = importers.Importer(self.pod,
-                include_obsolete=include_obsolete)
+                include_obsolete=include_obsolete, untranslated=untranslated)
         if path:
             return importer.import_path(path, locale=locale)
         if content:

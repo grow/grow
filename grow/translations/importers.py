@@ -1,9 +1,10 @@
 """Grow translation importers."""
 
-import collections
 import cStringIO
+import collections
 import copy
 import errno
+import logging
 import os
 import shutil
 import tempfile
@@ -43,9 +44,10 @@ class Error(Exception):
 
 class Importer(object):
 
-    def __init__(self, pod, include_obsolete=True):
+    def __init__(self, pod, include_obsolete=True, untranslated=False):
         self.pod = pod
         self.include_obsolete = include_obsolete
+        self.untranslated = untranslated
 
     def _validate_path(self, path):
         if not os.path.isfile(path):
@@ -142,8 +144,13 @@ class Importer(object):
                 po_file_to_merge = cStringIO.StringIO()
                 po_file_to_merge.write(content)
                 po_file_to_merge.seek(0)
-                catalog_to_merge = pofile.read_po(
-                    po_file_to_merge, babel_locale)
+                try:
+                    catalog_to_merge = pofile.read_po(
+                        po_file_to_merge, babel_locale)
+                except:
+                    text = 'Error merging catalogs for locale -> {}'
+                    logging.error(text.format(locale))
+                    raise
                 num_imported = 0
                 for message in catalog_to_merge:
                     if message.id not in existing_catalog:
@@ -156,6 +163,10 @@ class Importer(object):
                             num_imported += 1
                     elif (message.string
                           and existing_catalog[message.id].string != message.string):
+                        # Skip messages that have translations in the catalog
+                        # if we are only importing untranslated strings.
+                        if self.untranslated and existing_catalog[message.id].string:
+                            continue
                         # Avoid overwriting with empty/identical strings.
                         existing_catalog[message.id].string = message.string
                         num_imported += 1
