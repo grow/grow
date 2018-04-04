@@ -121,7 +121,7 @@ jobs:
   release-package-osx:
     working_directory: ~/grow
     macos:
-      xcode: "9.0"
+      xcode: "9.3.0"
     steps:
       - attach_workspace:
           at: ~/grow
@@ -250,7 +250,7 @@ jobs:
   test-osx:
     working_directory: ~/grow
     macos:
-      xcode: "9.0"
+      xcode: "9.3.0"
     steps:
       - attach_workspace:
           at: ~/grow
