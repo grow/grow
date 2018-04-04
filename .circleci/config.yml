@@ -127,6 +127,10 @@ jobs:
           at: ~/grow
 
       - run:
+          name: Install python
+          command: brew install python
+
+      - run:
           name: Install Go
           command: brew install golang
 
@@ -254,6 +258,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/grow
+
+      - run:
+          name: Install python
+          command: brew install python
 
       - run:
           name: Install pipenv
