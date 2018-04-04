@@ -14,7 +14,7 @@
     "gulp-sass": "^3.2.1",
     "pell": "^1.0.4",
     "marked": "^0.3.19",
-    "material-components-web": "^0.34.0",
+    "material-components-web": "^0.34.1",
     "superagent": "^3.8.2",
     "turndown": "^4.0.1",
     "webpack": "^4.4.1",
