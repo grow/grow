@@ -127,10 +127,6 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Install pip
-          command: sudo easy_install pip
-
-      - run:
           name: Install Go
           command: brew install golang
 
@@ -258,10 +254,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/grow
-
-      - run:
-          name: Install pip
-          command: sudo easy_install pip
 
       - restore_cache:
           key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
