@@ -109,7 +109,7 @@ export default class Editor {
   documentFromResponse(response) {
     this.document = new Document(
       response['pod_path'],
-      response['fields'],
+      response['editor']['fields'],
       response['front_matter'],
       response['raw_front_matter'],
       response['serving_paths'],

@@ -17,28 +17,30 @@ export default class EditorApi extends Api {
     // this.request.get(...)
     result.resolve({
       'pod_path': '/content/pages/home.yaml',
-      'fields': [
-        {
-          'type': 'text',
-          'key': '$path',
-          'label': 'Serving Path',
-        },
-        {
-          'type': 'text',
-          'key': '$title',
-          'label': 'Title',
-        },
-        {
-          'type': 'textarea',
-          'key': 'meta.description',
-          'label': 'Description',
-        },
-        {
-          'type': 'partials',
-          'key': 'partials',
-          'label': 'Partials',
-        },
-      ],
+      'editor': {
+        'fields': [
+          {
+            'type': 'text',
+            'key': '$path',
+            'label': 'Serving Path',
+          },
+          {
+            'type': 'text',
+            'key': '$title',
+            'label': 'Title',
+          },
+          {
+            'type': 'textarea',
+            'key': 'meta.description',
+            'label': 'Description',
+          },
+          {
+            'type': 'partials',
+            'key': 'partials',
+            'label': 'Partials',
+          },
+        ],
+      },
       'front_matter': {
         '$title': 'Blinkk',
         '$path': '/',
@@ -84,23 +86,25 @@ export default class EditorApi extends Api {
       'partials': {
         'hero': {
           'label': 'Hero',
-          'fields': [
-            {
-              'type': 'text',
-              'key': 'title',
-              'label': 'Hero Title',
-            },
-            {
-              'type': 'text',
-              'key': 'subtitle',
-              'label': 'Hero Subtitle',
-            },
-            {
-              'type': 'markdown',
-              'key': 'description',
-              'label': 'Description',
-            },
-          ],
+          'editor': {
+            'fields': [
+              {
+                'type': 'text',
+                'key': 'title',
+                'label': 'Hero Title',
+              },
+              {
+                'type': 'text',
+                'key': 'subtitle',
+                'label': 'Hero Subtitle',
+              },
+              {
+                'type': 'markdown',
+                'key': 'description',
+                'label': 'Description',
+              },
+            ],
+          },
         },
       },
     })
