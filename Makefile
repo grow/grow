@@ -83,8 +83,7 @@ test:
 	  --rednose \
 	  --with-coverage \
 	  --cover-erase \
-	  --cover-html \
-	  --cover-html-dir=htmlcov \
+		--cover-xml \
 	  --cover-package=grow \
 	  $(target)
 
@@ -95,8 +94,7 @@ test-nosetests:
 	  --rednose \
 	  --with-coverage \
 	  --cover-erase \
-	  --cover-html \
-	  --cover-html-dir=htmlcov \
+		--cover-xml \
 	  --cover-package=grow \
 	  grow
 
