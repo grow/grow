@@ -124,6 +124,7 @@ export class ListField extends Field {
     this.fieldsEl = this.fieldEl.querySelector('.list__list')
     this.addEl = this.fieldEl.querySelector('.list__add')
     this.addSelectEl = this.addEl.querySelector('.mdc-select')
+    this.addSelectLabelEl = this.addSelectEl.querySelector('.mdc-select__label')
     this.addSelectInputEl = this.addEl.querySelector('.mdc-select__native-control')
     this.addButtonEl = this.addEl.querySelector('.mdc-button')
     this.addButtonEl.addEventListener('click', this.handleAddClick.bind(this))
@@ -176,6 +177,10 @@ export class ListField extends Field {
       // TODO https://github.com/material-components/material-components-web/issues/2498
       // this.addSelectMd = MDCSelect.attachTo(this.addSelectEl)
     }
+  }
+
+  set selectLabel(value) {
+    this.addSelectLabelEl.innerText = value
   }
 
   set value(frontMatter) {
@@ -261,6 +266,7 @@ export class MarkdownField extends Field {
 export class PartialsField extends ListField {
   constructor(key, config, list) {
     super(key, config, list)
+    this.selectLabel = 'Partials'
   }
 
   get value() {
