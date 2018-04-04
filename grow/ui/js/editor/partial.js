@@ -81,16 +81,7 @@ export class PartialContainer {
   }
 
   handleDownPartial() {
-    let foundChild = null
-    const parent = this.fieldEl.parentNode
-    for (const child of parent.children) {
-      if (foundChild) {
-        parent.insertBefore(child, foundChild)
-        return
-      } else if (child == this.fieldEl) {
-        foundChild = child
-      }
-    }
+    this.listeners.trigger('down', this)
   }
 
   handleRemovePartial() {
@@ -98,19 +89,7 @@ export class PartialContainer {
   }
 
   handleUpPartial() {
-    let foundChild = null
-    let previousChild = null
-    const parent = this.fieldEl.parentNode
-    for (const child of parent.children) {
-      if (child == this.fieldEl) {
-        if (previousChild) {
-          parent.insertBefore(child, previousChild)
-        }
-        return
-      } else {
-        previousChild = child
-      }
-    }
+    this.listeners.trigger('up', this)
   }
 
   remove() {

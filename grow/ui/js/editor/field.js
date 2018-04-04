@@ -299,6 +299,8 @@ export class PartialsField extends ListField {
   addField(key, label, values, fields) {
     const field = new PartialContainer(key, label, values, fields)
     field.listeners.add('remove', this.handleRemovePartial.bind(this))
+    field.listeners.add('down', this.handleMovePartialDown.bind(this))
+    field.listeners.add('up', this.handleMovePartialUp.bind(this))
     this.fields.push(field)
     this.fieldsEl.appendChild(field.fieldEl)
     // Update the reference to be the attached element.
@@ -311,6 +313,45 @@ export class PartialsField extends ListField {
       const partialMeta = partialInfo[partialKey]
       this.addField(partialKey, partialMeta['label'], {}, partialMeta['fields'])
     })
+  }
+
+  handleMovePartialDown(partial) {
+    const currentIndex = this.fields.indexOf(partial)
+    if (currentIndex <= this.fields.length - 1) {
+      this.fields.splice(currentIndex + 1, 0, this.fields.splice(currentIndex, 1)[0])
+    }
+
+    // Move the DOM element.
+    let foundChild = null
+    for (const child of this.fieldsEl.children) {
+      if (foundChild) {
+        this.fieldsEl.insertBefore(child, foundChild)
+        break
+      } else if (child == partial.fieldEl) {
+        foundChild = child
+      }
+    }
+  }
+
+  handleMovePartialUp(partial) {
+    const currentIndex = this.fields.indexOf(partial)
+    if (currentIndex > 0) {
+      this.fields.splice(currentIndex - 1, 0, this.fields.splice(currentIndex, 1)[0])
+    }
+
+    // Move the DOM element.
+    let foundChild = null
+    let previousChild = null
+    for (const child of this.fieldsEl.children) {
+      if (child == partial.fieldEl) {
+        if (previousChild) {
+          this.fieldsEl.insertBefore(child, previousChild)
+        }
+        break
+      } else {
+        previousChild = child
+      }
+    }
   }
 
   handleRemovePartial(partial) {
