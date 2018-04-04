@@ -3,7 +3,6 @@ version: 2
 pip_install: &pip_install
   name: Pipenv Install
   command: |
-    set -e
     pip install -U pipenv
     pipenv install --dev
     . $(pipenv --venv)/bin/activate
@@ -122,7 +121,7 @@ jobs:
   release-package-osx:
     working_directory: ~/grow
     macos:
-      xcode: "9.0"
+      xcode: "9.3.0"
     steps:
       - attach_workspace:
           at: ~/grow
@@ -144,10 +143,6 @@ jobs:
       - run:
           name: Install ghr
           command: go get -u github.com/tcnksm/ghr
-
-      - run:
-          name: Install pipenv
-          command: pip install pipenv
 
       - restore_cache:
           key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
@@ -255,14 +250,10 @@ jobs:
   test-osx:
     working_directory: ~/grow
     macos:
-      xcode: "9.0"
+      xcode: "9.3.0"
     steps:
       - attach_workspace:
           at: ~/grow
-
-      - run:
-          name: Install pipenv
-          command: brew install pipenv
 
       - restore_cache:
           key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
