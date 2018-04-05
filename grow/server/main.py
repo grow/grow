@@ -1,6 +1,5 @@
 """Grow local development server."""
 
-import cStringIO
 import logging
 import mimetypes
 import os
@@ -10,8 +9,6 @@ import traceback
 import urllib
 import jinja2
 import webob
-from grow.common import config
-from grow.routing import router
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
 from werkzeug import routing
@@ -19,9 +16,12 @@ from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
 from werkzeug import serving
 from werkzeug import wsgi
-from ..common import utils
-from ..pods import errors
-from ..pods import ui
+from grow.common import config
+from grow.common import utils
+from grow.routing import router
+from grow.pods import errors
+from grow.pods import ui
+from grow.server import api
 
 
 class Request(wrappers.BaseRequest):
@@ -275,8 +275,11 @@ class PodServerReRoute(PodServer):
         }
         self.routes.add('/_grow/editor/*path', router.RouteInfo('console', editor_meta))
         self.routes.add('/_grow/editor', router.RouteInfo('console', editor_meta))
+        self.routes.add('/_grow/api/*path', router.RouteInfo('console', {
+            'handler': api.serve_api,
+        }))
         self.routes.add('/_grow', router.RouteInfo('console', {
-            'handler': serve_console_reroute
+            'handler': serve_console_reroute,
         }))
 
         # Trigger the dev handler hook.
