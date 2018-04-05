@@ -1,7 +1,9 @@
 """API Handler for serving api requests."""
 
 import json
+import yaml
 from werkzeug import wrappers
+from grow.common import yaml_utils
 
 
 class PodApi(object):
@@ -21,8 +23,19 @@ class PodApi(object):
 
     def get_editor_content(self):
         """Handle the request for editor content."""
+
+        doc = self.pod.get_doc(self.request.params.get('pod_path'))
+
+        serving_paths = {}
+        serving_paths[str(doc.default_locale)] = doc.get_serving_path()
+        for key, value in doc.get_serving_paths_localized().iteritems():
+            serving_paths[str(key)] = value
+
+        raw_front_matter = doc.format.front_matter.export()
+        front_matter = yaml.load(raw_front_matter, Loader=yaml_utils.PlainTextYamlLoader)
+
         self.data = {
-            'pod_path': '/content/pages/home.yaml',
+            'pod_path': doc.pod_path,
             'editor': {
                 'fields': [
                     {
@@ -37,7 +50,7 @@ class PodApi(object):
                     },
                     {
                         'type': 'textarea',
-                        'key': 'meta.description',
+                        'key': 'description',
                         'label': 'Description',
                     },
                     {
@@ -47,37 +60,11 @@ class PodApi(object):
                     },
                 ],
             },
-            'front_matter': {
-                '$title': 'Blinkk',
-                '$path': '/',
-                'meta': {
-                    'description': 'Something really cool.',
-                },
-                'partials': [
-                    {
-                        'partial': 'hero',
-                        'title': 'Blinkk',
-                        'subtitle': 'New to Blinkk?',
-                        'description': 'Great! This site is to help you get up to speed on how Blinkk works and some of the projects that we have going.',
-                        'cta': [
-                            {
-                                'title': 'Getting Started',
-                                'url': '!g.url "/content/pages/getting-started.yaml"',
-                            },
-                            {
-                                'title': 'Blinkk Projects',
-                                'url': '!g.url "/content/pages/projects.yaml"',
-                            },
-                        ],
-                    },
-                ],
-            },
-            'serving_paths': {
-                'en': '/',
-            },
-            'default_locale': 'en',
-            'raw_front_matter': '$path: /\r$title: Something',
-            'content': 'Something for content.',
+            'front_matter': front_matter,
+            'serving_paths': serving_paths,
+            'default_locale': str(doc.default_locale),
+            'raw_front_matter': raw_front_matter,
+            'content': doc.body,
         }
 
     def get_partials(self):

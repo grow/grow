@@ -12,6 +12,9 @@ export default class DeepObject {
   get(key) {
     let root = this._obj
     for (const part of key.split('.')) {
+      if (!root) {
+        return undefined
+      }
       if (!part in root) {
         return undefined
       }

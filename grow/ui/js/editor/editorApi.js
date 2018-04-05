@@ -41,7 +41,6 @@ export default class EditorApi extends Api {
       'locale': locale,
     }
 
-    console.log('save request', saveRequest)
     this.request.post(this.apiPath('editor/content'))
       .send(saveRequest)
       .then((res) => {
@@ -58,7 +57,6 @@ export default class EditorApi extends Api {
       'raw_front_matter': rawFrontMatter,
     }
 
-    console.log('save request', saveRequest)
     this.request.post(this.apiPath('editor/content'))
       .send(saveRequest)
       .then((res) => {
