@@ -18,7 +18,8 @@ class ApiHandlerTestCase(unittest.TestCase):
 
         # When serving a pod, should 200.
         app = main.create_wsgi_app(pod, 'localhost', 8080)
-        request = webapp2.Request.blank('/')
+        request = webapp2.Request.blank(
+            '/_grow/api/editor/content?pod_path=/content/pages/home.yaml')
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
 
