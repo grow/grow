@@ -37,8 +37,7 @@ class DocumentFrontMatter(object):
     def __init__(self, doc, raw_front_matter=None):
         self._doc = doc
         self.data = {}
-        self._raw_front_matter = None
-        self._load_front_matter(raw_front_matter)
+        self.update_raw_front_matter(raw_front_matter)
 
     @staticmethod
     def split_front_matter(content):
@@ -107,3 +106,9 @@ class DocumentFrontMatter(object):
         yaml has been parsed.
         """
         return self._raw_front_matter
+
+    def update_raw_front_matter(self, raw_front_matter):
+        """Replace the value of the front matter using a new raw string."""
+        self.data = {}
+        self._raw_front_matter = None
+        self._load_front_matter(raw_front_matter)

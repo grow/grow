@@ -21,10 +21,8 @@ class PodApi(object):
         """Generate a response object from the request information."""
         return wrappers.Response(json.dumps(self.data), mimetype='application/json')
 
-    def get_editor_content(self):
-        """Handle the request for editor content."""
-
-        doc = self.pod.get_doc(self.request.params.get('pod_path'))
+    def _load_doc(self, pod_path):
+        doc = self.pod.get_doc(pod_path)
 
         serving_paths = {}
         serving_paths[str(doc.default_locale)] = doc.get_serving_path()
@@ -34,9 +32,9 @@ class PodApi(object):
         raw_front_matter = doc.format.front_matter.export()
         front_matter = yaml.load(raw_front_matter, Loader=yaml_utils.PlainTextYamlLoader)
 
-        self.data = {
+        return {
             'pod_path': doc.pod_path,
-            'editor': {
+            'editor': { # TODO: Get data from doc.
                 'fields': [
                     {
                         'type': 'text',
@@ -67,8 +65,14 @@ class PodApi(object):
             'content': doc.body,
         }
 
+    def get_editor_content(self):
+        """Handle the request for editor content."""
+        pod_path = self.request.params.get('pod_path')
+        self.data = self._load_doc(pod_path)
+
     def get_partials(self):
         """Handle the request for editor content."""
+        # TODO: Partial editor data from partials.
         self.data = {
             'partials': {
                 'hero': {
@@ -111,39 +115,14 @@ class PodApi(object):
 
     def post_editor_content(self):
         """Handle the request to save editor content."""
-        self.data = {
-            'pod_path': '/content/pages/home.yaml',
-            'front_matter': {
-                '$title': 'Blinkk Team',
-                '$path': '/something',
-                'meta': {
-                    'description': 'Something really really cool.',
-                },
-                'partials': [
-                    {
-                        'partial': 'hero',
-                        'title': 'Blinkk Hero',
-                        'subtitle': 'New to Blinkk saving?',
-                        'description': 'Great! This changes everything.',
-                        'cta': [
-                            {
-                                'title': 'Getting Started',
-                                'url': '!g.url "/content/pages/getting-started.yaml"',
-                            },
-                            {
-                                'title': 'Blinkk Projects',
-                                'url': '!g.url "/content/pages/projects.yaml"',
-                            },
-                        ],
-                    },
-                ],
-            },
-            'raw_front_matter': '$path: /asdf\r$title: Other',
-            'serving_paths': {
-                'en': '/',
-            },
-            'default_locale': 'en',
-        }
+
+        pod_path = self.request.POST['pod_path']
+        doc = self.pod.get_doc(pod_path)
+        if 'raw_front_matter' in self.request.POST:
+            doc.format.front_matter.update_raw_front_matter(self.request.POST['raw_front_matter'])
+            doc.write()
+        self.pod.podcache.document_cache.remove(doc)
+        self.data = self._load_doc(pod_path)
 
 
 def serve_api(pod, request, matched, **_kwargs):

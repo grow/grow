@@ -983,6 +983,7 @@ class Pod(object):
     def write_file(self, pod_path, content):
         with self.profile.timer(
                 'Pod.write_file', label=pod_path, meta={'path': pod_path}):
+            self.podcache.file_cache.remove(pod_path)
             path = self._normalize_path(pod_path)
             self.storage.write(path, content)
 

@@ -42,6 +42,7 @@ export default class EditorApi extends Api {
     }
 
     this.request.post(this.apiPath('editor/content'))
+      .type('form')
       .send(saveRequest)
       .then((res) => {
         result.resolve(res.body)
@@ -58,6 +59,7 @@ export default class EditorApi extends Api {
     }
 
     this.request.post(this.apiPath('editor/content'))
+      .type('form')
       .send(saveRequest)
       .then((res) => {
         result.resolve(res.body)

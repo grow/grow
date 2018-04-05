@@ -53,7 +53,7 @@ export default class Editor {
     this.partials = new Partials(this.api)
 
     // Default to loading with the UI.
-    this.loadFields(this.podPath)
+    this.loadSource(this.podPath)
 
     // TODO Start the autosave depending on local storage.
     // this.startAutosave()
@@ -204,7 +204,11 @@ export default class Editor {
   }
 
   refreshPreview() {
-    this.previewEl.src = this.previewUrl
+    if (this.previewEl.src == this.previewUrl) {
+      this.previewEl.contentWindow.location.reload(true)
+    } else {
+      this.previewEl.src = this.previewUrl
+    }
   }
 
   save(force) {
