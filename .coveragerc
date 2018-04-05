@@ -1,7 +1,5 @@
 [run]
 omit =
-    # Don't know a good way to test the commands correctly.
-    grow/commands/*
     # Doesn't do anything.
     grow/common/ca_certs_locater.py
     # Requirement of extensions.
