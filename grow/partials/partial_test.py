@@ -15,7 +15,7 @@ class PartialTestCase(unittest.TestCase):
 
     def test_editor_config(self):
         """Test that editor configuration is read correctly."""
-        partials = self.pod.get_partials()
+        partials = self.pod.partials
         partial = partials.get_partial('hero')
         expected = {
             'label': 'Hero',

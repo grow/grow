@@ -274,6 +274,7 @@ export class PartialsField extends ListField {
   }
 
   set options(values) {
+    // TODO: Filter based on the document config.
     const valList = []
 
     for (const item in values) {

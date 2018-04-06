@@ -14,7 +14,7 @@ class PartialsTestCase(unittest.TestCase):
 
     def test_get_partials(self):
         """Test that partials are found correctly."""
-        partials = self.pod.get_partials()
+        partials = self.pod.partials
         expected = ['hero']
         self.assertListEqual(expected, [partial.key for partial in partials.get_partials()])
 
