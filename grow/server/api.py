@@ -35,33 +35,7 @@ class PodApi(object):
 
         return {
             'pod_path': doc.pod_path,
-            'editor': {  # TODO: Get data from doc.
-                'fields': [
-                    {
-                        'type': 'text',
-                        'key': '$path',
-                        'label': 'Serving Path',
-                    },
-                    {
-                        'type': 'text',
-                        'key': '$title',
-                        'label': 'Title',
-                    },
-                    {
-                        'type': 'textarea',
-                        'key': 'description',
-                        'label': 'Description',
-                    },
-                    {
-                        'type': 'partials',
-                        'key': 'partials',
-                        'label': 'Partials',
-                    },
-                ],
-                'partials': [
-                    'hero',
-                ]
-            },
+            'editor': doc.editor_config,
             'front_matter': front_matter,
             'serving_paths': serving_paths,
             'default_locale': str(doc.default_locale),

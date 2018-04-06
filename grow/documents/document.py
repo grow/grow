@@ -234,6 +234,17 @@ class Document(object):
             return locale
         return self.collection.default_locale
 
+    @utils.cached_property
+    def editor_config(self):
+        """Editor configuration for the document."""
+        fields = self.format.front_matter.data
+        config_file = fields.get('$editor')
+        if config_file and self.pod.file_exists(config_file):
+            raw_config = self.pod.read_file(config_file)
+            # Don't use utils since we don't want the custom constructors.
+            return yaml.load(raw_config)
+        return self.collection.editor_config
+
     @property
     def exists(self):
         return self.pod.file_exists(self.pod_path)
