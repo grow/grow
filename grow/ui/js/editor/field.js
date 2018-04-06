@@ -291,7 +291,7 @@ export class PartialsField extends ListField {
 
       for (const item of frontMatter) {
         const partialMeta = partialInfo[item['partial']]
-        this.addField(item['partial'], partialMeta['label'], item, partialMeta['editor']['fields'])
+        this.addField(item['partial'], partialMeta['label'], item, partialMeta['fields'])
       }
     })
   }
@@ -311,7 +311,7 @@ export class PartialsField extends ListField {
     this.list.deferredPartials.promise.then((partialInfo) => {
       const partialKey = this.addSelectInputEl.value
       const partialMeta = partialInfo[partialKey]
-      this.addField(partialKey, partialMeta['label'], {}, partialMeta['editor']['fields'])
+      this.addField(partialKey, partialMeta['label'], {}, partialMeta['fields'])
     })
   }
 
