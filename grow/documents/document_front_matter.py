@@ -107,6 +107,11 @@ class DocumentFrontMatter(object):
         """
         return self._raw_front_matter
 
+    def update_fields(self, fields):
+        """Update the data with new field values."""
+        _update_deep(self.data, fields)
+        self.update_raw_front_matter(utils.dump_yaml(self.data))
+
     def update_raw_front_matter(self, raw_front_matter):
         """Replace the value of the front matter using a new raw string."""
         self.data = {}

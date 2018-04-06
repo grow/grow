@@ -30,11 +30,12 @@ class PodApi(object):
             serving_paths[str(key)] = value
 
         raw_front_matter = doc.format.front_matter.export()
-        front_matter = yaml.load(raw_front_matter, Loader=yaml_utils.PlainTextYamlLoader)
+        front_matter = yaml.load(
+            raw_front_matter, Loader=yaml_utils.PlainTextYamlLoader)
 
         return {
             'pod_path': doc.pod_path,
-            'editor': { # TODO: Get data from doc.
+            'editor': {  # TODO: Get data from doc.
                 'fields': [
                     {
                         'type': 'text',
@@ -57,6 +58,9 @@ class PodApi(object):
                         'label': 'Partials',
                     },
                 ],
+                'partials': [
+                    'hero',
+                ]
             },
             'front_matter': front_matter,
             'serving_paths': serving_paths,
@@ -72,32 +76,15 @@ class PodApi(object):
 
     def get_partials(self):
         """Handle the request for editor content."""
-        # TODO: Partial editor data from partials.
+        partials = {}
+
+        for partial in self.pod.partials.get_partials():
+            editor_config = partial.editor_config
+            if editor_config:
+                partials[partial.key] = editor_config
+
         self.data = {
-            'partials': {
-                'hero': {
-                    'label': 'Hero',
-                    'editor': {
-                        'fields': [
-                            {
-                                'type': 'text',
-                                'key': 'title',
-                                'label': 'Hero Title',
-                            },
-                            {
-                                'type': 'text',
-                                'key': 'subtitle',
-                                'label': 'Hero Subtitle',
-                            },
-                            {
-                                'type': 'markdown',
-                                'key': 'description',
-                                'label': 'Description',
-                            },
-                        ],
-                    },
-                },
-            },
+            'partials': partials,
         }
 
     def handle_request(self):
@@ -119,8 +106,15 @@ class PodApi(object):
         pod_path = self.request.POST['pod_path']
         doc = self.pod.get_doc(pod_path)
         if 'raw_front_matter' in self.request.POST:
-            doc.format.front_matter.update_raw_front_matter(self.request.POST['raw_front_matter'])
+            doc.format.front_matter.update_raw_front_matter(
+                self.request.POST['raw_front_matter'])
             doc.write()
+        elif 'front_matter' in self.request.POST:
+            # TODO: Array updates don't work well.
+            fields = json.loads(self.request.POST['front_matter'])
+            doc.format.front_matter.update_fields(fields)
+            doc.write()
+
         self.pod.podcache.document_cache.remove(doc)
         self.data = self._load_doc(pod_path)
 

@@ -37,7 +37,7 @@ export default class EditorApi extends Api {
     const result = new Defer()
     const saveRequest = {
       'pod_path': podPath,
-      'front_matter': frontMatter,
+      'front_matter': JSON.stringify(frontMatter),
       'locale': locale,
     }
 

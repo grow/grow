@@ -53,7 +53,7 @@ export default class Editor {
     this.partials = new Partials(this.api)
 
     // Default to loading with the UI.
-    this.loadSource(this.podPath)
+    this.loadFields(this.podPath)
 
     // TODO Start the autosave depending on local storage.
     // this.startAutosave()

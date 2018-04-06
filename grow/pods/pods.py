@@ -26,6 +26,7 @@ from grow.common import utils
 from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
+from grow.partials import partials
 from grow.performance import docs_loader
 from grow.performance import profile
 from grow.preprocessors import preprocessors
@@ -258,6 +259,11 @@ class Pod(object):
     @property
     def logger(self):
         return logger.LOGGER
+
+    @utils.cached_property
+    def partials(self):
+        """Returns the pod partials object."""
+        return partials.Partials(self)
 
     @utils.cached_property
     def path_filter(self):
