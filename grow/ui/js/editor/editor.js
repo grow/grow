@@ -33,6 +33,7 @@ export default class Editor {
 
     this.autosaveEl.addEventListener('click', this.handleAutosaveClick.bind(this))
     this.saveEl.addEventListener('click', () => { this.save(true) })
+    this.podPathEl.addEventListener('change', () => { this.load(this.podPath) })
 
     this.mobileToggleMd = MDCIconToggle.attachTo(this.mobileToggleEl)
     this.mobileToggleEl.addEventListener(
@@ -53,7 +54,7 @@ export default class Editor {
     this.partials = new Partials(this.api)
 
     // Default to loading with the UI.
-    this.loadFields(this.podPath)
+    this.load(this.podPath)
 
     // TODO Start the autosave depending on local storage.
     // this.startAutosave()
@@ -178,10 +179,14 @@ export default class Editor {
   }
 
   handleSourceClick(evt) {
-    if (evt.detail.isOn) {
-      this.loadSource(this.podPath)
+    this.load(this.podPath)
+  }
+
+  load(podPath) {
+    if (this.sourceToggleMd.on) {
+      this.loadSource(podPath)
     } else {
-      this.loadFields(this.podPath)
+      this.loadFields(podPath)
     }
   }
 
