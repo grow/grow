@@ -34,6 +34,7 @@ export default class Editor {
     this.autosaveEl.addEventListener('click', this.handleAutosaveClick.bind(this))
     this.saveEl.addEventListener('click', () => { this.save(true) })
     this.podPathEl.addEventListener('change', () => { this.load(this.podPath) })
+    this.podPathEl.addEventListener('keyup', () => { this.delayPodPath() })
 
     this.mobileToggleMd = MDCIconToggle.attachTo(this.mobileToggleEl)
     this.mobileToggleEl.addEventListener(
@@ -105,6 +106,18 @@ export default class Editor {
     while (this.fieldsEl.firstChild) {
       this.fieldsEl.removeChild(this.fieldsEl.firstChild)
     }
+  }
+
+  // When editing the pod path wait until the user stops typing before loading.
+  delayPodPath() {
+    this._lastPodPathUpdate = Date.now()
+    setTimeout(() => {
+      if (Date.now() - this._lastPodPathUpdate < 900) {
+        return
+      }
+      this._lastPodPathUpdate = Date.now()
+      this.load(this.podPath)
+    }, 1000)
   }
 
   documentFromResponse(response) {
