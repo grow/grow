@@ -23,6 +23,16 @@ class PodApi(object):
 
     def _load_doc(self, pod_path):
         doc = self.pod.get_doc(pod_path)
+        if not doc.exists:
+            return {
+                'pod_path': doc.pod_path,
+                'editor': doc.editor_config,
+                'front_matter': {},
+                'serving_paths': {},
+                'default_locale': str(doc.default_locale),
+                'raw_front_matter': '',
+                'content': '',
+            }
 
         serving_paths = {}
         serving_paths[str(doc.default_locale)] = doc.get_serving_path()

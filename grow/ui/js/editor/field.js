@@ -287,6 +287,10 @@ export class PartialsField extends ListField {
   }
 
   set value(frontMatter) {
+    if (!frontMatter) {
+      return
+    }
+
     this.list.deferredPartials.promise.then((partialInfo) => {
       this.options = partialInfo
 
