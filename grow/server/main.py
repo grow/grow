@@ -269,8 +269,7 @@ class PodServerReRoute(PodServer):
         editor_meta = {
             'handler': serve_editor_reroute,
             'meta': {
-                'host': host,
-                'port': port,
+                'app': self,
             },
         }
         self.routes.add('/_grow/editor/*path', router.RouteInfo('console', editor_meta))

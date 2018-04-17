@@ -78,6 +78,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     done = False
     while num_tries < NUM_TRIES and not done:
         try:
+            app.app.port = port
             serving.run_simple(host, port, app, request_handler=handler, threaded=True)
             done = True
         except socket.error as e:
