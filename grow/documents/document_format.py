@@ -111,7 +111,7 @@ class DocumentFormat(object):
         """Updates content and frontmatter."""
         if fields is not utils.SENTINEL:
             raw_front_matter = utils.dump_yaml(fields)
-            self.front_matter._load_front_matter(raw_front_matter)
+            self.front_matter.update_raw_front_matter(raw_front_matter)
             self._doc.pod.podcache.document_cache.add_property(
                 self._doc, 'front_matter', self.front_matter.export())
 

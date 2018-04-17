@@ -1,0 +1,21 @@
+<div class="hero">
+  <h1>{{partial.title}}</h1>
+  {% if partial.subtitle %}
+    <h2>{{partial.subtitle}}</h2>
+  {% endif %}
+  {% if partial.description %}
+    <p>{{partial.description}}</p>
+  {% endif %}
+  {% if partial.pullout %}
+    <div class="pullout">
+      {{partial.pullout}}
+    </div>
+  {% endif %}
+  {% if partial.cta %}
+    <div class="hero__cta">
+      {% for item in partial.cta %}
+        <a href="{{item.url.path}}" class="button">{{item.title}}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

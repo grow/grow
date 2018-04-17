@@ -4,7 +4,6 @@ import csv as csv_lib
 import fnmatch
 import functools
 import gettext
-import imp
 import json
 import logging
 import os

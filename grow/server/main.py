@@ -1,6 +1,5 @@
 """Grow local development server."""
 
-import cStringIO
 import logging
 import mimetypes
 import os
@@ -10,8 +9,6 @@ import traceback
 import urllib
 import jinja2
 import webob
-from grow.common import config
-from grow.routing import router
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
 from werkzeug import routing
@@ -19,9 +16,12 @@ from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
 from werkzeug import serving
 from werkzeug import wsgi
-from ..common import utils
-from ..pods import errors
-from ..pods import ui
+from grow.common import config
+from grow.common import utils
+from grow.routing import router
+from grow.pods import errors
+from grow.pods import ui
+from grow.server import api
 
 
 class Request(wrappers.BaseRequest):
@@ -67,11 +67,26 @@ def serve_console(pod, request, values):
     return response
 
 
-def serve_console_reroute(pod, _request, _matched):
+def serve_console_reroute(pod, _request, _matched, **_kwargs):
     """Serve the default console page."""
     kwargs = {'pod': pod}
     env = ui.create_jinja_env()
     template = env.get_template('/views/base-reroute.html')
+    content = template.render(kwargs)
+    response = wrappers.Response(content)
+    response.headers['Content-Type'] = 'text/html'
+    return response
+
+
+def serve_editor_reroute(pod, _request, matched, meta=None, **_kwargs):
+    """Serve the default console page."""
+    kwargs = {
+        'pod': pod,
+        'meta': meta,
+        'path': matched.params['path'] if 'path' in matched.params else '',
+    }
+    env = ui.create_jinja_env()
+    template = env.get_template('/views/editor.html')
     content = template.render(kwargs)
     response = wrappers.Response(content)
     response.headers['Content-Type'] = 'text/html'
@@ -95,11 +110,10 @@ def serve_pod(pod, request, values):
     return response
 
 
-def serve_pod_reroute(pod, request, matched):
+def serve_pod_reroute(pod, request, matched, **_kwargs):
     """Serve pod contents using the new routing."""
-    route_info = matched.value
     controller = pod.router.get_render_controller(
-        request.path, route_info, params=matched.params)
+        request.path, matched.value, params=matched.params)
     response = None
     headers = controller.get_http_headers()
     if 'X-AppEngine-BlobKey' in headers:
@@ -126,7 +140,7 @@ def serve_ui_tool(pod, request, values):
     return response
 
 
-def serve_ui_tool_reroute(pod, request, values):
+def serve_ui_tool_reroute(pod, request, values, **_kwargs):
     tool_path = 'node_modules/{}'.format(values.get('tool'))
     response = wrappers.Response(pod.read_file(tool_path))
     guessed_type = mimetypes.guess_type(tool_path)
@@ -239,16 +253,29 @@ class PodServer(object):
 
 class PodServerReRoute(PodServer):
 
-    def __init__(self, pod, debug=False):
+    def __init__(self, pod, host, port, debug=False):
         logging.warn('WARNING: Using experimental routing')
 
         self.pod = pod
+        self.host = host
+        self.port = port
         self.pod.render_pool.pool_size = 1
         self.debug = debug
         self.routes = self.pod.router.routes
 
         self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo('console', {
             'handler': serve_ui_tool_reroute,
+        }))
+        editor_meta = {
+            'handler': serve_editor_reroute,
+            'meta': {
+                'app': self,
+            },
+        }
+        self.routes.add('/_grow/editor/*path', router.RouteInfo('console', editor_meta))
+        self.routes.add('/_grow/editor', router.RouteInfo('console', editor_meta))
+        self.routes.add('/_grow/api/*path', router.RouteInfo('console', {
+            'handler': api.serve_api,
         }))
         self.routes.add('/_grow', router.RouteInfo('console', {
             'handler': serve_console_reroute,
@@ -272,7 +299,11 @@ class PodServerReRoute(PodServer):
         kind = matched.value.kind
         if kind == 'console':
             if 'handler' in matched.value.meta:
-                return matched.value.meta['handler'](self.pod, request, matched)
+                handler_meta = None
+                if 'meta' in matched.value.meta:
+                    handler_meta = matched.value.meta['meta']
+                return matched.value.meta['handler'](
+                    self.pod, request, matched, meta=handler_meta)
             return serve_console_reroute(self.pod, request, matched)
         return serve_pod_reroute(self.pod, request, matched)
 
@@ -282,9 +313,9 @@ class PodServerReRoute(PodServer):
         return response(environ, start_response)
 
 
-def create_wsgi_app(pod, debug=False):
+def create_wsgi_app(pod, host, port, debug=False):
     if pod.use_reroute:
-        podserver_app = PodServerReRoute(pod, debug=debug)
+        podserver_app = PodServerReRoute(pod, host, port, debug=debug)
     else:
         podserver_app = PodServer(pod, debug=debug)
     assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'admin', 'assets')

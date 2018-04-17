@@ -11,7 +11,7 @@ class RoutesDevHandlerHook(hooks.BaseDevHandlerHook):
     """Handle the dev handler hook."""
 
     @staticmethod
-    def serve_routes(pod, _request, _matched):
+    def serve_routes(pod, _request, _matched, **_kwargs):
         """Handle the request for routes."""
         env = ui.create_jinja_env()
         template = env.get_template('views/base-reroute.html')

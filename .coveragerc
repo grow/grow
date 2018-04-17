@@ -1,13 +1,9 @@
 [run]
 omit =
-    # Don't know a good way to test the commands correctly.
-    grow/commands/*
     # Doesn't do anything.
     grow/common/ca_certs_locater.py
     # Requirement of extensions.
     grow/common/patched_site.py
-    # Dev server doesn't need to be tested.
-    grow/server/*
     # Copied from upstream.
     grow/templates/jinja_dependency.py
 source=grow
