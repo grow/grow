@@ -24,6 +24,9 @@ class BuiltinsTestCase(unittest.TestCase):
         words = 'Foo\'s b@z b**'
         self.assertEqual('foo-s-b-z-b', filters.slug_filter(words))
 
+        words = 'Foo: b@z b**'
+        self.assertEqual('foo:b-z-b', filters.slug_filter(words))
+
     def test_json(self):
         controller, params = self.pod.match('/json_test/')
         html = controller.render(params)
