@@ -11,10 +11,8 @@ from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import json_encoder
 from grow.common import urls
+from grow.common import utils
 from grow.templates.tags import _gettext_alias
-
-SLUG_REGEX = re.compile(r'[^A-Za-z0-9-._~\:]+')
-SLUG_SEQUENCE = ((u':-', u':'),)
 
 
 def _deep_gettext(ctx, fields):
@@ -118,10 +116,7 @@ def regex_replace():
 
 def slug_filter(value, delimiter=u'-'):
     """Filters string to remove url unfriendly characters."""
-    slug = unicode(delimiter.join(SLUG_REGEX.split(value.lower())).strip(delimiter))
-    for seq, sub in SLUG_SEQUENCE:
-        slug = slug.replace(seq, sub)
-    return slug
+    return utils.slugify(value, delimiter)
 
 
 def wrap_locale_context(func):
