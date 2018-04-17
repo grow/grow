@@ -13,7 +13,8 @@ from grow.common import json_encoder
 from grow.common import urls
 from grow.templates.tags import _gettext_alias
 
-SLUG_REGEX = re.compile(r'[^A-Za-z0-9-._~]+')
+SLUG_REGEX = re.compile(r'[^A-Za-z0-9-._~\:]+')
+SLUG_SEQUENCE = ((u':-', u':'),)
 
 
 def _deep_gettext(ctx, fields):
@@ -115,9 +116,12 @@ def regex_replace():
     return regex_replace_filter
 
 
-def slug_filter(value):
+def slug_filter(value, delimiter=u'-'):
     """Filters string to remove url unfriendly characters."""
-    return unicode(u'-'.join(SLUG_REGEX.split(value.lower())).strip(u'-'))
+    slug = unicode(delimiter.join(SLUG_REGEX.split(value.lower())).strip(delimiter))
+    for seq, sub in SLUG_SEQUENCE:
+        slug = slug.replace(seq, sub)
+    return slug
 
 
 def wrap_locale_context(func):
