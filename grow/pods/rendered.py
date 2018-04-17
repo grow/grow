@@ -37,7 +37,8 @@ class RenderedController(controllers.BaseController):
             self.view, doc.pod_path)
 
     def get_mimetype(self, params=None):
-        return mimetypes.guess_type(self.view)[0]
+        path_mimetype = mimetypes.guess_type(self.doc.get_serving_path())[0]
+        return path_mimetype or mimetypes.guess_type(self.view)[0]
 
     @property
     def doc(self):
