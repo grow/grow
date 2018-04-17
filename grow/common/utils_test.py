@@ -1,3 +1,4 @@
+# coding: utf8
 """Tests for the common utility methods."""
 
 import unittest
@@ -151,6 +152,17 @@ class UtilsTestCase(unittest.TestCase):
 
         actual = utils.safe_format('Does it {ignore}?')
         self.assertEqual('Does it {ignore}?', actual)
+
+    def test_slugify(self):
+        """Slugify strings."""
+        actual = utils.slugify('What\'s going: down 2 d@y')
+        self.assertEqual('what-s-going:down-2-d-y', actual)
+
+        actual = utils.slugify('Does it {work}')
+        self.assertEqual('does-it-work', actual)
+
+        actual = utils.slugify(u'Îñtérñåtîøñålization')
+        self.assertEqual('internaationaalization', actual)
 
     def test_validate_name(self):
         with self.assertRaises(errors.BadNameError):

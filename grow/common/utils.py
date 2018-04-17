@@ -36,6 +36,7 @@ except ImportError:
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
 SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+SLUG_SUBSTITUTE = ((':-', ':'),)
 
 
 class Error(Exception):
@@ -396,7 +397,10 @@ def slugify(text, delim=u'-'):
         word = word.encode('translit/long')
         if word:
             result.append(word)
-    return unicode(delim.join(result))
+    slug = unicode(delim.join(result))
+    for seq, sub in SLUG_SUBSTITUTE:
+        slug = slug.replace(seq, sub)
+    return slug
 
 
 class DummyDict(object):
