@@ -15,14 +15,16 @@ class GrowTheme(object):
         self.theme_name = theme_name
         self.archive_url = THEME_ARCHIVE_URL.format(self.theme_name)
 
+    @property
+    def archive(self):
+        """Download the archive zip and open."""
+        logging.info('Downloading `{}` from Github'.format(self.theme_name))
+        request = requests.get(self.archive_url)
+        return zipfile.ZipFile(io.BytesIO(request.content), 'r')
+
     def extract(self, pod, force=False):
         """Extract the source archive into the destination pod."""
-
-        logging.info('Downloading `{}` from Github'.format(self.theme_name))
-
-        request = requests.get(self.archive_url)
-        with zipfile.ZipFile(io.BytesIO(request.content), 'r') as archive:
-
+        with self.archive as archive:
             logging.info('Extracting theme into {}'.format(pod.root))
 
             # Automatically enable "force" for empty directories.
