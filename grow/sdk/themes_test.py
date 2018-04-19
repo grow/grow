@@ -28,3 +28,29 @@ class ThemesTestCase(unittest.TestCase):
         theme = themes.GrowTheme('base')
         theme.extract(self.pod)
         self.assertTrue(self.pod.file_exists('/podspec.yaml'))
+
+    @mock.patch('grow.sdk.themes.GrowTheme.archive',
+                new_callable=mock.PropertyMock)
+    def test_extract_existing(self, mock_archive):
+        """Test theme unpacking."""
+        mock_archive.return_value = zipfile.ZipFile(TEST_ZIP_FILE, 'r')
+        self.assertFalse(self.pod.file_exists('/gulpfile.js'))
+        self.assertFalse(self.pod.file_exists('/podspec.yaml'))
+        self.pod.write_file('/podspec.yaml', '')
+        self.assertTrue(self.pod.file_exists('/podspec.yaml'))
+        theme = themes.GrowTheme('base')
+        theme.extract(self.pod)
+        self.assertFalse(self.pod.file_exists('/gulpfile.js'))
+
+    @mock.patch('grow.sdk.themes.GrowTheme.archive',
+                new_callable=mock.PropertyMock)
+    def test_extract_force(self, mock_archive):
+        """Test theme unpacking."""
+        mock_archive.return_value = zipfile.ZipFile(TEST_ZIP_FILE, 'r')
+        self.assertFalse(self.pod.file_exists('/gulpfile.js'))
+        self.assertFalse(self.pod.file_exists('/podspec.yaml'))
+        self.pod.write_file('/podspec.yaml', '')
+        self.assertTrue(self.pod.file_exists('/podspec.yaml'))
+        theme = themes.GrowTheme('base')
+        theme.extract(self.pod, force=True)
+        self.assertTrue(self.pod.file_exists('/gulpfile.js'))
