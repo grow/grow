@@ -6,8 +6,6 @@ import zipfile
 import requests
 
 THEME_ARCHIVE_URL = 'https://github.com/growthemes/{}/archive/master.zip'
-# with zipfile.ZipFile('spam.zip', 'r') as source:
-#     source.read('eggs.txt')
 
 
 class GrowTheme(object):
@@ -19,11 +17,37 @@ class GrowTheme(object):
 
     def extract(self, pod, force=False):
         """Extract the source archive into the destination pod."""
+
+        logging.info('Downloading `{}` from Github'.format(self.theme_name))
+
         request = requests.get(self.archive_url)
-        archive = zipfile.ZipFile(io.BytesIO(request.content), 'r')
+        with zipfile.ZipFile(io.BytesIO(request.content), 'r') as archive:
 
-        logging.info('Extracting {} into {}'.format(self.archive_url, pod.root))
+            logging.info('Extracting theme into {}'.format(pod.root))
 
-        if not force:
+            # Automatically enable "force" for empty directories.
+            if pod.list_dir('/') == []:
+                force = True
+
+            archive_prefix_dir = '{}-master'.format(self.theme_name)
+            archive_files = [name[len(archive_prefix_dir):] for name in archive.namelist()]
+
             # Validate that it won't overwrite any files.
-            print archive.namelist()
+            if not force:
+                for file_name in archive_files:
+                    if file_name == '/':
+                        continue
+                    if pod.file_exists(file_name):
+                        text = ('{}{} already exists. Delete the directory contents before'
+                                ' proceeding or use --force.')
+                        logging.warn(text.format(pod.root, file_name))
+                        return
+
+            for file_name in archive_files:
+                if file_name.endswith('/'):
+                    continue
+
+                pod.write_file(
+                    file_name, archive.read('{}{}'.format(archive_prefix_dir, file_name)))
+
+            logging.info('Pod ready to go: {}'.format(pod.root))
