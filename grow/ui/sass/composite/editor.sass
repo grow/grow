@@ -1,0 +1,250 @@
+// Primary Colors
+$color-p: #455a64
+$color-p-l: #718792
+$color-p-d: #1c313a
+$color-on-p: #ffffff
+$color-on-p-l: #000000
+$color-on-p-d: #ffffff
+
+// Secondary Colors
+$color-s: #512da8
+$color-s-l: #8559da
+$color-s-d: #140078
+$color-on-s: #ffffff
+$color-on-s-l: #ffffff
+$color-on-s-d: #ffffff
+
+// Utility Colors
+$color-text: #455a64
+$color-back: #fefefe
+$color-back-l: #f5f5f5
+$color-back-d: darken($color-back, 10%)
+$color-on-back: #000000
+$color-on-back-l: #455a64
+$color-on-back-d: #455a64
+
+// Speeds
+$speed-slow: 400ms
+$speed-fast: 250ms
+
+// Padding unit
+$pad: 1em
+
+*
+  box-sizing: border-box
+
+body
+  background-color: $color-back-l
+  margin: 0
+  padding: 0
+
+.container
+  display: flex
+  flex-flow: row
+  min-height: 100vh
+
+.content
+  display: flex
+  flex-flow: column
+  flex-grow: 1
+
+.content__header
+  display: flex
+  padding: $pad
+
+.content__path
+  flex-grow: 1
+  padding: 0 0 0 $pad
+
+.content__preview
+  align-items: stretch
+  display: flex
+  flex-grow: 1
+  justify-content: center
+
+.sidebar
+  display: flex
+  flex-flow: column
+  max-height: 100vh
+  flex-basis: 30vw
+
+.sidebar__content
+  flex-grow: 1
+  overflow-y: auto
+
+  .info
+    flex-grow: 1
+
+  .mdc-text-field
+    width: 100%
+
+.sidebar__action
+  align-items: center
+  display: flex
+  flex-flow: row
+
+  i:last-child
+    margin-right: 1rem
+
+.sidebar__save
+  background-color: $color-back-d
+  display: flex
+  flex-flow: column
+  flex-shrink: 0
+
+.sidebar__save__content
+  align-items: center
+  display: flex
+  flex-flow: row
+  flex-shrink: 0
+  justify-content: space-between
+  padding: $pad
+
+.preview
+  background-color: $color-back
+  border: none
+  color: $color-on-back
+  flex-grow: 1
+
+.container--mobile
+  .content
+    flex-grow: 0
+
+  .content__preview
+    align-items: center
+    margin: $pad
+
+  .fields
+    display: flex
+    flex-flow: column
+    flex-wrap: wrap
+
+  .field
+    width: 50%
+    margin: 0
+    padding: $pad
+
+  .list__items
+    .partial
+      padding: $pad $pad 0 $pad
+
+  .partial
+    .field
+      width: 100%
+
+  .preview
+    flex-grow: 0
+    height: 732px
+    width: 412px
+
+  .sidebar
+    flex-grow: 1
+
+  .sidebar__content
+    display: flex
+    flex-flow: column
+
+.container--source
+  .sidebar__content
+    display: flex
+    flex-flow: column
+
+  .fields
+    display: flex
+    flex-flow: column
+    flex-grow: 1
+
+  .field
+    flex-grow: 1
+
+  .field__source
+    display: flex
+    flex-flow: column
+
+    textarea
+      flex-grow: 1
+      font-family: 'Roboto Mono', monospace
+      width: 100%
+
+.info
+  background-color: $color-back
+  border-radius: $pad/2
+  color: $color-on-back
+  margin: $pad
+  padding: $pad
+
+.info__info
+  background-color: #e1f5fe
+
+.field
+  padding: $pad
+
+.list__items
+  margin: $pad 0
+
+  .partial
+    padding: $pad 0 0 $pad
+    border-left: 3px solid $color-s
+
+    .field
+      padding: $pad 0
+
+.list__add
+  align-items: center
+  display: flex
+  flex-flow: row
+  justify-content: center
+  padding: $pad
+
+  .mdc-select
+    display: none
+    flex-grow: 1
+    margin-right: $pad
+
+  &--select
+    .mdc-select
+      display: inherit
+
+.list__label
+  font-size: 1.2rem
+
+.partial__action
+  align-items: center
+  display: flex
+  flex-flow: row
+
+.partial__label
+  flex-grow: 1
+  font-size: 1.1rem
+  font-weight: 700
+
+
+.partial
+  &:first-of-type
+    .partial__up
+      display: none
+
+  &:last-of-type
+    .partial__down
+      display: none
+
+
+// Material design components
+$mdc-theme-primary: $color-p
+$mdc-theme-secondary: $color-s
+$mdc-theme-background: $color-back
+
+@import '../../node_modules/material-components-web/material-components-web'
+
+.mdc-text-field--textarea
+  .mdc-floating-label
+    background-color: transparent
+
+.mdc-icon-toggle--toggled
+  @include mdc-icon-toggle-ink-color($color-s)
+  @include mdc-states-base-color($color-s)
+
+// Pell Editor
+$pell-content-height: 20vh
+
+@import '../../node_modules/pell/src/pell'

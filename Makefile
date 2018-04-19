@@ -39,6 +39,7 @@ develop:
 	fi
 	pipenv --update
 	pipenv install --dev
+	pipenv lock -r > requirements.txt
 	$(MAKE) build-ui
 
 build-ui:
@@ -82,8 +83,7 @@ test:
 	  --rednose \
 	  --with-coverage \
 	  --cover-erase \
-	  --cover-html \
-	  --cover-html-dir=htmlcov \
+		--cover-xml \
 	  --cover-package=grow \
 	  $(target)
 
@@ -94,8 +94,7 @@ test-nosetests:
 	  --rednose \
 	  --with-coverage \
 	  --cover-erase \
-	  --cover-html \
-	  --cover-html-dir=htmlcov \
+		--cover-xml \
 	  --cover-package=grow \
 	  grow
 

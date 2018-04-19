@@ -46,9 +46,11 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
             pod.set_env(deployment.get_env())
             # Always clear the cache when building.
             pod.podcache.reset()
-            require_translations = pod.podspec.localization.get(
-                'require_translations', False)
-            require_translations = require_translations and not force_untranslated
+            require_translations = \
+                pod.podspec.localization \
+                and pod.podspec.localization.get('require_translations', False)
+            require_translations = require_translations \
+                and not force_untranslated
             if auth:
                 deployment.login(auth)
             if preprocess:

@@ -1,0 +1,12 @@
+label: Hero
+editor:
+  fields:
+  - type: text
+    key: title
+    label: Hero Title
+  - type: text
+    key: subtitle
+    label: Hero Subtitle
+  - type: markdown
+    key: description
+    label: Description

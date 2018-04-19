@@ -4,7 +4,6 @@ import csv as csv_lib
 import fnmatch
 import functools
 import gettext
-import imp
 import json
 import logging
 import os
@@ -37,6 +36,7 @@ except ImportError:
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
 SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+SLUG_SUBSTITUTE = ((':{}', ':'),)
 
 
 class Error(Exception):
@@ -312,6 +312,15 @@ def make_yaml_loader(pod, doc=None, locale=None):
                 if reference:
                     data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
                     try:
+                        value = data[reference]
+                        if value is None:
+                            if doc:
+                                pod.logger.warning(
+                                    'Missing {}.{} in {}'.format(
+                                        main, reference, doc.pod_path))
+                            else:
+                                pod.logger.warning(
+                                    'Missing {}.{}'.format(main, reference))
                         return data[reference]
                     except KeyError:
                         return None
@@ -388,7 +397,10 @@ def slugify(text, delim=u'-'):
         word = word.encode('translit/long')
         if word:
             result.append(word)
-    return unicode(delim.join(result))
+    slug = unicode(delim.join(result))
+    for seq, sub in SLUG_SUBSTITUTE:
+        slug = slug.replace(seq.format(delim), sub.format(delim))
+    return slug
 
 
 class DummyDict(object):

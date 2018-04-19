@@ -1,0 +1,6 @@
+ci:
+  platform:
+    pypi:
+      str:
+        tests:
+          unlicensed: skip

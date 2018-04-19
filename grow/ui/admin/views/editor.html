@@ -1,0 +1,175 @@
+{% set default_path = '/' ~ path %}
+{% set home_doc = pod.get_home_doc() %}
+{% if home_doc and not path %}
+  {% set default_path = home_doc.pod_path %}
+{% endif %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% if title %}{{title}} – {% endif %}Grow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/_grow/assets/favicon.png">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Mono" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/_grow/ui/css/editor.min.css">
+  </head>
+  <body class="mdc-typography front_matter">
+    <div class="container">
+      <div class="content">
+        <div class="content__header">
+          <i id="content_device" class="mdc-icon-toggle material-icons"
+             role="button"
+             aria-label="Toggle mobile device sizing"
+             aria-pressed="false"
+             tabindex="0"
+             data-toggle-on='{"label": "Full sized preview", "cssClass": "mdc-icon-toggle--toggled"}'
+             data-toggle-off='{"label": "Mobile sized preview"}'>
+             devices
+          </i>
+          <div class="content__path">
+            <div class="mdc-text-field mdc-text-field--fullwidth">
+              <input type="text" id="pod_path" class="mdc-text-field__input" value="{{default_path}}" placeholder="Pod Path">
+              <div class="mdc-line-ripple"></div>
+            </div>
+          </div>
+        </div>
+        <div class="content__preview">
+          <iframe class="preview" data-host="{{meta.app.host}}" data-port="{{meta.app.port}}"></iframe>
+        </div>
+      </div>
+      <div class="sidebar">
+        <div class="sidebar__content">
+          <div class="sidebar__action">
+            <div class="info info__info mdc-elevation--z4">
+              Preview is updated on save.
+            </div>
+            <i id="content_source" class="mdc-icon-toggle material-icons"
+               role="button"
+               aria-label="Toggle front matter source"
+               aria-pressed="false"
+               tabindex="0"
+               data-toggle-on='{"label": "Front matter source", "cssClass": "mdc-icon-toggle--toggled"}'
+               data-toggle-off='{"label": "Front matter UI"}'>
+               code
+            </i>
+          </div>
+          <div class="fields"></div>
+        </div>
+        <div class="sidebar__save">
+          <div role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate mdc-linear-progress--closed">
+            <div class="mdc-linear-progress__buffering-dots"></div>
+            <div class="mdc-linear-progress__buffer"></div>
+            <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+              <span class="mdc-linear-progress__bar-inner"></span>
+            </div>
+            <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+              <span class="mdc-linear-progress__bar-inner"></span>
+            </div>
+          </div>
+          <div class="sidebar__save__content">
+            <div class="sidebar__save__auto">
+              <div class="mdc-switch">
+                <input type="checkbox" id="autosave" class="mdc-switch__native-control"/>
+                <div class="mdc-switch__background">
+                  <div class="mdc-switch__knob"></div>
+                </div>
+              </div>
+              <label for="autosave" class="mdc-switch-label">Autosave</label>
+            </div>
+            <button class="sidebar__save__save mdc-button mdc-button--raised">
+              <i class="material-icons mdc-button__icon">save</i>
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <template id="template_field_text">
+      <div class="field field__text">
+        <div class="mdc-text-field mdc-text-field--upgraded">
+          <input type="text" id="" class="mdc-text-field__input">
+          <label class="mdc-floating-label" for=""></label>
+          <div class="mdc-line-ripple"></div>
+        </div>
+      </div>
+    </template>
+
+    <template id="template_field_textarea">
+      <div class="field field__textarea">
+        <div class="mdc-text-field mdc-text-field--textarea mdc-text-field--fullwidth mdc-text-field--dense">
+          <textarea id="" class="mdc-text-field__input" rows="4"></textarea>
+          <label for="" class="mdc-floating-label"></label>
+        </div>
+      </div>
+    </template>
+
+    <template id="template_field_markdown">
+      <div class="field field__markdown">
+        <div class="field__markdown__label"></div>
+        <div class="pell"></div>
+      </div>
+    </template>
+
+    <template id="template_field_list">
+      <div class="field field__list">
+        <div class="list">
+          <div class="list__label"></div>
+          <div class="list__items">
+            <div class="list__list"></div>
+            <div class="list__add">
+              <div class="mdc-select">
+                <select class="mdc-select__native-control"></select>
+                <div class="mdc-select__label mdc-select__label--float-above"></div>
+                <div class="mdc-select__bottom-line"></div>
+              </div>
+              <button class="mdc-button mdc-button--raised">
+                <i class="material-icons mdc-button__icon">add</i>
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="template_field_source">
+      <div class="field field__source">
+        <textarea id="source" rows="4"></textarea>
+      </div>
+    </template>
+
+    <template id="template_partial">
+      <div class="partial">
+        <div class="partial__action">
+          <div class="partial__label"></div>
+          <i class="partial__up mdc-icon-toggle material-icons"
+             role="button"
+             aria-label="Move partial position up"
+             aria-pressed="false"
+             tabindex="0">
+             keyboard_arrow_up
+          </i>
+          <i class="partial__down mdc-icon-toggle material-icons"
+             role="button"
+             aria-label="Move partial position up"
+             aria-pressed="false"
+             tabindex="0">
+             keyboard_arrow_down
+          </i>
+          <i class="partial__remove mdc-icon-toggle material-icons"
+             role="button"
+             aria-label="Remove partial"
+             aria-pressed="false"
+             tabindex="0">
+             delete
+          </i>
+        </div>
+        <div class="partial__fields"></div>
+      </div>
+    </template>
+
+    <script src="/_grow/ui/js/editor.min.js"></script>
+  </body>
+</html>
