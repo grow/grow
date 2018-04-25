@@ -3,7 +3,7 @@
 from grow import extensions
 from grow.extensions import hooks
 from grow.pods import ui
-from grow.routing import router
+from grow.routing import router as grow_router
 from werkzeug import wrappers
 
 
@@ -15,11 +15,14 @@ class RoutesDevHandlerHook(hooks.BaseDevHandlerHook):
         """Handle the request for routes."""
         env = ui.create_jinja_env()
         template = env.get_template('views/base-reroute.html')
+        router = grow_router.Router(pod)
+        router.use_simple()
+        router.add_all()
         kwargs = {
             'pod': pod,
             'partials': [{
                 'partial': 'routes',
-                'routes': pod.router.routes,
+                'routes': router.routes,
             }],
             'title': 'Pod Routes',
         }
@@ -29,9 +32,9 @@ class RoutesDevHandlerHook(hooks.BaseDevHandlerHook):
         return response
 
     # pylint: disable=arguments-differ
-    def trigger(self, _result, pod, routes, *_args, **_kwargs):
+    def trigger(self, _result, _pod, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
-        routes.add('/_grow/routes', router.RouteInfo('console', {
+        routes.add('/_grow/routes', grow_router.RouteInfo('console', {
             'handler': RoutesDevHandlerHook.serve_routes,
         }))
 
