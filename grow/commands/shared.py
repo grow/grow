@@ -135,13 +135,13 @@ def preprocess_option(config):
 
 def reroute_option(config):
     """Option for using new age router and rendering pipeline."""
-    shared_default = CFG.get('re-route', False)
+    shared_default = CFG.get('re-route', True)
     config_default = config.get('re-route', shared_default)
 
     def _decorator(func):
         return click.option(
-            '--re-route/--no-re-route', 'use_reroute', is_flag=True, default=config_default,
-            help='Use experimental routing/rendering pipeline.')(func)
+            '--re-route/--old-routing', 'use_reroute', is_flag=True, default=config_default,
+            help='Use new routing/rendering pipeline.')(func)
     return _decorator
 
 
