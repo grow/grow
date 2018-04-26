@@ -137,6 +137,9 @@ class StaticDocument(object):
     @property
     def source_path(self):
         """Source path for the static document or default source path to first available."""
+        path = self.config.get('static_dir')
+        if path:
+            return path
         for source_path in self.source_paths:
             if self.pod_path.startswith(source_path):
                 return source_path
@@ -146,9 +149,10 @@ class StaticDocument(object):
     @property
     def source_paths(self):
         """Source paths for the static document."""
-        if isinstance(self.config['static_dir'], basestring):
-            return [self.config['static_dir']]
-        return self.config['static_dir']
+        paths = self.config.get('static_dirs')
+        if paths:
+            return paths
+        return [self.config.get('static_dir')]
 
     @property
     def source_pod_path(self):

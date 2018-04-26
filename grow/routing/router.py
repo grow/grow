@@ -101,14 +101,14 @@ class Router(object):
                 else:
                     path_filter = self.pod.path_filter
 
-                static_dirs = config.get('static_dir')
-                if isinstance(static_dirs, basestring):
-                    static_dirs = [static_dirs]
+                static_dirs = config.get('static_dirs')
+                if not static_dirs:
+                    static_dirs = [config.get('static_dir')]
 
                 if localization:
-                    localized_static_dirs = localization.get('static_dir')
-                    if isinstance(localized_static_dirs, basestring):
-                        localized_static_dirs = [localized_static_dirs]
+                    localized_static_dirs = localization.get('static_dirs')
+                    if not localized_static_dirs:
+                        localized_static_dirs = [localization.get('static_dir')]
 
                 if concrete or fingerprinted:
                     # Enumerate static files.
@@ -255,7 +255,9 @@ class Router(object):
         for config in self.pod.static_configs:
             if config.get('dev') and not self.pod.env.dev:
                 continue
-            static_dirs = config.get('static_dir')
+            static_dirs = config.get('static_dirs')
+            if not static_dirs:
+                static_dirs = [config.get('static_dir')]
             if isinstance(static_dirs, basestring):
                 static_dirs = [static_dirs]
             for static_dir in static_dirs:
@@ -263,7 +265,9 @@ class Router(object):
                     return config
             intl = config.get('localization', {})
             if intl:
-                static_dirs = intl.get('static_dir')
+                static_dirs = intl.get('static_dirs')
+                if not static_dirs:
+                    static_dirs = [intl.get('static_dir')]
                 if isinstance(static_dirs, basestring):
                     static_dirs = [static_dirs]
                 for static_dir in static_dirs:
