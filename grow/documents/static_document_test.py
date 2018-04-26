@@ -24,6 +24,14 @@ class StaticDocumentTestCase(unittest.TestCase):
             self.pod, '/static/something.txt')
         self.assertFalse(static_doc.exists)
 
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static-a/test-a.txt')
+        self.assertTrue(static_doc.exists)
+
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static-b/test-a.txt')
+        self.assertFalse(static_doc.exists)
+
     def test_filter(self):
         """Static filter config."""
         static_doc = static_document.StaticDocument(
@@ -86,6 +94,33 @@ class StaticDocumentTestCase(unittest.TestCase):
         static_doc = static_document.StaticDocument(
             self.pod, '/static/something.txt', locale='de')
         self.assertEquals('/static/intl/{locale}/', static_doc.source_path)
+
+    def test_source_path_multi_paths(self):
+        """Static document source path with multiple source dirs."""
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static-a/test-a.txt')
+        self.assertEquals('/static-a/', static_doc.source_path)
+
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static-b/test-b.txt')
+        self.assertEquals('/static-b/', static_doc.source_path)
+
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static-a/test-a.txt', locale='de')
+        self.assertEquals('/static-a/intl/{locale}/', static_doc.source_path)
+
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static-b/test-b.txt', locale='de')
+        self.assertEquals('/static-b/intl/{locale}/', static_doc.source_path)
+
+    def test_source_paths(self):
+        """Static document source paths."""
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static-a/test-a.txt')
+        self.assertEquals('/static-a/', static_doc.source_path)
+        static_doc = static_document.StaticDocument(
+            self.pod, '/static-b/test-b.txt')
+        self.assertEquals('/static-b/', static_doc.source_path)
 
     def test_source_pod_path(self):
         """Static document source path."""
