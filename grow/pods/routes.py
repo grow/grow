@@ -272,35 +272,38 @@ class Routes(object):
             for config in self.podspec['static_dirs']:
                 if config.get('dev') and not self.pod.env.dev:
                     continue
-                static_dirs = config.get('static_dirs')
-                if not static_dirs:
-                    static_dirs = [config.get('static_dir')]
+                static_dir = config.get('static_dir')
+                # Skip the multi-static directories for old routing.
+                if not static_dir:
+                    continue
+                static_dir = static_dir + '<grow:filename>'
                 serve_at = config['serve_at'] + '<grow:filename>'
                 serve_at = self.format_path(serve_at)
                 localization = config.get('localization')
                 fingerprinted = config.get('fingerprinted', False)
-                for static_dir in static_dirs:
-                    source_format = static_dir + '<grow:filename>'
-                    controller = static.StaticController(
-                        path_format=serve_at, source_format=source_format, localized=False,
-                        localization=localization, fingerprinted=fingerprinted, pod=self.pod)
-                    rules.append(routing.Rule(serve_at, endpoint=controller))
+                controller = static.StaticController(path_format=serve_at,
+                                                     source_format=static_dir,
+                                                     localized=False,
+                                                     localization=localization,
+                                                     fingerprinted=fingerprinted,
+                                                     pod=self.pod)
+                rules.append(routing.Rule(serve_at, endpoint=controller))
                 if localization:
                     localized_serve_at = localization.get(
                         'serve_at') + '<grow:filename>'
-                    static_dirs = localization.get('static_dirs')
-                    if not static_dirs:
-                        static_dirs = [localization.get('static_dir')]
+                    static_dir = localization.get('static_dir')
+                    localized_static_dir = static_dir + '<grow:filename>'
                     rule_path = localized_serve_at.replace(
                         '{locale}', '<grow:locale>')
                     rule_path = self.format_path(rule_path)
-                    for static_dir in static_dirs:
-                        source_format = static_dir + '<grow:filename>'
-                        controller = static.StaticController(
-                            path_format=localized_serve_at, source_format=source_format,
-                            localized=True, localization=localization, fingerprinted=fingerprinted,
-                            pod=self.pod)
-                        rules.append(routing.Rule(rule_path, endpoint=controller))
+                    controller = static.StaticController(
+                        path_format=localized_serve_at,
+                        source_format=localized_static_dir,
+                        localized=True,
+                        localization=localization,
+                        fingerprinted=fingerprinted,
+                        pod=self.pod)
+                    rules.append(routing.Rule(rule_path, endpoint=controller))
         return rules
 
     def match(self, path, env):
