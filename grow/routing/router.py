@@ -235,7 +235,6 @@ class Router(object):
         if locales:
             # Ability to specify a none locale using commanf flag.
             if 'None' in locales:
-                print 'adding None'
                 locales.append(None)
 
             def _filter_locales(route_info):

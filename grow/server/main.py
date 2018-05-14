@@ -164,6 +164,11 @@ def serve_run_preprocessor(pod, request, values):
 class PodServer(object):
 
     def __init__(self, pod, debug=False):
+        logging.warn(
+            'WARNING: Using old routing. '
+            'The old routing will be removed in a future version. '
+            'Please file issues on GitHub if you are having issues with the new routing.')
+
         rule = routing.Rule
         self.pod = pod
         self.debug = debug
@@ -254,7 +259,8 @@ class PodServer(object):
 class PodServerReRoute(PodServer):
 
     def __init__(self, pod, host, port, debug=False):
-        logging.warn('WARNING: Using experimental routing')
+        logging.warn(
+            'NOTICE: Using new routing, use --old-routing to use the older routing.')
 
         self.pod = pod
         self.host = host
@@ -272,8 +278,10 @@ class PodServerReRoute(PodServer):
                 'app': self,
             },
         }
-        self.routes.add('/_grow/editor/*path', router.RouteInfo('console', editor_meta))
-        self.routes.add('/_grow/editor', router.RouteInfo('console', editor_meta))
+        self.routes.add('/_grow/editor/*path',
+                        router.RouteInfo('console', editor_meta))
+        self.routes.add('/_grow/editor',
+                        router.RouteInfo('console', editor_meta))
         self.routes.add('/_grow/api/*path', router.RouteInfo('console', {
             'handler': api.serve_api,
         }))
