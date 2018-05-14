@@ -246,6 +246,10 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         key = row[0].strip()
                         if isinstance(key, unicode):
                             key = key.encode('utf-8')
+                        if key and key in gid_to_data[gid]:
+                            # The key is already in use.
+                            raise base.PreprocessorError(
+                                'Duplicate key in use in sheet {}: {}'.format(gid, key))
                         if key and not key.startswith(IGNORE_INITIAL):
                             # Grids use the first column as the key and make
                             # object out of the remaining columns.

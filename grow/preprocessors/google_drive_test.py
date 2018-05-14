@@ -12,6 +12,7 @@ from grow import storage
 from grow.testing import google_service
 from grow.testing import testing
 from . import google_drive
+from . import base
 
 
 class GoogleSheetsPreprocessorTest(unittest.TestCase):
@@ -250,6 +251,85 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                 'suzette': 'Sue',
             }
         }, gid_to_data)
+
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_sheets_download_grid(self, mock_service_sheets):
+        preprocessor = google_drive.GoogleSheetsPreprocessor
+        mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'sheet1',
+                    'sheetId': 765,
+                    'gridProperties': {
+                        'columnCount': 3,
+                        'rowCount': 1000
+                    },
+                },
+            }]
+        }, sheets_values={
+            'values': [
+                ['id', 'key1', 'key2'],
+                ['abc', 'a1', 'a2'],
+                ['def', 'b1', 'b2'],
+            ],
+        })
+
+        mock_service_sheets.return_value = mock_sheets_service['service']
+        gid_to_sheet, gid_to_data = preprocessor.download(
+            'A1B2C3D4E5F6', format_as='grid')
+
+        self.assertEqual({
+            765: {
+                'title': 'sheet1',
+                'sheetId': 765,
+                'gridProperties': {
+                    'columnCount': 3,
+                    'rowCount': 1000,
+                },
+            },
+        }, gid_to_sheet)
+
+        self.assertEqual({
+            765: {
+                'abc': {
+                    'key1': 'a1',
+                    'key2': 'a2',
+                },
+                'def': {
+                    'key1': 'b1',
+                    'key2': 'b2',
+                },
+            },
+        }, gid_to_data)
+
+    @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
+    def test_sheets_download_grid_duplicate(self, mock_service_sheets):
+        preprocessor = google_drive.GoogleSheetsPreprocessor
+        mock_sheets_service = self._setup_mocks(sheets_get={
+            'spreadsheetId': 'A1B2C3D4E5F6',
+            'sheets': [{
+                'properties': {
+                    'title': 'sheet1',
+                    'sheetId': 765,
+                    'gridProperties': {
+                        'columnCount': 3,
+                        'rowCount': 1000
+                    },
+                },
+            }]
+        }, sheets_values={
+            'values': [
+                ['id', 'key1', 'key2'],
+                ['abc', 'a1', 'a2'],
+                ['def', 'b1', 'b2'],
+                ['abc', 'c1', 'c2'],
+            ],
+        })
+
+        mock_service_sheets.return_value = mock_sheets_service['service']
+        with self.assertRaises(base.PreprocessorError):
+            preprocessor.download('A1B2C3D4E5F6', format_as='grid')
 
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
     def test_sheets_download_strings(self, mock_service_sheets):
