@@ -300,19 +300,35 @@ class RenderStaticDocumentController(RenderController):
         super(RenderStaticDocumentController, self).__init__(
             pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self._static_doc = None
+        self._pod_path = None
+
+    @property
+    def pod_path(self):
+        """Static doc for the controller."""
+        if self._pod_path:
+            return self._pod_path
+
+        locale = self.route_info.meta.get(
+            'locale', self.params.get('locale'))
+        if 'pod_path' in self.route_info.meta:
+            self._pod_path = self.route_info.meta['pod_path']
+        else:
+            for source_format in self.route_info.meta['source_formats']:
+                self._pod_path = '{}{}'.format(source_format, self.params['*'])
+                static_doc = self.pod.get_static(self._pod_path, locale=locale)
+                if static_doc.exists:
+                    break
+                else:
+                    self._pod_path = None
+        return self._pod_path
 
     @property
     def static_doc(self):
         """Static doc for the controller."""
         if not self._static_doc:
-            if 'pod_path' in self.route_info.meta:
-                pod_path = self.route_info.meta['pod_path']
-            else:
-                pod_path = '{}{}'.format(
-                    self.route_info.meta['source_format'], self.params['*'])
             locale = self.route_info.meta.get(
                 'locale', self.params.get('locale'))
-            self._static_doc = self.pod.get_static(pod_path, locale=locale)
+            self._static_doc = self.pod.get_static(self.pod_path, locale=locale)
         return self._static_doc
 
     @property
@@ -340,23 +356,15 @@ class RenderStaticDocumentController(RenderController):
         timer = self.pod.profile.timer(
             'RenderStaticDocumentController.render', label=self.serving_path,
             meta={'path': self.serving_path}).start_timer()
-        pod_path = None
-        if 'pod_path' in self.route_info.meta:
-            pod_path = self.route_info.meta['pod_path']
-        else:
-            pod_path = self.serving_path[
-                len(self.route_info.meta['path_format']):]
-            pod_path = os.path.join(
-                self.route_info.meta['source_format'], pod_path)
 
-        if not self.pod.file_exists(pod_path):
+        if not self.pod.file_exists(self.pod_path):
             text = '{} was not found in static files.'
             raise errors.RouteNotFoundError(text.format(self.serving_path))
 
         # Validate the path with the static config specific filter.
         self.validate_path(self.route_info.meta['path_filter'])
 
-        rendered_content = self.pod.read_file(pod_path)
+        rendered_content = self.pod.read_file(self.pod_path)
         rendered_content = self.pod.extensions_controller.trigger(
             'post_render', self.static_doc, rendered_content)
         rendered_doc = rendered_document.RenderedDocument(

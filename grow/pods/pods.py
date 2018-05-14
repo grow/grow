@@ -872,9 +872,16 @@ class Pod(object):
                 fingerprinted = config.get('fingerprinted', False)
                 if not fingerprinted:
                     continue
-                if pod_path.startswith(config['static_dir']):
-                    static_doc = self.get_static(pod_path, locale=None)
-                    self.router.add_static_doc(static_doc)
+                static_dirs = config.get('static_dirs')
+                if not static_dirs:
+                    static_dirs = [config.get('static_dir')]
+                static_doc = None
+                for static_dir in static_dirs:
+                    if pod_path.startswith(static_dir):
+                        static_doc = self.get_static(pod_path, locale=None)
+                        self.router.add_static_doc(static_doc)
+                        break
+                if static_doc:
                     break
 
     def open_file(self, pod_path, mode=None):

@@ -272,7 +272,11 @@ class Routes(object):
             for config in self.podspec['static_dirs']:
                 if config.get('dev') and not self.pod.env.dev:
                     continue
-                static_dir = config['static_dir'] + '<grow:filename>'
+                static_dir = config.get('static_dir')
+                # Skip the multi-static directories for old routing.
+                if not static_dir:
+                    continue
+                static_dir = static_dir + '<grow:filename>'
                 serve_at = config['serve_at'] + '<grow:filename>'
                 serve_at = self.format_path(serve_at)
                 localization = config.get('localization')

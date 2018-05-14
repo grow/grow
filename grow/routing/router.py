@@ -101,23 +101,36 @@ class Router(object):
                 else:
                     path_filter = self.pod.path_filter
 
+                static_dirs = config.get('static_dirs')
+                if not static_dirs:
+                    static_dirs = [config.get('static_dir')]
+
+                if localization:
+                    localized_static_dirs = localization.get('static_dirs')
+                    if not localized_static_dirs:
+                        localized_static_dirs = [localization.get('static_dir')]
+
                 if concrete or fingerprinted:
                     # Enumerate static files.
-                    for root, dirs, files in self.pod.walk(config.get('static_dir')):
-                        for directory in dirs:
-                            if directory.startswith('.'):
-                                dirs.remove(directory)
-                        pod_dir = root.replace(self.pod.root, '')
-                        for file_name in files:
-                            pod_path = os.path.join(pod_dir, file_name)
-                            static_doc = self.pod.get_static(pod_path, locale=None)
-                            self.add_static_doc(static_doc)
+                    for static_dir in static_dirs:
+                        for root, dirs, files in self.pod.walk(static_dir):
+                            for directory in dirs:
+                                if directory.startswith('.'):
+                                    dirs.remove(directory)
+                            pod_dir = root.replace(self.pod.root, '')
+                            for file_name in files:
+                                pod_path = os.path.join(pod_dir, file_name)
+                                static_doc = self.pod.get_static(pod_path, locale=None)
+                                self.add_static_doc(static_doc)
+                    if localization:
+                        # TODO handle the localized static files?
+                        pass
                 else:
                     serve_at = self.pod.path_format.format_pod(
                         config['serve_at'], parameterize=True)
                     self.routes.add(serve_at + '*', RouteInfo('static', {
                         'path_format': serve_at,
-                        'source_format': config.get('static_dir'),
+                        'source_formats': static_dirs,
                         'localized': False,
                         'localization': localization,
                         'fingerprinted': fingerprinted,
@@ -130,7 +143,7 @@ class Router(object):
                             localization.get('serve_at'), parameterize=True)
                         self.routes.add(localized_serve_at + '*', RouteInfo('static', {
                             'path_format': localized_serve_at,
-                            'source_format': localization.get('static_dir'),
+                            'source_formats': localized_static_dirs,
                             'localized': True,
                             'localization': localization,
                             'fingerprinted': fingerprinted,
@@ -242,11 +255,24 @@ class Router(object):
         for config in self.pod.static_configs:
             if config.get('dev') and not self.pod.env.dev:
                 continue
-            if pod_path.startswith(config.get('static_dir')):
-                return config
+            static_dirs = config.get('static_dirs')
+            if not static_dirs:
+                static_dirs = [config.get('static_dir')]
+            if isinstance(static_dirs, basestring):
+                static_dirs = [static_dirs]
+            for static_dir in static_dirs:
+                if pod_path.startswith(static_dir):
+                    return config
             intl = config.get('localization', {})
-            if intl and pod_path.startswith(intl.get('static_dir')):
-                return config
+            if intl:
+                static_dirs = intl.get('static_dirs')
+                if not static_dirs:
+                    static_dirs = [intl.get('static_dir')]
+                if isinstance(static_dirs, basestring):
+                    static_dirs = [static_dirs]
+                for static_dir in static_dirs:
+                    if pod_path.startswith(static_dir):
+                        return config
 
         text = '{} is not found in any static file configuration in the podspec.'
         raise MissingStaticConfigError(text.format(pod_path))
