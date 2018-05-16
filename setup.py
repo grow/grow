@@ -4,7 +4,13 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-INSTALL_REQ = [i.strip() for i in open('requirements.txt').readlines()]
+INSTALL_REQ = []
+
+for i in open('requirements.txt').readlines():
+    req = i.strip()
+    if req.startswith(('#', '-')):
+        continue
+    INSTALL_REQ.append(req)
 
 
 setup(
