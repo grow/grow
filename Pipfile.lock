@@ -135,7 +135,6 @@
                 "sha256:edabd457cd23a02965166026fd9bfd196f4324fe6032e866d0f3bd0301cd486f",
                 "sha256:fdf1c1dc5bafc32bc5d08b054f94d659422b05aba244d6be4ddc1c72d9aa70fb"
             ],
-            "markers": "platform_python_implementation != 'pypy'",
             "version": "==1.11.5"
         },
         "chardet": {
@@ -279,6 +278,7 @@
                 "sha256:64b28eec5e78e7510698f6d4da08800a5c575caa4a286c93d651c5d3ff7b6794",
                 "sha256:b146c751ea45cad6188dd6cf2d9b757f6f4f8d6ffb96a023e6f2e26eea02a72c"
             ],
+            "markers": "python_version < '3'",
             "version": "==1.0.22"
         },
         "jinja2": {
@@ -465,10 +465,10 @@
         },
         "pyopenssl": {
             "hashes": [
-                "sha256:07a2de1a54de07448732a81e38a55df7da109b2f47f599f8bb35b0cbec69d4bd",
-                "sha256:2c10cfba46a52c0b0950118981d61e72c1e5b1aac451ca1bc77de1a679456773"
+                "sha256:26ff56a6b5ecaf3a2a59f132681e2a80afcc76b4f902f612f518f92c2a1bf854",
+                "sha256:6488f1423b00f73b7ad5167885312bb0ce410d3312eb212393795b53c8caa580"
             ],
-            "version": "==17.5.0"
+            "version": "==18.0.0"
         },
         "python-utils": {
             "hashes": [
@@ -876,10 +876,10 @@
         },
         "pbr": {
             "hashes": [
-                "sha256:4e8a0ed6a8705a26768f4c3da26026013b157821fe5f95881599556ea9d91c19",
-                "sha256:dae4aaa78eafcad10ce2581fc34d694faa616727837fd8e55c1a00951ad6744f"
+                "sha256:680bf5ba9b28dd56e08eb7c267991a37c7a5f90a92c2e07108829931a50ff80a",
+                "sha256:6874feb22334a1e9a515193cba797664e940b763440c88115009ec323a7f2df5"
             ],
-            "version": "==4.0.2"
+            "version": "==4.0.3"
         },
         "pefile": {
             "hashes": [
