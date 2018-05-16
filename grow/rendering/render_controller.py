@@ -314,7 +314,9 @@ class RenderStaticDocumentController(RenderController):
             self._pod_path = self.route_info.meta['pod_path']
         else:
             for source_format in self.route_info.meta['source_formats']:
-                self._pod_path = '{}{}'.format(source_format, self.params['*'])
+                path_format = '{}{}'.format(source_format, self.params['*'])
+                self._pod_path = self.pod.path_format.format_static(
+                    path_format, locale=locale)
                 static_doc = self.pod.get_static(self._pod_path, locale=locale)
                 if static_doc.exists:
                     break
