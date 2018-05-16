@@ -96,7 +96,7 @@ class Pod(object):
                     else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
-        # TODO: Remove the use_reroute when it is default.
+        # TODO: Remove the use_reroute when it is the only routing.
         self.use_reroute = use_reroute
         if not use_reroute:
             self.routes = grow_routes.Routes(pod=self)
@@ -753,6 +753,11 @@ class Pod(object):
 
     def on_file_changed(self, pod_path):
         """Handle when a single file has changed in the pod."""
+        self.extensions_controller.trigger('dev_file_change', self, pod_path)
+
+
+
+
         # Remove any raw file in the cache.
         self.podcache.file_cache.remove(pod_path)
 
