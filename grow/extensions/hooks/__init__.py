@@ -1,16 +1,16 @@
 """Extension hooks."""
 
-from . import base_dev_file_change_hook
-from . import base_dev_handler_hook
-from . import base_post_render_hook
+from . import dev_file_change_hook
+from . import dev_handler_hook
+from . import post_render_hook
 
 # pylint: disable=invalid-name
-BaseDevFileChangeHook = base_dev_file_change_hook.BaseDevFileChangeHook
-BaseDevHandlerHook = base_dev_handler_hook.BaseDevHandlerHook
-BasePostRenderHook = base_post_render_hook.BasePostRenderHook
+DevFileChangeHook = dev_file_change_hook.DevFileChangeHook
+DevHandlerHook = dev_handler_hook.DevHandlerHook
+PostRenderHook = post_render_hook.PostRenderHook
 
 HOOKS = (
-    base_dev_file_change_hook.BaseDevFileChangeHook,
-    base_dev_handler_hook.BaseDevHandlerHook,
-    base_post_render_hook.BasePostRenderHook,
+    dev_file_change_hook.DevFileChangeHook,
+    dev_handler_hook.DevHandlerHook,
+    post_render_hook.PostRenderHook,
 )

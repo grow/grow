@@ -1,10 +1,10 @@
-"""Base class for the dev handler hook."""
+"""Dev handler hook."""
 
 from grow.extensions.hooks import base_hook
 
 
-class BaseDevHandlerHook(base_hook.BaseHook):
-    """Base hook for dev server handlers."""
+class DevHandlerHook(base_hook.BaseHook):
+    """Hook for dev server handlers."""
 
     KEY = 'dev_handler'
     NAME = 'Dev Server Handler'

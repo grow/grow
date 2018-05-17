@@ -1,10 +1,10 @@
-"""Base class for the dev file change hook."""
+"""Dev file change hook."""
 
 from grow.extensions.hooks import base_hook
 
 
-class BaseDevFileChangeHook(base_hook.BaseHook):
-    """Base hook for dev file change."""
+class DevFileChangeHook(base_hook.BaseHook):
+    """Hook for dev file change."""
 
     KEY = 'dev_file_change'
     NAME = 'Dev File Change'
