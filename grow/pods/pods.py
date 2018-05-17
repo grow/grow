@@ -746,7 +746,11 @@ class Pod(object):
     def normalize_locale(self, locale, default=None):
         locale = locale or default or self.podspec.default_locale
         if isinstance(locale, basestring):
-            locale = locales.Locale.parse(locale)
+            try:
+                locale = locales.Locale.parse(locale)
+            except ValueError as err:
+                # Locale could be an alias.
+                locale = locales.Locale.from_alias(self, locale)
         if locale is not None:
             locale.set_alias(self)
         return locale
