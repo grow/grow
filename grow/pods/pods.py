@@ -125,8 +125,7 @@ class Pod(object):
             self.list_preprocessors()
 
         # Load extensions, ignore local extensions during install.
-        if use_reroute:
-            self._load_extensions(load_extensions)
+        self._load_extensions(load_extensions)
 
         try:
             update_checker = updater.Updater(self)
