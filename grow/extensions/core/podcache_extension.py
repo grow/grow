@@ -5,7 +5,6 @@ from grow import extensions
 from grow.cache import podcache
 from grow.collections import collection
 from grow.extensions import hooks
-from grow.performance import docs_loader
 
 
 class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
@@ -27,19 +26,6 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
               and pod_path.startswith(collection.Collection.CONTENT_PATH)):
             doc = pod.get_doc(pod_path)
             pod.podcache.collection_cache.remove_collection(doc.collection)
-        elif pod_path.startswith(collection.Collection.CONTENT_PATH) and not ignore_doc:
-            base_docs = []
-            for dep_path in pod.podcache.dependency_graph.get_dependents(pod_path):
-                base_docs.append(pod.get_doc(dep_path))
-
-            for doc in base_docs:
-                pod.podcache.document_cache.remove(doc)
-                pod.podcache.collection_cache.remove_document_locales(doc)
-
-            # Force load the docs and fix locales.
-            docs_loader.DocsLoader.load(base_docs, ignore_errors=True)
-            docs_loader.DocsLoader.fix_default_locale(
-                pod, base_docs, ignore_errors=True)
         elif pod_path == '/{}'.format(podcache.FILE_OBJECT_CACHE):
             pod.podcache.update(obj_cache=pod._parse_object_cache_file())
             if pod.podcache.is_dirty:

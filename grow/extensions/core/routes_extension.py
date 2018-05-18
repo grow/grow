@@ -8,6 +8,7 @@ from grow import extensions
 from grow.collections import collection
 from grow.common import timer
 from grow.extensions import hooks
+from grow.performance import docs_loader
 from grow.pods import ui
 from grow.routing import router as grow_router
 
@@ -72,11 +73,25 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
         elif pod_path.startswith(collection.Collection.CONTENT_PATH) and not ignore_doc:
             trigger_doc = pod.get_doc(pod_path)
             col = trigger_doc.collection
+            base_docs = []
             original_docs = []
             trigger_docs = col.list_servable_document_locales(pod_path)
 
             for dep_path in pod.podcache.dependency_graph.get_dependents(pod_path):
+                base_docs.append(pod.get_doc(dep_path))
                 original_docs += col.list_servable_document_locales(dep_path)
+
+            # Normally this would be part of the podcache extension.
+            # Needs to be between retrieving the original docs and flushing
+            # the cache to be able to compare paths.
+            for doc in base_docs:
+                pod.podcache.document_cache.remove(doc)
+                pod.podcache.collection_cache.remove_document_locales(doc)
+
+            # Force load the docs and fix locales.
+            docs_loader.DocsLoader.load(base_docs, ignore_errors=True)
+            docs_loader.DocsLoader.fix_default_locale(
+                pod, base_docs, ignore_errors=True)
 
             # The routing map should remain unchanged most of the time.
             added_docs = []
@@ -91,6 +106,8 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                     original_doc.pod_path, original_doc._locale_kwarg)
 
                 # When the serving path has changed, updated in routes.
+                print updated_doc.get_serving_path()
+                print original_doc.get_serving_path()
                 if (updated_doc.has_serving_path()
                         and original_doc.get_serving_path() != updated_doc.get_serving_path()):
                     added_docs.append(updated_doc)
@@ -126,6 +143,8 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                                 trigger_doc.get_serving_path(), env=route_env)
                         except webob_exc.HTTPNotFound:
                             added_docs.append(trigger_doc)
+            print 'added docs: {}'.format(added_docs)
+            print 'removed docs: {}'.format(removed_docs)
             if added_docs or removed_docs:
                 if pod.use_reroute:
                     pod.router.reconcile_documents(
