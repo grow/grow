@@ -754,10 +754,6 @@ class Pod(object):
             locale.set_alias(self)
         return locale
 
-    def on_file_changed(self, pod_path):
-        """Handle when a single file has changed in the pod."""
-        self.extensions_controller.trigger('dev_file_change', self, pod_path)
-
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
         return self.storage.open(path, mode=mode)
