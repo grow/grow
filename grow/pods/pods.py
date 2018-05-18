@@ -146,7 +146,7 @@ class Pod(object):
     def _load_extensions(self, load_local_extensions=True):
         self._extensions_controller.register_builtins()
 
-        if load_local_extensions:
+        if load_local_extensions and self.exists:
             self._extensions_controller.register_extensions(
                 self.yaml.get('ext', []))
 
