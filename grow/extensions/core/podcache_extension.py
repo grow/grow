@@ -10,13 +10,17 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
     # pylint: disable=arguments-differ
     def trigger(self, previous_result, pod, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
+
+        # Remove any raw file in the cache.
+        pod.podcache.file_cache.remove(pod_path)
+
         if previous_result:
             return previous_result
         return None
 
 
 # pylint: disable=abstract-method
-class RoutesExtension(extensions.BaseExtension):
+class PodcacheExtension(extensions.BaseExtension):
     """Extension for handling core routes functionality."""
 
     @property

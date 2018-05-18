@@ -757,13 +757,8 @@ class Pod(object):
 
     def on_file_changed(self, pod_path):
         """Handle when a single file has changed in the pod."""
+
         self.extensions_controller.trigger('dev_file_change', self, pod_path)
-
-
-
-
-        # Remove any raw file in the cache.
-        self.podcache.file_cache.remove(pod_path)
 
         basename = os.path.basename(pod_path)
         ignore_doc = basename.startswith(collection.Collection.IGNORE_INITIAL)
