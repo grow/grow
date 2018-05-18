@@ -4,7 +4,7 @@ from grow import extensions
 from grow.extensions import hooks
 
 
-class PodcacheDevFileChangeHook(hooks.BaseDevFileChangeHook):
+class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
     """Handle the dev file change hook."""
 
     # pylint: disable=arguments-differ

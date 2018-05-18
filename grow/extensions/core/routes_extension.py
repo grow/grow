@@ -7,7 +7,7 @@ from grow.routing import router as grow_router
 from werkzeug import wrappers
 
 
-class RoutesDevHandlerHook(hooks.BaseDevHandlerHook):
+class RoutesDevHandlerHook(hooks.DevHandlerHook):
     """Handle the dev handler hook."""
 
     @staticmethod
