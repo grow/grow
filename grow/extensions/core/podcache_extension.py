@@ -39,7 +39,7 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
             # Force load the docs and fix locales.
             docs_loader.DocsLoader.load(base_docs, ignore_errors=True)
             docs_loader.DocsLoader.fix_default_locale(
-                self, base_docs, ignore_errors=True)
+                pod, base_docs, ignore_errors=True)
         elif pod_path == '/{}'.format(podcache.FILE_OBJECT_CACHE):
             pod.podcache.update(obj_cache=pod._parse_object_cache_file())
             if pod.podcache.is_dirty:
