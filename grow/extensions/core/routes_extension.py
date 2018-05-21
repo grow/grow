@@ -37,7 +37,7 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
         return response
 
     # pylint: disable=arguments-differ
-    def trigger(self, _result, _pod, routes, *_args, **_kwargs):
+    def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
         routes.add('/_grow/routes', grow_router.RouteInfo('console', {
             'handler': RoutesDevHandlerHook.serve_routes,
