@@ -72,6 +72,7 @@ class Pod(object):
     FEATURE_TRANSLATION_STATS = 'translation_stats'
     FILE_DEP_CACHE = '.depcache.json'
     FILE_PODSPEC = 'podspec.yaml'
+    FILE_EXTENSIONS = 'extensions.txt'
     PATH_CONTROL = '/.grow/'
 
     def __eq__(self, other):
