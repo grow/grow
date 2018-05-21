@@ -21,12 +21,12 @@ class BaseExtension(object):
         self.config = config
         self.hooks = features.Features(default_enabled=False)
 
-        for hook in self.available_hooks:
-            self.hooks.enable(hook.KEY)
-
         if 'enabled' in self.config:
             for hook in self.config['enabled']:
                 self.hooks.enable(hook)
+        else:
+            for hook in self.available_hooks:
+                self.hooks.enable(hook.KEY)
 
         if 'disabled' in self.config:
             for hook in self.config['disabled']:
