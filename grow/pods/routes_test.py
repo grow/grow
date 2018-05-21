@@ -83,7 +83,7 @@ class RoutesTest(unittest.TestCase):
         self.pod.storage.write(path, '$path: /foobar')
 
         self.pod.extensions_controller.trigger(
-            'dev_file_change', self.pod, '/content/pages/about.yaml')
+            'dev_file_change', '/content/pages/about.yaml')
 
         controller, params = self.pod.match('/foobar')
         controller.render(params)
