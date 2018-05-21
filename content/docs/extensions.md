@@ -147,7 +147,7 @@ def trigger(self, previous_result, routes, *_args, **_kwargs):
   return previous_result
 ```
 
- - `routes` - The routes object for adding the handler.
+ - `routes` – The routes object for adding the handler.
 
 See the [core routes extension][core_routes] for an example of the dev handler.
 
