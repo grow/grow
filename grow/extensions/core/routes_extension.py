@@ -58,10 +58,9 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
         else:
             pod.routes.reset_cache(rebuild=True)
 
-    # pylint: disable=arguments-differ
-    def trigger(self, previous_result, pod, pod_path, *_args, **_kwargs):
+    def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
-
+        pod = self.pod
         basename = os.path.basename(pod_path)
         ignore_doc = basename.startswith(collection.Collection.IGNORE_INITIAL)
 

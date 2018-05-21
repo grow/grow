@@ -8,11 +8,10 @@ class PodDevFileChangeHook(hooks.DevFileChangeHook):
     """Handle the dev file change hook."""
 
     # pylint: disable=arguments-differ
-    def trigger(self, previous_result, pod, pod_path, *_args, **_kwargs):
+    def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
-
-        if pod_path == '/{}'.format(pod.FILE_PODSPEC):
-            pod.reset_yaml()
+        if pod_path == '/{}'.format(self.pod.FILE_PODSPEC):
+            self.pod.reset_yaml()
 
         if previous_result:
             return previous_result
