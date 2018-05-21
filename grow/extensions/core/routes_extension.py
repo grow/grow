@@ -106,8 +106,6 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                     original_doc.pod_path, original_doc._locale_kwarg)
 
                 # When the serving path has changed, updated in routes.
-                print updated_doc.get_serving_path()
-                print original_doc.get_serving_path()
                 if (updated_doc.has_serving_path()
                         and original_doc.get_serving_path() != updated_doc.get_serving_path()):
                     added_docs.append(updated_doc)
@@ -143,8 +141,6 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                                 trigger_doc.get_serving_path(), env=route_env)
                         except webob_exc.HTTPNotFound:
                             added_docs.append(trigger_doc)
-            print 'added docs: {}'.format(added_docs)
-            print 'removed docs: {}'.format(removed_docs)
             if added_docs or removed_docs:
                 if pod.use_reroute:
                     pod.router.reconcile_documents(
