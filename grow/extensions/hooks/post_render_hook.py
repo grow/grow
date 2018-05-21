@@ -3,8 +3,8 @@
 from grow.extensions.hooks import base_hook
 
 
-class BasePostRenderHook(base_hook.BaseHook):
-    """Base hook for post render."""
+class PostRenderHook(base_hook.BaseHook):
+    """Hook for post render."""
 
     KEY = 'post_render'
     NAME = 'Post Render'

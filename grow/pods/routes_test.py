@@ -72,7 +72,7 @@ class RoutesTest(unittest.TestCase):
         controller, params = self.pod.match('/foobar/')
         controller.render(params)
 
-    def test_on_file_changed(self):
+    def test_file_changed(self):
         controller, params = self.pod.match('/about/')
         controller.render(params)
         with self.assertRaises(webob.exc.HTTPNotFound):
@@ -82,7 +82,8 @@ class RoutesTest(unittest.TestCase):
         path = self.pod._normalize_path('/content/pages/about.yaml')
         self.pod.storage.write(path, '$path: /foobar')
 
-        self.pod.on_file_changed('/content/pages/about.yaml')
+        self.pod.extensions_controller.trigger(
+            'dev_file_change', self.pod, '/content/pages/about.yaml')
 
         controller, params = self.pod.match('/foobar')
         controller.render(params)
