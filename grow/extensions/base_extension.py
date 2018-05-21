@@ -37,16 +37,16 @@ class BaseExtension(object):
         """Returns the available hook classes."""
         return []
 
-    def auto_hook(self, name):
+    def auto_hook(self, key):
         """Search for the hook in the available hooks and create."""
 
         # Allow for defining a *_hook method in the extension.
-        hook_method = '{}_hook'.format(name)
+        hook_method = '{}_hook'.format(key)
         if hasattr(self, hook_method):
             return getattr(self, hook_method)()
 
         for hook in self.available_hooks:
-            if hook.KEY == name:
+            if hook.KEY == key:
                 return hook(self)
         raise MissingHookError(
-            'Hook was not found in extension: {}'.format(name))
+            'Hook was not found in extension: {}'.format(key))
