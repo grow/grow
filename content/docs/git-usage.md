@@ -1,7 +1,7 @@
 ---
 $title: Git + Grow = ♡
 $category: Workflow
-$order: 5
+$order: 10.5
 ---
 [TOC]
 

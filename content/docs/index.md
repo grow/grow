@@ -5,7 +5,7 @@ $titles:
   side: Welcome
 $path: /docs/
 $category: Get Started
-$order: 0
+$order: 0.0
 ---
 [TOC]
 

@@ -1,7 +1,7 @@
 ---
 $title: Building
 $category: Workflow
-$order: 1
+$order: 10.2
 ---
 [TOC]
 

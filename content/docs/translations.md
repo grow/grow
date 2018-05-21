@@ -1,7 +1,7 @@
 ---
 $title: Translations
 $category: Reference
-$order: 7
+$order: 1.10
 ---
 [TOC]
 

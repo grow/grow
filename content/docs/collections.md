@@ -1,7 +1,7 @@
 ---
 $title: Collections
 $category: Reference
-$order: 3
+$order: 1.04
 ---
 [TOC]
 

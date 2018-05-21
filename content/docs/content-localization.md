@@ -1,7 +1,7 @@
 ---
 $title: Content localization
 $category: Reference
-$order: 5
+$order: 1.07
 ---
 [TOC]
 

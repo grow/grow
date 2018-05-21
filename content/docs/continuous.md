@@ -1,7 +1,7 @@
 ---
 $title: Continuous integration
 $category: Workflow
-$order: 3
+$order: 10.4
 ---
 [TOC]
 

@@ -1,7 +1,7 @@
 ---
 $title: Partials
 $category: Style Guide
-$order: 1
+$order: 8.1
 ---
 [TOC]
 

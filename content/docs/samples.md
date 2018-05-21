@@ -2,7 +2,7 @@
 $title: Themes & samples
 $slug: samples
 $category: Get Started
-$order: 3
+$order: 0.1
 ---
 [TOC]
 

@@ -1,7 +1,7 @@
 ---
 $title: Command Preferences
 $category: Reference
-$order: 11
+$order: 1.13
 ---
 [TOC]
 
