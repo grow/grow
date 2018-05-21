@@ -1,6 +1,7 @@
 .grow/
 .DS_Store
 .depcache.json
+extensions/
 dist
 build
 node_modules
