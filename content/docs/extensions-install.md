@@ -28,7 +28,7 @@ configure the extension and what settings to add to the `podspec.yaml` file.
 
 ## Finding extensions
 
-Extensions can be found by searching for `grow-ext-` in pip or
+Extensions can be found by searching for `grow-ext-` in [pypi][pypi] or
 [github][github].
 
 ## Custom Extensions
@@ -50,4 +50,5 @@ Extensions are standard Python modules, so your site's `extensions` folder must 
 ```
 
 [vcs]: https://pip.pypa.io/en/stable/reference/pip_install/#vcs-support
+[pypi]: https://pypi.org/search/?q=grow-ext-
 [github]: https://github.com/search?q=%22grow-ext-%22&type=Repositories&utf8=%E2%9C%93
