@@ -12,6 +12,10 @@ class PodDevFileChangeHook(hooks.DevFileChangeHook):
         """Trigger the file change hook."""
         if pod_path == '/{}'.format(self.pod.FILE_PODSPEC):
             self.pod.reset_yaml()
+        if pod_path == '/{}'.format(self.pod.FILE_EXTENSIONS):
+            self.pod.logger.info(
+                '{} has changed. Run `grow install` to install updates.'.format(
+                    self.pod.FILE_EXTENSIONS))
 
         if previous_result:
             return previous_result
