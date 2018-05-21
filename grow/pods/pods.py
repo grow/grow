@@ -10,6 +10,7 @@ import threading
 import time
 import shutil
 import tempfile
+import jinja2
 from grow import storage as grow_storage
 from grow.cache import podcache
 from grow.collections import collection
