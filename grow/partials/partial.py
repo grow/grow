@@ -5,11 +5,6 @@ import re
 import yaml
 
 
-class Error(Exception):
-    """Base error."""
-    pass
-
-
 class Partial(object):
     EDITOR_PATH = '_editor.yaml'
     IGNORE_INITIAL = ('_',)

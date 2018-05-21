@@ -45,7 +45,3 @@ class PodcacheExtension(extensions.BaseExtension):
     def available_hooks(self):
         """Returns the available hook classes."""
         return [PodcacheDevFileChangeHook]
-
-    def dev_file_change_hook(self):
-        """Hook handler for dev file change."""
-        return PodcacheDevFileChangeHook(self)

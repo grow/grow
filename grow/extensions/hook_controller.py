@@ -12,7 +12,7 @@ class HookController(object):
         """Add new extension hooks to the controller."""
         for extension in extensions:
             if extension.hooks.is_enabled(self.key):
-                hook = getattr(extension, '{}_hook'.format(self.key))()
+                hook = extension.auto_hook(self.key)
                 self._hooks.append(hook)
 
     def trigger(self, *args, **kwargs):

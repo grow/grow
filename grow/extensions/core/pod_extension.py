@@ -27,7 +27,3 @@ class PodExtension(extensions.BaseExtension):
     def available_hooks(self):
         """Returns the available hook classes."""
         return [PodDevFileChangeHook]
-
-    def dev_file_change_hook(self):
-        """Hook handler for dev file change."""
-        return PodDevFileChangeHook(self)
