@@ -18,8 +18,7 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
 
     def trigger_file_changed(self, pod_path):
         try:
-            self.pod.extensions_controller.trigger(
-                'dev_file_change', self.pod, pod_path)
+            self.pod.extensions_controller.trigger('dev_file_change', pod_path)
         except Exception:  # pylint: disable=broad-except
             # Avoid an inconsistent state where preprocessor doesn't run again
             # if it encounters an exception. https://github.com/grow/grow/issues/528

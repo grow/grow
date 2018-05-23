@@ -9,9 +9,9 @@ class PostRenderHook(base_hook.BaseHook):
     KEY = 'post_render'
     NAME = 'Post Render'
 
-    # pylint: disable=arguments-differ
-    def trigger(self, previous_result, _doc, raw_content, *_args, **_kwargs):
-        """Trigger the pre render hook."""
+    # pylint: disable=arguments-differ,unused-argument
+    def trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
+        """Trigger the post render hook."""
         if previous_result:
             return previous_result
         return raw_content

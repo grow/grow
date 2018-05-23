@@ -37,7 +37,7 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
         return response
 
     # pylint: disable=arguments-differ
-    def trigger(self, _result, _pod, routes, *_args, **_kwargs):
+    def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
         routes.add('/_grow/routes', grow_router.RouteInfo('console', {
             'handler': RoutesDevHandlerHook.serve_routes,
@@ -58,10 +58,9 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
         else:
             pod.routes.reset_cache(rebuild=True)
 
-    # pylint: disable=arguments-differ
-    def trigger(self, previous_result, pod, pod_path, *_args, **_kwargs):
+    def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
-
+        pod = self.pod
         basename = os.path.basename(pod_path)
         ignore_doc = basename.startswith(collection.Collection.IGNORE_INITIAL)
 
@@ -182,11 +181,3 @@ class RoutesExtension(extensions.BaseExtension):
     def available_hooks(self):
         """Returns the available hook classes."""
         return [RoutesDevHandlerHook, RoutesDevFileChangeHook]
-
-    def dev_file_change_hook(self):
-        """Hook handler for dev file change."""
-        return RoutesDevFileChangeHook(self)
-
-    def dev_handler_hook(self):
-        """Hook handler for dev handler."""
-        return RoutesDevHandlerHook(self)

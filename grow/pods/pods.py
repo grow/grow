@@ -10,9 +10,9 @@ import threading
 import time
 import shutil
 import tempfile
-import progressbar
 import yaml
 import jinja2
+import progressbar
 from werkzeug.contrib import cache as werkzeug_cache
 from grow import storage as grow_storage
 from grow.cache import podcache
@@ -21,13 +21,11 @@ from grow.common import extensions
 from grow.common import features
 from grow.common import logger
 from grow.common import progressbar_non
-from grow.common import timer
 from grow.common import utils
 from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
 from grow.partials import partials
-from grow.performance import docs_loader
 from grow.performance import profile
 from grow.preprocessors import preprocessors
 from grow.rendering import rendered_document
@@ -44,8 +42,6 @@ from grow.translations import catalog_holder
 from grow.translations import locales
 from grow.translations import translation_stats
 from grow.translators import translators
-# NOTE: exc imported directly, webob.exc doesn't work when frozen.
-from webob import exc as webob_exc
 from . import env as environment
 from . import messages
 from . import podspec
@@ -80,6 +76,7 @@ class Pod(object):
     FEATURE_TRANSLATION_STATS = 'translation_stats'
     FILE_DEP_CACHE = '.depcache.json'
     FILE_PODSPEC = 'podspec.yaml'
+    FILE_EXTENSIONS = 'extensions.txt'
     PATH_CONTROL = '/.grow/'
 
     def __eq__(self, other):

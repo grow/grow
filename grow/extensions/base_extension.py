@@ -3,6 +3,16 @@
 from grow.common import features
 
 
+class Error(Exception):
+    """Base error."""
+    pass
+
+
+class MissingHookError(Error):
+    """Missing hook error."""
+    pass
+
+
 class BaseExtension(object):
     """Base extension for custom extensions."""
 
@@ -11,12 +21,12 @@ class BaseExtension(object):
         self.config = config
         self.hooks = features.Features(default_enabled=False)
 
-        for hook in self.available_hooks:
-            self.hooks.enable(hook.KEY)
-
         if 'enabled' in self.config:
             for hook in self.config['enabled']:
                 self.hooks.enable(hook)
+        else:
+            for hook in self.available_hooks:
+                self.hooks.enable(hook.KEY)
 
         if 'disabled' in self.config:
             for hook in self.config['disabled']:
@@ -27,10 +37,16 @@ class BaseExtension(object):
         """Returns the available hook classes."""
         return []
 
-    def dev_handler_hook(self):
-        """Hook for post rendering."""
-        raise NotImplementedError()
+    def auto_hook(self, key):
+        """Search for the hook in the available hooks and create."""
 
-    def post_render_hook(self):
-        """Hook for post rendering."""
-        raise NotImplementedError()
+        # Allow for defining a *_hook method in the extension.
+        hook_method = '{}_hook'.format(key)
+        if hasattr(self, hook_method):
+            return getattr(self, hook_method)()
+
+        for hook in self.available_hooks:
+            if hook.KEY == key:
+                return hook(self)
+        raise MissingHookError(
+            'Hook was not found in extension: {}'.format(key))

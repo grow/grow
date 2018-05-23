@@ -9,7 +9,7 @@ class DevHandlerHook(base_hook.BaseHook):
     KEY = 'dev_handler'
     NAME = 'Dev Server Handler'
 
-    # pylint: disable=arguments-differ
-    def trigger(self, previous_result, *_args, **_kwargs):
+    # pylint: disable=arguments-differ,unused-argument
+    def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Trigger the dev handler hook."""
         return previous_result
