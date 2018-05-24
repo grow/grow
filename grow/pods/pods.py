@@ -718,8 +718,12 @@ class Pod(object):
         preprocessor_config = copy.deepcopy(self.yaml.get('preprocessors', []))
         for params in preprocessor_config:
             kind = params.pop('kind')
-            preprocessor = preprocessors.make_preprocessor(kind, params, self)
-            results.append(preprocessor)
+            try:
+                preprocessor = preprocessors.make_preprocessor(kind, params, self)
+                results.append(preprocessor)
+            except ValueError as err:
+                # New extensions will not show up here.
+                self.logger.info(err)
         return results
 
     def list_statics(self, pod_path, locale=None, include_hidden=False):
@@ -759,6 +763,15 @@ class Pod(object):
                    build=True, ratelimit=None):
         if not preprocessor_names:
             self.catalogs.compile()  # Preprocess translations.
+
+        # Extension support for preprocessors.
+        preprocessors = self.yaml.get('preprocessors', [])
+        for config in preprocessors:
+            self.extensions_controller.trigger(
+                'preprocess', config, preprocessor_names, tags, run_all, ratelimit)
+
+        # Legacy support for preprocessors.
+        # TODO Remove when not supporting the legacy preprocessors.
         for preprocessor in self.list_preprocessors():
             if preprocessor_names:
                 if preprocessor.name in preprocessor_names:
