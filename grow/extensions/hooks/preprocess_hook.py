@@ -1,5 +1,8 @@
 """Base class for the preprocess hook."""
 
+import json
+from protorpc import messages
+from protorpc import protojson
 from grow.extensions.hooks import base_hook
 
 
@@ -9,6 +12,16 @@ class PreprocessHook(base_hook.BaseHook):
     KEY = 'preprocess'
     NAME = 'Preprocess'
     KIND = None
+
+    class Config(messages.Message):
+        """Config for preprocessing."""
+        pass
+
+    @classmethod
+    def parse_config(cls, config):
+        """Parse the config into the protobuf."""
+        return protojson.decode_message(
+            cls.Config, json.dumps(config))
 
     # pylint: disable=arguments-differ
     def should_trigger(self, config, names, tags, run_all, *_args, **_kwargs):
