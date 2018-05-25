@@ -160,6 +160,11 @@ class RenderDocumentController(RenderController):
             serving_path = doc.get_serving_path()
             if serving_path.endswith('/'):
                 serving_path = '{}{}'.format(serving_path, self.suffix)
+
+            content = self.pod.extensions_controller.trigger('pre_render', doc, doc.body)
+            if content:
+                doc.format.update(content=content)
+
             rendered_content = template.render({
                 'doc': doc,
                 'env': self.pod.env,
