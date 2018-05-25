@@ -19,8 +19,10 @@ class HookController(object):
         """Trigger the hook."""
         result = None
         for hook in self._hooks:
-            timer = self.pod.profile.timer(
-                hook.__module__ + "." + hook.__class__.__name__)
-            with timer:
-                result = hook.trigger(result, *args, **kwargs)
+            # Hooks can determine when to be run.
+            if hook.should_trigger(*args, **kwargs):
+                timer = self.pod.profile.timer(
+                    hook.__module__ + "." + hook.__class__.__name__)
+                with timer:
+                    result = hook.trigger(result, *args, **kwargs)
         return result
