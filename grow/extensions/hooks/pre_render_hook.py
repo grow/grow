@@ -14,4 +14,5 @@ class PreRenderHook(base_hook.BaseHook):
         """Trigger the pre render hook."""
         if previous_result:
             return previous_result
-        return original_body
+        # Return None if nothing has changed.
+        return None
