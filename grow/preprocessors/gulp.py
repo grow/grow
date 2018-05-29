@@ -30,7 +30,8 @@ class GulpPreprocessor(base.BasePreprocessor):
         """Construct the command to run the given gulp task."""
         commands = [self.config.command, task]
         if self.pod.file_exists('/.nvmrc'):
-            commands = ['nvm run'] + commands
+            # Need to source NVM first to get the nvm command to work.
+            commands = ['. $NVM_DIR/nvm.sh && nvm exec'] + commands
         return ' '.join(commands)
 
     def run(self, build=True):
