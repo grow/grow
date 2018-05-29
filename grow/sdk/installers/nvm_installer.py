@@ -16,7 +16,7 @@ class NvmInstaller(base_installer.BaseInstaller):
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""
-        status_command = 'nvm --version > /dev/null 2>&1'
+        status_command = '. $NVM_DIR/nvm.sh && nvm --version > /dev/null 2>&1'
         not_found = subprocess.call(
             status_command, **self.subprocess_args(shell=True)) == 127
         if not_found:
@@ -27,18 +27,11 @@ class NvmInstaller(base_installer.BaseInstaller):
 
     def install(self):
         """Install dependencies."""
-        install_command = 'nvm install'
+        install_command = '. $NVM_DIR/nvm.sh && nvm install'
         process = subprocess.Popen(
             install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
-            use_command = 'nvm use'
-            process = subprocess.Popen(
-                use_command, **self.subprocess_args(shell=True))
-            code = process.wait()
-            if not code:
-                return
-            raise base_installer.InstallError(
-                'There was an error running `{}`.'.format(use_command))
+            return
         raise base_installer.InstallError(
             'There was an error running `{}`.'.format(install_command))
