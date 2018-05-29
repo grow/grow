@@ -46,8 +46,6 @@ class NvmInstallerTestCase(unittest.TestCase):
         calls = [
             mock.call(
                 'nvm install', **self.installer.subprocess_args(shell=True)),
-            mock.call(
-                'nvm use', **self.installer.subprocess_args(shell=True)),
         ]
         mock_popen.assert_has_calls(calls, any_order=True)
 
