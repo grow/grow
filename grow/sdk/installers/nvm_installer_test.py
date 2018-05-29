@@ -26,7 +26,7 @@ class NvmInstallerTestCase(unittest.TestCase):
         mock_call.return_value = 0
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'nvm --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            '. $NVM_DIR/nvm.sh && nvm --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_fail(self, mock_call):
@@ -45,7 +45,7 @@ class NvmInstallerTestCase(unittest.TestCase):
         print mock_popen.call_count
         calls = [
             mock.call(
-                'nvm install', **self.installer.subprocess_args(shell=True)),
+                '. $NVM_DIR/nvm.sh && nvm install', **self.installer.subprocess_args(shell=True)),
         ]
         mock_popen.assert_has_calls(calls, any_order=True)
 
