@@ -35,7 +35,7 @@ class NpmInstaller(base_installer.BaseInstaller):
 
     def _check_prerequisites_npm(self):
         """Check if required prerequisites are installed or available."""
-        status_command = 'npm --version > /dev/null 2>&1'
+        status_command = self._nvm_command('npm --version > /dev/null 2>&1')
         not_found = subprocess.call(
             status_command, **self.subprocess_args(shell=True)) == 127
         if not_found:
@@ -67,7 +67,7 @@ class NpmInstaller(base_installer.BaseInstaller):
 
     def _install_npm(self):
         """Install dependencies using npm."""
-        install_command = 'npm install'
+        install_command = self._nvm_command('npm install')
         process = subprocess.Popen(install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
@@ -84,6 +84,12 @@ class NpmInstaller(base_installer.BaseInstaller):
             return
         raise base_installer.InstallError(
             'There was an error running `yarn install`.')
+
+    def _nvm_command(self, command):
+        if self.pod.file_exists('/.nvmrc'):
+            # Need to source NVM first to get the nvm command to work.
+            return '. $NVM_DIR/nvm.sh && nvm exec {}'.format(command)
+        return command
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""
