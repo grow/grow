@@ -49,10 +49,10 @@ class Renderer(object):
 
             if render_errors:
                 for error in render_errors:
-                    pod.logger.error(error.message)
-                    pod.logger.error(error.err.message)
+                    print error.message
+                    print error.err.message
                     traceback.print_tb(error.err_tb)
-                    pod.logger.error('')
+                    print ''
                 text = 'There were {} errors during rendering.'
                 raise RenderErrors(text.format(
                     len(render_errors)), render_errors)
