@@ -61,11 +61,13 @@ class DocsLoader(object):
                     expanded_docs.append(pod.get_doc(doc.pod_path, None))
                     continue
                 for locale in doc.locales:
-                    expanded_docs.append(
-                        pod.get_doc(doc.pod_path, str(locale)))
+                    locale_doc = pod.get_doc(doc.pod_path, str(locale))
+                    if locale_doc.exists:
+                        expanded_docs.append(locale_doc)
                 if doc.default_locale not in locales:
-                    expanded_docs.append(
-                        pod.get_doc(doc.pod_path, doc.default_locale))
+                    locale_doc = pod.get_doc(doc.pod_path, doc.default_locale)
+                    if locale_doc.exists:
+                        expanded_docs.append(locale_doc)
             return expanded_docs
 
     @staticmethod
