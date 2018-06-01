@@ -183,7 +183,7 @@ class RoutesTestCase(unittest.TestCase):
             '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
             '/foo', '/tem/pon',
         ]
-        actual = [path for path, _ in self.routes.nodes]
+        actual = [path for path, _, _ in self.routes.nodes]
         self.assertEquals(expected, actual)
 
     def test_paths(self):
@@ -645,7 +645,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
             '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
             '/foo', '/tem/pon',
         ]
-        actual = [path for path, _ in self.routes.nodes]
+        actual = [path for path, _, _ in self.routes.nodes]
         self.assertEquals(expected, actual)
 
     def test_paths(self):

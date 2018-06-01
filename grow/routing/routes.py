@@ -42,11 +42,11 @@ class Routes(object):
         """Allow adding routes togethers to form a new routes."""
         routes = self.__class__()
         # Add all the nodes from the current Routes.
-        for item in self.nodes:
-            routes.add(*item)
+        for path, value, options in self.nodes:
+            routes.add(path, value, options=options)
         # Add all the nodes from the other Routes.
-        for item in other.nodes:
-            routes.add(*item)
+        for path, value, options in other.nodes:
+            routes.add(path, value, options=options)
         return routes
 
     def __init__(self):
@@ -64,7 +64,7 @@ class Routes(object):
     @property
     def paths(self):
         """Generator for returning all the paths in the routes."""
-        for path, _ in self._root.nodes:
+        for path, _, _ in self._root.nodes:
             yield path
 
     def add(self, path, value, options=None):
@@ -94,8 +94,8 @@ class Routes(object):
     def update(self, other):
         """Allow updating the current routes with other Routes."""
         # Add all the nodes from the other Routes.
-        for item in other.nodes:
-            self.add(*item)
+        for path, value, options in other.nodes:
+            self.add(path, value, options=options)
 
 
 class RoutesSimple(Routes):
@@ -123,7 +123,7 @@ class RoutesDict(object):
     def nodes(self):
         """Generator for returning all nodes in the trie."""
         for path in sorted(self._root):
-            yield path, self._root[path]
+            yield path, self._root[path], None
 
     # pylint: disable=unused-argument
     def add(self, path, value, options=None):
@@ -234,7 +234,7 @@ class RouteNode(object):
             Path, value at this node and all children.
         """
         if self.path is not None:
-            yield self.path, self.value
+            yield self.path, self.value, self.options
 
         # Yield nodes in the path order.
         for key in sorted(self._static_children):
@@ -283,7 +283,8 @@ class RouteNode(object):
                 if options and segment in options:
                     new_node.add_param_options(options[segment])
                 self._dynamic_children[PREFIX_PARAMETER] = new_node
-            self._dynamic_children[PREFIX_PARAMETER].add(segments, path, value)
+            self._dynamic_children[PREFIX_PARAMETER].add(
+                segments, path, value, options=options)
             return
 
         # Insert as a wildcard node.
@@ -294,14 +295,15 @@ class RouteNode(object):
                 raise PathConflictError(
                     path, value, self._dynamic_children[PREFIX_WILDCARD].value)
             new_node = RouteWildcardNode(param_name=segment or PREFIX_WILDCARD)
-            new_node.add([], path, value)
+            new_node.add([], path, value, options=options)
             self._dynamic_children[PREFIX_WILDCARD] = new_node
             return
 
         # Add a static node.
         if segment not in self._static_children:
             self._static_children[segment] = RouteNode()
-        self._static_children[segment].add(segments, path, value)
+        self._static_children[segment].add(
+            segments, path, value, options=options)
 
     def add_param_options(self, options):
         """Add options for parameter."""
@@ -323,6 +325,7 @@ class RouteNode(object):
         for key in self._dynamic_children:
             self._dynamic_children[key].filter(func)
 
+    # pylint: disable=too-many-return-statements
     def match(self, segments, last_segment=None):
         """Performs the trie matching to find a doc in the trie."""
 
@@ -417,6 +420,7 @@ class RouteWildcardNode(RouteNode):
         return removed
 
 
+# pylint: disable=too-few-public-methods
 class MatchResult(object):
     """Node information for a trie match."""
 
