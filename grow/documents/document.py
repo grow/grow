@@ -357,6 +357,21 @@ class Document(object):
             return self.collection.localization.get('path')
         return None
 
+    @property
+    @utils.memoize
+    def path_params(self):
+        """Path params for current document."""
+        params = {}
+
+        # TODO: Allow for defining custom path param options in the
+        # doc or collection.
+
+        # When there are locales in a path enumerate the possible locales.
+        if '{locale}' in self.path_format:
+            params['locale'] = [str(locale) for locale in self.locales]
+
+        return params
+
     @property  # Cached in document format.
     def raw_content(self):
         return self.format.raw_content

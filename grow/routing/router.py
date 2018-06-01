@@ -161,7 +161,7 @@ class Router(object):
         self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
             'pod_path': doc.pod_path,
             'locale': str(doc.locale),
-        }))
+        }), options=doc.path_params)
 
     def add_docs(self, docs, concrete=True):
         """Add docs to the router."""
@@ -178,7 +178,7 @@ class Router(object):
                     self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
                         'pod_path': doc.pod_path,
                         'locale': str(doc.locale),
-                    }))
+                    }), options=doc.path_params)
                 else:
                     # Use the raw paths to parameterize the routing.
                     base_path = doc.get_serving_path_base()
@@ -186,7 +186,7 @@ class Router(object):
                         self.routes.add(base_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
                             'locale': str(doc.locale),
-                        }))
+                        }), options=doc.path_params)
                     localized_path = doc.get_serving_path_localized()
                     if not localized_path or ':locale' not in localized_path:
                         localized_paths = doc.get_serving_paths_localized()
@@ -194,11 +194,11 @@ class Router(object):
                             self.routes.add(path, RouteInfo('doc', {
                                 'pod_path': doc.pod_path,
                                 'locale': str(locale),
-                            }))
+                            }), options=doc.path_params)
                     else:
                         self.routes.add(localized_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
-                        }))
+                        }), options=doc.path_params)
             if skipped_paths:
                 self.pod.logger.info(
                     'Ignored {} documents.'.format(len(skipped_paths)))
