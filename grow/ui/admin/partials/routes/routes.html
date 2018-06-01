@@ -1,7 +1,7 @@
 <div class="routes">
   <h2>Routes</h2>
   <dl class="routes__list">
-    {% for path, info in partial.routes.nodes %}
+    {% for path, info, options in partial.routes.nodes %}
       <dt><a href="{{path}}">{{path}}</a></dt>
       {% if info.kind == 'doc' %}
         <dd>Source: {{info.meta.pod_path}}{% if info.meta.locale %} ({{info.meta.locale}}){% endif %}</dd>
@@ -13,6 +13,9 @@
         <dd>Localization: {{info.meta.localization}}</dd>
       {% else %}
         <dd>{{info}}</dd>
+      {% endif %}
+      {% if options %}
+        <dd>Options: {{options}}</dd>
       {% endif %}
     {% endfor %}
   </dl>
