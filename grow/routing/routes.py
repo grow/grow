@@ -67,11 +67,11 @@ class Routes(object):
         for path, _ in self._root.nodes:
             yield path
 
-    def add(self, path, value):
+    def add(self, path, value, options=None):
         """Adds a document to the routes trie."""
         if not path:
             return
-        self._root.add(path, value)
+        self._root.add(path, value, options=options)
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
@@ -125,7 +125,8 @@ class RoutesDict(object):
         for path in sorted(self._root):
             yield path, self._root[path]
 
-    def add(self, path, value):
+    # pylint: disable=unused-argument
+    def add(self, path, value, options=None):
         """Add a new doc to the route trie."""
         if path in self._root and self._root[path] != value:
             raise PathConflictError(path, value, self._root[path])
@@ -189,10 +190,10 @@ class RouteTrie(object):
         for item in self._root.nodes:
             yield item
 
-    def add(self, path, value):
+    def add(self, path, value, options=None):
         """Add a new doc to the route trie."""
         segments = self.segments(path)
-        self._root.add(segments, path, value)
+        self._root.add(segments, path, value, options=options)
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
@@ -216,7 +217,9 @@ class RouteNode(object):
         super(RouteNode, self).__init__()
         self.path = None
         self.value = None
+        self.options = None
         self.param_name = param_name
+        self.param_options = None
         self._dynamic_children = {}
         self._static_children = {}
 
@@ -248,7 +251,7 @@ class RouteNode(object):
             matched.params[self.param_name] = last_segment
         return matched
 
-    def add(self, segments, path, value):
+    def add(self, segments, path, value, options=None):
         """Recursively add into the trie based upon the given segments."""
 
         if not segments:
@@ -256,6 +259,7 @@ class RouteNode(object):
                 raise PathConflictError(path, value, self.value)
             self.path = path
             self.value = value
+            self.options = options
             return
 
         segment = segments.popleft()
@@ -269,8 +273,15 @@ class RouteNode(object):
                 if self._dynamic_children[PREFIX_PARAMETER].param_name != segment:
                     raise PathParamNameConflictError(
                         path, segment, self._dynamic_children[PREFIX_PARAMETER].param_name)
+
+                # If there are options that match the parameter, add them in.
+                if options and segment in options:
+                    self._dynamic_children[PREFIX_PARAMETER].add_param_options(
+                        options[segment])
             if PREFIX_PARAMETER not in self._dynamic_children:
                 new_node = RouteNode(param_name=segment)
+                if options and segment in options:
+                    new_node.add_param_options(options[segment])
                 self._dynamic_children[PREFIX_PARAMETER] = new_node
             self._dynamic_children[PREFIX_PARAMETER].add(segments, path, value)
             return
@@ -292,6 +303,13 @@ class RouteNode(object):
             self._static_children[segment] = RouteNode()
         self._static_children[segment].add(segments, path, value)
 
+    def add_param_options(self, options):
+        """Add options for parameter."""
+        if not self.param_options:
+            self.param_options = set()
+        self.param_options |= set(options)
+        print 'Params: {}'.format(self.param_options)
+
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
         if self.path is not None:
@@ -307,6 +325,11 @@ class RouteNode(object):
 
     def match(self, segments, last_segment=None):
         """Performs the trie matching to find a doc in the trie."""
+
+        # If this is a parameterized node and it needs to match the options.
+        if last_segment and self.param_options:
+            if last_segment not in self.param_options:
+                return None
 
         if not segments:
             # Check for removed nodes.
