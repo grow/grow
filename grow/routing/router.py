@@ -198,7 +198,7 @@ class Router(object):
                     else:
                         self.routes.add(localized_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
-                        }), options=doc.path_params)
+                        }), options=doc.path_params_localized)
             if skipped_paths:
                 self.pod.logger.info(
                     'Ignored {} documents.'.format(len(skipped_paths)))
@@ -288,7 +288,7 @@ class Router(object):
         previous_routes = self._routes
         self._routes = grow_routes.RoutesSimple()
         if previous_routes is not None:
-            for path, value in previous_routes.nodes:
+            for path, value, _ in previous_routes.nodes:
                 self._routes.add(path, value)
 
 

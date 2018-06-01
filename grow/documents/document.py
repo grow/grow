@@ -366,8 +366,19 @@ class Document(object):
         # TODO: Allow for defining custom path param options in the
         # doc or collection.
 
+        return params
+
+    @property
+    @utils.memoize
+    def path_params_localized(self):
+        """Path params for current document."""
+        params = {}
+
+        # TODO: Allow for defining custom path param options in the
+        # doc or collection.
+
         # When there are locales in a path enumerate the possible locales.
-        if '{locale}' in self.path_format:
+        if '{locale}' in self.path_format_localized:
             params['locale'] = [str(locale) for locale in self.locales]
 
         return params

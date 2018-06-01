@@ -310,7 +310,6 @@ class RouteNode(object):
         if not self.param_options:
             self.param_options = set()
         self.param_options |= set(options)
-        print 'Params: {}'.format(self.param_options)
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
