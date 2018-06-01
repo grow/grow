@@ -61,5 +61,5 @@ class Renderer(object):
     @staticmethod
     def controller_generator(pod, routes):
         """Generate the controllers for the given routes."""
-        for path, route_info in routes.nodes:
+        for path, route_info, _ in routes.nodes:
             yield pod.router.get_render_controller(path, route_info)
