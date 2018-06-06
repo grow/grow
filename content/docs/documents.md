@@ -13,7 +13,7 @@ Documents optionally have a `path` property which allows the document to be expo
 
 ### File types
 
-Aside from the *_blueprint.yaml* file, files in a content collection's directory are treated as a content documents. Grow accepts content documents in the following formats, indicated by their file extensions:
+Aside from the *_blueprint.yaml* file, files in a content collection's directory are treated as content documents. Grow accepts content documents in the following formats, indicated by their file extensions:
 
   - HTML (`.html`, `.htm`)
   - Markdown (`.markdown`, `.md`, `.mdown`, `.mkdn`, `.mkd`)
