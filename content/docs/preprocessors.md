@@ -5,13 +5,19 @@ $order: 1.11
 ---
 [TOC]
 
-Preprocessors do things like optimization and code generation against your pod's source files. Grow runs preprocessors every time affected source files change, allowing you to "save and refresh" to preview your changes. Preprocessors are also run at build time.
+Preprocessors do things like optimization and code generation against your pod's
+source files. Grow runs preprocessors every time affected source files change,
+allowing you to "save and refresh" to preview your changes. Preprocessors are
+also run at build time.
 
-Grow includes the below preprocessors as built-ins with the SDK, and you'll always be free to bring your own external processing tools (such as Grunt or Gulp).
+Grow includes the below preprocessors as built-ins with the SDK, and you'll
+always be free to bring your own external processing tools (such as Gulp).
 
 ## Global settings
 
-By default, preprocessors run when the development server is started and when your site is built. You can control preprocessor execution by using the `autorun` parameter and optionally by using the `name` parameter.
+By default, preprocessors run when the development server is started and when
+your site is built. You can control preprocessor execution by using the
+`autorun` parameter and optionally by using the `name` parameter.
 
 ```yaml
 preprocessors:
