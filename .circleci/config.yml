@@ -29,6 +29,36 @@ jobs:
           name: Pylint
           command: pylint --errors-only .
 
+  test:
+    working_directory: ~/grow
+    docker:
+      - image: grow/grow-internal-image:two
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          <<: *pip_install
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
+
+      - run:
+          name: Run Tests
+          command: make test
+
+      - run:
+          name: Code Coverage
+          command: $(pipenv --venv)/bin/codecov
+
+      - run:
+          name: Test build
+          command: ./scripts/grow build ./grow/testing/testdata/pod
+
 filter_all_tags: &filter_all_tags
   filters:
     tags:
