@@ -55,18 +55,6 @@ jobs:
           name: Code Coverage
           command: $(pipenv --venv)/bin/codecov
 
-filter_all_tags: &filter_all_tags
-  filters:
-    tags:
-      only: /.*/
-
-filter_only_tags: &filter_only_tags
-  filters:
-    tags:
-      only: /.*/
-    branches:
-      ignore: /.*/
-
 workflows:
   version: 2
   build:

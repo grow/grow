@@ -1,3 +1,5 @@
+"""Grow. Static site generation."""
+
 import os
 import sys
 
