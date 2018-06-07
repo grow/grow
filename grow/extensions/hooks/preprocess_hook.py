@@ -23,8 +23,8 @@ class PreprocessHook(base_hook.BaseHook):
         return protojson.decode_message(
             cls.Config, json.dumps(config))
 
-    # pylint: disable=arguments-differ
-    def should_trigger(self, config, names, tags, run_all, *_args, **_kwargs):
+    # pylint: disable=arguments-differ, unused-argument
+    def should_trigger(self, previous_result, config, names, tags, run_all, *_args, **_kwargs):
         """Determine if the preprocess should trigger."""
         name = config.get('name')
         kind = config.get('kind')

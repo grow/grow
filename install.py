@@ -27,8 +27,8 @@ if 'Linux' in platform.system():
 elif 'Darwin' in platform.system():
     PLATFORM = 'mac'
 else:
-    print ('{} is not a supported platform. Please file an issue at '
-           'https://github.com/grow/grow/issues'.format(sys.platform))
+    print('{} is not a supported platform. Please file an issue at '
+          'https://github.com/grow/grow/issues'.format(sys.platform))
     sys.exit(-1)
 
 

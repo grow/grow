@@ -1,5 +1,6 @@
 """Base class for writing hooks."""
 
+
 class BaseHook(object):
     """Base class for all hooks."""
 
@@ -14,8 +15,8 @@ class BaseHook(object):
         """Reference to the pod."""
         return self.extension.pod
 
-    # pylint:disable=no-self-use
-    def should_trigger(self, *_args, **_kwargs):
+    # pylint:disable=no-self-use, unused-argument
+    def should_trigger(self, previous_result, *_args, **_kwargs):
         """Determine if the hook should trigger."""
         return True
 

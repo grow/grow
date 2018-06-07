@@ -1,5 +1,6 @@
 """Hook controller for working with hooks from the extensions."""
 
+
 class HookController(object):
     """Controller for working with pod extension hooks."""
 
@@ -20,7 +21,7 @@ class HookController(object):
         result = None
         for hook in self._hooks:
             # Hooks can determine when to be run.
-            if hook.should_trigger(*args, **kwargs):
+            if hook.should_trigger(result, *args, **kwargs):
                 timer = self.pod.profile.timer(
                     hook.__module__ + "." + hook.__class__.__name__)
                 with timer:
