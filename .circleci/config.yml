@@ -27,7 +27,7 @@ jobs:
 
       - run:
           name: Pylint
-          command: pylint --errors-only .
+          command: make test-pylint
 
   test:
     working_directory: ~/grow
