@@ -22,8 +22,9 @@ class Timer(object):
 
     def __repr__(self):
         if self.label != self.key:
-            return '<Timer:{} {} : {}>'.format(self.key, self.label, self.duration)
-        return '<Timer:{} : {}>'.format(self.key, self.duration)
+            return '<Timer key={} label={} duration={}>'.format(
+                self.key, self.label, self.duration)
+        return '<Timer key={} duration={}>'.format(self.key, self.duration)
 
     @property
     def duration(self):

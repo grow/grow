@@ -59,10 +59,10 @@ class TimerTestCase(unittest.TestCase):
         with timer:
             pass
 
-        self.assertEqual('<Timer:test : 10>', repr(timer))
+        self.assertEqual('<Timer key=test duration=10>', repr(timer))
 
         timer.label = 'foobar'
-        self.assertEqual('<Timer:test foobar : 10>', repr(timer))
+        self.assertEqual('<Timer key=test label=foobar duration=10>', repr(timer))
 
 
 if __name__ == '__main__':

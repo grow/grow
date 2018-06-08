@@ -24,15 +24,15 @@ class ProfileReport(object):
             exported[key] = item.export()
         return exported
 
-    def pretty_print(self):
+    def pretty_print(self, print_func=print):
         """Prints out the report in a nice format."""
         for _, item in self.items.items():
-            print('{} ({}): Avg {} Min {} Max {} '.format(
+            print_func('{} ({}): Avg {} Min {} Max {}'.format(
                 item.key, len(item), item.average_duration, item.min_duration,
                 item.max_duration))
             if len(item) > 1:
                 for timer in item.top():
-                    print(timer)
+                    print_func(str(timer))
 
 
 class ReportItem(object):
