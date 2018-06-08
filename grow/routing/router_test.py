@@ -25,8 +25,25 @@ class RouterTestCase(unittest.TestCase):
 
     def test_filter(self):
         """Filtering reduces routes."""
-        # TODO: Add router tests.
+        # TODO: Add filter tests.
         pass
+
+    def test_reconcile_docs(self):
+        """Reconciles the documents."""
+        doc = mocks.mock_doc(serving_path='/foo')
+        self.router.add_doc(doc)
+        self.assertEqual(1, len(self.router.routes))
+
+        old_docs = [doc]
+        new_docs = [
+            mocks.mock_doc(serving_path='/bar'),
+            mocks.mock_doc(serving_path='/foobar'),
+        ]
+
+        self.router.reconcile_documents(
+            remove_docs=old_docs, add_docs=new_docs)
+
+        self.assertEqual(2, len(self.router.routes))
 
     def test_simple_routes(self):
         """Can simplify into a simple routes object."""
