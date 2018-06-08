@@ -2,6 +2,7 @@
 
 from grow.common import logger as grow_logger
 from grow.performance import profile
+from grow.routing import path_filter as grow_path_filter
 from grow.routing import routes as grow_routes
 
 
@@ -18,8 +19,8 @@ class MissingStaticConfigError(Exception):
 class Router(object):
     """Pod Router."""
 
-    def __init__(self, path_filter, logger=None, profiler=None):
-        self.path_filter = path_filter
+    def __init__(self, path_filter=None, logger=None, profiler=None):
+        self.path_filter = path_filter or grow_path_filter.PathFilter()
         self.logger = logger or grow_logger.LOGGER
         self.profiler = profiler or profile.Profile()
         self._routes = grow_routes.Routes()
