@@ -116,7 +116,7 @@ class TimerReportTestCase(unittest.TestCase):
         report = profile_report.ProfileReport(self.profile)
         mock_print = mock.Mock()
         report.pretty_print(print_func=mock_print)
-        mock_print.assert_called_with('a (1): Avg 2.0 Min 2 Max 2')
+        mock_print.assert_called_with('a (1): Avg 2.0 Min 2 Max 2 Total 2')
 
     def test_pretty_print_multiple(self):
         """Test that pretty print is working correctly."""
@@ -126,7 +126,7 @@ class TimerReportTestCase(unittest.TestCase):
         mock_print = mock.Mock()
         report.pretty_print(print_func=mock_print)
         calls = [
-            mock.call('a (2): Avg 3.5 Min 2 Max 5'),
+            mock.call('a (2): Avg 3.5 Min 2 Max 5 Total 6'),
             mock.call('<Timer key=a duration=5>'),
             mock.call('<Timer key=a duration=2>'),
         ]

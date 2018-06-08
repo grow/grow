@@ -27,9 +27,9 @@ class ProfileReport(object):
     def pretty_print(self, print_func=print):
         """Prints out the report in a nice format."""
         for _, item in self.items.items():
-            print_func('{} ({}): Avg {} Min {} Max {}'.format(
+            print_func('{} ({}): Avg {} Min {} Max {} Total {}'.format(
                 item.key, len(item), item.average_duration, item.min_duration,
-                item.max_duration))
+                item.max_duration, item.duration))
             if len(item) > 1:
                 for timer in item.top():
                     print_func(str(timer))
