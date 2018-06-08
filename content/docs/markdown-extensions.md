@@ -22,7 +22,7 @@ Generates tables. [View documentation](http://pythonhosted.org/Markdown/extensio
 
 ## Table of Contents
 
-Generates a table of contents based on the headings in a document. [View documentation](http://pythonhosted.org/Markdown/extensions/toc.html).
+Generates a table of contents based on the headings in a document. [View documentation](https://python-markdown.github.io/extensions/toc/).
 
 ```md
 [​TOC]
