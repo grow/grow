@@ -12,6 +12,17 @@ class RouterTestCase(unittest.TestCase):
     def setUp(self):
         self.router = grow_router.Router()
 
+    def test_add_doc(self):
+        """Filtering reduces routes."""
+        doc = mocks.mock_doc(serving_path='/foo')
+        self.router.add_doc(doc)
+        self.assertEqual(1, len(self.router.routes))
+
+        # Docs without serving_path ignored.
+        doc = mocks.mock_doc()
+        self.router.add_doc(doc)
+        self.assertEqual(1, len(self.router.routes))
+
     def test_filter(self):
         """Filtering reduces routes."""
         # TODO: Add router tests.
@@ -28,6 +39,28 @@ class RouterTestCase(unittest.TestCase):
         # Make sure that the class changes and the routes carry over.
         self.assertEqual(1, len(self.router.routes))
         self.assertTrue(isinstance(self.router.routes, grow_routes.RoutesSimple))
+
+
+class RouteInfoTestCase(unittest.TestCase):
+    """Test the route info."""
+
+    def test_eq(self):
+        """Route info are equal."""
+        info = grow_router.RouteInfo('doc', meta={'testing': True})
+        info2 = grow_router.RouteInfo('doc', meta={'testing': True})
+        self.assertTrue(info == info2)
+
+    def test_neq(self):
+        """Route info are not equal."""
+        info = grow_router.RouteInfo('doc', meta={'testing': True})
+        info2 = grow_router.RouteInfo('doc', meta={'testing': False})
+        self.assertTrue(info != info2)
+
+    def test_repr(self):
+        """Route info repr."""
+        info = grow_router.RouteInfo('doc', meta={'testing': True})
+        self.assertEqual(
+            '<RouteInfo kind=doc meta={\'testing\': True}>', repr(info))
 
 
 if __name__ == '__main__':
