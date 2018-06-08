@@ -6,6 +6,20 @@ from . import urls
 
 class UrlTest(unittest.TestCase):
 
+    def test_eq(self):
+        """URLs equal?"""
+        url = urls.Url('/', host='grow.io')
+        url2 = urls.Url('/', host='grow.io')
+        self.assertTrue(url == url2)
+
+        url = urls.Url('/', host='grow.io')
+        url2 = urls.Url('/path', host='grow.io')
+        self.assertFalse(url == url2)
+
+        url = urls.Url('/', host='grow.io')
+        url2 = urls.Url('/', host='grow.io', port=8080)
+        self.assertFalse(url == url2)
+
     def test_relative_path(self):
         """Relative paths."""
         relative_path = urls.Url.create_relative_path(
@@ -50,6 +64,11 @@ class UrlTest(unittest.TestCase):
         relative_path = urls.Url.create_relative_path(
             url, relative_to='/foo/')
         self.assertEqual('../test.html', relative_path)
+
+    def test_repr(self):
+        """URL repr."""
+        url = urls.Url('/', host='grow.io')
+        self.assertEqual('<Url: http://grow.io/>', repr(url))
 
     def test_scheme_and_port(self):
         """Scheme and port combinations."""
