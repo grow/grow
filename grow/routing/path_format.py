@@ -68,9 +68,11 @@ class PathFormat(object):
             params['date'] = doc.date
 
         if '|lower' in path:
+            new_params = {}
             for key, value in params.items():
                 if isinstance(value, str):
-                    params['{}|lower'.format(key)] = value.lower()
+                    new_params['{}|lower'.format(key)] = value.lower()
+            params.update(new_params)
 
         path = formatting.safe_format(path, **params)
 

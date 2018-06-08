@@ -32,8 +32,9 @@ def _mock_pod(podspec=None, env=None):
     return pod
 
 
-def _mock_doc(pod, locale=None, collection_base_path=None, collection=None, view=None):
+def _mock_doc(pod, base=None, locale=None, collection_base_path=None, collection=None, view=None):
     doc = mock.Mock()
+    type(doc).base = mock.PropertyMock(return_value=base)
     type(doc).pod = mock.PropertyMock(return_value=pod)
     type(doc).locale = mock.PropertyMock(return_value=locale)
     if not collection:
@@ -64,6 +65,30 @@ class PathFormatTestCase(unittest.TestCase):
         doc = _mock_doc(pod)
         self.assertEquals(
             '/root_path/test/', path_format.format_doc(doc, '/{root}/test'))
+
+    def test_format_doc_base(self):
+        """Test doc base."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        path_format = grow_path_format.PathFormat(pod)
+        collection = _mock_collection(basename='/pages/')
+        doc = _mock_doc(pod, base='jump', collection=collection, collection_base_path='/sub/')
+        self.assertEquals(
+            '/root_path/jump/test/',
+            path_format.format_doc(doc, '/{root}/{base}/test'))
+
+    def test_format_doc_base_lower(self):
+        """Test doc base with lower filter."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        path_format = grow_path_format.PathFormat(pod)
+        collection = _mock_collection(basename='/pages/')
+        doc = _mock_doc(pod, base='JUMP', collection=collection, collection_base_path='/sub/')
+        self.assertEquals(
+            '/root_path/jump/test/',
+            path_format.format_doc(doc, '/{root}/{base|lower}/test'))
 
     def test_format_doc_collection(self):
         """Test doc paths."""
