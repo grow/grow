@@ -4,6 +4,19 @@ import unittest
 from grow.routing import routes as grow_routes
 
 
+class RouteNodeTestCase(unittest.TestCase):
+    """Test the route nodes."""
+
+    def test_repr(self):
+        """Tests route node repr."""
+        node = grow_routes.RouteNode()
+        node.path = '/test'
+        self.assertEqual('<RouteNode(/test, None)>', repr(node))
+
+        node = grow_routes.RouteNode(param_name='Test')
+        self.assertEqual('<RouteNode(None, Test)>', repr(node))
+
+
 class RoutesTestCase(unittest.TestCase):
     """Test the routes."""
 
@@ -274,6 +287,8 @@ class RoutesTestCase(unittest.TestCase):
 
         # A non-existant path returns None.
         result = self.routes.remove('/foo')
+        self.assertEquals(None, result)
+        result = self.routes.remove('/foobar')
         self.assertEquals(None, result)
 
     def test_remove_param(self):
@@ -752,6 +767,8 @@ class RoutesSimpleTestCase(unittest.TestCase):
 
         # A non-existant path returns None.
         result = self.routes.remove('/foo')
+        self.assertEquals(None, result)
+        result = self.routes.remove('/foobar')
         self.assertEquals(None, result)
 
     def test_reset(self):
