@@ -370,10 +370,13 @@ class RouteNode(object):
         """Finds and removes a path in the trie."""
 
         if not segments:
+            if not self.path:
+                return None
             removed = MatchResult(self.path, self.value)
             self.path = None
             self.value = None
             return removed
+
         segment = segments.popleft()
 
         # Static nodes.

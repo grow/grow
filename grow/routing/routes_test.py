@@ -29,6 +29,12 @@ class RoutesTestCase(unittest.TestCase):
         result = self.routes.match('/foo/bar')
         self.assertEquals(doc_foo_bar['value'], result.value)
 
+    def test_routes_add_empty(self):
+        """Tests that empty routes can not be added."""
+        self.assertEquals(0, len(self.routes))
+        doc = self._add('', '/content/pages/home')
+        self.assertEquals(0, len(self.routes))
+
     def test_routes_add_params_values(self):
         """Tests that routes can be added with values for params."""
         options = {
@@ -264,6 +270,10 @@ class RoutesTestCase(unittest.TestCase):
         result = self.routes.remove('/foo')
         self.assertEquals(doc['value'], result.value)
         result = self.routes.match('/foo')
+        self.assertEquals(None, result)
+
+        # A non-existant path returns None.
+        result = self.routes.remove('/foo')
         self.assertEquals(None, result)
 
     def test_remove_param(self):
@@ -565,6 +575,12 @@ class RoutesSimpleTestCase(unittest.TestCase):
         result = self.routes.match('/foo/bar')
         self.assertEquals(doc_foo_bar['value'], result.value)
 
+    def test_routes_add_empty(self):
+        """Tests that empty routes can not be added."""
+        self.assertEquals(0, len(self.routes))
+        doc = self._add('', '/content/pages/home')
+        self.assertEquals(0, len(self.routes))
+
     def test_routes_add_conflict(self):
         """Tests that routes can be added but not conflicting."""
 
@@ -732,6 +748,10 @@ class RoutesSimpleTestCase(unittest.TestCase):
         result = self.routes.remove('/foo')
         self.assertEquals(doc['value'], result.value)
         result = self.routes.match('/foo')
+        self.assertEquals(None, result)
+
+        # A non-existant path returns None.
+        result = self.routes.remove('/foo')
         self.assertEquals(None, result)
 
     def test_reset(self):
