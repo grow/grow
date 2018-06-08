@@ -36,9 +36,6 @@ class Url(object):
     def __repr__(self):
         return '<Url: {}>'.format(str(self))
 
-    def __cmp__(self, other):
-        return cmp(self.path, other.path)
-
     @staticmethod
     def create_relative_path(path, relative_to):
         """Create a relative path to another url."""

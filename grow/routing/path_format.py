@@ -69,7 +69,7 @@ class PathFormat(object):
 
         if '|lower' in path:
             for key, value in params.items():
-                if isinstance(value, basestring):
+                if isinstance(value, str):
                     params['{}|lower'.format(key)] = value.lower()
 
         path = formatting.safe_format(path, **params)
