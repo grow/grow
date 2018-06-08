@@ -19,6 +19,17 @@ def _mock_env(fingerprint=None):
     return env
 
 
+def _mock_locale(identifier, alias=None):
+    # pylint: disable=unused-argument
+    def __str__(self):
+        return identifier
+    locale = mock.Mock()
+    locale.__str__ = __str__
+    type(locale).alias = mock.PropertyMock(return_value=alias)
+    type(locale).alias = mock.PropertyMock(return_value=alias)
+    return locale
+
+
 def _mock_pod(podspec=None, env=None):
     pod = mock.Mock()
     mock_podspec = mock.Mock()
@@ -111,6 +122,18 @@ class PathFormatTestCase(unittest.TestCase):
         doc = _mock_doc(pod, locale='es')
         self.assertEquals(
             '/root_path/test/es/', path_format.format_doc(
+                doc, '/{root}/test/{locale}'))
+
+    def test_format_doc_locale_alias(self):
+        """Test doc paths with locale."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        locale = _mock_locale('es', 'es_us')
+        path_format = grow_path_format.PathFormat(pod)
+        doc = _mock_doc(pod, locale=locale)
+        self.assertEquals(
+            '/root_path/test/es_us/', path_format.format_doc(
                 doc, '/{root}/test/{locale}'))
 
     def test_format_doc_locale_params(self):
