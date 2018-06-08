@@ -167,6 +167,14 @@ class RoutesTestCase(unittest.TestCase):
         result = new_routes.match('/foo/bar')
         self.assertEquals(None, result)
 
+    def test_len(self):
+        """Tests that length of routes."""
+        self.assertEquals(0, len(self.routes))
+        doc = self._add('/foo', '/content/foo')
+        self.assertEquals(1, len(self.routes))
+        doc = self._add('/bar', '/content/bar')
+        self.assertEquals(2, len(self.routes))
+
     def test_nodes(self):
         """Tests that routes' nodes can be retrieved."""
 
@@ -237,6 +245,15 @@ class RoutesTestCase(unittest.TestCase):
         expected = ['/bax/bar', '/bax/pan', '/foo', '/tem/pon']
         actual = list(self.routes.paths)
         self.assertEquals(expected, actual)
+
+    def test_reset(self):
+        """Tests that paths can be reset."""
+        doc = self._add('/foo', '/content/foo')
+        result = self.routes.match('/foo')
+        self.assertEquals(doc['value'], result.value)
+        self.routes.reset()
+        result = self.routes.match('/foo')
+        self.assertEquals(None, result)
 
     def test_remove(self):
         """Tests that paths can be removed."""
@@ -629,6 +646,14 @@ class RoutesSimpleTestCase(unittest.TestCase):
         result = new_routes.match('/foo/bar')
         self.assertEquals(None, result)
 
+    def test_len(self):
+        """Tests that length of routes."""
+        self.assertEquals(0, len(self.routes))
+        doc = self._add('/foo', '/content/foo')
+        self.assertEquals(1, len(self.routes))
+        doc = self._add('/bar', '/content/bar')
+        self.assertEquals(2, len(self.routes))
+
     def test_nodes(self):
         """Tests that routes' nodes can be retrieved."""
 
@@ -706,6 +731,15 @@ class RoutesSimpleTestCase(unittest.TestCase):
         self.assertEquals(doc['value'], result.value)
         result = self.routes.remove('/foo')
         self.assertEquals(doc['value'], result.value)
+        result = self.routes.match('/foo')
+        self.assertEquals(None, result)
+
+    def test_reset(self):
+        """Tests that paths can be reset."""
+        doc = self._add('/foo', '/content/foo')
+        result = self.routes.match('/foo')
+        self.assertEquals(doc['value'], result.value)
+        self.routes.reset()
         result = self.routes.match('/foo')
         self.assertEquals(None, result)
 
