@@ -1,5 +1,6 @@
 """Tests for the path formatter."""
 
+import datetime
 import unittest
 import mock
 from grow.routing import path_format as grow_path_format
@@ -43,15 +44,18 @@ def _mock_pod(podspec=None, env=None):
     return pod
 
 
-def _mock_doc(pod, base=None, locale=None, collection_base_path=None, collection=None, view=None):
+def _mock_doc(pod, base=None, date=None, locale=None, collection_base_path=None,
+              collection=None, view=None):
     doc = mock.Mock()
     type(doc).base = mock.PropertyMock(return_value=base)
+    type(doc).date = mock.PropertyMock(return_value=date)
     type(doc).pod = mock.PropertyMock(return_value=pod)
     type(doc).locale = mock.PropertyMock(return_value=locale)
     if not collection:
         collection = _mock_collection()
     type(doc).collection = mock.PropertyMock(return_value=collection)
-    type(doc).collection_base_path = mock.PropertyMock(return_value=collection_base_path)
+    type(doc).collection_base_path = mock.PropertyMock(
+        return_value=collection_base_path)
     type(doc).view = mock.PropertyMock(return_value=view or '/view/base.html')
     return doc
 
@@ -84,7 +88,8 @@ class PathFormatTestCase(unittest.TestCase):
         })
         path_format = grow_path_format.PathFormat(pod)
         collection = _mock_collection(basename='/pages/')
-        doc = _mock_doc(pod, base='jump', collection=collection, collection_base_path='/sub/')
+        doc = _mock_doc(pod, base='jump', collection=collection,
+                        collection_base_path='/sub/')
         self.assertEquals(
             '/root_path/jump/test/',
             path_format.format_doc(doc, '/{root}/{base}/test'))
@@ -96,7 +101,8 @@ class PathFormatTestCase(unittest.TestCase):
         })
         path_format = grow_path_format.PathFormat(pod)
         collection = _mock_collection(basename='/pages/')
-        doc = _mock_doc(pod, base='JUMP', collection=collection, collection_base_path='/sub/')
+        doc = _mock_doc(pod, base='JUMP', collection=collection,
+                        collection_base_path='/sub/')
         self.assertEquals(
             '/root_path/jump/test/',
             path_format.format_doc(doc, '/{root}/{base|lower}/test'))
@@ -108,10 +114,38 @@ class PathFormatTestCase(unittest.TestCase):
         })
         path_format = grow_path_format.PathFormat(pod)
         collection = _mock_collection(basename='/pages/')
-        doc = _mock_doc(pod, collection=collection, collection_base_path='/sub/')
+        doc = _mock_doc(pod, collection=collection,
+                        collection_base_path='/sub/')
         self.assertEquals(
             '/root_path/sub/test/',
             path_format.format_doc(doc, '/{root}/{collection.base_path}/test'))
+
+    def test_format_doc_date(self):
+        """Test doc path with date string."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        path_format = grow_path_format.PathFormat(pod)
+        collection = _mock_collection(basename='/pages/')
+        doc = _mock_doc(pod, date='2018-01-01', collection=collection,
+                        collection_base_path='/sub/')
+        self.assertEquals(
+            '/root_path/2018-01-01/test/',
+            path_format.format_doc(doc, '/{root}/{date}/test'))
+
+    def test_format_doc_datetime(self):
+        """Test doc path with date string."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        path_format = grow_path_format.PathFormat(pod)
+        collection = _mock_collection(basename='/pages/')
+        doc_date = datetime.datetime(2019, 2, 3)
+        doc = _mock_doc(pod, date=doc_date, collection=collection,
+                        collection_base_path='/sub/')
+        self.assertEquals(
+            '/root_path/2019-02-03/test/',
+            path_format.format_doc(doc, '/{root}/{date}/test'))
 
     def test_format_doc_locale(self):
         """Test doc paths with locale."""
@@ -237,13 +271,17 @@ class PathFormatTestCase(unittest.TestCase):
         """Slashes are added for html files if they are missing."""
         pod = _mock_pod()
         doc = _mock_doc(pod, view='/view/base.html')
-        self.assertEquals('/', grow_path_format.PathFormat.trailing_slash(doc, '/'))
-        self.assertEquals('/foo/bar/', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar'))
-        self.assertEquals('/foo/bar/', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar/'))
+        self.assertEquals(
+            '/', grow_path_format.PathFormat.trailing_slash(doc, '/'))
+        self.assertEquals(
+            '/foo/bar/', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar'))
+        self.assertEquals(
+            '/foo/bar/', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar/'))
 
         # Doesn't add for non-html views.
         doc = _mock_doc(pod, view='/view/base.xml')
-        self.assertEquals('/foo/bar', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar'))
+        self.assertEquals(
+            '/foo/bar', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar'))
 
 
 if __name__ == '__main__':
