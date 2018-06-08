@@ -90,6 +90,12 @@ class SortedCollectionTestCase(unittest.TestCase):
         self.coll.insert(('roger', 'young', 30))
         self.assertEqual(2, self.coll.count(('roger', 'young', 30)))
 
+    def test_delete_key(self):
+        """Deleting the key works."""
+        self.assertEqual(self.key, self.coll.key)
+        del self.coll.key
+        self.assertNotEqual(self.key, self.coll.key)
+
     def test_find(self):
         """Find first match."""
         self.assertEqual(('angela', 'jones', 28), self.coll.find(28))
@@ -171,3 +177,13 @@ class SortedCollectionTestCase(unittest.TestCase):
                           ('angela', 'jones', 28),
                           ('roger', 'young', 30),
                           ('david', 'thomas', 32)], list(self.coll))
+
+    def test_sorting_reversed(self):
+        """Collection is reversed."""
+        self.assertEqual(
+            [
+                ('david', 'thomas', 32),
+                ('roger', 'young', 30),
+                ('angela', 'jones', 28),
+                ('bill', 'smith', 22),
+            ], list(reversed(self.coll)))

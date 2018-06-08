@@ -158,9 +158,6 @@ class SortedCollection(object):
           getattr(self._given_key, '__name__', repr(self._given_key))
         )
 
-    def __reduce__(self):
-        return self.__class__, (self._items, self._given_key)
-
     def __contains__(self, item):
         k = self._key(item)
         i = bisect_left(self._keys, k)
