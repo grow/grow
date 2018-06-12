@@ -102,7 +102,7 @@ class Router(object):
                 locales.append(None)
 
             def _filter_locales(route_info):
-                if 'locale' in route_info.meta:
+                if 'locale' in route_info.meta and route_info.meta['locale']:
                     return route_info.meta['locale'] in locales
                 # Build non-locale based routes with none locale.
                 return None in locales

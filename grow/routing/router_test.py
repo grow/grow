@@ -103,6 +103,16 @@ class RouterTestCase(unittest.TestCase):
         self.router.filter(locales=['None'])
         self.assertEqual(1, len(self.router.routes))
 
+    def test_filter_none_none(self):
+        """Filtering by None as a locale reduces routes."""
+        doc = mocks.mock_doc(serving_path='/baz', locale='en')
+        self.router.add_doc(doc)
+        doc = mocks.mock_static_doc(serving_path='/something')
+        self.router.add_static_doc(doc)
+        self.assertEqual(2, len(self.router.routes))
+        self.router.filter(locales=['None'])
+        self.assertEqual(1, len(self.router.routes))
+
     def test_reconcile_docs(self):
         """Reconciles the documents."""
         doc = mocks.mock_doc(serving_path='/foo')
