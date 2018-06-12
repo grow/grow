@@ -66,7 +66,7 @@ class Router(object):
                     localized_path = doc.get_serving_path_localized()
                     if not localized_path or ':locale' not in localized_path:
                         localized_paths = doc.get_serving_paths_localized()
-                        for locale, path in localized_paths.iteritems():
+                        for locale, path in localized_paths.items():
                             self.routes.add(path, RouteInfo('doc', {
                                 'pod_path': doc.pod_path,
                                 'locale': str(locale),

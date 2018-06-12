@@ -29,6 +29,8 @@ class RouterTestCase(unittest.TestCase):
             mocks.mock_doc(serving_path='/foo'),
             mocks.mock_doc(serving_path='/bar'),
             mocks.mock_doc(serving_path='/foobar'),
+            mocks.mock_doc(serving_path=''),
+            mocks.mock_doc(serving_path='/.ignored'),
         ]
         self.router.add_docs(docs, concrete=True)
         self.assertEqual(3, len(self.router.routes))
@@ -38,10 +40,14 @@ class RouterTestCase(unittest.TestCase):
         docs = [
             mocks.mock_doc(serving_path='/foo'),
             mocks.mock_doc(serving_path='/bar'),
-            mocks.mock_doc(serving_path='/foobar'),
+            mocks.mock_doc(serving_path='/foobar',
+                           serving_paths_localized={
+                               'es': '/es/foobar',
+                               'fr': '/fr/foobar',
+                           }),
         ]
-        self.router.add_docs(docs, concrete=True)
-        self.assertEqual(3, len(self.router.routes))
+        self.router.add_docs(docs, concrete=False)
+        self.assertEqual(5, len(self.router.routes))
 
     def test_add_static_doc(self):
         """Adding static docs changes the routes length."""
