@@ -13,7 +13,7 @@ class RouterTestCase(unittest.TestCase):
         self.router = grow_router.Router()
 
     def test_add_doc(self):
-        """Filtering reduces routes."""
+        """Adding docs changes the routes length."""
         doc = mocks.mock_doc(serving_path='/foo')
         self.router.add_doc(doc)
         self.assertEqual(1, len(self.router.routes))
@@ -23,10 +23,40 @@ class RouterTestCase(unittest.TestCase):
         self.router.add_doc(doc)
         self.assertEqual(1, len(self.router.routes))
 
+    def test_add_static_doc(self):
+        """Adding docs changes the routes length."""
+        doc = mocks.mock_static_doc(serving_path='/foo')
+        self.router.add_static_doc(doc)
+        self.assertEqual(1, len(self.router.routes))
+
+        # Docs without serving_path ignored.
+        doc = mocks.mock_static_doc(serving_path='')
+        self.router.add_static_doc(doc)
+        self.assertEqual(1, len(self.router.routes))
+
     def test_filter(self):
-        """Filtering reduces routes."""
-        # TODO: Add filter tests.
-        pass
+        """Filtering by locale reduces routes."""
+        doc = mocks.mock_doc(serving_path='/foo', locale='en')
+        self.router.add_doc(doc)
+        doc = mocks.mock_doc(serving_path='/bar', locale='es')
+        self.router.add_doc(doc)
+        doc = mocks.mock_doc(serving_path='/baz', locale='fr')
+        self.router.add_doc(doc)
+        self.assertEqual(3, len(self.router.routes))
+        self.router.filter(locales=('es',))
+        self.assertEqual(1, len(self.router.routes))
+
+    def test_filter_multi(self):
+        """Filtering by multiple locales reduces routes."""
+        doc = mocks.mock_doc(serving_path='/foo', locale='en')
+        self.router.add_doc(doc)
+        doc = mocks.mock_doc(serving_path='/bar', locale='es')
+        self.router.add_doc(doc)
+        doc = mocks.mock_doc(serving_path='/baz', locale='fr')
+        self.router.add_doc(doc)
+        self.assertEqual(3, len(self.router.routes))
+        self.router.filter(locales=('es', 'fr'))
+        self.assertEqual(2, len(self.router.routes))
 
     def test_reconcile_docs(self):
         """Reconciles the documents."""

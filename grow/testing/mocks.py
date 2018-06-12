@@ -1,6 +1,7 @@
 """Mocks for testing grow functionality."""
 
 import mock
+from grow.routing import path_filter as grow_path_filter
 
 
 def mock_collection(basename=None, root=None):
@@ -43,6 +44,7 @@ def mock_env(fingerprint=None):
 def mock_locale(identifier, alias=None):
     """Mock locale object."""
     # pylint: disable=unused-argument
+
     def __str__(self):
         return identifier
     locale = mock.Mock()
@@ -66,10 +68,23 @@ def mock_pod(podspec=None, env=None):
     return pod
 
 
-def mock_static_doc(pod, path_format=None, locale=None):
+# pylint: disable=redefined-builtin
+def mock_static_doc(pod=None, pod_path=None, path_format=None, locale=None,
+                    serving_path=None, config=None, fingerprinted=False,
+                    filter=None, path_filter=None):
     """Mock grow static document."""
+    if not pod:
+        pod = mock_pod()
+    if not path_filter:
+        path_filter = grow_path_filter.PathFilter()
     doc = mock.Mock()
-    type(doc).pod = mock.PropertyMock(return_value=pod)
-    type(doc).path_format = mock.PropertyMock(return_value=path_format)
+    type(doc).config = mock.PropertyMock(return_value=config or {})
+    type(doc).filter = mock.PropertyMock(return_value=filter)
+    type(doc).fingerprinted = mock.PropertyMock(return_value=fingerprinted)
     type(doc).locale = mock.PropertyMock(return_value=locale)
+    type(doc).path_filter = mock.PropertyMock(return_value=path_filter)
+    type(doc).path_format = mock.PropertyMock(return_value=path_format)
+    type(doc).pod = mock.PropertyMock(return_value=pod)
+    type(doc).pod_path = mock.PropertyMock(return_value=pod_path)
+    type(doc).serving_path = mock.PropertyMock(return_value=serving_path)
     return doc
