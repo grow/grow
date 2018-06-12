@@ -13,7 +13,7 @@ class RouterTestCase(unittest.TestCase):
         self.router = grow_router.Router()
 
     def test_add_doc(self):
-        """Adding docs changes the routes length."""
+        """Adding doc changes the routes length."""
         doc = mocks.mock_doc(serving_path='/foo')
         self.router.add_doc(doc)
         self.assertEqual(1, len(self.router.routes))
@@ -23,8 +23,28 @@ class RouterTestCase(unittest.TestCase):
         self.router.add_doc(doc)
         self.assertEqual(1, len(self.router.routes))
 
+    def test_add_docs_concrete(self):
+        """Adding concrete docs changes the routes length."""
+        docs = [
+            mocks.mock_doc(serving_path='/foo'),
+            mocks.mock_doc(serving_path='/bar'),
+            mocks.mock_doc(serving_path='/foobar'),
+        ]
+        self.router.add_docs(docs, concrete=True)
+        self.assertEqual(3, len(self.router.routes))
+
+    def test_add_docs_non_concrete(self):
+        """Adding non-concrete docs changes the routes length."""
+        docs = [
+            mocks.mock_doc(serving_path='/foo'),
+            mocks.mock_doc(serving_path='/bar'),
+            mocks.mock_doc(serving_path='/foobar'),
+        ]
+        self.router.add_docs(docs, concrete=True)
+        self.assertEqual(3, len(self.router.routes))
+
     def test_add_static_doc(self):
-        """Adding docs changes the routes length."""
+        """Adding static docs changes the routes length."""
         doc = mocks.mock_static_doc(serving_path='/foo')
         self.router.add_static_doc(doc)
         self.assertEqual(1, len(self.router.routes))
