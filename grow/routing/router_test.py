@@ -45,9 +45,11 @@ class RouterTestCase(unittest.TestCase):
                                'es': '/es/foobar',
                                'fr': '/fr/foobar',
                            }),
+            mocks.mock_doc(serving_path='/bazboo',
+                           serving_path_localized='/:locale/bazboo'),
         ]
         self.router.add_docs(docs, concrete=False)
-        self.assertEqual(5, len(self.router.routes))
+        self.assertEqual(7, len(self.router.routes))
 
     def test_add_static_doc(self):
         """Adding static docs changes the routes length."""

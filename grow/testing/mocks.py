@@ -17,12 +17,14 @@ def mock_doc(pod=None, base=None, date=None, locale=None,
              collection_base_path=None, collection=None, view=None,
              serving_path=None, serving_path_base=None,
              serving_path_localized=None, serving_paths_localized=None,
-             path_params=None):
+             path_params=None, path_params_localized=None):
     """Mock grow document."""
     if not collection:
         collection = mock_collection()
     if not path_params:
         path_params = {}
+    if not path_params_localized:
+        path_params_localized = {}
     if not serving_path_base:
         serving_path_base = serving_path
     if not serving_paths_localized:
@@ -33,6 +35,7 @@ def mock_doc(pod=None, base=None, date=None, locale=None,
     type(doc).pod = mock.PropertyMock(return_value=pod)
     type(doc).locale = mock.PropertyMock(return_value=locale)
     type(doc).path_params = mock.PropertyMock(return_value=path_params)
+    type(doc).path_params_localized = mock.PropertyMock(return_value=path_params_localized)
     type(doc).collection = mock.PropertyMock(return_value=collection)
     type(doc).collection_base_path = mock.PropertyMock(
         return_value=collection_base_path)
