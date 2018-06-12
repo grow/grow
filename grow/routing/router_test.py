@@ -34,6 +34,11 @@ class RouterTestCase(unittest.TestCase):
         self.router.add_static_doc(doc)
         self.assertEqual(1, len(self.router.routes))
 
+        # Docs without filtered serving_path ignored.
+        doc = mocks.mock_static_doc(serving_path='/.something')
+        self.router.add_static_doc(doc)
+        self.assertEqual(1, len(self.router.routes))
+
     def test_filter(self):
         """Filtering by locale reduces routes."""
         doc = mocks.mock_doc(serving_path='/foo', locale='en')
