@@ -34,6 +34,9 @@ class RCConfigTestCase(unittest.TestCase):
 
     def test_needs_update_check(self):
         """Test that set works on the config."""
+        original_environ = os.environ['CI'] if 'CI' in os.environ else None
+        if original_environ:
+            del os.environ['CI']
         self._create_config(100)
         self.assertFalse(self.config.needs_update_check)
 
@@ -41,3 +44,7 @@ class RCConfigTestCase(unittest.TestCase):
         os.environ['CI'] = "True"
         self.assertFalse(self.config.needs_update_check)
         del os.environ['CI']
+
+        # Reset the environment.
+        if original_environ:
+            os.environ['CI'] = original_environ
