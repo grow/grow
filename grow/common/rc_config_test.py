@@ -73,3 +73,15 @@ class RCConfigTestCase(unittest.TestCase):
 
             self.assertTrue(self.config.get('test'))
             self.assertTrue(self.config.get('work'))
+
+    def test_write_config(self):
+        """Test that config files can be written and parsed."""
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            filename = os.path.join(temp_dir, rc_config.RC_FILE_NAME)
+            self._create_config(config=None, filename=filename)
+            self.config.set('test', True)
+            self.config.write()
+            with open(filename, 'r') as config_file:
+                results = config_file.read()
+            self.assertIn('test: true', results)
