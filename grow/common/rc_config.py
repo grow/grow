@@ -26,7 +26,6 @@ class RCConfig(base_config.BaseConfig):
     def _is_ci_env():
         if 'CI' in os.environ:
             return True
-        print('Is Not in a CI environ')
         return False
 
     @property
