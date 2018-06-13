@@ -31,6 +31,14 @@ class RCConfigTestCase(unittest.TestCase):
         self.config.set('update.last_checked', 12345)
         self.assertEqual(12345, self.config.last_checked)
 
+    def test_last_checked_reset(self):
+        """Test the last_checked reset works."""
+        self._create_config(config={}, time_value=100)
+        self.config.set('update.last_checked', 12345)
+        self.assertEqual(12345, self.config.last_checked)
+        self.config.reset_update_check()
+        self.assertEqual(100, self.config.last_checked)
+
     def test_last_checked_set(self):
         """Test that set works on the config."""
         self.assertEqual(0, self.config.last_checked)
