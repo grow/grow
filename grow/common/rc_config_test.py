@@ -1,6 +1,7 @@
 """Tests for RC Config."""
 
 import os
+import tempfile
 import unittest
 from grow.common import rc_config
 
@@ -15,11 +16,14 @@ def mock_time(value):
 class RCConfigTestCase(unittest.TestCase):
     """Test the RC Config."""
 
-    def _create_config(self, time_value=None):
-        self.config = rc_config.RCConfig(config={}, internal_time=mock_time(time_value))
+    def _create_config(self, config=None, time_value=None, filename=None,
+                       wd_filename=None):
+        self.config = rc_config.RCConfig(
+            config=config, internal_time=mock_time(time_value), filename=filename,
+            wd_filename=wd_filename)
 
     def setUp(self):
-        self._create_config()
+        self._create_config(config={})
 
     def test_last_checked(self):
         """Test the last_checked."""
@@ -40,7 +44,7 @@ class RCConfigTestCase(unittest.TestCase):
         original_environ = os.environ['CI'] if 'CI' in os.environ else None
         if original_environ:
             del os.environ['CI']
-        self._create_config(100)
+        self._create_config(config={}, time_value=100)
         self.assertFalse(self.config.needs_update_check)
 
         # Check that it works with the CI environment variable.
@@ -51,3 +55,21 @@ class RCConfigTestCase(unittest.TestCase):
         # Reset the environment.
         if original_environ:
             os.environ['CI'] = original_environ
+
+    def test_read_config(self):
+        """Test that config files can be read and parsed."""
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            filename = os.path.join(temp_dir, rc_config.RC_FILE_NAME)
+            wd_filename = os.path.join(
+                temp_dir, '{}{}'.format(rc_config.RC_FILE_NAME, 'wd'))
+            with open(filename, 'w') as config_file:
+                config_file.write('test: true')
+            with open(wd_filename, 'w') as config_file:
+                config_file.write('work: true')
+
+            self._create_config(
+                config=None, filename=filename, wd_filename=wd_filename)
+
+            self.assertTrue(self.config.get('test'))
+            self.assertTrue(self.config.get('work'))

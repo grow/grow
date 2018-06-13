@@ -14,11 +14,20 @@ RC_LAST_CHECKED_DELTA = datetime.timedelta(hours=1)
 class RCConfig(base_config.BaseConfig):
     """Config for Grow RC file."""
 
-    def __init__(self, config=None, internal_time=time.time):
+    def __init__(self, config=None, internal_time=time.time, filename=None, wd_filename=None):
         super(RCConfig, self).__init__(config=config)
         self._time = internal_time
         # Working directory default config.
         self._wd_config = base_config.BaseConfig()
+
+        if not filename:
+            filename = os.path.expanduser('~/{}'.format(RC_FILE_NAME))
+        self.filename = filename
+
+        if not wd_filename:
+            wd_filename = os.path.join(os.getcwd(), RC_FILE_NAME)
+        self.wd_filename = wd_filename
+
         if config is None:
             self.read()
 
@@ -27,11 +36,6 @@ class RCConfig(base_config.BaseConfig):
         if 'CI' in os.environ:
             return True
         return False
-
-    @property
-    def filename(self):
-        """Filename of the RC File."""
-        return os.path.expanduser('~/{}'.format(RC_FILE_NAME))
 
     @property
     def last_checked(self):
@@ -67,9 +71,8 @@ class RCConfig(base_config.BaseConfig):
                 self._config = yaml.load(conf.read()) or {}
 
         # Allow for an read only override from the working directory rc file.
-        wd_filename = os.path.join(os.getcwd(), RC_FILE_NAME)
-        if os.path.isfile(wd_filename):
-            with open(wd_filename, 'r') as conf:
+        if os.path.isfile(self.wd_filename):
+            with open(self.wd_filename, 'r') as conf:
                 self._wd_config = base_config.BaseConfig(
                     yaml.load(conf.read()))
 
@@ -79,8 +82,7 @@ class RCConfig(base_config.BaseConfig):
 
     def write(self):
         """Writes the RC config to the system."""
-        rc_file_name = self.filename
-        with open(rc_file_name, 'w') as conf:
+        with open(self.filename, 'w') as conf:
             conf.write(yaml.safe_dump(self._config, default_flow_style=False))
 
 
