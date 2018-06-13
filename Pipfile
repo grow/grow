@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+colored = ">=1.3.5"
 
 [dev-packages]
 codecov = ">=2.0.15"
