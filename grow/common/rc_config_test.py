@@ -29,8 +29,11 @@ class RCConfigTestCase(unittest.TestCase):
 
     def test_last_checked_set(self):
         """Test that set works on the config."""
+        self.assertEqual(0, self.config.last_checked)
         self.config.set('update.last_checked', 12345)
-        self.assertEqual(12345, self.config.get('update.last_checked'))
+        self.assertEqual(12345, self.config.last_checked)
+        self.config.last_checked = 54321
+        self.assertEqual(54321, self.config.last_checked)
 
     def test_needs_update_check(self):
         """Test that set works on the config."""
