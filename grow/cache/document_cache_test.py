@@ -61,6 +61,8 @@ class DocumentCacheTestCase(unittest.TestCase):
             'answer': 42
         })
         self.assertEqual(42, self.doc_cache.get_property(doc, 'answer'))
+        doc = mocks.mock_doc(pod_path='/content/pages/about.md')
+        self.assertEqual(None, self.doc_cache.get_property(doc, 'answer'))
 
     def test_remove(self):
         """Remove a document from the cache."""
