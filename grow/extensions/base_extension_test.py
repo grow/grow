@@ -7,6 +7,12 @@ from grow.extensions import base_extension
 class BaseExtensionTestCase(unittest.TestCase):
     """Test the base extension."""
 
+    def test_auto_hook(self):
+        """Automatically finds the correct hook class."""
+        ext = base_extension.BaseExtension(None, {})
+        with self.assertRaises(base_extension.MissingHookError):
+            ext.auto_hook('testing')
+
     def test_config_disabled(self):
         """Uses the disabled config."""
         ext = base_extension.BaseExtension(None, {
@@ -28,4 +34,10 @@ class BaseExtensionTestCase(unittest.TestCase):
             ],
         })
         self.assertTrue(ext.hooks.is_enabled('a'))
+        self.assertFalse(ext.hooks.is_enabled('b'))
+
+    def test_no_config(self):
+        """Uses empty config."""
+        ext = base_extension.BaseExtension(None, {})
+        self.assertFalse(ext.hooks.is_enabled('a'))
         self.assertFalse(ext.hooks.is_enabled('b'))
