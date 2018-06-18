@@ -11,14 +11,27 @@ class FileCacheTestCase(unittest.TestCase):
         self.test_cache = file_cache.FileCache()
 
     def test_add(self):
-        """Test that adding to the file cache works."""
+        """Adding to the file cache works."""
         self.test_cache.add('/content/answer.txt', {
             'answer': 42,
         })
         self.assertEqual(42, self.test_cache.get('/content/answer.txt')['answer'])
 
+    def test_add_all(self):
+        """Adding multiple to the file cache works."""
+        self.test_cache.add_all({
+            '/content/answer.txt': {
+                'answer': 42,
+            },
+            '/content/question.txt': {
+                'question': '???',
+            },
+        })
+        self.assertEqual(42, self.test_cache.get('/content/answer.txt')['answer'])
+        self.assertEqual('???', self.test_cache.get('/content/question.txt')['question'])
+
     def test_export(self):
-        """Test that exporting the file cache works."""
+        """Exporting the file cache works."""
         self.test_cache.add('/content/answer.txt', {
             'answer': 42,
         })
@@ -39,7 +52,7 @@ class FileCacheTestCase(unittest.TestCase):
         }, self.test_cache.export())
 
     def test_remove(self):
-        """Test that paths can be removed from the cache."""
+        """Paths can be removed from the cache."""
         self.test_cache.add('/content/answer.txt', {
             'answer': 42,
         })
@@ -49,6 +62,15 @@ class FileCacheTestCase(unittest.TestCase):
                 'answer': 42,
             },
         }, self.test_cache.remove('/content/answer.txt'))
+        self.assertEqual(None, self.test_cache.get('/content/answer.txt'))
+
+    def test_reset(self):
+        """Resetting the cache works."""
+        self.test_cache.add('/content/answer.txt', {
+            'answer': 42,
+        })
+        self.assertEqual(42, self.test_cache.get('/content/answer.txt')['answer'])
+        self.test_cache.reset()
         self.assertEqual(None, self.test_cache.get('/content/answer.txt'))
 
 

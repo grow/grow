@@ -22,7 +22,7 @@ class FileCache(object):
 
     def add_all(self, pod_path_to_cached, locale=None):
         """Add a multiple values to the cache by pod_paths."""
-        for pod_path, value in pod_path_to_cached.iteritems():
+        for pod_path, value in pod_path_to_cached.items():
             container = self._ensure_exists(pod_path)
             container[locale] = value
 
