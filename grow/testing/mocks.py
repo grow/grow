@@ -13,7 +13,7 @@ def mock_collection(basename=None, root=None):
 
 
 # pylint: disable=too-many-arguments
-def mock_doc(pod=None, base=None, date=None, locale=None,
+def mock_doc(pod=None, pod_path=None, base=None, date=None, locale=None,
              collection_base_path=None, collection=None, view=None,
              serving_path=None, serving_path_base=None,
              serving_path_localized=None, serving_paths_localized=None,
@@ -33,6 +33,7 @@ def mock_doc(pod=None, base=None, date=None, locale=None,
     type(doc).base = mock.PropertyMock(return_value=base)
     type(doc).date = mock.PropertyMock(return_value=date)
     type(doc).pod = mock.PropertyMock(return_value=pod)
+    type(doc).pod_path = mock.PropertyMock(return_value=pod_path)
     type(doc).locale = mock.PropertyMock(return_value=locale)
     type(doc).path_params = mock.PropertyMock(return_value=path_params)
     type(doc).path_params_localized = mock.PropertyMock(return_value=path_params_localized)
