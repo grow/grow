@@ -6,8 +6,7 @@ from grow.performance import profile
 class HookController(object):
     """Controller for working with pod extension hooks."""
 
-    def __init__(self, pod, key, default_hook=None, profiler=None):
-        self.pod = pod
+    def __init__(self, key, default_hook=None, profiler=None):
         self.key = key
         self.profiler = profiler or profile.Profile()
         self._hooks = []

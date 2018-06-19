@@ -28,7 +28,7 @@ class HookControllerTestCase(unittest.TestCase):
 
     def test_register_extensions(self):
         """Registering extensions completes correctly."""
-        cont = hook_controller.HookController(None, 'dev_file_change')
+        cont = hook_controller.HookController('dev_file_change')
         self.assertEqual(0, len(cont))
         cont.register_extensions([
             TestExtension(None, {})
@@ -39,7 +39,7 @@ class HookControllerTestCase(unittest.TestCase):
         """Registering extensions completes correctly."""
         ext = TestExtension(None, {})
         hook = TestHook(ext)
-        cont = hook_controller.HookController(None, 'dev_file_change', default_hook=hook)
+        cont = hook_controller.HookController('dev_file_change', default_hook=hook)
         self.assertEqual(1, len(cont))
 
         result = cont.trigger('/content/page/about.md')
