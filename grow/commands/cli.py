@@ -19,14 +19,15 @@ def grow(profile):
 
 
 @grow.resultcallback()
-def process_subcommands(pod, profile, **_):
+def process_subcommands(cmd_result, profile, **_):
     """Handle profiling the subcommands."""
 
-    if not pod:
+    if not cmd_result:
         return
 
+    # When profiling write a summary to command line and write the full
+    # raw data to the file system.
     if profile:
-        # TODO: Write the profile report out to the file system.
         pass
 
 
