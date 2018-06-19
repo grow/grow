@@ -10,9 +10,7 @@ class TestHook(hooks.DevFileChangeHook):
 
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the test hook."""
-        if previous_result:
-            return previous_result
-        return None
+        return previous_result
 
 
 class TestExtension(base_extension.BaseExtension):

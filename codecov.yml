@@ -1,0 +1,3 @@
+ignore:
+  - "grow/common/patched_site.py"
+  - "grow/extensions/extension_importer.py"
