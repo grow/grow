@@ -2,6 +2,26 @@
 
 import unittest
 from grow.extensions import base_extension
+from grow.extensions import hooks
+
+
+class TestHook(hooks.DevFileChangeHook):
+    """Test hook."""
+
+    def trigger(self, previous_result, pod_path, *_args, **_kwargs):
+        """Trigger the test hook."""
+        if previous_result:
+            return previous_result
+        return None
+
+
+class TestExtension(base_extension.BaseExtension):
+    """Test extension."""
+
+    @property
+    def available_hooks(self):
+        """Returns the available hook classes."""
+        return [TestHook]
 
 
 class BaseExtensionTestCase(unittest.TestCase):
@@ -41,3 +61,10 @@ class BaseExtensionTestCase(unittest.TestCase):
         ext = base_extension.BaseExtension(None, {})
         self.assertFalse(ext.hooks.is_enabled('a'))
         self.assertFalse(ext.hooks.is_enabled('b'))
+
+    def test_sample_extension(self):
+        """Test a stub extension."""
+        ext = TestExtension(None, {})
+        self.assertTrue(ext.hooks.is_enabled('dev_file_change'))
+        hook = ext.auto_hook('dev_file_change')
+        self.assertIsInstance(hook, TestHook)
