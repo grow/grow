@@ -24,6 +24,14 @@ class TestExtension(base_extension.BaseExtension):
         return [TestHook]
 
 
+class TestExtensionTwo(TestExtension):
+    """Test extension."""
+
+    def dev_file_change_hook(self):
+        """Manually create the hook to test the auto_hook."""
+        return TestHook(self)
+
+
 class BaseExtensionTestCase(unittest.TestCase):
     """Test the base extension."""
 
@@ -65,6 +73,13 @@ class BaseExtensionTestCase(unittest.TestCase):
     def test_sample_extension(self):
         """Test a stub extension."""
         ext = TestExtension(None, {})
+        self.assertTrue(ext.hooks.is_enabled('dev_file_change'))
+        hook = ext.auto_hook('dev_file_change')
+        self.assertIsInstance(hook, TestHook)
+
+    def test_sample_extension_two(self):
+        """Test a stub extension with hook method."""
+        ext = TestExtensionTwo(None, {})
         self.assertTrue(ext.hooks.is_enabled('dev_file_change'))
         hook = ext.auto_hook('dev_file_change')
         self.assertIsInstance(hook, TestHook)
