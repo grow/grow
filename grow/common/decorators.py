@@ -54,17 +54,24 @@ class MemoizeProperty(object):
 
     def __init__(self, func):
         self.func = func
-        self.cache = SENTINEL
+        self.cache = {}
 
     def __repr__(self):
         return self.func.__doc__
 
-    def __get__(self, obj, objtype):
-        if obj is None:
+    def __get__(self, instance, owner):
+        if instance is None:
             return self
-        if self.cache == SENTINEL:
-            self.cache = self.func(obj)
-        return self.cache
+
+        try:
+            return self.cache[instance]
+        except KeyError:
+            self.cache[instance] = self.func(instance)
+            return self.cache[instance]
+
+    def reset(self):
+        """Reset the memoize cache."""
+        self.cache = SENTINEL
 
 
 # pylint: disable=too-few-public-methods

@@ -55,6 +55,10 @@ class DecoratorsTestCase(unittest.TestCase):
         return_value = 'cheese'
         self.assertEqual('pepperoni', pizza.topping)
 
+        pizza2 = Pizza()
+        self.assertEqual('cheese', pizza2.topping)
+
+
     def test_memoize_tag(self):
         """Test that memoize uses first result."""
         return_value = 'pepperoni'
