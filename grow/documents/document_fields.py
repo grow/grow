@@ -30,6 +30,7 @@ class DocumentFields(object):
         updated_localized_paths = set()
         paths_to_keep_tagged = set()
 
+        # pylint: disable=too-many-return-statements
         def visit(path, key, value):
             """Function for each key and value in the data."""
             if not isinstance(key, str):
@@ -69,7 +70,7 @@ class DocumentFields(object):
             return untagged_key, value
 
         # Backwards compatibility for https://github.com/grow/grow/issues/95
-        def exit(path, key, old_parent, new_parent, new_items):
+        def remap_exit(path, key, old_parent, new_parent, new_items):
             resp = iterutils.default_exit(path, key, old_parent,
                                           new_parent, new_items)
             if paths_to_keep_tagged and isinstance(resp, dict):
@@ -86,7 +87,7 @@ class DocumentFields(object):
                     pass
             return resp
 
-        return iterutils.remap(data, visit=visit, exit=exit)
+        return iterutils.remap(data, visit=visit, exit=remap_exit)
 
     def get(self, key, default=None):
         return self._data.get(key, default)

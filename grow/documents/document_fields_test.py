@@ -619,7 +619,3 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'foo@': 'bbq',
         })
         self.assertEquals('bbq', doc_fields['foo'])
-
-
-if __name__ == '__main__':
-    unittest.main()
