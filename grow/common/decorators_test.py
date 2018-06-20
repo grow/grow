@@ -58,6 +58,11 @@ class DecoratorsTestCase(unittest.TestCase):
         pizza2 = Pizza()
         self.assertEqual('cheese', pizza2.topping)
 
+        # pylint: disable=no-member
+        Pizza.topping.reset()
+        return_value = 'olives'
+        self.assertEqual('olives', pizza.topping)
+        self.assertEqual('olives', pizza2.topping)
 
     def test_memoize_tag(self):
         """Test that memoize uses first result."""

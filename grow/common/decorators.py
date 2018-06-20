@@ -71,7 +71,7 @@ class MemoizeProperty(object):
 
     def reset(self):
         """Reset the memoize cache."""
-        self.cache = SENTINEL
+        self.cache = {}
 
 
 # pylint: disable=too-few-public-methods
