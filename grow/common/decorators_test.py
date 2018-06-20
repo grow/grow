@@ -35,7 +35,7 @@ class DecoratorsTestCase(unittest.TestCase):
         return_value = 'pepperoni'
 
         @decorators.MemoizeTag
-        def _topping():
+        def _topping(**_kwargs):
             return return_value
 
         self.assertEqual('pepperoni', _topping())
