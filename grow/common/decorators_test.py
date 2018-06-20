@@ -42,7 +42,6 @@ class DecoratorsTestCase(unittest.TestCase):
 
         class Pizza(object):
             """PIZZA!"""
-            @property
             @decorators.Memoize
             def topping(self):
                 """Toppings!"""

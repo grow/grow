@@ -33,9 +33,14 @@ class Memoize(object):
         return self.func.__doc__
 
     def __get__(self, obj, objtype):
-        func = functools.partial(self.__call__, obj)
-        func.reset = self.reset
-        return func
+        if obj is None:
+            return self
+        key = self.func.__name__
+        try:
+            return self.cache[key]
+        except KeyError:
+            self.cache[key] = self.func(obj)
+            return self.cache[key]
 
     def reset(self):
         """Reset the memoize cache."""
