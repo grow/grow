@@ -24,21 +24,21 @@ class Memoize(object):
         try:
             return self.cache[key]
         except KeyError:
-            value = self.func(*args, **kwargs)
-            self.cache[key] = value
-            return value
-        except TypeError:
-            return self.func(*args, **kwargs)
+            self.cache[key] = self.func(*args, **kwargs)
+            return self.cache[key]
+        # except TypeError:
+        #     return self.func(*args, **kwargs)
 
     def __repr__(self):
         return self.func.__doc__
 
     def __get__(self, obj, objtype):
         func = functools.partial(self.__call__, obj)
-        func.reset = self._reset
+        func.reset = self.reset
         return func
 
-    def _reset(self):
+    def reset(self):
+        """Reset the memoize cache."""
         self.cache = {}
 
 
