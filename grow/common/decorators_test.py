@@ -42,12 +42,14 @@ class DecoratorsTestCase(unittest.TestCase):
 
         class Pizza(object):
             """PIZZA!"""
-            @decorators.Memoize
+            @decorators.MemoizeProperty
             def topping(self):
                 """Toppings!"""
                 return return_value
 
         pizza = Pizza()
+
+        self.assertEqual('Toppings!', repr(Pizza.topping))
 
         self.assertEqual('pepperoni', pizza.topping)
         return_value = 'cheese'

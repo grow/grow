@@ -3,13 +3,16 @@
 import functools
 
 
+SENTINEL = object()
+
+
 # pylint: disable=too-few-public-methods
 class Memoize(object):
     """A decorator that lazily caches the result of the function call.
 
         class Foo(object):
 
-            @memoize
+            @Memoize
             def foo(self):
                 # calculate something important here
                 return 42
@@ -32,19 +35,36 @@ class Memoize(object):
     def __repr__(self):
         return self.func.__doc__
 
-    def __get__(self, obj, objtype):
-        if obj is None:
-            return self
-        key = self.func.__name__
-        try:
-            return self.cache[key]
-        except KeyError:
-            self.cache[key] = self.func(obj)
-            return self.cache[key]
-
     def reset(self):
         """Reset the memoize cache."""
         self.cache = {}
+
+
+# pylint: disable=too-few-public-methods
+class MemoizeProperty(object):
+    """A decorator that lazily caches the result of a property.
+
+        class Foo(object):
+
+            @MemoizeProperty
+            def foo(self):
+                # calculate something important here
+                return 42
+    """
+
+    def __init__(self, func):
+        self.func = func
+        self.cache = SENTINEL
+
+    def __repr__(self):
+        return self.func.__doc__
+
+    def __get__(self, obj, objtype):
+        if obj is None:
+            return self
+        if self.cache == SENTINEL:
+            self.cache = self.func(obj)
+        return self.cache
 
 
 # pylint: disable=too-few-public-methods
