@@ -35,11 +35,15 @@ class DocumentFields(object):
             """Function for each key and value in the data."""
             if not isinstance(key, str):
                 return key, value
+
             if (path, key.rstrip('@')) in updated_localized_paths:
                 return False
             if key.endswith('@#'):
+                # Translation Comment.
                 return False
-            if key.endswith('@'):
+
+            marked_for_extraction = key.endswith('@')
+            if marked_for_extraction:
                 if isinstance(value, list):
                     paths_to_keep_tagged.add((path, key))
                 key = key[:-1]
@@ -64,7 +68,7 @@ class DocumentFields(object):
                 return key, value
             untagged_key, locale_from_key = match.groups()
             locale_regex = r'^{}$'.format(locale_from_key)
-            if not locale or not re.match(locale_regex, locale):
+            if marked_for_extraction or not locale or not re.match(locale_regex, locale):
                 return False
             updated_localized_paths.add((path, untagged_key.rstrip('@')))
             return untagged_key, value

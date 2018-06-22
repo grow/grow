@@ -417,6 +417,30 @@ class DocumentFieldsTestCase(unittest.TestCase):
             },
         }, untag(fields, locale='de', params={'env': 'prod'}))
 
+    def test_untag_translation(self):
+        """Untag when tagged for translation.
+
+        When untagging a locale that has a trailing @ it is used as the
+        translated value for the key, not as the actual value untagged.
+
+        This makes it so that translated values are done as translations so
+        gettext works correctly in templates.
+
+        See https://docs.google.com/document/d/19rFeAdIjO6mHJG8p8MuOHy5ywG4bYD3FlLdH81dH5Og/
+        """
+        untag = document_fields.DocumentFields.untag
+        fields_to_test = {
+            'foo@': 'base',
+            'foo@fr@': 'fr',
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'base',
+        }, untag(fields, locale=None))
+        self.assertDictEqual({
+            'foo': 'base',
+        }, untag(fields, locale='fr'))
+
     def test_update(self):
         """Test that updates properly overwrite and are untagged."""
         doc_fields = document_fields.DocumentFields({
