@@ -14,8 +14,8 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'foo': 'bar',
         }, None)
 
-        self.assertEquals(True, 'foo' in doc_fields)
-        self.assertEquals(False, 'bar' in doc_fields)
+        self.assertEqual(True, 'foo' in doc_fields)
+        self.assertEqual(False, 'bar' in doc_fields)
 
     def test_get(self):
         """Retrieve a field value."""
@@ -23,8 +23,8 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'foo': 'bar',
         }, None)
 
-        self.assertEquals('bar', doc_fields['foo'])
-        self.assertEquals('baz', doc_fields.get('bar', 'baz'))
+        self.assertEqual('bar', doc_fields['foo'])
+        self.assertEqual('baz', doc_fields.get('bar', 'baz'))
 
     def test_get_item(self):
         """Retrieve a field using item reference."""
@@ -32,7 +32,7 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'foo': 'bar',
         }, None)
 
-        self.assertEquals('bar', doc_fields['foo'])
+        self.assertEqual('bar', doc_fields['foo'])
 
         with self.assertRaises(KeyError):
             _ = doc_fields['bar']
@@ -44,7 +44,17 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'bar': 'baz',
         }, None)
 
-        self.assertEquals(2, len(doc_fields))
+        self.assertEqual(2, len(doc_fields))
+
+    def test_keys(self):
+        """Keys of fields."""
+        doc_fields = document_fields.DocumentFields({
+            'foo': 'bar',
+            'bar': 'baz',
+        }, None)
+
+        self.assertIn('foo', doc_fields.keys())
+        self.assertIn('bar', doc_fields.keys())
 
     def test_untag_simple(self):
         """Untag field values by locale with nested fields."""
@@ -458,8 +468,8 @@ class DocumentFieldsTestCase(unittest.TestCase):
         doc_fields = document_fields.DocumentFields({
             'foo@': 'bar',
         })
-        self.assertEquals('bar', doc_fields['foo'])
+        self.assertEqual('bar', doc_fields['foo'])
         doc_fields.update({
             'foo@': 'bbq',
         })
-        self.assertEquals('bbq', doc_fields['foo'])
+        self.assertEqual('bbq', doc_fields['foo'])
