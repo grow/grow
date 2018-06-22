@@ -46,64 +46,35 @@ class DocumentFieldsTestCase(unittest.TestCase):
 
         self.assertEquals(2, len(doc_fields))
 
-    def test_untag(self):
-        """Untag field values."""
+    def test_untag_simple(self):
+        """Untag field values by locale with nested fields."""
         fields_to_test = {
-            'title': 'value-none',
-            'title@fr': 'value-fr',
-            'list': [
-                {
-                    'list-item-title': 'value-none',
-                    'list-item-title@fr': 'value-fr',
-                },
-            ],
-            'sub-nested': {
-                'sub-nested': {
-                    'nested@': 'sub-sub-nested-value',
-                },
-            },
-            'nested': {
-                'nested-none': 'nested-value-none',
-                'nested-title@': 'nested-value-none',
-            },
-            'nested@fr': {
-                'nested-title@': 'nested-value-fr',
-            },
-            'list@de': [
-                'list-item-de',
-            ]
+            '$view': '/views/base.html',
+            '$view@ja': '/views/base-ja.html',
+            'qaz': 'qux',
+            'qaz@ja': 'qux-ja',
+            'qaz@de': 'qux-de',
+            'foo': 'bar-base',
+            'foo@en': 'bar-en',
+            'foo@de': 'bar-de',
+            'foo@ja': 'bar-ja',
         }
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
-            'title': 'value-fr',
-            'list': [{'list-item-title': 'value-fr'}, ],
-            'nested': {'nested-title': 'nested-value-fr', },
-            'sub-nested': {
-                'sub-nested': {
-                    'nested': 'sub-sub-nested-value',
-                },
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='fr'))
-
+            '$view': '/views/base-ja.html',
+            'qaz': 'qux-ja',
+            'foo': 'bar-ja',
+        }, document_fields.DocumentFields.untag(fields, locale='ja'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
-            'title': 'value-none',
-            'list': ['list-item-de', ],
-            'nested': {
-                'nested-none': 'nested-value-none',
-                'nested-title': 'nested-value-none',
-            },
-            'sub-nested': {
-                'sub-nested': {
-                    'nested': 'sub-sub-nested-value',
-                },
-            },
+            '$view': '/views/base.html',
+            'qaz': 'qux-de',
+            'foo': 'bar-de',
         }, document_fields.DocumentFields.untag(fields, locale='de'))
 
+    def test_untag_nested(self):
+        """Untag field values by locale with nested fields."""
         fields_to_test = {
-            'foo': 'bar-base',
-            'foo@de': 'bar-de',
-            'foo@fr': 'bar-fr',
             'nested': {
                 'nested': 'nested-base',
                 'nested@fr': 'nested-fr',
@@ -111,19 +82,19 @@ class DocumentFieldsTestCase(unittest.TestCase):
         }
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
-            'foo': 'bar-fr',
             'nested': {
                 'nested': 'nested-fr',
             },
         }, document_fields.DocumentFields.untag(fields, locale='fr'))
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({
-            'foo': 'bar-de',
             'nested': {
                 'nested': 'nested-base',
             },
         }, document_fields.DocumentFields.untag(fields, locale='de'))
 
+    def test_untag_list(self):
+        """Untag field values by locale with lists."""
         fields_to_test = {
             'list': [
                 {
@@ -177,55 +148,8 @@ class DocumentFieldsTestCase(unittest.TestCase):
             ]
         }, document_fields.DocumentFields.untag(fields, locale='ja'))
 
-        fields_to_test = {
-            '$view': '/views/base.html',
-            '$view@ja': '/views/base-ja.html',
-            'qaz': 'qux',
-            'qaz@ja': 'qux-ja',
-            'qaz@de': 'qux-de',
-            'foo': 'bar-base',
-            'foo@en': 'bar-en',
-            'foo@de': 'bar-de',
-            'foo@ja': 'bar-ja',
-            'nested': {
-                'nested': 'nested-base',
-                'nested@ja': 'nested-ja',
-            },
-        }
-        fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            '$view': '/views/base-ja.html',
-            'qaz': 'qux-ja',
-            'foo': 'bar-ja',
-            'nested': {
-                'nested': 'nested-ja',
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='ja'))
-        fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            '$view': '/views/base.html',
-            'qaz': 'qux-de',
-            'foo': 'bar-de',
-            'nested': {
-                'nested': 'nested-base',
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='de'))
-
-        fields_to_test = {
-            'foo@': 'bar',
-            'foo@fr@': 'bar-fr',
-        }
-        fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'bar',
-        }, document_fields.DocumentFields.untag(fields))
-        self.assertDictEqual({
-            'foo': 'bar',
-        }, document_fields.DocumentFields.untag(fields, locale='de'))
-        self.assertDictEqual({
-            'foo': 'bar-fr',
-        }, document_fields.DocumentFields.untag(fields, locale='fr'))
-
+    def test_untag_list_nested(self):
+        """Untag field values by locale with nested list fields."""
         fields_to_test = {
             'list@': [
                 'value1',
@@ -265,85 +189,8 @@ class DocumentFieldsTestCase(unittest.TestCase):
             ],
         }, document_fields.DocumentFields.untag(fields, locale='fr'))
 
-        fields_to_test = {
-            'nested1': {
-                'list@': [
-                    'value1',
-                    'value2',
-                    'value3',
-                    'value4',
-                ],
-                'list@fr@': [
-                    'value1-fr',
-                    'value2-fr',
-                    'value3-fr',
-                ],
-            },
-            'nested2': {
-                'list@': [
-                    'value1',
-                    'value2',
-                ],
-                'list@fr@': [
-                    'value1-fr',
-                    'value2-fr',
-                ],
-            },
-        }
-        fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'nested1': {
-                'list': [
-                    'value1',
-                    'value2',
-                    'value3',
-                    'value4',
-                ],
-                'list@': [
-                    'value1',
-                    'value2',
-                    'value3',
-                    'value4',
-                ],
-            },
-            'nested2': {
-                'list': [
-                    'value1',
-                    'value2',
-                ],
-                'list@': [
-                    'value1',
-                    'value2',
-                ],
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='de'))
-        fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'nested1': {
-                'list': [
-                    'value1-fr',
-                    'value2-fr',
-                    'value3-fr',
-                ],
-                'list@': [
-                    'value1-fr',
-                    'value2-fr',
-                    'value3-fr',
-                ],
-            },
-            'nested2': {
-                'list': [
-                    'value1-fr',
-                    'value2-fr',
-                ],
-                'list@': [
-                    'value1-fr',
-                    'value2-fr',
-                ],
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='fr'))
-
-    def test_untag_with_backwards_compatibility(self):
+    # pylint: disable=invalid-name
+    def test_untag_backwards_compatibility(self):
         """Test backwards compatibility with untagging."""
         fields_to_test = {
             'title@': 'foo',
@@ -425,6 +272,8 @@ class DocumentFieldsTestCase(unittest.TestCase):
             },
         }, document_fields.DocumentFields.untag(fields, locale='de_AT'))
 
+    def test_untag_with_regex_or(self):
+        """Test that regex works with the untagging keys."""
         fields_to_test = {
             'foo': 'bar-base',
             'foo@de': 'bar-de',
@@ -455,51 +304,6 @@ class DocumentFieldsTestCase(unittest.TestCase):
                 'nested': 'nested-base',
             },
         }, document_fields.DocumentFields.untag(fields, locale='de'))
-
-    # pylint: disable=invalid-name
-    def test_untag_with_trailing_extract(self):
-        """Test that trailing @ used for extracting does not interfere with untag."""
-        fields_to_test = {
-            'foo@': 'bar-base',
-            'foo@de@': 'bar-de',
-            'foo@(.*_FR|.*_SG)@': 'bar-fr',
-            'nested': {
-                'nested@': 'nested-base',
-                'nested@de_AT@': 'nested-de',
-                'nested@(.*_FR|.*_SG)@': 'nested-fr',
-            },
-        }
-        fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'bar-base',
-            'nested': {
-                'nested': 'nested-base',
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='fr'))
-        self.assertDictEqual({
-            'foo': 'bar-fr',
-            'nested': {
-                'nested': 'nested-fr',
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='fr_FR'))
-        self.assertDictEqual({
-            'foo': 'bar-base',
-            'nested': {
-                'nested': 'nested-base',
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='fr_CA'))
-        self.assertDictEqual({
-            'foo': 'bar-de',
-            'nested': {
-                'nested': 'nested-base',
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='de'))
-        self.assertDictEqual({
-            'foo': 'bar-base',
-            'nested': {
-                'nested': 'nested-de',
-            },
-        }, document_fields.DocumentFields.untag(fields, locale='de_AT'))
 
     def test_untag_with_no_base(self):
         """Test that not having a base key does not interfere with untag and locales."""
@@ -536,6 +340,10 @@ class DocumentFieldsTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'prod',
         }, untag(fields, locale=None, params={'env': 'prod'}))
+
+    def test_untag_params_nested(self):
+        """Untag params in nested fields."""
+        untag = document_fields.DocumentFields.untag
         fields_to_test = {
             'nested': {
                 'foo': 'nested-base',
