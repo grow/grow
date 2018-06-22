@@ -27,7 +27,6 @@ class DocumentFields(object):
     @staticmethod
     def untag(data, locale=None, params=None):
         """Untags fields, handling translation priority."""
-        updated_localized_paths = set()
         paths_to_keep_tagged = set()
 
         # pylint: disable=too-many-return-statements
@@ -36,8 +35,6 @@ class DocumentFields(object):
             if not isinstance(key, str):
                 return key, value
 
-            if (path, key.rstrip('@')) in updated_localized_paths:
-                return False
             if key.endswith('@#'):
                 # Translation Comment.
                 return False
@@ -58,19 +55,16 @@ class DocumentFields(object):
                     param_value_regex = r'^{}$'.format(param_value)
                     if not params[param_key] or not re.match(param_value_regex, params[param_key]):
                         return False
-                    updated_localized_paths.add((path, untagged_key.rstrip('@')))
                     return untagged_key, value
 
             # Support <key>@<locale regex>: <value>.
             match = LOCALIZED_KEY_REGEX.match(key)
             if not match:
-                updated_localized_paths.add((path, key))
                 return key, value
             untagged_key, locale_from_key = match.groups()
             locale_regex = r'^{}$'.format(locale_from_key)
             if marked_for_extraction or not locale or not re.match(locale_regex, locale):
                 return False
-            updated_localized_paths.add((path, untagged_key.rstrip('@')))
             return untagged_key, value
 
         # Backwards compatibility for https://github.com/grow/grow/issues/95
