@@ -441,6 +441,18 @@ class DocumentFieldsTestCase(unittest.TestCase):
             'foo': 'base',
         }, untag(fields, locale='fr'))
 
+    def test_untag_translation_comment(self):
+        """Untag ignored translation comments."""
+        untag = document_fields.DocumentFields.untag
+        fields_to_test = {
+            'bar@#': 'comment',
+            'foo@': 'base',
+        }
+        fields = copy.deepcopy(fields_to_test)
+        self.assertDictEqual({
+            'foo': 'base',
+        }, untag(fields, locale=None))
+
     def test_update(self):
         """Test that updates properly overwrite and are untagged."""
         doc_fields = document_fields.DocumentFields({
