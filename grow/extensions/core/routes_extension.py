@@ -77,8 +77,6 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
             trigger_docs = col.list_servable_document_locales(pod_path)
 
             for dep_path in pod.podcache.dependency_graph.get_dependents(pod_path):
-                if not dep_path:
-                    continue
                 base_docs.append(pod.get_doc(dep_path))
                 original_docs += col.list_servable_document_locales(dep_path)
 
