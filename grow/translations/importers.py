@@ -65,7 +65,7 @@ class Importer(object):
         elif path.endswith('.csv'):
             return self.import_csv_file(path)
         else:
-            raise Error('Must import a .zip file, .po file, or directory.')
+            raise Error('Must import a .zip, .csv, .po file, or directory.')
 
     def import_csv_file(self, path):
         """Imports a CSV file formatted with locales in the header row and
