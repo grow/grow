@@ -48,6 +48,18 @@ class ImportersTest(unittest.TestCase):
         de_catalog = self.pod.catalogs.get('de')
         self.assertIn('German Translation', de_catalog)
 
+    def test_import_csv(self):
+        de_catalog = self.pod.catalogs.get('de')
+        self.assertNotIn('German Translation', de_catalog)
+        self.assertNotIn('Hello World', de_catalog)
+
+        path = testing.get_testdata_dir()
+        po_path_to_import = os.path.join(path, 'external', 'messages.csv')
+        self.pod.catalogs.import_translations(po_path_to_import)
+        de_catalog = self.pod.catalogs.get('de')
+        self.assertIn('German Translation', de_catalog)
+        self.assertIn('Hello World', de_catalog)
+
 
 if __name__ == '__main__':
     unittest.main()
