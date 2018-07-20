@@ -27,7 +27,8 @@ class StaticDocument(object):
         # When localized the base string is changed.
         self._base_path_format = self.config['serve_at']
         self._base_source_path = self.source_path
-        self._base_source_path_index = self.source_paths.index(self._base_source_path)
+        self._base_source_path_index = self.source_paths.index(
+            self._base_source_path)
 
         self.use_locale = locale is not None and locale != pod.podspec.default_locale
         if self.use_locale and 'localization' in self.config:
@@ -36,6 +37,8 @@ class StaticDocument(object):
             }
             self.config = self.config.get('localization')
             self.config.update(inherited)
+
+        self.use_fallback = 'fallback' not in self.config or self.config['fallback']
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -123,11 +126,11 @@ class StaticDocument(object):
     @property
     def serving_path(self):
         """Serving path for the static document."""
-        if self.source_pod_path != self.pod_path:
+        if self.source_pod_path != self.pod_path or not self.use_fallback:
             path = self.pod.path_format.format_static(
                 self.path_format, locale=self.locale)
         else:
-            # use the default locale for the formatted path.
+            # Fall back to use the default locale for the formatted path.
             path = self.pod.path_format.format_static(
                 self.base_path_format, locale=self.pod.podspec.default_locale)
 
@@ -174,7 +177,7 @@ class StaticDocument(object):
             self.source_format, locale=self.locale)
         # Fall back to the pod path if using locale and the localized
         # version does not exist.
-        if self.use_locale and not self.pod.file_exists(source_path):
+        if self.use_locale and self.use_fallback and not self.pod.file_exists(source_path):
             source_path = self.pod_path
         return source_path
 
