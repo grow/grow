@@ -57,6 +57,30 @@ class UrlTest(unittest.TestCase):
             url, relative_to='/foo/')
         self.assertEqual('../test.html', relative_path)
 
+    def test_relative_path_ext(self):
+        """Relative paths with extensions."""
+        relative_path = urls.Url.create_relative_path(
+            '/foo.html', relative_to='/bar.html')
+        self.assertEqual('./foo.html', relative_path)
+
+        relative_path = urls.Url.create_relative_path(
+            '/foo/bar.html', relative_to='/bar.html')
+        self.assertEqual('./foo/bar.html', relative_path)
+
+        relative_path = urls.Url.create_relative_path(
+            '/bar.html', relative_to='/foo/bar.html')
+        self.assertEqual('../bar.html', relative_path)
+
+    def test_relative_path_ext_dir(self):
+        """Relative paths with extensions and directories mixed."""
+        relative_path = urls.Url.create_relative_path(
+            '/bar/', relative_to='/foo/bar.html')
+        self.assertEqual('../bar/', relative_path)
+
+        relative_path = urls.Url.create_relative_path(
+            '/bar.html', relative_to='/foo/')
+        self.assertEqual('../bar.html', relative_path)
+
     def test_scheme_and_port(self):
         """Scheme and port combinations."""
         url = urls.Url('/', host='grow.io')
