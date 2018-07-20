@@ -46,7 +46,25 @@ class Url(object):
             path = path.path
         if path.startswith(('http://', 'https://')):
             return path
-        result = os.path.relpath(path, relative_to)
+
+        # Need to support relative paths that are not directories.
+        if not path.endswith('/') or not relative_to.endswith('/'):
+            if path.endswith('/'):
+                path_head = path
+                path_tail = None
+            else:
+                path_head, path_tail = os.path.split(path)
+
+            if relative_to.endswith('/'):
+                relative_head = relative_to
+            else:
+                relative_head, _ = os.path.split(relative_to)
+
+            result = os.path.relpath(path_head, relative_head)
+            if path_tail:
+                result = '{}/{}'.format(result, path_tail)
+        else:
+            result = os.path.relpath(path, relative_to)
         if path.endswith('/'):
             result = result + '/'
         if not result.startswith(('/', '.')):
