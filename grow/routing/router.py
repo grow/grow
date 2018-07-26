@@ -53,7 +53,8 @@ class Router(object):
             doc_basenames = set()
             for collection in self.pod.list_collections():
                 for doc in collection.list_docs_unread():
-                    if doc.basename in doc_basenames:
+                    # Skip duplicate documents when using non-concrete routing.
+                    if not concrete and doc.basename in doc_basenames:
                         continue
                     is_default_locale = doc._locale_kwarg == self.pod.podspec.default_locale
                     # Ignore localized names in the files since they will be
