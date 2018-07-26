@@ -379,7 +379,12 @@ class Document(object):
 
         # When there are locales in a path enumerate the possible locales.
         if '{locale}' in self.path_format_localized:
-            params['locale'] = [str(locale).lower() for locale in self.locales]
+            locale_values = []
+            for locale in self.locales:
+                locale.set_alias(self.pod)
+                locale_values.append(locale.alias)
+                locale_values.append(locale.alias.lower)
+            params['locale'] = locale_values
 
         return params
 
