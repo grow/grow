@@ -104,17 +104,8 @@ class Locale(babel.Locale):
         return cls.parse(alias)
 
     def set_alias(self, pod):
-        normalized_locale = str(self).lower()
         podspec = pod.get_podspec()
-        config = podspec.get_config()
-        if 'localization' in config and 'aliases' in config['localization']:
-            aliases = config['localization']['aliases']
-            for custom_locale, babel_locale in aliases.iteritems():
-                normalized_babel_locale = babel_locale.lower()
-                if normalized_locale == normalized_babel_locale:
-                    normalized_locale = normalized_locale.replace(
-                        normalized_babel_locale, custom_locale)
-        self._alias = normalized_locale
+        self._alias = podspec.get_locale_alias(str(self).lower())
 
     @property
     def alias(self):
