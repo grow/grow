@@ -35,6 +35,9 @@ git curl ssh google-cloud-sdk ruby ruby-dev yarn
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Update npm.
+RUN npm install -g npm@latest
+
 # Install globals.
 RUN yarn global add bower
 RUN yarn global add gulp
@@ -51,6 +54,7 @@ RUN gem install bundler
 RUN grow --version
 RUN ruby -v
 RUN node -v
+RUN npm -v
 RUN bower -v
 RUN gulp -v
 RUN gcloud -v
