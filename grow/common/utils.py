@@ -394,6 +394,7 @@ def slugify(text, delim=u'-'):
         text = str(text)
     result = []
     for word in SLUG_REGEX.split(text.lower()):
+        word = word.decode('utf-8')
         word = word.encode('translit/long')
         if word:
             result.append(word)
