@@ -1,13 +1,11 @@
 """Common OAuth functionality."""
 
+import logging
 import os
 
-# Silence "Loading" messages from keyring.
-import logging
-log = logging.getLogger('keyring.backend')
-log.setLevel(logging.WARNING)
-
+from grow.common import utils
 from oauth2client import client
+from oauth2client import file as oauth_file
 from oauth2client import service_account
 from oauth2client import tools
 
@@ -34,8 +32,12 @@ def get_storage(key, username):
     if appengine:
         return appengine.StorageByKeyName(
             appengine.CredentialsModel, username, 'credentials')
-    from oauth2client.contrib import keyring_storage
-    return keyring_storage.Storage(key, username)
+    key = utils.slugify(key)
+    file_name = os.path.expanduser('~/.config/grow/{}_{}'.format(key, username))
+    dir_name = os.path.dirname(file_name)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    return oauth_file.Storage(file_name)
 
 
 def get_credentials_and_storage(scope, storage_key=DEFAULT_STORAGE_KEY):
