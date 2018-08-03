@@ -3,6 +3,7 @@
 import logging
 import os
 
+from grow.common import utils
 from oauth2client import client
 from oauth2client import file as oauth_file
 from oauth2client import service_account
@@ -31,7 +32,8 @@ def get_storage(key, username):
     if appengine:
         return appengine.StorageByKeyName(
             appengine.CredentialsModel, username, 'credentials')
-    file_name = os.path.expanduser('~/.config/grow/{}'.format(username))
+    key = utils.slugify(key)
+    file_name = os.path.expanduser('~/.config/grow/{}_{}'.format(key, username))
     dir_name = os.path.dirname(file_name)
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
