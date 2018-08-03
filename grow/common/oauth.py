@@ -1,5 +1,6 @@
 """Common OAuth functionality."""
 
+import logging
 import os
 
 from oauth2client import client
