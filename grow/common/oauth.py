@@ -9,6 +9,11 @@ from oauth2client import file as oauth_file
 from oauth2client import service_account
 from oauth2client import tools
 
+# Silence "Loading" messages from keyring.
+# Even though we are not using keyring it is part of the oauth library.
+KEYRING_LOG = logging.getLogger('keyring.backend')
+KEYRING_LOG.setLevel(logging.WARNING)
+
 try:
     from oauth2client.contrib import appengine
 except ImportError:
