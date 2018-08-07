@@ -1,14 +1,14 @@
 """Grow locale wrapper."""
 
-import re
 import babel
 
 
 class Locale(babel.Locale):
-    RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
-    _alias = None
+    """Grow locale."""
 
     def __init__(self, language, *args, **kwargs):
+        self._alias = None
+
         # Normalize from "de_de" to "de_DE" for case-sensitive filesystems.
         parts = language.rsplit('_', 1)
         if len(parts) > 1:
@@ -28,24 +28,16 @@ class Locale(babel.Locale):
 
     @classmethod
     def parse_codes(cls, codes):
+        """Parse a list of codes into a list of locale objects."""
         return [cls.parse(code) for code in codes]
 
-    @classmethod
-    def from_alias(cls, pod, alias):
-        podspec = pod.get_podspec()
-        config = podspec.get_config()
-        if 'localization' in config and 'aliases' in config['localization']:
-            aliases = config['localization']['aliases']
-            for custom_locale, babel_locale in aliases.iteritems():
-                if custom_locale == alias:
-                    return cls.parse(babel_locale)
-        return cls.parse(alias)
-
     def set_alias(self, podspec):
+        """Add an alias for the locale."""
         self._alias = podspec.get_locale_alias(str(self).lower())
 
     @property
     def alias(self):
+        """Alias for the locale if known."""
         return self._alias
 
     @alias.setter
