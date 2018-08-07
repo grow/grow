@@ -16,7 +16,7 @@ class Locale(babel.Locale):
         # Use the alias_cache to determine if this locale has an alias.
         self.alias = None
         if alias_cache:
-            self.alias = alias_cache.get_alias(str(self))
+            self.alias = alias_cache.alias_from_locale(str(self))
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -24,6 +24,8 @@ class Locale(babel.Locale):
         return super(Locale, self).__eq__(other)
 
     def __repr__(self):
+        if self.alias:
+            return '<Locale: "{}" alias="{}">'.format(str(self), self.alias)
         return '<Locale: "{}">'.format(str(self))
 
     @classmethod

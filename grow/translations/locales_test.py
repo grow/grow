@@ -49,6 +49,8 @@ class LocalesTest(unittest.TestCase):
         """Locales representation."""
         locale = locales.Locale('en_US')
         self.assertEqual('<Locale: "en_US">', repr(locale))
+        locale.alias = 'en_ALL'
+        self.assertEqual('<Locale: "en_US" alias="en_ALL">', repr(locale))
 
     def test_str(self):
         """Locales string representation."""
