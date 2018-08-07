@@ -20,7 +20,7 @@ class Locale(babel.Locale):
         locale = super(Locale, cls).parse(*args, **kwargs)
         # Weak attempt to permit fuzzy locales (locales for which we still have
         # language and country information, but not a full localedata file for),
-        # but disallow completely invalid locales. See note at end of file.
+        # but disallow completely invalid locales.
         if locale and locale.get_display_name() is None:
             raise ValueError(
                 '{} is not a valid locale identifier'.format(args[0]))
