@@ -34,7 +34,7 @@ class LocaleAliasCache(object):
         alias = self._locales_to_alias.pop(identifier, None)
         if alias:
             self._alias_to_locale.pop(alias)
-            return alias
+        return alias
 
     def reset(self):
         """Resets the internal cache reference."""
