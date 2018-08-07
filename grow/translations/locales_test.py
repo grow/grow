@@ -8,6 +8,13 @@ from grow.translations import locales
 class LocalesTest(unittest.TestCase):
     """Grow locale handling."""
 
+    def test_alias(self):
+        """Locales alias."""
+        locale = locales.Locale('en_US')
+        self.assertEqual(locale.alias, None)
+        locale.alias = 'en_ALL'
+        self.assertEqual(locale.alias, 'en_ALL')
+
     def test_eq(self):
         """Locales are equal."""
         locale = locales.Locale('en_US')

@@ -31,10 +31,6 @@ class Locale(babel.Locale):
         """Parse a list of codes into a list of locale objects."""
         return [cls.parse(code) for code in codes]
 
-    def set_alias(self, podspec):
-        """Add an alias for the locale."""
-        self._alias = podspec.get_locale_alias(str(self).lower())
-
     @property
     def alias(self):
         """Alias for the locale if known."""
