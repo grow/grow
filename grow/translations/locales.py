@@ -44,14 +44,6 @@ class Locale(babel.Locale):
     def parse_codes(cls, codes):
         return [cls.parse(code) for code in codes]
 
-    @property
-    def is_rtl(self):
-        return Locale.RTL_REGEX.match(self.language)
-
-    @property
-    def direction(self):
-        return 'rtl' if self.is_rtl else 'ltr'
-
     @classmethod
     def from_alias(cls, pod, alias):
         podspec = pod.get_podspec()
