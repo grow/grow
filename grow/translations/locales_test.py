@@ -31,14 +31,6 @@ class LocalesTest(unittest.TestCase):
         self.assertNotEqual(locale, locales.Locale('es_US'))
         self.assertNotEqual(locale, locales.Locale('fr_CA'))
 
-    def test_parse(self):
-        """Locales parsing."""
-        locale = locales.Locale.parse('en_US')
-        self.assertEqual('en_US', str(locale))
-
-        locale = locales.Locale.parse('en-US', sep='-')
-        self.assertEqual('en_US', str(locale))
-
     def test_repr(self):
         """Locales representation."""
         locale = locales.Locale('en_US')

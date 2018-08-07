@@ -15,20 +15,6 @@ class Locale(babel.Locale):
             language = '{}_{}'.format(parts[0], parts[1].upper())
         super(Locale, self).__init__(language, *args, **kwargs)
 
-    @classmethod
-    def parse(cls, *args, **kwargs):
-        locale = super(Locale, cls).parse(*args, **kwargs)
-        # Weak attempt to permit fuzzy locales (locales for which we still have
-        # language and country information, but not a full localedata file for),
-        # but disallow completely invalid locales.
-        if locale and locale.get_display_name() is None:
-            raise ValueError(
-                '{} is not a valid locale identifier'.format(args[0]))
-        return locale
-
-    def __hash__(self):
-        return hash(str(self))
-
     def __eq__(self, other):
         if isinstance(other, str):
             return str(self).lower() == other.lower()
