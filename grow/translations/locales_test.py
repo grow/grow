@@ -2,6 +2,7 @@
 
 import unittest
 
+from grow.cache import locale_alias_cache
 from grow.translations import locales
 
 
@@ -13,6 +14,13 @@ class LocalesTest(unittest.TestCase):
         locale = locales.Locale('en_US')
         self.assertEqual(locale.alias, None)
         locale.alias = 'en_ALL'
+        self.assertEqual(locale.alias, 'en_ALL')
+
+    def test_alias_cache(self):
+        """Locales alias caching."""
+        locale_cache = locale_alias_cache.LocaleAliasCache()
+        locale_cache.add('en_US', 'en_ALL')
+        locale = locales.Locale('en_US', alias_cache=locale_cache)
         self.assertEqual(locale.alias, 'en_ALL')
 
     def test_eq(self):
