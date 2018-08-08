@@ -24,7 +24,6 @@ class PodspecTest(unittest.TestCase):
     def test_no_locale_aliases(self):
         """Locale alias cache without alias config."""
         spec = podspec.PodSpec({})
-
         aliases = spec.locale_aliases
         self.assertEqual('en_US', aliases.alias_from_locale('en_US'))
 

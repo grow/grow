@@ -16,7 +16,7 @@ class DeepReferenceDict(dict):
     def __getitem__(self, key):
         """Handle the ability to do a delimited key."""
         try:
-            return super(DeepReferenceDict, self).__getitem__(key)
+            return super().__getitem__(key)
         except KeyError:
             data = None
             for sub_key in key.split('.'):
@@ -26,7 +26,7 @@ class DeepReferenceDict(dict):
                 if sub_key in data:
                     data = data[sub_key]
                 else:
-                    raise
+                    return None
             return data
 
 
