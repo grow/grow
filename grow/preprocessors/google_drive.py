@@ -257,6 +257,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             row = row[1:]
                             row_len = len(row)
                             for col, grid_key in enumerate(headers):
+                                if not grid_key:
+                                    continue
                                 if isinstance(grid_key, unicode):
                                     grid_key = grid_key.encode('utf-8')
                                 value = (row[col] if row_len > col else '').strip()
