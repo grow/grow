@@ -25,6 +25,7 @@ class DeepReferenceDict(dict):
                     if data is None:
                         raise
                 elif sub_key in data:
+                    # pylint: disable=unsubscriptable-object
                     data = data[sub_key]
                 else:
                     raise
