@@ -12,11 +12,6 @@ class PodspecTest(unittest.TestCase):
         """Locale alias cache."""
         spec = podspec.PodSpec({
             'localization': {
-                'locales': [
-                    'en_US',
-                    'en_AU',
-                    'en_GB',
-                ],
                 'aliases': {
                     'en_US': 'en_ALL',
                 }
@@ -25,6 +20,13 @@ class PodspecTest(unittest.TestCase):
 
         aliases = spec.locale_aliases
         self.assertEqual('en_ALL', aliases.alias_from_locale('en_US'))
+
+    def test_no_locale_aliases(self):
+        """Locale alias cache without alias config."""
+        spec = podspec.PodSpec({})
+
+        aliases = spec.locale_aliases
+        self.assertEqual('en_US', aliases.alias_from_locale('en_US'))
 
 
 if __name__ == '__main__':

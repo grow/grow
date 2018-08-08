@@ -13,6 +13,6 @@ class PodSpec(structures.DeepReferenceDict):
         self.locale_aliases = locale_alias_cache.LocaleAliasCache()
 
         try:
-            self.locale_aliases.add_all(self['localization.aliases'])
+            self.locale_aliases.add_all(self['localization.aliases'] or {})
         except KeyError:
             pass
