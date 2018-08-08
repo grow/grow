@@ -24,8 +24,7 @@ class DeepReferenceDict(dict):
                     data = self.get(sub_key)
                     if data is None:
                         raise
-                    continue
-                if sub_key in data:
+                elif sub_key in data:
                     data = data[sub_key]
                 else:
                     raise
