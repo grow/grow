@@ -82,6 +82,7 @@ class Importer(object):
                 for locale, translation in row.iteritems():
                     if locale == default_locale:
                         continue
+                    translation = translation.decode('utf-8')
                     message = catalog.Message(msgid, translation)
                     if locale not in locales_to_catalogs:
                         locales_to_catalogs[locale] = catalog.Catalog()
