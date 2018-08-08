@@ -20,6 +20,7 @@ from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
 from grow.common import utils
+from grow.common import yaml_utils
 from grow.documents import document_fields
 from grow.documents import document_format
 from grow.documents import document_front_matter as doc_front_matter
@@ -307,7 +308,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             # empty dict. If the file doesn't exist and if we're not updating
             # at a specific key, just return the new data without reformatting.
             if self.pod.file_exists(path):
-                existing_data = self.pod.read_yaml(path)
+                # Do a text parse of the yaml file to prevent the constructors.
+                content = self.pod.read_file(path)
+                existing_data = yaml.load(content, Loader=yaml_utils.PlainTextYamlLoader)
             elif key_to_update:
                 existing_data = {}
             else:
@@ -374,7 +377,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         new_data=gid_to_data[gid],
                         path=output_path,
                         key_to_update=None)
-                self.pod.write_yaml(output_path, gid_to_data[gid])
+                # Use plain text dumper to preserve yaml constructors.
+                output_content = yaml.dump(
+                    gid_to_data[gid], Dumper=yaml_utils.PlainTextYamlDumper,
+                    default_flow_style=False, allow_unicode=True, width=800)
+                self.pod.write_file(output_path, output_content)
                 self.logger.info(
                     'Downloaded {} ({}) -> {}'.format(
                         gid_to_sheet[gid]['title'], gid, output_path))
