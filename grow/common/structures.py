@@ -22,11 +22,13 @@ class DeepReferenceDict(dict):
             for sub_key in key.split('.'):
                 if data is None:
                     data = self.get(sub_key)
+                    if data is None:
+                        raise
                     continue
                 if sub_key in data:
                     data = data[sub_key]
                 else:
-                    return None
+                    raise
             return data
 
 

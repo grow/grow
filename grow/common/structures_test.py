@@ -40,6 +40,10 @@ class DeepReferenceDictTestCase(unittest.TestCase):
         with self.assertRaises(KeyError):
             _ = obj['key.sub_key.value']
 
+        obj = structures.DeepReferenceDict({})
+        with self.assertRaises(KeyError):
+            _ = obj['key.sub_key.value']
+
 
 class DummyDictTestCase(unittest.TestCase):
     """Test the dummy dictionary."""
