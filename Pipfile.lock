@@ -871,9 +871,9 @@
         },
         "pefile": {
             "hashes": [
-                "sha256:675c35ee0e1677db9e80d2f48d8a7ff2cf38e6207e8cd5e2a2c6d126db025854"
+                "sha256:4c5b7e2de0c8cb6c504592167acf83115cbbde01fe4a507c16a1422850e86cd6"
             ],
-            "version": "==2017.11.5"
+            "version": "==2018.8.8"
         },
         "pkginfo": {
             "hashes": [
