@@ -47,10 +47,16 @@ class Catalogs(object):
             self.template_path = os.path.join(Catalogs.root, 'messages.pot')
         self.root = os.path.dirname(self.template_path)
 
-    def diff(self, other):
+    def __repr__(self):
+        return '<Catalogs: {}>'.format(self.template_path)
+
+    def diff(self, other_catalogs, out_dir):
+        """Produces a diff between this directory of catalogs, and another set
+        of catalogs, writing the results to a directory."""
         diffed_locales_to_catalogs = collections.defaultdict(int)
-        other_catalogs = self.pod.get_catalogs(other)
-        diffed_catalogs = self.pod.get_catalogs('diff/messages.pot')
+        if not out_dir.endswith('messages.pot'):
+            out_dir = os.path.join(out_dir, 'messages.pot')
+        diffed_catalogs = self.pod.get_catalogs(out_dir)
         for this_catalog in self:
             locale = this_catalog.locale
             other_catalog = other_catalogs.get(locale, dir_path=other_catalogs.root)
@@ -66,7 +72,7 @@ class Catalogs(object):
                 diffed_locales_to_catalogs[locale] += 1
             diffed_catalog.save()
         for locale, num_diff in diffed_locales_to_catalogs.iteritems():
-            self.pod.logger.info('Diffed messages for {} -> {}'.format(locale, num_diff))
+            self.pod.logger.info('Found different messages for {} -> {}'.format(locale, num_diff))
 
     def get(self, locale, basename='messages.po', dir_path=None):
         return catalogs.Catalog(basename, locale, pod=self.pod, dir_path=dir_path)

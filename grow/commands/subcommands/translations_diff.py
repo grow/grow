@@ -1,4 +1,4 @@
-"""Subommand for uploading translations to a remote source."""
+"""Subommand for diffing two directories of translation catalogs."""
 
 import os
 import click
@@ -14,10 +14,13 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.translations.diff')
 
 @click.command(name='diff')
 @shared.pod_path_argument
-@click.option('--other', help='Path to the translation catalog to diff.')
-def translations_diff(pod_path, other):
+@click.option('--translations', '-t', help='Path to the other translations directory to diff.')
+@click.option('--out_dir', '-o', help='Where to write the diffs.')
+def translations_diff(pod_path, translations, out_dir):
     """Diffs a translations directory with another."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
-    pod.catalogs.diff(other)
+    translations = os.path.join(translations, 'messages.pot')
+    other_catalogs = pod.get_catalogs(translations)
+    pod.catalogs.diff(other_catalogs, out_dir)
     return pod
