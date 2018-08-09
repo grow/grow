@@ -1,4 +1,4 @@
-"""Subommand for diffing two directories of translation catalogs."""
+"""Subcommand for diffing two directories of translation catalogs."""
 
 import os
 import click
