@@ -42,9 +42,37 @@ class Catalogs(object):
         self.pod = pod
         self._gettext_translations = {}
         if template_path:
-            self.template_path = template_path
+            self.template_path = os.path.expanduser(template_path)
         else:
             self.template_path = os.path.join(Catalogs.root, 'messages.pot')
+        self.root = os.path.dirname(self.template_path)
+
+    def __repr__(self):
+        return '<Catalogs: {}>'.format(self.template_path)
+
+    def diff(self, other_catalogs, out_dir):
+        """Produces a diff between this directory of catalogs, and another set
+        of catalogs, writing the results to a directory."""
+        diffed_locales_to_catalogs = collections.defaultdict(int)
+        if not out_dir.endswith('messages.pot'):
+            out_dir = os.path.join(out_dir, 'messages.pot')
+        diffed_catalogs = self.pod.get_catalogs(out_dir)
+        for this_catalog in self:
+            locale = this_catalog.locale
+            other_catalog = other_catalogs.get(locale, dir_path=other_catalogs.root)
+            diffed_catalog = diffed_catalogs.get(locale, dir_path=diffed_catalogs.root)
+            for message in this_catalog:
+                # Skip empty messages.
+                if not message.id:
+                    continue
+                # Skip messages we have in the other catalog.
+                if message.id in other_catalog:
+                    continue
+                diffed_catalog[message.id] = message
+                diffed_locales_to_catalogs[locale] += 1
+            diffed_catalog.save()
+        for locale, num_diff in diffed_locales_to_catalogs.iteritems():
+            self.pod.logger.info('Found different messages for {} -> {}'.format(locale, num_diff))
 
     def get(self, locale, basename='messages.po', dir_path=None):
         return catalogs.Catalog(basename, locale, pod=self.pod, dir_path=dir_path)
@@ -57,7 +85,7 @@ class Catalogs(object):
 
     def list_locales(self):
         locales = set()
-        for path in self.pod.list_dir(Catalogs.root):
+        for path in self.pod.list_dir(self.root):
             parts = path.split('/')
             if len(parts) > 2:
                 locales.add(parts[1])
