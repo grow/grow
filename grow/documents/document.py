@@ -386,7 +386,7 @@ class Document(object):
             for locale in self.locales:
                 locale.set_alias(self.pod)
                 locale_values.append(locale.alias)
-                locale_values.append(locale.alias.lower)
+                locale_values.append(locale.alias.lower())
             params['locale'] = locale_values
 
         return params
