@@ -356,7 +356,8 @@ class Document(object):
         elif (self.collection.localization
                 and 'path' in self.collection.localization):
             return self.collection.localization.get('path')
-        elif '{locale}' in self.collection.path_format:
+        elif (self.collection.path_format
+                and '{locale}' in self.collection.path_format):
             return self.collection.path_format
         return None
 
