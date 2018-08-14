@@ -60,6 +60,10 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         with self.assertRaises(base_installer.InstallError):
             self.installer.install()
 
+    def test_post_install_messages(self):
+        """Install messages."""
+        self.assertEqual(['Finished: Extensions -> extensions/'], self.installer.post_install_messages)
+
     def test_should_run(self):
         """Detect if should run when installing extensions."""
         self.assertFalse(self.installer.should_run)

@@ -18,6 +18,10 @@ class BaseInstallerTestCase(unittest.TestCase):
         """Default for install messages."""
         self.assertEqual(['Finished: None'], self.installer.post_install_messages)
 
+    def test_check_prerequisites(self):
+        """Check prerequisites does nothing."""
+        self.assertEqual(None, self.installer.check_prerequisites())
+
     def test_should_run(self):
         """Default for running the installer."""
         self.assertTrue(self.installer.should_run)
