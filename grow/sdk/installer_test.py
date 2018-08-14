@@ -46,6 +46,19 @@ class InstallerTestCase(unittest.TestCase):
 
     @mock.patch('subprocess.Popen')
     @mock.patch('subprocess.call')
+    def test_run_installers_not_run(self, _mock_call, _mock_popen):
+        """Run installers runs even when installer should not run."""
+        config = base_config.BaseConfig()
+        env = mocks.mock_env(name="testing")
+        pod = mocks.mock_pod(env=env, root='/testing/')
+        pod.file_exists.return_value = False
+        self.installer = installer.Installer([
+            npm_installer.NpmInstaller(pod, config),
+        ])
+        self.assertTrue(self.installer.run_installers())
+
+    @mock.patch('subprocess.Popen')
+    @mock.patch('subprocess.call')
     def test_run_installers_dependency_fail(self, mock_call, _mock_popen):
         """Run installers with failing dependency check."""
         config = base_config.BaseConfig()
