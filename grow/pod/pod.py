@@ -7,7 +7,8 @@ from grow.performance import profile
 class Pod(object):
     """Grow pod container."""
 
-    def __init__(self, root_path, logger=None, profiler=None):
+    def __init__(self, root_path, storage=None, logger=None, profiler=None):
         self.root_path = root_path
         self.logger = logger or grow_logger.LOGGER
         self.profiler = profiler or profile.Profile()
+        self.storage = storage
