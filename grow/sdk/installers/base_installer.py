@@ -5,14 +5,17 @@ from grow.sdk import sdk_utils
 
 class Error(Exception):
     """Base error for installers."""
-    pass
+
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
 
 
 class MissingPrerequisiteError(Error):
     """Installer is missing a prerequisite."""
 
     def __init__(self, message, install_commands=None):
-        super(MissingPrerequisiteError, self).__init__(message)
+        super().__init__(message)
         self.install_commands = install_commands
 
 
