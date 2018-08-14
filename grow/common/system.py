@@ -5,6 +5,7 @@ import platform
 import sys
 
 
+# pragma: no cover
 if 'Linux' in platform.system():
     PLATFORM = 'linux'
 elif 'Darwin' in platform.system():
