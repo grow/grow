@@ -33,6 +33,7 @@ class UpdaterTestCase(unittest.TestCase):
         self.updater.check_for_updates()
         mock_config.write.assert_called()
 
+    # pylint: disable=invalid-name
     @mock.patch('os.execl')
     @mock.patch('subprocess.call')
     @mock.patch('grow.common.system.is_packaged_app')
@@ -55,6 +56,7 @@ class UpdaterTestCase(unittest.TestCase):
         self.updater.check_for_updates(auto_update_prompt=True)
         mock_config.write.assert_called()
 
+    # pylint: disable=invalid-name
     @mock.patch('os.execl')
     @mock.patch('subprocess.call')
     @mock.patch('grow.common.system.is_packaged_app')
@@ -78,6 +80,7 @@ class UpdaterTestCase(unittest.TestCase):
             self.updater.check_for_updates(auto_update_prompt=True)
         mock_config.write.assert_called()
 
+    # pylint: disable=invalid-name
     @mock.patch('os.execl')
     @mock.patch('subprocess.call')
     @mock.patch('grow.common.system.is_packaged_app')
@@ -87,8 +90,8 @@ class UpdaterTestCase(unittest.TestCase):
     @mock.patch('grow.sdk.updater.Updater.latest_version',
                 new_callable=mock.PropertyMock)
     def test_check_for_updates_packaged_app_fail(self, mock_latest_version, mock_current_version,
-                                                 mock_config, mock_is_packaged_app, mock_subprocess_call,
-                                                 _mock_os_execl):
+                                                 mock_config, mock_is_packaged_app,
+                                                 mock_subprocess_call, _mock_os_execl):
         """Update check fails when install fails."""
         mock_config.needs_update_check = True
         mock_is_packaged_app.return_value = True
@@ -100,6 +103,7 @@ class UpdaterTestCase(unittest.TestCase):
             self.updater.check_for_updates(auto_update_prompt=True)
         mock_config.write.assert_called()
 
+    # pylint: disable=invalid-name
     @mock.patch('os.execl')
     @mock.patch('subprocess.call')
     @mock.patch('grow.common.system.is_packaged_app')
@@ -121,6 +125,7 @@ class UpdaterTestCase(unittest.TestCase):
         self.updater.check_for_updates(auto_update_prompt=True)
         mock_config.write.assert_called()
 
+    # pylint: disable=invalid-name
     @mock.patch('os.execl')
     @mock.patch('subprocess.call')
     @mock.patch('grow.common.system.is_packaged_app')
@@ -240,3 +245,28 @@ class UpdaterTestCase(unittest.TestCase):
         mock_get.side_effect = Exception('Testing')
         with self.assertRaises(updater.LatestVersionCheckError):
             _ = self.updater.latest_version
+
+    @mock.patch('grow.sdk.updater.Updater.current_version',
+                new_callable=mock.PropertyMock)
+    def test_verify_required_spec(self, mock_current_version):
+        """Verify installed version in spec."""
+        # No spec given.
+        self.updater.verify_required_spec()
+
+        # Equal version numbers.
+        mock_current_version.return_value = '0.1.0'
+        self.updater = updater.Updater('>=0.1.0')
+        self.updater.verify_required_spec()
+
+        # Verify with newer version.
+        mock_current_version.return_value = '0.2.0'
+        self.updater.verify_required_spec()
+
+    @mock.patch('grow.sdk.updater.Updater.current_version',
+                new_callable=mock.PropertyMock)
+    def test_verify_required_spec_old(self, mock_current_version):
+        """Verify installed version in spec."""
+        mock_current_version.return_value = '0.0.1'
+        self.updater = updater.Updater('>=0.1.0')
+        with self.assertRaises(updater.LatestVersionCheckError):
+            self.updater.verify_required_spec()
