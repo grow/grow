@@ -15,6 +15,10 @@ class NpmInstallerTestCase(unittest.TestCase):
         expected_files = ('/package.json',)
         self.pod.file_exists.side_effect = lambda name: name in expected_files
 
+    def _make_nvm(self):
+        expected_files = ('/.nvmrc',)
+        self.pod.file_exists.side_effect = lambda name: name in expected_files
+
     def _make_yarn(self):
         expected_files = ('/yarn.lock',)
         self.pod.file_exists.side_effect = lambda name: name in expected_files
@@ -67,6 +71,17 @@ class NpmInstallerTestCase(unittest.TestCase):
         self.installer.install()
         mock_popen.assert_called_once_with(
             'npm install', **self.installer.subprocess_args(shell=True))
+
+    @mock.patch('subprocess.Popen')
+    def test_install_npm_with_nvm(self, mock_popen):
+        """Install uses npm."""
+        self._make_nvm()
+        mock_process = mock.Mock()
+        mock_process.wait.return_value = 0
+        mock_popen.return_value = mock_process
+        self.installer.install()
+        mock_popen.assert_called_once_with(
+            '. $NVM_DIR/nvm.sh && nvm exec npm install', **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.Popen')
     def test_install_yarn(self, mock_popen):
