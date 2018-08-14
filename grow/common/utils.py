@@ -33,6 +33,7 @@ except ImportError:
     from yaml import Loader as yaml_Loader
 
 
+APPENGINE_SERVER_PREFIXES = ('Development/', 'Google App Engine/')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
 SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
@@ -59,10 +60,9 @@ def is_packaged_app():
 
 def is_appengine():
     """Returns whether the environment is Google App Engine."""
-    if 'SERVER_SOFTWARE' in os.environ:
-        # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled
-        return os.environ['SERVER_SOFTWARE'].startswith(('Development/', 'Google App Engine/'))
-    return False
+    # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled
+    return os.getenv('SERVER_SOFTWARE', '').startswith(
+        APPENGINE_SERVER_PREFIXES)
 
 
 def get_git():

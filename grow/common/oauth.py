@@ -34,7 +34,7 @@ DEFAULT_AUTH_KEY_FILE = 'auth-key.json'
 
 def get_storage(key, username):
     """Returns the Storage class compatible with the current environment."""
-    if appengine:
+    if appengine and utils.is_appengine():
         return appengine.StorageByKeyName(
             appengine.CredentialsModel, username, 'credentials')
     key = utils.slugify(key)
