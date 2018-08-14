@@ -1,7 +1,19 @@
 """Utilities around the system that Grow is running on."""
 
 import os
+import platform
 import sys
+
+
+if 'Linux' in platform.system():
+    PLATFORM = 'linux'
+elif 'Darwin' in platform.system():
+    PLATFORM = 'mac'
+elif 'Windows' in platform.system():
+    PLATFORM = 'win'
+else:
+    PLATFORM = None
+
 
 try:
     # pylint: disable=protected-access

@@ -49,11 +49,11 @@ def mock_doc(pod=None, pod_path=None, base=None, date=None, locale=None,
     return doc
 
 
-def mock_env(fingerprint=None):
+def mock_env(fingerprint=None, name=None):
     """Mock grow environment."""
     env = mock.Mock()
-    prop_fingerprint = mock.PropertyMock(return_value=fingerprint)
-    type(env).fingerprint = prop_fingerprint
+    type(env).fingerprint = mock.PropertyMock(return_value=fingerprint)
+    type(env).name = mock.PropertyMock(return_value=name)
     return env
 
 
@@ -66,11 +66,10 @@ def mock_locale(identifier, alias=None):
     locale = mock.Mock()
     locale.__str__ = __str__
     type(locale).alias = mock.PropertyMock(return_value=alias)
-    type(locale).alias = mock.PropertyMock(return_value=alias)
     return locale
 
 
-def mock_pod(podspec=None, env=None):
+def mock_pod(podspec=None, env=None, root=None):
     """Mock grow pod."""
     pod = mock.Mock()
     mock_podspec = mock.Mock()
@@ -78,6 +77,7 @@ def mock_pod(podspec=None, env=None):
         podspec = {}
     mock_podspec.get_config.return_value = podspec
     type(pod).podspec = mock.PropertyMock(return_value=mock_podspec)
+    type(pod).root = mock.PropertyMock(return_value=root)
     if not env:
         env = mock_env()
     type(pod).env = mock.PropertyMock(return_value=env)
