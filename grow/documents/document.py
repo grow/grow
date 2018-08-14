@@ -353,8 +353,11 @@ class Document(object):
             return self.fields['$localization']['path']
         elif '{locale}' in self.fields.get('$path', ''):
             return self.path_format_base
-        elif self.collection.localization:
+        elif (self.collection.localization
+                and 'path' in self.collection.localization):
             return self.collection.localization.get('path')
+        elif '{locale}' in self.collection.path_format:
+            return self.collection.path_format
         return None
 
     @property
@@ -575,5 +578,6 @@ class Document(object):
 # Allow the yaml dump to write out a representation of the document.
 def doc_representer(dumper, data):
     return dumper.represent_scalar(u'!g.doc', data.pod_path)
+
 
 yaml.SafeDumper.add_representer(Document, doc_representer)
