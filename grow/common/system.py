@@ -5,14 +5,13 @@ import platform
 import sys
 
 
-# pragma: no cover
 if 'Linux' in platform.system():
     PLATFORM = 'linux'
-elif 'Darwin' in platform.system():
+elif 'Darwin' in platform.system():  # pragma: no cover
     PLATFORM = 'mac'
-elif 'Windows' in platform.system():
+elif 'Windows' in platform.system():  # pragma: no cover
     PLATFORM = 'win'
-else:
+else:  # pragma: no cover
     PLATFORM = None
 
 
