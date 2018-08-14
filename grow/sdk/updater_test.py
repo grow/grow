@@ -2,6 +2,7 @@
 
 import unittest
 import mock
+from grow.common import system
 from grow.sdk import updater
 from grow.testing import mocks
 
@@ -157,6 +158,10 @@ class UpdaterTestCase(unittest.TestCase):
         mock_subprocess_call.return_value = 0
         mock_os_execl.return_value = True
         self.updater.check_for_updates(auto_update_prompt=True)
+
+    def test_current_versionl(self):
+        """Current version is system version."""
+        self.assertEqual(system.VERSION, self.updater.current_version)
 
     @mock.patch('requests.get')
     def test_latest_version_normal(self, mock_get):
