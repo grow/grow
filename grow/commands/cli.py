@@ -2,6 +2,7 @@
 
 import click
 from grow.commands import build
+from grow.commands import install
 from grow.common import system
 
 HELP_TEXT = ('Grow is a declarative file-based website generator. Read docs at '
@@ -32,3 +33,4 @@ def process_subcommands(cmd_result, profile, **_):
 
 
 grow.add_command(build.build)
+grow.add_command(install.install)
