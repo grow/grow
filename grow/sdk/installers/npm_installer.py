@@ -43,12 +43,13 @@ class NpmInstaller(base_installer.BaseInstaller):
             if system.PLATFORM == 'linux':
                 install_commands.append(
                     'On Linux, you can install npm using: `apt-get install nodejs`')
-            elif system.PLATFORM == 'mac':
+            # TODO: Remove pragma when enabled testing on OSX.
+            elif system.PLATFORM == 'mac':  # pragma: no cover
                 install_commands.append(
                     'Using brew (https://brew.sh), you can install using: `brew install node`')
                 install_commands.append(('If you do not have brew, you can download '
                                          'Node.js from https://nodejs.org'))
-            else:
+            else:  # pragma: no cover
                 install_commands.append(
                     'Download Node.js from https://nodejs.org')
             raise base_installer.MissingPrerequisiteError(
