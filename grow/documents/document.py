@@ -353,8 +353,12 @@ class Document(object):
             return self.fields['$localization']['path']
         elif '{locale}' in self.fields.get('$path', ''):
             return self.path_format_base
-        elif self.collection.localization:
+        elif (self.collection.localization
+                and 'path' in self.collection.localization):
             return self.collection.localization.get('path')
+        elif (self.collection.path_format
+                and '{locale}' in self.collection.path_format):
+            return self.collection.path_format
         return None
 
     @property
@@ -379,11 +383,11 @@ class Document(object):
 
         # When there are locales in a path enumerate the possible locales.
         if '{locale}' in self.path_format_localized:
-            locale_values = []
+            locale_values = set()
             for locale in self.locales:
                 locale.set_alias(self.pod)
-                locale_values.append(locale.alias)
-                locale_values.append(locale.alias.lower)
+                locale_values.add(locale.alias)
+                locale_values.add(locale.alias.lower())
             params['locale'] = locale_values
 
         return params
@@ -575,5 +579,6 @@ class Document(object):
 # Allow the yaml dump to write out a representation of the document.
 def doc_representer(dumper, data):
     return dumper.represent_scalar(u'!g.doc', data.pod_path)
+
 
 yaml.SafeDumper.add_representer(Document, doc_representer)

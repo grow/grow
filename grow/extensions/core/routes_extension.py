@@ -16,31 +16,51 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
     """Handle the dev handler hook."""
 
     @staticmethod
-    def serve_routes(pod, _request, _matched, **_kwargs):
-        """Handle the request for routes."""
+    def _create_response(pod, routes, title, is_concrete=True):
         env = ui.create_jinja_env()
         template = env.get_template('views/base-reroute.html')
-        router = grow_router.Router(pod)
-        router.use_simple()
-        router.add_all()
         kwargs = {
             'pod': pod,
             'partials': [{
                 'partial': 'routes',
-                'routes': router.routes,
+                'is_concrete': is_concrete,
+                'routes': routes,
             }],
-            'title': 'Pod Routes',
+            'title': title,
         }
         content = template.render(kwargs)
         response = wrappers.Response(content)
         response.headers['Content-Type'] = 'text/html'
         return response
 
+    @staticmethod
+    def serve_routes_abstract(pod, _request, _matched, **_kwargs):
+        """Handle the request for abstract routes."""
+        routes = pod.router.routes
+        return RoutesDevHandlerHook._create_response(
+            pod, routes, 'Pod Abstract Routes')
+
+    @staticmethod
+    def serve_routes_concrete(pod, _request, _matched, **_kwargs):
+        """Handle the request for routes."""
+        router = grow_router.Router(pod)
+        router.use_simple()
+        router.add_all()
+        routes = router.routes
+        return RoutesDevHandlerHook._create_response(
+            pod, routes, 'Pod Routes')
+
     # pylint: disable=arguments-differ
     def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
         routes.add('/_grow/routes', grow_router.RouteInfo('console', {
-            'handler': RoutesDevHandlerHook.serve_routes,
+            'handler': RoutesDevHandlerHook.serve_routes_concrete,
+        }))
+        routes.add('/_grow/routes/concrete', grow_router.RouteInfo('console', {
+            'handler': RoutesDevHandlerHook.serve_routes_concrete,
+        }))
+        routes.add('/_grow/routes/abstract', grow_router.RouteInfo('console', {
+            'handler': RoutesDevHandlerHook.serve_routes_abstract,
         }))
 
 

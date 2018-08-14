@@ -195,7 +195,10 @@ class Router(object):
                 else:
                     # Use the raw paths to parameterize the routing.
                     base_path = doc.get_serving_path_base()
-                    if base_path:
+                    only_localized = doc.path_format == doc.path_format_localized
+                    # If the path is already localized only add the
+                    # parameterized version of the path.
+                    if base_path and not only_localized:
                         self.routes.add(base_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
                             'locale': str(doc.locale),
