@@ -31,18 +31,18 @@ docker push grow/grow:$GROW_VERSION
 docker push grow/grow:latest
 
 # Alpine Base.
-docker build --build-arg grow_version=$GROW_VERSION \
+docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/base:$GROW_VERSION-alpine -t grow/base:alpine-latest \
   -f Dockerfile.alpine .
 
-docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION-alpine  \
-  bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
+# docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION-alpine  \
+#   bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
 
 docker push grow/base:$GROW_VERSION-alpine
 docker push grow/base:alpine-latest
 
 # Alpine Base Command.
-docker build --build-arg grow_version=$GROW_VERSION \
+docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/grow:$GROW_VERSION-alpine -t grow/grow:alpine-latest \
   -f Dockerfile.exec .
 
