@@ -1,6 +1,23 @@
-ARG grow_version
-FROM grow/base:$grow_version
+FROM ubuntu:xenial
 MAINTAINER Grow SDK Authors <hello@grow.io>
+
+ARG grow_version
+
+RUN echo "Grow: $grow_version"
+
+# Set environment variables.
+ENV TERM=xterm
+
+# Install Grow.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    python python-pip python-setuptools python-all-dev \
+    build-essential libyaml-dev libffi-dev libssl-dev \
+  && pip install --upgrade wheel \
+  && pip install grow==$grow_version \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && echo "Grow: `grow --version`"
 
 # Grow!
 ENTRYPOINT ["grow"]
