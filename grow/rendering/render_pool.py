@@ -5,6 +5,7 @@ import threading
 from grow.templates import filters
 from grow.templates import jinja_dependency
 from grow.templates import tags
+from grow.templates import tests as jinja_tests
 
 
 class Error(Exception):
@@ -78,6 +79,7 @@ class RenderPool(object):
         env = jinja_dependency.DepEnvironment(**kwargs)
         env.filters.update(filters.create_builtin_filters())
         env.globals.update(**tags.create_builtin_globals(env, self.pod, locale=locale))
+        env.tests.update(jinja_tests.create_builtin_tests())
         return env
 
     def custom_jinja_env(self, locale='', root=None):
