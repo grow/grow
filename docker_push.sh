@@ -16,11 +16,11 @@ docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION  \
 
 docker push grow/base:$GROW_VERSION
 docker push grow/base:latest
-# Old docker image support.
+Old docker image support.
 docker push grow/baseimage:$GROW_VERSION
 docker push grow/baseimage:latest
 
-# Ubuntu Base Command.
+# Ubuntu Command.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/grow:$GROW_VERSION -t grow/grow:latest \
   -f Dockerfile.exec .
@@ -35,13 +35,13 @@ docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/base:$GROW_VERSION-alpine -t grow/base:alpine-latest \
   -f Dockerfile.alpine .
 
-# docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION-alpine  \
-#   bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
+docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION-alpine  \
+  bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
 
 docker push grow/base:$GROW_VERSION-alpine
 docker push grow/base:alpine-latest
 
-# Alpine Base Command.
+# Alpine Command.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/grow:$GROW_VERSION-alpine -t grow/grow:alpine-latest \
   -f Dockerfile.exec .

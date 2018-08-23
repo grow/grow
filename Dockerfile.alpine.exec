@@ -19,10 +19,7 @@ RUN apk update && \
   && rm -rf /var/cache/apk/*
 
 # Confirm versions that are installed.
-RUN echo "Grow: `grow --version`" && \
-  echo "Node: `node -v`" && \
-  echo "NPM: `npm -v`" && \
-  echo "Yarn: `yarn --version`"
+RUN echo "Grow: `grow --version`"
 
 # Grow!
 ENTRYPOINT ["grow"]
