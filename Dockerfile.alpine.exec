@@ -13,6 +13,7 @@ RUN apk update && \
     libffi-dev \
     libressl-dev \
     g++ \
+    yaml-dev \
   && python --version \
   && pip install --upgrade pip wheel \
   && pip install --upgrade grow==$grow_version \
