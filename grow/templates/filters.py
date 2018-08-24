@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import copy
+import hashlib
 import json as json_lib
 import random
 import re
@@ -46,10 +47,27 @@ def deeptrans(ctx, obj):
     new_item = copy.deepcopy(obj)
     return _deep_gettext(ctx, new_item)
 
+
 @jinja2.contextfilter
 def expand_partial(_ctx, partial_name):
     """Filter for expanding partial path from name of partial."""
     return '/partials/{0}/{0}.html'.format(partial_name)
+
+
+@jinja2.contextfilter
+def hash_value(_ctx, value, algorithm='sha'):
+    """Hash the value using the algorithm."""
+    if algorithm in ('md5',):
+        return hashlib.md5(value).hexdigest()
+    if algorithm in ('sha1',):
+        return hashlib.sha1(value).hexdigest()
+    if algorithm in ('sha224',):
+        return hashlib.sha224(value).hexdigest()
+    if algorithm in ('sha384',):
+        return hashlib.sha384(value).hexdigest()
+    if algorithm in ('sha512',):
+        return hashlib.sha512(value).hexdigest()
+    return hashlib.sha256(value).hexdigest()
 
 
 @jinja2.contextfilter
@@ -139,6 +157,7 @@ def create_builtin_filters():
         ('decimal', wrap_locale_context(babel_numbers.format_decimal)),
         ('deeptrans', deeptrans),
         ('expand_partial', expand_partial),
+        ('hash', hash_value),
         ('jsonify', jsonify),
         ('markdown', markdown_filter),
         ('number', wrap_locale_context(babel_numbers.format_number)),
