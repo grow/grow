@@ -50,8 +50,8 @@ class Router(object):
         """Add all pod docs to the router."""
         with self.pod.profile.timer('Router.add_all_docs'):
             docs = []
-            doc_basenames = set()
             for collection in self.pod.list_collections():
+                doc_basenames = set()
                 for doc in collection.list_docs_unread():
                     # Skip duplicate documents when using non-concrete routing.
                     if not concrete and doc.basename in doc_basenames:
