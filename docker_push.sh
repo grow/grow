@@ -16,7 +16,8 @@ docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION  \
 
 docker push grow/base:$GROW_VERSION
 docker push grow/base:latest
-Old docker image support.
+
+# Legacy docker image support.
 docker push grow/baseimage:$GROW_VERSION
 docker push grow/baseimage:latest
 
