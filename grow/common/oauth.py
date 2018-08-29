@@ -65,7 +65,7 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         key_file = os.path.expanduser(key_file)
         return (service_account.
             ServiceAccountCredentials.from_json_keyfile_name(key_file, scope))
-    if appengine:
+    if appengine and utils.is_appengine():
         return appengine.AppAssertionCredentials(scope)
     credentials, storage = get_credentials_and_storage(scope,
         storage_key=storage_key)
