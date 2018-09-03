@@ -351,14 +351,15 @@ class Document(object):
         if ('$localization' in self.fields
                 and 'path' in self.fields['$localization']):
             return self.fields['$localization']['path']
-        elif '{locale}' in self.fields.get('$path', ''):
-            return self.path_format_base
-        elif (self.collection.localization
-                and 'path' in self.collection.localization):
-            return self.collection.localization.get('path')
-        elif (self.collection.path_format
-                and '{locale}' in self.collection.path_format):
-            return self.collection.path_format
+        path_format = self.fields.get('$path', '')
+        if path_format and '{locale}' in path_format:
+            return path_format
+        col_localization = self.collection.localization
+        if col_localization and 'path' in col_localization:
+            return col_localization.get('path')
+        col_path_format = self.collection.path_format
+        if col_path_format and '{locale}' in col_path_format:
+            return col_path_format
         return None
 
     @property
