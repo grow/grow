@@ -48,6 +48,8 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
 
     def __init__(self, preprocessor, *args, **kwargs):
         self.preprocessor = preprocessor
+        if 'ignore_patterns' not in kwargs:
+            kwargs['ignore_patterns'] = IGNORED_PATTERNS
         super(PreprocessorEventHandler, self).__init__(*args, **kwargs)
 
     def handle(self, event=None):
