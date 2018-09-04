@@ -58,7 +58,7 @@ def print_server_ready_message(pod, host, port):
 
 def start(pod, host=None, port=None, open_browser=False, debug=False,
           preprocess=True, update_check=False):
-    _, _ = file_watchers.create_dev_server_observers(pod)
+    main_observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
     if preprocess:
         thread = threading.Thread(target=pod.preprocess, kwargs={'build': False})
         thread.setDaemon(True)
@@ -86,11 +86,19 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
                 num_tries += 1
                 port += 1
             else:
+                # Clean up the file watchers.
+                main_observer.stop()
+                podspec_observer.stop()
+
                 raise e
         finally:
-            # Ensure ctrl+c works no matter what.
-            # https://github.com/grow/grow/issues/149
             if done:
+                # Clean up the file watchers.
+                main_observer.stop()
+                podspec_observer.stop()
+
+                # Ensure ctrl+c works no matter what.
+                # https://github.com/grow/grow/issues/149
                 os._exit(0)
     text = 'Unable to find a port for the server (tried {}).'
     pod.logger.error(text.format(port))
