@@ -76,6 +76,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     handler = main_lib.RequestHandler
     num_tries = 0
     done = False
+
     while num_tries < NUM_TRIES and not done:
         try:
             app.app.port = port
@@ -100,6 +101,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
                 # Ensure ctrl+c works no matter what.
                 # https://github.com/grow/grow/issues/149
                 os._exit(0)
+
     text = 'Unable to find a port for the server (tried {}).'
     pod.logger.error(text.format(port))
     sys.exit(-1)
