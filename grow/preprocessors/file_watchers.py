@@ -7,7 +7,10 @@ from watchdog import observers
 from . import translation
 
 
-IGNORED_PATTERNS = ['*{sep}node_modules{sep}*'.format(sep=os.sep)]
+IGNORED_PATTERNS = [
+    '*{sep}node_modules{sep}*'.format(sep=os.sep),
+    '*{sep}build{sep}*'.format(sep=os.sep),
+]
 
 
 class PodFileEventHandler(events.PatternMatchingEventHandler):
