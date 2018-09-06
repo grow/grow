@@ -83,7 +83,8 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
             serving.run_simple(host, port, app, request_handler=handler, threaded=True)
             done = True
         except socket.error as e:
-            if any(x in str(e) for x in ('Errno 48', 'Errno 98')):
+            # if any(x in str(e) for x in ('Errno 48', 'Errno 98')):
+            if 'Errno 48' in str(e):
                 num_tries += 1
                 port += 1
             else:
