@@ -64,12 +64,15 @@ def _kill_child_process():
             pass
 
     # Give the process some time to finish by itself.
-    time.sleep(3)
 
-    for process in _child_processes:
-        try:
+    while True:
+        time.sleep(1)
+
+        is_pending = False
+        for process in _child_processes:
             if process.poll() is None:
+                is_pending = True
                 process.kill()
-        except OSError:
-            # Ignore errors.
-            pass
+
+        if not is_pending:
+            return
