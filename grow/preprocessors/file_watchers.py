@@ -7,6 +7,12 @@ from watchdog import observers
 from . import translation
 
 
+IGNORED_PATTERNS = [
+    '*{sep}node_modules{sep}*'.format(sep=os.sep),
+    '*{sep}build{sep}*'.format(sep=os.sep),
+]
+
+
 class PodFileEventHandler(events.PatternMatchingEventHandler):
     patterns = ['*']
     ignore_directories = True
@@ -14,6 +20,8 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
     def __init__(self, pod, managed_observer, *args, **kwargs):
         self.pod = pod
         self.managed_observer = managed_observer
+        if 'ignore_patterns' not in kwargs:
+            kwargs['ignore_patterns'] = IGNORED_PATTERNS
         super(PodFileEventHandler, self).__init__(*args, **kwargs)
 
     def trigger_file_changed(self, pod_path):
@@ -43,6 +51,8 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
 
     def __init__(self, preprocessor, *args, **kwargs):
         self.preprocessor = preprocessor
+        if 'ignore_patterns' not in kwargs:
+            kwargs['ignore_patterns'] = IGNORED_PATTERNS
         super(PreprocessorEventHandler, self).__init__(*args, **kwargs)
 
     def handle(self, event=None):
