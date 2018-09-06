@@ -3,6 +3,7 @@
 import os
 import atexit
 import subprocess
+import time
 from protorpc import messages
 from grow.preprocessors import base
 from grow.sdk import sdk_utils
@@ -58,7 +59,17 @@ def _kill_child_process():
     for process in _child_processes:
         try:
             process.terminate()
-            process.wait()
         except OSError:
             # Ignore the error.  The OSError doesn't seem to be documented(?)
+            pass
+
+    # Give the process some time to finish by itself.
+    time.sleep(3)
+
+    for process in _child_processes:
+        try:
+            if process.poll() is None:
+                process.kill()
+        except OSError:
+            # Ignore errors.
             pass
