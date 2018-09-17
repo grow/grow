@@ -59,7 +59,7 @@ class PodHandlerTestCase(unittest.TestCase):
         self.assertEqual('', response.body)
 
         # Verify sitemap on server.
-        path = '/sitemap.xml'
+        path = '/root/sitemap.xml'
         request = webapp2.Request.blank(path)
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
