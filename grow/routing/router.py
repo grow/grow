@@ -88,8 +88,10 @@ class Router(object):
 
             if 'sitemap' in podspec:
                 sitemap = podspec['sitemap']
+                default_sitemap_path = self.pod.podspec.root + '/sitemap.xml'
+                default_sitemap_path = default_sitemap_path.replace('//', '/')
                 sitemap_path = self.pod.path_format.format_pod(
-                    sitemap.get('path', '/sitemap.xml'))
+                    sitemap.get('path', default_sitemap_path))
                 self.routes.add(sitemap_path, RouteInfo('sitemap', {
                     'collections': sitemap.get('collections'),
                     'locales': sitemap.get('locales'),
