@@ -815,7 +815,7 @@ class Pod(object):
                         path, fields, locale='__raw__')
                 try:
                     contents = untag.Untag.untag(
-                        fields, locale=locale, params={
+                        fields, locale_identifier=locale, params={
                             'env': untag.UntagParamRegex(self.env.name),
                         })
                     self.podcache.file_cache.add(path, contents, locale=locale)
