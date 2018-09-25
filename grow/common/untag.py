@@ -1,45 +1,32 @@
-"""Document fields for accessing the meta fields parsed from the document."""
+"""Untag an object using convention based keys."""
 
 import re
 from boltons import iterutils
-from grow.common import untag
 
 
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
 
 
-class DocumentFields(object):
-
-    def __contains__(self, item):
-        return item in self._data
-
-    def __getitem__(self, key):
-        return self._data[key]
-
-    def __init__(self, data, locale_identifier=None, params=None):
-        self._locale_identifier = locale_identifier
-        self._params = params
-        self._data = untag.Untag.untag(
-            data, locale_identifier, params=params)
-
-    def __len__(self):
-        return len(self._data)
+class Untag(object):
+    """Untagging utility for locale and environment based untagging."""
 
     @staticmethod
-    def untag(data, locale=None, params=None):
+    def untag(data, locale_identifier=None, params=None):
         """Untags fields, handling translation priority."""
-        updated_localized_paths = set()
         paths_to_keep_tagged = set()
 
-        def visit(path, key, value):
+        # pylint: disable=too-many-return-statements
+        def _visit(path, key, value):
             """Function for each key and value in the data."""
-            if not isinstance(key, basestring):
+            if not isinstance(key, str):
                 return key, value
-            if (path, key.rstrip('@')) in updated_localized_paths:
-                return False
+
             if key.endswith('@#'):
+                # Translation Comment.
                 return False
-            if key.endswith('@'):
+
+            marked_for_extraction = key.endswith('@')
+            if marked_for_extraction:
                 if isinstance(value, list):
                     paths_to_keep_tagged.add((path, key))
                 key = key[:-1]
@@ -51,49 +38,59 @@ class DocumentFields(object):
                 param_match = param_regex.match(key)
                 if param_match:
                     untagged_key, param_key, param_value = param_match.groups()
-                    param_value_regex = r'^{}$'.format(param_value)
-                    if not params[param_key] or not re.match(param_value_regex, params[param_key]):
+                    if not params[param_key]:
                         return False
-                    updated_localized_paths.add((path, untagged_key.rstrip('@')))
-                    return untagged_key, value
+                    return params[param_key](
+                        data, untagged_key, param_key, param_value, value)
 
             # Support <key>@<locale regex>: <value>.
             match = LOCALIZED_KEY_REGEX.match(key)
             if not match:
-                updated_localized_paths.add((path, key))
                 return key, value
             untagged_key, locale_from_key = match.groups()
             locale_regex = r'^{}$'.format(locale_from_key)
-            if not locale or not re.match(locale_regex, locale):
+            if marked_for_extraction or not locale_identifier or not re.match(locale_regex, locale_identifier):
                 return False
-            updated_localized_paths.add((path, untagged_key.rstrip('@')))
             return untagged_key, value
 
         # Backwards compatibility for https://github.com/grow/grow/issues/95
-        def exit(path, key, old_parent, new_parent, new_items):
+        def _remap_exit(path, key, old_parent, new_parent, new_items):
             resp = iterutils.default_exit(path, key, old_parent,
                                           new_parent, new_items)
             if paths_to_keep_tagged and isinstance(resp, dict):
+                updated_values = {}
                 for sub_key, value in resp.items():
                     if not isinstance(value, list):
                         continue
                     new_key = '{}@'.format(sub_key)
-                    resp[new_key] = value
+                    updated_values[new_key] = value
+                resp.update(updated_values)
                 try:
                     paths_to_keep_tagged.remove((path, key))
                 except KeyError:
                     pass
             return resp
 
-        return iterutils.remap(data, visit=visit, exit=exit)
+        return iterutils.remap(data, visit=_visit, exit=_remap_exit)
 
-    def get(self, key, default=None):
-        return self._data.get(key, default)
 
-    def keys(self):
-        return self._data.keys()
+class UntagParam(object):
+    """Untagging param for complex untagging."""
 
-    def update(self, updated):
-        updated = untag.Untag.untag(
-            updated, self._locale_identifier, params=self._params)
-        self._data.update(updated)
+    def __call__(self, data, untagged_key, param_key, param_value, value):
+        raise NotImplementedError()
+
+
+class UntagParamRegex(object):
+    """Param using the value of the param value as a regex to match."""
+
+    def __init__(self, value):
+        self.value = value
+
+    def __call__(self, data, untagged_key, param_key, param_value, value):
+        if not self.value:
+            return False
+        value_regex = r'^{}$'.format(param_value)
+        if not re.match(value_regex, self.value):
+            return False
+        return untagged_key, value
