@@ -15,12 +15,6 @@ class Untag(object):
         """Untags fields, handling translation priority."""
         paths_to_keep_tagged = set()
 
-        # When untagging the order of the keys isn't consistent. Sometimes the
-        # tagged value is found but then is overwritten by the original value
-        # since it is processed after the tagged version. Need to keep track of
-        # untagged keys to make sure that they are not overwritten by the original.
-        untagged_key_paths = set()
-
         # pylint: disable=too-many-return-statements
         def _visit(path, key, value):
             """Function for each key and value in the data."""
@@ -29,10 +23,6 @@ class Untag(object):
 
             if key.endswith('@#'):
                 # Translation Comment.
-                return False
-
-            # If the key has already been untagged, don't overwrite.
-            if (path, key) in untagged_key_paths:
                 return False
 
             marked_for_extraction = key.endswith('@')
@@ -62,10 +52,6 @@ class Untag(object):
             locale_regex = r'^{}$'.format(locale_from_key)
             if marked_for_extraction or not locale_identifier or not re.match(locale_regex, locale_identifier):
                 return False
-
-            # Keep track of the untagged key with the path to make sure that it
-            # isn't overwritten later by the original untagged value.
-            untagged_key_paths.add((path, untagged_key))
 
             return untagged_key, value
 
