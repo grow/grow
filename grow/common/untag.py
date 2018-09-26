@@ -50,9 +50,13 @@ class Untag(object):
                     untagged_key, param_key, param_value = param_match.groups()
                     if not params[param_key]:
                         return False
-                    return params[param_key](
+                    result = params[param_key](
                         data, untagged_key, param_key, param_value, value,
                         locale_identifier=locale_identifier)
+                    if result is not False:
+                        # Don't let the original key overwrite the new value.
+                        untagged_key_paths.add((path, untagged_key))
+                    return result
 
             # Support <key>@<locale regex>: <value>.
             match = LOCALIZED_KEY_REGEX.match(key)
@@ -62,7 +66,10 @@ class Untag(object):
             locale_regex = r'^{}$'.format(locale_from_key)
             if marked_for_extraction or not locale_identifier or not re.match(locale_regex, locale_identifier):
                 return False
+
+            # Don't let the original key overwrite the new value.
             untagged_key_paths.add((path, untagged_key))
+
             return untagged_key, value
 
         # Backwards compatibility for https://github.com/grow/grow/issues/95
