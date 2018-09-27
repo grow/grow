@@ -21,6 +21,7 @@ from grow.common import extensions
 from grow.common import features
 from grow.common import logger
 from grow.common import progressbar_non
+from grow.common import untag
 from grow.common import utils
 from grow.documents import document_fields
 from grow.documents import static_document
@@ -217,8 +218,9 @@ class Pod(object):
         if not isinstance(env, environment.Env):
             env = environment.Env(env)
         if env and env.name:
-            untag = document_fields.DocumentFields.untag
-            content = untag(self._parse_yaml(), params={'env': env.name})
+            content = untag.Untag.untag(self._parse_yaml(), params={
+                'env': untag.UntagParamRegex(env.name),
+            })
             self._yaml = content
             # Preprocessors may depend on env, reset cache.
             # pylint: disable=no-member
@@ -812,8 +814,10 @@ class Pod(object):
                     self.podcache.file_cache.add(
                         path, fields, locale='__raw__')
                 try:
-                    contents = document_fields.DocumentFields.untag(
-                        fields, locale=locale, params={'env': self.env.name})
+                    contents = untag.Untag.untag(
+                        fields, locale_identifier=locale, params={
+                            'env': untag.UntagParamRegex(self.env.name),
+                        })
                     self.podcache.file_cache.add(path, contents, locale=locale)
                 except Exception:
                     logging.error('Error parsing -> {}'.format(path))

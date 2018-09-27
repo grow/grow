@@ -7,6 +7,7 @@ import os
 import re
 import sys
 from grow.common import structures
+from grow.common import untag
 from grow.common import utils
 from grow.documents import document
 from grow.documents import document_fields
@@ -169,8 +170,10 @@ class Collection(object):
 
     @utils.cached_property
     def fields(self):
-        untag = document_fields.DocumentFields.untag
-        fields = untag(self.tagged_fields, params={'env': self.pod.env.name})
+        fields = untag.Untag.untag(
+            self.tagged_fields, params={
+                'env': untag.UntagParamRegex(self.pod.env.name),
+            })
         return {} if not fields else fields
 
     @utils.cached_property

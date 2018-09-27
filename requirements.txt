@@ -4,7 +4,7 @@ asn1crypto==0.24.0
 babel==2.6.0
 bcrypt==3.1.4
 beautifulsoup4==4.6.0
-boltons==18.0.0
+boltons==18.0.1
 boto==2.49.0
 certifi==2018.4.16
 cffi==1.11.5; platform_python_implementation != 'PyPy'
@@ -28,7 +28,7 @@ httplib2==0.11.3
 idna==2.7
 ipaddress==1.0.22
 jinja2==2.10
-keyring==13.2.1
+keyring==15.1.0
 libsass==0.14.5
 markdown==2.6.11
 markupsafe==1.0
@@ -39,7 +39,7 @@ progressbar2==3.38.0
 protorpc==0.11.1
 pyasn1-modules==0.2.2
 pyasn1==0.4.3
-pycparser==2.18
+pycparser==2.19; python_version != '3.3.*'
 pycrypto==2.6.1
 pygments==2.2.0
 pynacl==1.2.1
@@ -49,7 +49,7 @@ pytz==2018.5
 pyyaml==3.13
 requests==2.19.1
 retry-decorator==1.1.0
-rsa==3.4.2
+rsa==4.0
 semantic-version==2.6.0
 six==1.10.0
 smmap2==2.0.4

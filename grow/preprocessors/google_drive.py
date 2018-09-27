@@ -18,14 +18,14 @@ import httplib2
 import yaml
 from googleapiclient import discovery
 from googleapiclient import errors
+from protorpc import messages
 from grow.common import oauth
+from grow.common import untag
 from grow.common import utils
 from grow.common import yaml_utils
-from grow.documents import document_fields
 from grow.documents import document_format
 from grow.documents import document_front_matter as doc_front_matter
-from protorpc import messages
-from . import base
+from grow.preprocessors import base
 
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
@@ -477,8 +477,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         old_data=existing_data, new_data=gid_to_data[gid],
                         preserve=self.config.preserve, key_to_update=key_to_update)
 
-                gid_to_data[gid] = document_fields.DocumentFields.untag(gid_to_data[
-                                                                        gid])
+                gid_to_data[gid] = untag.Untag.untag(gid_to_data[gid])
                 doc.inject(fields=gid_to_data[gid])
         else:
             # TODO Multi sheet import.
