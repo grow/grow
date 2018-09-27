@@ -125,13 +125,3 @@ class UntagParamLocaleRegex(object):
         if not re.match(value_regex, locale_identifier):
             return False
         return untagged_key, value
-
-    @classmethod
-    def from_pod(cls, pod, collection=None):
-        """Shortcut from the pod and collection objects."""
-        podspec_data = pod.podspec.get('localization', {}).get('groups', {})
-        if collection:
-            collection_data = collection.get('localization', {}).get('groups', {})
-        else:
-            collection_data = {}
-        return cls(podspec_data, collection_data)
