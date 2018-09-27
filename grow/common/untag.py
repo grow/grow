@@ -98,30 +98,6 @@ class UntagParamRegex(object):
         return untagged_key, value
 
 
-class UntagParamFieldRegex(object):
-    """Param using the value a document field with fallback as a regex to match.
-
-    Attempts to use the value of one of the other data fields as a regex.
-    If there is no matching key found it falls back to the collection or podspec.
-    """
-
-    def __init__(self, podspec_data, collection_data, value):
-        self.podspec_data = podspec_data
-        self.collection_data = collection_data
-        self.value = value
-
-    def __call__(self, data, untagged_key, param_key, param_value, value, locale_identifier=None):
-        podspec_value = self.podspec_data.get(param_value, None)
-        collection_value = self.collection_data.get(param_value, podspec_value)
-        regex_value = data.get(param_value, collection_value)
-        if not regex_value:
-            return False
-        value_regex = r'^{}$'.format(regex_value)
-        if not re.match(value_regex, self.value):
-            return False
-        return untagged_key, value
-
-
 class UntagParamLocaleRegex(object):
     """Param using a document field as a regex group to match locale.
 
