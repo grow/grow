@@ -340,8 +340,10 @@ class UntagTestCase(unittest.TestCase):
         untag_func = untag.Untag.untag
         fields_to_test = {
             '$localization': {
-                'group1': 'fr|de',
-                'group2': 'es|ja',
+                'groups': {
+                    'group1': 'fr|de',
+                    'group2': 'es|ja',
+                },
             },
             'foo': 'base',
             'foo@locale.group1': 'g1',
@@ -353,8 +355,10 @@ class UntagTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'base',
             '$localization': {
-                'group1': 'fr|de',
-                'group2': 'es|ja',
+                'groups': {
+                    'group1': 'fr|de',
+                    'group2': 'es|ja',
+                },
             },
         }, untag_func(fields, locale_identifier='en', params={
             'locale': untag.UntagParamLocaleRegex(),
@@ -364,8 +368,10 @@ class UntagTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'g1',
             '$localization': {
-                'group1': 'fr|de',
-                'group2': 'es|ja',
+                'groups': {
+                    'group1': 'fr|de',
+                    'group2': 'es|ja',
+                },
             },
         }, untag_func(fields, locale_identifier='de', params={
             'locale': untag.UntagParamLocaleRegex(),
@@ -373,8 +379,10 @@ class UntagTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'g1',
             '$localization': {
-                'group1': 'fr|de',
-                'group2': 'es|ja',
+                'groups': {
+                    'group1': 'fr|de',
+                    'group2': 'es|ja',
+                },
             },
         }, untag_func(fields, locale_identifier='fr', params={
             'locale': untag.UntagParamLocaleRegex(),
@@ -384,8 +392,10 @@ class UntagTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'g2',
             '$localization': {
-                'group1': 'fr|de',
-                'group2': 'es|ja',
+                'groups': {
+                    'group1': 'fr|de',
+                    'group2': 'es|ja',
+                },
             },
         }, untag_func(fields, locale_identifier='es', params={
             'locale': untag.UntagParamLocaleRegex(),
@@ -393,8 +403,10 @@ class UntagTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'g2',
             '$localization': {
-                'group1': 'fr|de',
-                'group2': 'es|ja',
+                'groups': {
+                    'group1': 'fr|de',
+                    'group2': 'es|ja',
+                },
             },
         }, untag_func(fields, locale_identifier='ja', params={
             'locale': untag.UntagParamLocaleRegex(),
@@ -405,7 +417,9 @@ class UntagTestCase(unittest.TestCase):
         untag_func = untag.Untag.untag
         fields_to_test = {
             '$localization': {
-                'group1': ['fr', 'de'],
+                'groups': {
+                    'group1': ['fr', 'de'],
+                },
             },
             'foo': 'base',
             'foo@locale.group1': 'g1',
@@ -416,7 +430,9 @@ class UntagTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'base',
             '$localization': {
-                'group1': ['fr', 'de'],
+                'groups': {
+                    'group1': ['fr', 'de'],
+                },
             },
         }, untag_func(fields, locale_identifier='en', params={
             'locale': untag.UntagParamLocaleRegex(),
@@ -426,7 +442,9 @@ class UntagTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'g1',
             '$localization': {
-                'group1': ['fr', 'de'],
+                'groups': {
+                    'group1': ['fr', 'de'],
+                },
             },
         }, untag_func(fields, locale_identifier='de', params={
             'locale': untag.UntagParamLocaleRegex(),
@@ -434,7 +452,9 @@ class UntagTestCase(unittest.TestCase):
         self.assertDictEqual({
             'foo': 'g1',
             '$localization': {
-                'group1': ['fr', 'de'],
+                'groups': {
+                    'group1': ['fr', 'de'],
+                },
             },
         }, untag_func(fields, locale_identifier='fr', params={
             'locale': untag.UntagParamLocaleRegex(),
