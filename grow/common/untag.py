@@ -146,9 +146,9 @@ class UntagParamLocaleRegex(object):
     If there is no matching key found it falls back to the collection or podspec.
     """
 
-    def __init__(self, pod, collection):
-        self.podspec_data = pod.podspec.get('localization', {})
-        self.collection_data = collection.get('localization', {})
+    def __init__(self, podspec_data=None, collection_data=None):
+        self.podspec_data = podspec_data or {}
+        self.collection_data = collection_data or {}
 
     def __call__(self, data, untagged_key, param_key, param_value, value, locale_identifier=None):
         podspec_value = self.podspec_data.get(param_value, None)
@@ -161,3 +161,13 @@ class UntagParamLocaleRegex(object):
         if not re.match(value_regex, locale_identifier):
             return False
         return untagged_key, value
+
+    @classmethod
+    def from_pod(cls, pod, collection=None):
+        """Shortcut from the pod and collection objects."""
+        podspec_data = pod.podspec.get('localization', {}).get('groups', {})
+        if collection:
+            collection_data = collection.get('localization', {}).get('groups', {})
+        else:
+            collection_data = {}
+        return cls(podspec_data, collection_data)
