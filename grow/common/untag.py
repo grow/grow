@@ -112,7 +112,8 @@ class UntagParamLocaleRegex(object):
     def __call__(self, data, untagged_key, param_key, param_value, value, locale_identifier=None):
         podspec_value = self.podspec_data.get(param_value, None)
         collection_value = self.collection_data.get(param_value, podspec_value)
-        regex_value = data.get(param_value, collection_value)
+        localization = data.get('$localization', {})
+        regex_value = localization.get(param_value, collection_value)
         if not regex_value:
             return False
 
