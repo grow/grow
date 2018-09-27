@@ -400,6 +400,46 @@ class UntagTestCase(unittest.TestCase):
             'locale': untag.UntagParamLocaleRegex(),
         }))
 
+    def test_untag_params_locale_list(self):
+        """Untag locale group params in fields."""
+        untag_func = untag.Untag.untag
+        fields_to_test = {
+            '$localization': {
+                'group1': ['fr', 'de'],
+            },
+            'foo': 'base',
+            'foo@locale.group1': 'g1',
+        }
+        fields = copy.deepcopy(fields_to_test)
+
+        # Non-group locale.
+        self.assertDictEqual({
+            'foo': 'base',
+            '$localization': {
+                'group1': ['fr', 'de'],
+            },
+        }, untag_func(fields, locale_identifier='en', params={
+            'locale': untag.UntagParamLocaleRegex(),
+        }))
+
+        # Group 1
+        self.assertDictEqual({
+            'foo': 'g1',
+            '$localization': {
+                'group1': ['fr', 'de'],
+            },
+        }, untag_func(fields, locale_identifier='de', params={
+            'locale': untag.UntagParamLocaleRegex(),
+        }))
+        self.assertDictEqual({
+            'foo': 'g1',
+            '$localization': {
+                'group1': ['fr', 'de'],
+            },
+        }, untag_func(fields, locale_identifier='fr', params={
+            'locale': untag.UntagParamLocaleRegex(),
+        }))
+
     def test_untag_params_locale_fallback(self):
         """Untag locale group params in fields falls back to pod and collection."""
         untag_func = untag.Untag.untag

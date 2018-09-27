@@ -117,6 +117,10 @@ class UntagParamLocaleRegex(object):
         if not regex_value:
             return False
 
+        # Convert lists of locales into a regex pattern.
+        if not isinstance(regex_value, str):
+            regex_value = '|'.join(regex_value)
+
         value_regex = r'^{}$'.format(regex_value)
         if not re.match(value_regex, locale_identifier):
             return False
