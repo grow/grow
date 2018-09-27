@@ -25,69 +25,6 @@ class DocumentFields(object):
     def __len__(self):
         return len(self._data)
 
-    @staticmethod
-    def untag(data, locale=None, params=None):
-        """Untags fields, handling translation priority."""
-        paths_to_keep_tagged = set()
-
-        # pylint: disable=too-many-return-statements
-        def visit(path, key, value):
-            """Function for each key and value in the data."""
-            if not isinstance(key, str):
-                return key, value
-
-            if key.endswith('@#'):
-                # Translation Comment.
-                return False
-
-            marked_for_extraction = key.endswith('@')
-            if marked_for_extraction:
-                if isinstance(value, list):
-                    paths_to_keep_tagged.add((path, key))
-                key = key[:-1]
-
-            # Support <key>@<param key>.<param value>: <value>.
-            if params:
-                param_regex = re.compile(
-                    r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())))
-                param_match = param_regex.match(key)
-                if param_match:
-                    untagged_key, param_key, param_value = param_match.groups()
-                    param_value_regex = r'^{}$'.format(param_value)
-                    if not params[param_key] or not re.match(param_value_regex, params[param_key]):
-                        return False
-                    return untagged_key, value
-
-            # Support <key>@<locale regex>: <value>.
-            match = LOCALIZED_KEY_REGEX.match(key)
-            if not match:
-                return key, value
-            untagged_key, locale_from_key = match.groups()
-            locale_regex = r'^{}$'.format(locale_from_key)
-            if marked_for_extraction or not locale or not re.match(locale_regex, locale):
-                return False
-            return untagged_key, value
-
-        # Backwards compatibility for https://github.com/grow/grow/issues/95
-        def remap_exit(path, key, old_parent, new_parent, new_items):
-            resp = iterutils.default_exit(path, key, old_parent,
-                                          new_parent, new_items)
-            if paths_to_keep_tagged and isinstance(resp, dict):
-                updated_values = {}
-                for sub_key, value in resp.items():
-                    if not isinstance(value, list):
-                        continue
-                    new_key = '{}@'.format(sub_key)
-                    updated_values[new_key] = value
-                resp.update(updated_values)
-                try:
-                    paths_to_keep_tagged.remove((path, key))
-                except KeyError:
-                    pass
-            return resp
-
-        return iterutils.remap(data, visit=visit, exit=remap_exit)
-
     def get(self, key, default=None):
         return self._data.get(key, default)
 
