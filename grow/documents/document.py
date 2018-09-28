@@ -255,6 +255,8 @@ class Document(object):
             self.format.front_matter.data, locale_identifier,
             params={
                 'env': untag.UntagParamRegex(self.pod.env.name),
+                'locale': untag.UntagParamLocaleRegex.from_pod(
+                    self.pod, self.collection),
             })
 
     @utils.cached_property

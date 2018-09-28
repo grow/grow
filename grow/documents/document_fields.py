@@ -1,7 +1,6 @@
 """Document fields for accessing the meta fields parsed from the document."""
 
 import re
-from boltons import iterutils
 from grow.common import untag
 
 
