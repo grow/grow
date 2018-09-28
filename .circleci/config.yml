@@ -77,9 +77,6 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          command: pipenv --venv
-
       - pip_install
 
       - run:
