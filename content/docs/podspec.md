@@ -169,10 +169,11 @@ default_locale: en
 A list of locale identifiers that your site is available in. Language codes will be derived from the identifiers in this list and individual translation catalogs will be created for each language. The `{locale}` converter can be used in `path` configs (such as in `podspec.yaml` or in a blueprint).
 
 ```yaml
-locales:
-- en_US
-- de_DE
-- it_IT
+localization:
+  locales:
+  - en_US
+  - de_DE
+  - it_IT
 ```
 
 #### aliases
@@ -180,8 +181,9 @@ locales:
 A mapping of aliases to locale identifiers. This can be used to translate a Grow locale to a locale used by your web server, should the identifiers differ.
 
 ```yaml
-aliases:
-  en_uk: en_gb
+localization:
+  aliases:
+    en_uk: en_gb
 ```
 
 #### import_as
@@ -189,9 +191,10 @@ aliases:
 A mapping of external to internal locales, used when translations are imported. When translations are imported using `grow translations import`, Grow converts external locales to internal locales. This mapping can be useful if you are working with a translation provider that uses non-standard locales.
 
 ```yaml
-import_as:
-  en_uk:
-  - en_GB
+localization:
+  import_as:
+    en_uk:
+    - en_GB
 ```
 
 #### require_translations
@@ -199,8 +202,29 @@ import_as:
 Flag for determining if the build requires all strings in use to be translated before being successful. To target a specific deployment use the `@env.<deployment name>` format.
 
 ```yaml
-require_translations: false
-require_translations@env.prod: true
+localization:
+  require_translations: false
+  require_translations@env.prod: true
+```
+
+#### groups
+
+Categorize groups of locales together to allow for easy reference when tagging strings.
+
+```yaml
+# podspec.yaml
+localization:
+  groups:
+    group1:
+    - de
+    - fr
+    - it
+```
+
+```yaml
+# /content/collectiion/document.yaml
+foo: base
+foo@locale.group1: tagged for de, fr, or it locales.
 ```
 
 ### preprocessors

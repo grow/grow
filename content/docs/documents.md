@@ -378,6 +378,22 @@ $localization:
   - fr
 ```
 
+#### groups
+
+Categorize groups of locales together to allow for easy reference when tagging strings.
+
+```yaml
+$localization:
+  groups:
+    group1:
+    - de
+    - fr
+    - it
+
+foo: base
+foo@locale.group1: tagged for de, fr, or it locales.
+```
+
 ### $order
 
 Specify the order for the collection's default document order. Negative and decimal values are allowed.

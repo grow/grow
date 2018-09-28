@@ -63,7 +63,8 @@ Localization configuration for content in this collection.
 Specifies a URL path format for localized content. By specifying both `path` and `localization:path`, you can use different formats for the URL paths for "root" and localized content.
 
 ```yaml
-path: /{locale}/people/{slug}/
+localization:
+  path: /{locale}/people/{slug}/
 ```
 
 #### locales
@@ -71,10 +72,31 @@ path: /{locale}/people/{slug}/
 Specifies a list of locales that documents in this collection are available in. Each document's *path* will be expanded using *locales* to derive the URLs that the document is available at.
 
 ```yaml
-locales:
-- de
-- fr
-- it
+localization:
+  locales:
+  - de
+  - fr
+  - it
+```
+
+#### groups
+
+Categorize groups of locales together to allow for easy reference when tagging strings.
+
+```yaml
+# _blueprint.yaml
+localization:
+  groups:
+    group1:
+    - de
+    - fr
+    - it
+```
+
+```yaml
+# document.yaml
+foo: base
+foo@locale.group1: tagged for de, fr, or it locales.
 ```
 
 ### categories
