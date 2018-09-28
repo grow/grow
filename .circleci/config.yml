@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 
 pip_install: &pip_install
   name: Pipenv Install
@@ -6,6 +6,25 @@ pip_install: &pip_install
     pip install -U pipenv
     pipenv install --dev
     . $(pipenv --venv)/bin/activate
+
+commands:
+  pip_install:
+    description: "Install using pipenv and caching."
+    steps:
+      - restore_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Pipenv Install
+          command: |
+            pip install -U pipenv
+            pipenv install --dev
+            . $(pipenv --venv)/bin/activate
+
+      - save_cache:
+          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - /root/.local/share/virtualenvs/
 
 jobs:
   init:
@@ -56,16 +75,7 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          <<: *pip_install
-
-      - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-          paths:
-          - /root/.local/share/virtualenvs/
+      - pip_install
 
       - run:
           name: Pylint
@@ -79,16 +89,7 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - restore_cache:
-          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          <<: *pip_install
-
-      - save_cache:
-          key: pip-release-linux-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-          paths:
-          - /root/.local/share/virtualenvs/
+      - pip_install
 
       - run:
           name: Build Release
@@ -144,16 +145,7 @@ jobs:
           name: Install ghr
           command: go get -u github.com/tcnksm/ghr
 
-      - restore_cache:
-          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          <<: *pip_install
-
-      - save_cache:
-          key: pip-release-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-          paths:
-          - /Users/distiller/.local/share/virtualenvs/
+      - pip_install
 
       - run:
           name: Build Release
@@ -190,16 +182,7 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          <<: *pip_install
-
-      - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-          paths:
-          - /root/.local/share/virtualenvs/
+      - pip_install
 
       - run:
           name: Update requirements.txt
@@ -224,16 +207,7 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          <<: *pip_install
-
-      - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-          paths:
-          - /root/.local/share/virtualenvs/
+      - pip_install
 
       - run:
           name: Run Tests
@@ -255,16 +229,7 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - restore_cache:
-          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-
-      - run:
-          <<: *pip_install
-
-      - save_cache:
-          key: pip-osx-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
-          paths:
-          - /Users/distiller/.local/share/virtualenvs/
+      - pip_install
 
       - run:
           name: Run Tests
