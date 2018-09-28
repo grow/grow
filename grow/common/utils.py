@@ -19,7 +19,7 @@ import html2text
 import translitcodec  # pylint: disable=unused-import
 from collections import OrderedDict
 from grow.common import structures
-from grow.documents import document_fields
+from grow.common import yaml_utils
 from grow.pods import errors
 
 # The CLoader implementation of the PyYaml loader is orders of magnitutde
@@ -372,14 +372,26 @@ def load_yaml(*args, **kwargs):
     return yaml.load(*args, Loader=loader, **kwargs) or {}
 
 
+def load_plain_yaml(content, pod=None, locale=None):
+    return yaml.load(content, Loader=yaml_utils.PlainTextYamlLoader)
+
+
 @memoize
 def parse_yaml(content, pod=None, locale=None):
     return load_yaml(content, pod=pod, locale=locale)
 
 
 def dump_yaml(obj):
+    """Dumps yaml using the the safe dump."""
     return yaml.safe_dump(
         obj, allow_unicode=True, width=800, default_flow_style=False)
+
+
+def dump_plain_yaml(obj):
+    """Dumps yaml using the plain text dumper to retain constructors."""
+    return yaml.dump(
+        obj, Dumper=yaml_utils.PlainTextYamlDumper,
+        default_flow_style=False, allow_unicode=True, width=800)
 
 
 def ordered_dict_representer(dumper, data):
