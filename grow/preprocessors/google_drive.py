@@ -429,7 +429,10 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 kwargs['sort_keys'] = True
             return json.dumps(formatted_data, **kwargs)
         elif convert_to in ('.yaml', '.yml'):
-            return yaml.safe_dump(formatted_data, default_flow_style=False)
+            # Use plain text dumper to preserve yaml constructors.
+            return yaml.dump(
+                formatted_data, Dumper=yaml_utils.PlainTextYamlDumper,
+                default_flow_style=False, allow_unicode=True, width=800)
         return formatted_data
 
     def can_inject(self, doc=None, collection=None):
