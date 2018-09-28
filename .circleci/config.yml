@@ -4,8 +4,8 @@ commands:
   pip_install:
     description: "Install using pipenv and caching."
     steps:
-      - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+      # - restore_cache:
+      #     key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Pipenv Install
@@ -13,6 +13,9 @@ commands:
             pip install -U pipenv
             pipenv install --dev
             . $(pipenv --venv)/bin/activate
+
+      - run:
+          command: pipenv --venv
 
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
