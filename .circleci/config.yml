@@ -26,11 +26,15 @@ commands:
           paths:
           - /root/.local/share/virtualenvs/
 
-jobs:
-  init:
-    working_directory: ~/grow
+executors:
+  grow:
     docker:
       - image: grow/grow-internal-image
+
+jobs:
+  init:
+    executor: grow
+    working_directory: ~/grow
     steps:
       - checkout
 
