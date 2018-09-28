@@ -7,6 +7,7 @@ import os
 import re
 import yaml
 from grow.common import structures
+from grow.common import untag
 from grow.common import urls
 from grow.common import utils
 from grow.documents import document_fields
@@ -252,7 +253,9 @@ class Document(object):
         locale_identifier = str(self._locale_kwarg or self.default_locale)
         return document_fields.DocumentFields(
             self.format.front_matter.data, locale_identifier,
-            params={'env': self.pod.env.name})
+            params={
+                'env': untag.UntagParamRegex(self.pod.env.name),
+            })
 
     @utils.cached_property
     def footnotes(self):
