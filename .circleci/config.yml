@@ -1,11 +1,4 @@
-version: 2
-
-pip_install: &pip_install
-  name: Pipenv Install
-  command: |
-    pip install -U pipenv
-    pipenv install --dev
-    . $(pipenv --venv)/bin/activate
+version: 2.1
 
 commands:
   pip_install:
@@ -30,6 +23,9 @@ executors:
   grow:
     docker:
       - image: grow/grow-internal-image
+  osx:
+    macos:
+      xcode: "10.0.0"
 
 jobs:
   init:
@@ -72,9 +68,8 @@ jobs:
             - setup.py
 
   pylint:
+    executor: grow
     working_directory: ~/grow
-    docker:
-      - image: grow/grow-internal-image
     steps:
       - attach_workspace:
           at: ~/grow
@@ -86,9 +81,8 @@ jobs:
           command: make test-pylint
 
   release-package-linux:
+    executor: grow
     working_directory: ~/grow
-    docker:
-      - image: grow/grow-internal-image
     steps:
       - attach_workspace:
           at: ~/grow
@@ -124,9 +118,8 @@ jobs:
           path: dist/
 
   release-package-osx:
+    executor: osx
     working_directory: ~/grow
-    macos:
-      xcode: "9.3.0"
     steps:
       - attach_workspace:
           at: ~/grow
@@ -136,14 +129,11 @@ jobs:
           command: brew install golang
 
       - run:
-          name: Update GOROOT
-          command: echo 'export GOROOT=/usr/local/opt/go/libexec' >> $BASH_ENV
-      - run:
-          name: Update GOPATH
-          command: echo 'export GOPATH=$HOME/gocode' >> $BASH_ENV
-      - run:
-          name: Update PATH
-          command: echo 'export PATH=$PATH:$GOROOT/bin:$GOPATH/bin' >> $BASH_ENV
+          name: Update GO PATHS
+          command: |
+            echo 'export GOROOT=/usr/local/opt/go/libexec' >> $BASH_ENV
+            echo 'export GOPATH=$HOME/gocode' >> $BASH_ENV
+            echo 'export PATH=$PATH:$GOROOT/bin:$GOPATH/bin' >> $BASH_ENV
 
       - run:
           name: Install ghr
@@ -179,9 +169,8 @@ jobs:
           path: dist/
 
   release-package-pypi:
+    executor: grow
     working_directory: ~/grow
-    docker:
-      - image: grow/grow-internal-image
     steps:
       - attach_workspace:
           at: ~/grow
@@ -204,9 +193,8 @@ jobs:
           path: dist/
 
   test:
+    executor: grow
     working_directory: ~/grow
-    docker:
-      - image: grow/grow-internal-image
     steps:
       - attach_workspace:
           at: ~/grow
@@ -226,9 +214,8 @@ jobs:
           command: ./scripts/grow build ./grow/testing/testdata/pod
 
   test-osx:
+    executor: osx
     working_directory: ~/grow
-    macos:
-      xcode: "9.3.0"
     steps:
       - attach_workspace:
           at: ~/grow
