@@ -14,9 +14,6 @@ commands:
             pipenv install --dev
             . $(pipenv --venv)/bin/activate
 
-      - run:
-          command: pipenv --venv
-
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
