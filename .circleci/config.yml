@@ -3,6 +3,10 @@ version: 2.1
 commands:
   pip_install:
     description: "Install using pipenv and caching."
+    parameters:
+      cache_dir:
+        type: string
+        default: /root/.local/share/virtualenvs/
     steps:
       - restore_cache:
           key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
@@ -17,7 +21,7 @@ commands:
       - save_cache:
           key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-          - /root/.local/share/virtualenvs/
+          - << parameters.cache_dir >>
 
 executors:
   grow:
@@ -139,7 +143,8 @@ jobs:
           name: Install ghr
           command: go get -u github.com/tcnksm/ghr
 
-      - pip_install
+      - pip_install:
+          cache_dir: /Users/distiller/.local/share/virtualenvs/
 
       - run:
           name: Build Release
@@ -220,7 +225,8 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - pip_install
+      - pip_install:
+          cache_dir: /Users/distiller/.local/share/virtualenvs/
 
       - run:
           name: Run Tests
