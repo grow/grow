@@ -15,7 +15,6 @@ import json
 import logging
 import os
 import httplib2
-import yaml
 from googleapiclient import discovery
 from googleapiclient import errors
 from protorpc import messages
