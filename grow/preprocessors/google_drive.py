@@ -21,7 +21,6 @@ from protorpc import messages
 from grow.common import oauth
 from grow.common import untag
 from grow.common import utils
-from grow.common import yaml_utils
 from grow.documents import document_format
 from grow.documents import document_front_matter as doc_front_matter
 from grow.preprocessors import base
@@ -309,7 +308,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             if self.pod.file_exists(path):
                 # Do a text parse of the yaml file to prevent the constructors.
                 content = self.pod.read_file(path)
-                existing_data = yaml.load(content, Loader=yaml_utils.PlainTextYamlLoader)
+                existing_data = utils.load_plain_yaml(content)
             elif key_to_update:
                 existing_data = {}
             else:
@@ -377,9 +376,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         path=output_path,
                         key_to_update=None)
                 # Use plain text dumper to preserve yaml constructors.
-                output_content = yaml.dump(
-                    gid_to_data[gid], Dumper=yaml_utils.PlainTextYamlDumper,
-                    default_flow_style=False, allow_unicode=True, width=800)
+                output_content = utils.dump_plain_yaml(gid_to_data[gid])
                 self.pod.write_file(output_path, output_content)
                 self.logger.info(
                     'Downloaded {} ({}) -> {}'.format(
@@ -428,7 +425,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 kwargs['sort_keys'] = True
             return json.dumps(formatted_data, **kwargs)
         elif convert_to in ('.yaml', '.yml'):
-            return yaml.safe_dump(formatted_data, default_flow_style=False)
+            # Use plain text dumper to preserve yaml constructors.
+            return utils.dump_plain_yaml(formatted_data)
         return formatted_data
 
     def can_inject(self, doc=None, collection=None):
