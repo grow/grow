@@ -15,7 +15,7 @@ boto = "==2.49.0"
 certifi = "==2018.4.16"
 click = "==6.7"
 colored = "==1.3.93"
-dulwich = "==0.19.5"
+dulwich = "==0.19.6"
 "gcs-oauth2-boto-plugin-grow" = "==1.14"
 gitpython = "==2.1.10"
 # Newer versions cause the gaenv testing to fail.
