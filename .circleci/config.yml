@@ -4,12 +4,15 @@ commands:
   pip_install:
     description: "Install using pipenv and caching."
     parameters:
-      cache_dir:
+      key:
+        type: string
+        default: linux
+      dir:
         type: string
         default: /root/.local/share/virtualenvs/
     steps:
       - restore_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          key: pip-<< parameters.key >>-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Pipenv Install
@@ -19,9 +22,9 @@ commands:
             . $(pipenv --venv)/bin/activate
 
       - save_cache:
-          key: pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          key: pip-<< parameters.key >>-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
           paths:
-          - << parameters.cache_dir >>
+          - << parameters.dir >>
 
 executors:
   grow:
@@ -144,7 +147,8 @@ jobs:
           command: go get -u github.com/tcnksm/ghr
 
       - pip_install:
-          cache_dir: /Users/distiller/.local/share/virtualenvs/
+          dir: /Users/distiller/.local/share/virtualenvs/
+          key: osx
 
       - run:
           name: Build Release
@@ -226,7 +230,8 @@ jobs:
           at: ~/grow
 
       - pip_install:
-          cache_dir: /Users/distiller/.local/share/virtualenvs/
+          dir: /Users/distiller/.local/share/virtualenvs/
+          key: osx
 
       - run:
           name: Run Tests
