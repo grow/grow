@@ -141,6 +141,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         collection = messages.StringField(8)
         output_format = messages.StringField(9, default='yaml')
         generate_ids = messages.BooleanField(10, default=False)
+        header_row_count = messages.IntegerField(11, default=1)
+        header_row_index = messages.IntegerField(12, default=1)
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -186,7 +188,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
     @classmethod
     def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None,
-                 generate_ids=False):
+                 generate_ids=False, header_row_count=1, header_row_index=1):
         service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         logger = logger or logging
         format_as_grid = format_as in cls.GRID_TYPES
@@ -234,12 +236,20 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     logger.info('Skipping tab -> {}'.format(title))
                     continue
                 headers = None
+                header_rows = []
                 for row in resp['values']:
+                    if len(header_rows) < header_row_count:
+                        header_rows.append(row)
+                        # Only one of the header rows are the actual headers.
+                        if len(header_rows) == header_row_index:
+                            if format_as_grid:
+                                # Ignore first column as a header.
+                                headers = row[1:]
+                            else:
+                                headers = row
+                        continue
+
                     if format_as_grid:
-                        if not headers:
-                            # Ignore first column as a header.
-                            headers = row[1:]
-                            continue
                         if not row:  # Skip empty rows.
                             continue
                         key = row[0].strip()
@@ -265,9 +275,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                                     grid_obj[grid_key] = value
                             gid_to_data[gid][key] = grid_obj
                     elif format_as_map:
-                        if not headers:
-                            headers = row
-                            continue
                         if not row:  # Skip empty rows.
                             continue
                         key = row[0].strip()
@@ -282,9 +289,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             gid_to_data[gid][key] = (
                                 row[1] if len(row) == 2 else '')
                     else:
-                        if not headers:
-                            headers = row
-                            continue
                         row_values = {}
                         for idx, column in enumerate(headers):
                             if not column.startswith(IGNORE_INITIAL):
@@ -338,7 +342,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             format_as = 'map'
         gid_to_sheet, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
-            logger=self.pod.logger, generate_ids=config.generate_ids)
+            logger=self.pod.logger, generate_ids=config.generate_ids,
+            header_row_count=config.header_row_count,
+            header_row_index=config.header_row_index)
 
         if config.path:
             # Single sheet import.
