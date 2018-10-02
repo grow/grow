@@ -218,32 +218,46 @@ class BuiltinsTestCase(unittest.TestCase):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})
         pod.write_file(
-            '/views/format-old.html',
-            '{{_(\'Hello %(name)s\', name=\'<strong class="awesome">Alice</strong>\')}}')
-        pod.write_file(
             '/views/format-new.html',
             '{{_(\'Hello {name}\', name=\'<strong class="awesome">Alice</strong>\')}}')
         pod.write_yaml('/content/testing/_blueprint.yaml', {
             'path': '/{base}/',
-        })
-        pod.write_yaml('/content/testing/format-old.yaml', {
-            '$view': '/views/format-old.html',
         })
         pod.write_yaml('/content/testing/format-new.yaml', {
             '$view': '/views/format-new.html',
         })
 
         pod.router.add_doc(
-            pod.get_doc('/content/testing/format-old.yaml'))
-        pod.router.add_doc(
             pod.get_doc('/content/testing/format-new.yaml'))
 
         self.assertIn(
             'Hello <strong class="awesome">Alice</strong>',
-            self._render_path(pod, '/format-old/'))
+            self._render_path(pod, '/format-new/'))
+
+    def test_gettext_format_entities_old(self):
+        """Verify that the gettext formatting works with entities."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'templates': {
+                'old_string_format': True,
+            },
+        })
+        pod.write_file(
+            '/views/format-old.html',
+            '{{_(\'Hello %(name)s\', name=\'<strong class="awesome">Alice</strong>\')}}')
+        pod.write_yaml('/content/testing/_blueprint.yaml', {
+            'path': '/{base}/',
+        })
+        pod.write_yaml('/content/testing/format-old.yaml', {
+            '$view': '/views/format-old.html',
+        })
+
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format-old.yaml'))
+
         self.assertIn(
             'Hello <strong class="awesome">Alice</strong>',
-            self._render_path(pod, '/format-new/'))
+            self._render_path(pod, '/format-old/'))
 
 
 if __name__ == '__main__':
