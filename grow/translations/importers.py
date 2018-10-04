@@ -81,6 +81,7 @@ class Importer(object):
                     text = 'Locale {} not found in {}'.format(default_locale, path)
                     raise Error(text)
                 msgid = row[default_locale]
+                msgid = msgid.decode('utf-8')
                 for locale, translation in row.iteritems():
                     if locale == default_locale:
                         continue
