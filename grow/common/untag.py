@@ -44,10 +44,12 @@ class Untag(object):
             # Support <key>@<param key>.<param value>: <value>.
             if params:
                 param_regex = re.compile(
-                    r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())))
+                    r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())),
+                    re.IGNORECASE)
                 param_match = param_regex.match(key)
                 if param_match:
                     untagged_key, param_key, param_value = param_match.groups()
+
                     if not params[param_key]:
                         return False
                     result = params[param_key](
@@ -61,10 +63,15 @@ class Untag(object):
             # Support <key>@<locale regex>: <value>.
             match = LOCALIZED_KEY_REGEX.match(key)
             if not match:
+                if (path, key) in untagged_key_paths:
+                    return False
                 return key, value
             untagged_key, locale_from_key = match.groups()
+
             locale_regex = r'^{}$'.format(locale_from_key)
-            if marked_for_extraction or not locale_identifier or not re.match(locale_regex, locale_identifier):
+            locale_match = re.match(
+                locale_regex, locale_identifier, re.IGNORECASE)
+            if marked_for_extraction or not locale_identifier or not locale_match:
                 return False
 
             # Don't let the original key overwrite the new value.
@@ -110,7 +117,7 @@ class UntagParamRegex(object):
         if not self.value:
             return False
         value_regex = r'^{}$'.format(param_value)
-        if not re.match(value_regex, self.value):
+        if not re.match(value_regex, self.value, re.IGNORECASE):
             return False
         return untagged_key, value
 
@@ -139,7 +146,7 @@ class UntagParamLocaleRegex(object):
             regex_value = '|'.join(regex_value)
 
         value_regex = r'^{}$'.format(regex_value)
-        if not re.match(value_regex, locale_identifier):
+        if not re.match(value_regex, locale_identifier, re.IGNORECASE):
             return False
         return untagged_key, value
 
