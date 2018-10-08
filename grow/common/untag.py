@@ -27,10 +27,6 @@ class Untag(object):
             if not isinstance(key, str):
                 return key, value
 
-            # If the key has already been untagged, don't overwrite.
-            if (path, key) in untagged_key_paths:
-                return False
-
             if key.endswith('@#'):
                 # Translation Comment.
                 return False
@@ -50,6 +46,10 @@ class Untag(object):
                 if param_match:
                     untagged_key, param_key, param_value = param_match.groups()
 
+                    # If the key has already been untagged, don't overwrite.
+                    if (path, untagged_key) in untagged_key_paths:
+                        return False
+
                     if not params[param_key]:
                         return False
                     result = params[param_key](
@@ -67,6 +67,10 @@ class Untag(object):
                     return False
                 return key, value
             untagged_key, locale_from_key = match.groups()
+
+            # If the key has already been untagged, don't overwrite.
+            if (path, untagged_key) in untagged_key_paths:
+                return False
 
             locale_regex = r'^{}$'.format(locale_from_key)
             locale_match = re.match(
