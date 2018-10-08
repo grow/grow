@@ -72,10 +72,12 @@ class Untag(object):
             if (path, untagged_key) in untagged_key_paths:
                 return False
 
-            locale_regex = r'^{}$'.format(locale_from_key)
-            locale_match = re.match(
-                locale_regex, locale_identifier, re.IGNORECASE)
-            if marked_for_extraction or not locale_identifier or not locale_match:
+            if marked_for_extraction or not locale_identifier:
+                return False
+
+            locale_regex = re.compile(
+                r'^{}$'.format(locale_from_key), re.IGNORECASE)
+            if not locale_regex.match(locale_identifier):
                 return False
 
             # Don't let the original key overwrite the new value.
