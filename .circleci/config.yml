@@ -17,7 +17,7 @@ commands:
       - run:
           name: Pipenv Install
           command: |
-            pip install -U pipenv
+            pip install -U pipenv requirementslib==1.1.6
             pipenv install --dev
             . $(pipenv --venv)/bin/activate
 
