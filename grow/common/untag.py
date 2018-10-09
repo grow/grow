@@ -4,7 +4,7 @@ import re
 from boltons import iterutils
 
 
-LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)[@]?$')
+LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
 
 
 class Untag(object):
