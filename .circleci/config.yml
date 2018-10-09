@@ -21,6 +21,8 @@ commands:
             pipenv run pip install pip==18.0
             pipenv install --dev
             . $(pipenv --venv)/bin/activate
+          environment:
+            PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
 
       - save_cache:
           key: pip-<< parameters.key >>-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
