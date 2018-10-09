@@ -66,10 +66,11 @@ class Untag(object):
                 if (path, key) in untagged_key_paths:
                     return False
                 return key, value
-            untagged_key, locale_from_key = match.groups()
 
             if not locale_identifier:
                 return False
+
+            untagged_key, locale_from_key = match.groups()
 
             # If the key has already been untagged, don't overwrite.
             if (path, untagged_key) in untagged_key_paths:
