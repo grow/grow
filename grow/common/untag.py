@@ -62,8 +62,6 @@ class Untag(object):
 
             # Support <key>@<locale regex>: <value>.
             match = LOCALIZED_KEY_REGEX.match(key)
-            if match:
-                print match.groups()
             if not match:
                 if (path, key) in untagged_key_paths:
                     return False
