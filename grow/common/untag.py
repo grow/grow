@@ -77,7 +77,7 @@ class Untag(object):
                 return False
 
             # TODO: Once the translation process is able to correctly extract
-            # the locale tagged extractions we need to keep replacing the value.
+            # the locale tagged extractions we need to prevent replacing.
             # # When marked for extraction when tagged it should be used as the
             # # translation value in the message catalog, not replace the value.
             # if marked_for_extraction:

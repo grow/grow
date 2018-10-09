@@ -627,7 +627,7 @@ class UntagTestCase(unittest.TestCase):
         }))
 
     # TODO: Once the translation process is able to correctly extract
-    # the locale tagged extractions we need to keep replacing the value.
+    # the locale tagged extractions we need to prevent replacing the value.
     # def test_untag_translation(self):
     #     """Untag when tagged for translation.
     #
