@@ -4,7 +4,7 @@ import re
 from boltons import iterutils
 
 
-LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
+LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)[@]?$')
 
 
 class Untag(object):
@@ -62,18 +62,27 @@ class Untag(object):
 
             # Support <key>@<locale regex>: <value>.
             match = LOCALIZED_KEY_REGEX.match(key)
+            if match:
+                print match.groups()
             if not match:
                 if (path, key) in untagged_key_paths:
                     return False
                 return key, value
             untagged_key, locale_from_key = match.groups()
 
+            if not locale_identifier:
+                return False
+
             # If the key has already been untagged, don't overwrite.
             if (path, untagged_key) in untagged_key_paths:
                 return False
 
-            if marked_for_extraction or not locale_identifier:
-                return False
+            # TODO: Once the translation process is able to correctly extract
+            # the locale tagged extractions we need to keep replacing the value.
+            # # When marked for extraction when tagged it should be used as the
+            # # translation value in the message catalog, not replace the value.
+            # if marked_for_extraction:
+            #     return False
 
             locale_regex = re.compile(
                 r'^{}$'.format(locale_from_key), re.IGNORECASE)
