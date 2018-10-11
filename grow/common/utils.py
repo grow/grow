@@ -19,6 +19,7 @@ import html2text
 import translitcodec  # pylint: disable=unused-import
 from collections import OrderedDict
 from grow.common import structures
+from grow.common import untag
 from grow.common import yaml_utils
 from grow.pods import errors
 
@@ -254,6 +255,10 @@ def make_yaml_loader(pod, doc=None, locale=None):
             contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
                 contents = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
+                contents = untag.Untag.untag(
+                    contents, locale_identifier=locale, params={
+                        'env': untag.UntagParamRegex(pod.env.name),
+                    })
                 file_cache.add(pod_path, contents, locale=locale)
             return contents
 
@@ -321,7 +326,7 @@ def make_yaml_loader(pod, doc=None, locale=None):
                             else:
                                 pod.logger.warning(
                                     'Missing {}.{}'.format(main, reference))
-                        return data[reference]
+                        return value
                     except KeyError:
                         return None
                 return None
