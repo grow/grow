@@ -247,13 +247,13 @@ def make_yaml_loader(pod, doc=None, locale=None):
                 file_cache.add(pod_path, contents)
             return contents
 
-        @staticmethod
-        def read_yaml(pod_path, locale):
+        @classmethod
+        def read_yaml(cls, pod_path, locale):
             """Reads a yaml file using a cache."""
             file_cache = pod.podcache.file_cache
             contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
-                contents = pod.read_yaml(pod_path, locale=locale)
+                contents = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
                 file_cache.add(pod_path, contents, locale=locale)
             return contents
 
@@ -367,7 +367,11 @@ def make_yaml_loader(pod, doc=None, locale=None):
 def load_yaml(*args, **kwargs):
     pod = kwargs.pop('pod', None)
     doc = kwargs.pop('doc', None)
-    locale = kwargs.pop('locale', None)
+    default_locale = None
+    if doc:
+        default_locale = doc._locale_kwarg
+
+    locale = kwargs.pop('locale', default_locale)
     loader = make_yaml_loader(pod, doc=doc, locale=locale)
     return yaml.load(*args, Loader=loader, **kwargs) or {}
 
