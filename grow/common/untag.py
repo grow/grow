@@ -66,14 +66,22 @@ class Untag(object):
                 if (path, key) in untagged_key_paths:
                     return False
                 return key, value
+
+            if not locale_identifier:
+                return False
+
             untagged_key, locale_from_key = match.groups()
 
             # If the key has already been untagged, don't overwrite.
             if (path, untagged_key) in untagged_key_paths:
                 return False
 
-            if marked_for_extraction or not locale_identifier:
-                return False
+            # TODO: Once the translation process is able to correctly extract
+            # the locale tagged extractions we need to prevent replacing.
+            # # When marked for extraction when tagged it should be used as the
+            # # translation value in the message catalog, not replace the value.
+            # if marked_for_extraction:
+            #     return False
 
             locale_regex = re.compile(
                 r'^{}$'.format(locale_from_key), re.IGNORECASE)

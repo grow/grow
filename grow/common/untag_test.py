@@ -626,29 +626,31 @@ class UntagTestCase(unittest.TestCase):
             'env': untag.UntagParamRegex('prod'),
         }))
 
-    def test_untag_translation(self):
-        """Untag when tagged for translation.
-
-        When untagging a locale that has a trailing @ it is used as the
-        translated value for the key, not as the actual value untagged.
-
-        This makes it so that translated values are done as translations so
-        gettext works correctly in templates.
-
-        See https://docs.google.com/document/d/19rFeAdIjO6mHJG8p8MuOHy5ywG4bYD3FlLdH81dH5Og/
-        """
-        untag_func = untag.Untag.untag
-        fields_to_test = {
-            'foo@': 'base',
-            'foo@fr@': 'fr',
-        }
-        fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier=None))
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier='fr'))
+    # TODO: Once the translation process is able to correctly extract
+    # the locale tagged extractions we need to prevent replacing the value.
+    # def test_untag_translation(self):
+    #     """Untag when tagged for translation.
+    #
+    #     When untagging a locale that has a trailing @ it is used as the
+    #     translated value for the key, not as the actual value untagged.
+    #
+    #     This makes it so that translated values are done as translations so
+    #     gettext works correctly in templates.
+    #
+    #     See https://docs.google.com/document/d/19rFeAdIjO6mHJG8p8MuOHy5ywG4bYD3FlLdH81dH5Og/
+    #     """
+    #     untag_func = untag.Untag.untag
+    #     fields_to_test = {
+    #         'foo@': 'base',
+    #         'foo@fr@': 'fr',
+    #     }
+    #     fields = copy.deepcopy(fields_to_test)
+    #     self.assertDictEqual({
+    #         'foo': 'base',
+    #     }, untag_func(fields, locale_identifier=None))
+    #     self.assertDictEqual({
+    #         'foo': 'base',
+    #     }, untag_func(fields, locale_identifier='fr'))
 
     def test_untag_translation_comment(self):
         """Untag ignored translation comments."""
