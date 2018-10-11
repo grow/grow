@@ -24,6 +24,9 @@ class DocumentFields(object):
     def __len__(self):
         return len(self._data)
 
+    def __repr__(self):
+        return "<DocumentFields(locale='{}')>".format(self._locale_identifier)
+
     def get(self, key, default=None):
         return self._data.get(key, default)
 
