@@ -223,7 +223,7 @@ def every_two(l):
     return zip(l[::2], l[1::2])
 
 
-def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
+def make_yaml_loader(pod, doc=None, locale=None):
     loader_locale = locale
 
     class YamlLoader(yaml_Loader):
@@ -256,7 +256,9 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
             if contents is None:
                 contents = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
                 contents = untag.Untag.untag(
-                    contents, locale_identifier=locale, params=untag_params)
+                    contents, locale_identifier=locale, params={
+                        'env': untag.UntagParamRegex(pod.env.name),
+                    })
                 file_cache.add(pod_path, contents, locale=locale)
             return contents
 
@@ -370,24 +372,22 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
 def load_yaml(*args, **kwargs):
     pod = kwargs.pop('pod', None)
     doc = kwargs.pop('doc', None)
-    untag_params = kwargs.pop('untag_params', None)
     default_locale = None
     if doc:
         default_locale = doc._locale_kwarg
+
     locale = kwargs.pop('locale', default_locale)
-    loader = make_yaml_loader(
-        pod, doc=doc, locale=locale, untag_params=untag_params)
-    contents = yaml.load(*args, Loader=loader, **kwargs) or {}
-    return untag.Untag.untag(
-        contents, locale_identifier=locale, params=untag_params)
+    loader = make_yaml_loader(pod, doc=doc, locale=locale)
+    return yaml.load(*args, Loader=loader, **kwargs) or {}
 
 
 def load_plain_yaml(content, pod=None, locale=None):
     return yaml.load(content, Loader=yaml_utils.PlainTextYamlLoader)
 
 
-def parse_yaml(content, pod=None, locale=None, untag_params=None):
-    return load_yaml(content, pod=pod, locale=locale, untag_params=untag_params)
+@memoize
+def parse_yaml(content, pod=None, locale=None):
+    return load_yaml(content, pod=pod, locale=locale)
 
 
 def dump_yaml(obj):
