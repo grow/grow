@@ -807,17 +807,12 @@ class Pod(object):
             label = '{} ({})'.format(path, locale)
             meta = {'path': path, 'locale': locale}
             with self.profile.timer('Pod.read_yaml', label=label, meta=meta):
-                fields = self.podcache.file_cache.get(path, locale='__raw__')
-                if fields is None:
-                    fields = utils.parse_yaml(
-                        self.read_file(path), pod=self, locale=locale)
-                    self.podcache.file_cache.add(
-                        path, fields, locale='__raw__')
                 try:
-                    contents = untag.Untag.untag(
-                        fields, locale_identifier=locale, params={
-                            'env': untag.UntagParamRegex(self.env.name),
-                        })
+                    fields = utils.parse_yaml(
+                        self.read_file(path), pod=self, locale=locale,
+                            untag_params={
+                                'env': untag.UntagParamRegex(self.env.name),
+                            })
                     self.podcache.file_cache.add(path, contents, locale=locale)
                 except Exception:
                     logging.error('Error parsing -> {}'.format(path))
