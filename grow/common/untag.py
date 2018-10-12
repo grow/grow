@@ -14,6 +14,7 @@ class Untag(object):
     def untag(data, locale_identifier=None, params=None):
         """Untags fields, handling translation priority."""
         paths_to_keep_tagged = set()
+        locale_identifier = str(locale_identifier)
 
         # When untagging the order of the keys isn't consistent. Sometimes the
         # tagged value is found but then is overwritten by the original value
