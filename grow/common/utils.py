@@ -227,7 +227,7 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
     loader_locale = locale
 
     # A default set of params for nested yaml parsing.
-    if not untag_params:
+    if not untag_params and pod:
         untag_params = {
             'env': untag.UntagParamRegex(pod.env.name),
         }
