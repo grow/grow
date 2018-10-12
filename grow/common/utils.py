@@ -226,6 +226,12 @@ def every_two(l):
 def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
     loader_locale = locale
 
+    # A default set of params for nested yaml parsing.
+    if not untag_params:
+        untag_params = {
+            'env': untag.UntagParamRegex(pod.env.name),
+        }
+
     class YamlLoader(yaml_Loader):
 
         @staticmethod
@@ -378,6 +384,8 @@ def load_yaml(*args, **kwargs):
     loader = make_yaml_loader(
         pod, doc=doc, locale=locale, untag_params=untag_params)
     contents = yaml.load(*args, Loader=loader, **kwargs) or {}
+    if not untag_params:
+        return contents
     return untag.Untag.untag(
         contents, locale_identifier=locale, params=untag_params)
 
