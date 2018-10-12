@@ -19,6 +19,7 @@ import html2text
 import translitcodec  # pylint: disable=unused-import
 from collections import OrderedDict
 from grow.common import structures
+from grow.common import untag
 from grow.common import yaml_utils
 from grow.pods import errors
 
@@ -222,8 +223,14 @@ def every_two(l):
     return zip(l[::2], l[1::2])
 
 
-def make_yaml_loader(pod, doc=None, locale=None):
+def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
     loader_locale = locale
+
+    # A default set of params for nested yaml parsing.
+    if not untag_params and pod:
+        untag_params = {
+            'env': untag.UntagParamRegex(pod.env.name),
+        }
 
     class YamlLoader(yaml_Loader):
 
@@ -247,13 +254,15 @@ def make_yaml_loader(pod, doc=None, locale=None):
                 file_cache.add(pod_path, contents)
             return contents
 
-        @staticmethod
-        def read_yaml(pod_path, locale):
+        @classmethod
+        def read_yaml(cls, pod_path, locale):
             """Reads a yaml file using a cache."""
             file_cache = pod.podcache.file_cache
             contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
-                contents = pod.read_yaml(pod_path, locale=locale)
+                contents = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
+                contents = untag.Untag.untag(
+                    contents, locale_identifier=locale, params=untag_params)
                 file_cache.add(pod_path, contents, locale=locale)
             return contents
 
@@ -321,7 +330,7 @@ def make_yaml_loader(pod, doc=None, locale=None):
                             else:
                                 pod.logger.warning(
                                     'Missing {}.{}'.format(main, reference))
-                        return data[reference]
+                        return value
                     except KeyError:
                         return None
                 return None
@@ -367,18 +376,26 @@ def make_yaml_loader(pod, doc=None, locale=None):
 def load_yaml(*args, **kwargs):
     pod = kwargs.pop('pod', None)
     doc = kwargs.pop('doc', None)
-    locale = kwargs.pop('locale', None)
-    loader = make_yaml_loader(pod, doc=doc, locale=locale)
-    return yaml.load(*args, Loader=loader, **kwargs) or {}
+    untag_params = kwargs.pop('untag_params', None)
+    default_locale = None
+    if doc:
+        default_locale = doc._locale_kwarg
+    locale = kwargs.pop('locale', default_locale)
+    loader = make_yaml_loader(
+        pod, doc=doc, locale=locale, untag_params=untag_params)
+    contents = yaml.load(*args, Loader=loader, **kwargs) or {}
+    if not untag_params:
+        return contents
+    return untag.Untag.untag(
+        contents, locale_identifier=locale, params=untag_params)
 
 
 def load_plain_yaml(content, pod=None, locale=None):
     return yaml.load(content, Loader=yaml_utils.PlainTextYamlLoader)
 
 
-@memoize
-def parse_yaml(content, pod=None, locale=None):
-    return load_yaml(content, pod=pod, locale=locale)
+def parse_yaml(content, pod=None, locale=None, untag_params=None):
+    return load_yaml(content, pod=pod, locale=locale, untag_params=untag_params)
 
 
 def dump_yaml(obj):
