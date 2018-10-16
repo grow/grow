@@ -245,6 +245,16 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
             return contents
 
         @staticmethod
+        def read_file(pod_path):
+            """Reads a file using a cache."""
+            file_cache = pod.podcache.file_cache
+            contents = file_cache.get(pod_path)
+            if contents is None:
+                contents = pod.read_file(pod_path)
+                file_cache.add(pod_path, contents)
+            return contents
+
+        @staticmethod
         def read_json(pod_path):
             """Reads a json file using a cache."""
             file_cache = pod.podcache.file_cache
@@ -290,6 +300,13 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
                 pod.podcache.dependency_graph.add(
                     pod_path, contructed_doc.pod_path)
                 return contructed_doc
+            return self._construct_func(node, func)
+
+        def construct_file(self, node):
+            def func(path):
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return self.read_file(path)
             return self._construct_func(node, func)
 
         def construct_gettext(self, node):
@@ -365,6 +382,7 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
     YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
     YamlLoader.add_constructor(u'!g.csv', YamlLoader.construct_csv)
     YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
+    YamlLoader.add_constructor(u'!g.file', YamlLoader.construct_file)
     YamlLoader.add_constructor(u'!g.json', YamlLoader.construct_json)
     YamlLoader.add_constructor(u'!g.static', YamlLoader.construct_static)
     YamlLoader.add_constructor(u'!g.string', YamlLoader.construct_string)
