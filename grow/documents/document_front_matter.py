@@ -89,8 +89,9 @@ class DocumentFrontMatter(object):
         try:
             return utils.load_yaml(
                 raw_yaml, doc=self._doc, pod=self._doc.pod)
-        except (yaml.parser.ParserError,
-                yaml.composer.ComposerError,
+        except (yaml.composer.ComposerError,
+                yaml.parser.ParserError,
+                yaml.reader.ReaderError,
                 yaml.scanner.ScannerError) as error:
             message = 'Error parsing {}: {}'.format(self._doc.pod_path, error)
             raise BadFormatError(message)
