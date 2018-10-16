@@ -30,7 +30,7 @@ markdown = "==2.6.11"
 markupsafe = "==1.0"
 # Pyinstaller ImportError: file_cache is unavailable when using oauth2client >= 4.0.0
 "oauth2client" = "==3.0.0"
-paramiko = "==2.4.1"
+paramiko = "==2.4.2"
 "progressbar2" = "==3.38.0"
 # Unable to use non-unicode strings: https://github.com/google/protorpc/issues/26
 protorpc = "==0.11.1"
