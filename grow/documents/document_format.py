@@ -1,5 +1,6 @@
 """Document formatting specifics for parsing and working with documents."""
 
+import copy
 import markdown
 from markdown.extensions import tables
 from grow.common import markdown_extensions
@@ -170,6 +171,10 @@ class MarkdownDocumentFormat(DocumentFormat):
 
             if config['kind'].startswith('markdown.extensions'):
                 extensions.append(config['kind'])
+                ext_config = copy.deepcopy(config)
+                ext_config.pop('kind', None)
+                if ext_config:
+                    extension_configs[config['kind']] = ext_config
 
         config = self.get_ext_config('markdown.extensions.codehilite')
         codehilite_config = {
