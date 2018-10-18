@@ -8,7 +8,7 @@ from grow import preprocessors
 from grow import storage
 from grow.testing import testing
 from . import pods
-from . import static
+from grow.routing import router
 
 
 class PodTest(unittest.TestCase):
@@ -139,9 +139,6 @@ class PodTest(unittest.TestCase):
             result[rendered_doc.path] = None
         self.assertItemsEqual(paths, result)
 
-    def test_to_message(self):
-        self.pod.to_message()
-
     def test_list_deployments(self):
         self.pod.list_deployments()
 
@@ -152,10 +149,9 @@ class PodTest(unittest.TestCase):
 
     def test_get_static(self):
         static_file = self.pod.get_static('/public/file.txt')
-        self.assertEqual('file', static_file.base)
         self.assertTrue(static_file.exists)
         self.assertRaises(
-            static.BadStaticFileError, self.pod.get_static,
+            router.MissingStaticConfigError, self.pod.get_static,
             '/bad-path/bad-file.txt')
 
     def test_list_statics(self):
