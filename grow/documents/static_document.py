@@ -7,7 +7,12 @@ from grow.routing import path_filter as grow_path_filter
 
 
 class Error(Exception):
-    """Base rendering pool error."""
+    """Base static document error."""
+    pass
+
+
+class DocumentDoesNotExistError(Error, ValueError):
+    """Static document does not exist."""
     pass
 
 

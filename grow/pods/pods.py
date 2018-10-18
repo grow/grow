@@ -552,7 +552,7 @@ class Pod(object):
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
                 'not configured for this path in {}.'.format(
                     pod_path, self.FILE_PODSPEC))
-        raise grow_static.BadStaticFileError(text)
+        raise static_document.DocumentDoesNotExistError(text)
 
     def get_podspec(self):
         return self.podspec
