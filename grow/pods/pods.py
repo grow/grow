@@ -375,21 +375,6 @@ class Pod(object):
             normal_paths.append(self._normalize_path(pod_path))
         return self.storage.delete_files(normal_paths, recursive=recursive, pattern=pattern)
 
-    def determine_paths_to_build(self, pod_paths=None):
-        """Determines which paths are going to be built with optional path filtering."""
-        # When provided a list of pod_paths do a custom routing tree based on
-        # the docs that are dependent based on the dependecy graph.
-        def _gen_docs(pod_paths):
-            for pod_path in pod_paths:
-                for dep_path in self.podcache.dependency_graph.match_dependents(
-                        self._normalize_pod_path(pod_path)):
-                    yield self.get_doc(dep_path)
-        routes = grow_routes.Routes.from_docs(self, _gen_docs(pod_paths))
-        paths = []
-        for items in routes.get_locales_to_paths().values():
-            paths += items
-        return paths, routes
-
     def disable(self, feature):
         """Disable a grow feature."""
         self._features.disable(feature)
