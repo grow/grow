@@ -1,8 +1,10 @@
+"""Tests for the main grow development server."""
+
+import unittest
+import webapp2
 from grow.pods import pods
 from grow.server import main
 from grow.testing import testing
-import unittest
-import webapp2
 
 
 class PodHandlerTestCase(unittest.TestCase):

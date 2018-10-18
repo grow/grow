@@ -671,7 +671,8 @@ class Pod(object):
         for params in preprocessor_config:
             kind = params.pop('kind')
             try:
-                preprocessor = preprocessors.make_preprocessor(kind, params, self)
+                preprocessor = preprocessors.make_preprocessor(
+                    kind, params, self)
                 results.append(preprocessor)
             except ValueError as err:
                 # New extensions will not show up here.
@@ -682,6 +683,9 @@ class Pod(object):
         for path in self.list_dir(pod_path):
             if include_hidden or not path.rsplit(os.sep, 1)[-1].startswith('.'):
                 yield self.get_static(pod_path + path, locale=locale)
+
+    def match(self, path):
+        return self.router.routes.match(path)
 
     def move_file_to(self, source_pod_path, destination_pod_path):
         source_path = self._normalize_path(source_pod_path)
