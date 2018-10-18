@@ -46,8 +46,6 @@ from grow.translators import translators
 from . import env as environment
 from . import messages
 from . import podspec
-from . import routes as grow_routes
-from . import static as grow_static
 
 
 class Error(Exception):
@@ -379,17 +377,14 @@ class Pod(object):
 
     def determine_paths_to_build(self, pod_paths=None):
         """Determines which paths are going to be built with optional path filtering."""
-        if pod_paths:
-            # When provided a list of pod_paths do a custom routing tree based on
-            # the docs that are dependent based on the dependecy graph.
-            def _gen_docs(pod_paths):
-                for pod_path in pod_paths:
-                    for dep_path in self.podcache.dependency_graph.match_dependents(
-                            self._normalize_pod_path(pod_path)):
-                        yield self.get_doc(dep_path)
-            routes = grow_routes.Routes.from_docs(self, _gen_docs(pod_paths))
-        else:
-            routes = self.get_routes()
+        # When provided a list of pod_paths do a custom routing tree based on
+        # the docs that are dependent based on the dependecy graph.
+        def _gen_docs(pod_paths):
+            for pod_path in pod_paths:
+                for dep_path in self.podcache.dependency_graph.match_dependents(
+                        self._normalize_pod_path(pod_path)):
+                    yield self.get_doc(dep_path)
+        routes = grow_routes.Routes.from_docs(self, _gen_docs(pod_paths))
         paths = []
         for items in routes.get_locales_to_paths().values():
             paths += items
@@ -562,9 +557,6 @@ class Pod(object):
                 **tags.create_builtin_globals(env, self, locale=locale))
             return env
 
-    def get_routes(self):
-        return self.routes
-
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
         document = static_document.StaticDocument(
@@ -706,13 +698,6 @@ class Pod(object):
             if include_hidden or not path.rsplit(os.sep, 1)[-1].startswith('.'):
                 yield self.get_static(pod_path + path, locale=locale)
 
-    def load(self):
-        if self.routes:
-            self.routes.routing_map
-
-    def match(self, path):
-        return self.routes.match(path, env=self.env.to_wsgi_env())
-
     def move_file_to(self, source_pod_path, destination_pod_path):
         source_path = self._normalize_path(source_pod_path)
         dest_path = self._normalize_path(destination_pod_path)
@@ -797,54 +782,10 @@ class Pod(object):
                     raise
         return contents
 
-    def render_paths(self, paths, routes, suffix=None, append_slashes=False):
-        """Renders the given paths and yields each path and content."""
-        text = 'Building: %(value)d/{} (in %(time_elapsed).9s)'
-        widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        bar = progressbar_non.create_progressbar(
-            "Building pod...", widgets=widgets, max_value=len(paths))
-        bar.start()
-        for path in paths:
-            output_path = path
-            controller, params = routes.match(
-                path, env=self.env.to_wsgi_env())
-            # Append a suffix onto rendered routes only. This supports dumping
-            # paths that would serve at URLs that terminate in "/" or without
-            # an extension to an HTML file suitable for writing to a
-            # filesystem. Static routes and other routes that may export to
-            # paths without extensions should remain unmodified.
-            if suffix and controller.KIND == messages.Kind.RENDERED:
-                if (append_slashes and not output_path.endswith('/')
-                        and not os.path.splitext(output_path)[-1]):
-                    output_path = output_path.rstrip('/') + '/'
-                if append_slashes and output_path.endswith('/') and suffix:
-                    output_path += suffix
-            try:
-                key = 'Pod.render_paths.render'
-                if isinstance(controller, grow_static.StaticController):
-                    key = 'Pod.render_paths.render.static'
-
-                with self.profile.timer(key, label=output_path, meta={'path': output_path}):
-                    yield rendered_document.RenderedDocument(
-                        output_path, controller.render(params, inject=False),
-                        tmp_dir=self.tmp_dir)
-            except:
-                self.logger.error('Error building: {}'.format(controller))
-                raise
-            bar.update(bar.value + 1)
-        bar.finish()
-
     def reset_yaml(self):
         # Tell the cached property to reset.
         # pylint: disable=no-member
         self._parse_yaml.reset()
-
-    def to_message(self):
-        message = messages.PodMessage()
-        message.collections = [collection.to_message()
-                               for collection in self.list_collections()]
-        message.routes = self.routes.to_message()
-        return message
 
     def walk(self, pod_path):
         path = self._normalize_path(pod_path)
