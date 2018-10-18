@@ -38,12 +38,11 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.translations.upload')
     help_text='Which locale(s) to upload. If unspecified,'
               ' translations for all catalogs will be uploaded.')
 @shared.service_option
-@shared.reroute_option(CFG)
 def translations_upload(pod_path, locale, force, service, update_acl,
-                        download, extract, prune, update_meta, use_reroute):
+                        download, extract, prune, update_meta):
     """Uploads translations to a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
+    pod = pods.Pod(root, storage=storage.FileStorage)
     translator = pod.get_translator(service)
 
     if not translator:

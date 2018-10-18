@@ -17,11 +17,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.translations.download')
                                 ' translations for all locales will be downloaded.')
 @shared.service_option
 @shared.include_obsolete_option(CFG)
-@shared.reroute_option(CFG)
-def translations_download(pod_path, locale, service, include_obsolete, use_reroute):
+def translations_download(pod_path, locale, service, include_obsolete):
     """Downloads translations from a translation service."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
+    pod = pods.Pod(root, storage=storage.FileStorage)
     with pod.profile.timer('grow_translations_download'):
         translator = pod.get_translator(service)
         translator.download(locales=locale, include_obsolete=include_obsolete)

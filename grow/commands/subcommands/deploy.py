@@ -29,11 +29,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')
                    ' before deploy. Usage: grow --auth=user@example.com deploy')
 @shared.force_untranslated_option(CFG)
 @shared.preprocess_option(CFG)
-@shared.reroute_option(CFG)
 @shared.threaded_option(CFG)
 @click.pass_context
 def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
-           test_only, auth, force_untranslated, use_reroute, threaded):
+           test_only, auth, force_untranslated, threaded):
     """Deploys a pod to a destination."""
     if auth:
         text = ('--auth must now be specified before deploy. Usage:'
@@ -42,7 +41,7 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
     auth = context.parent.params.get('auth')
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     try:
-        pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
+        pod = pods.Pod(root, storage=storage.FileStorage)
         with pod.profile.timer('grow_deploy'):
             # Always clear the cache when building.
             pod.podcache.reset()
@@ -63,12 +62,9 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
                 return
             content_generator = deployment.dump(pod, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
-            if use_reroute:
-                pod.router.use_simple()
-                pod.router.add_all()
-                paths = pod.router.routes.paths
-            else:
-                paths, _ = pod.determine_paths_to_build()
+            pod.router.use_simple()
+            pod.router.add_all()
+            paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)
             deployment.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=confirm,

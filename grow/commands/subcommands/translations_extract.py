@@ -46,12 +46,11 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.translations.extract')
               ' only applicable when using --update or --init.')
 @shared.localized_option(CFG)
 @shared.path_option
-@shared.reroute_option(CFG)
 def translations_extract(pod_path, init, update, include_obsolete, localized,
-                         include_header, locale, fuzzy_matching, audit, path, o, use_reroute):
+                         include_header, locale, fuzzy_matching, audit, path, o):
     """Extracts tagged messages from source files into a template catalog."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
+    pod = pods.Pod(root, storage=storage.FileStorage)
     with pod.profile.timer('grow_translations_extract'):
         include_obsolete, localized, include_header, use_fuzzy_matching, = \
             pod.catalogs.get_extract_config(

@@ -18,11 +18,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.inspect.stats')
               help='Whether to show full stats. By default, only '
                    'short stats are displayed. Short stats do not '
                    'require a build and may be faster to generate.')
-@shared.reroute_option(CFG)
-def inspect_stats(pod_path, full, use_reroute):
+def inspect_stats(pod_path, full):
     """Displays statistics about the pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
+    pod = pods.Pod(root, storage=storage.FileStorage)
     try:
         with pod.profile.timer('grow_inspect_stats'):
             pod_stats = stats_lib.Stats(pod, full=full)

@@ -21,8 +21,7 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.translations.import')
               ' only applicable when --source is a .po file.', multiple=False)
 @click.option('--untranslated', default=False, is_flag=True,
               help='Whether to only import untranslated strings.')
-@shared.reroute_option(CFG)
-def translations_import(pod_path, source, locale, include_obsolete, untranslated, use_reroute):
+def translations_import(pod_path, source, locale, include_obsolete, untranslated):
     """Imports translations from an external source."""
     if source.endswith('.po') and locale is None:
         text = 'Must specify --locale when --source is a .po file.'
@@ -32,7 +31,7 @@ def translations_import(pod_path, source, locale, include_obsolete, untranslated
         raise click.ClickException(text)
     source = os.path.expanduser(source)
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
+    pod = pods.Pod(root, storage=storage.FileStorage)
     if not pod.exists:
         raise click.ClickException('Pod does not exist: {}'.format(pod.root))
     with pod.profile.timer('translations_grow_i'):

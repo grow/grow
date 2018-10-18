@@ -85,7 +85,7 @@ class Pod(object):
                 and isinstance(other, Pod)
                 and self.root == other.root)
 
-    def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True, use_reroute=False):
+    def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True):
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
@@ -94,12 +94,6 @@ class Pod(object):
                     else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
-        # TODO: Remove the use_reroute when it is the only routing.
-        self.use_reroute = use_reroute
-        if not use_reroute:
-            self.routes = grow_routes.Routes(pod=self)
-        else:
-            self.routes = None
         self._jinja_env_lock = threading.RLock()
         self._podcache = None
         self._features = features.Features(disabled=[
@@ -421,20 +415,9 @@ class Pod(object):
 
     def export(self, suffix=None, append_slashes=False, pod_paths=None, use_threading=True):
         """Builds the pod, yielding rendered_doc based on pod routes."""
-        if self.use_reroute:
-            for rendered_doc in renderer.Renderer.rendered_docs(
-                    self, self.router.routes, use_threading=use_threading):
-                yield rendered_doc
-        else:
-            paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)
-            for rendered_doc in self.render_paths(
-                    paths, routes, suffix=suffix, append_slashes=append_slashes):
-                yield rendered_doc
-            if not pod_paths:
-                error_controller = routes.match_error('/404.html')
-                if error_controller:
-                    yield rendered_document.RenderedDocument(
-                        '/404.html', error_controller.render({}), tmp_dir=self.tmp_dir)
+        for rendered_doc in renderer.Renderer.rendered_docs(
+                self, self.router.routes, use_threading=use_threading):
+            yield rendered_doc
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
@@ -584,21 +567,11 @@ class Pod(object):
 
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
-        if self.use_reroute:
-            document = static_document.StaticDocument(
-                self, pod_path, locale=locale)
-            if document.exists:
-                return document
-        else:
-            for route in self.routes.static_routing_map.iter_rules():
-                controller = route.endpoint
-                if controller.KIND == messages.Kind.STATIC:
-                    serving_path = controller.match_pod_path(pod_path)
-                    if serving_path:
-                        return grow_static.StaticFile(
-                            pod_path, serving_path, locale=locale, pod=self,
-                            controller=controller, fingerprinted=controller.fingerprinted,
-                            localization=controller.localization)
+        document = static_document.StaticDocument(
+            self, pod_path, locale=locale)
+        if document.exists:
+            return document
+
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
                 'not configured for this path in {}.'.format(
                     pod_path, self.FILE_PODSPEC))
