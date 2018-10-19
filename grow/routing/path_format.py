@@ -99,7 +99,8 @@ class PathFormat(object):
 
         return self.strip_double_slash(path)
 
-    def format_static(self, path, locale=None, parameterize=False):
+    def format_static(self, path, locale=None, parameterize=False,
+                      fingerprint=None):
         """Format a static document url."""
 
         params = self.params_pod()
@@ -108,8 +109,16 @@ class PathFormat(object):
         if parameterize:
             path = self.parameterize(path)
 
-        params['locale'] = self._locale_or_alias(locale)
-        if params['locale']:
+        params = {}
+
+        if fingerprint:
+            params['fingerprint'] = fingerprint
+
+        locale_alias = self._locale_or_alias(locale)
+        if locale_alias:
+            params['locale'] = locale_alias
+
+        if params:
             path = utils.safe_format(path, **params)
 
         return self.strip_double_slash(path)
