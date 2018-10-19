@@ -2,15 +2,15 @@
   "name": "grow.io",
   "private": true,
   "dependencies": {
-    "babel-loader": "^7.1.4",
+    "babel-loader": "^8.0.4",
     "babili-webpack-plugin": "^0.1.2",
-    "deep-extend": "^0.5.1",
+    "deep-extend": "^0.6.0",
     "fs-readdir-recursive": "^1.1.0",
     "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^5.0.0",
-    "gulp-rename": "~1.2.3",
-    "gulp-sass": "^4.0.1",
-    "webpack": "^4.8.3",
-    "webpack-stream": "^4.0.3"
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-rename": "~1.4.0",
+    "gulp-sass": "^4.0.2",
+    "webpack": "^4.21.0",
+    "webpack-stream": "^5.1.1"
   }
 }
