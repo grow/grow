@@ -53,14 +53,14 @@ class BuiltinsTestCase(unittest.TestCase):
         self.assertEqual('foo:b-z-b', filters.slug_filter(words))
 
     def test_json(self):
-        controller, params = self.pod.match('/json_test/')
-        html = controller.render(params)
+        self.pod.router.add_all()
+        html = testing.render_path(self.pod, '/json_test/')
         self.assertIn('key - value', html)
         self.assertIn('key2 - value2', html)
 
     def test_json_encoder(self):
-        controller, params = self.pod.match('/json_test/')
-        html = controller.render(params)
+        self.pod.router.add_all()
+        html = testing.render_path(self.pod, '/json_test/')
         self.assertIn('"$title": "Text Page"', html)
         self.assertIn('"$hidden": true', html)
 
