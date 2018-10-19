@@ -16,15 +16,6 @@ class DocumentsTestCase(unittest.TestCase):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
-    def _render_path(self, pod, path):
-        matched = pod.match(path)
-        controller = pod.router.get_render_controller(
-            matched.path, matched.value, params=matched.params)
-        jinja_env = pod.render_pool.get_jinja_env(
-            controller.doc.locale) if controller.use_jinja else None
-        rendered_document = controller.render(jinja_env=jinja_env)
-        return rendered_document.read()
-
     def test_eq(self):
         doc1 = self.pod.get_doc('/content/pages/contact.yaml')
         doc2 = self.pod.get_doc('/content/pages/contact.yaml')
@@ -303,15 +294,15 @@ class DocumentsTestCase(unittest.TestCase):
         pod.router.add_all()
 
         # Verify ability to override using the default locale.
-        content = self._render_path(pod, '/page/')
+        content = testing.render_path(pod, '/page/')
         self.assertEqual('foo-de', content)
-        content = self._render_path(pod, '/en/page/')
+        content = testing.render_path(pod, '/en/page/')
         self.assertEqual('foo-base', content)
 
         # Verify default behavior otherwise.
-        content = self._render_path(pod, '/page2/')
+        content = testing.render_path(pod, '/page2/')
         self.assertEqual('foo-base', content)
-        content = self._render_path(pod, '/de/page2/')
+        content = testing.render_path(pod, '/de/page2/')
         self.assertEqual('foo-de', content)
 
     def test_locale_override(self):
@@ -561,7 +552,7 @@ class DocumentsTestCase(unittest.TestCase):
 
         pod.router.add_all()
 
-        content = self._render_path(pod, '/page/')
+        content = testing.render_path(pod, '/page/')
         self.assertEqual('en', content)
 
         # Verify paths aren't clobbered by the default locale.
@@ -580,7 +571,7 @@ class DocumentsTestCase(unittest.TestCase):
         pod.podcache.reset()
         pod.router.routes.reset()
         pod.router.add_all()
-        content = self._render_path(pod, '/de/page/')
+        content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de', content)
         paths = list(pod.router.routes.paths)
         expected = ['/de/page/', '/en/page/']
@@ -693,7 +684,7 @@ class DocumentsTestCase(unittest.TestCase):
 
         pod.router.add_all()
 
-        content = self._render_path(pod, '/page/')
+        content = testing.render_path(pod, '/page/')
         self.assertEqual('en en en', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(
@@ -703,7 +694,7 @@ class DocumentsTestCase(unittest.TestCase):
             '/content/pages/page.yaml',
         ]), dependents)
 
-        content = self._render_path(pod, '/de/page/')
+        content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de de de', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(
@@ -741,7 +732,7 @@ class DocumentsTestCase(unittest.TestCase):
 
         pod.router.add_all()
 
-        content = self._render_path(pod, '/page/')
+        content = testing.render_path(pod, '/page/')
         self.assertEqual('en en', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(
@@ -751,7 +742,7 @@ class DocumentsTestCase(unittest.TestCase):
             '/content/pages/page.yaml',
         ]), dependents)
 
-        content = self._render_path(pod, '/de/page/')
+        content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de de', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(

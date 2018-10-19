@@ -29,8 +29,10 @@ class TocExtensionTestCase(unittest.TestCase):
             ## H2 A
             """))
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+
+        pod.router.add_all()
+
+        result = testing.render_path(pod, '/test/')
 
         toc_sentinel = '<div class="toc">'
         toclink_sentinel = '<a class="toclink"'
@@ -58,8 +60,8 @@ class TocExtensionTestCase(unittest.TestCase):
             }
         })
         pod = pods.Pod(pod.root)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         self.assertIn(title_sentinel, result)
         self.assertNotIn(h2_sentinel, result)
         self.assertIn(toclink_sentinel, result)
@@ -85,8 +87,8 @@ class TocExtensionTestCase(unittest.TestCase):
             # 로켓 발사를 봤어?
             """))
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
 
         header = '<h1 id="did-you-see-the-rocket-launch?">Did you see the rocket launch?</h1>'
         self.assertIn(header, result)
@@ -120,8 +122,8 @@ class UrlPreprocessorTestCase(unittest.TestCase):
         self.pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         self.pod.write_file('/views/base.html', content)
-        controller, params = self.pod.match('/test/')
-        result = controller.render(params)
+        self.pod.router.add_all()
+        result = testing.render_path(self.pod, '/test/')
         self.assertIn('URL:/test1', result)
 
     def test_url_link(self):
@@ -130,18 +132,20 @@ class UrlPreprocessorTestCase(unittest.TestCase):
         self.pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         self.pod.write_file('/views/base.html', content)
-        controller, params = self.pod.match('/test/')
-        result = controller.render(params)
+        self.pod.router.add_all()
+        result = testing.render_path(self.pod, '/test/')
         self.assertIn('href="/test1/"', result)
 
     def test_url_link_static(self):
         """Plain url reference works."""
+        content = 'static doc'
+        self.pod.write_file('/static/test.txt', content)
         content = '[Link]([url(\'/static/test.txt\')])'
         self.pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         self.pod.write_file('/views/base.html', content)
-        controller, params = self.pod.match('/test/')
-        result = controller.render(params)
+        self.pod.router.add_all()
+        result = testing.render_path(self.pod, '/test/')
         self.assertIn('href="/public/test.txt"', result)
 
     def test_url_link_multiple(self):
@@ -151,8 +155,8 @@ class UrlPreprocessorTestCase(unittest.TestCase):
         self.pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         self.pod.write_file('/views/base.html', content)
-        controller, params = self.pod.match('/test/')
-        result = controller.render(params)
+        self.pod.router.add_all()
+        result = testing.render_path(self.pod, '/test/')
         self.assertIn('href="/test1/"', result)
         self.assertIn('href="/test2/"', result)
 
@@ -184,8 +188,8 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         pod.write_file('/views/base.html', content)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
@@ -200,8 +204,8 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         pod.write_file('/views/base.html', content)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
@@ -216,8 +220,8 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         }
         pod.write_yaml('/podspec.yaml', fields)
         pod = pods.Pod(pod.root)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         code_sentinel = '<div class="code"><pre>'
         self.assertIn(code_sentinel, result)
 
@@ -251,8 +255,8 @@ class BacktickPreprocessorTestCase(unittest.TestCase):
             ```
             """)
         pod.write_file('/content/pages/test.md', content)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
@@ -266,8 +270,9 @@ class BacktickPreprocessorTestCase(unittest.TestCase):
         }
         pod.write_yaml('/podspec.yaml', fields)
         pod = pods.Pod(pod.root)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.routes.reset()
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         class_sentinel = '<span class="nt">'
         self.assertIn(class_sentinel, result)
 
