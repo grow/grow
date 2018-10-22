@@ -79,10 +79,11 @@ Grow's `Locale` objects subclass the [Babel project's Locale class](http://babel
 ## Localized linking
 
 Grow will auto-localize links in a translated documents if they use the following syntax.
-This will keep users on their prefered language without manually updating URLs. 
+This will keep users on their prefered language without manually updating URLs.
 
 ```md
-[link]([url('content/path/to/file.md')])
+# Remove the extra space after `)`.
+[link]([url('content/path/to/file.md') ])
 ```
 
 ```html
