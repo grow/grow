@@ -82,7 +82,7 @@ Grow will auto-localize links in a translated documents if they use the followin
 This will keep users on their prefered language without manually updating URLs. 
 
 ```md
-[link]({{g.doc('content/path/to/file.md', locale=doc.locale).url.path}})
+[link]([url('content/path/to/file.md')])
 ```
 
 ```html
