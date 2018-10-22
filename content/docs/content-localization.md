@@ -86,5 +86,5 @@ This will keep users on their prefered language without manually updating URLs.
 ```
 
 ```html
-<a href="{{g.doc('content/path/to/file.html', locale=doc.locale).url.path}}">link</a>
+<a href="{{g.doc('content/path/to/file.html').url.path}}">link</a>
 ```
