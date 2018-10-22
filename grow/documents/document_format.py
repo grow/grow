@@ -149,11 +149,7 @@ class MarkdownDocumentFormat(DocumentFormat):
         return structures.AttributeDict({})
 
     @utils.cached_property
-    def formatted(self):
-        val = self.content
-        if val is None:
-            return val
-
+    def markdown(self):
         extension_configs = {}
         extensions = [
             tables.TableExtension(),
@@ -190,9 +186,16 @@ class MarkdownDocumentFormat(DocumentFormat):
             codehilite_config['css_class'] = config.class_name
         extension_configs['markdown.extensions.codehilite'] = codehilite_config
 
-        md = markdown.Markdown(extensions=extensions,
+        return markdown.Markdown(extensions=extensions,
             extension_configs=extension_configs)
-        return md.convert(val.decode('utf-8'))
+
+    @utils.cached_property
+    def formatted(self):
+        val = self.content
+        if val is None:
+            return val
+
+        return self.markdown.convert(val.decode('utf-8'))
 
 
 class TextDocumentFormat(DocumentFormat):
