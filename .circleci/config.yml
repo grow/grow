@@ -19,12 +19,9 @@ commands:
           command: |
             pip install -U pip==18.0
             pip install -U pipenv
-            pip install pyyaml --upgrade --force
-            python -c "from yaml import CLoader"
             pipenv run pip install pip==18.0
             pipenv install --dev
             pipenv run pip install pyyaml --upgrade --force
-            pipenv run python -c "from yaml import CLoader"
             . $(pipenv --venv)/bin/activate
           environment:
             PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
@@ -140,12 +137,8 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Install Go
-          command: brew install golang
-
-      - run:
-          name: Install Libyaml
-          command: brew reinstall libyaml
+          name: Install Packages
+          command: brew install golang libyaml
 
       - run:
           name: Update GO PATHS
@@ -160,7 +153,7 @@ jobs:
 
       - pip_install:
           dir: /Users/distiller/.local/share/virtualenvs/
-          key: osx-dist
+          key: osx
 
       - run:
           name: Build Release
@@ -171,7 +164,7 @@ jobs:
           command: |
             set -e
             cd dist
-            zip -r "Grow-SDK-Mac-0.6.x.zip" grow
+            zip -r "Grow-SDK-Mac-${CIRCLE_TAG}.zip" grow
             cd ..
 
       - run:
@@ -182,9 +175,9 @@ jobs:
           name: Test Packaged Grow Build
           command: ./dist/grow build ./grow/testing/testdata/pod
 
-      # - run:
-      #     name: Upload to GitHub
-      #     command: ghr -draft -u grow $CIRCLE_TAG "dist/Grow-SDK-Mac-${CIRCLE_TAG}.zip"
+      - run:
+          name: Upload to GitHub
+          command: ghr -draft -u grow $CIRCLE_TAG "dist/Grow-SDK-Mac-${CIRCLE_TAG}.zip"
 
       - store_artifacts:
           path: dist/
@@ -241,10 +234,6 @@ jobs:
       - attach_workspace:
           at: ~/grow
 
-      - run:
-          name: Install Libyaml
-          command: brew reinstall libyaml
-
       - pip_install:
           dir: /Users/distiller/.local/share/virtualenvs/
           key: osx
@@ -296,7 +285,7 @@ workflows:
         requires:
         - test
     - release-package-osx:
-        # <<: *filter_only_tags
+        <<: *filter_only_tags
         requires:
         - test-osx
     - release-package-pypi:
