@@ -163,7 +163,7 @@ jobs:
           command: |
             set -e
             cd dist
-            zip -r "Grow-SDK-Mac-${CIRCLE_TAG}.zip" grow
+            zip -r "Grow-SDK-Mac-0.6.x.zip" grow
             cd ..
 
       - run:
@@ -174,9 +174,9 @@ jobs:
           name: Test Packaged Grow Build
           command: ./dist/grow build ./grow/testing/testdata/pod
 
-      - run:
-          name: Upload to GitHub
-          command: ghr -draft -u grow $CIRCLE_TAG "dist/Grow-SDK-Mac-${CIRCLE_TAG}.zip"
+      # - run:
+      #     name: Upload to GitHub
+      #     command: ghr -draft -u grow $CIRCLE_TAG "dist/Grow-SDK-Mac-${CIRCLE_TAG}.zip"
 
       - store_artifacts:
           path: dist/
