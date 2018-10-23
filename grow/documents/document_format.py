@@ -149,7 +149,7 @@ class MarkdownDocumentFormat(DocumentFormat):
         return structures.AttributeDict({})
 
     @utils.cached_property
-    def markdown(self):
+    def _markdown(self):
         extension_configs = {}
         extensions = [
             tables.TableExtension(),
@@ -194,11 +194,12 @@ class MarkdownDocumentFormat(DocumentFormat):
 
     @utils.cached_property
     def toc(self):
-        return self.markdown.toc
+        md, html = self._markdown
+        return md.toc
 
     @utils.cached_property
     def formatted(self):
-        md, html = self.markdown
+        md, html = self._markdown
         return html
 
 
