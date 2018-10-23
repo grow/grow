@@ -136,8 +136,12 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Install Go and Libyaml
-          command: brew install golang libyaml
+          name: Install Go
+          command: brew install golang
+
+      - run:
+          name: Install Libyaml
+          command: brew reinstall libyaml
 
       - run:
           name: Update GO PATHS
@@ -152,7 +156,7 @@ jobs:
 
       - pip_install:
           dir: /Users/distiller/.local/share/virtualenvs/
-          key: osx
+          key: osx-dist
 
       - run:
           name: Build Release
@@ -232,6 +236,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/grow
+
+      - run:
+          name: Install Libyaml
+          command: brew reinstall libyaml
 
       - pip_install:
           dir: /Users/distiller/.local/share/virtualenvs/
