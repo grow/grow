@@ -188,17 +188,18 @@ class MarkdownDocumentFormat(DocumentFormat):
 
         md = markdown.Markdown(extensions=extensions,
             extension_configs=extension_configs)
-        # Force evaluation of formatted to populate md
-        self.formatted
-        return md
+
+        html = md.convert(self.content.decode('utf-8')) if self.content else None
+        return md, html
+
+    @utils.cached_property
+    def toc(self):
+        return self.markdown.toc
 
     @utils.cached_property
     def formatted(self):
-        val = self.content
-        if val is None:
-            return val
-
-        return self.markdown.convert(val.decode('utf-8'))
+        md, html = self.markdown
+        return html
 
 
 class TextDocumentFormat(DocumentFormat):
