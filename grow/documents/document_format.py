@@ -186,8 +186,11 @@ class MarkdownDocumentFormat(DocumentFormat):
             codehilite_config['css_class'] = config.class_name
         extension_configs['markdown.extensions.codehilite'] = codehilite_config
 
-        return markdown.Markdown(extensions=extensions,
+        md = markdown.Markdown(extensions=extensions,
             extension_configs=extension_configs)
+        # Force evaluation of formatted to populate md
+        self.formatted
+        return md
 
     @utils.cached_property
     def formatted(self):
