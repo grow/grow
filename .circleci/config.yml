@@ -136,8 +136,8 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Install Go
-          command: brew install golang
+          name: Install Go and Libyaml
+          command: brew install golang libyaml
 
       - run:
           name: Update GO PATHS
@@ -284,7 +284,7 @@ workflows:
         requires:
         - test
     - release-package-osx:
-        <<: *filter_only_tags
+        # <<: *filter_only_tags
         requires:
         - test-osx
     - release-package-pypi:
