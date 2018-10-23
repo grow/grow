@@ -23,6 +23,7 @@ commands:
             python -c "from yaml import CLoader"
             pipenv run pip install pip==18.0
             pipenv install --dev
+            pipenv run pip install pyyaml --upgrade --force
             pipenv run python -c "from yaml import CLoader"
             . $(pipenv --venv)/bin/activate
           environment:
