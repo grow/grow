@@ -20,8 +20,10 @@ commands:
             pip install -U pip==18.0
             pip install -U pipenv
             pip install pyyaml --upgrade --force
+            python -c "from yaml import CLoader"
             pipenv run pip install pip==18.0
             pipenv install --dev
+            pipenv run python -c "from yaml import CLoader"
             . $(pipenv --venv)/bin/activate
           environment:
             PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
