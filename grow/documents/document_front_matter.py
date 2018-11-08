@@ -5,6 +5,7 @@ Parsing and manipulation of front matter elements of a document.
 import collections
 import re
 import yaml
+from grow.common import untag
 from grow.common import utils
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}\s*$', re.MULTILINE)
@@ -88,7 +89,12 @@ class DocumentFrontMatter(object):
     def _load_yaml(self, raw_yaml):
         try:
             return utils.load_yaml(
-                raw_yaml, doc=self._doc, pod=self._doc.pod)
+                raw_yaml, doc=self._doc, pod=self._doc.pod,
+                untag_params={
+                    'env': untag.UntagParamRegex(self._doc.pod.env.name),
+                    'locale': untag.UntagParamLocaleRegex.from_pod(
+                        self._doc.pod, self._doc.collection),
+                })
         except (yaml.composer.ComposerError,
                 yaml.parser.ParserError,
                 yaml.reader.ReaderError,
