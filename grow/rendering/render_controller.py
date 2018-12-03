@@ -178,10 +178,7 @@ class RenderDocumentController(RenderController):
             timer.stop_timer()
             return rendered_doc
         except Exception as err:
-            text = 'Error building {}: {}'
-            if self.pod:
-                self.pod.logger.exception(text.format(self, err))
-            exception = errors.BuildError(text.format(self, err))
+            exception = errors.BuildError(str(err))
             exception.traceback = sys.exc_info()[2]
             exception.controller = self
             exception.exception = err
