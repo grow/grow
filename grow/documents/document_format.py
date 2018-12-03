@@ -194,12 +194,13 @@ class MarkdownDocumentFormat(DocumentFormat):
 
     @utils.cached_property
     def toc(self):
-        md, html = self._markdown
+        md, _ = self._markdown
+        # pylint: disable=no-member
         return md.toc
 
     @utils.cached_property
     def formatted(self):
-        md, html = self._markdown
+        _, html = self._markdown
         return html
 
 
