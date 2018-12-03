@@ -13,14 +13,15 @@ import sys
 import threading
 import time
 import urllib
+from collections import OrderedDict
 import yaml
 import bs4
 import html2text
 import translitcodec  # pylint: disable=unused-import
-from collections import OrderedDict
 from grow.common import structures
 from grow.common import untag
 from grow.common import yaml_utils
+from grow.documents import document
 from grow.pods import errors
 
 # The CLoader implementation of the PyYaml loader is orders of magnitutde
@@ -297,6 +298,9 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
 
             def func(path):
                 contructed_doc = pod.get_doc(path, locale=locale)
+                if not contructed_doc.exists:
+                    raise document.DocumentDoesNotExistError(
+                        'Referenced document does not exist: {}'.format(path))
                 pod.podcache.dependency_graph.add(
                     pod_path, contructed_doc.pod_path)
                 return contructed_doc
