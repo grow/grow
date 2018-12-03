@@ -41,10 +41,6 @@ class Error(Exception):
     pass
 
 
-class DocumentDoesNotExistError(Error, ValueError):
-    pass
-
-
 class DocumentExistsError(Error, ValueError):
     pass
 

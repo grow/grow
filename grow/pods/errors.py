@@ -1,6 +1,10 @@
 class Error(Exception):
     """Base Exception class for module."""
 
+class DocumentDoesNotExistError(Error, ValueError):
+    """Document path does not exist as a document."""
+    pass
+
 
 class RouteNotFoundError(Error, KeyError):
     """Raised when a resource is not found within the pod."""

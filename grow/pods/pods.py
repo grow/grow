@@ -23,12 +23,12 @@ from grow.common import logger
 from grow.common import progressbar_non
 from grow.common import untag
 from grow.common import utils
-from grow.documents import document
 from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
 from grow.partials import partials
 from grow.performance import profile
+from grow.pods import errors
 from grow.preprocessors import preprocessors
 from grow.rendering import rendered_document
 from grow.rendering import renderer
@@ -653,7 +653,7 @@ class Pod(object):
             doc = self.get_static(pod_path, locale=locale)
 
         if not doc.exists:
-            raise document.DocumentDoesNotExistError(
+            raise errors.DocumentDoesNotExistError(
                 'Referenced document does not exist: {}'.format(pod_path))
         return doc.url
 
