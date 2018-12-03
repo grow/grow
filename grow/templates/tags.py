@@ -8,6 +8,7 @@ from babel.messages import catalog as babel_catalog
 from grow.collections import collection as collection_lib
 from grow.common import structures
 from grow.common import utils
+from grow.documents import document
 from grow.translations import locales as locales_lib
 
 
@@ -126,7 +127,11 @@ def docs(collection, _pod=None, **kwargs):
 @utils.memoize_tag
 def get_doc(pod_path, locale=None, _pod=None):
     """Retrieves a doc from the pod."""
-    return _pod.get_doc(pod_path, locale=locale)
+    doc = _pod.get_doc(pod_path, locale=locale)
+    if not doc.exists:
+        raise document.DocumentDoesNotExistError(
+            'Referenced document does not exist: {}'.format(pod_path))
+    return doc
 
 
 @utils.memoize_tag

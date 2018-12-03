@@ -654,7 +654,7 @@ class Pod(object):
 
         if not doc.exists:
             raise document.DocumentDoesNotExistError(
-                'Referenced document does not exist: {}'.format(path))
+                'Referenced document does not exist: {}'.format(pod_path))
         return doc.url
 
     def inject_preprocessors(self, doc=None, collection=None):
