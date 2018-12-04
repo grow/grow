@@ -29,6 +29,7 @@ class TestFailedError(Error, AssertionError):
 class BuildError(Error):
     exception = None
     controller = None
+    traceback = None
 
 
 class BadNameError(Error, ValueError):
