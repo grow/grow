@@ -127,11 +127,7 @@ def docs(collection, _pod=None, **kwargs):
 @utils.memoize_tag
 def get_doc(pod_path, locale=None, _pod=None):
     """Retrieves a doc from the pod."""
-    doc = _pod.get_doc(pod_path, locale=locale)
-    if not doc.exists:
-        raise errors.DocumentDoesNotExistError(
-            'Referenced document does not exist: {}'.format(pod_path))
-    return doc
+    return _pod.get_doc(pod_path, locale=locale)
 
 
 @utils.memoize_tag
