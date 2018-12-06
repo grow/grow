@@ -547,7 +547,11 @@ class Pod(object):
             if not col:
                 col = self.get_collection(original_collection_path)
                 break
-        return col.get_doc(pod_path, locale=locale)
+        doc = col.get_doc(pod_path, locale=locale)
+        if not doc.exists:
+            raise errors.DocumentDoesNotExistError(
+                'Referenced document does not exist: {}'.format(pod_path))
+        return doc
 
     def get_home_doc(self):
         home = self.yaml.get('home')
