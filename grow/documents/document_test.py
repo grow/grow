@@ -100,9 +100,11 @@ class DocumentsTestCase(unittest.TestCase):
         about_doc = self.pod.get_doc('/content/pages/about.yaml')
         self.assertEquals('/', about_doc.collection_base_path)
 
+        self.pod.write_file('/content/pages/sub/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/about.yaml')
         self.assertEquals('/sub/', about_doc.collection_base_path)
 
+        self.pod.write_file('/content/pages/sub/foo/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/foo/about.yaml')
         self.assertEquals('/sub/foo/', about_doc.collection_base_path)
 
@@ -110,9 +112,11 @@ class DocumentsTestCase(unittest.TestCase):
         about_doc = self.pod.get_doc('/content/pages/about.yaml')
         self.assertEquals('/about.yaml', about_doc.collection_path)
 
+        self.pod.write_file('/content/pages/sub/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/about.yaml')
         self.assertEquals('/sub/about.yaml', about_doc.collection_path)
 
+        self.pod.write_file('/content/pages/sub/foo/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/foo/about.yaml')
         self.assertEquals('/sub/foo/about.yaml', about_doc.collection_path)
 
@@ -241,8 +245,8 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertTrue(doc.exists)
         doc = self.pod.get_doc('/content/localized/localized.yaml', locale='de')
         self.assertTrue(doc.exists)
-        doc = self.pod.get_doc('/content/localized/does-not-exist.yaml')
-        self.assertFalse(doc.exists)
+        with self.assertRaises(document.DocumentDoesNotExistError):
+            self.pod.get_doc('/content/localized/does-not-exist.yaml')
 
     def test_multi_file_localization(self):
         fr_doc = self.pod.get_doc('/content/pages/intro.md', locale='fr')
