@@ -4,7 +4,6 @@
 
 from grow.common import deprecated
 from grow.documents import document as new_ref
-from grow.pods import errors
 
 # Alias constants.
 PATH_LOCALE_REGEX = new_ref.PATH_LOCALE_REGEX
@@ -14,7 +13,7 @@ BUILT_IN_FIELDS = new_ref.BUILT_IN_FIELDS
 Error = deprecated.MovedHelper(
     new_ref.Error, 'grow.pods.documents.Error')
 DocumentDoesNotExistError = deprecated.MovedHelper(
-    errors.DocumentDoesNotExistError, 'grow.pods.documents.DocumentDoesNotExistError')
+    new_ref.DocumentDoesNotExistError, 'grow.pods.documents.DocumentDoesNotExistError')
 DocumentExistsError = deprecated.MovedHelper(
     new_ref.DocumentExistsError, 'grow.pods.documents.DocumentExistsError')
 PathFormatError = deprecated.MovedHelper(
