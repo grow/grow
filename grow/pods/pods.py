@@ -23,11 +23,13 @@ from grow.common import logger
 from grow.common import progressbar_non
 from grow.common import untag
 from grow.common import utils
+from grow.documents import document
 from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
 from grow.partials import partials
 from grow.performance import profile
+from grow.pods import errors
 from grow.preprocessors import preprocessors
 from grow.rendering import rendered_document
 from grow.rendering import renderer
@@ -546,7 +548,11 @@ class Pod(object):
             if not col:
                 col = self.get_collection(original_collection_path)
                 break
-        return col.get_doc(pod_path, locale=locale)
+        doc = col.get_doc(pod_path, locale=locale)
+        if not doc.exists:
+            raise document.DocumentDoesNotExistError(
+                'Referenced document does not exist: {}'.format(pod_path))
+        return doc
 
     def get_home_doc(self):
         home = self.yaml.get('home')
@@ -648,9 +654,13 @@ class Pod(object):
     def get_url(self, pod_path, locale=None):
         if pod_path.startswith('/content'):
             doc = self.get_doc(pod_path, locale=locale)
-            return doc.url
-        static = self.get_static(pod_path, locale=locale)
-        return static.url
+        else:
+            doc = self.get_static(pod_path, locale=locale)
+
+        if not doc.exists:
+            raise document.DocumentDoesNotExistError(
+                'Referenced document does not exist: {}'.format(pod_path))
+        return doc.url
 
     def inject_preprocessors(self, doc=None, collection=None):
         """Conditionally injects or creates data from preprocessors. If a doc
