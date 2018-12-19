@@ -24,8 +24,8 @@ def inspect_routes(pod_path, use_reroute):
         if use_reroute:
             pod.router.use_simple()
             pod.router.add_all()
-            for path, node in pod.router.routes.nodes:
-                out.append(u'{}\n    > {}'.format(path, node))
+            for path, node, _ in pod.router.routes.nodes:
+                out.append(u'{} [{}]\n    {}\n'.format(path, node.kind, node.meta))
         else:
             pod_routes = pod.get_routes()
             controllers_to_paths = collections.defaultdict(set)
