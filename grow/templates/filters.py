@@ -7,7 +7,6 @@ import json as json_lib
 import random
 import re
 import jinja2
-import markdown
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import json_encoder
@@ -76,15 +75,18 @@ def jsonify(_ctx, obj, *args, **kwargs):
     return json_lib.dumps(obj, cls=json_encoder.GrowJSONEncoder, *args, **kwargs)
 
 
-def markdown_filter(value):
+@jinja2.contextfilter
+def markdown_filter(ctx, value):
     """Filters content through a markdown processor."""
+    doc = ctx['doc']
+    m_down = doc.pod.markdown
     try:
         if isinstance(value, unicode):
             value = value.decode('utf-8')
         value = value or ''
-        return markdown.markdown(value)
+        return m_down.convert(value)
     except UnicodeEncodeError:
-        return markdown.markdown(value)
+        return m_down.convert(value)
 
 
 @jinja2.contextfilter
