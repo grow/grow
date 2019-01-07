@@ -3,8 +3,9 @@
 import copy
 import markdown
 from markdown.extensions import tables
-from grow.common import utils
 from grow.common import markdown_extensions
+from grow.common import structures
+from grow.common import utils
 
 
 class MarkdownUtil(object):
@@ -49,7 +50,7 @@ class MarkdownUtil(object):
                     extension_configs[config['kind']] = ext_config
 
         # Special handling for code highlighting backwards compatability.
-        config = extension_configs.get('markdown.extensions.codehilite', {})
+        config = self.extension_config('markdown.extensions.codehilite')
         codehilite_config = {
             'pygments_style': 'default',
             'noclasses': True,
@@ -80,3 +81,10 @@ class MarkdownUtil(object):
             if 'extensions' in markdown_config:
                 return markdown_config['extensions']
         return []
+
+    def extension_config(self, kind):
+        """Get the markdown config for a specific extension."""
+        for extension in self.markdown_config:
+            if extension.get('kind', '') == kind:
+                return structures.AttributeDict(extension)
+        return structures.AttributeDict({})
