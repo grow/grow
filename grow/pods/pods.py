@@ -31,6 +31,7 @@ from grow.partials import partials
 from grow.performance import profile
 from grow.pods import errors
 from grow.preprocessors import preprocessors
+from grow.rendering import markdown_utils
 from grow.rendering import rendered_document
 from grow.rendering import renderer
 from grow.rendering import render_pool as grow_render_pool
@@ -259,6 +260,17 @@ class Pod(object):
     @property
     def logger(self):
         return logger.LOGGER
+
+    @property
+    def markdown(self):
+        """Markdown processor with pod flavored markdown."""
+        # Do not cached property, causes issue with extensions.
+        return self.markdown_util.markdown
+
+    @utils.cached_property
+    def markdown_util(self):
+        """Markdown util specific to pod flavored markdown."""
+        return markdown_utils.MarkdownUtil(self)
 
     @utils.cached_property
     def partials(self):
