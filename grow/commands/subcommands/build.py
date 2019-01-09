@@ -82,6 +82,9 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 test=False, is_partial=is_partial)
 
             pod.podcache.write()
+    except renderer.RenderErrors as err:
+        # Ignore the build error since it outputs the errors.
+        raise click.ClickException(str(err))
     except pods.Error as err:
         raise click.ClickException(str(err))
     if locate_untranslated:

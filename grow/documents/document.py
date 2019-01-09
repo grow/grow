@@ -42,6 +42,7 @@ class Error(Exception):
 
 
 class DocumentDoesNotExistError(Error, ValueError):
+    """Document path does not exist as a document."""
     pass
 
 

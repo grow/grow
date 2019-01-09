@@ -13,11 +13,11 @@ import sys
 import threading
 import time
 import urllib
+from collections import OrderedDict
 import yaml
 import bs4
 import html2text
 import translitcodec  # pylint: disable=unused-import
-from collections import OrderedDict
 from grow.common import structures
 from grow.common import untag
 from grow.common import yaml_utils

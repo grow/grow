@@ -40,6 +40,7 @@ class TocExtension(toc.TocExtension):
         anchorlink = messages.BooleanField(4)
         permalink = messages.BooleanField(5)
         separator = messages.StringField(6)
+        toc_depth = messages.IntegerField(7)
 
     def __init__(self, pod):
         config = get_config(TocExtension.KIND, TocExtension.Config, pod)
