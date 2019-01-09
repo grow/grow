@@ -397,7 +397,7 @@ def load_yaml(*args, **kwargs):
     untag_params = kwargs.pop('untag_params', None)
     default_locale = None
     if doc:
-        default_locale = doc._locale_kwarg
+        default_locale = doc._locale_kwarg or doc.collection.default_locale
     locale = kwargs.pop('locale', default_locale)
     loader = make_yaml_loader(
         pod, doc=doc, locale=locale, untag_params=untag_params)
