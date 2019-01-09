@@ -102,6 +102,13 @@ class DocumentFrontMatter(object):
             message = 'Error parsing {}: {}'.format(self._doc.pod_path, error)
             raise BadFormatError(message)
 
+    @property
+    def raw_data(self):
+        if not self._raw_front_matter:
+            return {}
+        return utils.load_yaml(
+            self._raw_front_matter, doc=self._doc, pod=self._doc.pod)
+
     def export(self):
         """
         Exports the front matter in a raw format.
