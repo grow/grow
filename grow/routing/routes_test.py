@@ -7,12 +7,13 @@ from grow.routing import routes as grow_routes
 class RoutesTestCase(unittest.TestCase):
     """Test the routes."""
 
-    def _add(self, path, value=None, custom_routes=None):
+    def _add(self, path, value=None, options=None, custom_routes=None):
         routes = custom_routes if custom_routes is not None else self.routes
-        routes.add(path, value)
+        routes.add(path, value, options=options)
         return {
             'path': path,
             'value': value,
+            'options': options,
         }
 
     def setUp(self):
@@ -27,6 +28,36 @@ class RoutesTestCase(unittest.TestCase):
         doc_foo_bar = self._add('/foo/bar', '/content/pages/foo')
         result = self.routes.match('/foo/bar')
         self.assertEquals(doc_foo_bar['value'], result.value)
+
+    def test_routes_add_params_values(self):
+        """Tests that routes can be added with values for params."""
+        options = {
+            'locale': [
+                'en',
+                'es'
+            ]
+        }
+        doc = self._add('/:locale/', '/content/pages/home', options=options)
+        result = self.routes.match('/en/')
+        self.assertEquals(doc['value'], result.value)
+        result = self.routes.match('/es/')
+        self.assertEquals(doc['value'], result.value)
+        result = self.routes.match('/fr/')
+        self.assertEquals(None, result)
+
+        # Adding another option adds to the set of locale options.
+        options = {
+            'locale': [
+                'fr',
+            ]
+        }
+        doc_new = self._add('/:locale/about', '/content/pages/about', options=options)
+        result = self.routes.match('/es/about')
+        self.assertEquals(doc_new['value'], result.value)
+        result = self.routes.match('/fr/about')
+        self.assertEquals(doc_new['value'], result.value)
+        result = self.routes.match('/de/about')
+        self.assertEquals(None, result)
 
     def test_routes_add_conflict(self):
         """Tests that routes can be added but not conflicting."""
@@ -152,7 +183,7 @@ class RoutesTestCase(unittest.TestCase):
             '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
             '/foo', '/tem/pon',
         ]
-        actual = [path for path, _ in self.routes.nodes]
+        actual = [path for path, _, _ in self.routes.nodes]
         self.assertEquals(expected, actual)
 
     def test_paths(self):
@@ -187,7 +218,7 @@ class RoutesTestCase(unittest.TestCase):
 
         # Expect the yielded nodes to be in order.
         expected = [
-            '/bax/bar', '/bax/coo/lib', '/bax/pan', '/bax/:coo/vin', 
+            '/bax/bar', '/bax/coo/lib', '/bax/pan', '/bax/:coo/vin',
             '/foo', '/tem/pon',
         ]
         actual = list(self.routes.paths)
@@ -614,7 +645,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
             '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
             '/foo', '/tem/pon',
         ]
-        actual = [path for path, _ in self.routes.nodes]
+        actual = [path for path, _, _ in self.routes.nodes]
         self.assertEquals(expected, actual)
 
     def test_paths(self):

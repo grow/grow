@@ -47,3 +47,13 @@ class PodSpec(object):
     @property
     def localization(self):
         return self.fields.get('localization')
+
+    def get_locale_alias(self, locale):
+        """Get the locale alias for a given locale."""
+        if 'localization' in self.yaml and 'aliases' in self.yaml['localization']:
+            aliases = self.yaml['localization']['aliases']
+            for custom_locale, babel_locale in aliases.iteritems():
+                normalized_babel_locale = babel_locale.lower()
+                if locale == normalized_babel_locale:
+                    return custom_locale
+        return locale

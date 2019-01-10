@@ -33,7 +33,7 @@ def make_preprocessor(kind, config, pod):
     inject = config.pop('inject', False)
     class_obj = _preprocessor_kinds_to_classes.get(kind)
     if class_obj is None:
-        raise ValueError('No preprocessor for "{}".'.format(kind))
+        raise ValueError('No legacy preprocessor for "{}".'.format(kind))
     if isinstance(config, dict):
         config = json.dumps(config)
         config = config_from_json(class_obj, config)

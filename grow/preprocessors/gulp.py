@@ -3,6 +3,7 @@
 import os
 import atexit
 import subprocess
+import time
 from protorpc import messages
 from grow.preprocessors import base
 from grow.sdk import sdk_utils
@@ -30,7 +31,8 @@ class GulpPreprocessor(base.BasePreprocessor):
         """Construct the command to run the given gulp task."""
         commands = [self.config.command, task]
         if self.pod.file_exists('/.nvmrc'):
-            commands = ['nvm run'] + commands
+            # Need to source NVM first to get the nvm command to work.
+            commands = ['. $NVM_DIR/nvm.sh && nvm exec'] + commands
         return ' '.join(commands)
 
     def run(self, build=True):
@@ -54,10 +56,22 @@ class GulpPreprocessor(base.BasePreprocessor):
 @atexit.register
 def _kill_child_process():
     """Sometimes the child process keeps going after grow is done running."""
+    has_pending = False
     for process in _child_processes:
         try:
-            process.terminate()
-            process.wait()
+            if process.poll() is None:
+                has_pending = True
+                process.terminate()
         except OSError:
             # Ignore the error.  The OSError doesn't seem to be documented(?)
             pass
+
+    if not has_pending:
+        return
+
+    # Give the process some time to finish by itself.
+    time.sleep(2)
+
+    for process in _child_processes:
+        if process.poll() is None:
+            process.kill()

@@ -2,6 +2,7 @@
 
 import sys
 from grow.common import utils
+from grow.pods import errors
 
 if utils.is_appengine():
     # pylint: disable=invalid-name
@@ -37,8 +38,11 @@ def render_func(batch, tick=None):
         try:
             result.rendered_docs.append(controller.render(
                 jinja_env=item['jinja_env']))
-        # pylint: disable=broad-except
-        except Exception as err:
+        except errors.BuildError as err:
+            result.render_errors.append(RenderError(
+                "Error rendering {}".format(controller.serving_path),
+                err, err.traceback))
+        except Exception as err:  # pylint: disable=broad-except
             _, _, err_tb = sys.exc_info()
             result.render_errors.append(RenderError(
                 "Error rendering {}".format(controller.serving_path),
@@ -81,6 +85,9 @@ class RenderBatches(object):
         """Render all of the batches."""
         render_errors = []
         rendered_docs = []
+
+        # Disable threaded rendering until it can be fixed.
+        use_threading = False
 
         if not ThreadPool or not use_threading:
             for _, batch in self._batches.iteritems():

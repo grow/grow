@@ -42,11 +42,11 @@ class Routes(object):
         """Allow adding routes togethers to form a new routes."""
         routes = self.__class__()
         # Add all the nodes from the current Routes.
-        for item in self.nodes:
-            routes.add(*item)
+        for path, value, options in self.nodes:
+            routes.add(path, value, options=options)
         # Add all the nodes from the other Routes.
-        for item in other.nodes:
-            routes.add(*item)
+        for path, value, options in other.nodes:
+            routes.add(path, value, options=options)
         return routes
 
     def __init__(self):
@@ -64,14 +64,14 @@ class Routes(object):
     @property
     def paths(self):
         """Generator for returning all the paths in the routes."""
-        for path, _ in self._root.nodes:
+        for path, _, _ in self._root.nodes:
             yield path
 
-    def add(self, path, value):
+    def add(self, path, value, options=None):
         """Adds a document to the routes trie."""
         if not path:
             return
-        self._root.add(path, value)
+        self._root.add(path, value, options=options)
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
@@ -94,8 +94,8 @@ class Routes(object):
     def update(self, other):
         """Allow updating the current routes with other Routes."""
         # Add all the nodes from the other Routes.
-        for item in other.nodes:
-            self.add(*item)
+        for path, value, options in other.nodes:
+            self.add(path, value, options=options)
 
 
 class RoutesSimple(Routes):
@@ -123,9 +123,10 @@ class RoutesDict(object):
     def nodes(self):
         """Generator for returning all nodes in the trie."""
         for path in sorted(self._root):
-            yield path, self._root[path]
+            yield path, self._root[path], None
 
-    def add(self, path, value):
+    # pylint: disable=unused-argument
+    def add(self, path, value, options=None):
         """Add a new doc to the route trie."""
         if path in self._root and self._root[path] != value:
             raise PathConflictError(path, value, self._root[path])
@@ -189,10 +190,10 @@ class RouteTrie(object):
         for item in self._root.nodes:
             yield item
 
-    def add(self, path, value):
+    def add(self, path, value, options=None):
         """Add a new doc to the route trie."""
         segments = self.segments(path)
-        self._root.add(segments, path, value)
+        self._root.add(segments, path, value, options=options)
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
@@ -216,7 +217,9 @@ class RouteNode(object):
         super(RouteNode, self).__init__()
         self.path = None
         self.value = None
+        self.options = None
         self.param_name = param_name
+        self.param_options = None
         self._dynamic_children = {}
         self._static_children = {}
 
@@ -231,7 +234,7 @@ class RouteNode(object):
             Path, value at this node and all children.
         """
         if self.path is not None:
-            yield self.path, self.value
+            yield self.path, self.value, self.options
 
         # Yield nodes in the path order.
         for key in sorted(self._static_children):
@@ -248,7 +251,7 @@ class RouteNode(object):
             matched.params[self.param_name] = last_segment
         return matched
 
-    def add(self, segments, path, value):
+    def add(self, segments, path, value, options=None):
         """Recursively add into the trie based upon the given segments."""
 
         if not segments:
@@ -256,6 +259,7 @@ class RouteNode(object):
                 raise PathConflictError(path, value, self.value)
             self.path = path
             self.value = value
+            self.options = options
             return
 
         segment = segments.popleft()
@@ -269,10 +273,18 @@ class RouteNode(object):
                 if self._dynamic_children[PREFIX_PARAMETER].param_name != segment:
                     raise PathParamNameConflictError(
                         path, segment, self._dynamic_children[PREFIX_PARAMETER].param_name)
+
+                # If there are options that match the parameter, add them in.
+                if options and segment in options:
+                    self._dynamic_children[PREFIX_PARAMETER].add_param_options(
+                        options[segment])
             if PREFIX_PARAMETER not in self._dynamic_children:
                 new_node = RouteNode(param_name=segment)
+                if options and segment in options:
+                    new_node.add_param_options(options[segment])
                 self._dynamic_children[PREFIX_PARAMETER] = new_node
-            self._dynamic_children[PREFIX_PARAMETER].add(segments, path, value)
+            self._dynamic_children[PREFIX_PARAMETER].add(
+                segments, path, value, options=options)
             return
 
         # Insert as a wildcard node.
@@ -283,14 +295,21 @@ class RouteNode(object):
                 raise PathConflictError(
                     path, value, self._dynamic_children[PREFIX_WILDCARD].value)
             new_node = RouteWildcardNode(param_name=segment or PREFIX_WILDCARD)
-            new_node.add([], path, value)
+            new_node.add([], path, value, options=options)
             self._dynamic_children[PREFIX_WILDCARD] = new_node
             return
 
         # Add a static node.
         if segment not in self._static_children:
             self._static_children[segment] = RouteNode()
-        self._static_children[segment].add(segments, path, value)
+        self._static_children[segment].add(
+            segments, path, value, options=options)
+
+    def add_param_options(self, options):
+        """Add options for parameter."""
+        if not self.param_options:
+            self.param_options = set()
+        self.param_options |= set(options)
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
@@ -305,8 +324,14 @@ class RouteNode(object):
         for key in self._dynamic_children:
             self._dynamic_children[key].filter(func)
 
+    # pylint: disable=too-many-return-statements
     def match(self, segments, last_segment=None):
         """Performs the trie matching to find a doc in the trie."""
+
+        # If this is a parameterized node and it needs to match the options.
+        if last_segment and self.param_options:
+            if last_segment not in self.param_options:
+                return None
 
         if not segments:
             # Check for removed nodes.
@@ -394,6 +419,7 @@ class RouteWildcardNode(RouteNode):
         return removed
 
 
+# pylint: disable=too-few-public-methods
 class MatchResult(object):
     """Node information for a trie match."""
 

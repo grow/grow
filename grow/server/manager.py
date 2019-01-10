@@ -24,16 +24,10 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
         super(CallbackHTTPServer, self).server_activate()
         _, port = self.server_address
         self.pod.env.port = port
-        if self.pod.use_reroute:
-            with timer.Timer() as router_time:
-                self.pod.router.add_all(concrete=False)
-            self.pod.logger.info('{} routes built in {:.3f} s'.format(
-                len(self.pod.router.routes), router_time.secs))
-        else:
-            with timer.Timer() as load_timer:
-                self.pod.load()
-            self.pod.logger.info('Pod loaded in {:.3f} s'.format(
-                load_timer.secs))
+        with timer.Timer() as router_time:
+            self.pod.router.add_all(concrete=False)
+        self.pod.logger.info('{} routes built in {:.3f} s'.format(
+            len(self.pod.router.routes), router_time.secs))
 
         url = print_server_ready_message(self.pod, self.pod.env.host, port)
         if self.open_browser:
@@ -58,7 +52,7 @@ def print_server_ready_message(pod, host, port):
 
 def start(pod, host=None, port=None, open_browser=False, debug=False,
           preprocess=True, update_check=False):
-    _, _ = file_watchers.create_dev_server_observers(pod)
+    main_observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
     if preprocess:
         thread = threading.Thread(target=pod.preprocess, kwargs={'build': False})
         thread.setDaemon(True)
@@ -71,26 +65,38 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
     CallbackHTTPServer.open_browser = open_browser
     CallbackHTTPServer.update_check = update_check
     serving.ThreadedWSGIServer = CallbackHTTPServer
-    app = main_lib.create_wsgi_app(pod, debug=debug)
+    app = main_lib.create_wsgi_app(pod, host, port, debug=debug)
     serving._log = lambda *args, **kwargs: ''
     handler = main_lib.RequestHandler
     num_tries = 0
     done = False
+
     while num_tries < NUM_TRIES and not done:
         try:
+            app.app.port = port
             serving.run_simple(host, port, app, request_handler=handler, threaded=True)
             done = True
         except socket.error as e:
+            # if any(x in str(e) for x in ('Errno 48', 'Errno 98')):
             if 'Errno 48' in str(e):
                 num_tries += 1
                 port += 1
             else:
+                # Clean up the file watchers.
+                main_observer.stop()
+                podspec_observer.stop()
+
                 raise e
         finally:
-            # Ensure ctrl+c works no matter what.
-            # https://github.com/grow/grow/issues/149
             if done:
+                # Clean up the file watchers.
+                main_observer.stop()
+                podspec_observer.stop()
+
+                # Ensure ctrl+c works no matter what.
+                # https://github.com/grow/grow/issues/149
                 os._exit(0)
+
     text = 'Unable to find a port for the server (tried {}).'
     pod.logger.error(text.format(port))
     sys.exit(-1)

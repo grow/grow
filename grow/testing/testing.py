@@ -49,3 +49,13 @@ class TestCase(unittest.TestCase):
     def tearDown(self, *args, **kwargs):
         if self.is_appengine:
             self.testbed.deactivate()
+
+def render_path(pod, path):
+    """Given a pod and a path render the path."""
+    matched = pod.match(path)
+    controller = pod.router.get_render_controller(
+        matched.path, matched.value, params=matched.params)
+    jinja_env = pod.render_pool.get_jinja_env(
+        controller.doc.locale) if controller.use_jinja else None
+    rendered_document = controller.render(jinja_env=jinja_env)
+    return rendered_document.read()

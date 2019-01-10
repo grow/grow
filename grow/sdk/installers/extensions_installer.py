@@ -17,7 +17,7 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
     @property
     def should_run(self):
         """Should the installer run?"""
-        return self.pod.file_exists('/extensions.txt')
+        return self.pod.file_exists('/{}'.format(self.pod.FILE_EXTENSIONS))
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""
@@ -34,8 +34,8 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
         init_file_name = '/{}/__init__.py'.format(extensions_dir)
         if not self.pod.file_exists(init_file_name):
             self.pod.write_file(init_file_name, '')
-        install_command = 'pip install -U -t {} -r extensions.txt'.format(
-            extensions_dir)
+        install_command = 'pip install -U -t {} -r {}'.format(
+            extensions_dir, self.pod.FILE_EXTENSIONS)
         process = subprocess.Popen(
             install_command, **self.subprocess_args(shell=True))
         code = process.wait()

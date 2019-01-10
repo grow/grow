@@ -7,6 +7,7 @@ import os
 import re
 import sys
 from grow.common import structures
+from grow.common import untag
 from grow.common import utils
 from grow.documents import document
 from grow.documents import document_fields
@@ -46,6 +47,7 @@ class NoLocalesError(Error):
 class Collection(object):
     CONTENT_PATH = '/content'
     BLUEPRINT_PATH = '_blueprint.yaml'
+    EDITOR_PATH = '_editor.yaml'
     IGNORE_INITIAL = ('_',)
 
     _content_path_regex = re.compile('^' + CONTENT_PATH + '/?')
@@ -68,6 +70,8 @@ class Collection(object):
         self.basename = os.path.basename(self.collection_path)
         self.blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
+        self.editor_path = os.path.join(
+            self.pod_path, Collection.EDITOR_PATH)
 
     def __iter__(self):
         for doc in self.list_docs():
@@ -140,14 +144,19 @@ class Collection(object):
 
     @utils.cached_property
     def default_locale(self):
+        locale = None
         if self.localization and 'default_locale' in self.localization:
             locale = self.localization['default_locale']
-        else:
-            locale = self.pod.podspec.default_locale
-        locale = locales.Locale.parse(locale)
-        if locale:
-            locale.set_alias(self.pod)
-        return locale
+        return self.pod.normalize_locale(locale)
+
+    @utils.cached_property
+    def editor_config(self):
+        if not self.pod.file_exists(self.editor_path):
+            return {}
+        result = utils.parse_yaml(self.pod.read_file(self.editor_path))
+        if result is None:
+            return {}
+        return result
 
     @property
     def exists(self):
@@ -157,8 +166,10 @@ class Collection(object):
 
     @utils.cached_property
     def fields(self):
-        untag = document_fields.DocumentFields.untag
-        fields = untag(self.tagged_fields, params={'env': self.pod.env.name})
+        fields = untag.Untag.untag(
+            self.tagged_fields, params={
+                'env': untag.UntagParamRegex(self.pod.env.name),
+            })
         return {} if not fields else fields
 
     @utils.cached_property
@@ -171,7 +182,8 @@ class Collection(object):
                 return []
             if 'locales' in self.localization:
                 codes = self.localization['locales'] or []
-                return locales.Locale.parse_codes(codes)
+                return self.pod.normalize_locales(
+                    locales.Locale.parse_codes(codes))
         return self.pod.list_locales()
 
     @property

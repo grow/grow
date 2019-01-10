@@ -4,7 +4,6 @@ import csv as csv_lib
 import fnmatch
 import functools
 import gettext
-import imp
 import json
 import logging
 import os
@@ -14,13 +13,14 @@ import sys
 import threading
 import time
 import urllib
+from collections import OrderedDict
 import yaml
 import bs4
 import html2text
 import translitcodec  # pylint: disable=unused-import
-from collections import OrderedDict
 from grow.common import structures
-from grow.documents import document_fields
+from grow.common import untag
+from grow.common import yaml_utils
 from grow.pods import errors
 
 # The CLoader implementation of the PyYaml loader is orders of magnitutde
@@ -34,9 +34,11 @@ except ImportError:
     from yaml import Loader as yaml_Loader
 
 
+APPENGINE_SERVER_PREFIXES = ('Development/', 'Google App Engine/')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
 SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+SLUG_SUBSTITUTE = ((':{}', ':'),)
 
 
 class Error(Exception):
@@ -59,10 +61,9 @@ def is_packaged_app():
 
 def is_appengine():
     """Returns whether the environment is Google App Engine."""
-    if 'SERVER_SOFTWARE' in os.environ:
-        # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled
-        return os.environ['SERVER_SOFTWARE'].startswith(('Development/', 'Google App Engine/'))
-    return False
+    # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled
+    return os.getenv('SERVER_SOFTWARE', '').startswith(
+        APPENGINE_SERVER_PREFIXES)
 
 
 def get_git():
@@ -222,8 +223,14 @@ def every_two(l):
     return zip(l[::2], l[1::2])
 
 
-def make_yaml_loader(pod, doc=None, locale=None):
+def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
     loader_locale = locale
+
+    # A default set of params for nested yaml parsing.
+    if not untag_params and pod:
+        untag_params = {
+            'env': untag.UntagParamRegex(pod.env.name),
+        }
 
     class YamlLoader(yaml_Loader):
 
@@ -238,6 +245,16 @@ def make_yaml_loader(pod, doc=None, locale=None):
             return contents
 
         @staticmethod
+        def read_file(pod_path):
+            """Reads a file using a cache."""
+            file_cache = pod.podcache.file_cache
+            contents = file_cache.get(pod_path)
+            if contents is None:
+                contents = pod.read_file(pod_path)
+                file_cache.add(pod_path, contents)
+            return contents
+
+        @staticmethod
         def read_json(pod_path):
             """Reads a json file using a cache."""
             file_cache = pod.podcache.file_cache
@@ -247,13 +264,15 @@ def make_yaml_loader(pod, doc=None, locale=None):
                 file_cache.add(pod_path, contents)
             return contents
 
-        @staticmethod
-        def read_yaml(pod_path, locale):
+        @classmethod
+        def read_yaml(cls, pod_path, locale):
             """Reads a yaml file using a cache."""
             file_cache = pod.podcache.file_cache
             contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
-                contents = pod.read_yaml(pod_path, locale=locale)
+                contents = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
+                contents = untag.Untag.untag(
+                    contents, locale_identifier=locale, params=untag_params)
                 file_cache.add(pod_path, contents, locale=locale)
             return contents
 
@@ -281,6 +300,13 @@ def make_yaml_loader(pod, doc=None, locale=None):
                 pod.podcache.dependency_graph.add(
                     pod_path, contructed_doc.pod_path)
                 return contructed_doc
+            return self._construct_func(node, func)
+
+        def construct_file(self, node):
+            def func(path):
+                if doc:
+                    pod.podcache.dependency_graph.add(doc.pod_path, path)
+                return self.read_file(path)
             return self._construct_func(node, func)
 
         def construct_gettext(self, node):
@@ -321,7 +347,7 @@ def make_yaml_loader(pod, doc=None, locale=None):
                             else:
                                 pod.logger.warning(
                                     'Missing {}.{}'.format(main, reference))
-                        return data[reference]
+                        return value
                     except KeyError:
                         return None
                 return None
@@ -356,6 +382,7 @@ def make_yaml_loader(pod, doc=None, locale=None):
     YamlLoader.add_constructor(u'!_', YamlLoader.construct_gettext)
     YamlLoader.add_constructor(u'!g.csv', YamlLoader.construct_csv)
     YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
+    YamlLoader.add_constructor(u'!g.file', YamlLoader.construct_file)
     YamlLoader.add_constructor(u'!g.json', YamlLoader.construct_json)
     YamlLoader.add_constructor(u'!g.static', YamlLoader.construct_static)
     YamlLoader.add_constructor(u'!g.string', YamlLoader.construct_string)
@@ -367,19 +394,39 @@ def make_yaml_loader(pod, doc=None, locale=None):
 def load_yaml(*args, **kwargs):
     pod = kwargs.pop('pod', None)
     doc = kwargs.pop('doc', None)
-    locale = kwargs.pop('locale', None)
-    loader = make_yaml_loader(pod, doc=doc, locale=locale)
-    return yaml.load(*args, Loader=loader, **kwargs) or {}
+    untag_params = kwargs.pop('untag_params', None)
+    default_locale = None
+    if doc:
+        default_locale = doc._locale_kwarg or doc.collection.default_locale
+    locale = kwargs.pop('locale', default_locale)
+    loader = make_yaml_loader(
+        pod, doc=doc, locale=locale, untag_params=untag_params)
+    contents = yaml.load(*args, Loader=loader, **kwargs) or {}
+    if not untag_params:
+        return contents
+    return untag.Untag.untag(
+        contents, locale_identifier=locale, params=untag_params)
 
 
-@memoize
-def parse_yaml(content, pod=None, locale=None):
-    return load_yaml(content, pod=pod, locale=locale)
+def load_plain_yaml(content, pod=None, locale=None):
+    return yaml.load(content, Loader=yaml_utils.PlainTextYamlLoader)
+
+
+def parse_yaml(content, pod=None, locale=None, untag_params=None):
+    return load_yaml(content, pod=pod, locale=locale, untag_params=untag_params)
 
 
 def dump_yaml(obj):
+    """Dumps yaml using the the safe dump."""
     return yaml.safe_dump(
         obj, allow_unicode=True, width=800, default_flow_style=False)
+
+
+def dump_plain_yaml(obj):
+    """Dumps yaml using the plain text dumper to retain constructors."""
+    return yaml.dump(
+        obj, Dumper=yaml_utils.PlainTextYamlDumper,
+        default_flow_style=False, allow_unicode=True, width=800)
 
 
 def ordered_dict_representer(dumper, data):
@@ -394,10 +441,15 @@ def slugify(text, delim=u'-'):
         text = str(text)
     result = []
     for word in SLUG_REGEX.split(text.lower()):
+        if not isinstance(word, unicode):
+            word = word.decode('utf-8')
         word = word.encode('translit/long')
         if word:
             result.append(word)
-    return unicode(delim.join(result))
+    slug = unicode(delim.join(result))
+    for seq, sub in SLUG_SUBSTITUTE:
+        slug = slug.replace(seq.format(delim), sub.format(delim))
+    return slug
 
 
 class DummyDict(object):

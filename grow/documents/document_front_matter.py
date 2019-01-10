@@ -5,6 +5,7 @@ Parsing and manipulation of front matter elements of a document.
 import collections
 import re
 import yaml
+from grow.common import untag
 from grow.common import utils
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}\s*$', re.MULTILINE)
@@ -37,8 +38,7 @@ class DocumentFrontMatter(object):
     def __init__(self, doc, raw_front_matter=None):
         self._doc = doc
         self.data = {}
-        self._raw_front_matter = None
-        self._load_front_matter(raw_front_matter)
+        self.update_raw_front_matter(raw_front_matter)
 
     @staticmethod
     def split_front_matter(content):
@@ -89,12 +89,25 @@ class DocumentFrontMatter(object):
     def _load_yaml(self, raw_yaml):
         try:
             return utils.load_yaml(
-                raw_yaml, doc=self._doc, pod=self._doc.pod)
-        except (yaml.parser.ParserError,
-                yaml.composer.ComposerError,
+                raw_yaml, doc=self._doc, pod=self._doc.pod,
+                untag_params={
+                    'env': untag.UntagParamRegex(self._doc.pod.env.name),
+                    'locale': untag.UntagParamLocaleRegex.from_pod(
+                        self._doc.pod, self._doc.collection),
+                })
+        except (yaml.composer.ComposerError,
+                yaml.parser.ParserError,
+                yaml.reader.ReaderError,
                 yaml.scanner.ScannerError) as error:
             message = 'Error parsing {}: {}'.format(self._doc.pod_path, error)
             raise BadFormatError(message)
+
+    @property
+    def raw_data(self):
+        if not self._raw_front_matter:
+            return {}
+        return utils.load_yaml(
+            self._raw_front_matter, doc=self._doc, pod=self._doc.pod)
 
     def export(self):
         """
@@ -107,3 +120,14 @@ class DocumentFrontMatter(object):
         yaml has been parsed.
         """
         return self._raw_front_matter
+
+    def update_fields(self, fields):
+        """Update the data with new field values."""
+        _update_deep(self.data, fields)
+        self.update_raw_front_matter(utils.dump_yaml(self.data))
+
+    def update_raw_front_matter(self, raw_front_matter):
+        """Replace the value of the front matter using a new raw string."""
+        self.data = {}
+        self._raw_front_matter = None
+        self._load_front_matter(raw_front_matter)

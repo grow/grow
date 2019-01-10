@@ -51,11 +51,24 @@ class Router(object):
         with self.pod.profile.timer('Router.add_all_docs'):
             docs = []
             for collection in self.pod.list_collections():
+                doc_basenames = set()
                 for doc in collection.list_docs_unread():
+                    # Skip duplicate documents when using non-concrete routing.
+                    if not concrete and doc.basename in doc_basenames:
+                        continue
+                    is_default_locale = doc._locale_kwarg == self.pod.podspec.default_locale
                     # Ignore localized names in the files since they will be
                     # picked up when the locales are expanded.
-                    if doc.root_pod_path == doc.pod_path:
+                    if doc.root_pod_path == doc.pod_path or is_default_locale:
                         docs.append(doc)
+                        doc_basenames.add(doc.basename)
+                    else:
+                        # If this document does not exist with the default
+                        # locale it still needs to be added.
+                        locale_doc = self.pod.get_doc(doc.pod_path, doc.default_locale)
+                        if not locale_doc.exists:
+                            docs.append(doc)
+                            doc_basenames.add(doc.basename)
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
@@ -75,8 +88,10 @@ class Router(object):
 
             if 'sitemap' in podspec:
                 sitemap = podspec['sitemap']
+                default_sitemap_path = self.pod.podspec.root + '/sitemap.xml'
+                default_sitemap_path = default_sitemap_path.replace('//', '/')
                 sitemap_path = self.pod.path_format.format_pod(
-                    sitemap.get('path', '/sitemap.xml'))
+                    sitemap.get('path', default_sitemap_path))
                 self.routes.add(sitemap_path, RouteInfo('sitemap', {
                     'collections': sitemap.get('collections'),
                     'locales': sitemap.get('locales'),
@@ -101,23 +116,36 @@ class Router(object):
                 else:
                     path_filter = self.pod.path_filter
 
+                static_dirs = config.get('static_dirs')
+                if not static_dirs:
+                    static_dirs = [config.get('static_dir')]
+
+                if localization:
+                    localized_static_dirs = localization.get('static_dirs')
+                    if not localized_static_dirs:
+                        localized_static_dirs = [localization.get('static_dir')]
+
                 if concrete or fingerprinted:
                     # Enumerate static files.
-                    for root, dirs, files in self.pod.walk(config.get('static_dir')):
-                        for directory in dirs:
-                            if directory.startswith('.'):
-                                dirs.remove(directory)
-                        pod_dir = root.replace(self.pod.root, '')
-                        for file_name in files:
-                            pod_path = os.path.join(pod_dir, file_name)
-                            static_doc = self.pod.get_static(pod_path, locale=None)
-                            self.add_static_doc(static_doc)
+                    for static_dir in static_dirs:
+                        for root, dirs, files in self.pod.walk(static_dir):
+                            for directory in dirs:
+                                if directory.startswith('.'):
+                                    dirs.remove(directory)
+                            pod_dir = root.replace(self.pod.root, '')
+                            for file_name in files:
+                                pod_path = os.path.join(pod_dir, file_name)
+                                static_doc = self.pod.get_static(pod_path, locale=None)
+                                self.add_static_doc(static_doc)
+                    if localization:
+                        # TODO handle the localized static files?
+                        pass
                 else:
                     serve_at = self.pod.path_format.format_pod(
                         config['serve_at'], parameterize=True)
                     self.routes.add(serve_at + '*', RouteInfo('static', {
                         'path_format': serve_at,
-                        'source_format': config.get('static_dir'),
+                        'source_formats': static_dirs,
                         'localized': False,
                         'localization': localization,
                         'fingerprinted': fingerprinted,
@@ -130,7 +158,7 @@ class Router(object):
                             localization.get('serve_at'), parameterize=True)
                         self.routes.add(localized_serve_at + '*', RouteInfo('static', {
                             'path_format': localized_serve_at,
-                            'source_format': localization.get('static_dir'),
+                            'source_formats': localized_static_dirs,
                             'localized': True,
                             'localization': localization,
                             'fingerprinted': fingerprinted,
@@ -148,7 +176,7 @@ class Router(object):
         self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
             'pod_path': doc.pod_path,
             'locale': str(doc.locale),
-        }))
+        }), options=doc.path_params)
 
     def add_docs(self, docs, concrete=True):
         """Add docs to the router."""
@@ -165,15 +193,18 @@ class Router(object):
                     self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
                         'pod_path': doc.pod_path,
                         'locale': str(doc.locale),
-                    }))
+                    }), options=doc.path_params)
                 else:
                     # Use the raw paths to parameterize the routing.
                     base_path = doc.get_serving_path_base()
-                    if base_path:
+                    only_localized = doc.path_format == doc.path_format_localized
+                    # If the path is already localized only add the
+                    # parameterized version of the path.
+                    if base_path and not only_localized:
                         self.routes.add(base_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
                             'locale': str(doc.locale),
-                        }))
+                        }), options=doc.path_params)
                     localized_path = doc.get_serving_path_localized()
                     if not localized_path or ':locale' not in localized_path:
                         localized_paths = doc.get_serving_paths_localized()
@@ -181,11 +212,11 @@ class Router(object):
                             self.routes.add(path, RouteInfo('doc', {
                                 'pod_path': doc.pod_path,
                                 'locale': str(locale),
-                            }))
+                            }), options=doc.path_params)
                     else:
                         self.routes.add(localized_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
-                        }))
+                        }), options=doc.path_params_localized)
             if skipped_paths:
                 self.pod.logger.info(
                     'Ignored {} documents.'.format(len(skipped_paths)))
@@ -222,7 +253,6 @@ class Router(object):
         if locales:
             # Ability to specify a none locale using commanf flag.
             if 'None' in locales:
-                print 'adding None'
                 locales.append(None)
 
             def _filter_locales(route_info):
@@ -242,11 +272,24 @@ class Router(object):
         for config in self.pod.static_configs:
             if config.get('dev') and not self.pod.env.dev:
                 continue
-            if pod_path.startswith(config.get('static_dir')):
-                return config
+            static_dirs = config.get('static_dirs')
+            if not static_dirs:
+                static_dirs = [config.get('static_dir')]
+            if isinstance(static_dirs, basestring):
+                static_dirs = [static_dirs]
+            for static_dir in static_dirs:
+                if pod_path.startswith(static_dir):
+                    return config
             intl = config.get('localization', {})
-            if intl and pod_path.startswith(intl.get('static_dir')):
-                return config
+            if intl:
+                static_dirs = intl.get('static_dirs')
+                if not static_dirs:
+                    static_dirs = [intl.get('static_dir')]
+                if isinstance(static_dirs, basestring):
+                    static_dirs = [static_dirs]
+                for static_dir in static_dirs:
+                    if pod_path.startswith(static_dir):
+                        return config
 
         text = '{} is not found in any static file configuration in the podspec.'
         raise MissingStaticConfigError(text.format(pod_path))
@@ -263,7 +306,7 @@ class Router(object):
         previous_routes = self._routes
         self._routes = grow_routes.RoutesSimple()
         if previous_routes is not None:
-            for path, value in previous_routes.nodes:
+            for path, value, _ in previous_routes.nodes:
                 self._routes.add(path, value)
 
 

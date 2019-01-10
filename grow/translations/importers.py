@@ -3,12 +3,14 @@
 import cStringIO
 import collections
 import copy
+import csv
 import errno
 import logging
 import os
 import shutil
 import tempfile
 import zipfile
+from babel.messages import catalog
 from babel.messages import pofile
 
 
@@ -62,8 +64,39 @@ class Importer(object):
             return self.import_file(locale, path)
         elif os.path.isdir(path):
             return self.import_dir(path)
+        elif path.endswith('.csv'):
+            return self.import_csv_file(path)
         else:
-            raise Error('Must import a .zip file, .po file, or directory.')
+            raise Error('Must import a .zip, .csv, .po file, or directory.')
+
+    def import_csv_file(self, path):
+        """Imports a CSV file formatted with locales in the header row and
+        translations in the body rows."""
+        default_locale = self.pod.podspec.localization.get('default_locale', 'en')
+        locales_to_catalogs = {}
+        with open(path) as fp:
+            reader = csv.DictReader(fp)
+            for row in reader:
+                if default_locale not in row:
+                    text = 'Locale {} not found in {}'.format(default_locale, path)
+                    raise Error(text)
+                msgid = row[default_locale]
+                msgid = msgid.decode('utf-8')
+                for locale, translation in row.iteritems():
+                    if locale == default_locale:
+                        continue
+                    translation = translation.decode('utf-8')
+                    message = catalog.Message(msgid, translation)
+                    if locale not in locales_to_catalogs:
+                        locales_to_catalogs[locale] = catalog.Catalog()
+                    locales_to_catalogs[locale][msgid] = message
+        for locale, catalog_obj in locales_to_catalogs.iteritems():
+            fp = cStringIO.StringIO()
+            pofile.write_po(fp, catalog_obj)
+            fp.seek(0)
+            content = fp.read()
+            self.import_content(locale, content)
+            fp.close()
 
     def import_zip_file(self, zip_path):
         try:

@@ -906,6 +906,16 @@ class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
         expected = [('/content/pages/page.yaml', 'Untagged string')]
         self.assertEqual(expected, untagged_strings)
 
+    def test_diff(self):
+        dir_path = testing.create_test_pod_dir()
+        self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
+        other_catalogs = self.pod.get_catalogs('translations-diff/messages.pot')
+        self.pod.catalogs.diff(other_catalogs, 'translations-diff-out')
+        diffed_catalogs = self.pod.get_catalogs('translations-diff-out/messages.pot')
+        de_catalog = diffed_catalogs.get('de', dir_path=diffed_catalogs.root)
+        self.assertIn('About', de_catalog)
+        self.assertNotIn('About us', de_catalog)
+
 
 if __name__ == '__main__':
     unittest.main()
