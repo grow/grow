@@ -194,6 +194,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         # they are downloading. Also include a link in the output to permit the
         # user to quickly open the file.
         drive_service = BaseGooglePreprocessor.create_service('drive', 'v3')
+        # pylint: disable=no-member
         resp = drive_service.files().get(
             fileId=spreadsheet_id,
             fields='name,modifiedTime,lastModifyingUser,webViewLink').execute()
