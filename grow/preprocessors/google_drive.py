@@ -189,8 +189,30 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     @classmethod
     def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None,
                  generate_ids=False, header_row_count=1, header_row_index=1):
-        service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         logger = logger or logging
+        # Show metadata about the file to help the user better understand what
+        # they are downloading. Also include a link in the output to permit the
+        # user to quickly open the file.
+        drive_service = BaseGooglePreprocessor.create_service('drive', 'v3')
+        resp = drive_service.files().get(
+            fileId=spreadsheet_id,
+            fields='name,modifiedTime,lastModifyingUser,webViewLink').execute()
+        if 'lastModifyingUser' in resp:
+            # Sometimes the email address isn't included.
+            name = resp['lastModifyingUser']['displayName']
+            modified_by = resp['lastModifyingUser'].get('emailAddress', name)
+            logger.info('Downloading "{}" modified {} by {} from {}'.format(
+                resp['name'],
+                resp['modifiedTime'],
+                modified_by,
+                resp['webViewLink']))
+        else:
+            logger.info('Downloading "{}" modified {} from {}'.format(
+                resp['name'],
+                resp['modifiedTime'],
+                resp['webViewLink']))
+
+        service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         format_as_grid = format_as in cls.GRID_TYPES
         format_as_map = format_as in cls.MAP_TYPES
         # pylint: disable=no-member

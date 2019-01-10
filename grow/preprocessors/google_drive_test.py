@@ -22,7 +22,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
     @staticmethod
-    def _setup_mocks(sheets_get=None, sheets_values=None):
+    def _setup_mocks(sheets_get=None, sheets_values=None, files=None):
         if sheets_get is None:
             sheets_get = {
                 'spreadsheetId': 76543,
@@ -30,8 +30,19 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         if sheets_values is None:
             sheets_values = []
 
+        if files is None:
+            files = {
+                'lastModifyingUser': {
+                    'displayName': 'Anonymous',
+                    'emailAddress': 'user@example.com',
+                },
+                'modifiedTime': '2017-10-13T16:52:52.795Z',
+                'name': 'Untitled',
+                'webViewLink': 'https://example.com',
+            }
+
         mock_sheets_service = google_service.GoogleServiceMock.mock_sheets_service(
-            get=sheets_get, values=sheets_values)
+            get=sheets_get, values=sheets_values, files=files)
 
         return mock_sheets_service
 
