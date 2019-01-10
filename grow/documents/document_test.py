@@ -125,7 +125,7 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEquals('/about/', about_doc.get_serving_path())
 
         fi_doc = self.pod.get_doc('/content/pages/about.yaml', locale='fi')
-        self.assertEquals('/fi_all/about/', fi_doc.get_serving_path())
+        self.assertEquals('/fi_ALL/about/', fi_doc.get_serving_path())
 
     def test_locales(self):
         doc = self.pod.get_doc('/content/pages/contact.yaml')

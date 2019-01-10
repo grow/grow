@@ -44,8 +44,8 @@ class PathFormat(object):
         if not locale:
             return ''
         if not isinstance(locale, basestring) and locale.alias is not None:
-            return locale.alias.lower()
-        return str(locale).lower()
+            return locale.alias
+        return str(locale)
 
     def format_doc(self, doc, path, locale=None, parameterize=False):
         """Format a URL path using the doc information."""
