@@ -144,14 +144,10 @@ class Collection(object):
 
     @utils.cached_property
     def default_locale(self):
+        locale = None
         if self.localization and 'default_locale' in self.localization:
             locale = self.localization['default_locale']
-        else:
-            locale = self.pod.podspec.default_locale
-        locale = locales.Locale.parse(locale)
-        if locale:
-            locale.set_alias(self.pod)
-        return locale
+        return self.pod.normalize_locale(locale)
 
     @utils.cached_property
     def editor_config(self):
@@ -186,7 +182,8 @@ class Collection(object):
                 return []
             if 'locales' in self.localization:
                 codes = self.localization['locales'] or []
-                return locales.Locale.parse_codes(codes)
+                return self.pod.normalize_locales(
+                    locales.Locale.parse_codes(codes))
         return self.pod.list_locales()
 
     @property
