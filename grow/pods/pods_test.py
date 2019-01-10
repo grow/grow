@@ -8,7 +8,7 @@ from grow import preprocessors
 from grow import storage
 from grow.testing import testing
 from . import pods
-from . import static
+from grow.routing import router
 
 
 class PodTest(unittest.TestCase):
@@ -66,7 +66,7 @@ class PodTest(unittest.TestCase):
     def test_dump(self):
         paths = [
             '/about/index.html',
-            '/app/root/static/somepath/de_alias/test-9b3051eb0c19358847e7c879275f810a.txt',
+            '/app/static/intl/de/test-9b3051eb0c19358847e7c879275f810a.txt',
             '/app/static/file with spaces-d41d8cd98f00b204e9800998ecf8427e.txt',
             '/app/static/sym/test_sym-15918ecf75b208ad2decc78ec3caa95d.txt',
             '/app/static/test-db3f6eaa28bac5ae1180257da33115d8.txt',
@@ -129,18 +129,20 @@ class PodTest(unittest.TestCase):
             '/root/sitemap.xml',
             '/root/static/file-aa843134a2a113f7ebd5386c4d094a1a.min.js',
             '/root/static/file-d41d8cd98f00b204e9800998ecf8427e.txt',
-            '/root/static-fingerprint/bc20b3c9007842b8e1f3c640b07f4e74/de_alias/fingerprinted.txt',
+            '/root/static-fingerprint/bc20b3c9007842b8e1f3c640b07f4e74/intl/de/fingerprinted.txt',
             '/root/static-fingerprint/961109f2e6cc139a8f6df6e3a307c247/fingerprinted.txt',
+            '/shared/test-b.txt',
+            '/shared/test-a.txt',
+            '/shared/intl/test-a.txt',
+            '/shared/intl/test-b.txt',
             '/json_test/index.html',
             '/yaml_test/index.html',
         ]
-        result = {}
-        for rendered_doc in self.pod.dump():
-            result[rendered_doc.path] = None
-        self.assertItemsEqual(paths, result)
+        self.pod.router.add_all()
+        self.maxDiff = None
 
-    def test_to_message(self):
-        self.pod.to_message()
+        result = [doc.path for doc in self.pod.dump()]
+        self.assertItemsEqual(paths, result)
 
     def test_list_deployments(self):
         self.pod.list_deployments()
@@ -152,10 +154,9 @@ class PodTest(unittest.TestCase):
 
     def test_get_static(self):
         static_file = self.pod.get_static('/public/file.txt')
-        self.assertEqual('file', static_file.base)
         self.assertTrue(static_file.exists)
         self.assertRaises(
-            static.BadStaticFileError, self.pod.get_static,
+            router.MissingStaticConfigError, self.pod.get_static,
             '/bad-path/bad-file.txt')
 
     def test_list_statics(self):
@@ -228,6 +229,7 @@ class PodTest(unittest.TestCase):
         pod.write_file('/source/media/file.txt', 'file')
         pod.write_file('/source/media/extensionless', 'file')
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
+        pod.router.add_all()
 
         # Verify dump appends suffix.
         expected = [
@@ -240,16 +242,37 @@ class PodTest(unittest.TestCase):
             paths.append(rendered_doc.path)
         self.assertItemsEqual(expected, paths)
 
-        # Verify export does not append suffix.
-        expected = [
-            '/foo/',
-            '/static/file.txt',
-            '/static/extensionless',
-        ]
-        paths = []
-        for rendered_doc in pod.export():
-            paths.append(rendered_doc.path)
-        self.assertItemsEqual(expected, paths)
+    # TODO: Should export be different than dump?
+    # def test_export_static_files_without_extension(self):
+    #     pod = testing.create_pod()
+    #     pod.write_yaml('/podspec.yaml', {
+    #         'static_dirs': [{
+    #             'static_dir': '/source/media/',
+    #             'serve_at': '/static/',
+    #         }],
+    #     })
+    #     pod.write_yaml('/content/pages/_blueprint.yaml', {
+    #         '$path': '/{base}/',
+    #         '$view': '/views/base.html',
+    #     })
+    #     pod.write_yaml('/content/pages/foo.yaml', {
+    #         '$title': 'Foo',
+    #     })
+    #     pod.write_file('/source/media/file.txt', 'file')
+    #     pod.write_file('/source/media/extensionless', 'file')
+    #     pod.write_file('/views/base.html', '{{doc.html|safe}}')
+    #     pod.router.add_all()
+    #
+    #     # Verify export does not append suffix.
+    #     expected = [
+    #         '/foo/',
+    #         '/static/file.txt',
+    #         '/static/extensionless',
+    #     ]
+    #     paths = []
+    #     for rendered_doc in pod.export():
+    #         paths.append(rendered_doc.path)
+    #     self.assertItemsEqual(expected, paths)
 
 
 if __name__ == '__main__':

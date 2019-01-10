@@ -155,6 +155,16 @@ class PathFormatTestCase(unittest.TestCase):
             '/root_path/test/es', path_format.format_static(
                 '/{root}/test/{locale}', locale='es'))
 
+    def test_format_static_fingerprint(self):
+        """Test doc paths with fingerprint."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        path_format = grow_path_format.PathFormat(pod)
+        self.assertEquals(
+            '/root_path/test/asdf', path_format.format_static(
+                '/{root}/test/{fingerprint}', fingerprint='asdf'))
+
     def test_format_static_locale_params(self):
         """Test doc paths with locale and keeping params."""
         pod = _mock_pod(podspec={

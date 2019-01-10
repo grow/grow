@@ -1,7 +1,12 @@
 """Document formatting specifics for parsing and working with documents."""
 
+import logging
 from grow.common import utils
 from grow.documents import document_front_matter as doc_front_matter
+
+
+# Set markdown logging level to info.
+logging.getLogger('MARKDOWN').setLevel(logging.INFO)
 
 
 BOUNDARY_SEPARATOR = '---'

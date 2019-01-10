@@ -7,7 +7,6 @@ from grow.testing import testing
 from grow.documents import document
 from grow.translations import locales
 from grow.pods import pods
-from grow.pods import routes
 from grow import storage
 
 
@@ -69,7 +68,7 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(doc.doc_data, about)
         self.assertEqual(doc.doc_url_data, about.url)
 
-        static = self.pod.get_static('/static/test.txt')
+        static = self.pod.get_static('/static/test.txt', locale='en')
         self.assertEqual(doc.static_data, static)
         self.assertEqual(doc.static_url_data, static.url)
 
@@ -295,19 +294,19 @@ class DocumentsTestCase(unittest.TestCase):
             'foo': 'foo-base',
             'foo@de': 'foo-de',
         })
+
+        pod.router.add_all()
+
         # Verify ability to override using the default locale.
-        controller, params = pod.match('/page/')
-        content = controller.render(params)
+        content = testing.render_path(pod, '/page/')
         self.assertEqual('foo-de', content)
-        controller, params = pod.match('/en/page/')
-        content = controller.render(params)
+        content = testing.render_path(pod, '/en/page/')
         self.assertEqual('foo-base', content)
+
         # Verify default behavior otherwise.
-        controller, params = pod.match('/page2/')
-        content = controller.render(params)
+        content = testing.render_path(pod, '/page2/')
         self.assertEqual('foo-base', content)
-        controller, params = pod.match('/de/page2/')
-        content = controller.render(params)
+        content = testing.render_path(pod, '/de/page2/')
         self.assertEqual('foo-de', content)
 
     def test_locale_override(self):
@@ -548,16 +547,16 @@ class DocumentsTestCase(unittest.TestCase):
         })
         pod.write_yaml('/content/pages/page.yaml', {})
         pod.write_file('/views/base.html', '{{doc.locale}}')
-        self.assertRaises(routes.DuplicatePathsError, pod.match, '/page/')
 
         pod.write_yaml('/content/pages/_blueprint.yaml', {
             '$path': '/{base}/',
             '$view': '/views/base.html',
             '$localization': None,
         })
-        pod.routes.reset_cache()
-        controller, params = pod.match('/page/')
-        content = controller.render(params)
+
+        pod.router.add_all()
+
+        content = testing.render_path(pod, '/page/')
         self.assertEqual('en', content)
 
         # Verify paths aren't clobbered by the default locale.
@@ -574,12 +573,12 @@ class DocumentsTestCase(unittest.TestCase):
             },
         })
         pod.podcache.reset()
-        pod.routes.reset_cache()
-        controller, params = pod.match('/de/page/')
-        content = controller.render(params)
+        pod.router.routes.reset()
+        pod.router.add_all()
+        content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de', content)
-        paths = pod.routes.list_concrete_paths()
-        expected = ['/en/page/', '/de/page/']
+        paths = list(pod.router.routes.paths)
+        expected = ['/de/page/', '/en/page/']
         self.assertEqual(expected, paths)
 
     def test_view_format(self):
@@ -687,8 +686,9 @@ class DocumentsTestCase(unittest.TestCase):
             ),
         )
 
-        controller, params = pod.match('/page/')
-        content = controller.render(params)
+        pod.router.add_all()
+
+        content = testing.render_path(pod, '/page/')
         self.assertEqual('en en en', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(
@@ -698,8 +698,7 @@ class DocumentsTestCase(unittest.TestCase):
             '/content/pages/page.yaml',
         ]), dependents)
 
-        controller, params = pod.match('/de/page/')
-        content = controller.render(params)
+        content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de de de', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(
@@ -735,8 +734,9 @@ class DocumentsTestCase(unittest.TestCase):
         pod.write_yaml('/content/partials/partial@de.yaml', {})
         pod.write_file('/views/base.html', '{{doc.locale}} {{doc.partial.locale}}')
 
-        controller, params = pod.match('/page/')
-        content = controller.render(params)
+        pod.router.add_all()
+
+        content = testing.render_path(pod, '/page/')
         self.assertEqual('en en', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(
@@ -746,8 +746,7 @@ class DocumentsTestCase(unittest.TestCase):
             '/content/pages/page.yaml',
         ]), dependents)
 
-        controller, params = pod.match('/de/page/')
-        content = controller.render(params)
+        content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de de', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(

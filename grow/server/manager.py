@@ -24,16 +24,10 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
         super(CallbackHTTPServer, self).server_activate()
         _, port = self.server_address
         self.pod.env.port = port
-        if self.pod.use_reroute:
-            with timer.Timer() as router_time:
-                self.pod.router.add_all(concrete=False)
-            self.pod.logger.info('{} routes built in {:.3f} s'.format(
-                len(self.pod.router.routes), router_time.secs))
-        else:
-            with timer.Timer() as load_timer:
-                self.pod.load()
-            self.pod.logger.info('Pod loaded in {:.3f} s'.format(
-                load_timer.secs))
+        with timer.Timer() as router_time:
+            self.pod.router.add_all(concrete=False)
+        self.pod.logger.info('{} routes built in {:.3f} s'.format(
+            len(self.pod.router.routes), router_time.secs))
 
         url = print_server_ready_message(self.pod, self.pod.env.host, port)
         if self.open_browser:

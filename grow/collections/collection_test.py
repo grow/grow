@@ -204,13 +204,14 @@ class CollectionsTestCase(unittest.TestCase):
             '/content/collection/folder/subfolder/subfolder.yaml', {})
         pod.write_yaml(
             '/content/collection/folder2/subfolder2/subfolder2.yaml', {})
+        pod.router.add_all()
         expected = [
             '/root/',
             '/folder/',
             '/subfolder/',
             '/subfolder2/',
         ]
-        self.assertItemsEqual(expected, pod.routes.list_concrete_paths())
+        self.assertItemsEqual(expected, list(pod.router.routes.paths))
 
         # Blueprints one level deep.
         fields = {

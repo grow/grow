@@ -33,9 +33,8 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.run')
               help='Whether to inject the Grow UI Tools.')
 @shared.deployment_option(CFG)
 @shared.preprocess_option(CFG)
-@shared.reroute_option(CFG)
 def run(host, port, https, debug, browser, update_check, preprocess, ui,
-        pod_path, deployment, use_reroute):
+        pod_path, deployment):
     """Starts a development server for a single pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     scheme = 'https' if https else 'http'
@@ -43,8 +42,7 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
                            scheme=scheme, cached=False, dev=True)
     environment = env.Env(config)
     pod = pods.Pod(
-        root, storage=storage.FileStorage, env=environment,
-        use_reroute=use_reroute)
+        root, storage=storage.FileStorage, env=environment)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
         pod.set_env(deployment_obj.config.env)

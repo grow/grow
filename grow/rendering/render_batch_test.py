@@ -14,7 +14,7 @@ class RendererTestCase(unittest.TestCase):
     def setUp(self):
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(
-            self.dir_path, storage=storage.FileStorage, use_reroute=True)
+            self.dir_path, storage=storage.FileStorage)
         self.batches = render_batch.RenderBatches(
             self.pod.render_pool, self.pod.profile)
 

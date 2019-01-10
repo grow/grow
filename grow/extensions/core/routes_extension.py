@@ -18,7 +18,7 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
     @staticmethod
     def _create_response(pod, routes, title, is_concrete=True):
         env = ui.create_jinja_env()
-        template = env.get_template('views/base-reroute.html')
+        template = env.get_template('views/base.html')
         kwargs = {
             'pod': pod,
             'partials': [{
@@ -69,14 +69,11 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
 
     @staticmethod
     def _reset_routes(pod):
-        if pod.use_reroute:
-            with timer.Timer() as router_time:
-                pod.router.routes.reset()
-                pod.router.add_all(concrete=False)
-            pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
-                len(pod.router.routes), router_time.secs))
-        else:
-            pod.routes.reset_cache(rebuild=True)
+        with timer.Timer() as router_time:
+            pod.router.routes.reset()
+            pod.router.add_all(concrete=False)
+        pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
+            len(pod.router.routes), router_time.secs))
 
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
@@ -150,24 +147,12 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
             # Check for new docs.
             for trigger_doc in trigger_docs:
                 if trigger_doc.has_serving_path():
-                    if pod.use_reroute:
-                        if not pod.router.routes.match(trigger_doc.get_serving_path()):
-                            added_docs.append(trigger_doc)
-                    else:
-                        try:
-                            route_env = pod.env.to_wsgi_env()
-                            _ = pod.routes.match(
-                                trigger_doc.get_serving_path(), env=route_env)
-                        except webob_exc.HTTPNotFound:
-                            added_docs.append(trigger_doc)
+                    if not pod.router.routes.match(trigger_doc.get_serving_path()):
+                        added_docs.append(trigger_doc)
             if added_docs or removed_docs:
-                if pod.use_reroute:
-                    pod.router.reconcile_documents(
-                        remove_docs=removed_docs, add_docs=added_docs)
-                else:
-                    pod.routes.reconcile_documents(
-                        remove_docs=removed_docs, add_docs=added_docs)
-        elif pod.use_reroute:
+                pod.router.reconcile_documents(
+                    remove_docs=removed_docs, add_docs=added_docs)
+        else:
             # Check if the file is a static file that needs to have the
             # fingerprint updated.
             for config in pod.static_configs:
