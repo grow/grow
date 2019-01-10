@@ -30,11 +30,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.preprocess')
                    'preprocessors on the same resource to avoid rate limit '
                    'errors.')
 @shared.deployment_option(CFG)
-@shared.reroute_option(CFG)
-def preprocess(pod_path, preprocessor, run_all, tag, ratelimit, deployment, use_reroute):
+def preprocess(pod_path, preprocessor, run_all, tag, ratelimit, deployment):
     """Runs preprocessors."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
-    pod = pods.Pod(root, storage=storage.FileStorage, use_reroute=use_reroute)
+    pod = pods.Pod(root, storage=storage.FileStorage)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
         pod.set_env(deployment_obj.config.env)

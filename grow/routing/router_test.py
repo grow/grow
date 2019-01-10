@@ -12,7 +12,7 @@ class RouterTestCase(unittest.TestCase):
 
     def setUp(self):
         self.dir_path = testing.create_test_pod_dir()
-        self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage, use_reroute=True)
+        self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
         self.router = grow_router.Router(self.pod)
 
     def test_filter(self):

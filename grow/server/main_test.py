@@ -1,15 +1,17 @@
+"""Tests for the main grow development server."""
+
+import unittest
+import webapp2
 from grow.pods import pods
 from grow.server import main
 from grow.testing import testing
-import unittest
-import webapp2
 
 
 class PodHandlerTestCase(unittest.TestCase):
 
     def test_request(self):
         dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(dir_path, use_reroute=True)
+        pod = pods.Pod(dir_path)
         pod.router.add_all()
 
         # When serving a pod, should 200.
@@ -67,7 +69,7 @@ class PodHandlerTestCase(unittest.TestCase):
 
     def test_admin(self):
         dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(dir_path, use_reroute=True)
+        pod = pods.Pod(dir_path)
         pod.router.add_all()
         app = main.create_wsgi_app(pod, 'localhost', 8080)
 
@@ -84,7 +86,7 @@ class PodHandlerTestCase(unittest.TestCase):
 
     def test_editor(self):
         dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(dir_path, use_reroute=True)
+        pod = pods.Pod(dir_path)
         pod.router.add_all()
         app = main.create_wsgi_app(pod, 'localhost', 8080)
 
@@ -101,7 +103,7 @@ class PodHandlerTestCase(unittest.TestCase):
 
     def test_ui(self):
         dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(dir_path, use_reroute=True)
+        pod = pods.Pod(dir_path)
         pod.router.add_all()
         app = main.create_wsgi_app(pod, 'localhost', 8080)
 

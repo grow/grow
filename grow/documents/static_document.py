@@ -7,7 +7,12 @@ from grow.routing import path_filter as grow_path_filter
 
 
 class Error(Exception):
-    """Base rendering pool error."""
+    """Base static document error."""
+    pass
+
+
+class DocumentDoesNotExistError(Error, ValueError):
+    """Static document does not exist."""
     pass
 
 
@@ -128,11 +133,13 @@ class StaticDocument(object):
         """Serving path for the static document."""
         if self.source_pod_path != self.pod_path or not self.use_fallback:
             path = self.pod.path_format.format_static(
-                self.path_format, locale=self.locale)
+                self.path_format, locale=self.locale,
+                fingerprint=self.fingerprint)
         else:
             # Fall back to use the default locale for the formatted path.
             path = self.pod.path_format.format_static(
-                self.base_path_format, locale=self.pod.podspec.default_locale)
+                self.base_path_format, locale=self.pod.podspec.default_locale,
+                fingerprint=self.fingerprint)
 
         if not self.fingerprinted:
             return path

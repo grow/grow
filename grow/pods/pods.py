@@ -49,8 +49,6 @@ from grow.translators import translators
 from . import env as environment
 from . import messages
 from . import podspec
-from . import routes as grow_routes
-from . import static as grow_static
 
 
 class Error(Exception):
@@ -88,7 +86,7 @@ class Pod(object):
                 and isinstance(other, Pod)
                 and self.root == other.root)
 
-    def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True, use_reroute=False):
+    def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True):
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
@@ -97,12 +95,6 @@ class Pod(object):
                     else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
-        # TODO: Remove the use_reroute when it is the only routing.
-        self.use_reroute = use_reroute
-        if not use_reroute:
-            self.routes = grow_routes.Routes(pod=self)
-        else:
-            self.routes = None
         self._jinja_env_lock = threading.RLock()
         self._podcache = None
         self._features = features.Features(disabled=[
@@ -397,24 +389,6 @@ class Pod(object):
             normal_paths.append(self._normalize_path(pod_path))
         return self.storage.delete_files(normal_paths, recursive=recursive, pattern=pattern)
 
-    def determine_paths_to_build(self, pod_paths=None):
-        """Determines which paths are going to be built with optional path filtering."""
-        if pod_paths:
-            # When provided a list of pod_paths do a custom routing tree based on
-            # the docs that are dependent based on the dependecy graph.
-            def _gen_docs(pod_paths):
-                for pod_path in pod_paths:
-                    for dep_path in self.podcache.dependency_graph.match_dependents(
-                            self._normalize_pod_path(pod_path)):
-                        yield self.get_doc(dep_path)
-            routes = grow_routes.Routes.from_docs(self, _gen_docs(pod_paths))
-        else:
-            routes = self.get_routes()
-        paths = []
-        for items in routes.get_locales_to_paths().values():
-            paths += items
-        return paths, routes
-
     def disable(self, feature):
         """Disable a grow feature."""
         self._features.disable(feature)
@@ -435,20 +409,9 @@ class Pod(object):
 
     def export(self, suffix=None, append_slashes=False, pod_paths=None, use_threading=True):
         """Builds the pod, yielding rendered_doc based on pod routes."""
-        if self.use_reroute:
-            for rendered_doc in renderer.Renderer.rendered_docs(
-                    self, self.router.routes, use_threading=use_threading):
-                yield rendered_doc
-        else:
-            paths, routes = self.determine_paths_to_build(pod_paths=pod_paths)
-            for rendered_doc in self.render_paths(
-                    paths, routes, suffix=suffix, append_slashes=append_slashes):
-                yield rendered_doc
-            if not pod_paths:
-                error_controller = routes.match_error('/404.html')
-                if error_controller:
-                    yield rendered_document.RenderedDocument(
-                        '/404.html', error_controller.render({}), tmp_dir=self.tmp_dir)
+        for rendered_doc in renderer.Renderer.rendered_docs(
+                self, self.router.routes, use_threading=use_threading):
+            yield rendered_doc
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
@@ -597,30 +560,17 @@ class Pod(object):
                 **tags.create_builtin_globals(env, self, locale=locale))
             return env
 
-    def get_routes(self):
-        return self.routes
-
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
-        if self.use_reroute:
-            document = static_document.StaticDocument(
-                self, pod_path, locale=locale)
-            if document.exists:
-                return document
-        else:
-            for route in self.routes.static_routing_map.iter_rules():
-                controller = route.endpoint
-                if controller.KIND == messages.Kind.STATIC:
-                    serving_path = controller.match_pod_path(pod_path)
-                    if serving_path:
-                        return grow_static.StaticFile(
-                            pod_path, serving_path, locale=locale, pod=self,
-                            controller=controller, fingerprinted=controller.fingerprinted,
-                            localization=controller.localization)
+        document = static_document.StaticDocument(
+            self, pod_path, locale=locale)
+        if document.exists:
+            return document
+
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
                 'not configured for this path in {}.'.format(
                     pod_path, self.FILE_PODSPEC))
-        raise grow_static.BadStaticFileError(text)
+        raise static_document.DocumentDoesNotExistError(text)
 
     def get_podspec(self):
         return self.podspec
@@ -743,7 +693,8 @@ class Pod(object):
         for params in preprocessor_config:
             kind = params.pop('kind')
             try:
-                preprocessor = preprocessors.make_preprocessor(kind, params, self)
+                preprocessor = preprocessors.make_preprocessor(
+                    kind, params, self)
                 results.append(preprocessor)
             except ValueError as err:
                 # New extensions will not show up here.
@@ -755,12 +706,8 @@ class Pod(object):
             if include_hidden or not path.rsplit(os.sep, 1)[-1].startswith('.'):
                 yield self.get_static(pod_path + path, locale=locale)
 
-    def load(self):
-        if self.routes:
-            self.routes.routing_map
-
     def match(self, path):
-        return self.routes.match(path, env=self.env.to_wsgi_env())
+        return self.router.routes.match(path)
 
     def move_file_to(self, source_pod_path, destination_pod_path):
         source_path = self._normalize_path(source_pod_path)
@@ -851,54 +798,10 @@ class Pod(object):
                     raise
         return contents
 
-    def render_paths(self, paths, routes, suffix=None, append_slashes=False):
-        """Renders the given paths and yields each path and content."""
-        text = 'Building: %(value)d/{} (in %(time_elapsed).9s)'
-        widgets = [progressbar.FormatLabel(text.format(len(paths)))]
-        bar = progressbar_non.create_progressbar(
-            "Building pod...", widgets=widgets, max_value=len(paths))
-        bar.start()
-        for path in paths:
-            output_path = path
-            controller, params = routes.match(
-                path, env=self.env.to_wsgi_env())
-            # Append a suffix onto rendered routes only. This supports dumping
-            # paths that would serve at URLs that terminate in "/" or without
-            # an extension to an HTML file suitable for writing to a
-            # filesystem. Static routes and other routes that may export to
-            # paths without extensions should remain unmodified.
-            if suffix and controller.KIND == messages.Kind.RENDERED:
-                if (append_slashes and not output_path.endswith('/')
-                        and not os.path.splitext(output_path)[-1]):
-                    output_path = output_path.rstrip('/') + '/'
-                if append_slashes and output_path.endswith('/') and suffix:
-                    output_path += suffix
-            try:
-                key = 'Pod.render_paths.render'
-                if isinstance(controller, grow_static.StaticController):
-                    key = 'Pod.render_paths.render.static'
-
-                with self.profile.timer(key, label=output_path, meta={'path': output_path}):
-                    yield rendered_document.RenderedDocument(
-                        output_path, controller.render(params, inject=False),
-                        tmp_dir=self.tmp_dir)
-            except:
-                self.logger.error('Error building: {}'.format(controller))
-                raise
-            bar.update(bar.value + 1)
-        bar.finish()
-
     def reset_yaml(self):
         # Tell the cached property to reset.
         # pylint: disable=no-member
         self._parse_yaml.reset()
-
-    def to_message(self):
-        message = messages.PodMessage()
-        message.collections = [collection.to_message()
-                               for collection in self.list_collections()]
-        message.routes = self.routes.to_message()
-        return message
 
     def walk(self, pod_path):
         path = self._normalize_path(pod_path)
