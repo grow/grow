@@ -1,13 +1,15 @@
 """Template jinja tags."""
 
-from babel.messages import catalog as babel_catalog
 import collections as py_collections
-from datetime import datetime
 import itertools
+from datetime import datetime
 import jinja2
+from babel.messages import catalog as babel_catalog
+from grow.collections import collection as collection_lib
+from grow.common import structures
 from grow.common import utils
-from grow.pods import collection as collection_lib
-from grow.pods import locales as locales_lib
+from grow.pods import errors
+from grow.translations import locales as locales_lib
 
 
 class Menu(object):
@@ -116,11 +118,10 @@ def date(datetime_obj=None, _pod=None, **kwargs):
 
 
 @utils.memoize_tag
-def docs(collection, locale=None, order_by=None, hidden=False, recursive=True, _pod=None):
+def docs(collection, _pod=None, **kwargs):
     """Retrieves docs from the pod."""
     collection = _pod.get_collection(collection)
-    return collection.docs(locale=locale, order_by=order_by, include_hidden=hidden,
-                           recursive=recursive)
+    return list(collection.list_docs(**kwargs))
 
 
 @utils.memoize_tag
@@ -165,9 +166,47 @@ def make_doc_gettext(doc):
         # used for tracking untranslated strings.
         message = catalog[__string] \
             or babel_catalog.Message(__string, locations=[(doc.pod_path, 0)])
-        translation_stats.tick(message, doc.locale, doc.default_locale)
+        translation_stats.tick(
+            message, doc.locale, doc.default_locale, location=doc.pod_path)
         return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
     return gettext
+
+
+def make_gettext(pod, func):
+    """Create a gettext function that tracks translation stats."""
+    use_old_formatting = pod.podspec.get_config().get(
+        'templates', {}).get('old_string_format', False)
+
+    @jinja2.contextfunction
+    def gettext(__context, __string, **variables):
+        """Gettext and do replacement."""
+        value = __context.call(func, __string)
+        if use_old_formatting:
+            value = value % variables
+        value = utils.safe_format(value, **variables)
+        if __context.eval_ctx.autoescape:
+            value = jinja2.utils.Markup(value)
+        return value
+    return gettext
+
+
+def make_ngettext(pod, func):
+    """Create a gettext function that tracks translation stats."""
+    use_old_formatting = pod.podspec.get_config().get(
+        'templates', {}).get('old_string_format', False)
+
+    @jinja2.contextfunction
+    def ngettext(__context, __singular, __plural, __num, **variables):
+        """Gettext and do replacement."""
+        variables.setdefault('num', __num)
+        value = __context.call(func, __singular, __plural, __num)
+        if use_old_formatting:
+            value = value % variables
+        value = utils.safe_format(value, **variables)
+        if __context.eval_ctx.autoescape:
+            value = jinja2.utils.Markup(value)
+        return value
+    return ngettext
 
 
 @utils.memoize_tag
@@ -214,6 +253,10 @@ def wrap_locale_context(func):
 def yaml(path, _pod, _doc=None):
     """Retrieves a yaml file from the pod."""
     locale = str(_doc.locale_safe) if _doc else None
+    if '?' in path:
+        path, reference = path.split('?')
+        data = structures.DeepReferenceDict(_read_yaml(_pod, path, locale=locale))
+        return data[reference]
     return _read_yaml(_pod, path, locale=locale)
 
 
@@ -275,4 +318,19 @@ def create_builtin_tags(pod, doc, track_dependency=None):
         'statics': _wrap_dependency(statics),
         'url': _wrap_dependency_path(url),
         'yaml': _wrap_dependency_path(_wrap_doc(yaml)),
+    }
+
+
+def create_builtin_globals(env, pod, locale=None):
+    """Create built in global tags."""
+    # Mark that we are using the newstyle gettext to avoid issues with escaping.
+    env.newstyle_gettext = True
+    get_gettext_func = pod.catalogs.get_gettext_translations
+    gettext = make_gettext(
+        pod, lambda x: get_gettext_func(locale).ugettext(x))
+    ngettext = make_ngettext(
+        pod, lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n))
+    return {
+        'gettext': gettext,
+        'ngettext': ngettext,
     }

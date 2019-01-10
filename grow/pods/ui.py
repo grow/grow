@@ -3,13 +3,13 @@
 import os
 import jinja2
 from grow.common import utils
-from grow.pods.storage import storage
+from grow import storage
 from grow.templates import filters
 
 
 @utils.memoize
 def create_jinja_env():
-    root = os.path.join(utils.get_grow_dir(), 'ui', 'templates')
+    root = os.path.join(utils.get_grow_dir(), 'ui', 'admin')
     loader = storage.FileStorage.JinjaLoader(root)
     env = jinja2.Environment(
         loader=loader,
@@ -23,5 +23,4 @@ def create_jinja_env():
             'jinja2.ext.with_',
         ])
     env.filters.update(filters.create_builtin_filters())
-
     return env

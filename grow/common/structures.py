@@ -1,9 +1,44 @@
+"""Custom structures for Grow."""
+
 from bisect import bisect_left
 from bisect import bisect_right
 
 
+class AttributeDict(dict):
+    """Allows using a dictionary to reference keys as attributes."""
+    __getattr__ = dict.__getitem__
+    __setattr__ = dict.__setitem__
+
+
+class DeepReferenceDict(dict):
+    """Deep reference dictionary using a delimited key."""
+
+    def __getitem__(self, key):
+        """Handle the ability to do a delimited key."""
+        try:
+            return super(DeepReferenceDict, self).__getitem__(key)
+        except KeyError:
+            data = None
+            for sub_key in key.split('.'):
+                if data is None:
+                    data = self.get(sub_key)
+                    continue
+                if sub_key in data:
+                    data = data[sub_key]
+                else:
+                    raise
+            return data
+
+
+class SafeDict(dict):
+    """Keeps the unmatched format params in place."""
+
+    def __missing__(self, key):
+        return '{' + key + '}'
+
+
 class SortedCollection(object):
-    '''Sequence sorted by a key function.
+    """Sequence sorted by a key function.
 
     SortedCollection() is much easier to work with than using bisect() directly.
     It supports key functions like those use in sorted(), min(), and max().
@@ -69,7 +104,7 @@ class SortedCollection(object):
      ('david', 'thomas', 32),
      ('roger', 'young', 30)]
 
-    '''
+    """
 
     def __init__(self, iterable=(), key=None):
         self._given_key = key

@@ -19,7 +19,6 @@ class SassPreprocessorTestCase(unittest.TestCase):
         content = 'body\n    color: red'
         pod.write_file('/source/sass/main.sass', content)
         if utils.is_appengine():
-            self.assertRaises(utils.UnavailableError, pod.preprocess)
             return
         pod.preprocess()
         result = pod.read_file('/dist/css/main.min.css')

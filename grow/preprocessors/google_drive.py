@@ -15,16 +15,15 @@ import json
 import logging
 import os
 import httplib2
-import yaml
 from googleapiclient import discovery
 from googleapiclient import errors
-from grow.common import oauth
-from grow.common import utils
-from grow.pods import document_fields
-from grow.pods import document_format
-from grow.pods import document_front_matter as doc_front_matter
 from protorpc import messages
-from . import base
+from grow.common import oauth
+from grow.common import untag
+from grow.common import utils
+from grow.documents import document_format
+from grow.documents import document_front_matter as doc_front_matter
+from grow.preprocessors import base
 
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
@@ -128,6 +127,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     KIND = 'google_sheets'
     GRID_TYPES = ['grid']
     MAP_TYPES = ['map', 'strings']
+    _sheet_edit_url_format = 'https://docs.google.com/spreadsheets/d/{id}/edit'
     _edit_url_format = 'https://docs.google.com/spreadsheets/d/{id}/edit#gid={gid}'
 
     class Config(messages.Message):
@@ -141,6 +141,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         collection = messages.StringField(8)
         output_format = messages.StringField(9, default='yaml')
         generate_ids = messages.BooleanField(10, default=False)
+        header_row_count = messages.IntegerField(11, default=1)
+        header_row_index = messages.IntegerField(12, default=1)
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -186,7 +188,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
     @classmethod
     def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None,
-                 generate_ids=False):
+                 generate_ids=False, header_row_count=1, header_row_index=1):
         logger = logger or logging
         # Show metadata about the file to help the user better understand what
         # they are downloading. Also include a link in the output to permit the
@@ -223,6 +225,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
         if not gids:
             gids = gid_to_sheet.keys()
+        if gids and len(gids) > 1:
+            url = GoogleSheetsPreprocessor._sheet_edit_url_format.format(id=spreadsheet_id)
+            logger.info('Downloading {} tabs -> {}'.format(len(gids), url))
 
         gid_to_data = {}
         generated_key_index = 0
@@ -250,20 +255,32 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             else:
                 title = gid_to_sheet[gid]['title']
                 if title.startswith(IGNORE_INITIAL):
-                    logger.info('Skipping sheet -> {}'.format(title))
+                    logger.info('Skipping tab -> {}'.format(title))
                     continue
                 headers = None
+                header_rows = []
                 for row in resp['values']:
+                    if len(header_rows) < header_row_count:
+                        header_rows.append(row)
+                        # Only one of the header rows are the actual headers.
+                        if len(header_rows) == header_row_index:
+                            if format_as_grid:
+                                # Ignore first column as a header.
+                                headers = row[1:]
+                            else:
+                                headers = row
+                        continue
+
                     if format_as_grid:
-                        if not headers:
-                            # Ignore first column as a header.
-                            headers = row[1:]
-                            continue
                         if not row:  # Skip empty rows.
                             continue
                         key = row[0].strip()
                         if isinstance(key, unicode):
                             key = key.encode('utf-8')
+                        if key and key in gid_to_data[gid]:
+                            # The key is already in use.
+                            raise base.PreprocessorError(
+                                'Duplicate key in use in sheet {}: {}'.format(gid, key))
                         if key and not key.startswith(IGNORE_INITIAL):
                             # Grids use the first column as the key and make
                             # object out of the remaining columns.
@@ -271,6 +288,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             row = row[1:]
                             row_len = len(row)
                             for col, grid_key in enumerate(headers):
+                                if not grid_key or grid_key.startswith(IGNORE_INITIAL):
+                                    continue
                                 if isinstance(grid_key, unicode):
                                     grid_key = grid_key.encode('utf-8')
                                 value = (row[col] if row_len > col else '').strip()
@@ -278,9 +297,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                                     grid_obj[grid_key] = value
                             gid_to_data[gid][key] = grid_obj
                     elif format_as_map:
-                        if not headers:
-                            headers = row
-                            continue
                         if not row:  # Skip empty rows.
                             continue
                         key = row[0].strip()
@@ -295,9 +311,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             gid_to_data[gid][key] = (
                                 row[1] if len(row) == 2 else '')
                     else:
-                        if not headers:
-                            headers = row
-                            continue
                         row_values = {}
                         for idx, column in enumerate(headers):
                             if not column.startswith(IGNORE_INITIAL):
@@ -311,6 +324,31 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         if ':' in path:
             return path.rsplit(':', 1)
         return path, None
+
+    def _maybe_preserve_content(self, new_data, path, key_to_update):
+        if path.endswith(('.yaml', '.yml')) and self.config.preserve:
+            # Use existing data if it exists. If we're updating data at a
+            # specific key, and if the existing data doesn't exist, use an
+            # empty dict. If the file doesn't exist and if we're not updating
+            # at a specific key, just return the new data without reformatting.
+            if self.pod.file_exists(path):
+                # Do a text parse of the yaml file to prevent the constructors.
+                content = self.pod.read_file(path)
+                existing_data = utils.load_plain_yaml(content)
+            elif key_to_update:
+                existing_data = {}
+            else:
+                return new_data
+            # Skip trying to update lists, because there would be no
+            # expectation of merging old and new list data.
+            if not key_to_update and not isinstance(new_data, dict):
+                return new_data
+            if isinstance(existing_data, dict):
+                return utils.format_existing_data(
+                    old_data=existing_data, new_data=new_data,
+                    preserve=self.config.preserve, key_to_update=key_to_update)
+        return new_data
+
 
     def execute(self, config):
         spreadsheet_id = config.id
@@ -326,24 +364,20 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             format_as = 'map'
         gid_to_sheet, gid_to_data = GoogleSheetsPreprocessor.download(
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
-            logger=self.pod.logger, generate_ids=config.generate_ids)
+            logger=self.pod.logger, generate_ids=config.generate_ids,
+            header_row_count=config.header_row_count,
+            header_row_index=config.header_row_index)
 
         if config.path:
             # Single sheet import.
             path, key_to_update = self.parse_path(config.path)
 
             for gid in gids:
-                # Preserve existing yaml data.
-                if (path.endswith(('.yaml', '.yml'))
-                        and self.config.preserve and self.pod.file_exists(path)):
-                    existing_data = self.pod.read_yaml(path)
-                    # Skip trying to update lists, because there would be no
-                    # expectation of merging old and new list data.
-                    if isinstance(existing_data, dict):
-                        gid_to_data[gid] = utils.format_existing_data(
-                            old_data=existing_data, new_data=gid_to_data[gid],
-                            preserve=self.config.preserve, key_to_update=key_to_update)
-
+                # Preserve existing data if necessary.
+                gid_to_data[gid] = self._maybe_preserve_content(
+                        new_data=gid_to_data[gid],
+                        path=path,
+                        key_to_update=key_to_update)
                 content = GoogleSheetsPreprocessor.serialize_content(
                     formatted_data=gid_to_data[gid], path=path,
                     output_style=self.config.output_style)
@@ -353,7 +387,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     'Downloaded {} ({}) -> {}'.format(
                         gid_to_sheet[gid]['title'], gid, path))
         else:
-            # Multi sheet import.
+            # Multi sheet import based on collection.
             collection_path = config.collection
 
             if not gids:
@@ -365,7 +399,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 file_name = '{}.yaml'.format(
                     utils.slugify(gid_to_sheet[gid]['title']))
                 output_path = os.path.join(collection_path, file_name)
-                self.pod.write_yaml(output_path, gid_to_data[gid])
+                gid_to_data[gid] = self._maybe_preserve_content(
+                        new_data=gid_to_data[gid],
+                        path=output_path,
+                        key_to_update=None)
+                # Use plain text dumper to preserve yaml constructors.
+                output_content = utils.dump_plain_yaml(gid_to_data[gid])
+                self.pod.write_file(output_path, output_content)
                 self.logger.info(
                     'Downloaded {} ({}) -> {}'.format(
                         gid_to_sheet[gid]['title'], gid, output_path))
@@ -413,7 +453,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 kwargs['sort_keys'] = True
             return json.dumps(formatted_data, **kwargs)
         elif convert_to in ('.yaml', '.yml'):
-            return yaml.safe_dump(formatted_data, default_flow_style=False)
+            # Use plain text dumper to preserve yaml constructors.
+            return utils.dump_plain_yaml(formatted_data)
         return formatted_data
 
     def can_inject(self, doc=None, collection=None):
@@ -461,8 +502,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         old_data=existing_data, new_data=gid_to_data[gid],
                         preserve=self.config.preserve, key_to_update=key_to_update)
 
-                gid_to_data[gid] = document_fields.DocumentFields.untag(gid_to_data[
-                                                                        gid])
+                gid_to_data[gid] = untag.Untag.untag(gid_to_data[gid])
                 doc.inject(fields=gid_to_data[gid])
         else:
             # TODO Multi sheet import.

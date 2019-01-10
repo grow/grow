@@ -1,105 +1,95 @@
-var browserify = require('browserify');
-var buffer = require('vinyl-buffer');
+var extend = require('deep-extend');
+var fs = require('fs');
 var gulp = require('gulp');
-var gutil = require('gulp-util');
+var gulpAutoprefixer = require('gulp-autoprefixer');
+var path = require('path');
+var readdirRecursive = require('fs-readdir-recursive');
 var rename = require('gulp-rename');
 var sass = require('gulp-sass');
-var source = require('vinyl-source-stream');
-var uglify = require('gulp-uglify');
-var watchify = require('watchify');
+var webpack = require('webpack');
+var webpackStream = require('webpack-stream');
+var WebpackBabiliPlugin = require("babili-webpack-plugin");
 
-
-var Config = { 
+var config = {
+  JS_SOURCE_DIR: './js/composite/',
   JS_SOURCES: [
-    './js/ui.js'
+    './admin/partials/**/*.js',
+    './js/**/*.js',
   ],
   JS_OUT_DIR: './dist/js/',
-  JS_OUT_FILE: 'ui.min.js',
-  SASS_SOURCE_FORMAT: './sass/**',
-  SASS_SOURCE: './sass/ui.sass',
+  JS_OPTIONS: {
+    uglify: {
+      mangle: false
+    }
+  },
+  SASS_SOURCE_DIR: './sass/composite/**/*.sass',
+  SASS_SOURCES: [
+    './admin/partials/**/*.sass',
+    './sass/**/*.sass',
+  ],
   SASS_OUT_DIR: './dist/css/'
 };
 
-
-function rebundle_(bundler, outdir, outfile, opt_options) {
-  var options = opt_options || {};
-  return bundler.bundle()
-    .on('error', gutil.log.bind(gutil, 'browserify error'))
-    .pipe(source(outfile))
-    .pipe(buffer())
-    .pipe(uglify(options.uglify))
-    .pipe(gulp.dest(outdir));
-}
-
-
-/**
- * Compiles js code using browserify and uglify.
- * @param {Array.<string>} sources List of JS source files.
- * @param {string} outdir Output directory.
- * @param {string} outfile Output file name.
- * @param {Object=} opt_options Options.
- */
-function compilejs(sources, outdir, outfile, opt_options) {
-  var bundler = browserify({
-    entries: sources,
-    debug: false
-  });
-  return rebundle_(bundler, outdir, outfile, opt_options);
-}
-
-
-/**
- * Watches JS code for changes and triggers compilation.
- * @param {Array.<string>} sources List of JS source files.
- * @param {string} outdir Output directory.
- * @param {string} outfile Output file name.
- * @param {Object=} opt_options Options.
- */
-function watchjs(sources, outdir, outfile, opt_options) {
-  var bundler = watchify(browserify({
-    entries: sources,
-    debug: false,
-    // Watchify options:
-    cache: {},
-    packageCache: {},
-    fullPaths: true
-  }));
-
-  bundler.on('update', function() {
-    gutil.log('recompiling js...');
-    rebundle_(bundler, outdir, outfile);
-    gutil.log('finished recompiling js');
-  });
-  return rebundle_(bundler, outdir, outfile, opt_options);
-}
-
-
-gulp.task('compilejs', function() {
-    return compilejs(Config.JS_SOURCES, Config.JS_OUT_DIR, Config.JS_OUT_FILE);
+var jsFiles = readdirRecursive(config.JS_SOURCE_DIR);
+var entry = {};
+jsFiles.forEach(function (value) {
+  if (value.endsWith('.js')) {
+    var key = value.substring(0, value.length - 3);
+    entry[key] = config.JS_SOURCE_DIR + value;
+  }
 });
 
+var webpackConfig = {
+  entry: entry,
+  mode: 'development',
+  output: {
+    path: path.resolve(__dirname, config.JS_OUT_DIR),
+    filename: '[name].min.js'
+  }
+};
+var webpackProdConfig = extend({
+  mode: 'production',
+}, webpackConfig);
 
-gulp.task('watchjs', function() {
-    return watchjs(Config.JS_SOURCES, Config.JS_OUT_DIR, Config.JS_OUT_FILE);
+gulp.task('compile-js', function() {
+  return gulp.src(config.JS_SOURCES)
+      .pipe(webpackStream(
+        webpackProdConfig, webpack
+      ))
+      .pipe(gulp.dest(config.JS_OUT_DIR));
 });
 
+gulp.task('watch-js', () => {
+  webpackConfig.watch = true;
 
-gulp.task('watchcss', function() {
-  return gulp.watch(Config.SASS_SOURCE_FORMAT, ['compilecss']);
+  gulp.src(config.JS_SOURCES)
+    .pipe(webpackStream(
+      webpackConfig, webpack
+    ))
+    .pipe(gulp.dest(config.JS_OUT_DIR));
 });
 
-
-gulp.task('compilecss', function() {
-  gulp.src(Config.SASS_SOURCE)
-    .pipe(sass({
-      outputStyle: 'compressed'
-    })).on('error', sass.logError)
-    .pipe(rename(function(path) {
-      path.basename += '.min';
-    }))
-    .pipe(gulp.dest(Config.SASS_OUT_DIR));
+gulp.task('compile-sass', function() {
+  gulp.src(config.SASS_SOURCE_DIR)
+  .pipe(sass({
+    includePaths: ['./node_modules/'],
+    outputStyle: 'compressed'
+  })).on('error', sass.logError)
+  .pipe(rename(function(path) {
+    path.basename += '.min';
+  }))
+  .pipe(gulpAutoprefixer({
+    browsers: [
+      'last 1 version',
+      'last 2 iOS versions'
+    ],
+  }))
+  .pipe(gulp.dest(config.SASS_OUT_DIR));
 });
 
+gulp.task('watch-sass', function() {
+  gulp.watch(config.SASS_SOURCES, ['compile-sass']);
+});
 
-gulp.task('build', ['compilejs', 'compilecss']);
-gulp.task('default', ['build', 'watchjs', 'watchcss']);
+gulp.task('build', ['compile-js', 'compile-sass']);
+gulp.task('default', ['compile-sass', 'watch-js', 'watch-sass']);

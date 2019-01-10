@@ -9,7 +9,17 @@ import cStringIO
 import logging
 import os
 import mimetypes
-from grow.pods import rendered_document
+from grow.rendering import rendered_document
+
+
+class FieldMessage(messages.Message):
+    name = messages.StringField(1)
+    value = messages.StringField(2)
+
+
+class HeaderMessage(messages.Message):
+    extensions = messages.StringField(1, repeated=True)
+    fields = messages.MessageField(FieldMessage, 2, repeated=True)
 
 
 class Config(messages.Message):
@@ -21,6 +31,7 @@ class Config(messages.Message):
     redirect_trailing_slashes = messages.BooleanField(6, default=True)
     index_document = messages.StringField(7, default='index.html')
     error_document = messages.StringField(8, default='404.html')
+    headers = messages.MessageField(HeaderMessage, 9, repeated=True)
 
 
 class AmazonS3Destination(base.BaseDestination):
@@ -44,11 +55,11 @@ class AmazonS3Destination(base.BaseDestination):
                 return boto_connection.create_bucket(self.config.bucket)
             raise
 
-    def dump(self, pod):
+    def dump(self, pod, use_threading=True):
         pod.set_env(self.get_env())
         return pod.dump(
             suffix=self.config.index_document,
-            append_slashes=self.config.redirect_trailing_slashes)
+            append_slashes=self.config.redirect_trailing_slashes, use_threading=use_threading)
 
     def prelaunch(self, dry_run=False):
         if dry_run:
@@ -89,12 +100,20 @@ class AmazonS3Destination(base.BaseDestination):
         bucket_key.key = path
         fp = cStringIO.StringIO()
         fp.write(content)
+        ext = os.path.splitext(path)[-1] or '.html'
         mimetype = mimetypes.guess_type(path)[0]
-        # TODO: Allow configurable headers.
-        headers = {
-            'Cache-Control': 'no-cache',
-            'Content-Type': mimetype if mimetype else 'text/html',
-        }
+        headers = {}
+        headers['Content-Type'] = mimetype if mimetype else 'text/html'
+        if self.config.headers and not path.startswith('.grow'):
+            for header in self.config.headers:
+                if (ext not in header.extensions
+                        and '*' not in header.extensions):
+                    continue
+                for field in header.fields:
+                    headers[field.name] = field.value
+        else:
+            headers['Cache-Control'] = 'no-cache'
         fp.seek(0)
-        bucket_key.set_contents_from_file(fp, headers=headers, replace=True, policy=policy)
+        bucket_key.set_contents_from_file(
+            fp, headers=headers, replace=True, policy=policy)
         fp.close()

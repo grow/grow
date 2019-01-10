@@ -7,7 +7,16 @@ sitemap:
 
 static_dirs:
 - static_dir: /public/
-  serve_at: "/public/"
+  serve_at: /public/
+- static_dirs:
+  - /static-a/
+  - /static-b/
+  serve_at: /shared/
+  localization:
+    static_dirs:
+    - /static-a/intl/{locale}/
+    - /static-b/intl/{locale}/
+    serve_at: /shared/{locale}/
 - static_dir: /static-fingerprint/
   serve_at: "/{root}/static-fingerprint/{fingerprint}/"
   localization:

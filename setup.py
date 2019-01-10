@@ -1,10 +1,16 @@
-from pip import req
-import pip
+"""Grow Setup."""
+
 from setuptools import find_packages
 from setuptools import setup
 
-_install_requirements = req.parse_requirements(
-        'requirements.txt', session=pip.download.PipSession())
+
+INSTALL_REQ = []
+
+for i in open('requirements.txt').readlines():
+    req = i.strip()
+    if req.startswith(('#', '-')):
+        continue
+    INSTALL_REQ.append(req)
 
 
 setup(
@@ -25,7 +31,7 @@ setup(
         'lib*',
         'node_modules',
     ]),
-    install_requires=[str(ir.req) for ir in _install_requirements],
+    install_requires=INSTALL_REQ,
     scripts=[
         'bin/grow',
     ],

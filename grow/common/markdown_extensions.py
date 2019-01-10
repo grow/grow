@@ -40,6 +40,7 @@ class TocExtension(toc.TocExtension):
         anchorlink = messages.BooleanField(4)
         permalink = messages.BooleanField(5)
         separator = messages.StringField(6)
+        toc_depth = messages.IntegerField(7)
 
     def __init__(self, pod):
         config = get_config(TocExtension.KIND, TocExtension.Config, pod)
@@ -95,7 +96,7 @@ class IncludeExtension(extensions.Extension):
 
 class UrlPreprocessor(preprocessors.Preprocessor):
 
-    REGEX = re.compile("\[url\('([^')]*)'\)\]")
+    REGEX = re.compile("\[url\('([^']*)'\)\]")
 
     def __init__(self, pod, markdown_instance):
         self.pod = pod
@@ -109,8 +110,13 @@ class UrlPreprocessor(preprocessors.Preprocessor):
                 new_lines.append(line)
             else:
                 for pod_path in pod_paths:
-                    doc = self.pod.get_doc(pod_path)
-                    line = re.sub(UrlPreprocessor.REGEX, doc.url.path, line)
+                    # Can not import `grow` from within extensions?
+                    if pod_path.startswith('/content'):
+                        doc = self.pod.get_doc(pod_path)
+                    else:
+                        doc = self.pod.get_static(pod_path)
+                    line = re.sub(
+                        UrlPreprocessor.REGEX, doc.url.path, line, count=1)
                 new_lines.append(line)
         return new_lines
 
@@ -134,13 +140,15 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
         src/e79a7126551c39d5f8c1b83a79c14e86992155a4/external/markdown-processor.py
     """
     KIND = 'sourcecode'
-    pattern_tag = re.compile(r'\[sourcecode(:.*?)\](.+?)\[/sourcecode\]', re.S)
-    pattern_ticks = re.compile(r'```(.+?)\n(.+?)\n```', re.S)
+    pattern_tag = re.compile(
+        r'\[sourcecode(:(?P<lang>[^, \]]*))?(, hl_lines=(?P<q>[\'"])(?P<lines>[^\'"]*)(?P=q))?\](?P<content>.+?)\[/sourcecode\]',
+        re.S)
 
     class Config(messages.Message):
         classes = messages.BooleanField(1, default=False)
         class_name = messages.StringField(2, default='code')
         highlighter = messages.StringField(3, default='pygments')
+        theme = messages.StringField(4, default='default')
 
     def __init__(self, pod, markdown_instance):
         self.pod = pod
@@ -149,7 +157,7 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
     @property
     @utils.memoize
     def formatter(self):
-        return html.HtmlFormatter(noclasses=(not self.config.classes))
+        return self.get_formatter()
 
     @property
     @utils.memoize
@@ -158,31 +166,37 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
             CodeBlockPreprocessor.KIND,
             CodeBlockPreprocessor.Config, self.pod)
 
+    def get_formatter(self, hl_lines=''):
+        return html.HtmlFormatter(
+            noclasses=(not self.config.classes), cssclass=self.config.class_name,
+            style=self.config.theme, hl_lines=hl_lines)
+
     def run(self, lines):
         class_name = self.config.class_name
 
         def repl(m):
-            language = m.group(1)
-            language = language[1:] if language[0] == ':' else language
+            language = m.group('lang')
             if language in ['', 'none']:
                 language = 'text'
-            content = m.group(2)
+            hl_lines = m.group('lines')
+            content = m.group('content')
             if self.config.highlighter == 'pygments':
+                formatter = self.formatter
+                if hl_lines:
+                    formatter = self.get_formatter(hl_lines=hl_lines)
                 try:
                     lexer = lexers.get_lexer_by_name(language)
                 except ValueError:
                     # pylint: disable=no-member
                     lexer = lexers.TextLexer()
-                code = highlight(content, lexer, self.formatter)
-                return '\n\n<div class="%s">%s</div>\n\n' % (class_name, code)
+                return u'\n{}\n'.format(highlight(content, lexer, formatter))
             elif self.config.highlighter == 'plain':
-                return '\n\n<pre><code class="%s">%s</code></pre>\n\n' \
-                    % (language, content)
+                text = u'\n\n<div class="{}"><pre><code class="{}">{}</code></pre></div>\n\n'
+                return text.format(self.config.class_name, language, content)
             text = '{} is an invalid highlighter. Valid choices are: pygments, plain.'
             raise ValueError(text.format(self.config.highlighter))
         content = '\n'.join(lines)
         content = self.pattern_tag.sub(repl, content)
-        content = self.pattern_ticks.sub(repl, content)
         return content.split('\n')
 
 

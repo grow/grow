@@ -3,9 +3,13 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.conversion import content_locale_split
+
+
+CFG = rc_config.RC_CONFIG.prefixed('grow.convert')
 
 
 @click.command()

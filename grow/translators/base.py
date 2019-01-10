@@ -3,6 +3,7 @@
 import copy
 import json
 import logging
+import os
 import threading
 import progressbar
 import texttable
@@ -25,6 +26,16 @@ class TranslatorStat(messages.Message):
     uploaded = message_types.DateTimeField(7)
     service = messages.StringField(8)
     downloaded = message_types.DateTimeField(9)
+
+
+def translator_stat_representer(dumper, stat):
+    content = json.loads(protojson.encode_message(stat))
+    content.pop('lang')  # Exclude from serialization.
+    return dumper.represent_mapping('tag:yaml.org,2002:map', content)
+
+
+yaml.SafeDumper.add_representer(TranslatorStat,
+                                translator_stat_representer)
 
 
 class TranslatorServiceError(Exception):
@@ -53,6 +64,44 @@ class Translator(object):
         self.project_title = project_title or 'Untitled Grow Website'
         self.instructions = instructions
         self._inject = inject
+
+    def _cleanup_locales(self, locales):
+        """Certain locales should be ignored."""
+        clean_locales = []
+        default_locale = self.pod.podspec.default_locale
+        skipped = {
+            'symlink': set(),
+            'po': set(),
+        }
+        for locale in locales:
+            locale_path = os.path.join('translations', str(locale))
+
+            # Silently ignore the default locale.
+            if default_locale and str(locale) == str(default_locale):
+                continue
+
+            # Ignore the symlinks.
+            if os.path.islink(locale_path):
+                skipped['symlink'].add(str(locale))
+                continue
+
+            # Ignore the locales without a `.PO` file.
+            po_path = os.path.join(locale_path, 'LC_MESSAGES', 'messages.po')
+            if not self.pod.file_exists(po_path):
+                skipped['po'].add(str(locale))
+                continue
+
+            clean_locales.append(locale)
+
+        # Summary of skipped files.
+        if skipped['symlink']:
+            self.pod.logger.info('Skipping: {} (symlinked)'.format(
+                ', '.join(sorted(skipped['symlink']))))
+        if skipped['po']:
+            self.pod.logger.info('Skipping: {} (no `.po` file)'.format(
+                ', '.join(sorted(skipped['po']))))
+
+        return clean_locales
 
     def _download_content(self, stat):
         raise NotImplementedError
@@ -87,13 +136,14 @@ class Translator(object):
                                       for (lang, stat) in stats_to_download.iteritems()
                                       if lang in locales])
         for lang, stat in stats_to_download.iteritems():
+            if isinstance(stat, TranslatorStat):
+                stat = json.loads(protojson.encode_message(stat))
             stat['lang'] = lang
-            stat = json.dumps(stat)
-            stat_message = protojson.decode_message(TranslatorStat, stat)
+            stat_message = protojson.decode_message(TranslatorStat, json.dumps(stat))
             stats_to_download[lang] = stat_message
         return stats_to_download
 
-    def download(self, locales, save_stats=True, inject=False):
+    def download(self, locales, save_stats=True, inject=False, include_obsolete=False):
         # TODO: Rename to `download_and_import`.
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
@@ -148,7 +198,9 @@ class Translator(object):
             if inject:
                 if self.pod.catalogs.inject_translations(locale=lang, content=translations):
                     has_changed_content = True
-            elif self.pod.catalogs.import_translations(locale=lang, content=translations):
+            elif self.pod.catalogs.import_translations(
+                    locale=lang, content=translations,
+                    include_obsolete=include_obsolete):
                 has_changed_content = True
 
         if save_stats and has_changed_content:
@@ -157,6 +209,7 @@ class Translator(object):
 
     def update_acl(self, locales=None):
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_locales(locales)
         if not locales:
             self.pod.logger.info('No locales to found to update.')
             return
@@ -185,6 +238,7 @@ class Translator(object):
 
     def update_meta(self, locales=None):
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_locales(locales)
         if not locales:
             self.pod.logger.info('No locales to found to update.')
             return
@@ -211,6 +265,7 @@ class Translator(object):
                prune=False):
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()
+        locales = self._cleanup_locales(locales)
         stats = []
         num_files = len(locales)
         if not locales:
@@ -280,9 +335,7 @@ class Translator(object):
         if self.KIND not in content:
             content[self.KIND] = {}
         for stat in copy.deepcopy(stats):
-            stat_json = json.loads(protojson.encode_message(stat))
-            lang = stat_json.pop('lang')
-            content[self.KIND][lang] = stat_json
+            content[self.KIND][stat.lang] = stat
         yaml_content = yaml.safe_dump(content, default_flow_style=False)
         self.pod.write_file(Translator.TRANSLATOR_STATS_PATH, yaml_content)
         if create:

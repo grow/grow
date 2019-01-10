@@ -7,7 +7,7 @@ from gcs_oauth2_boto_plugin import oauth2_helper
 from grow.common import oauth
 from grow.common import utils
 from grow.pods import env
-from grow.pods import rendered_document
+from grow.rendering import rendered_document
 from protorpc import messages
 import boto
 import cStringIO
@@ -71,11 +71,11 @@ class GoogleCloudStorageDestination(base.BaseDestination):
                 return gs_connection.create_bucket(self.config.bucket)
             raise
 
-    def dump(self, pod):
+    def dump(self, pod, use_threading=True):
         pod.set_env(self.get_env())
         return pod.dump(
             suffix=self.config.main_page_suffix,
-            append_slashes=self.config.redirect_trailing_slashes)
+            append_slashes=self.config.redirect_trailing_slashes, use_threading=use_threading)
 
     def prelaunch(self, dry_run=False):
         if dry_run:
@@ -165,7 +165,8 @@ def enable_oauth2_auth_handler():
                 if config.has_option('GoogleCompute', 'service_account'):
                     self.oauth2_client = oauth2_client.CreateOAuth2GCEClient()
                 else:
-                    self.oauth2_client = oauth2_helper.OAuth2ClientFromBotoConfig(config)
+                    self.oauth2_client = oauth2_helper.OAuth2ClientFromBotoConfig(
+                        config)
                     self.oauth2_client.cache_key_base = oauth.CLIENT_ID
             if not self.oauth2_client:
                 raise auth_handler.NotReadyToAuthenticate()
@@ -178,7 +179,8 @@ def enable_oauth2_auth_handler():
     if not boto.config.has_section('Credentials'):
         boto.config.add_section('Credentials')
     credentials = patched_get_credentials()
-    credentials.refresh(httplib2.Http())  # Boto can't refresh this properly, so just do it every time.
+    # Boto can't refresh this properly, so just do it every time.
+    credentials.refresh(httplib2.Http())
     refresh_token = credentials.refresh_token
     boto.config.set('Credentials', 'gs_oauth2_refresh_token', refresh_token)
 
@@ -198,8 +200,8 @@ def patched_fetch_access_token(self):
     """Uses credentials from Grow's flow to retrieve an access token."""
     credentials = self.GetCredentials()
     return oauth2_client.AccessToken(credentials.access_token,
-        credentials.token_expiry, datetime_strategy=self.datetime_strategy)
+                                     credentials.token_expiry, datetime_strategy=self.datetime_strategy)
 
 
 gcs_oauth2_boto_plugin.SetFallbackClientIdAndSecret(
-  oauth.CLIENT_ID, oauth.CLIENT_SECRET)
+    oauth.CLIENT_ID, oauth.CLIENT_SECRET)

@@ -3,32 +3,36 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.pods import env
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.server import manager
 
 
-# pylint: disable=too-many-locals, invalid-name
+CFG = rc_config.RC_CONFIG.prefixed('grow.run')
+
+
+# pylint: disable=too-many-locals, invalid-name, too-many-arguments
 @click.command()
 @shared.pod_path_argument
-@click.option('--host', default='localhost')
-@click.option('--port', default=8080)
-@click.option('--https', default=False,
+@click.option('--host', default=CFG.get('host', 'localhost'))
+@click.option('--port', default=CFG.get('port', 8080))
+@click.option('--https', default=CFG.get('https', False),
               help='Whether to use "https" in the local environment.')
-@click.option('--debug/--no-debug', default=False, is_flag=True,
+@click.option('--debug/--no-debug', default=CFG.get('debug', False), is_flag=True,
               help='Whether to run in debug mode and show internal tracebacks'
                    ' when encountering exceptions.')
-@click.option('--browser/--no-browser', '-b', is_flag=True, default=False,
+@click.option('--browser/--no-browser', '-b', is_flag=True,
+              default=CFG.get('browser', False),
               help='Whether to open a browser upon startup.')
-@click.option('--update-check/--no-update-check', default=True, is_flag=True,
+@click.option('--update-check/--no-update-check',
+              default=CFG.get('update-check', True), is_flag=True,
               help='Whether to check for updates to Grow.')
-@click.option('--preprocess/--no-preprocess', '-p/-np',
-              default=True, is_flag=True,
-              help='Whether to run preprocessors on server start.')
-@click.option('--ui/--no-ui', is_flag=True, default=True,
+@click.option('--ui/--no-ui', is_flag=CFG.get('ui', True), default=True,
               help='Whether to inject the Grow UI Tools.')
-@shared.deployment_option
+@shared.deployment_option(CFG)
+@shared.preprocess_option(CFG)
 def run(host, port, https, debug, browser, update_check, preprocess, ui,
         pod_path, deployment):
     """Starts a development server for a single pod."""
@@ -37,7 +41,8 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
     config = env.EnvConfig(host=host, port=port, name=env.Name.DEV,
                            scheme=scheme, cached=False, dev=True)
     environment = env.Env(config)
-    pod = pods.Pod(root, storage=storage.FileStorage, env=environment)
+    pod = pods.Pod(
+        root, storage=storage.FileStorage, env=environment)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
         pod.set_env(deployment_obj.config.env)

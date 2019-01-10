@@ -1,18 +1,21 @@
+"""Tests for the main grow development server."""
+
+import unittest
+import webapp2
 from grow.pods import pods
 from grow.server import main
 from grow.testing import testing
-import unittest
-import webapp2
 
 
 class PodHandlerTestCase(unittest.TestCase):
 
     def test_request(self):
-        self.dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(self.dir_path)
+        dir_path = testing.create_test_pod_dir()
+        pod = pods.Pod(dir_path)
+        pod.router.add_all()
 
         # When serving a pod, should 200.
-        app = main.create_wsgi_app(pod)
+        app = main.create_wsgi_app(pod, 'localhost', 8080)
         request = webapp2.Request.blank('/')
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
@@ -43,8 +46,10 @@ class PodHandlerTestCase(unittest.TestCase):
 
         # Verify 304.
         url_path = '/public/file.txt'
-        controller, params = pod.match(url_path)
-        response_headers = controller.get_http_headers(params)
+        matched = pod.router.routes.match(url_path)
+        controller = pod.router.get_render_controller(
+            url_path, matched.value, params=matched.params)
+        response_headers = controller.get_http_headers()
         headers = {'If-None-Match': response_headers['Last-Modified']}
         request = webapp2.Request.blank(url_path, headers=headers)
         response = request.get_response(app)
@@ -57,21 +62,56 @@ class PodHandlerTestCase(unittest.TestCase):
 
         # Verify sitemap on server.
         path = '/root/sitemap.xml'
-        request = webapp2.Request.blank(path, headers=headers)
+        request = webapp2.Request.blank(path)
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
         self.assertEqual('application/xml', response.headers['Content-Type'])
 
+    def test_admin(self):
+        dir_path = testing.create_test_pod_dir()
+        pod = pods.Pod(dir_path)
+        pod.router.add_all()
+        app = main.create_wsgi_app(pod, 'localhost', 8080)
+
+        # Verify routes are served.
+        request = webapp2.Request.blank('/_grow/routes')
+        response = request.get_response(app)
+        self.assertEqual(200, response.status_int)
+        js_sentinel = '<h2>Routes</h2>'
+        self.assertIn(js_sentinel, response.body)
+
+        request = webapp2.Request.blank('/_grow/ui/css/admin.min.css')
+        response = request.get_response(app)
+        self.assertEqual(200, response.status_int)
+
+    def test_editor(self):
+        dir_path = testing.create_test_pod_dir()
+        pod = pods.Pod(dir_path)
+        pod.router.add_all()
+        app = main.create_wsgi_app(pod, 'localhost', 8080)
+
+        # Verify routes are served.
+        request = webapp2.Request.blank('/_grow/editor')
+        response = request.get_response(app)
+        self.assertEqual(200, response.status_int)
+        js_sentinel = 'front_matter'
+        self.assertIn(js_sentinel, response.body)
+
+        request = webapp2.Request.blank('/_grow/ui/css/editor.min.css')
+        response = request.get_response(app)
+        self.assertEqual(200, response.status_int)
+
     def test_ui(self):
         dir_path = testing.create_test_pod_dir()
         pod = pods.Pod(dir_path)
-        app = main.create_wsgi_app(pod)
+        pod.router.add_all()
+        app = main.create_wsgi_app(pod, 'localhost', 8080)
 
         # Verify JS and CSS are served.
         request = webapp2.Request.blank('/_grow/ui/js/ui.min.js')
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
-        js_sentinel = '!function'
+        js_sentinel = 'function(modules)'
         self.assertIn(js_sentinel, response.body)
 
         request = webapp2.Request.blank('/_grow/ui/css/ui.min.css')

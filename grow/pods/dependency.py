@@ -32,7 +32,7 @@ class DependencyGraph(object):
 
     def add(self, source, reference):
         """Add reference made in a source file to the graph."""
-        if not reference:
+        if not source or not reference:
             return
 
         source = DependencyGraph.normalize_path(source)

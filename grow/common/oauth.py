@@ -1,15 +1,18 @@
 """Common OAuth functionality."""
 
+import logging
 import os
 
-# Silence "Loading" messages from keyring.
-import logging
-log = logging.getLogger('keyring.backend')
-log.setLevel(logging.WARNING)
-
+from grow.common import utils
 from oauth2client import client
+from oauth2client import file as oauth_file
 from oauth2client import service_account
 from oauth2client import tools
+
+# Silence "Loading" messages from keyring.
+# Even though we are not using keyring it is part of the oauth library.
+KEYRING_LOG = logging.getLogger('keyring.backend')
+KEYRING_LOG.setLevel(logging.WARNING)
 
 try:
     from oauth2client.contrib import appengine
@@ -31,11 +34,15 @@ DEFAULT_AUTH_KEY_FILE = 'auth-key.json'
 
 def get_storage(key, username):
     """Returns the Storage class compatible with the current environment."""
-    if appengine:
+    if appengine and utils.is_appengine():
         return appengine.StorageByKeyName(
             appengine.CredentialsModel, username, 'credentials')
-    from oauth2client.contrib import keyring_storage
-    return keyring_storage.Storage(key, username)
+    key = utils.slugify(key)
+    file_name = os.path.expanduser('~/.config/grow/{}_{}'.format(key, username))
+    dir_name = os.path.dirname(file_name)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    return oauth_file.Storage(file_name)
 
 
 def get_credentials_and_storage(scope, storage_key=DEFAULT_STORAGE_KEY):
@@ -58,7 +65,7 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         key_file = os.path.expanduser(key_file)
         return (service_account.
             ServiceAccountCredentials.from_json_keyfile_name(key_file, scope))
-    if appengine:
+    if appengine and utils.is_appengine():
         return appengine.AppAssertionCredentials(scope)
     credentials, storage = get_credentials_and_storage(scope,
         storage_key=storage_key)

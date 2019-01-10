@@ -1,0 +1,28 @@
+{% extends "views/base.html" %}
+{% set title = "Translation Catalog" %}
+
+{% block main %}
+
+{% set catalog = pod.catalogs.get(locale) %}
+
+<h3>{{catalog|length}} messages in {{catalog}}</h3>
+<table>
+  <thead>
+    <tr>
+      <th>String</th>
+      <th>Translation</th>
+    </tr>
+  </thead>
+  {% for item in catalog %}
+  <tr>
+    <td>
+      {{item.id}}
+    </td>
+    <td>
+      {{item.string}}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

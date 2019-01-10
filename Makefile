@@ -9,6 +9,8 @@ FILENAME_CI = Grow-SDK-$(subst osx,Mac,$(subst linux,Linux,$(TRAVIS_OS_NAME)))-$
 GITHUB_USER = grow
 GITHUB_REPO = grow
 
+PIP_ENV := $(shell pipenv --venv)
+
 export GOPATH := $(HOME)/go/
 export PATH := $(HOME)/go/bin/:$(PATH)
 
@@ -20,12 +22,10 @@ develop:
 	  echo "pip not installed. Trying to install pip..."; \
 	  sudo easy_install pip; \
 	}
-	@virtualenv --version > /dev/null || { \
-	  echo "virtualenv not installed. Trying to install virtualenv..."; \
-	  sudo pip install virtualenv; \
+	@pipenv --version > /dev/null || { \
+	  echo "pipenv not installed. Trying to install pipenv..."; \
+	  sudo pip install pipenv; \
 	}
-	virtualenv env --distribute
-	. env/bin/activate
 	@echo "Trying to install libyaml..."
 	@if [ $(BREW) ]; then \
 	  brew install libyaml || { \
@@ -37,9 +37,10 @@ develop:
 	else \
 	  echo " You must install libyaml from source: http://pyyaml.org/wiki/LibYAML"; \
 	fi
+	pipenv update
+	pipenv install --dev
+	pipenv lock -r > requirements.txt
 	$(MAKE) build-ui
-	./env/bin/pip install --upgrade pip
-	./env/bin/pip install -r requirements-dev.txt
 
 build-ui:
 	@npm --version > /dev/null || { \
@@ -69,74 +70,49 @@ develop-linux:
 	  python-pip \
 	  zip
 	sudo pip install --upgrade --force-reinstall pyyaml
-	sudo pip install --upgrade pip
-	sudo pip install --upgrade six
 	$(MAKE) develop
 
 pylint:
-	. env/bin/activate
-	./env/bin/pylint --errors-only \
-	  $(target)
+	. $(PIP_ENV)/bin/activate
+	$(PIP_ENV)/bin/pylint --errors-only $(target)
 
 test:
-	. env/bin/activate
-	./env/bin/nosetests \
+	. $(PIP_ENV)/bin/activate
+	$(PIP_ENV)/bin/nosetests \
 	  -v \
 	  --rednose \
 	  --with-coverage \
 	  --cover-erase \
-	  --cover-html \
-	  --cover-html-dir=htmlcov \
+		--cover-xml \
 	  --cover-package=grow \
 	  $(target)
 
 test-nosetests:
-	nosetests \
+	. $(PIP_ENV)/bin/activate
+	$(PIP_ENV)/bin/nosetests \
 	  -v \
 	  --rednose \
 	  --with-coverage \
 	  --cover-erase \
-	  --cover-html \
-	  --cover-html-dir=htmlcov \
+		--cover-xml \
 	  --cover-package=grow \
 	  grow
 
-test-gae:
-	virtualenv gaenv --distribute
-	. gaenv/bin/activate
-	./gaenv/bin/pip install -r requirements-dev.txt
-	./gaenv/bin/pip install gaenv
-	./gaenv/bin/pip install NoseGAE==0.5.10
-	# https://github.com/faisalraja/gaenv/issues/11
-	cat requirements.txt > ./gaenv/requirements-gae.txt
-	echo "pyasn1-modules>=0.0.8" >> ./gaenv/requirements-gae.txt
-	./gaenv/bin/gaenv -r ./gaenv/requirements-gae.txt --lib lib --no-import .
-	NOSEGAE=1 ./gaenv/bin/nosetests \
-	  -v \
-	  --rednose \
-	  --with-gae \
-	  --nocapture \
-	  --nologcapture \
-	  --gae-application=./grow/testing/testdata/pod/ \
-	  --gae-lib-root=$(HOME)/google_appengine/ \
-	  $(target)
-
 test-pylint:
-	pylint --errors-only \
-	  $(target)
+	. $(PIP_ENV)/bin/activate
+	$(PIP_ENV)/bin/pylint --errors-only $(target)
 
-test-ci:
+test-circle:
 	$(MAKE) build-ui
 	$(MAKE) test-nosetests
 	$(MAKE) test-pylint
-	$(MAKE) test-gae
 
 prep-release:
 	$(MAKE) build-ui
 	$(MAKE) test
 
 upload-pypi:
-	. env/bin/activate
+	. $(PIP_ENV)/bin/activate
 	$(MAKE) ensure-master
 	git pull origin master
 	$(MAKE) prep-release
@@ -149,7 +125,7 @@ upload-github:
 	@github-release > /dev/null || { \
 	  go get github.com/aktau/github-release; \
 	}
-	. env/bin/activate
+	. $(PIP_ENV)/bin/activate
 	$(MAKE) ensure-master
 	git pull origin master
 	$(MAKE) prep-release
@@ -176,15 +152,9 @@ upload-github:
 	  -n "$(FILENAME)" \
 	  --file dist/$(FILENAME)
 
-# https://github.com/grow/grow/issues/302
-setup-release:
-	make develop
-	. env/bin/activate
-	pip2 install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
-
 release:
-	. env/bin/activate
-	./env/bin/pyinstaller grow.spec
+	. $(PIP_ENV)/bin/activate
+	pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r $(FILENAME) grow && cd ..
 	./dist/grow
@@ -192,7 +162,8 @@ release:
 	@echo "Built: dist/$(FILENAME)"
 
 release-ci:
-	pip2 install -I -e git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
+	. $(PIP_ENV)/bin/activate
+	pipenv install git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
 	pyinstaller grow.spec
 	chmod +x dist/grow
 	cd dist && zip -r $(FILENAME_CI) grow && cd ..
@@ -206,4 +177,4 @@ ensure-master:
 	  exit 1; \
 	fi
 
-.PHONY: develop develop-linux test test-ci test-gae test-nosetests upload-pypi upload-github ensure-master
+.PHONY: develop develop-linux test test-ci test-nosetests upload-pypi upload-github ensure-master

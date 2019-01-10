@@ -27,8 +27,8 @@ if 'Linux' in platform.system():
 elif 'Darwin' in platform.system():
     PLATFORM = 'mac'
 else:
-    print ('{} is not a supported platform. Please file an issue at '
-           'https://github.com/grow/grow/issues'.format(sys.platform))
+    print('{} is not a supported platform. Please file an issue at '
+          'https://github.com/grow/grow/issues'.format(sys.platform))
     sys.exit(-1)
 
 
@@ -175,18 +175,17 @@ def install(rc_path=None, bin_path=None, force=False):
             sys.stdout.flush()
         remote.close()
         local.close()
-        fp = open(temp_path, 'rb')
-        zp = zipfile.ZipFile(fp)
-        try:
-            zp.extract('grow', os.path.dirname(bin_path))
-        except IOError as e:
-            if 'Text file busy' in str(e):
-                hai('Unable to overwrite {}. Try closing Grow and installing again.'.format(
-                    bin_path))
-                hai('You can use the installer by running: curl https://install.grow.io | bash')
-                sys.exit(-1)
-            raise
-        fp.close()
+        with open(temp_path, 'rb') as fp:
+            zp = zipfile.ZipFile(fp)
+            try:
+                zp.extract('grow', os.path.dirname(bin_path))
+            except IOError as e:
+                if 'Text file busy' in str(e):
+                    hai('Unable to overwrite {}. Try closing Grow and installing again.'.format(
+                        bin_path))
+                    hai('You can use the installer by running: curl https://install.grow.io | bash')
+                    sys.exit(-1)
+                raise
         hai('{blue}[✓]{/blue} {green}Installed Grow SDK to:{/green} {}', bin_path)
         stat = os.stat(bin_path)
         os.chmod(bin_path, stat.st_mode | 0111)
@@ -194,10 +193,9 @@ def install(rc_path=None, bin_path=None, force=False):
         os.remove(temp_path)
 
     if not has_alias:
-        fp = open(rc_path, 'a')
-        fp.write('\n' + alias_comment + '\n')
-        fp.write(alias_cmd)
-        fp.close()
+        with open(rc_path, 'a') as fp:
+            fp.write('\n' + alias_comment + '\n')
+            fp.write(alias_cmd)
         hai('{blue}[✓]{/blue} {green}Created "grow" alias in:{/green} {}', rc_path)
         hai('{green}All done. To use Grow SDK...{/green}')
         hai(' ...reload your shell session OR use `source {}`,', rc_path)

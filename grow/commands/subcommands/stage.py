@@ -3,19 +3,21 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
 from grow.deployments.destinations import webreview_destination
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
+
+
+CFG = rc_config.RC_CONFIG.prefixed('grow.stage')
 
 
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
-@click.option('--preprocess/--no-preprocess', '-p/-np', default=True,
-              is_flag=True, help='Whether to run preprocessors.')
 @click.option('--remote',
               help='WebReview remote address (example: '
                    ' example.com/owner/project). A remote must be specified'
@@ -24,10 +26,12 @@ from grow.pods import storage
 @click.option('--subdomain', help='Assign a subdomain to this build.')
 @click.option('--api-key',
               help='API key for authorizing staging to WebReview projects.')
-@click.option('--force-untranslated', 'force_untranslated', default=False, is_flag=True,
-              help='Whether to force untranslated strings to be uploaded.')
+@shared.force_untranslated_option(CFG)
+@shared.preprocess_option(CFG)
+@shared.threaded_option(CFG)
 @click.pass_context
-def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untranslated):
+def stage(context, pod_path, remote, preprocess, subdomain, api_key,
+          force_untranslated, threaded):
     """Stages a build on a WebReview server."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     auth = context.parent.params.get('auth')
@@ -37,19 +41,23 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key, force_untra
             deployment = _get_deployment(pod, remote, subdomain, api_key)
             # use the deployment's environment for preprocessing and later
             # steps.
-            pod.set_env(deployment.config.env)
+            pod.set_env(deployment.get_env())
             # Always clear the cache when building.
             pod.podcache.reset()
-            require_translations = pod.podspec.localization.get(
-                'require_translations', False)
-            require_translations = require_translations and not force_untranslated
+            require_translations = \
+                pod.podspec.localization \
+                and pod.podspec.localization.get('require_translations', False)
+            require_translations = require_translations \
+                and not force_untranslated
             if auth:
                 deployment.login(auth)
             if preprocess:
                 pod.preprocess()
-            content_generator = deployment.dump(pod)
+            content_generator = deployment.dump(pod, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
-            paths, _ = pod.determine_paths_to_build()
+            pod.router.use_simple()
+            pod.router.add_all()
+            paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)
             deployment.deploy(content_generator, stats=stats_obj, repo=repo,
                               confirm=False, test=False, require_translations=require_translations)

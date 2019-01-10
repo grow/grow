@@ -4,10 +4,11 @@ node_modules
 
 env
 gaenv
-htmlcov
+coverage.xml
 growsdk
 
 grow/**/podcache.json
+grow/**/.depcache.json
 
 # C extensions
 *.so

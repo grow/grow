@@ -1,14 +1,24 @@
 """Tests for the template tags and filters."""
 
 import unittest
-from grow.pods import locales
+from grow.translations import locales
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.templates import tags
 from grow.testing import testing
 
 
 class BuiltinsTestCase(unittest.TestCase):
+
+    def _render_path(self, pod, path):
+        routes = pod.router.routes
+        matched = routes.match(path)
+        controller = pod.router.get_render_controller(
+            matched.path, matched.value, params=matched.params)
+        jinja_env = pod.render_pool.get_jinja_env(
+            controller.doc.locale)
+        rendered_doc = controller.render(jinja_env=jinja_env)
+        return rendered_doc.read()
 
     def setUp(self):
         self.dir_path = testing.create_test_pod_dir()
@@ -168,6 +178,86 @@ class BuiltinsTestCase(unittest.TestCase):
             '/content/pages/doc2.yaml',
             '/content/pages/doc3.yaml',
         ], [doc.pod_path for doc in docs])
+
+    def test_gettext_format(self):
+        """Verify that the gettext formatting works."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'localization': {
+                'default_locale': 'en',
+                'locales': [
+                    'en',
+                    'es',
+                ],
+            },
+        })
+        pod.write_file('/views/format.html', '{{_(doc.foo, bar="1", foo="2")}}')
+        fields = {
+            'path': '/{locale}/{base}/',
+            'localization': {
+                'path': '/{locale}/{base}/',
+            },
+        }
+        pod.write_yaml('/content/testing/_blueprint.yaml', fields)
+        pod.write_yaml('/content/testing/format.yaml', {
+            '$view': '/views/format.html',
+            'foo': 'bar {bar} foo {foo}',
+            'foo@es': 'foo {foo} bar {bar}',
+        })
+
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format.yaml'))
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format.yaml', locale='es'))
+
+        self.assertIn('bar 1 foo 2', self._render_path(pod, '/en/format/'))
+        self.assertIn('foo 2 bar 1', self._render_path(pod, '/es/format/'))
+
+    def test_gettext_format_entities(self):
+        """Verify that the gettext formatting works with entities."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_file(
+            '/views/format-new.html',
+            '{{_(\'Hello {name}\', name=\'<strong class="awesome">Alice</strong>\')}}')
+        pod.write_yaml('/content/testing/_blueprint.yaml', {
+            'path': '/{base}/',
+        })
+        pod.write_yaml('/content/testing/format-new.yaml', {
+            '$view': '/views/format-new.html',
+        })
+
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format-new.yaml'))
+
+        self.assertIn(
+            'Hello <strong class="awesome">Alice</strong>',
+            self._render_path(pod, '/format-new/'))
+
+    def test_gettext_format_entities_old(self):
+        """Verify that the gettext formatting works with entities."""
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {
+            'templates': {
+                'old_string_format': True,
+            },
+        })
+        pod.write_file(
+            '/views/format-old.html',
+            '{{_(\'Hello %(name)s\', name=\'<strong class="awesome">Alice</strong>\')}}')
+        pod.write_yaml('/content/testing/_blueprint.yaml', {
+            'path': '/{base}/',
+        })
+        pod.write_yaml('/content/testing/format-old.yaml', {
+            '$view': '/views/format-old.html',
+        })
+
+        pod.router.add_doc(
+            pod.get_doc('/content/testing/format-old.yaml'))
+
+        self.assertIn(
+            'Hello <strong class="awesome">Alice</strong>',
+            self._render_path(pod, '/format-old/'))
 
 
 if __name__ == '__main__':

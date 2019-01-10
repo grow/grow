@@ -1,8 +1,12 @@
-from . import base
-from protorpc import messages
-from grow.pods import env
-from grow.pods.storage import storage as storage_lib
+"""Local deployment destination."""
+
+import errno
 import os
+import shutil
+from grow.deployments.destinations import base
+from grow.pods import env
+from grow.storage import file_storage
+from protorpc import messages
 
 
 class Config(messages.Message):
@@ -17,7 +21,7 @@ class Config(messages.Message):
 class LocalDestination(base.BaseDestination):
     KIND = 'local'
     Config = Config
-    storage = storage_lib.FileStorage
+    storage = file_storage.FileStorage
 
     def __str__(self):
         return os.path.abspath(os.path.join(self.out_dir))
@@ -36,10 +40,19 @@ class LocalDestination(base.BaseDestination):
 
     def write_file(self, rendered_doc):
         path = rendered_doc.path
-        content = rendered_doc.read()
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
-        fp = self.storage.write(out_path, content)
-        fp.close()
+        if rendered_doc.file_path:
+            dir_name = os.path.dirname(out_path)
+            try:
+                os.makedirs(dir_name)
+            except OSError as exc:
+                if exc.errno == errno.EEXIST:
+                    pass
+                else:
+                    raise
+            shutil.copyfile(rendered_doc.file_path, out_path)
+        else:
+            self.storage.write(out_path, rendered_doc.read())
 
     def prelaunch(self, dry_run=False):
         for command in self.config.before_deploy:

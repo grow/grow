@@ -1,0 +1,37 @@
+{% extends "views/base.html" %}
+{% set title = "Preprocessors" %}
+
+{% block main %}
+
+{% set preprocessors = pod.list_preprocessors() %}
+{% if preprocessors %}
+  <h3>Preprocessors</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Preprocessor</th>
+        <th>Name</th>
+        <th></th>
+      </tr>
+    </thead>
+    {% for preprocessor in preprocessors %}
+    <tr>
+      <td>
+        {{preprocessor.KIND}}
+      </td>
+      <td>
+        {{preprocessor.name or ""}}
+      </td>
+      <td>
+        {% if preprocessor.name %}
+          <a href="/_grow/preprocessors/run/{{preprocessor.name}}">Run</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No preprocessors.</p>
+{% endif %}
+
+{% endblock %}

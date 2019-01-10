@@ -9,10 +9,10 @@ import progressbar
 class NonInteractiveProgressBar(object):
     """Non-interactive stub version of progress bar."""
 
-    def __init__(self, message, max_value=None, interval_seconds=5, widgets=None, *_args, **kwargs):
+    def __init__(self, message, max_value=None, poll_interval=5, widgets=None, *_args, **kwargs):
         self._last_print = datetime.datetime.now()
         self._last_update = datetime.datetime.now()
-        self._min_delta = datetime.timedelta(0, interval_seconds)
+        self._min_delta = datetime.timedelta(0, poll_interval)
         self._max_value = max_value
         self._widgets = widgets or []
         self._data = kwargs
@@ -86,6 +86,8 @@ class NonInteractiveProgressBar(object):
 
 def create_progressbar(message, *args, **kwargs):
     """Create the correct progressbar based on availability of interactive shell."""
+    if 'CI' in os.environ and os.environ['CI']:
+        kwargs['poll_interval'] = 10
     return progressbar.ProgressBar(*args, **kwargs)
     # Removing for now to see if it is causing an issue with
     # if hasattr(sys.stdout, 'fileno') and os.isatty(sys.stdout.fileno()):

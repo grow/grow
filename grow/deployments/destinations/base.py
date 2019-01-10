@@ -83,7 +83,7 @@ from grow.deployments import tests
 from grow.performance import profile_report
 from grow.pods import env
 from grow.pods import pods
-from grow.pods import rendered_document
+from grow.rendering import rendered_document
 from . import messages
 
 
@@ -118,6 +118,8 @@ class DestinationTestCase(object):
 
 
 class BaseDestination(object):
+    """Base destination for building and deploying."""
+
     TestCase = DestinationTestCase
     diff_basename = 'diff.proto.json'
     index_basename = 'index.proto.json'
@@ -161,7 +163,8 @@ class BaseDestination(object):
             content = self.read_control_file(self.index_basename)
             return indexes.Index.from_string(content)
         except IOError:
-            logging.info('Unable to find remote index: {}'.format(self.index_basename))
+            logging.info('Unable to find remote index: {}'.format(
+                self.index_basename))
             return indexes.Index.create()
 
     def export_profile_report(self):
@@ -179,7 +182,10 @@ class BaseDestination(object):
                               pattern=re.compile(r'\.po$'))
         for _, catalog in catalogs.iteritems():
             catalog.save()
-        if catalogs:
+        if self.pod.translation_stats.stacktraces:
+            self.pod.write_file(os.path.join(dir_path, 'tracebacks.log'),
+                self.pod.translation_stats.export_untranslated_tracebacks())
+        if catalogs or self.pod.translation_stats.stacktraces:
             logging.info('Untranslated strings exported to {}'.format(dir_path))
 
     def get_env(self):
@@ -259,9 +265,9 @@ class BaseDestination(object):
     def login(self, account, reauth=False):
         pass
 
-    def dump(self, pod, pod_paths=None):
+    def dump(self, pod, pod_paths=None, use_threading=True):
         pod.set_env(self.get_env())
-        return pod.dump(pod_paths=pod_paths)
+        return pod.dump(pod_paths=pod_paths, use_threading=use_threading)
 
     def deploy(self, content_generator, stats=None, repo=None, dry_run=False,
                confirm=False, test=True, is_partial=False, require_translations=False):

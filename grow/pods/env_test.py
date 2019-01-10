@@ -11,8 +11,8 @@ class EnvTest(unittest.TestCase):
         config = env.EnvConfig(host='localhost')
         environment = env.Env(config)
         self.assertEqual('localhost', environment.host)
-        self.assertEqual('http', environment.scheme)
-        self.assertEqual(80, environment.port)
+        self.assertEqual(None, environment.scheme)
+        self.assertEqual(None, environment.port)
 
     def test_constructor_full(self):
         config = env.EnvConfig(host='remotehost', scheme='https', port=443)
@@ -24,32 +24,32 @@ class EnvTest(unittest.TestCase):
     def test_url_host(self):
         config = env.EnvConfig(host='remotehost')
         environment = env.Env(config)
-        self.assertEqual('http://remotehost/', environment.url)
+        self.assertEqual('http://remotehost/', str(environment.url))
 
     def test_url_port_80(self):
         config = env.EnvConfig(host='localhost', scheme='http', port=80)
         environment = env.Env(config)
-        self.assertEqual('http://localhost/', environment.url)
+        self.assertEqual('http://localhost/', str(environment.url))
 
     def test_url_port_80_mismatch(self):
         config = env.EnvConfig(host='localhost', scheme='https', port=80)
         environment = env.Env(config)
-        self.assertEqual('https://localhost:80/', environment.url)
+        self.assertEqual('https://localhost:80/', str(environment.url))
 
     def test_url_port_443(self):
         config = env.EnvConfig(host='localhost', scheme='https', port=443)
         environment = env.Env(config)
-        self.assertEqual('https://localhost/', environment.url)
+        self.assertEqual('https://localhost/', str(environment.url))
 
     def test_url_port_443_mismatch(self):
         config = env.EnvConfig(host='localhost', scheme='http', port=443)
         environment = env.Env(config)
-        self.assertEqual('http://localhost:443/', environment.url)
+        self.assertEqual('http://localhost:443/', str(environment.url))
 
     def test_url_port_custom(self):
         config = env.EnvConfig(host='localhost', scheme='http', port=8080)
         environment = env.Env(config)
-        self.assertEqual('http://localhost:8080/', environment.url)
+        self.assertEqual('http://localhost:8080/', str(environment.url))
 
     def test_fingerprint(self):
         # May be used as {{env.fingerprint}} in templates.

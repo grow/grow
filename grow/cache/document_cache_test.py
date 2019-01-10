@@ -1,10 +1,10 @@
 """Tests for the document cache."""
 
 import unittest
+from grow.cache import document_cache
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
 from grow.testing import testing
-from . import document_cache
 
 
 class DocumentCacheTestCase(unittest.TestCase):
@@ -40,12 +40,12 @@ class DocumentCacheTestCase(unittest.TestCase):
         self.doc_cache.add(doc, {
             'answer': 42
         })
-        doc = self.pod.get_doc('/content/pages/about.md')
+        doc = self.pod.get_doc('/content/pages/about.yaml')
         self.doc_cache.add(doc, {
             'question': '???'
         })
         self.assertDictEqual({
-            '/content/pages/about.md': {
+            '/content/pages/about.yaml': {
                 'question': '???'
             },
             '/content/pages/intro.md': {

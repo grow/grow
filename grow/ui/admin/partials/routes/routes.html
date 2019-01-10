@@ -1,0 +1,22 @@
+<div class="routes">
+  <h2>Routes</h2>
+  <dl class="routes__list">
+    {% for path, info, options in partial.routes.nodes %}
+      <dt><a href="{{path}}">{{path}}</a></dt>
+      {% if info.kind == 'doc' %}
+        <dd>Source: {{info.meta.pod_path}}{% if info.meta.locale %} ({{info.meta.locale}}){% endif %}</dd>
+      {% elif info.kind == 'static' %}
+        <dd>Fingerprinted: {{info.meta.fingerprinted}}</dd>
+        <dd>Path Format: {{info.meta.path_format}}</dd>
+        <dd>Source Format: {{info.meta.source_format}}</dd>
+        <dd>Localized: {{info.meta.localized}}</dd>
+        <dd>Localization: {{info.meta.localization}}</dd>
+      {% else %}
+        <dd>{{info}}</dd>
+      {% endif %}
+      {% if options %}
+        <dd>Options: {{options}}</dd>
+      {% endif %}
+    {% endfor %}
+  </dl>
+</div>

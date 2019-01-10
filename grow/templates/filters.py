@@ -1,18 +1,18 @@
 """Template jinja filters."""
 
 from datetime import datetime
+import copy
+import hashlib
 import json as json_lib
 import random
 import re
 import jinja2
-import markdown
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import json_encoder
-from grow.pods import urls
+from grow.common import urls
+from grow.common import utils
 from grow.templates.tags import _gettext_alias
-
-SLUG_REGEX = re.compile(r'[^A-Za-z0-9-._~]+')
 
 
 def _deep_gettext(ctx, fields):
@@ -40,7 +40,12 @@ def _deep_gettext(ctx, fields):
 @jinja2.contextfilter
 def deeptrans(ctx, obj):
     """Deep translate an object."""
-    return _deep_gettext(ctx, obj)
+    # Avoid issues (related to sharing the same object across locales and
+    # leaking translations from one locale to another) by copying the object
+    # before it's sent to deeptrans.
+    new_item = copy.deepcopy(obj)
+    return _deep_gettext(ctx, new_item)
+
 
 @jinja2.contextfilter
 def expand_partial(_ctx, partial_name):
@@ -49,20 +54,39 @@ def expand_partial(_ctx, partial_name):
 
 
 @jinja2.contextfilter
+def hash_value(_ctx, value, algorithm='sha'):
+    """Hash the value using the algorithm."""
+    if algorithm in ('md5',):
+        return hashlib.md5(value).hexdigest()
+    if algorithm in ('sha1',):
+        return hashlib.sha1(value).hexdigest()
+    if algorithm in ('sha224',):
+        return hashlib.sha224(value).hexdigest()
+    if algorithm in ('sha384',):
+        return hashlib.sha384(value).hexdigest()
+    if algorithm in ('sha512',):
+        return hashlib.sha512(value).hexdigest()
+    return hashlib.sha256(value).hexdigest()
+
+
+@jinja2.contextfilter
 def jsonify(_ctx, obj, *args, **kwargs):
     """Filter for JSON dumping an object."""
     return json_lib.dumps(obj, cls=json_encoder.GrowJSONEncoder, *args, **kwargs)
 
 
-def markdown_filter(value):
+@jinja2.contextfilter
+def markdown_filter(ctx, value):
     """Filters content through a markdown processor."""
+    doc = ctx['doc']
+    m_down = doc.pod.markdown
     try:
         if isinstance(value, unicode):
             value = value.decode('utf-8')
         value = value or ''
-        return markdown.markdown(value)
+        return m_down.convert(value)
     except UnicodeEncodeError:
-        return markdown.markdown(value)
+        return m_down.convert(value)
 
 
 @jinja2.contextfilter
@@ -110,9 +134,9 @@ def regex_replace():
     return regex_replace_filter
 
 
-def slug_filter(value):
+def slug_filter(value, delimiter=u'-'):
     """Filters string to remove url unfriendly characters."""
-    return unicode(u'-'.join(SLUG_REGEX.split(value.lower())).strip(u'-'))
+    return utils.slugify(value, delimiter)
 
 
 def wrap_locale_context(func):
@@ -135,6 +159,7 @@ def create_builtin_filters():
         ('decimal', wrap_locale_context(babel_numbers.format_decimal)),
         ('deeptrans', deeptrans),
         ('expand_partial', expand_partial),
+        ('hash', hash_value),
         ('jsonify', jsonify),
         ('markdown', markdown_filter),
         ('number', wrap_locale_context(babel_numbers.format_number)),

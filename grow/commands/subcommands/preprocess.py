@@ -3,8 +3,12 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import rc_config
 from grow.pods import pods
-from grow.pods import storage
+from grow import storage
+
+
+CFG = rc_config.RC_CONFIG.prefixed('grow.preprocess')
 
 
 @click.command()
@@ -25,7 +29,7 @@ from grow.pods import storage
                    'useful when using mulitple Google APIs-based '
                    'preprocessors on the same resource to avoid rate limit '
                    'errors.')
-@shared.deployment_option
+@shared.deployment_option(CFG)
 def preprocess(pod_path, preprocessor, run_all, tag, ratelimit, deployment):
     """Runs preprocessors."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))

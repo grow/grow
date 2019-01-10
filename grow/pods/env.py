@@ -1,6 +1,7 @@
 """An Env holds the environment context that a pod is running in."""
 
 import time
+from grow.common import urls
 from protorpc import messages
 
 
@@ -23,9 +24,6 @@ class Env(object):
     def __init__(self, config):
         self.name = config.name
         self.config = config
-        self.host = config.host
-        self.port = config.port or 80
-        self.scheme = config.scheme or 'http'
         self.cached = config.cached
         self.fingerprint = config.fingerprint or str(int(time.time()))
 
@@ -42,7 +40,7 @@ class Env(object):
 
     @property
     def port(self):
-        return self.config.port or 80
+        return self.config.port
 
     @port.setter
     def port(self, value):
@@ -50,7 +48,7 @@ class Env(object):
 
     @property
     def scheme(self):
-        return self.config.scheme or 'https'
+        return self.config.scheme
 
     @scheme.setter
     def scheme(self, value):
@@ -62,12 +60,11 @@ class Env(object):
 
     @property
     def url(self):
-        url_port = ':{}'.format(self.port)
-        # Do not show the port for default ports.
-        if ((self.port == 80 and self.scheme == 'http')
-            or (self.port == 443 and self.scheme == 'https')):
-            url_port = ''
-        return '{}://{}{}/'.format(self.scheme, self.host, url_port)
+        return urls.Url(
+            path='/',
+            host=self.host,
+            port=self.port,
+            scheme=self.scheme)
 
     def to_wsgi_env(self):
         return {

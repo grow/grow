@@ -29,8 +29,10 @@ class TocExtensionTestCase(unittest.TestCase):
             ## H2 A
             """))
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+
+        pod.router.add_all()
+
+        result = testing.render_path(pod, '/test/')
 
         toc_sentinel = '<div class="toc">'
         toclink_sentinel = '<a class="toclink"'
@@ -58,8 +60,8 @@ class TocExtensionTestCase(unittest.TestCase):
             }
         })
         pod = pods.Pod(pod.root)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         self.assertIn(title_sentinel, result)
         self.assertNotIn(h2_sentinel, result)
         self.assertIn(toclink_sentinel, result)
@@ -85,14 +87,78 @@ class TocExtensionTestCase(unittest.TestCase):
             # 로켓 발사를 봤어?
             """))
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/').decode('utf-8')
 
         header = '<h1 id="did-you-see-the-rocket-launch?">Did you see the rocket launch?</h1>'
         self.assertIn(header, result)
 
         header = u'<h1 id="로켓-발사를-봤어?">로켓 발사를 봤어?</h1>'
         self.assertIn(header, result)
+
+
+class UrlPreprocessorTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.pod = testing.create_pod()
+        self.pod.write_yaml('/podspec.yaml', {
+            'static_dirs': [
+                {
+                    'static_dir': '/static/',
+                    'serve_at': '/public/',
+                },
+            ],
+        })
+        self.pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$view': '/views/base.html',
+            '$path': '/{base}/'
+        })
+        self.pod.write_file('/content/pages/test1.md', 'Testing')
+        self.pod.write_file('/content/pages/test2.md', 'Testing')
+
+    def test_url(self):
+        """Plain url reference works."""
+        content = 'URL:[url(\'/content/pages/test1.md\')]'
+        self.pod.write_file('/content/pages/test.md', content)
+        content = '{{doc.html|safe}}'
+        self.pod.write_file('/views/base.html', content)
+        self.pod.router.add_all()
+        result = testing.render_path(self.pod, '/test/')
+        self.assertIn('URL:/test1', result)
+
+    def test_url_link(self):
+        """Plain url reference works."""
+        content = '[Link]([url(\'/content/pages/test1.md\')])'
+        self.pod.write_file('/content/pages/test.md', content)
+        content = '{{doc.html|safe}}'
+        self.pod.write_file('/views/base.html', content)
+        self.pod.router.add_all()
+        result = testing.render_path(self.pod, '/test/')
+        self.assertIn('href="/test1/"', result)
+
+    def test_url_link_static(self):
+        """Plain url reference works."""
+        content = 'static doc'
+        self.pod.write_file('/static/test.txt', content)
+        content = '[Link]([url(\'/static/test.txt\')])'
+        self.pod.write_file('/content/pages/test.md', content)
+        content = '{{doc.html|safe}}'
+        self.pod.write_file('/views/base.html', content)
+        self.pod.router.add_all()
+        result = testing.render_path(self.pod, '/test/')
+        self.assertIn('href="/public/test.txt"', result)
+
+    def test_url_link_multiple(self):
+        """Plain url reference works."""
+        content = ('[Link]([url(\'/content/pages/test1.md\')])'
+                   '[Link]([url(\'/content/pages/test2.md\')])')
+        self.pod.write_file('/content/pages/test.md', content)
+        content = '{{doc.html|safe}}'
+        self.pod.write_file('/views/base.html', content)
+        self.pod.router.add_all()
+        result = testing.render_path(self.pod, '/test/')
+        self.assertIn('href="/test1/"', result)
+        self.assertIn('href="/test2/"', result)
 
 
 class CodeBlockPreprocessorTestCase(unittest.TestCase):
@@ -122,8 +188,8 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         pod.write_file('/views/base.html', content)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
 
@@ -138,40 +204,10 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         pod.write_file('/views/base.html', content)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
         style_sentinel = 'style="background: #f8f8f8"'
         self.assertIn(style_sentinel, result)
-
-        # Verify ticks.
-        content = textwrap.dedent(
-            """
-            ```html
-            <div class="test">
-              Hello World
-            </div>
-            ```
-            """)
-        pod.write_file('/content/pages/test.md', content)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
-        style_sentinel = 'style="background: #f8f8f8"'
-        self.assertIn(style_sentinel, result)
-
-        fields = {
-            'markdown': {
-                'extensions': [{
-                    'kind': 'sourcecode',
-                    'classes': True,
-                }],
-            }
-        }
-        pod.write_yaml('/podspec.yaml', fields)
-        pod = pods.Pod(pod.root)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
-        class_sentinel = '<span class="nt">'
-        self.assertIn(class_sentinel, result)
 
         fields = {
             'markdown': {
@@ -184,10 +220,61 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         }
         pod.write_yaml('/podspec.yaml', fields)
         pod = pods.Pod(pod.root)
-        controller, params = pod.match('/test/')
-        result = controller.render(params)
-        code_sentinel = '<pre><code class="html">'
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
+        code_sentinel = '<div class="code"><pre>'
         self.assertIn(code_sentinel, result)
+
+class BacktickPreprocessorTestCase(unittest.TestCase):
+
+    def test_noclasses(self):
+        pod = testing.create_pod()
+        fields = {
+            'markdown': {
+                'extensions': [{
+                    'kind': 'markdown.extensions.codehilite',
+                }],
+            }
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        fields = {
+            '$view': '/views/base.html',
+            '$path': '/{base}/'
+        }
+        pod.write_yaml('/content/pages/_blueprint.yaml', fields)
+        content = '{{doc.html|safe}}'
+        pod.write_file('/views/base.html', content)
+
+        # Verify ticks.
+        content = textwrap.dedent(
+            """
+            ```html
+            <div class="test">
+              Hello World
+            </div>
+            ```
+            """)
+        pod.write_file('/content/pages/test.md', content)
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
+        style_sentinel = 'style="background: #f8f8f8"'
+        self.assertIn(style_sentinel, result)
+
+        fields = {
+            'markdown': {
+                'extensions': [{
+                    'kind': 'markdown.extensions.codehilite',
+                    'classes': True,
+                }],
+            }
+        }
+        pod.write_yaml('/podspec.yaml', fields)
+        pod = pods.Pod(pod.root)
+        pod.router.routes.reset()
+        pod.router.add_all()
+        result = testing.render_path(pod, '/test/')
+        class_sentinel = '<span class="nt">'
+        self.assertIn(class_sentinel, result)
 
 
 if __name__ == '__main__':

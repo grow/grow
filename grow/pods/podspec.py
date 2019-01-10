@@ -1,5 +1,6 @@
-# TODO(jeremydw): Implement.
-from grow.pods import locales
+"""Podspec helper."""
+
+from grow.translations import locales
 
 
 class Error(Exception):
@@ -27,8 +28,9 @@ class PodSpec(object):
     def __getattr__(self, name):
         if name in self.fields:
             return self.fields[name]
-        if '{}@'.format(name) in self.fields:
-            return self.fields['{}@'.format(name)]
+        tagged_name = '{}@'.format(name)
+        if tagged_name in self.fields:
+            return self.fields[tagged_name]
         return object.__getattribute__(self, name)
 
     def __iter__(self):
@@ -45,3 +47,13 @@ class PodSpec(object):
     @property
     def localization(self):
         return self.fields.get('localization')
+
+    def get_locale_alias(self, locale):
+        """Get the locale alias for a given locale."""
+        if 'localization' in self.yaml and 'aliases' in self.yaml['localization']:
+            aliases = self.yaml['localization']['aliases']
+            for custom_locale, babel_locale in aliases.iteritems():
+                normalized_babel_locale = babel_locale.lower()
+                if locale == normalized_babel_locale:
+                    return custom_locale
+        return locale

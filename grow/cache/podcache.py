@@ -8,6 +8,9 @@ from grow.cache import object_cache
 from grow.pods import dependency
 
 
+FILE_OBJECT_CACHE = object_cache.FILE_OBJECT_CACHE
+
+
 class Error(Exception):
     """General podcache error."""
     pass
@@ -37,9 +40,13 @@ class PodCache(object):
         self.create_object_cache(
             self.KEY_GLOBAL, write_to_file=False, can_reset=True)
 
-        existing_object_caches = obj_cache
-        for key, item in existing_object_caches.iteritems():
-            self.create_object_cache(key, **item)
+        for key, item in obj_cache.iteritems():
+            # If this is a string, it is written to a separate cache file.
+            if isinstance(item, basestring):
+                cache_value = self._pod.read_json(item) or {}
+                self.create_object_cache(key, **cache_value)
+            else:
+                self.create_object_cache(key, **item)
 
     @property
     def collection_cache(self):
@@ -76,24 +83,29 @@ class PodCache(object):
         """Global object cache."""
         return self.get_object_cache(self.KEY_GLOBAL)
 
-    def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None):
+    def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None,
+                            separate_file=False):
         """Create a named object cache."""
         self._object_caches[key] = {
             'cache': object_cache.ObjectCache(),
             'write_to_file': write_to_file,
             'can_reset': can_reset,
+            'separate_file': separate_file,
         }
         cache = self._object_caches[key]['cache']
         if values:
             cache.add_all(values)
-
         return cache
 
     def get_object_cache(self, key, **kwargs):
         """Get an existing object cache or create a new cache with defaults."""
         if key not in self._object_caches:
             return self.create_object_cache(key, **kwargs)
-        return self._object_caches[key]['cache']
+        existing_meta = self._object_caches[key]
+        if 'separate_file' in kwargs:
+            if existing_meta['separate_file'] != kwargs['separate_file']:
+                existing_meta['separate_file'] = kwargs['separate_file']
+        return existing_meta['cache']
 
     def has_object_cache(self, key):
         """Has an existing object cache?"""
@@ -112,6 +124,7 @@ class PodCache(object):
                 meta['cache'].reset()
 
     def update(self, dep_cache=None, obj_cache=None):
+        """Update the values in the dependency cache and/or the object cache."""
         if dep_cache:
             self._dependency_graph.add_all(dep_cache)
 
@@ -120,13 +133,20 @@ class PodCache(object):
                 if not key in self._object_caches:
                     self.create_object_cache(key, **meta)
                 else:
+                    # Ignore if the object cache is referenced to a different file.
+                    if isinstance(meta, basestring):
+                        continue
+
                     self._object_caches[key]['cache'].add_all(meta['values'])
-                    self._object_caches[key]['write_to_file'] = meta['write_to_file']
+                    self._object_caches[key][
+                        'write_to_file'] = meta['write_to_file']
+                    self._object_caches[key][
+                        'separate_file'] = meta['separate_file']
                     self._object_caches[key]['can_reset'] = meta['can_reset']
 
     def write(self):
         """Persist the cache information to a yaml file."""
-        with self._pod.profile.timer('podcache.write'):
+        with self._pod.profile.timer('Podcache.write'):
             if self._dependency_graph.is_dirty:
                 output = self._dependency_graph.export()
                 self._dependency_graph.mark_clean()
@@ -138,13 +158,24 @@ class PodCache(object):
             output = {}
             for key, meta in self._object_caches.iteritems():
                 if meta['write_to_file']:
-                    output[key] = {
+                    cache_info = {
                         'can_reset': meta['can_reset'],
                         'write_to_file': meta['write_to_file'],
                         'values': meta['cache'].export(),
+                        'separate_file': meta['separate_file'],
                     }
+                    if meta['separate_file']:
+                        filename = '/{}'.format(
+                            object_cache.FILE_OBJECT_SUB_CACHE.format(key))
+                        self._pod.write_file(
+                            filename,
+                            json.dumps(
+                                cache_info, sort_keys=True, indent=2, separators=(',', ': ')))
+                        output[key] = filename
+                    else:
+                        output[key] = cache_info
                     meta['cache'].mark_clean()
             if output:
                 self._pod.write_file(
-                    '/{}'.format(self._pod.FILE_OBJECT_CACHE),
+                    '/{}'.format(FILE_OBJECT_CACHE),
                     json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))

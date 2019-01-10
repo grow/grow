@@ -1,0 +1,9 @@
+[run]
+omit =
+    # Doesn't do anything.
+    grow/common/ca_certs_locater.py
+    # Requirement of extensions.
+    grow/common/patched_site.py
+    # Copied from upstream.
+    grow/templates/jinja_dependency.py
+source=grow

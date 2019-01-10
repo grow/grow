@@ -1,10 +1,12 @@
+# coding: utf8
 """Tests for the common utility methods."""
 
 import unittest
 import mock
 import semantic_version
 from grow.testing import testing
-from grow.common.sdk_utils import get_this_version, LatestVersionCheckError
+from grow.common import config
+from grow.sdk import updater
 from grow.pods import errors
 from . import utils
 
@@ -140,6 +142,28 @@ class UtilsTestCase(unittest.TestCase):
         actual = utils.clean_html(raw)
         self.assertEqual(expected, actual)
 
+    def test_safe_format(self):
+        """Use modern text formatting on a string safely."""
+        actual = utils.safe_format('Does it {0}?', 'work')
+        self.assertEqual('Does it work?', actual)
+
+        actual = utils.safe_format('Does it {work}?', work='blend')
+        self.assertEqual('Does it blend?', actual)
+
+        actual = utils.safe_format('Does it {ignore}?')
+        self.assertEqual('Does it {ignore}?', actual)
+
+    def test_slugify(self):
+        """Slugify strings."""
+        actual = utils.slugify('What\'s going: down 2 d@y')
+        self.assertEqual('what-s-going:down-2-d-y', actual)
+
+        actual = utils.slugify('Does it {work}')
+        self.assertEqual('does-it-work', actual)
+
+        actual = utils.slugify(u'Îñtérñåtîøñålization')
+        self.assertEqual('internaationaalization', actual)
+
     def test_validate_name(self):
         with self.assertRaises(errors.BadNameError):
             utils.validate_name('//you/shall/not/pass')
@@ -159,11 +183,10 @@ class UtilsTestCase(unittest.TestCase):
     def test_version_enforcement(self):
         with mock.patch('grow.pods.pods.Pod.grow_version',
                         new_callable=mock.PropertyMock) as mock_version:
-            this_version = get_this_version()
-            gt_version = '>{0}'.format(semantic_version.Version(this_version))
+            gt_version = '>{0}'.format(semantic_version.Version(config.VERSION))
             mock_version.return_value = gt_version
-            with self.assertRaises(LatestVersionCheckError):
-                pod = testing.create_test_pod()
+            with self.assertRaises(updater.LatestVersionCheckError):
+                _ = testing.create_test_pod()
 
     def test_walk(self):
         data = {

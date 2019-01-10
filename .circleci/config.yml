@@ -1,0 +1,297 @@
+version: 2.1
+
+commands:
+  pip_install:
+    description: "Install using pipenv and caching."
+    parameters:
+      key:
+        type: string
+        default: linux
+      dir:
+        type: string
+        default: /root/.local/share/virtualenvs/
+    steps:
+      - restore_cache:
+          key: pip-<< parameters.key >>-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: Pipenv Install
+          command: |
+            pip install -U pip==18.0
+            pip install -U pipenv
+            pip install pyyaml -U --force
+            pipenv run pip install pip==18.0
+            pipenv install --dev
+            pipenv run pip install pyyaml -U --force
+            . $(pipenv --venv)/bin/activate
+          environment:
+            PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
+
+      - save_cache:
+          key: pip-<< parameters.key >>-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          paths:
+          - << parameters.dir >>
+
+executors:
+  grow:
+    docker:
+      - image: grow/grow-internal-image
+  osx:
+    macos:
+      xcode: "10.0.0"
+
+jobs:
+  init:
+    executor: grow
+    working_directory: ~/grow
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+
+      - run:
+          name: Build UI
+          command: make build-ui
+
+      - save_cache:
+          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+          paths:
+            - "grow/ui/node_modules"
+
+      - persist_to_workspace:
+          root: ~/grow
+          paths:
+            - .coveragerc
+            - .git/*
+            - bin/*
+            - grow/*
+            - scripts/*
+            - description.txt
+            - grow.spec
+            - install.py
+            - Makefile
+            - MANIFEST.in
+            - package.json
+            - pylintrc
+            - requirements-dev.txt
+            - requirements.txt
+            - Pipfile
+            - Pipfile.lock
+            - setup.py
+
+  pylint:
+    executor: grow
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - pip_install
+
+      - run:
+          name: Pylint
+          command: make test-pylint
+
+  release-package-linux:
+    executor: grow
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - pip_install
+
+      - run:
+          name: Build Release
+          command: pipenv run pyinstaller grow.spec
+
+      - run:
+          name: Package
+          command: |
+            set -e
+            cd dist
+            zip -r "Grow-SDK-Linux-${CIRCLE_TAG}.zip" grow
+            cd ..
+
+      # Currently causes a seg fault in docker.
+      # - run:
+      #     name: Test Packaged Grow
+      #     command: ./dist/grow
+      #
+      # - run:
+      #     name: Test Packaged Grow Build
+      #     command: ./dist/grow build ./grow/testing/testdata/pod
+
+      - run:
+          name: Upload to GitHub
+          command: ghr -draft -u grow $CIRCLE_TAG "dist/Grow-SDK-Linux-${CIRCLE_TAG}.zip"
+
+      - store_artifacts:
+          path: dist/
+
+  release-package-osx:
+    executor: osx
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Install Packages
+          command: brew install golang libyaml
+
+      - run:
+          name: Update GO PATHS
+          command: |
+            echo 'export GOROOT=/usr/local/opt/go/libexec' >> $BASH_ENV
+            echo 'export GOPATH=$HOME/gocode' >> $BASH_ENV
+            echo 'export PATH=$PATH:$GOROOT/bin:$GOPATH/bin' >> $BASH_ENV
+
+      - run:
+          name: Install ghr
+          command: go get -u github.com/tcnksm/ghr
+
+      - pip_install:
+          dir: /Users/distiller/.local/share/virtualenvs/
+          key: osx
+
+      - run:
+          name: Build Release
+          command: pipenv run pyinstaller grow.spec
+
+      - run:
+          name: Package
+          command: |
+            set -e
+            cd dist
+            zip -r "Grow-SDK-Mac-${CIRCLE_TAG}.zip" grow
+            cd ..
+
+      - run:
+          name: Test Packaged Grow
+          command: ./dist/grow
+
+      - run:
+          name: Test Packaged Grow Build
+          command: ./dist/grow build ./grow/testing/testdata/pod
+
+      - run:
+          name: Upload to GitHub
+          command: ghr -draft -u grow $CIRCLE_TAG "dist/Grow-SDK-Mac-${CIRCLE_TAG}.zip"
+
+      - store_artifacts:
+          path: dist/
+
+  release-package-pypi:
+    executor: grow
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - pip_install
+
+      - run:
+          name: Update requirements.txt
+          command: pipenv lock -r > requirements.txt
+
+      - run:
+          name: Create Distribution
+          command: pipenv run python setup.py sdist bdist_wheel
+
+      - run:
+          name: Twine Upload
+          command: pipenv run twine upload dist/grow-$(<grow/VERSION)*
+
+      - store_artifacts:
+          path: dist/
+
+  test:
+    executor: grow
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - pip_install
+
+      - run:
+          name: Run Tests
+          command: make test-nosetests
+
+      - run:
+          name: Code Coverage
+          command: $(pipenv --venv)/bin/codecov
+
+      - run:
+          name: Test build
+          command: ./scripts/grow build ./grow/testing/testdata/pod
+
+  test-osx:
+    executor: osx
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - pip_install:
+          dir: /Users/distiller/.local/share/virtualenvs/
+          key: osx
+
+      - run:
+          name: Run Tests
+          command: make test-nosetests
+
+      - run:
+          name: Code Coverage
+          command: $(pipenv --venv)/bin/codecov
+
+      - run:
+          name: Test build
+          command: ./scripts/grow build ./grow/testing/testdata/pod
+
+filter_all_tags: &filter_all_tags
+  filters:
+    tags:
+      only: /.*/
+
+filter_only_tags: &filter_only_tags
+  filters:
+    tags:
+      only: /.*/
+    branches:
+      ignore: /.*/
+
+workflows:
+  version: 2
+  build:
+    jobs:
+    - init:
+        <<: *filter_all_tags
+    - pylint:
+        <<: *filter_all_tags
+        requires:
+        - init
+    - test:
+        <<: *filter_all_tags
+        requires:
+        - init
+    - test-osx:
+        <<: *filter_all_tags
+        requires:
+        - init
+    - release-package-linux:
+        <<: *filter_only_tags
+        requires:
+        - test
+    - release-package-osx:
+        <<: *filter_only_tags
+        requires:
+        - test-osx
+    - release-package-pypi:
+        <<: *filter_only_tags
+        requires:
+        - pylint
+        - release-package-linux
+        - release-package-osx
