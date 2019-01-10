@@ -146,36 +146,6 @@ class Document(object):
             return root_pod_path, locale
         return pod_path, None
 
-    def _format_path(self, path_format):
-        podspec = self.pod.get_podspec()
-        formatters = {
-            'base': self.base,
-            'category': self.category,
-            'collection': structures.AttributeDict(
-                base_path=self.collection_base_path,
-                basename=self.collection.basename,
-                root=self.collection.root),
-            'env': structures.AttributeDict(
-                fingerpint=self.pod.env.fingerprint),
-            'locale': self.locale,
-            'parent': self.parent if self.parent else utils.DummyDict(),
-            'root': podspec.root,
-            'slug': self.slug,
-        }
-        if '{date' in path_format:
-            if isinstance(self.date, datetime.datetime):
-                formatters['date'] = self.date.date()
-            else:
-                formatters['date'] = self.date
-        if '|lower' in path_format:
-            for key, value in formatters.items():
-                if isinstance(value, basestring):
-                    formatters['{}|lower'.format(key)] = value.lower()
-        path = path_format.format(**formatters)
-        while '//' in path:
-            path = path.replace('//', '/')
-        return path
-
     def _init_locale(self, locale, pod_path):
         try:
             _, locale_from_path = Document.parse_localized_path(pod_path)
@@ -429,7 +399,9 @@ class Document(object):
     def view(self):
         view_format = self.fields.get('$view', self.collection.view)
         if view_format is not None:
-            return self._format_path(view_format)
+            return self.pod.path_format.format_view(
+                self, view_format)
+        return ''
 
     def delete(self):
         self.pod.delete_file(self.pod_path)
@@ -495,7 +467,8 @@ class Document(object):
                 break
 
         try:
-            return self._format_path(path_format)
+            return self.pod.path_format.format_doc(
+                self, path_format, locale=self.locale)
         except KeyError:
             logging.error('Error with path format: {}'.format(path_format))
             raise
