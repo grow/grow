@@ -21,7 +21,7 @@ def inspect_routes(pod_path):
         out = []
         pod.router.use_simple()
         pod.router.add_all()
-        for path, node in pod.router.routes.nodes:
-            out.append(u'{}\n    > {}'.format(path, node))
+        for path, node, _ in pod.router.routes.nodes:
+            out.append(u'{} [{}]\n    {}\n'.format(path, node.kind, node.meta))
         click.echo_via_pager('\n'.join(out))
     return pod

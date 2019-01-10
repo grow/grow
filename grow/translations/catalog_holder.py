@@ -332,7 +332,7 @@ class Catalogs(object):
                 doc_locales = [doc.locale]
                 # Extract yaml fields: `foo@: Extract me`
                 # ("tagged" = prior to stripping `@` suffix from field names)
-                tagged_fields = doc.format.front_matter.data
+                tagged_fields = doc.format.front_matter.raw_data
                 utils.walk(tagged_fields,
                            lambda msgid, key, node, **kwargs: _handle_field(
                                doc.pod_path, doc_locales, msgid, key, node, **kwargs))
@@ -364,7 +364,7 @@ class Catalogs(object):
                 pod_path = os.path.join('/content/', path)
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
                 utils.walk(
-                    self.pod.get_doc(pod_path).format.front_matter.data,
+                    self.pod.get_doc(pod_path).format.front_matter.raw_data,
                     lambda msgid, key, node, **kwargs: _handle_field(
                         pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
                 )
@@ -392,7 +392,7 @@ class Catalogs(object):
                 if path.endswith(('.yaml', '.yml')):
                     self.pod.logger.info('Extracting: {}'.format(pod_path))
                     utils.walk(
-                        self.pod.get_doc(pod_path).format.front_matter.data,
+                        self.pod.get_doc(pod_path).format.front_matter.raw_data,
                         lambda msgid, key, node, **kwargs: _handle_field(
                             pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
                     )

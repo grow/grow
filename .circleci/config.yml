@@ -19,8 +19,10 @@ commands:
           command: |
             pip install -U pip==18.0
             pip install -U pipenv
+            pip install pyyaml -U --force
             pipenv run pip install pip==18.0
             pipenv install --dev
+            pipenv run pip install pyyaml -U --force
             . $(pipenv --venv)/bin/activate
           environment:
             PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
@@ -136,8 +138,8 @@ jobs:
           at: ~/grow
 
       - run:
-          name: Install Go
-          command: brew install golang
+          name: Install Packages
+          command: brew install golang libyaml
 
       - run:
           name: Update GO PATHS
