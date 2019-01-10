@@ -146,37 +146,6 @@ class Document(object):
             return root_pod_path, locale
         return pod_path, None
 
-    def _format_path(self, path_format):
-        podspec = self.pod.get_podspec()
-        locale = self.locale.alias if self.locale is not None else self.locale
-        formatters = {
-            'base': self.base,
-            'category': self.category,
-            'collection': structures.AttributeDict(
-                base_path=self.collection_base_path,
-                basename=self.collection.basename,
-                root=self.collection.root),
-            'env': structures.AttributeDict(
-                fingerpint=self.pod.env.fingerprint),
-            'locale': locale,
-            'parent': self.parent if self.parent else utils.DummyDict(),
-            'root': podspec.root,
-            'slug': self.slug,
-        }
-        if '{date' in path_format:
-            if isinstance(self.date, datetime.datetime):
-                formatters['date'] = self.date.date()
-            else:
-                formatters['date'] = self.date
-        if '|lower' in path_format:
-            for key, value in formatters.items():
-                if isinstance(value, basestring):
-                    formatters['{}|lower'.format(key)] = value.lower()
-        path = path_format.format(**formatters)
-        while '//' in path:
-            path = path.replace('//', '/')
-        return path
-
     def _init_locale(self, locale, pod_path):
         try:
             _, locale_from_path = Document.parse_localized_path(pod_path)
@@ -223,17 +192,11 @@ class Document(object):
 
     @utils.cached_property
     def default_locale(self):
-        # Use untagged, raw fields from front matter in order to extract
-        # default_locale from fields, so that default_locale can be used to
-        # untag fields.
         fields = self.format.front_matter.data
         if (fields.get('$localization')
                 and 'default_locale' in fields['$localization']):
-            identifier = fields['$localization']['default_locale']
-            locale = locales.Locale.parse(identifier)
-            if locale:
-                locale.set_alias(self.pod)
-            return locale
+            return self.pod.normalize_locale(
+                fields['$localization']['default_locale'])
         return self.collection.default_locale
 
     @utils.cached_property
@@ -319,7 +282,8 @@ class Document(object):
                 return []
             if 'locales' in localization:
                 codes = localization['locales'] or []
-                return locales.Locale.parse_codes(codes)
+                return self.pod.normalize_locales(
+                    locales.Locale.parse_codes(codes))
         return self.collection.locales
 
     @property
@@ -435,7 +399,9 @@ class Document(object):
     def view(self):
         view_format = self.fields.get('$view', self.collection.view)
         if view_format is not None:
-            return self._format_path(view_format)
+            return self.pod.path_format.format_view(
+                self, view_format)
+        return ''
 
     def delete(self):
         self.pod.delete_file(self.pod_path)
@@ -461,8 +427,6 @@ class Document(object):
     @utils.memoize
     def get_serving_path(self):
         # Get root path.
-        locale = str(self.locale)
-        config = self.pod.get_podspec().get_config()
         path_format = self.path_format
         if path_format is None:
             raise PathFormatError(
@@ -503,7 +467,8 @@ class Document(object):
                 break
 
         try:
-            return self._format_path(path_format)
+            return self.pod.path_format.format_doc(
+                self, path_format, locale=self.locale)
         except KeyError:
             logging.error('Error with path format: {}'.format(path_format))
             raise
@@ -512,7 +477,7 @@ class Document(object):
     def get_serving_path_base(self):
         """Get the base (default locale) serving path."""
         return self.pod.path_format.format_doc(
-            self, self.path_format_base, locale=self.default_locale.alias)
+            self, self.path_format_base, locale=self.default_locale)
 
     @utils.memoize
     def get_serving_path_localized(self):

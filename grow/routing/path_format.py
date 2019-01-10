@@ -44,8 +44,8 @@ class PathFormat(object):
         if not locale:
             return ''
         if not isinstance(locale, basestring) and locale.alias is not None:
-            return locale.alias.lower()
-        return str(locale).lower()
+            return locale.alias
+        return str(locale)
 
     def format_doc(self, doc, path, locale=None, parameterize=False):
         """Format a URL path using the doc information."""
@@ -120,6 +120,38 @@ class PathFormat(object):
 
         if params:
             path = utils.safe_format(path, **params)
+
+        return self.strip_double_slash(path)
+
+    def format_view(self, doc, path, parameterize=False):
+        """Format a URL path using the doc information for views."""
+        path = '' if path is None else path
+
+        # Most params should always be replaced.
+        params = self.params_pod()
+        params['base'] = doc.base
+        params['category'] = doc.category
+        params['collection'] = structures.AttributeDict(
+            base_path=doc.collection_base_path,
+            basename=doc.collection.basename,
+            root=doc.collection.root)
+        params['parent'] = doc.parent if doc.parent else utils.DummyDict()
+        params['slug'] = doc.slug
+
+        if isinstance(doc.date, datetime.datetime):
+            params['date'] = doc.date.date()
+        else:
+            params['date'] = doc.date
+
+        if '|lower' in path:
+            for key, value in params.items():
+                if isinstance(value, basestring):
+                    params['{}|lower'.format(key)] = value.lower()
+
+        path = utils.safe_format(path, **params)
+
+        if parameterize:
+            path = self.parameterize(path)
 
         return self.strip_double_slash(path)
 

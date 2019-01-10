@@ -680,7 +680,7 @@ class Pod(object):
 
     def list_locales(self):
         codes = self.yaml.get('localization', {}).get('locales', [])
-        return locales.Locale.parse_codes(codes)
+        return self.normalize_locales(locales.Locale.parse_codes(codes))
 
     @utils.memoize
     def list_preprocessors(self):
@@ -725,6 +725,11 @@ class Pod(object):
         if locale is not None:
             locale.set_alias(self)
         return locale
+
+    def normalize_locales(self, locale_list):
+        for locale in locale_list:
+            locale.set_alias(self)
+        return locale_list
 
     def open_file(self, pod_path, mode=None):
         path = self._normalize_path(pod_path)
