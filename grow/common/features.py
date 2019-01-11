@@ -31,7 +31,8 @@ class Features(object):
         """Enable the feature."""
         self._enabled.add(feature)
         self._disabled.discard(feature)
-        self._config[feature] = base_config.BaseConfig(config=config or {})
+        if config:
+            self._config[feature] = base_config.BaseConfig(config=config)
 
     def is_disabled(self, feature):
         """Determine if the feature is disabled."""
