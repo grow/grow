@@ -1,5 +1,7 @@
 """Features control."""
 
+from grow.common import base_config
+
 class Features(object):
     """Control features."""
 
@@ -19,7 +21,7 @@ class Features(object):
 
     def config(self, feature):
         """Configuration for a feature."""
-        return self._config.get(feature, {})
+        return self._config.get(feature, base_config.BaseConfig())
 
     def disable(self, feature):
         """Disable the feature."""
@@ -29,7 +31,7 @@ class Features(object):
         """Enable the feature."""
         self._enabled.add(feature)
         self._disabled.discard(feature)
-        self._config[feature] = config or {}
+        self._config[feature] = base_config.BaseConfig(config=config or {})
 
     def is_disabled(self, feature):
         """Determine if the feature is disabled."""

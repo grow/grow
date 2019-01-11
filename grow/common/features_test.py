@@ -37,7 +37,7 @@ class FeaturesTestCase(unittest.TestCase):
         self.assertFalse(feat.is_enabled('a'))
         feat.enable('a', {'config': True})
         self.assertTrue(feat.is_enabled('a'))
-        self.assertEqual({'config': True}, feat.config('a'))
+        self.assertEqual({'config': True}, feat.config('a').export())
 
     def test_enable_without_config(self):
         """Enabling feature without a config."""
@@ -45,7 +45,7 @@ class FeaturesTestCase(unittest.TestCase):
         self.assertFalse(feat.is_enabled('a'))
         feat.enable('a')
         self.assertTrue(feat.is_enabled('a'))
-        self.assertEqual({}, feat.config('a'))
+        self.assertEqual({}, feat.config('a').export())
 
     def test_is_disabled_disabled(self):
         """Enabled features."""
