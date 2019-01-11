@@ -27,6 +27,17 @@ class PodTest(unittest.TestCase):
         self.pod.enable(self.pod.FEATURE_TRANSLATION_STATS)
         self.assertTrue(self.pod.is_enabled(self.pod.FEATURE_TRANSLATION_STATS))
 
+    def test_experiment_no_config(self):
+        """Experiments with true value are enabled with no config."""
+        self.assertTrue(self.pod.experiments.is_enabled('test_a'))
+        self.assertEqual({}, self.pod.experiments.config('test_a').export())
+
+    def test_experiment_config(self):
+        """Experiments with configs are enabled with config."""
+        self.assertTrue(self.pod.experiments.is_enabled('test_b'))
+        self.assertEqual(
+            {'value': 'foo'}, self.pod.experiments.config('test_b').export())
+
     def test_eq(self):
         pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
         self.assertEqual(self.pod, pod)

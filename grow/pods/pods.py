@@ -100,14 +100,18 @@ class Pod(object):
         self._features = features.Features(disabled=[
             self.FEATURE_TRANSLATION_STATS,
         ])
+        self._experiments = features.Features()
 
         self._extensions_controller = ext_controller.ExtensionController(self)
 
-        # Modify sys.path for built-in extension support.
         if self.exists:
+            # Modify sys.path for built-in extension support.
             _ext_dir = self.abs_path(self.extensions_dir)
             if os.path.exists(_ext_dir):
                 sys.path.insert(0, _ext_dir)
+
+            # Load the experiments from the podspec.
+            self._load_experiments()
 
         # Ensure preprocessors are loaded when pod is initialized.
         # Preprocessors may modify the environment in ways that are required by
@@ -119,6 +123,7 @@ class Pod(object):
 
         # Load extensions, ignore local extensions during install.
         self._load_extensions(load_extensions)
+
 
         try:
             update_checker = updater.Updater(self)
@@ -135,6 +140,16 @@ class Pod(object):
     # DEPRECATED: Remove when no longer needed after re-route stable release.
     def _get_bytecode_cache(self):
         return self.jinja_bytecode_cache
+
+    def _load_experiments(self):
+        config = self.yaml.get('experiments', {})
+        for key, value in config.iteritems():
+            # Experiments can be turned on with a True value.
+            # But the true does does not act as a configuration.
+            if value is True:
+                self._experiments.enable(key)
+            else:
+                self._experiments.enable(key, config=value)
 
     def _load_extensions(self, load_local_extensions=True):
         self._extensions_controller.register_builtins()
@@ -236,6 +251,10 @@ class Pod(object):
     @property
     def exists(self):
         return self.file_exists('/{}'.format(self.FILE_PODSPEC))
+
+    @property
+    def experiments(self):
+        return self._experiments
 
     @property
     def extensions_controller(self):

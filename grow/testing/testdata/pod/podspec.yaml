@@ -90,3 +90,8 @@ extensions:
   - extensions.preprocessors.CustomPreprocessor
   translators:
   - extensions.translators.CustomTranslator
+
+experiments:
+  test_a: True
+  test_b:
+    value: foo
