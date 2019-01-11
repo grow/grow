@@ -17,6 +17,36 @@ class FeaturesTestCase(unittest.TestCase):
         feat = features.Features(default_enabled=False)
         self.assertFalse(feat.is_enabled('unknown'))
 
+    def test_disable(self):
+        """Disabling feature."""
+        feat = features.Features(default_enabled=True)
+        self.assertTrue(feat.is_enabled('a'))
+        feat.disable('a')
+        self.assertFalse(feat.is_enabled('a'))
+
+    def test_enable(self):
+        """Enabling feature."""
+        feat = features.Features(default_enabled=False)
+        self.assertFalse(feat.is_enabled('a'))
+        feat.enable('a')
+        self.assertTrue(feat.is_enabled('a'))
+
+    def test_enable_with_config(self):
+        """Enabling feature with a config."""
+        feat = features.Features(default_enabled=False)
+        self.assertFalse(feat.is_enabled('a'))
+        feat.enable('a', {'config': True})
+        self.assertTrue(feat.is_enabled('a'))
+        self.assertEqual({'config': True}, feat.config('a'))
+
+    def test_enable_without_config(self):
+        """Enabling feature without a config."""
+        feat = features.Features(default_enabled=False)
+        self.assertFalse(feat.is_enabled('a'))
+        feat.enable('a')
+        self.assertTrue(feat.is_enabled('a'))
+        self.assertEqual({}, feat.config('a'))
+
     def test_is_disabled_disabled(self):
         """Enabled features."""
         feat = features.Features(disabled=['a', 'b'])
