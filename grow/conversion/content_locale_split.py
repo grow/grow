@@ -6,7 +6,7 @@ This is required for all versions of Grow after 0.1.0.
 
 Usage:
 
-    grow convert --version=0.1.0
+    grow convert --type=content_locale_split
 """
 
 from boltons import iterutils
