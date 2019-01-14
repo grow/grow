@@ -5,6 +5,10 @@ from grow.common import base_config
 class Features(object):
     """Control features."""
 
+    def __call__(self, feature):
+        """Ability to call the instance to shortcut to test enabled features."""
+        return self.is_enabled(feature)
+
     def __init__(self, enabled=None, disabled=None, default_enabled=True):
         self._enabled = set()
         self._disabled = set()

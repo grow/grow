@@ -102,3 +102,9 @@ class FeaturesTestCase(unittest.TestCase):
         self.assertTrue(feat.is_enabled('a'))
         self.assertTrue(feat.is_enabled('b'))
         self.assertFalse(feat.is_enabled('c'))
+
+    def test_callable_enabled(self):
+        """Callable shortcut for testing for enabled features."""
+        feat = features.Features(enabled=['a'], default_enabled=False)
+        self.assertTrue(feat('a'))
+        self.assertFalse(feat('b'))
