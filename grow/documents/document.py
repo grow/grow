@@ -192,11 +192,16 @@ class Document(object):
 
     @utils.cached_property
     def default_locale(self):
-        fields = self.format.front_matter.data
-        if (fields.get('$localization')
-                and 'default_locale' in fields['$localization']):
-            return self.pod.normalize_locale(
-                fields['$localization']['default_locale'])
+        """Default document locale."""
+        if self.pod.experiments('separate_routing'):
+            localization = self.collection.routes.localization(
+                self.pod_path, {})
+        else:
+            localization = self.format.front_matter.data.get(
+                '$localization', {})
+
+        if 'default_locale' in localization:
+            return self.pod.normalize_locale(localization['default_locale'])
         return self.collection.default_locale
 
     @utils.cached_property
@@ -273,17 +278,19 @@ class Document(object):
 
     @utils.cached_property
     def locales(self):
-        # Use $localization:locales if present, else use collection's locales.
-        localized = '$localization' in self.fields
-        if localized:
-            localization = self.fields['$localization']
-            # Disable localization with $localization:~.
-            if localization is None:
-                return []
-            if 'locales' in localization:
-                codes = localization['locales'] or []
-                return self.pod.normalize_locales(
-                    locales.Locale.parse_codes(codes))
+        if self.pod.experiments('separate_routing'):
+            localization = self.collection.routes.localization(
+                self.pod_path, {})
+        else:
+            localization = self.fields.get('$localization', {})
+
+        # Disable localization with $localization:~.
+        if not localization:
+            return []
+        if 'locales' in localization:
+            codes = localization['locales'] or []
+            return self.pod.normalize_locales(
+                locales.Locale.parse_codes(codes))
         return self.collection.locales
 
     @property
@@ -312,16 +319,31 @@ class Document(object):
     @utils.memoize
     def path_format_base(self):
         """Path format for base document."""
+        if self.pod.experiments('separate_routing'):
+            # When using separate routing the path information is stored at the
+            # collection level.
+            return self.collection.routes.path(
+                self.pod_path, self.collection.path_format)
         return self.fields.get('$path', self.collection.path_format)
 
     @property
     @utils.memoize
     def path_format_localized(self):
         """Path format for localized documents."""
-        if ('$localization' in self.fields
-                and 'path' in self.fields['$localization']):
-            return self.fields['$localization']['path']
-        path_format = self.fields.get('$path', '')
+        if self.pod.experiments('separate_routing'):
+            localization = self.collection.routes.localization(
+                self.pod_path, {})
+        else:
+            localization = self.fields.get('$localization', {})
+
+        if 'path' in localization:
+            return localization['path']
+
+        if self.pod.experiments('separate_routing'):
+            path_format = self.collection.routes.path(self.pod_path, '')
+        else:
+            path_format = self.fields.get('$path', '')
+
         if path_format and '{locale}' in path_format:
             return path_format
         col_localization = self.collection.localization

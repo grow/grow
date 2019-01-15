@@ -6,6 +6,7 @@ import operator
 import os
 import re
 import sys
+from grow.collections import collection_routes
 from grow.common import structures
 from grow.common import untag
 from grow.common import utils
@@ -209,6 +210,11 @@ class Collection(object):
     @property
     def root(self):
         return self._get_builtin_field('root')
+
+    @utils.cached_property
+    def routes(self):
+        return collection_routes.CollectionRoutes(
+            self.pod, self.pod_path)
 
     @property
     def tagged_fields(self):

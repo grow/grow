@@ -33,7 +33,12 @@ class CollectionRoutes(object):
             })
         self.pod_paths = routes['pod_paths']
 
+    def localization(self, pod_path, default_value=None):
+        """Get document localization information."""
+        data = self._get_meta(pod_path)
+        return data.get('localization', default_value)
+
     def path(self, pod_path, default_value=None):
-        """Get base serving path """
+        """Get document base serving path."""
         data = self._get_meta(pod_path)
         return data.get('path', default_value)
