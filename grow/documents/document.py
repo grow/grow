@@ -207,7 +207,7 @@ class Document(object):
             localization = self.format.front_matter.data.get(
                 '$localization', {})
 
-        if 'default_locale' in localization:
+        if localization and 'default_locale' in localization:
             return self.pod.normalize_locale(localization['default_locale'])
         return self.collection.default_locale
 
