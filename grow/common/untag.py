@@ -170,7 +170,7 @@ class UntagParamLocaleRegex(object):
         """Shortcut from the pod and collection objects."""
         podspec_data = pod.yaml.get('localization', {}).get('groups', {})
         if collection:
-            collection_data = collection.get('localization', {}).get('groups', {})
+            collection_data = collection.fields.get('localization', {}).get('groups', {})
         else:
             collection_data = {}
         return cls(podspec_data, collection_data)
