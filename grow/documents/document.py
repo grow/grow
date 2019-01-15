@@ -289,10 +289,11 @@ class Document(object):
             localization = self.collection.routes.localization(
                 self.pod_path, {})
         else:
+            # Default to none to be able to override the upstream locales.
             localization = self.fields.get('$localization', {})
 
         # Disable localization with $localization:~.
-        if not localization:
+        if localization is None:
             return []
         if 'locales' in localization:
             codes = localization['locales'] or []
