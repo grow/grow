@@ -165,6 +165,8 @@ class Document(object):
 
     @property
     def category(self):
+        if self.pod.experiments('separate_routing'):
+            return self.collection.routes.category(self.pod_path)
         return self.fields.get('$category')
 
     @property
@@ -183,11 +185,16 @@ class Document(object):
 
     @property
     def date(self):
+        if self.pod.experiments('separate_routing'):
+            return self.collection.routes.date(self.pod_path)
         return self.fields.get('$date')
 
     @property
     def dates(self):
         """Built in field for dates."""
+        if self.pod.experiments('separate_routing'):
+            return structures.AttributeDict(
+                self.collection.routes.dates(self.pod_path, {}))
         return structures.AttributeDict(self.fields.get('$dates', {}))
 
     @utils.cached_property
@@ -300,9 +307,12 @@ class Document(object):
     @property
     @utils.memoize
     def parent(self):
-        if '$parent' not in self.fields:
+        if self.pod.experiments('separate_routing'):
+            parent_pod_path = self.collection.routes.parent(self.pod_path)
+        else:
+            parent_pod_path = self.fields.get('$parent')
+        if not parent_pod_path:
             return None
-        parent_pod_path = self.fields['$parent']
         return self.collection.get_doc(parent_pod_path, locale=self.locale)
 
     @property
@@ -391,8 +401,12 @@ class Document(object):
 
     @property
     def slug(self):
-        if '$slug' in self.fields:
-            return self.fields['$slug']
+        if self.pod.experiments('separate_routing'):
+            value = self.collection.routes.slug(self.pod_path)
+        else:
+            value = self.fields.get('$slug')
+        if value:
+            return value
         return utils.slugify(self.title) if self.title is not None else None
 
     @property
@@ -401,7 +415,10 @@ class Document(object):
 
     @property
     def title(self):
-        return self.fields.get('$title')
+        if self.pod.experiments('separate_routing'):
+            return self.collection.routes.title(self.pod_path)
+        else:
+            return self.fields.get('$title')
 
     @utils.cached_property
     def translation_stats(self):
@@ -419,7 +436,10 @@ class Document(object):
 
     @property
     def view(self):
-        view_format = self.fields.get('$view', self.collection.view)
+        if self.pod.experiments('separate_routing'):
+            view_format = self.collection.routes.view(self.pod_path, self.collection.view)
+        else:
+            view_format = self.fields.get('$view', self.collection.view)
         if view_format is not None:
             return self.pod.path_format.format_view(
                 self, view_format)
@@ -431,8 +451,7 @@ class Document(object):
     def get_date(self, date_name=None):
         if date_name is None:
             return self.date
-        dates = self.fields.get('$dates', {})
-        return dates.get(date_name, self.date)
+        return self.dates.get(date_name, self.date)
 
     @utils.memoize
     def has_serving_path(self):

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utility for converting Grow sites to enable collection level routing. Instead
 of storing things that affect routing directly in the document it is stored
@@ -24,6 +25,9 @@ except ImportError:
 
 
 ROUTES_FILENAME = '_routes.yaml'
+COLLECTION_META_KEYS = (
+    '$date', '$dates', '$path', '$localization', '$category', '$parent',
+    '$slug', '$title', '$view')
 
 
 class Error(Exception):
@@ -49,10 +53,11 @@ class RoutesData(object):
         raw_data = doc.format.front_matter.raw_data
         data = collections.OrderedDict()
 
+        tagged_keys = tuple(['{}@'.format(key)
+                             for key in COLLECTION_META_KEYS])
+
         for key, value in raw_data.iteritems():
-            if key == '$path' or key.startswith('$path@'):
-                data[key.lstrip('$')] = value
-            elif key == '$localization' or key.startswith('$localization@'):
+            if key in COLLECTION_META_KEYS or key.startswith(tagged_keys):
                 data[key.lstrip('$')] = value
 
         self.paths[doc.pod_path] = data
@@ -61,12 +66,13 @@ class RoutesData(object):
         """Write the converted routes to the configuration file."""
         routes_file = os.path.join(collection.pod_path, ROUTES_FILENAME)
 
-        print 'Writing new routes: {}'.format(routes_file)
+        print ' └─ Writing: {}'.format(routes_file)
+        print ''
         output = yaml.dump(
             self.data, Dumper=yaml_utils.PlainTextYamlDumper,
             default_flow_style=False, allow_unicode=True, width=800)
         pod.write_file(routes_file, output)
-        print output  # TODO: Remove
+
 
 class ConversionCollection(object):
     """Temporary collection class for doing a conversion for a collection."""

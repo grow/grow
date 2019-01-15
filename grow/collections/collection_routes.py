@@ -10,6 +10,11 @@ class CollectionRoutes(object):
 
     ROUTES_PATH = '_routes.yaml'
 
+    def __getattr__(self, attr):
+        def _get_field(pod_path, default_value=None):
+            return self.get_field(pod_path, attr, default_value)
+        return _get_field
+
     def __init__(self, pod, collection_path):
         self.pod = pod
         self.collection_path = collection_path
@@ -33,12 +38,7 @@ class CollectionRoutes(object):
             })
         self.pod_paths = routes['pod_paths']
 
-    def localization(self, pod_path, default_value=None):
-        """Get document localization information."""
+    def get_field(self, pod_path, field, default_value=None):
+        """Get document field from metadata."""
         data = self._get_meta(pod_path)
-        return data.get('localization', default_value)
-
-    def path(self, pod_path, default_value=None):
-        """Get document base serving path."""
-        data = self._get_meta(pod_path)
-        return data.get('path', default_value)
+        return data.get(field, default_value)
