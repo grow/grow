@@ -421,8 +421,6 @@ class Document(object):
 
     @utils.memoize
     def get_serving_path(self):
-        #
-
         # Get root path.
         path_format = self.path_format
         if path_format is None:
