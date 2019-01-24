@@ -41,11 +41,6 @@ class Error(Exception):
     pass
 
 
-class DocumentDoesNotExistError(Error, ValueError):
-    """Document path does not exist as a document."""
-    pass
-
-
 class DocumentExistsError(Error, ValueError):
     pass
 
@@ -426,6 +421,8 @@ class Document(object):
 
     @utils.memoize
     def get_serving_path(self):
+        #
+
         # Get root path.
         path_format = self.path_format
         if path_format is None:
