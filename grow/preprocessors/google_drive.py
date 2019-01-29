@@ -131,6 +131,9 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
                     continue
                 doc_id = item['id']
                 title = item['title']
+                if title.startswith(IGNORE_INITIAL):
+                    self.pod.logger.info('Skipping -> {}'.format(title))
+                    continue
                 basename = '{}.md'.format(utils.slugify(title))
                 docs_to_add.append(basename)
                 path = os.path.join(config.collection, basename)
@@ -141,6 +144,8 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
                     path_to_delete = os.path.join(
                             config.collection, path.lstrip('/'))
                     self.pod.delete_file(path_to_delete)
+                    text = 'Deleting -> {}'.format(path_to_delete)
+                    self.pod.logger.info(text)
             return
         # Downloads a single document.
         doc_id = config.id
