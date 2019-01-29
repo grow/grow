@@ -123,6 +123,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         if config.folder:
             service = BaseGooglePreprocessor.create_service()
             query = "'{}' in parents".format(config.folder)
+            # pylint: disable=no-member
             resp = service.files().list(q=query).execute()
             docs_to_add = []
             existing_docs = self.pod.list_dir(config.collection)
