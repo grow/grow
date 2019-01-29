@@ -63,6 +63,8 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         path = messages.StringField(1)
         id = messages.StringField(2)
         convert = messages.BooleanField(3)
+        folder = messages.StringField(4)
+        collection = messages.StringField(5)
 
     @classmethod
     def download(cls, path, doc_id, logger=None, raise_errors=False):
@@ -104,10 +106,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
                 return document_format.DocumentFormat.format_doc(front_matter, content)
         return content
 
-    def execute(self, config):
-        doc_id = config.id
-        path = config.path
-        convert = config.convert is not False
+    def _execute_doc(self, path, doc_id, convert):
         content = GoogleDocsPreprocessor.download(
             path, doc_id=doc_id, logger=self.pod.logger)
         existing_data = None
@@ -117,6 +116,36 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             path, content, convert=convert, existing_data=existing_data)
         self.pod.write_file(path, content)
         self.logger.info('Downloaded Google Doc -> {}'.format(path))
+
+    def execute(self, config):
+        convert = config.convert is not False
+        # Binds a Google Drive folder to a collection.
+        if config.folder:
+            service = BaseGooglePreprocessor.create_service()
+            query = "'{}' in parents".format(config.folder)
+            resp = service.files().list(q=query).execute()
+            docs_to_add = []
+            existing_docs = self.pod.list_dir(config.collection)
+            for item in resp['items']:
+                if item['mimeType'] != 'application/vnd.google-apps.document':
+                    continue
+                doc_id = item['id']
+                title = item['title']
+                basename = '{}.md'.format(utils.slugify(title))
+                docs_to_add.append(basename)
+                path = os.path.join(config.collection, basename)
+                self._execute_doc(path, doc_id, convert)
+            # Clean up files that are no longer in Google Drive.
+            for path in existing_docs:
+                if path.lstrip('/') not in docs_to_add:
+                    path_to_delete = os.path.join(
+                            config.collection, path.lstrip('/'))
+                    self.pod.delete_file(path_to_delete)
+            return
+        # Downloads a single document.
+        doc_id = config.id
+        path = config.path
+        self._execute_doc(config.path, doc_id, convert)
 
     def get_edit_url(self, doc=None):
         """Returns the URL to edit in Google Docs."""
