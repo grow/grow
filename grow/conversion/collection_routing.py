@@ -19,8 +19,9 @@ import yaml
 from grow.common import yaml_utils
 
 
-ROUTES_FILENAME = '_routes.yaml'
+ROUTES_FILENAME = '_blueprint.yaml'
 COLLECTION_META_KEYS = ('$path', '$localization', '$view')
+COLLECTION_BLUEPRINT_KEYS = ('$path', '$localization', '$view', 'path', 'localization', 'view')
 
 
 class Error(Exception):
@@ -30,15 +31,29 @@ class Error(Exception):
 class RoutesData(object):
     """Store and format the routes information pulled from the documents."""
 
-    def __init__(self):
+    def __init__(self, collection_path, blueprint):
         self.paths = collections.OrderedDict()
+        self.collection_path = collection_path
+        self.blueprint = blueprint
 
     @property
     def data(self):
         """The yaml contents to write to the file."""
         data = collections.OrderedDict()
-        data['version'] = 1
-        data['pod_paths'] = self.paths
+
+        # Pull over the existing blueprint data.
+        if '$path' in self.blueprint or 'path' in self.blueprint:
+            data['path'] = self.blueprint.get(
+                '$path', self.blueprint.get('path'))
+
+        tagged_keys = tuple(['{}@'.format(key)
+                             for key in COLLECTION_BLUEPRINT_KEYS])
+
+        for key in sorted(self.blueprint.keys()):
+            if key in COLLECTION_BLUEPRINT_KEYS or key.startswith(tagged_keys):
+                data[key.lstrip('$')] = self.blueprint[key]
+
+        data['routes'] = self.paths
         return data
 
     def extract_doc(self, doc):
@@ -54,13 +69,13 @@ class RoutesData(object):
                 data[key.lstrip('$')] = value
 
         if data:
-            self.paths[doc.pod_path] = data
+            self.paths[doc.collection_path[1:]] = data
 
     def write_routes(self, pod, collection):
         """Write the converted routes to the configuration file."""
         routes_file = os.path.join(collection.pod_path, ROUTES_FILENAME)
 
-        if self.data['pod_paths']:
+        if self.data['routes']:
             print ' └─ Writing: {}'.format(routes_file)
             print ''
             output = yaml.dump(
@@ -78,7 +93,7 @@ class ConversionCollection(object):
     def __init__(self, pod, collection):
         self.pod = pod
         self.collection = collection
-        self.routes_data = RoutesData()
+        self.routes_data = RoutesData(collection.pod_path, collection.yaml)
 
     def convert(self):
         """Perform the conversion to use collection based routing."""
