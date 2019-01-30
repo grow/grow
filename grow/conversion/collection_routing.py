@@ -53,7 +53,8 @@ class RoutesData(object):
             if key in COLLECTION_META_KEYS or key.startswith(tagged_keys):
                 data[key.lstrip('$')] = value
 
-        self.paths[doc.pod_path] = data
+        if data:
+            self.paths[doc.pod_path] = data
 
     def write_routes(self, pod, collection):
         """Write the converted routes to the configuration file."""
