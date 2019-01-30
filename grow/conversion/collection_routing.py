@@ -60,12 +60,16 @@ class RoutesData(object):
         """Write the converted routes to the configuration file."""
         routes_file = os.path.join(collection.pod_path, ROUTES_FILENAME)
 
-        print ' └─ Writing: {}'.format(routes_file)
-        print ''
-        output = yaml.dump(
-            self.data, Dumper=yaml_utils.PlainTextYamlDumper,
-            default_flow_style=False, allow_unicode=True, width=800)
-        pod.write_file(routes_file, output)
+        if self.data['pod_paths']:
+            print ' └─ Writing: {}'.format(routes_file)
+            print ''
+            output = yaml.dump(
+                self.data, Dumper=yaml_utils.PlainTextYamlDumper,
+                default_flow_style=False, allow_unicode=True, width=800)
+            pod.write_file(routes_file, output)
+        else:
+            print ' └─ Skipping: {}'.format(routes_file)
+            print ''
 
 
 class ConversionCollection(object):
