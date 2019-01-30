@@ -165,8 +165,6 @@ class Document(object):
 
     @property
     def category(self):
-        if self.pod.experiments('separate_routing'):
-            return self.collection.routes.category(self.pod_path)
         return self.fields.get('$category')
 
     @property
@@ -185,16 +183,11 @@ class Document(object):
 
     @property
     def date(self):
-        if self.pod.experiments('separate_routing'):
-            return self.collection.routes.date(self.pod_path)
         return self.fields.get('$date')
 
     @property
     def dates(self):
         """Built in field for dates."""
-        if self.pod.experiments('separate_routing'):
-            return structures.AttributeDict(
-                self.collection.routes.dates(self.pod_path, {}))
         return structures.AttributeDict(self.fields.get('$dates', {}))
 
     @utils.cached_property
@@ -308,10 +301,7 @@ class Document(object):
     @property
     @utils.memoize
     def parent(self):
-        if self.pod.experiments('separate_routing'):
-            parent_pod_path = self.collection.routes.parent(self.pod_path)
-        else:
-            parent_pod_path = self.fields.get('$parent')
+        parent_pod_path = self.fields.get('$parent')
         if not parent_pod_path:
             return None
         return self.collection.get_doc(parent_pod_path, locale=self.locale)
@@ -402,10 +392,7 @@ class Document(object):
 
     @property
     def slug(self):
-        if self.pod.experiments('separate_routing'):
-            value = self.collection.routes.slug(self.pod_path)
-        else:
-            value = self.fields.get('$slug')
+        value = self.fields.get('$slug')
         if value:
             return value
         return utils.slugify(self.title) if self.title is not None else None
@@ -416,10 +403,7 @@ class Document(object):
 
     @property
     def title(self):
-        if self.pod.experiments('separate_routing'):
-            return self.collection.routes.title(self.pod_path)
-        else:
-            return self.fields.get('$title')
+        return self.fields.get('$title')
 
     @utils.cached_property
     def translation_stats(self):

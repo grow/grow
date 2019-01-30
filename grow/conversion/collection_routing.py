@@ -18,16 +18,9 @@ import os
 import yaml
 from grow.common import yaml_utils
 
-try:
-    from yaml import CLoader as yaml_Loader
-except ImportError:
-    from yaml import Loader as yaml_Loader
-
 
 ROUTES_FILENAME = '_routes.yaml'
-COLLECTION_META_KEYS = (
-    '$date', '$dates', '$path', '$localization', '$category', '$parent',
-    '$slug', '$title', '$view')
+COLLECTION_META_KEYS = ('$path', '$localization', '$view')
 
 
 class Error(Exception):
