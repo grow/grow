@@ -134,7 +134,7 @@ class Catalog(catalog.Catalog):
         if not self.exists:
             self.init(template_path)
             return
-        template_file = self.pod.open_file(template_path)
+        template_file = self.pod.open_file(template_path, mode='w+')
         template = pofile.read_po(template_file)
         super(Catalog, self).update(
             template, no_fuzzy_matching=(not use_fuzzy_matching))

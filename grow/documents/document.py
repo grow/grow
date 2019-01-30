@@ -542,6 +542,7 @@ class Document(object):
         return self.collection.get_doc(self.root_pod_path, locale=locale)
 
     def next(self, docs=None):
+        """Finds the next document relative to the current doc."""
         if docs is None:
             docs = self.collection.list_docs()
         for i, doc in enumerate(docs):
@@ -554,16 +555,17 @@ class Document(object):
                 return docs[i + 1]
 
     def prev(self, docs=None):
+        """Finds the preceding document relative to the current doc."""
         if docs is None:
             docs = self.collection.list_docs()
-        for i, doc in enumerate(docs):
+        prev_doc = None
+        for doc in docs:
             if type(doc) != self.__class__:
                 raise ValueError('Usage: {{doc.prev(<docs>)}}.')
             if doc == self:
-                n = i - 1
-                if n < 0:
-                    return None
-                return docs[i - 1]
+                return prev_doc
+            prev_doc = doc
+        return None
 
     def titles(self, title_name=None):
         if title_name is None:
