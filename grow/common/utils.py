@@ -510,6 +510,8 @@ def clean_html(content, convert_to_markdown=False):
     content = unicode(soup.body or soup)
     if convert_to_markdown:
         h2t = html2text.HTML2Text()
+        h2t.body_width = 0  # https://github.com/grow/grow/issues/887
+        h2t.single_line_break = False
         content = h2t.handle(content).strip()
     return content.encode('utf-8')
 
