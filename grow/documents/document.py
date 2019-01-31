@@ -193,9 +193,9 @@ class Document(object):
     @utils.cached_property
     def default_locale(self):
         """Default document locale."""
-        if self.pod.experiments('separate_routing'):
+        if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             localization = self.collection.routes.localization(
-                self.pod_path, {})
+                self.collection_path, {})
         else:
             localization = self.format.front_matter.data.get(
                 '$localization', {})
@@ -278,9 +278,9 @@ class Document(object):
 
     @utils.cached_property
     def locales(self):
-        if self.pod.experiments('separate_routing'):
+        if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             localization = self.collection.routes.localization(
-                self.pod_path, {})
+                self.collection_path, {})
         else:
             # Default to none to be able to override the upstream locales.
             localization = self.fields.get('$localization', {})
@@ -320,28 +320,26 @@ class Document(object):
     @utils.memoize
     def path_format_base(self):
         """Path format for base document."""
-        if self.pod.experiments('separate_routing'):
-            # When using separate routing the path information is stored at the
-            # collection level.
+        if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             return self.collection.routes.path(
-                self.pod_path, self.collection.path_format)
+                self.collection_path, self.collection.path_format)
         return self.fields.get('$path', self.collection.path_format)
 
     @property
     @utils.memoize
     def path_format_localized(self):
         """Path format for localized documents."""
-        if self.pod.experiments('separate_routing'):
+        if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             localization = self.collection.routes.localization(
-                self.pod_path, {})
+                self.collection_path, {})
         else:
             localization = self.fields.get('$localization', {})
 
         if 'path' in localization:
             return localization['path']
 
-        if self.pod.experiments('separate_routing'):
-            path_format = self.collection.routes.path(self.pod_path, '')
+        if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
+            path_format = self.collection.routes.path(self.collection_path, '')
         else:
             path_format = self.fields.get('$path', '')
 
@@ -421,8 +419,9 @@ class Document(object):
 
     @property
     def view(self):
-        if self.pod.experiments('separate_routing'):
-            view_format = self.collection.routes.view(self.pod_path, self.collection.view)
+        if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
+            view_format = self.collection.routes.view(
+                self.collection_path, self.collection.view)
         else:
             view_format = self.fields.get('$view', self.collection.view)
         if view_format is not None:
