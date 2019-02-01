@@ -141,12 +141,14 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
                 self._execute_doc(path, doc_id, convert)
             # Clean up files that are no longer in Google Drive.
             for path in existing_docs:
-                if path.lstrip('/') not in docs_to_add:
-                    path_to_delete = os.path.join(
-                            config.collection, path.lstrip('/'))
-                    self.pod.delete_file(path_to_delete)
+                doc_path = path.lstrip(os.path.sep)
+                if doc_path.startswith(IGNORE_INITIAL):
+                    continue
+                if doc_path not in docs_to_add:
+                    path_to_delete = os.path.join(config.collection, doc_path)
                     text = 'Deleting -> {}'.format(path_to_delete)
                     self.pod.logger.info(text)
+                    self.pod.delete_file(path_to_delete)
             return
         # Downloads a single document.
         doc_id = config.id
