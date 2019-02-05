@@ -11,11 +11,6 @@ class Error(Exception):
     pass
 
 
-class DocumentDoesNotExistError(Error, ValueError):
-    """Static document does not exist."""
-    pass
-
-
 class StaticDocument(object):
     """Static document."""
 

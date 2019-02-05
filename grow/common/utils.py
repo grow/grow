@@ -297,6 +297,9 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
 
             def func(path):
                 contructed_doc = pod.get_doc(path, locale=locale)
+                if not contructed_doc.exists:
+                    raise errors.DocumentDoesNotExistError(
+                        'Referenced document does not exist: {}'.format(path))
                 pod.podcache.dependency_graph.add(
                     pod_path, contructed_doc.pod_path)
                 return contructed_doc

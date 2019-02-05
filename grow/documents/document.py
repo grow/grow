@@ -41,11 +41,6 @@ class Error(Exception):
     pass
 
 
-class DocumentDoesNotExistError(Error, ValueError):
-    """Document path does not exist as a document."""
-    pass
-
-
 class DocumentExistsError(Error, ValueError):
     pass
 

@@ -543,9 +543,6 @@ class Pod(object):
                 col = self.get_collection(original_collection_path)
                 break
         doc = col.get_doc(pod_path, locale=locale)
-        if not doc.exists:
-            raise document.DocumentDoesNotExistError(
-                'Referenced document does not exist: {}'.format(pod_path))
         return doc
 
     def get_home_doc(self):
@@ -589,7 +586,7 @@ class Pod(object):
         text = ('Either no file exists at "{}" or the "static_dirs" setting was '
                 'not configured for this path in {}.'.format(
                     pod_path, self.FILE_PODSPEC))
-        raise static_document.DocumentDoesNotExistError(text)
+        raise errors.DocumentDoesNotExistError(text)
 
     def get_podspec(self):
         return self.podspec
@@ -639,7 +636,7 @@ class Pod(object):
             doc = self.get_static(pod_path, locale=locale)
 
         if not doc.exists:
-            raise document.DocumentDoesNotExistError(
+            raise errors.DocumentDoesNotExistError(
                 'Referenced document does not exist: {}'.format(pod_path))
         return doc.url
 
