@@ -43,7 +43,9 @@ class PodCache(object):
         for key, item in obj_cache.iteritems():
             # If this is a string, it is written to a separate cache file.
             if isinstance(item, basestring):
-                cache_value = self._pod.read_json(item) or {}
+                cache_value = {}
+                if self._pod.file_exists(item):
+                    cache_value = self._pod.read_json(item)
                 self.create_object_cache(key, **cache_value)
             else:
                 self.create_object_cache(key, **item)
