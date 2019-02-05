@@ -6,15 +6,20 @@ from grow.commands import shared
 from grow.common import rc_config
 from grow.pods import pods
 from grow import storage
+from grow.conversion import collection_routing
 from grow.conversion import content_locale_split
 
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.convert')
+CONVERT_CHOICES = [
+    'content_locale_split',
+    'collection_routing',
+]
 
 
 @click.command()
 @shared.pod_path_argument
-@click.option('--type', 'convert_type', type=click.Choice(['content_locale_split']))
+@click.option('--type', 'convert_type', type=click.Choice(CONVERT_CHOICES))
 def convert(pod_path, convert_type):
     """Converts pod files from an earlier version of Grow."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
@@ -22,6 +27,8 @@ def convert(pod_path, convert_type):
 
     if convert_type == 'content_locale_split':
         content_locale_split.Converter.convert(pod)
+    elif convert_type == 'collection_routing':
+        collection_routing.Converter.convert(pod)
     else:
         raise click.UsageError(
             'Unable to convert files without a --type option.\n'

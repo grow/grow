@@ -100,7 +100,7 @@ class Pod(object):
         self._features = features.Features(disabled=[
             self.FEATURE_TRANSLATION_STATS,
         ])
-        self._experiments = features.Features()
+        self._experiments = features.Features(default_enabled=False)
 
         self._extensions_controller = ext_controller.ExtensionController(self)
 

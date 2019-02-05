@@ -53,24 +53,8 @@ class PathFormat(object):
 
         # Most params should always be replaced.
         params = self.params_pod()
-        params['base'] = doc.base
-        params['category'] = doc.category
-        params['collection'] = structures.AttributeDict(
-            base_path=doc.collection_base_path,
-            basename=doc.collection.basename,
-            root=doc.collection.root)
-        params['parent'] = doc.parent if doc.parent else utils.DummyDict()
-        params['slug'] = doc.slug
-
-        if isinstance(doc.date, datetime.datetime):
-            params['date'] = doc.date.date()
-        else:
-            params['date'] = doc.date
-
-        if '|lower' in path:
-            for key, value in params.items():
-                if isinstance(value, basestring):
-                    params['{}|lower'.format(key)] = value.lower()
+        params.update(self.params_doc(path, doc))
+        params = self.params_lower(path, params)
 
         path = utils.safe_format(path, **params)
 
@@ -114,9 +98,7 @@ class PathFormat(object):
         if fingerprint:
             params['fingerprint'] = fingerprint
 
-        locale_alias = self._locale_or_alias(locale)
-        if locale_alias:
-            params['locale'] = locale_alias
+        params['locale'] = self._locale_or_alias(locale)
 
         if params:
             path = utils.safe_format(path, **params)
@@ -129,24 +111,8 @@ class PathFormat(object):
 
         # Most params should always be replaced.
         params = self.params_pod()
-        params['base'] = doc.base
-        params['category'] = doc.category
-        params['collection'] = structures.AttributeDict(
-            base_path=doc.collection_base_path,
-            basename=doc.collection.basename,
-            root=doc.collection.root)
-        params['parent'] = doc.parent if doc.parent else utils.DummyDict()
-        params['slug'] = doc.slug
-
-        if isinstance(doc.date, datetime.datetime):
-            params['date'] = doc.date.date()
-        else:
-            params['date'] = doc.date
-
-        if '|lower' in path:
-            for key, value in params.items():
-                if isinstance(value, basestring):
-                    params['{}|lower'.format(key)] = value.lower()
+        params.update(self.params_doc(path, doc))
+        params = self.params_lower(path, params)
 
         path = utils.safe_format(path, **params)
 
@@ -154,6 +120,35 @@ class PathFormat(object):
             path = self.parameterize(path)
 
         return self.strip_double_slash(path)
+
+    def params_doc(self, path, doc):
+        """Selective access to the document properties depending on path."""
+        params = {}
+        params['base'] = doc.base
+        params['collection'] = structures.AttributeDict(
+            base_path=doc.collection_base_path,
+            basename=doc.collection.basename,
+            root=doc.collection.root)
+        if '{category}' in path:
+            params['category'] = doc.category
+        if '{parent}' in path:
+            params['parent'] = doc.parent if doc.parent else utils.DummyDict()
+        if '{slug}' in path:
+            params['slug'] = doc.slug
+        if '{date}' in path:
+            if isinstance(doc.date, datetime.datetime):
+                params['date'] = doc.date.date()
+            else:
+                params['date'] = doc.date
+        return params
+
+    def params_lower(self, path, params):
+        """Update to support lowercase when in the path."""
+        if '|lower' in path:
+            for key, value in params.items():
+                if isinstance(value, basestring):
+                    params['{}|lower'.format(key)] = value.lower()
+        return params
 
     def params_pod(self):
         params = {}

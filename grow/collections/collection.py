@@ -6,11 +6,12 @@ import operator
 import os
 import re
 import sys
+from grow.collections import collection_routes
+from grow.common import features
 from grow.common import structures
 from grow.common import untag
 from grow.common import utils
 from grow.documents import document
-from grow.documents import document_fields
 from grow.documents import document_front_matter
 from grow.translations import locales
 from grow.pods import messages
@@ -48,6 +49,7 @@ class Collection(object):
     CONTENT_PATH = '/content'
     BLUEPRINT_PATH = '_blueprint.yaml'
     EDITOR_PATH = '_editor.yaml'
+    FEATURE_SEPARATE_ROUTING = 'separate_routing'
     IGNORE_INITIAL = ('_',)
 
     _content_path_regex = re.compile('^' + CONTENT_PATH + '/?')
@@ -165,6 +167,19 @@ class Collection(object):
         return self.pod.file_exists(self.blueprint_path)
 
     @utils.cached_property
+    def features(self):
+        """Collection features."""
+        coll_features = features.Features(disabled=[
+            self.FEATURE_SEPARATE_ROUTING,
+        ])
+
+        # Enable the separate_routing feature if there are routes specified.
+        if self.yaml.get('routes', {}):
+            coll_features.enable(self.FEATURE_SEPARATE_ROUTING)
+
+        return coll_features
+
+    @utils.cached_property
     def fields(self):
         fields = untag.Untag.untag(
             self.tagged_fields, params={
@@ -209,6 +224,10 @@ class Collection(object):
     @property
     def root(self):
         return self._get_builtin_field('root')
+
+    @utils.cached_property
+    def routes(self):
+        return collection_routes.CollectionRoutes(self.fields.get('routes', {}))
 
     @property
     def tagged_fields(self):
