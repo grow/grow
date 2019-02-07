@@ -235,18 +235,21 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         resp = drive_service.files().get(
             fileId=spreadsheet_id,
             fields='name,modifiedTime,lastModifyingUser,webViewLink').execute()
+        title = resp['name']
+        if isinstance(title, unicode):
+            title = title.encode('utf-8')
         if 'lastModifyingUser' in resp:
             # Sometimes the email address isn't included.
             name = resp['lastModifyingUser']['displayName']
             modified_by = resp['lastModifyingUser'].get('emailAddress', name)
             logger.info('Downloading "{}" modified {} by {} from {}'.format(
-                resp['name'],
+                title,
                 resp['modifiedTime'],
                 modified_by,
                 resp['webViewLink']))
         else:
             logger.info('Downloading "{}" modified {} from {}'.format(
-                resp['name'],
+                title,
                 resp['modifiedTime'],
                 resp['webViewLink']))
 
