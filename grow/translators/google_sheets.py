@@ -117,6 +117,9 @@ class GoogleSheetsTranslator(base.Translator):
         return bool(set(row) - set((None, ''))) is False
 
     def _upload_catalogs(self, catalogs, source_lang, prune=False):
+        if not catalogs:
+            raise translator_errors.NoCatalogsError('Missing catalogs to upload.')
+
         project_title = self.project_title
         source_lang = str(source_lang)
         locales_to_sheet_ids = {}
@@ -139,6 +142,7 @@ class GoogleSheetsTranslator(base.Translator):
                     sheet['properties']['sheetId']
             catalogs_to_create = []
             sheet_ids_to_catalogs = {}
+
             for catalog in catalogs:
                 existing_sheet_id = locales_to_sheet_ids.get(
                     str(catalog.locale))
