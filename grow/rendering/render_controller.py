@@ -157,6 +157,7 @@ class RenderDocumentController(RenderController):
             template.globals['_'] = tags.make_doc_gettext(doc)
 
         try:
+            doc.footnotes.reset()
             serving_path = doc.get_serving_path()
             if serving_path.endswith('/'):
                 serving_path = '{}{}'.format(serving_path, self.suffix)
