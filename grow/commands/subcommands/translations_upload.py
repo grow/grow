@@ -49,29 +49,38 @@ def translations_upload(pod_path, locale, force, service, update_acl,
         raise click.ClickException('No translators specified in podspec.yaml.')
 
     if update_acl:
-        translator.update_acl(locales=locale)
+        with pod.profile.timer('grow_translations_acl'):
+            translator.update_acl(locales=locale)
         return
 
     if update_meta:
-        translator.update_meta(locales=locale)
+        with pod.profile.timer('grow_translations_meta'):
+            translator.update_meta(locales=locale)
         return
 
     if download:
-        translator.download(locales=locale)
+        with pod.profile.timer('grow_translations_download'):
+            translator.download(locales=locale)
 
     if extract:
-        include_obsolete, localized, include_header, use_fuzzy_matching, = \
-            pod.catalogs.get_extract_config()
-        catalogs = pod.get_catalogs()
-        locales = validate_locales(pod.list_locales(), locale)
-        catalogs.extract(include_obsolete=include_obsolete, localized=localized,
-                         include_header=include_header,
-                         use_fuzzy_matching=use_fuzzy_matching, locales=locales)
-        if not localized:
-            catalogs.update(locales=locales, include_header=include_header,
-                            use_fuzzy_matching=use_fuzzy_matching)
+        with pod.profile.timer('grow_translations_extract'):
+            include_obsolete, localized, include_header, use_fuzzy_matching, = \
+                pod.catalogs.get_extract_config()
+            catalogs = pod.get_catalogs()
+            locales = validate_locales(pod.list_locales(), locale)
+            catalogs.extract(include_obsolete=include_obsolete, localized=localized,
+                             include_header=include_header,
+                             use_fuzzy_matching=use_fuzzy_matching, locales=locales)
+            if not localized:
+                catalogs.update(locales=locales, include_header=include_header,
+                                use_fuzzy_matching=use_fuzzy_matching)
 
     with pod.profile.timer('grow_translations_upload'):
         translator.upload(locales=locale, force=force,
                           verbose=True, prune=prune)
+
+    if translator.needs_meta_update:
+        with pod.profile.timer('grow_translations_meta'):
+            translator.update_meta(locales=locale)
+
     return pod
