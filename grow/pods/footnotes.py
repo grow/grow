@@ -63,7 +63,7 @@ class Footnotes(object):
     def __init__(self, locale, symbols=None, use_numeric_symbols=None,
             numeric_locales_pattern=None):
         self.symbol_to_footnote = collections.OrderedDict()
-        symbols = symbols or SYMBOLS
+        self.symbols = symbols or SYMBOLS
         numeric_locales_pattern = (
             numeric_locales_pattern or NUMERIC_LOCALES_REGEX)
         if type(NUMERIC_LOCALES_REGEX) != type(numeric_locales_pattern):
@@ -76,7 +76,7 @@ class Footnotes(object):
             self.generator = numberic_symbol_generator()
             self.is_numeric = True
         else:
-            self.generator = symbol_generator(symbols)
+            self.generator = symbol_generator(self.symbols)
             self.is_numeric = False
 
     def __getitem__(self, key):
@@ -110,3 +110,10 @@ class Footnotes(object):
 
     def iteritems(self):
         return self.symbol_to_footnote.iteritems()
+
+    def reset(self):
+        self.symbol_to_footnote = collections.OrderedDict()
+        if self.is_numeric:
+            self.generator = numberic_symbol_generator()
+        else:
+            self.generator = symbol_generator(self.symbols)

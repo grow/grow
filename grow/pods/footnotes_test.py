@@ -90,6 +90,22 @@ class FootnotesTestCase(unittest.TestCase):
             'en_US', numeric_locales_pattern='_US$')
         self.assertEquals(True, notes.is_numeric)
 
+    def test_reset(self):
+        """Resetting resets the footnotes and the symbol generator."""
+        notes = footnotes.Footnotes(None)
+        symbol = notes.add('See other side.')
+        self.assertEquals(1, len(notes))
+        self.assertEquals('*', symbol)
+        self.assertEquals('See other side.', notes[symbol])
+
+        notes.reset()
+
+        self.assertEquals(0, len(notes))
+        symbol = notes.add('See this side.')
+        self.assertEquals(1, len(notes))
+        self.assertEquals('*', symbol)
+        self.assertEquals('See this side.', notes[symbol])
+
     def test_use_numeric_symbols(self):
         # Defaults to pattern for detection.
         notes = footnotes.Footnotes('de_DE')
