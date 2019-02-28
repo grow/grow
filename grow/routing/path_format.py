@@ -7,6 +7,10 @@ from grow.common import structures
 from grow.common import utils
 
 
+HTML_EXTENSIONS = ('.html', '.htm')
+VALID_DOC_EXTENSIONS = ('.html', '.htm', '.xml', '.svg')
+
+
 class PathFormat(object):
     """Format url paths using the information from the pod."""
 
@@ -33,7 +37,9 @@ class PathFormat(object):
     @staticmethod
     def trailing_slash(doc, path):
         """Adds trailing slash when appropriate."""
-        if not doc.view.endswith(('.html', '.htm')):
+        if not doc.view.endswith(HTML_EXTENSIONS):
+            return path
+        if path.endswith(VALID_DOC_EXTENSIONS):
             return path
         if path and not path.endswith('/'):
             return '{}/'.format(path)
