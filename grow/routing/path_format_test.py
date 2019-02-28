@@ -207,6 +207,19 @@ class PathFormatTestCase(unittest.TestCase):
         doc = _mock_doc(pod, view='/view/base.xml')
         self.assertEquals('/foo/bar', grow_path_format.PathFormat.trailing_slash(doc, '/foo/bar'))
 
+    def test_trailing_slash_path(self):
+        """Slashes are not added for paths with a common extension."""
+        pod = _mock_pod()
+        doc = _mock_doc(pod)
+        self.assertEquals('/', grow_path_format.PathFormat.trailing_slash(doc, '/'))
+        self.assertEquals('/bar.html', grow_path_format.PathFormat.trailing_slash(doc, '/bar.html'))
+        self.assertEquals('/bar.htm', grow_path_format.PathFormat.trailing_slash(doc, '/bar.htm'))
+        self.assertEquals('/bar.xml', grow_path_format.PathFormat.trailing_slash(doc, '/bar.xml'))
+        self.assertEquals('/bar.svg', grow_path_format.PathFormat.trailing_slash(doc, '/bar.svg'))
+
+        # Not all extensions are supported for docs.
+        self.assertEquals('/bar.png/', grow_path_format.PathFormat.trailing_slash(doc, '/bar.png'))
+
 
 if __name__ == '__main__':
     unittest.main()
