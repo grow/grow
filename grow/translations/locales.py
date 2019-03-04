@@ -86,7 +86,7 @@ class Locale(babel.Locale):
 
     @property
     def is_rtl(self):
-        return Locale.RTL_REGEX.match(self.language)
+        return bool(Locale.RTL_REGEX.match(self.language))
 
     @property
     def direction(self):
