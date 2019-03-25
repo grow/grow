@@ -82,7 +82,8 @@ def translations_extract(pod_path, init, update, include_obsolete, localized,
             text = 'Updating {} catalogs with extracted messages.'
             pod.logger.info(text.format(len(locales)))
             catalogs.update(locales=locales, include_header=include_header,
-                            use_fuzzy_matching=use_fuzzy_matching)
+                            use_fuzzy_matching=use_fuzzy_matching,
+                            include_obsolete=include_obsolete)
     return pod
 
 

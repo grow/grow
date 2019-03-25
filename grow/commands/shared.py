@@ -50,7 +50,7 @@ def include_header_option(config):
     return _decorator
 
 
-def include_obsolete_option(config, default_value=False):
+def include_obsolete_option(config, default_value=None):
     """Option for including obsolete translations."""
     shared_default = CFG.get('include-obsolete', default_value)
     config_default = config.get('include-obsolete', shared_default)

@@ -153,7 +153,7 @@ class Catalogs(object):
                          include_header=include_header)
 
     def update(self, locales, use_fuzzy_matching=None, include_header=None):
-        _, _, include_header, use_fuzzy_matching = \
+        include_obsolete, _, include_header, use_fuzzy_matching = \
             self.get_extract_config(include_header=include_header,
                                     use_fuzzy_matching=use_fuzzy_matching)
         for locale in locales:
@@ -161,7 +161,8 @@ class Catalogs(object):
             self.pod.logger.info('Updating: {}'.format(locale))
             catalog.update(template_path=self.template_path,
                            use_fuzzy_matching=use_fuzzy_matching,
-                           include_header=include_header)
+                           include_header=include_header,
+                           include_obsolete=include_obsolete)
 
     def import_translations(self, path=None, locale=None, content=None,
                             include_obsolete=True, untranslated=False):
