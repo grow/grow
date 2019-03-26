@@ -152,10 +152,12 @@ class Catalogs(object):
             catalog.init(template_path=self.template_path,
                          include_header=include_header)
 
-    def update(self, locales, use_fuzzy_matching=None, include_header=None):
+    def update(self, locales, use_fuzzy_matching=None, include_header=None,
+               include_obsolete=None):
         include_obsolete, _, include_header, use_fuzzy_matching = \
             self.get_extract_config(include_header=include_header,
-                                    use_fuzzy_matching=use_fuzzy_matching)
+                    include_obsolete=include_obsolete,
+                    use_fuzzy_matching=use_fuzzy_matching)
         for locale in locales:
             catalog = self.get(locale)
             self.pod.logger.info('Updating: {}'.format(locale))
