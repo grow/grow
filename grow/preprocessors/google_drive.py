@@ -181,6 +181,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         header_row_count = messages.IntegerField(11, default=1)
         header_row_index = messages.IntegerField(12, default=1)
         include_properties = messages.StringField(13, repeated=True)
+        color_as_draft = messages.BooleanField(14, default=True)
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -379,12 +380,17 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return path, None
 
     def _maybe_preserve_content(self, new_data, path, key_to_update, properties):
+        # Includes meta properties from the Google Sheet.
         if self.config.include_properties:
             for name in self.config.include_properties:
                 if name in properties:
                     if '$meta' not in new_data:
                         new_data['$meta'] = {'properties': {}}
-                    new_data['$meta']['properties'] = properties[name]
+                    new_data['$meta']['properties'][name] = properties[name]
+        # Tabs colored red are marked $draft.
+        if self.config.color_as_draft and properties.get('tabColor'):
+            if properties['tabColor'] == {'red': 1}:
+                new_data['$draft'] = True
         if path.endswith(('.yaml', '.yml')) and self.config.preserve:
             # Use existing data if it exists. If we're updating data at a
             # specific key, and if the existing data doesn't exist, use an
@@ -452,11 +458,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             if not gids:
                 gids = gid_to_sheet.keys()
 
+            num_saved = 0
             for gid in gids:
-                if gid_to_sheet[gid]['title'].strip().startswith(IGNORE_INITIAL):
+                title = gid_to_sheet[gid]['title']
+                if title.strip().startswith(IGNORE_INITIAL):
                     continue
-                file_name = '{}.yaml'.format(
-                    utils.slugify(gid_to_sheet[gid]['title']))
+                slug = utils.slugify(title)
+                file_name = '{}.yaml'.format(slug)
                 output_path = os.path.join(collection_path, file_name)
                 gid_to_data[gid] = self._maybe_preserve_content(
                         new_data=gid_to_data[gid],
@@ -466,9 +474,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 # Use plain text dumper to preserve yaml constructors.
                 output_content = utils.dump_plain_yaml(gid_to_data[gid])
                 self.pod.write_file(output_path, output_content)
-                self.logger.info(
-                    'Downloaded {} ({}) -> {}'.format(
-                        gid_to_sheet[gid]['title'], gid, output_path))
+                if gid_to_data[gid].get('$draft'):
+                    self.logger.info('Drafted tab -> {}'.format(title))
+                num_saved += 1
+            text = 'Saved {} tabs -> {}'
+            self.logger.info(text.format(num_saved, collection_path))
 
     @classmethod
     def get_convert_to(cls, path):
