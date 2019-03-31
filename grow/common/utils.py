@@ -49,6 +49,10 @@ class UnavailableError(Error):
     """Raised when a feature is not available."""
 
 
+class DraftStringError(Error):
+    """Raised when a draft string is used yet not allowed."""
+
+
 def is_packaged_app():
     """Returns whether the environment is a packaged app."""
     try:
@@ -341,6 +345,9 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
                 if reference:
                     data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
                     try:
+                        allow_draft = pod.podspec.fields.get('strings', {}).get('allow_draft')
+                        if allow_draft is False and data.get('$draft'):
+                            raise DraftStringError('Encountered string in draft -> {}?{}'.format(path, reference))
                         value = data[reference]
                         if value is None:
                             if doc:
