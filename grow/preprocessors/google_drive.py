@@ -28,7 +28,7 @@ from grow.preprocessors import base
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
 STORAGE_KEY = 'Grow SDK'
-IGNORE_INITIAL = ('_', '#')
+IGNORE_INITIAL = ('_', '#', '*')
 
 
 # Silence extra logging from googleapiclient.
@@ -378,13 +378,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             return path.rsplit(':', 1)
         return path, None
 
-    def _maybe_preserve_content(self, new_data, path, key_to_update):
+    def _maybe_preserve_content(self, new_data, path, key_to_update, properties):
         if self.config.include_properties:
             for name in self.config.include_properties:
-                if name in gid_to_sheet[gid]:
+                if name in properties:
                     if '$meta' not in new_data:
                         new_data['$meta'] = {'properties': {}}
-                    new_data['$meta']['properties'] = gid_to_sheet[gid][name]
+                    new_data['$meta']['properties'] = properties[name]
         if path.endswith(('.yaml', '.yml')) and self.config.preserve:
             # Use existing data if it exists. If we're updating data at a
             # specific key, and if the existing data doesn't exist, use an
@@ -435,7 +435,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 gid_to_data[gid] = self._maybe_preserve_content(
                         new_data=gid_to_data[gid],
                         path=path,
-                        key_to_update=key_to_update)
+                        key_to_update=key_to_update,
+                        properties=gid_to_sheet[gid])
                 content = GoogleSheetsPreprocessor.serialize_content(
                     formatted_data=gid_to_data[gid], path=path,
                     output_style=self.config.output_style)
@@ -460,7 +461,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 gid_to_data[gid] = self._maybe_preserve_content(
                         new_data=gid_to_data[gid],
                         path=output_path,
-                        key_to_update=None)
+                        key_to_update=None,
+                        properties=gid_to_sheet[gid])
                 # Use plain text dumper to preserve yaml constructors.
                 output_content = utils.dump_plain_yaml(gid_to_data[gid])
                 self.pod.write_file(output_path, output_content)
