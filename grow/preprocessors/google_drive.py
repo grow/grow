@@ -15,7 +15,6 @@ import json
 import logging
 import os
 import httplib2
-import progressbar
 from googleapiclient import discovery
 from googleapiclient import errors
 from protorpc import messages
@@ -283,13 +282,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         gid_to_data = {}
         generated_key_index = 0
 
-        batch_size = len(gids_to_process)
-        text = 'Downloading: %(value)d/{} (in %(elapsed)s)'
-        widgets = [progressbar.FormatLabel(text.format(batch_size))]
-        bar = None
-        if batch_size > 2:
-            bar = progressbar.ProgressBar(widgets=widgets, maxval=batch_size)
-            bar.start()
+        range_names = []
 
         for gid in gids_to_process:
             if format_as_map:
@@ -299,18 +292,18 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     gid_to_sheet[gid]['gridProperties']['columnCount'])
             range_name = "'{}'!A:{}".format(
                 gid_to_sheet[gid]['title'], max_column)
+            range_names.append(range_name)
 
-            # pylint: disable=no-member
-            resp = service.spreadsheets().values().get(
-                spreadsheetId=spreadsheet_id, range=range_name).execute()
+        # pylint: disable=no-member
+        batch_resp = service.spreadsheets().values().batchGet(
+            spreadsheetId=spreadsheet_id, ranges=range_names).execute()
 
+        for i, gid in enumerate(gids_to_process):
+            resp = batch_resp['valueRanges'][i]
             if format_as_map or format_as_grid:
                 gid_to_data[gid] = {}
             else:
                 gid_to_data[gid] = []
-
-            if bar:
-                bar.update(bar.value + 1)
 
             if not 'values' in resp:
                 logger.info(
@@ -377,8 +370,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                                     row[idx] if len(row) > idx else '')
                         gid_to_data[gid].append(row_values)
 
-        if bar:
-            bar.finish()
         return gid_to_sheet, gid_to_data
 
     @staticmethod
