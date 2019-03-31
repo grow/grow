@@ -22,13 +22,18 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
     @staticmethod
-    def _setup_mocks(sheets_get=None, sheets_values=None, files=None):
+    def _setup_mocks(sheets_get=None, sheets_values=None,
+                     sheets_batch_values=None, files=None):
         if sheets_get is None:
             sheets_get = {
                 'spreadsheetId': 76543,
             }
-        if sheets_values is None:
-            sheets_values = []
+        if sheets_batch_values is None:
+            if sheets_values is None:
+                sheets_values = []
+            sheets_batch_values = {'valueRanges': [sheets_values]}
+        else:
+            sheets_batch_values = {'valueRanges': sheets_batch_values}
 
         if files is None:
             files = {
@@ -42,7 +47,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
             }
 
         mock_sheets_service = google_service.GoogleServiceMock.mock_sheets_service(
-            get=sheets_get, values=sheets_values, files=files)
+            get=sheets_get, batch_values=sheets_batch_values, files=files)
 
         return mock_sheets_service
 
@@ -174,13 +179,25 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                     },
                 },
             }]
-        }, sheets_values={
+        }, sheets_batch_values=[{
             'values': [
                 ['id', 'name', 'age', '_comment'],
                 ['1', 'Jim', 27, 'commenting'],
                 ['2', 'Sue', 23, 'something'],
             ],
-        })
+        }, {
+            'values': [
+                ['id', 'name', 'age', '_comment'],
+                ['1', 'Jim', 27, 'commenting'],
+                ['2', 'Sue', 23, 'something'],
+            ],
+        }, {
+            'values': [
+                ['id', 'name', 'age', '_comment'],
+                ['1', 'Jim', 27, 'commenting'],
+                ['2', 'Sue', 23, 'something'],
+            ],
+        }])
         mock_service_sheets.return_value = mock_sheets_service['service']
         gid_to_sheet, gid_to_data = preprocessor.download('A1B2C3D4E5F6')
 
@@ -252,14 +269,28 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                     },
                 },
             }]
-        }, sheets_values={
+        }, sheets_batch_values=[{
             'values': [
                 ['', 'ignored1', 'ignored2', 'ignored3'],
                 ['id', 'name', 'age', '_comment'],
                 ['1', 'Jim', 27, 'commenting'],
                 ['2', 'Sue', 23, 'something'],
             ],
-        })
+        }, {
+            'values': [
+                ['', 'ignored1', 'ignored2', 'ignored3'],
+                ['id', 'name', 'age', '_comment'],
+                ['1', 'Jim', 27, 'commenting'],
+                ['2', 'Sue', 23, 'something'],
+            ],
+        }, {
+            'values': [
+                ['', 'ignored1', 'ignored2', 'ignored3'],
+                ['id', 'name', 'age', '_comment'],
+                ['1', 'Jim', 27, 'commenting'],
+                ['2', 'Sue', 23, 'something'],
+            ],
+        }])
         mock_service_sheets.return_value = mock_sheets_service['service']
         gid_to_sheet, gid_to_data = preprocessor.download('A1B2C3D4E5F6',
             header_row_count=2, header_row_index=2)

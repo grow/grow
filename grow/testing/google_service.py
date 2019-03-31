@@ -34,7 +34,7 @@ class GoogleServiceMock(object):
         }
 
     @classmethod
-    def mock_sheets_service(cls, create=None, get=None, values=None, files=None):
+    def mock_sheets_service(cls, create=None, get=None, values=None, batch_values=None, files=None):
         """Create mock for a google sheets service."""
         mock_files = mock.Mock()
         mock_files_get = mock.Mock()
@@ -56,8 +56,11 @@ class GoogleServiceMock(object):
 
         mock_values_get = mock.Mock()
         mock_values_get.execute.return_value = values
+        mock_values_batch_get = mock.Mock()
+        mock_values_batch_get.execute.return_value = batch_values
         mock_values = mock.Mock()
         mock_values.get.return_value = mock_values_get
+        mock_values.batchGet.return_value = mock_values_batch_get
         mock_spreadsheets.values.return_value = mock_values
 
         mock_service = mock.Mock()
