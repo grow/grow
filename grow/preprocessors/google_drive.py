@@ -128,13 +128,13 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             docs_to_add = []
             existing_docs = self.pod.list_dir(config.collection)
             for item in resp['items']:
-                if item['mimeType'] != 'application/vnd.google-apps.document':
-                    continue
-                if item['title'].startswith(IGNORE_INITIAL):
-                    self.pod.logger.info('Skipping -> {}'.format(title))
-                    continue
                 doc_id = item['id']
                 title = item['title']
+                if item['mimeType'] != 'application/vnd.google-apps.document':
+                    continue
+                if title.startswith(IGNORE_INITIAL):
+                    self.pod.logger.info('Skipping -> {}'.format(title))
+                    continue
                 basename = '{}.md'.format(utils.slugify(title))
                 docs_to_add.append(basename)
                 path = os.path.join(config.collection, basename)
