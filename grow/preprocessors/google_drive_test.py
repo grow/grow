@@ -233,7 +233,6 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                   {'age': 23, 'id': '2', 'name': 'Sue'}],
             765: [{'age': 27, 'id': '1', 'name': 'Jim'},
                   {'age': 23, 'id': '2', 'name': 'Sue'}],
-            922: [],
         }, gid_to_data)
 
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
@@ -327,7 +326,6 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
                   {'age': 23, 'id': '2', 'name': 'Sue'}],
             765: [{'age': 27, 'id': '1', 'name': 'Jim'},
                   {'age': 23, 'id': '2', 'name': 'Sue'}],
-            922: [],
         }, gid_to_data)
 
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
