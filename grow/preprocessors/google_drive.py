@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import httplib2
+import progressbar
 from googleapiclient import discovery
 from googleapiclient import errors
 from protorpc import messages
@@ -130,11 +131,11 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             for item in resp['items']:
                 if item['mimeType'] != 'application/vnd.google-apps.document':
                     continue
-                doc_id = item['id']
-                title = item['title']
-                if title.startswith(IGNORE_INITIAL):
+                if item['title'].startswith(IGNORE_INITIAL):
                     self.pod.logger.info('Skipping -> {}'.format(title))
                     continue
+                doc_id = item['id']
+                title = item['title']
                 basename = '{}.md'.format(utils.slugify(title))
                 docs_to_add.append(basename)
                 path = os.path.join(config.collection, basename)
@@ -180,6 +181,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         generate_ids = messages.BooleanField(10, default=False)
         header_row_count = messages.IntegerField(11, default=1)
         header_row_index = messages.IntegerField(12, default=1)
+        include_properties = messages.StringField(13, repeated=True)
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -270,9 +272,26 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             url = GoogleSheetsPreprocessor._sheet_edit_url_format.format(id=spreadsheet_id)
             logger.info('Downloading {} tabs -> {}'.format(len(gids), url))
 
+        gids_to_process = []
+        for gid in gids:
+            title = gid_to_sheet[gid]['title']
+            if title.startswith(IGNORE_INITIAL):
+                logger.info('Skipping tab -> {}'.format(title))
+                continue
+            gids_to_process.append(gid)
+
         gid_to_data = {}
         generated_key_index = 0
-        for gid in gids:
+
+        batch_size = len(gids_to_process)
+        text = 'Downloading: %(value)d/{} (in %(elapsed)s)'
+        widgets = [progressbar.FormatLabel(text.format(batch_size))]
+        bar = None
+        if batch_size > 2:
+            bar = progressbar.ProgressBar(widgets=widgets, maxval=batch_size)
+            bar.start()
+
+        for gid in gids_to_process:
             if format_as_map:
                 max_column = 'B'
             else:
@@ -290,14 +309,13 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             else:
                 gid_to_data[gid] = []
 
+            if bar:
+                bar.update(bar.value + 1)
+
             if not 'values' in resp:
                 logger.info(
                     'No values found in sheet -> {}'.format(gid_to_sheet[gid]['title']))
             else:
-                title = gid_to_sheet[gid]['title']
-                if title.startswith(IGNORE_INITIAL):
-                    logger.info('Skipping tab -> {}'.format(title))
-                    continue
                 headers = None
                 header_rows = []
                 for row in resp['values']:
@@ -358,6 +376,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                                 row_values[column] = (
                                     row[idx] if len(row) > idx else '')
                         gid_to_data[gid].append(row_values)
+
+        if bar:
+            bar.finish()
         return gid_to_sheet, gid_to_data
 
     @staticmethod
@@ -367,6 +388,12 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         return path, None
 
     def _maybe_preserve_content(self, new_data, path, key_to_update):
+        if self.config.include_properties:
+            for name in self.config.include_properties:
+                if name in gid_to_sheet[gid]:
+                    if '$meta' not in new_data:
+                        new_data['$meta'] = {'properties': {}}
+                    new_data['$meta']['properties'] = gid_to_sheet[gid][name]
         if path.endswith(('.yaml', '.yml')) and self.config.preserve:
             # Use existing data if it exists. If we're updating data at a
             # specific key, and if the existing data doesn't exist, use an
@@ -414,7 +441,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             path, key_to_update = self.parse_path(config.path)
 
             for gid in gids:
-                # Preserve existing data if necessary.
                 gid_to_data[gid] = self._maybe_preserve_content(
                         new_data=gid_to_data[gid],
                         path=path,
