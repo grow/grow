@@ -139,7 +139,7 @@ jobs:
 
       - run:
           name: Install Packages
-          command: brew install golang libyaml
+          command: brew install golang && brew upgrade libyaml
 
       - run:
           name: Update GO PATHS
