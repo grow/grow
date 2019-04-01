@@ -28,7 +28,9 @@ from grow.preprocessors import base
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
 STORAGE_KEY = 'Grow SDK'
-IGNORE_INITIAL = ('_', '#')
+META_KEY = '$meta'
+DRAFT_KEY = '$draft'
+IGNORE_INITIAL = ('_', '#', '*')
 
 
 # Silence extra logging from googleapiclient.
@@ -128,10 +130,10 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             docs_to_add = []
             existing_docs = self.pod.list_dir(config.collection)
             for item in resp['items']:
-                if item['mimeType'] != 'application/vnd.google-apps.document':
-                    continue
                 doc_id = item['id']
                 title = item['title']
+                if item['mimeType'] != 'application/vnd.google-apps.document':
+                    continue
                 if title.startswith(IGNORE_INITIAL):
                     self.pod.logger.info('Skipping -> {}'.format(title))
                     continue
@@ -180,6 +182,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         generate_ids = messages.BooleanField(10, default=False)
         header_row_count = messages.IntegerField(11, default=1)
         header_row_index = messages.IntegerField(12, default=1)
+        include_properties = messages.StringField(13, repeated=True)
+        color_as_draft = messages.BooleanField(14, default=True)
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -270,9 +274,20 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             url = GoogleSheetsPreprocessor._sheet_edit_url_format.format(id=spreadsheet_id)
             logger.info('Downloading {} tabs -> {}'.format(len(gids), url))
 
+        gids_to_process = []
+        for gid in gids:
+            title = gid_to_sheet[gid]['title']
+            if title.startswith(IGNORE_INITIAL):
+                logger.info('Skipping tab -> {}'.format(title))
+                continue
+            gids_to_process.append(gid)
+
         gid_to_data = {}
         generated_key_index = 0
-        for gid in gids:
+
+        range_names = []
+
+        for gid in gids_to_process:
             if format_as_map:
                 max_column = 'B'
             else:
@@ -280,11 +295,14 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     gid_to_sheet[gid]['gridProperties']['columnCount'])
             range_name = "'{}'!A:{}".format(
                 gid_to_sheet[gid]['title'], max_column)
+            range_names.append(range_name)
 
-            # pylint: disable=no-member
-            resp = service.spreadsheets().values().get(
-                spreadsheetId=spreadsheet_id, range=range_name).execute()
+        # pylint: disable=no-member
+        batch_resp = service.spreadsheets().values().batchGet(
+            spreadsheetId=spreadsheet_id, ranges=range_names).execute()
 
+        for i, gid in enumerate(gids_to_process):
+            resp = batch_resp['valueRanges'][i]
             if format_as_map or format_as_grid:
                 gid_to_data[gid] = {}
             else:
@@ -294,10 +312,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 logger.info(
                     'No values found in sheet -> {}'.format(gid_to_sheet[gid]['title']))
             else:
-                title = gid_to_sheet[gid]['title']
-                if title.startswith(IGNORE_INITIAL):
-                    logger.info('Skipping tab -> {}'.format(title))
-                    continue
                 headers = None
                 header_rows = []
                 for row in resp['values']:
@@ -358,6 +372,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                                 row_values[column] = (
                                     row[idx] if len(row) > idx else '')
                         gid_to_data[gid].append(row_values)
+
         return gid_to_sheet, gid_to_data
 
     @staticmethod
@@ -366,7 +381,20 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             return path.rsplit(':', 1)
         return path, None
 
-    def _maybe_preserve_content(self, new_data, path, key_to_update):
+    def _maybe_preserve_content(self, new_data, path, key_to_update, properties):
+        # Includes meta properties from the Google Sheet.
+        if self.config.include_properties:
+            if META_KEY not in new_data:
+                new_data[META_KEY] = {}
+            if 'properties' not in new_data[META_KEY]:
+                new_data[META_KEY]['properties'] = {}
+            for name in self.config.include_properties:
+                if name in properties:
+                    new_data[META_KEY]['properties'][name] = properties[name]
+        # Tabs colored red are marked draft.
+        if self.config.color_as_draft and properties.get('tabColor'):
+            if properties['tabColor'] == {'red': 1}:
+                new_data[DRAFT_KEY] = True
         if path.endswith(('.yaml', '.yml')) and self.config.preserve:
             # Use existing data if it exists. If we're updating data at a
             # specific key, and if the existing data doesn't exist, use an
@@ -414,11 +442,11 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             path, key_to_update = self.parse_path(config.path)
 
             for gid in gids:
-                # Preserve existing data if necessary.
                 gid_to_data[gid] = self._maybe_preserve_content(
                         new_data=gid_to_data[gid],
                         path=path,
-                        key_to_update=key_to_update)
+                        key_to_update=key_to_update,
+                        properties=gid_to_sheet[gid])
                 content = GoogleSheetsPreprocessor.serialize_content(
                     formatted_data=gid_to_data[gid], path=path,
                     output_style=self.config.output_style)
@@ -434,22 +462,27 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             if not gids:
                 gids = gid_to_sheet.keys()
 
+            num_saved = 0
             for gid in gids:
-                if gid_to_sheet[gid]['title'].strip().startswith(IGNORE_INITIAL):
+                title = gid_to_sheet[gid]['title']
+                if title.strip().startswith(IGNORE_INITIAL):
                     continue
-                file_name = '{}.yaml'.format(
-                    utils.slugify(gid_to_sheet[gid]['title']))
+                slug = utils.slugify(title)
+                file_name = '{}.yaml'.format(slug)
                 output_path = os.path.join(collection_path, file_name)
                 gid_to_data[gid] = self._maybe_preserve_content(
                         new_data=gid_to_data[gid],
                         path=output_path,
-                        key_to_update=None)
+                        key_to_update=None,
+                        properties=gid_to_sheet[gid])
                 # Use plain text dumper to preserve yaml constructors.
                 output_content = utils.dump_plain_yaml(gid_to_data[gid])
                 self.pod.write_file(output_path, output_content)
-                self.logger.info(
-                    'Downloaded {} ({}) -> {}'.format(
-                        gid_to_sheet[gid]['title'], gid, output_path))
+                if gid_to_data[gid].get(DRAFT_KEY):
+                    self.logger.info('Drafted tab -> {}'.format(title))
+                num_saved += 1
+            text = 'Saved {} tabs -> {}'
+            self.logger.info(text.format(num_saved, collection_path))
 
     @classmethod
     def get_convert_to(cls, path):

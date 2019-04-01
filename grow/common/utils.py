@@ -37,6 +37,7 @@ except ImportError:
 APPENGINE_SERVER_PREFIXES = ('Development/', 'Google App Engine/')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
+DRAFT_KEY = '$draft'
 SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 SLUG_SUBSTITUTE = ((':{}', ':'),)
 
@@ -47,6 +48,10 @@ class Error(Exception):
 
 class UnavailableError(Error):
     """Raised when a feature is not available."""
+
+
+class DraftStringError(Error):
+    """Raised when a draft string is used yet not allowed."""
 
 
 def is_packaged_app():
@@ -341,6 +346,9 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
                 if reference:
                     data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
                     try:
+                        allow_draft = pod.podspec.fields.get('strings', {}).get('allow_draft')
+                        if allow_draft is False and data.get(DRAFT_KEY):
+                            raise DraftStringError('Encountered string in draft -> {}?{}'.format(path, reference))
                         value = data[reference]
                         if value is None:
                             if doc:

@@ -72,19 +72,27 @@ class WebReviewDestination(base.BaseDestination):
                 api_key=api_key)
         return self._webreview
 
+    def _get_branch_token(self):
+        # Try getting the branch name from CI environments.
+        # https://github.com/grow/grow/issues/903
+        branch_name = os.getenv('BRANCH_NAME') or os.getenv('CIRCLE_BRANCH')
+        if branch_name:
+            return branch_name.split('/')[-1]
+        repo = common_utils.get_git_repo(self.pod.root)
+        try:
+            return repo.active_branch.name.split('/')[-1]
+        except TypeError as e:
+            # Permit staging from detached branches. Note this will clobber
+            # other stages originating from detaching the same branch.
+            if 'is a detached symbolic reference' not in str(e):
+                raise
+            # Extract the sha from the error message.
+            sha = str(e).split(' ')[-1].replace("'", '')
+            return '{}-d'.format(sha[:10])
+
     def _get_subdomain(self):
         if self.config.subdomain_prefix and not self.config.subdomain:
-            repo = common_utils.get_git_repo(self.pod.root)
-            try:
-                token = repo.active_branch.name.split('/')[-1]
-            except TypeError as e:
-                # Permit staging from detached branches. Note this will clobber
-                # other stages originating from detaching the same branch.
-                if 'is a detached symbolic reference' not in str(e):
-                    raise
-                # Extract the sha from the error message.
-                sha = str(e).split(' ')[-1].replace("'", '')
-                token = '{}-d'.format(sha[:10])
+            token = self._get_branch_token()
             if token == 'master':
                 return self.config.subdomain_prefix
             else:
