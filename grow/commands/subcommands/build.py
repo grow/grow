@@ -65,7 +65,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
             else:
                 pod.router.add_all()
             if locale:
-                pod.router.filter(locales=list(locale))
+                pod.router.filter('whitelist', locales=list(locale))
             paths = pod.router.routes.paths
             content_generator = renderer.Renderer.rendered_docs(
                 pod, pod.router.routes, use_threading=threaded)

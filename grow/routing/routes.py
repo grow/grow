@@ -77,7 +77,7 @@ class Routes(object):
         """Filters out the nodes that do not match the filter."""
         if not func:
             return
-        self._root.filter(func)
+        return self._root.filter(func)
 
     def match(self, path):
         """Uses a path to attempt to match a path in the routes."""
@@ -134,13 +134,17 @@ class RoutesDict(object):
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
+        count = 0
         remove_paths = []
         for path in self._root:
-            if not func(self._root[path]):
+            if not func(path, self._root[path]):
                 remove_paths.append(path)
 
         for path in remove_paths:
             self._root.pop(path, None)
+            count = count + 1
+
+        return count
 
     def match(self, path):
         """Matches a path against the known routes looking for a match."""
@@ -197,7 +201,7 @@ class RouteTrie(object):
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
-        self._root.filter(func)
+        return self._root.filter(func)
 
     def match(self, path):
         """Matches a path against the known trie looking for a match."""
@@ -313,16 +317,20 @@ class RouteNode(object):
 
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
+        count = 0
         if self.path is not None:
-            if not func(self.value):
+            if not func(self.path, self.value):
+                count = count + 1
                 self.path = None
                 self.value = None
 
         for key in self._static_children:
-            self._static_children[key].filter(func)
+            count = count + self._static_children[key].filter(func)
 
         for key in self._dynamic_children:
-            self._dynamic_children[key].filter(func)
+            count = count + self._dynamic_children[key].filter(func)
+
+        return count
 
     # pylint: disable=too-many-return-statements
     def match(self, segments, last_segment=None):
