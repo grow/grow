@@ -1,3 +1,4 @@
+# pylint: skip-file
 # Copy of stdlib's site.py. See explanation in extensions.py.
 
 """Append module search paths for third-party packages to sys.path.
