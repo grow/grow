@@ -273,7 +273,9 @@ class Router(object):
 
     def add_static_doc(self, static_doc):
         """Add static doc to the router."""
-        if not static_doc.path_filter.is_valid(static_doc.serving_path):
+        if not self.is_valid(
+                serving_path=static_doc.serving_path,
+                path_filter=static_doc.path_filter):
             return
         self.routes.add(
             static_doc.serving_path, RouteInfo('static', {
