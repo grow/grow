@@ -37,6 +37,7 @@ except ImportError:
 APPENGINE_SERVER_PREFIXES = ('Development/', 'Google App Engine/')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
+DRAFT_KEY = '$draft'
 SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 SLUG_SUBSTITUTE = ((':{}', ':'),)
 
@@ -346,7 +347,7 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
                     data = structures.DeepReferenceDict(self.read_yaml(path, locale=locale))
                     try:
                         allow_draft = pod.podspec.fields.get('strings', {}).get('allow_draft')
-                        if allow_draft is False and data.get('$draft'):
+                        if allow_draft is False and data.get(DRAFT_KEY):
                             raise DraftStringError('Encountered string in draft -> {}?{}'.format(path, reference))
                         value = data[reference]
                         if value is None:

@@ -28,6 +28,8 @@ from grow.preprocessors import base
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
 STORAGE_KEY = 'Grow SDK'
+META_KEY = '$meta'
+DRAFT_KEY = '$draft'
 IGNORE_INITIAL = ('_', '#', '*')
 
 
@@ -382,15 +384,17 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     def _maybe_preserve_content(self, new_data, path, key_to_update, properties):
         # Includes meta properties from the Google Sheet.
         if self.config.include_properties:
+            if META_KEY not in new_data:
+                new_data[META_KEY] = {}
+            if 'properties' not in new_data[META_KEY]:
+                new_data[META_KEY]['properties']: {}
             for name in self.config.include_properties:
                 if name in properties:
-                    if '$meta' not in new_data:
-                        new_data['$meta'] = {'properties': {}}
-                    new_data['$meta']['properties'][name] = properties[name]
-        # Tabs colored red are marked $draft.
+                    new_data[META_KEY]['properties'][name] = properties[name]
+        # Tabs colored red are marked draft.
         if self.config.color_as_draft and properties.get('tabColor'):
             if properties['tabColor'] == {'red': 1}:
-                new_data['$draft'] = True
+                new_data[DRAFT_KEY] = True
         if path.endswith(('.yaml', '.yml')) and self.config.preserve:
             # Use existing data if it exists. If we're updating data at a
             # specific key, and if the existing data doesn't exist, use an
@@ -474,7 +478,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 # Use plain text dumper to preserve yaml constructors.
                 output_content = utils.dump_plain_yaml(gid_to_data[gid])
                 self.pod.write_file(output_path, output_content)
-                if gid_to_data[gid].get('$draft'):
+                if gid_to_data[gid].get(DRAFT_KEY):
                     self.logger.info('Drafted tab -> {}'.format(title))
                 num_saved += 1
             text = 'Saved {} tabs -> {}'
