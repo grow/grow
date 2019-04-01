@@ -34,7 +34,7 @@ def inspect_untranslated(pod_path, locale, localized, threaded):
         pod.router.use_simple()
         pod.router.add_all()
         if locale:
-            pod.router.filter(locales=list(locale))
+            pod.router.filter('whitelist', locales=list(locale))
         content_generator = renderer.Renderer.rendered_docs(
             pod, pod.router.routes, use_threading=threaded)
 

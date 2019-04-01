@@ -227,7 +227,7 @@ class RoutesTestCase(unittest.TestCase):
         self.assertEquals(expected, actual)
 
         # Filter specific nodes and test new paths.
-        def _filter_func(value):
+        def _filter_func(_, value):
             if value in (2, 5):
                 return False
             return True
@@ -687,7 +687,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
         self.assertEquals(expected, actual)
 
         # Filter specific nodes and test new paths.
-        def _filter_func(value):
+        def _filter_func(_, value):
             if value in (2, 5):
                 return False
             return True

@@ -148,6 +148,13 @@ class BaseDestination(object):
         return pods.Pod.PATH_CONTROL
 
     @property
+    def filters(self):
+        """Configuration for deployment filters."""
+        if not self.config.filters:
+            return []
+        return self.config.filters
+
+    @property
     def prevent_untranslated(self):
         """Configuration for untranslated messages preventing deployment."""
         if not self.config.base_config:

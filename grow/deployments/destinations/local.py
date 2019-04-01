@@ -5,6 +5,7 @@ import os
 import shutil
 from grow.deployments.destinations import base
 from grow.pods import env
+from grow.routing import router
 from grow.storage import file_storage
 from protorpc import messages
 
@@ -16,6 +17,7 @@ class Config(messages.Message):
     before_deploy = messages.StringField(4, repeated=True)
     after_deploy = messages.StringField(5, repeated=True)
     control_dir = messages.StringField(6)
+    filters = messages.MessageField(router.FilterConfig, 7, repeated=True)
 
 
 class LocalDestination(base.BaseDestination):

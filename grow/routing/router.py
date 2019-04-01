@@ -1,10 +1,20 @@
 """Router for grow documents."""
 
 import os
+import re
+from protorpc import messages
 from grow.performance import docs_loader
 from grow.rendering import render_controller
 from grow.routing import path_filter as grow_path_filter
 from grow.routing import routes as grow_routes
+
+
+class FilterConfig(messages.Message):
+    """Configuration for routing filters in podspec."""
+    type = messages.StringField(1)
+    collections = messages.StringField(2, repeated=True)
+    paths = messages.StringField(3, repeated=True)
+    locales = messages.StringField(4, repeated=True)
 
 
 class Error(Exception):
@@ -176,6 +186,7 @@ class Router(object):
         self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
             'pod_path': doc.pod_path,
             'locale': str(doc.locale),
+            'collection_path': doc.collection.pod_path,
         }), options=doc.path_params)
 
     def add_docs(self, docs, concrete=True):
@@ -193,6 +204,7 @@ class Router(object):
                     self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
                         'pod_path': doc.pod_path,
                         'locale': str(doc.locale),
+                        'collection_path': doc.collection.pod_path,
                     }), options=doc.path_params)
                 else:
                     # Use the raw paths to parameterize the routing.
@@ -204,6 +216,7 @@ class Router(object):
                         self.routes.add(base_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
                             'locale': str(doc.locale),
+                            'collection_path': doc.collection.pod_path,
                         }), options=doc.path_params)
                     localized_path = doc.get_serving_path_localized()
                     if not localized_path or ':locale' not in localized_path:
@@ -212,10 +225,12 @@ class Router(object):
                             self.routes.add(path, RouteInfo('doc', {
                                 'pod_path': doc.pod_path,
                                 'locale': str(locale),
+                                'collection_path': doc.collection.pod_path,
                             }), options=doc.path_params)
                     else:
                         self.routes.add(localized_path, RouteInfo('doc', {
                             'pod_path': doc.pod_path,
+                            'collection_path': doc.collection.pod_path,
                         }), options=doc.path_params_localized)
             if skipped_paths:
                 self.pod.logger.info(
@@ -248,19 +263,62 @@ class Router(object):
                 'path_filter': static_doc.path_filter,
             }))
 
-    def filter(self, locales=None):
-        """Filter the routes based on a criteria."""
-        if locales:
-            # Ability to specify a none locale using commanf flag.
-            if 'None' in locales:
-                locales.append(None)
+    def filter(self, filter_type, collection_paths=None, paths=None, locales=None):
+        """Filter the routes based on the filter type and criteria."""
+        # Convert paths to be regex.
+        regex_paths = []
+        for path in paths or []:
+            regex_paths.append(re.compile(path))
 
-            def _filter_locales(route_info):
+        # Ability to specify a none locale using commanf flag.
+        locales = locales or []
+        if 'None' in locales:
+            locales.append(None)
+
+        if filter_type == 'whitelist':
+            def _filter_whitelist(serving_path, route_info):
+                # Check for whitelisted collection path.
+                if collection_paths and 'collection_path' in route_info.meta:
+                    if route_info.meta['collection_path'] in collection_paths:
+                        return True
+
+                # Check for whitelisted serving path.
+                for regex_path in regex_paths:
+                    if regex_path.match(serving_path):
+                        return True
+
+                # Check for whitelisted locale.
                 if 'locale' in route_info.meta:
-                    return route_info.meta['locale'] in locales
-                # Build non-locale based routes with none locale.
-                return None in locales
-            self.routes.filter(_filter_locales)
+                    if route_info.meta['locale'] in locales:
+                        return True
+
+                # Not whitelist.
+                return False
+
+            count = self.routes.filter(_filter_whitelist)
+            print 'Whitelist filtered out {} routes.'.format(count)
+        else:
+            def _filter_blacklist(serving_path, route_info):
+                # Check for blacklisted collection path.
+                if collection_paths and 'collection_path' in route_info.meta:
+                    if route_info.meta['collection_path'] in collection_paths:
+                        return False
+
+                # Check for blacklisted serving path.
+                for regex_path in regex_paths:
+                    if regex_path.match(serving_path):
+                        return False
+
+                # Check for blacklisted locale.
+                if 'locale' in route_info.meta:
+                    if route_info.meta['locale'] in locales:
+                        return False
+
+                # Not wlacklisted.
+                return True
+
+            count = self.routes.filter(_filter_blacklist)
+            print 'Blacklist filtered out {} routes.'.format(count)
 
     def get_render_controller(self, path, route_info, params=None):
         """Find the correct render controller for the given route info."""
