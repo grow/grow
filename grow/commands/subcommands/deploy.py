@@ -9,6 +9,7 @@ from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
 from grow.pods import pods
+from grow.rendering import renderer
 from grow import storage
 
 
@@ -74,6 +75,11 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
                 content_generator, stats=stats_obj, repo=repo, confirm=confirm,
                 test=test, require_translations=require_translations)
             pod.podcache.write()
+    except renderer.RenderErrors as err:
+        # Write the podcache files even when there are rendering errors.
+        pod.podcache.write()
+        # Ignore the build error since it outputs the errors.
+        raise click.ClickException(str(err))
     except base.Error as err:
         raise click.ClickException(str(err))
     except pods.Error as err:

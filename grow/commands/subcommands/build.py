@@ -8,8 +8,8 @@ from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
 from grow.pods import pods
-from grow import storage
 from grow.rendering import renderer
+from grow import storage
 
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.build')
@@ -74,9 +74,10 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
             destination.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=False,
                 test=False, is_partial=is_partial)
-
             pod.podcache.write()
     except renderer.RenderErrors as err:
+        # Write the podcache files even when there are rendering errors.
+        pod.podcache.write()
         # Ignore the build error since it outputs the errors.
         raise click.ClickException(str(err))
     except pods.Error as err:
