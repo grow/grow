@@ -387,7 +387,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             if META_KEY not in new_data:
                 new_data[META_KEY] = {}
             if 'properties' not in new_data[META_KEY]:
-                new_data[META_KEY]['properties']: {}
+                new_data[META_KEY]['properties'] = {}
             for name in self.config.include_properties:
                 if name in properties:
                     new_data[META_KEY]['properties'][name] = properties[name]
