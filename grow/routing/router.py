@@ -1,10 +1,20 @@
 """Router for grow documents."""
 
 import os
+import re
+from protorpc import messages
 from grow.performance import docs_loader
 from grow.rendering import render_controller
 from grow.routing import path_filter as grow_path_filter
 from grow.routing import routes as grow_routes
+
+
+class FilterConfig(messages.Message):
+    """Configuration for routing filters in podspec."""
+    type = messages.StringField(1)
+    collections = messages.StringField(2, repeated=True)
+    paths = messages.StringField(3, repeated=True)
+    locales = messages.StringField(4, repeated=True)
 
 
 class Error(Exception):
@@ -22,6 +32,7 @@ class Router(object):
 
     def __init__(self, pod):
         self.pod = pod
+        self.filters = []
         self._routes = grow_routes.Routes()
 
     def _preload_and_expand(self, docs, expand=True):
@@ -173,6 +184,12 @@ class Router(object):
         """Add doc to the router."""
         if not doc.has_serving_path():
             return
+        if not self.is_valid(
+                collection_path=doc.collection.pod_path,
+                serving_path=doc.get_serving_path(),
+                locale=str(doc.locale),
+                path_filter=self.pod.path_filter):
+            return
         self.routes.add(doc.get_serving_path(), RouteInfo('doc', {
             'pod_path': doc.pod_path,
             'locale': str(doc.locale),
@@ -185,7 +202,11 @@ class Router(object):
             for doc in docs:
                 if not doc.has_serving_path():
                     continue
-                if not self.pod.path_filter.is_valid(doc.get_serving_path()):
+                if not self.is_valid(
+                        collection_path=doc.collection.pod_path,
+                        serving_path=doc.get_serving_path(),
+                        locale=str(doc.locale),
+                        path_filter=self.pod.path_filter):
                     skipped_paths.append(doc.get_serving_path())
                     continue
                 if concrete:
@@ -220,6 +241,23 @@ class Router(object):
             if skipped_paths:
                 self.pod.logger.info(
                     'Ignored {} documents.'.format(len(skipped_paths)))
+
+    def add_filter(self, filter_type, collections=None, paths=None, locales=None):
+        """Add filter to which documents are added to the routing."""
+        if paths:
+            regex_paths = []
+            for path in paths:
+                regex_paths.append(re.compile(path))
+            paths = regex_paths
+
+        self.filters.append({
+            'type': filter_type,
+            'collections': collections,
+            'paths': paths,
+            'locales': locales,
+        })
+
+        # TODO: Make the filter apply to existing routes.
 
     def add_pod_paths(self, pod_paths, concrete=True):
         """Add pod paths to the router."""
@@ -293,6 +331,61 @@ class Router(object):
 
         text = '{} is not found in any static file configuration in the podspec.'
         raise MissingStaticConfigError(text.format(pod_path))
+
+    def is_valid(self, collection_path=None, serving_path=None, locale=None, path_filter=None):
+        """Tests a item agains the known filters all together."""
+        has_whitelist = False
+        is_whitelisted = False
+
+        # Start with the pod path filters.
+        if path_filter and serving_path and not path_filter.is_valid(serving_path):
+            return False
+
+        for route_filter in self.filters:
+            if route_filter['type'] == 'whitelist':
+                has_whitelist = True
+
+        # Test collection_path.
+        if collection_path:
+            for route_filter in self.filters:
+                if route_filter['type'] == 'whitelist':
+                    if is_whitelisted or not route_filter['collections']:
+                        continue
+                    is_whitelisted = bool(collection_path in route_filter['collections'])
+                else:
+                    if collection_path in route_filter['collections']:
+                        return False
+
+        # Test locale.
+        if locale:
+            for route_filter in self.filters:
+                if route_filter['type'] == 'whitelist':
+                    if is_whitelisted or not route_filter['locales']:
+                        continue
+                    is_whitelisted = bool(locale in route_filter['locales'])
+                else:
+                    if locale in route_filter['locales']:
+                        return False
+
+        # Test serving path.
+        if serving_path:
+            for route_filter in self.filters:
+                if route_filter['type'] == 'whitelist':
+                    if is_whitelisted or not route_filter['paths']:
+                        continue
+                    for path_regex in route_filter['paths']:
+                        if path_regex.match(serving_path):
+                            is_whitelisted = True
+                else:
+                    for path_regex in route_filter['paths']:
+                        if path_regex.match(serving_path):
+                            return False
+
+        if has_whitelist:
+            return is_whitelisted
+
+        # If nothing defined, then it is always valid.
+        return True
 
     def reconcile_documents(self, remove_docs=None, add_docs=None):
         """Remove old docs and add new docs to the routes."""

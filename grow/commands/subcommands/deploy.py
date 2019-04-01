@@ -62,6 +62,10 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
                 return
             content_generator = deployment.dump(pod, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
+            for filter in deployment.filters:
+                pod.router.add_filter(
+                    filter.type, collections=filter.collections,
+                    paths=filter.paths, locales=filter.locales)
             pod.router.use_simple()
             pod.router.add_all()
             paths = pod.router.routes.paths
