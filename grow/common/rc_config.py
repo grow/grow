@@ -64,14 +64,14 @@ class RCConfig(base_config.BaseConfig):
             self._config = {}
         else:
             with open(filename, 'r') as conf:
-                self._config = yaml.load(conf.read()) or {}
+                self._config = yaml.safe_load(conf.read()) or {}
 
         # Allow for an read only override from the working directory rc file.
         wd_filename = os.path.join(os.getcwd(), RC_FILE_NAME)
         if os.path.isfile(wd_filename):
             with open(wd_filename, 'r') as conf:
                 self._wd_config = base_config.BaseConfig(
-                    yaml.load(conf.read()))
+                    yaml.safe_load(conf.read()))
 
     def reset_update_check(self):
         """Reset the timestamp of the last_checked."""
