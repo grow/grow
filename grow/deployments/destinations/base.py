@@ -150,9 +150,10 @@ class BaseDestination(object):
     @property
     def filters(self):
         """Configuration for deployment filters."""
-        if not hasattr(self.config, 'filters'):
+        try:
+            return self.config.filters
+        except AttributeError:
             return []
-        return self.config.filters
 
     @property
     def prevent_untranslated(self):
