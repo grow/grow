@@ -150,7 +150,7 @@ class BaseDestination(object):
     @property
     def filters(self):
         """Configuration for deployment filters."""
-        if not self.config.filters:
+        if not hasattr(self.config, 'filters'):
             return []
         return self.config.filters
 
