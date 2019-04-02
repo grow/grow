@@ -1,15 +1,18 @@
-from . import base
-from grow.common import utils as common_utils
-from boto.s3 import connection
-from boto.s3 import key
-from grow.pods import env
-from protorpc import messages
-import boto
+"""Amazon S3 deployment destination."""
+
 import cStringIO
 import logging
 import os
 import mimetypes
+import boto
+from boto.s3 import connection
+from boto.s3 import key
+from protorpc import messages
+from grow.common import utils as common_utils
+from grow.deployments.destinations import base
+from grow.pods import env
 from grow.rendering import rendered_document
+from grow.routing import router
 
 
 class FieldMessage(messages.Message):
@@ -32,6 +35,7 @@ class Config(messages.Message):
     index_document = messages.StringField(7, default='index.html')
     error_document = messages.StringField(8, default='404.html')
     headers = messages.MessageField(HeaderMessage, 9, repeated=True)
+    filters = messages.MessageField(router.FilterConfig, 10, repeated=True)
 
 
 class AmazonS3Destination(base.BaseDestination):

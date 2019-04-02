@@ -1,9 +1,13 @@
-from . import base
-from grow.common import utils
-from grow.pods import env
-from protorpc import messages
+"""SCP deployment destination."""
+
 import errno
 import os
+from protorpc import messages
+from grow.common import utils
+from grow.deployments.destinations import base
+from grow.pods import env
+from grow.routing import router
+
 try:
     import paramiko
 except ImportError:
@@ -19,6 +23,7 @@ class Config(messages.Message):
     username = messages.StringField(4)
     env = messages.MessageField(env.EnvConfig, 5)
     keep_control_dir = messages.BooleanField(6, default=False)
+    filters = messages.MessageField(router.FilterConfig, 7, repeated=True)
 
 
 class ScpDestination(base.BaseDestination):

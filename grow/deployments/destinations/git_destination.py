@@ -6,11 +6,12 @@ import re
 import shutil
 import subprocess
 import tempfile
-from grow.common import utils as common_utils
-from grow.pods import env
-from grow.storage import file_storage
 from protorpc import messages
-from . import base
+from grow.common import utils as common_utils
+from grow.deployments.destinations import base
+from grow.pods import env
+from grow.routing import router
+from grow.storage import file_storage
 
 
 ONLINE_REPO_REGEX = \
@@ -23,6 +24,7 @@ class Config(messages.Message):
     branch = messages.StringField(3, default='master')
     root_dir = messages.StringField(4, default='')
     keep_control_dir = messages.BooleanField(5, default=False)
+    filters = messages.MessageField(router.FilterConfig, 6, repeated=True)
 
 
 class GitDestination(base.BaseDestination):

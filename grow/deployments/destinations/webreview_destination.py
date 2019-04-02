@@ -1,11 +1,14 @@
-from . import base
-from .. import utils
-from grow.common import utils as common_utils
-from grow.pods import env
-from protorpc import messages
+"""Webreview deployment destination."""
+
 import logging
 import os
 import urlparse
+from protorpc import messages
+from grow.deployments.destinations import base
+from grow.deployments import utils
+from grow.common import utils as common_utils
+from grow.pods import env
+from grow.routing import router
 
 
 if common_utils.is_appengine():
@@ -24,6 +27,7 @@ class Config(messages.Message):
     remote = messages.StringField(8)
     subdomain = messages.StringField(9)
     subdomain_prefix = messages.StringField(10)
+    filters = messages.MessageField(router.FilterConfig, 11, repeated=True)
 
 
 class WebReviewDestination(base.BaseDestination):
