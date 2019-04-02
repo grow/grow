@@ -3,11 +3,11 @@
 import errno
 import os
 import shutil
+from protorpc import messages
 from grow.deployments.destinations import base
 from grow.pods import env
 from grow.routing import router
 from grow.storage import file_storage
-from protorpc import messages
 
 
 class Config(messages.Message):

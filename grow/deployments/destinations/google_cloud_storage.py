@@ -1,21 +1,24 @@
-from . import base
-from boto import auth_handler
-from boto.gs import key
-from boto.s3 import connection
-from gcs_oauth2_boto_plugin import oauth2_client
-from gcs_oauth2_boto_plugin import oauth2_helper
-from grow.common import oauth
-from grow.common import utils
-from grow.pods import env
-from grow.rendering import rendered_document
-from protorpc import messages
-import boto
-import cStringIO
-import gcs_oauth2_boto_plugin
-import httplib2
+"""Google Cloud Storage Deployment Destination."""
+
 import logging
 import mimetypes
 import os
+import cStringIO
+import boto
+from boto import auth_handler
+from boto.gs import key
+from boto.s3 import connection
+import gcs_oauth2_boto_plugin
+from gcs_oauth2_boto_plugin import oauth2_client
+from gcs_oauth2_boto_plugin import oauth2_helper
+import httplib2
+from protorpc import messages
+from grow.common import oauth
+from grow.common import utils
+from grow.deployments.destinations import base
+from grow.pods import env
+from grow.rendering import rendered_document
+from grow.routing import router
 
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/devstorage.full_control'
@@ -43,6 +46,7 @@ class Config(messages.Message):
     not_found_page = messages.StringField(11, default='404.html')
     oauth2 = messages.BooleanField(12, default=False)
     headers = messages.MessageField(HeaderMessage, 13, repeated=True)
+    filters = messages.MessageField(router.FilterConfig, 14, repeated=True)
 
 
 class GoogleCloudStorageDestination(base.BaseDestination):
