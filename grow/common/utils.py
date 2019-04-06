@@ -522,6 +522,9 @@ def clean_html(content, convert_to_markdown=False):
     if convert_to_markdown:
         h2t = html2text.HTML2Text()
         h2t.body_width = 0  # https://github.com/grow/grow/issues/887
+        # Fixes a bug with malformed tables from Google Doc integration.
+        # Preserves tables as <table> tags.
+        h2t.bypass_tables = True
         h2t.single_line_break = False
         content = h2t.handle(content).strip()
     return content.encode('utf-8')
