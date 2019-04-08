@@ -52,6 +52,17 @@ class GoogleSheetsTranslator(base.Translator):
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
+    def __init__(self, pod, config=None, project_title=None,
+                 instructions=None, inject=False):
+        super(GoogleSheetsTranslator, self).__init__(
+            pod, config=config, project_title=project_title,
+            instructions=instructions, inject=inject)
+        self.update_meta_after_upload = False
+
+    def needs_meta_update(self):
+        """Allow to be flagged for additional meta update after uploading."""
+        return self.update_meta_after_upload
+
     def _catalog_has_comments(self, catalog):
         for message in catalog:
             if not message.id:
@@ -747,6 +758,8 @@ class GoogleSheetsTranslator(base.Translator):
 
             # Append new values to end of sheet.
             if len(new_rows):
+                # Mark to update the sheet metadata after done.
+                self.update_meta_after_upload = True
                 row_data = []
                 for value in new_rows:
                     row_data.append(self._create_catalog_row(

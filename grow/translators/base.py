@@ -121,6 +121,10 @@ class Translator(object):
     def _update_meta(self, stat, locale, catalog):
         raise NotImplementedError
 
+    def needs_meta_update(self):
+        """Allow to be flagged for additional meta update after uploading."""
+        return False
+
     def _get_stats_to_download(self, locales):
         # 'stats' maps the service name to a mapping of languages to stats.
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
