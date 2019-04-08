@@ -236,6 +236,9 @@ class Pod(object):
             # pylint: disable=no-member
             self.list_preprocessors.reset()
             self.podcache.reset()
+            # Need to reload the extension configs for changes based on env.
+            self._extensions_controller.update_extension_configs(
+                self.yaml.get('ext', []))
         self.env = env
 
     @utils.cached_property
