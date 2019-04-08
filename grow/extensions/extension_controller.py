@@ -11,6 +11,7 @@ class ExtensionController(object):
     def __init__(self, pod):
         self.pod = pod
         self._hooks = {}
+        self._extensions = {}
 
         for hook in hooks.HOOKS:
             self._hooks[hook.KEY] = hook_controller.HookController(
@@ -40,6 +41,7 @@ class ExtensionController(object):
             cls = common_extensions.import_extension(extension_path, [self.pod.root])
             ext = cls(self.pod, config)
             new_extensions.append(ext)
+            self._extensions[extension_path] = ext
 
         # Register the hooks with the hook controllers.
         for _, hook in self._hooks.iteritems():
@@ -48,3 +50,15 @@ class ExtensionController(object):
     def trigger(self, hook_key, *args, **kwargs):
         """Trigger a hook."""
         return self._hooks[hook_key].trigger(*args, **kwargs)
+
+    def update_extension_configs(self, extension_configs):
+        """Update existing extensions with new configs."""
+        for config_item in extension_configs:
+            if isinstance(config_item, basestring):
+                extension_path = config_item
+                config = {}
+            else:
+                extension_path = config_item.keys()[0]
+                config = config_item[extension_path]
+            ext = self._extensions[extension_path]
+            ext.config = config
