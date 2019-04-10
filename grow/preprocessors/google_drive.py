@@ -469,6 +469,10 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
             num_saved = 0
             for gid in gids:
+                if gid not in gid_to_data:
+                    self.logger.info(
+                        'Sheet not imported for gid {}. Skipped tab?'.format(gid))
+                    continue
                 title = gid_to_sheet[gid]['title']
                 if title.strip().startswith(IGNORE_INITIAL):
                     continue
