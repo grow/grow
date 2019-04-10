@@ -271,7 +271,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         if not gids:
             gids = gid_to_sheet.keys()
         if gids and len(gids) > 1:
-            url = GoogleSheetsPreprocessor._sheet_edit_url_format.format(id=spreadsheet_id)
+            url = GoogleSheetsPreprocessor._sheet_edit_url_format.format(
+                id=spreadsheet_id)
             logger.info('Downloading {} tabs -> {}'.format(len(gids), url))
 
         gids_to_process = []
@@ -347,7 +348,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                                     continue
                                 if isinstance(grid_key, unicode):
                                     grid_key = grid_key.encode('utf-8')
-                                value = (row[col] if row_len > col else '').strip()
+                                value = (row[col] if row_len >
+                                         col else '').strip()
                                 if value:
                                     grid_obj[grid_key] = value
                             gid_to_data[gid][key] = grid_obj
@@ -418,7 +420,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                     preserve=self.config.preserve, key_to_update=key_to_update)
         return new_data
 
-
     def execute(self, config):
         spreadsheet_id = config.id
         gids = config.gids or []
@@ -442,11 +443,15 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             path, key_to_update = self.parse_path(config.path)
 
             for gid in gids:
+                if gid not in gid_to_data:
+                    self.logger.info(
+                        'Sheet not imported for gid {}. Skipped tab?'.format(gid))
+                    continue
                 gid_to_data[gid] = self._maybe_preserve_content(
-                        new_data=gid_to_data[gid],
-                        path=path,
-                        key_to_update=key_to_update,
-                        properties=gid_to_sheet[gid])
+                    new_data=gid_to_data[gid],
+                    path=path,
+                    key_to_update=key_to_update,
+                    properties=gid_to_sheet[gid])
                 content = GoogleSheetsPreprocessor.serialize_content(
                     formatted_data=gid_to_data[gid], path=path,
                     output_style=self.config.output_style)
@@ -471,10 +476,10 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 file_name = '{}.yaml'.format(slug)
                 output_path = os.path.join(collection_path, file_name)
                 gid_to_data[gid] = self._maybe_preserve_content(
-                        new_data=gid_to_data[gid],
-                        path=output_path,
-                        key_to_update=None,
-                        properties=gid_to_sheet[gid])
+                    new_data=gid_to_data[gid],
+                    path=output_path,
+                    key_to_update=None,
+                    properties=gid_to_sheet[gid])
                 # Use plain text dumper to preserve yaml constructors.
                 output_content = utils.dump_plain_yaml(gid_to_data[gid])
                 self.pod.write_file(output_path, output_content)
