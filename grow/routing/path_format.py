@@ -130,7 +130,7 @@ class PathFormat(object):
     def params_doc(self, path, doc):
         """Selective access to the document properties depending on path."""
         params = {}
-        params['base'] = doc.base
+        params['base'] = '' if doc.base == 'index' else doc.base
         params['collection'] = structures.AttributeDict(
             base_path=doc.collection_base_path,
             basename=doc.collection.basename,
