@@ -13,7 +13,6 @@ _builtins = (
     google_drive.GoogleDocsPreprocessor,
     google_drive.GoogleSheetsPreprocessor,
     gulp.GulpPreprocessor,
-    sass_preprocessor.SassPreprocessor,
 )
 
 
