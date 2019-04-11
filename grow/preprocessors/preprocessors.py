@@ -1,10 +1,11 @@
-from . import blogger
-from . import google_drive
-from . import gulp
-from . import sass_preprocessor
-from grow.common import extensions
-from protorpc import protojson
+"""Grow preprocessors."""
+
 import json
+from protorpc import protojson
+from grow.preprocessors import blogger
+from grow.preprocessors import google_drive
+from grow.preprocessors import gulp
+from grow.common import extensions
 
 _preprocessor_kinds_to_classes = {}
 
