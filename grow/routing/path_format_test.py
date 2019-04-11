@@ -32,9 +32,10 @@ def _mock_pod(podspec=None, env=None):
     return pod
 
 
-def _mock_doc(pod, locale=None, collection_base_path=None, collection=None, view=None):
+def _mock_doc(pod, base=None, locale=None, collection_base_path=None, collection=None, view=None):
     doc = mock.Mock()
     type(doc).pod = mock.PropertyMock(return_value=pod)
+    type(doc).base = mock.PropertyMock(return_value=base)
     type(doc).locale = mock.PropertyMock(return_value=locale)
     if not collection:
         collection = _mock_collection()
@@ -54,6 +55,26 @@ def _mock_static(pod, path_format, locale=None):
 
 class PathFormatTestCase(unittest.TestCase):
     """Test the routes."""
+
+    def test_format_doc_base(self):
+        """Test doc paths with the base filename."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        path_format = grow_path_format.PathFormat(pod)
+        doc = _mock_doc(pod, base='doc1')
+        self.assertEquals(
+            '/doc1/', path_format.format_doc(doc, '/{base}/'))
+
+    def test_format_doc_base_index(self):
+        """Test doc paths with the index as a base filename."""
+        pod = _mock_pod(podspec={
+            'root': 'root_path',
+        })
+        path_format = grow_path_format.PathFormat(pod)
+        doc = _mock_doc(pod, base='index')
+        self.assertEquals(
+            '/', path_format.format_doc(doc, '/{base}/'))
 
     def test_format_doc_root(self):
         """Test doc paths."""
