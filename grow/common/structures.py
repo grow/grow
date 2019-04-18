@@ -6,9 +6,13 @@ from bisect import bisect_right
 
 class AttributeDict(dict):
     """Allows using a dictionary to reference keys as attributes."""
-    __getattr__ = dict.__getitem__
-    __setattr__ = dict.__setitem__
+    def __getattr__(self, attr):
+        try:
+            return self.__getitem__(attr)
+        except KeyError:
+            raise AttributeError('Object does not have attribute: {}'.format(attr))
 
+    __setattr__ = dict.__setitem__
 
 class DeepReferenceDict(dict):
     """Deep reference dictionary using a delimited key."""
