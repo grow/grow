@@ -72,13 +72,22 @@ class BloggerPreprocessor(base.BasePreprocessor):
     def download_items(cls, blog_id, logger=None, authenticated=True):
         logger = logger or logging
         service = cls.create_service(authenticated=authenticated)
+        items = []
         # pylint: disable=no-member
-        resp = service.posts().list(blogId=blog_id).execute()
-        if 'items' not in resp:
-            logger.error('Received: {}'.format(resp))
-            text = 'Unable to download Blogger blog: {}'
-            raise base.PreprocessorError(text.format(blog_id))
-        return resp['items']
+        posts = service.posts()
+        request = posts.list(blogId=blog_id)
+        while request != None:
+            posts_doc = request.execute()
+            if 'items' in posts_doc and not (posts_doc['items'] is None):
+                items.extend(posts_doc['items'])
+            else:
+                logger.error('Received: {}'.format(posts_doc))
+                text = 'Unable to download Blogger blog: {}'
+                raise base.PreprocessorError(text.format(blog_id))
+
+            request = posts.list_next(request, posts_doc)
+
+        return items
 
     @classmethod
     def download_item(cls, blog_id, post_id, authenticated=True):
