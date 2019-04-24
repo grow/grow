@@ -85,7 +85,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
                 text = 'Unable to download Blogger blog: {}'
                 raise base.PreprocessorError(text.format(blog_id))
 
-            request = posts_doc.list_next(request, posts_doc)
+            request = posts.list_next(request, posts_doc)
 
         return items
 
