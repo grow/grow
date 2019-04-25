@@ -277,7 +277,8 @@ class Collection(object):
     def get_doc(self, pod_path, locale=None):
         """Returns a document contained in this collection."""
         pod_path = document.Document.clean_localized_path(pod_path, locale)
-        if locale is not None:
+        # Some uses are using str(None)
+        if locale is not None and locale != 'None':
             locale = locales.Locale.from_alias(self.pod, locale)
             locale.set_alias(self.pod)
             localized_path = document.Document.localize_path(pod_path, locale)
