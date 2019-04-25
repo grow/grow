@@ -281,9 +281,13 @@ class Collection(object):
         if locale is not None and locale != 'None':
             locale = locales.Locale.from_alias(self.pod, locale)
             locale.set_alias(self.pod)
-            localized_path = document.Document.localize_path(pod_path, locale)
+            localized_path = document.Document.localize_path(pod_path, str(locale))
             if self.pod.file_exists(localized_path):
                 pod_path = localized_path
+            elif locale.alias:
+                localized_path = document.Document.localize_path(pod_path, locale.alias)
+                if self.pod.file_exists(localized_path):
+                    pod_path = localized_path
         cached = self.pod.podcache.collection_cache.get_document(
             self, pod_path, locale)
         if cached:

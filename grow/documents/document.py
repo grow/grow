@@ -127,11 +127,7 @@ class Document(object):
         if locale is None:
             return pod_path
         base, ext = os.path.splitext(pod_path)
-        if isinstance(locale, basestring):
-            locale_str = locale
-        else:
-            locale_str = locale.alias or str(locale)
-        return '{}@{}{}'.format(base, locale_str, ext)
+        return '{}@{}{}'.format(base, locale, ext)
 
     @classmethod
     def parse_localized_path(cls, pod_path):
