@@ -107,7 +107,11 @@ class Document(object):
         """Removed the localized part of the path."""
         if '@' in pod_path and locale is not None:
             base, _ = os.path.splitext(pod_path)
-            if not base.endswith('@{}'.format(locale)):
+            if isinstance(locale, basestring):
+                locale_str = locale
+            else:
+                locale_str = locale.alias or str(locale)
+            if not base.endswith('@{}'.format(locale_str)):
                 pod_path = cls._locale_paths(pod_path)[-1]
         return pod_path
 
@@ -123,7 +127,11 @@ class Document(object):
         if locale is None:
             return pod_path
         base, ext = os.path.splitext(pod_path)
-        return '{}@{}{}'.format(base, locale, ext)
+        if isinstance(locale, basestring):
+            locale_str = locale
+        else:
+            locale_str = locale.alias or str(locale)
+        return '{}@{}{}'.format(base, locale_str, ext)
 
     @classmethod
     def parse_localized_path(cls, pod_path):

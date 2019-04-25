@@ -278,6 +278,8 @@ class Collection(object):
         """Returns a document contained in this collection."""
         pod_path = document.Document.clean_localized_path(pod_path, locale)
         if locale is not None:
+            locale = locales.Locale.from_alias(self.pod, locale)
+            locale.set_alias(self.pod)
             localized_path = document.Document.localize_path(pod_path, locale)
             if self.pod.file_exists(localized_path):
                 pod_path = localized_path
