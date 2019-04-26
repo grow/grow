@@ -164,6 +164,30 @@ def trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
 
  See the [html min extension][html_min_src] for an example of the dev handler.
 
+### hooks.PreprocessHook
+
+```py
+def trigger(self, previous_result, config, names, tags, run_all, rate_limit, *_args, **_kwargs):
+  return previous_result
+```
+
+ - `config` – Configuration for the preprocessor from the podspec.
+ - `names` – Names of the preprocessors being run.
+ - `tags` – Tags of the preprocessors being run.
+ - `run_all` - If all preprocessors are being run.
+ - `rate_limit` - Time in seconds when rate limiting should be used between bulk processing.
+
+### hooks.PreRenderHook
+
+```py
+def trigger(self, previous_result, doc, original_body, *_args, **_kwargs):
+  return previous_result
+```
+
+ - `doc` – The document being rendered. This can be a normal document or a
+   static document.
+ - `original_body` – The original content before being rendered.
+
 [core_routes]: https://github.com/grow/grow/blob/master/grow/extensions/core/routes_extension.py
 [html_min]: https://github.com/grow/grow-ext-html-min
 [html_min_src]: https://github.com/grow/grow-ext-html-min/blob/master/html_min/html_min.py
