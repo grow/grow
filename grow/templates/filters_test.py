@@ -13,6 +13,11 @@ class BuiltinsTestCase(unittest.TestCase):
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
 
+    def test_format_str(self):
+        original = 'testing {} positional and {key} keywords'
+        expected = 'testing the positional and alt keywords'
+        self.assertEqual(expected, filters.format_str(None, original, 'the', key='alt'))
+
     def test_shuffle_filter(self):
         words = ['foo', 'bar', 'baz']
         self.assertIn('foo', filters.shuffle_filter(None, words))
