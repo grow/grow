@@ -54,6 +54,12 @@ def expand_partial(_ctx, partial_name):
 
 
 @jinja2.contextfilter
+def format_str(_ctx, source, *args, **kwargs):
+    """Filter for formatting a string using the newage formatting."""
+    return source.format(*args, **kwargs)
+
+
+@jinja2.contextfilter
 def hash_value(_ctx, value, algorithm='sha'):
     """Hash the value using the algorithm."""
     if algorithm in ('md5',):
@@ -159,6 +165,7 @@ def create_builtin_filters():
         ('decimal', wrap_locale_context(babel_numbers.format_decimal)),
         ('deeptrans', deeptrans),
         ('expand_partial', expand_partial),
+        ('format_str', format_str),
         ('hash', hash_value),
         ('jsonify', jsonify),
         ('markdown', markdown_filter),
