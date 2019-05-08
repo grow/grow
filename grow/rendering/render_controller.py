@@ -100,6 +100,9 @@ class RenderDocumentController(RenderController):
         self._doc = None
         self.use_jinja = True
 
+    def __repr__(self):
+        return '<RenderDocumentController({})>'.format(self.route_info.meta['pod_path'])
+
     @property
     def doc(self):
         """Doc for the controller."""
@@ -193,6 +196,9 @@ class RenderErrorController(RenderController):
         super(RenderErrorController, self).__init__(
             pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self.use_jinja = True
+
+    def __repr__(self):
+        return '<RenderErrorController({})>'.format(self.route_info.meta['view'])
 
     def render(self, jinja_env=None):
         """Render the document using the render pool."""
@@ -304,6 +310,9 @@ class RenderStaticDocumentController(RenderController):
             pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self._static_doc = None
         self._pod_path = None
+
+    def __repr__(self):
+        return '<RenderStaticDocumentController({})>'.format(self.route_info.meta['pod_path'])
 
     @property
     def pod_path(self):
