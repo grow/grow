@@ -75,6 +75,12 @@ class PathFormatTestCase(unittest.TestCase):
         doc = _mock_doc(pod, base='index')
         self.assertEquals(
             '/', path_format.format_doc(doc, '/{base}/'))
+        self.assertEquals(
+            '/', path_format.format_doc(doc, '/{base}'))
+
+        # Does not replace index when it is not the end of the path.
+        self.assertEquals(
+            '/index.html', path_format.format_doc(doc, '/{base}.html'))
 
     def test_format_doc_root(self):
         """Test doc paths."""
