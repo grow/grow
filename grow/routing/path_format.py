@@ -9,6 +9,7 @@ from grow.common import utils
 
 HTML_EXTENSIONS = ('.html', '.htm')
 VALID_DOC_EXTENSIONS = ('.html', '.htm', '.xml', '.svg')
+INDEX_BASE_ENDINGS = ('/{base}', '/{base}/')
 
 
 class PathFormat(object):
@@ -130,7 +131,11 @@ class PathFormat(object):
     def params_doc(self, path, doc):
         """Selective access to the document properties depending on path."""
         params = {}
-        params['base'] = '' if doc.base == 'index' else doc.base
+        # Remove the base when the path ends with the base and is index.
+        if doc.base == 'index' and path.endswith(INDEX_BASE_ENDINGS):
+            params['base'] = ''
+        else:
+            params['base'] = doc.base
         params['collection'] = structures.AttributeDict(
             base_path=doc.collection_base_path,
             basename=doc.collection.basename,
