@@ -181,21 +181,15 @@ class RoutesDict(object):
                     counter_key = value.get(attr, SHARD_KEY_DEFAULT)
 
             count = counters.get(counter_key, 0)
-            print '{} - {} :: {} {} :: {}'.format(counter_key, count, count % shard_count, shard_index, path)
 
             # Remove all paths that do not match the current shard.
             if count % shard_count != shard_index:
-                print 'removed: {}'.format(path)
                 remove_paths.append(path)
 
             counters[counter_key] = count + 1
 
-        print 'Removing paths: {}'.format(remove_paths)
-
         for path in remove_paths:
             self._root.pop(path, None)
-
-        print 'Removed {} paths for sharding. {} remaining'.format(len(remove_paths), len(self._root))
 
 
 class RouteTrie(object):
