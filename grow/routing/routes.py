@@ -94,6 +94,19 @@ class Routes(object):
 
     def shard(self, shard_count, current_shard, attr='kind'):
         """Removes paths from the routes based on sharding rules."""
+
+        if shard_count <= 1:
+            raise ValueError('Shard count needs to be greater than 1')
+
+        if shard_count >= 50:
+            raise ValueError('Shard count needs to be less than 50')
+
+        if shard_count < current_shard:
+            raise ValueError('Shard count needs to be larger than the current shard')
+
+        if current_shard < 1:
+            raise ValueError('Current shard needs to be at least 1')
+
         return self._root.shard(shard_count, current_shard, attr=attr)
 
     def update(self, other):

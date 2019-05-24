@@ -805,6 +805,32 @@ class RoutesSimpleTestCase(unittest.TestCase):
         actual = list(self.routes.paths)
         self.assertItemsEqual(expected, actual)
 
+    def test_shard_errors(self):
+        """Tests that errors happen with invalid shard values."""
+
+        # Add nodes in random order.
+        self._add('/foo', value=1)
+        self._add('/bax/coo/lib', value=2)
+        self._add('/bax/bar', value=3)
+        self._add('/bax/pan', value=4)
+        self._add('/bax/coo/vin', value=5)
+        self._add('/tem/pon', value=6)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(0, 1)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(50, 1)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(1, 1)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(5, 6)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(5, 0)
+
     def test_remove(self):
         """Tests that paths can be removed."""
 
