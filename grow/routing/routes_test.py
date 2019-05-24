@@ -754,20 +754,22 @@ class RoutesSimpleTestCase(unittest.TestCase):
         def _reset_routes():
             self.routes = grow_routes.RoutesSimple()
 
-            self._add('/bax/bar', value={'type':'doc'})
-            self._add('/bax/coo/lib', value={'type':'static'})
-            self._add('/bax/coo/vin', value={'type':'static'})
-            self._add('/bax/pan', value={'type':'doc'})
-            self._add('/bax/pan/taw', value={'type':'static'})
-            self._add('/bax/vew/vin', value={'type':'doc'})
-            self._add('/fes/pon', value={})
-            self._add('/foo', value={'type':'doc'})
-            self._add('/tem/pon', value={'type':'static'})
+            self._add('/bax/bar', value={'type':'doc'})  # 1 - doc
+            self._add('/bax/coo/lib', value={'type':'static'})  # 1 - static
+            self._add('/bax/coo/vin', value={'type':'static'})  # 2 - static
+            self._add('/bax/pan', value={'type':'doc'})  # 2 - doc
+            self._add('/bax/pan/taw', value={'type':'static'})  # 3 - static
+            self._add('/bax/vew/vin', value={'type':'doc'})  # 3 - doc
+            self._add('/fes/pon', value={})  # 1 - default
+            self._add('/foo', value={'type':'doc'})  # 1 - doc
+            self._add('/tem/pon', value={'type':'static'})  # 1 - static
+            self._add('/tem/tan', value={'type':'static'})  # 2 - static
 
             # Expect the yielded nodes to be in order.
             expected = [
                 '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
                 '/foo', '/tem/pon', '/bax/pan/taw', '/bax/vew/vin', '/fes/pon',
+                '/tem/tan',
             ]
             actual = list(self.routes.paths)
             self.assertItemsEqual(expected, actual)
@@ -782,7 +784,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
         # Shard 2
         _reset_routes()
         self.routes.shard(3, 2)
-        expected = ['/bax/coo/vin', '/bax/pan']
+        expected = ['/bax/coo/vin', '/bax/pan', '/tem/tan']
         actual = list(self.routes.paths)
         self.assertItemsEqual(expected, actual)
 
