@@ -92,7 +92,7 @@ class Routes(object):
         """Removes a path from the routes."""
         return self._root.remove(path)
 
-    def shard(self, shard_count, current_shard, attr='type'):
+    def shard(self, shard_count, current_shard, attr='kind'):
         """Removes paths from the routes based on sharding rules."""
         return self._root.shard(shard_count, current_shard, attr=attr)
 
@@ -165,7 +165,7 @@ class RoutesDict(object):
             return None
         return MatchResult(path, value)
 
-    def shard(self, shard_count, current_shard, attr='type'):
+    def shard(self, shard_count, current_shard, attr='kind'):
         """Removes paths from the routes based on sharding rules."""
         shard_index = current_shard - 1
         counters = {}
@@ -178,7 +178,7 @@ class RoutesDict(object):
             if attr:
                 value = self._root.get(path, None)
                 if value is not None:
-                    counter_key = value.get(attr, SHARD_KEY_DEFAULT)
+                    counter_key = getattr(value, attr, SHARD_KEY_DEFAULT)
 
             count = counters.get(counter_key, 0)
 
@@ -245,7 +245,7 @@ class RouteTrie(object):
         return self._root.remove(segments)
 
     # pylint: disable=unused-argument
-    def shard(self, shard_count, current_shard, attr='type'):
+    def shard(self, shard_count, current_shard, attr='kind'):
         """Removes paths from the routes based on sharding rules."""
         # Sharding doesn't work on the routing trie since it uses patterns
         # and would not equally distribute the routes.

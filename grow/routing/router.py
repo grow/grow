@@ -359,6 +359,10 @@ class Router(object):
         for doc in add_docs if add_docs else []:
             self.add_doc(doc)
 
+    def shard(self, shard_count, current_shard, attr='kind'):
+        """Removes paths from the routes based on sharding rules."""
+        self.routes.shard(shard_count, current_shard, attr=attr)
+
     def use_simple(self):
         """Switches the routes to be a simple routes object."""
         previous_routes = self._routes

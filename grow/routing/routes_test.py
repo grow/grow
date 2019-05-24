@@ -751,19 +751,28 @@ class RoutesSimpleTestCase(unittest.TestCase):
     def test_shard_attr(self):
         """Tests that routes' can be sharded equally by attribute."""
 
+
+        # pylint: disable=too-few-public-methods
+        class _RouteInfo(object):
+            """Organize information stored in the routes."""
+
+            def __init__(self, kind):
+                self.kind = kind
+
+
         def _reset_routes():
             self.routes = grow_routes.RoutesSimple()
 
-            self._add('/bax/bar', value={'type':'doc'})  # 1 - doc
-            self._add('/bax/coo/lib', value={'type':'static'})  # 1 - static
-            self._add('/bax/coo/vin', value={'type':'static'})  # 2 - static
-            self._add('/bax/pan', value={'type':'doc'})  # 2 - doc
-            self._add('/bax/pan/taw', value={'type':'static'})  # 3 - static
-            self._add('/bax/vew/vin', value={'type':'doc'})  # 3 - doc
-            self._add('/fes/pon', value={})  # 1 - default
-            self._add('/foo', value={'type':'doc'})  # 1 - doc
-            self._add('/tem/pon', value={'type':'static'})  # 1 - static
-            self._add('/tem/tan', value={'type':'static'})  # 2 - static
+            self._add('/bax/bar', value=_RouteInfo('doc'))  # 1 - doc
+            self._add('/bax/coo/lib', value=_RouteInfo('static'))  # 1 - static
+            self._add('/bax/coo/vin', value=_RouteInfo('static'))  # 2 - static
+            self._add('/bax/pan', value=_RouteInfo('doc'))  # 2 - doc
+            self._add('/bax/pan/taw', value=_RouteInfo('static'))  # 3 - static
+            self._add('/bax/vew/vin', value=_RouteInfo('doc'))  # 3 - doc
+            self._add('/fes/pon', value=_RouteInfo(None))  # 1 - default
+            self._add('/foo', value=_RouteInfo('doc'))  # 1 - doc
+            self._add('/tem/pon', value=_RouteInfo('static'))  # 1 - static
+            self._add('/tem/tan', value=_RouteInfo('static'))  # 2 - static
 
             # Expect the yielded nodes to be in order.
             expected = [
