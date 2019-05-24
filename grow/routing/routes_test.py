@@ -777,8 +777,6 @@ class RoutesSimpleTestCase(unittest.TestCase):
         self.routes.shard(3, 1)
         expected = ['/bax/bar', '/bax/coo/lib', '/fes/pon', '/foo', '/tem/pon']
         actual = list(self.routes.paths)
-        print expected
-        print actual
         self.assertItemsEqual(expected, actual)
 
         # Shard 2
