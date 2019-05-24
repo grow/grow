@@ -6,6 +6,7 @@ import collections
 PREFIX_PARAMETER = ':'
 PREFIX_WILDCARD = '*'
 URL_SEPARATOR = '/'
+SHARD_KEY_DEFAULT = '_default'
 
 
 class Error(Exception):
@@ -91,6 +92,10 @@ class Routes(object):
         """Removes a path from the routes."""
         return self._root.remove(path)
 
+    def shard(self, shard_count, current_shard, attr='type'):
+        """Removes paths from the routes based on sharding rules."""
+        return self._root.shard(shard_count, current_shard, attr=attr)
+
     def update(self, other):
         """Allow updating the current routes with other Routes."""
         # Add all the nodes from the other Routes.
@@ -160,6 +165,38 @@ class RoutesDict(object):
             return None
         return MatchResult(path, value)
 
+    def shard(self, shard_count, current_shard, attr='type'):
+        """Removes paths from the routes based on sharding rules."""
+        shard_index = current_shard - 1
+        counters = {}
+        remove_paths = []
+        for path in sorted(self._root):
+            counter_key = SHARD_KEY_DEFAULT
+
+            # Use the attribute as a counter to equally distribute routes based
+            # on an attribute in the value.
+            if attr:
+                value = self._root.get(path, None)
+                if value is not None:
+                    counter_key = value.get(attr, SHARD_KEY_DEFAULT)
+
+            count = counters.get(counter_key, 0)
+            print '{} - {} :: {} {} :: {}'.format(counter_key, count, count % shard_count, shard_index, path)
+
+            # Remove all paths that do not match the current shard.
+            if count % shard_count != shard_index:
+                print 'removed: {}'.format(path)
+                remove_paths.append(path)
+
+            counters[counter_key] = count + 1
+
+        print 'Removing paths: {}'.format(remove_paths)
+
+        for path in remove_paths:
+            self._root.pop(path, None)
+
+        print 'Removed {} paths for sharding. {} remaining'.format(len(remove_paths), len(self._root))
+
 
 class RouteTrie(object):
     """A trie for routes."""
@@ -212,6 +249,13 @@ class RouteTrie(object):
         """Removes a path from the trie."""
         segments = self.segments(path)
         return self._root.remove(segments)
+
+    # pylint: disable=unused-argument
+    def shard(self, shard_count, current_shard, attr='type'):
+        """Removes paths from the routes based on sharding rules."""
+        # Sharding doesn't work on the routing trie since it uses patterns
+        # and would not equally distribute the routes.
+        raise NotImplementedError('Sharding cannot be done on routing trie.')
 
 
 class RouteNode(object):

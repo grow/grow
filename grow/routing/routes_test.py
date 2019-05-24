@@ -698,6 +698,104 @@ class RoutesSimpleTestCase(unittest.TestCase):
         actual = list(self.routes.paths)
         self.assertEquals(expected, actual)
 
+    def test_shard(self):
+        """Tests that routes' can be sharded equally."""
+
+        def _reset_routes():
+            self.routes = grow_routes.RoutesSimple()
+
+            # Add nodes in random order.
+            self._add('/foo', value=1)
+            self._add('/bax/coo/lib', value=2)
+            self._add('/bax/bar', value=3)
+            self._add('/bax/pan', value=4)
+            self._add('/bax/coo/vin', value=5)
+            self._add('/tem/pon', value=6)
+
+            # Expect the yielded nodes to be in order.
+            expected = [
+                '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
+                '/foo', '/tem/pon',
+            ]
+            actual = list(self.routes.paths)
+            self.assertEquals(expected, actual)
+
+        # Shard 1
+        _reset_routes()
+        self.routes.shard(3, 1, attr=None)
+        expected = [
+            '/bax/bar', '/bax/pan',
+        ]
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+        # Shard 2
+        _reset_routes()
+        self.routes.shard(3, 2, attr=None)
+        expected = [
+            '/bax/coo/lib', '/foo',
+        ]
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+        # Shard 3
+        _reset_routes()
+        self.routes.shard(3, 3, attr=None)
+
+        expected = [
+            '/bax/coo/vin', '/tem/pon',
+        ]
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+    def test_shard_attr(self):
+        """Tests that routes' can be sharded equally by attribute."""
+
+        def _reset_routes():
+            self.routes = grow_routes.RoutesSimple()
+
+            self._add('/bax/bar', value={'type':'doc'})
+            self._add('/bax/coo/lib', value={'type':'static'})
+            self._add('/bax/coo/vin', value={'type':'static'})
+            self._add('/bax/pan', value={'type':'doc'})
+            self._add('/bax/pan/taw', value={'type':'static'})
+            self._add('/bax/vew/vin', value={'type':'doc'})
+            self._add('/fes/pon', value={})
+            self._add('/foo', value={'type':'doc'})
+            self._add('/tem/pon', value={'type':'static'})
+
+            # Expect the yielded nodes to be in order.
+            expected = [
+                '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
+                '/foo', '/tem/pon', '/bax/pan/taw', '/bax/vew/vin', '/fes/pon',
+            ]
+            actual = list(self.routes.paths)
+            self.assertItemsEqual(expected, actual)
+
+        # Shard 1
+        _reset_routes()
+        self.routes.shard(3, 1)
+        expected = ['/bax/bar', '/bax/coo/lib', '/fes/pon', '/foo', '/tem/pon']
+        actual = list(self.routes.paths)
+        print expected
+        print actual
+        self.assertItemsEqual(expected, actual)
+
+        # Shard 2
+        _reset_routes()
+        self.routes.shard(3, 2)
+        expected = ['/bax/coo/vin', '/bax/pan']
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+        # Shard 3
+        _reset_routes()
+        self.routes.shard(3, 3)
+
+        expected = ['/bax/pan/taw', '/bax/vew/vin']
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
     def test_remove(self):
         """Tests that paths can be removed."""
 
