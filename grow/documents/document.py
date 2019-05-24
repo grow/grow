@@ -177,6 +177,12 @@ class Document(object):
         return self.pod_path[len(self.collection.pod_path):]
 
     @property
+    def collection_path_clean(self):
+        """The pod path relative to the collection path cleaned of locale."""
+        return Document._locale_paths(
+            self.pod_path[len(self.collection.pod_path):])[-1]
+
+    @property
     def content(self):
         return self.format.raw_content.decode('utf-8')
 

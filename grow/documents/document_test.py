@@ -119,6 +119,18 @@ class DocumentsTestCase(unittest.TestCase):
         about_doc = self.pod.get_doc('/content/pages/sub/foo/about.yaml')
         self.assertEquals('/sub/foo/about.yaml', about_doc.collection_path)
 
+    def test_collection_path_clean(self):
+        about_doc = self.pod.get_doc('/content/pages/about.yaml')
+        self.assertEquals('/about.yaml', about_doc.collection_path_clean)
+
+        self.pod.write_file('/content/pages/sub/about.yaml', '')
+        about_doc = self.pod.get_doc('/content/pages/sub/about.yaml')
+        self.assertEquals('/sub/about.yaml', about_doc.collection_path_clean)
+
+        self.pod.write_file('/content/pages/sub/about@es.yaml', '')
+        about_doc = self.pod.get_doc('/content/pages/sub/about@es.yaml')
+        self.assertEquals('/sub/about.yaml', about_doc.collection_path_clean)
+
     def test_get_serving_path(self):
         about_doc = self.pod.get_doc('/content/pages/about.yaml')
         self.assertEquals('/about/', about_doc.get_serving_path())
