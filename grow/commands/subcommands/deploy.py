@@ -31,9 +31,11 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')
 @shared.force_untranslated_option(CFG)
 @shared.preprocess_option(CFG)
 @shared.threaded_option(CFG)
+@shared.shards_option
+@shared.shard_option
 @click.pass_context
 def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
-           test_only, auth, force_untranslated, threaded):
+           test_only, auth, force_untranslated, threaded, shards, shard):
     """Deploys a pod to a destination."""
     if auth:
         text = ('--auth must now be specified before deploy. Usage:'
@@ -65,15 +67,23 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             repo = utils.get_git_repo(pod.root)
             pod.router.use_simple()
             pod.router.add_all()
+            is_partial = False
+            # Filter routes based on deployment config.
             for build_filter in deployment.filters:
+                is_partial = True
                 pod.router.filter(
                     build_filter.type, collection_paths=build_filter.collections,
                     paths=build_filter.paths, locales=build_filter.locales)
+            # Shard the routes when using sharding.
+            if shards and shard:
+                is_partial = True
+                pod.router.shard(shards, shard)
             paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)
             deployment.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=confirm,
-                test=test, require_translations=require_translations)
+                test=test, require_translations=require_translations,
+                is_partial=is_partial)
             pod.podcache.write()
     except renderer.RenderErrors as err:
         # Write the podcache files even when there are rendering errors.

@@ -92,8 +92,21 @@ class Routes(object):
         """Removes a path from the routes."""
         return self._root.remove(path)
 
-    def shard(self, shard_count, current_shard, attr='type'):
+    def shard(self, shard_count, current_shard, attr='kind'):
         """Removes paths from the routes based on sharding rules."""
+
+        if shard_count <= 1:
+            raise ValueError('Shard count needs to be greater than 1')
+
+        if shard_count >= 50:
+            raise ValueError('Shard count needs to be less than 50')
+
+        if shard_count < current_shard:
+            raise ValueError('Shard count needs to be larger than the current shard')
+
+        if current_shard < 1:
+            raise ValueError('Current shard needs to be at least 1')
+
         return self._root.shard(shard_count, current_shard, attr=attr)
 
     def update(self, other):
@@ -165,7 +178,7 @@ class RoutesDict(object):
             return None
         return MatchResult(path, value)
 
-    def shard(self, shard_count, current_shard, attr='type'):
+    def shard(self, shard_count, current_shard, attr='kind'):
         """Removes paths from the routes based on sharding rules."""
         shard_index = current_shard - 1
         counters = {}
@@ -178,7 +191,7 @@ class RoutesDict(object):
             if attr:
                 value = self._root.get(path, None)
                 if value is not None:
-                    counter_key = value.get(attr, SHARD_KEY_DEFAULT)
+                    counter_key = getattr(value, attr, SHARD_KEY_DEFAULT)
 
             count = counters.get(counter_key, 0)
 
@@ -245,7 +258,7 @@ class RouteTrie(object):
         return self._root.remove(segments)
 
     # pylint: disable=unused-argument
-    def shard(self, shard_count, current_shard, attr='type'):
+    def shard(self, shard_count, current_shard, attr='kind'):
         """Removes paths from the routes based on sharding rules."""
         # Sharding doesn't work on the routing trie since it uses patterns
         # and would not equally distribute the routes.
