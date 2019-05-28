@@ -169,15 +169,15 @@ class Document(object):
     @property
     def collection_base_path(self):
         """The base directory inside the collection."""
-        return self.collection_path[:-len(self.basename)]
+        return self.collection_sub_path[:-len(self.basename)]
 
     @property
-    def collection_path(self):
+    def collection_sub_path(self):
         """The pod path relative to the collection path."""
         return self.pod_path[len(self.collection.pod_path):]
 
     @property
-    def collection_path_clean(self):
+    def collection_sub_path_clean(self):
         """The pod path relative to the collection path cleaned of locale."""
         return Document._locale_paths(
             self.pod_path[len(self.collection.pod_path):])[-1]
@@ -200,7 +200,7 @@ class Document(object):
         """Default document locale."""
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             localization = self.collection.routes.localization(
-                self.collection_path, {})
+                self.collection_sub_path, {})
         else:
             localization = self.format.front_matter.data.get(
                 '$localization', {})
@@ -285,7 +285,7 @@ class Document(object):
     def locales(self):
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             localization = self.collection.routes.localization(
-                self.collection_path, {})
+                self.collection_sub_path, {})
         else:
             # Default to none to be able to override the upstream locales.
             localization = self.fields.get('$localization', {})
@@ -327,7 +327,7 @@ class Document(object):
         """Path format for base document."""
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             return self.collection.routes.path(
-                self.collection_path, self.collection.path_format)
+                self.collection_sub_path, self.collection.path_format)
         return self.fields.get('$path', self.collection.path_format)
 
     @property
@@ -336,7 +336,7 @@ class Document(object):
         """Path format for localized documents."""
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             localization = self.collection.routes.localization(
-                self.collection_path, {})
+                self.collection_sub_path, {})
         else:
             localization = self.fields.get('$localization', {})
 
@@ -344,7 +344,7 @@ class Document(object):
             return localization['path']
 
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
-            path_format = self.collection.routes.path(self.collection_path, '')
+            path_format = self.collection.routes.path(self.collection_sub_path, '')
         else:
             path_format = self.fields.get('$path', '')
 
@@ -426,7 +426,7 @@ class Document(object):
     def view(self):
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             view_format = self.collection.routes.view(
-                self.collection_path, self.collection.view)
+                self.collection_sub_path, self.collection.view)
         else:
             view_format = self.fields.get('$view', self.collection.view)
         if view_format is not None:
