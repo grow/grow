@@ -698,6 +698,139 @@ class RoutesSimpleTestCase(unittest.TestCase):
         actual = list(self.routes.paths)
         self.assertEquals(expected, actual)
 
+    def test_shard(self):
+        """Tests that routes' can be sharded equally."""
+
+        def _reset_routes():
+            self.routes = grow_routes.RoutesSimple()
+
+            # Add nodes in random order.
+            self._add('/foo', value=1)
+            self._add('/bax/coo/lib', value=2)
+            self._add('/bax/bar', value=3)
+            self._add('/bax/pan', value=4)
+            self._add('/bax/coo/vin', value=5)
+            self._add('/tem/pon', value=6)
+
+            # Expect the yielded nodes to be in order.
+            expected = [
+                '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
+                '/foo', '/tem/pon',
+            ]
+            actual = list(self.routes.paths)
+            self.assertEquals(expected, actual)
+
+        # Shard 1
+        _reset_routes()
+        self.routes.shard(3, 1, attr=None)
+        expected = [
+            '/bax/bar', '/bax/pan',
+        ]
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+        # Shard 2
+        _reset_routes()
+        self.routes.shard(3, 2, attr=None)
+        expected = [
+            '/bax/coo/lib', '/foo',
+        ]
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+        # Shard 3
+        _reset_routes()
+        self.routes.shard(3, 3, attr=None)
+
+        expected = [
+            '/bax/coo/vin', '/tem/pon',
+        ]
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+    def test_shard_attr(self):
+        """Tests that routes' can be sharded equally by attribute."""
+
+
+        # pylint: disable=too-few-public-methods
+        class _RouteInfo(object):
+            """Organize information stored in the routes."""
+
+            def __init__(self, kind):
+                self.kind = kind
+
+
+        def _reset_routes():
+            self.routes = grow_routes.RoutesSimple()
+
+            self._add('/bax/bar', value=_RouteInfo('doc'))  # 1 - doc
+            self._add('/bax/coo/lib', value=_RouteInfo('static'))  # 1 - static
+            self._add('/bax/coo/vin', value=_RouteInfo('static'))  # 2 - static
+            self._add('/bax/pan', value=_RouteInfo('doc'))  # 2 - doc
+            self._add('/bax/pan/taw', value=_RouteInfo('static'))  # 3 - static
+            self._add('/bax/vew/vin', value=_RouteInfo('doc'))  # 3 - doc
+            self._add('/fes/pon', value=_RouteInfo(None))  # 1 - default
+            self._add('/foo', value=_RouteInfo('doc'))  # 1 - doc
+            self._add('/tem/pon', value=_RouteInfo('static'))  # 1 - static
+            self._add('/tem/tan', value=_RouteInfo('static'))  # 2 - static
+
+            # Expect the yielded nodes to be in order.
+            expected = [
+                '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
+                '/foo', '/tem/pon', '/bax/pan/taw', '/bax/vew/vin', '/fes/pon',
+                '/tem/tan',
+            ]
+            actual = list(self.routes.paths)
+            self.assertItemsEqual(expected, actual)
+
+        # Shard 1
+        _reset_routes()
+        self.routes.shard(3, 1)
+        expected = ['/bax/bar', '/bax/coo/lib', '/fes/pon', '/foo', '/tem/pon']
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+        # Shard 2
+        _reset_routes()
+        self.routes.shard(3, 2)
+        expected = ['/bax/coo/vin', '/bax/pan', '/tem/tan']
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+        # Shard 3
+        _reset_routes()
+        self.routes.shard(3, 3)
+
+        expected = ['/bax/pan/taw', '/bax/vew/vin']
+        actual = list(self.routes.paths)
+        self.assertItemsEqual(expected, actual)
+
+    def test_shard_errors(self):
+        """Tests that errors happen with invalid shard values."""
+
+        # Add nodes in random order.
+        self._add('/foo', value=1)
+        self._add('/bax/coo/lib', value=2)
+        self._add('/bax/bar', value=3)
+        self._add('/bax/pan', value=4)
+        self._add('/bax/coo/vin', value=5)
+        self._add('/tem/pon', value=6)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(0, 1)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(50, 1)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(1, 1)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(5, 6)
+
+        with self.assertRaises(ValueError):
+            self.routes.shard(5, 0)
+
     def test_remove(self):
         """Tests that paths can be removed."""
 

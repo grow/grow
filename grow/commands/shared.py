@@ -140,6 +140,20 @@ def service_option(func):
                         ' only required if more than one service is configured.')(func)
 
 
+def shard_option(func):
+    """Option for configuring the current shard."""
+    return click.option(
+        '--shard', type=int,
+        help='Current index of shard being used for sharding.')(func)
+
+
+def shards_option(func):
+    """Option for configuring the shard count."""
+    return click.option(
+        '--shards', type=int,
+        help='Number of shards being used for sharding.')(func)
+
+
 def threaded_option(config):
     """Option for using threading when rendering."""
     shared_default = CFG.get('threaded', True)
