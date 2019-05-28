@@ -64,21 +64,21 @@ class Router(object):
                 doc_basenames = set()
                 for doc in collection.list_docs_unread():
                     # Skip duplicate documents when using non-concrete routing.
-                    if not concrete and doc.collection_path in doc_basenames:
+                    if not concrete and doc.collection_sub_path_clean in doc_basenames:
                         continue
                     is_default_locale = doc._locale_kwarg == self.pod.podspec.default_locale
                     # Ignore localized names in the files since they will be
                     # picked up when the locales are expanded.
                     if doc.root_pod_path == doc.pod_path or is_default_locale:
                         docs.append(doc)
-                        doc_basenames.add(doc.collection_path)
+                        doc_basenames.add(doc.collection_sub_path_clean)
                     else:
                         # If this document does not exist with the default
                         # locale it still needs to be added.
                         locale_doc = self.pod.get_doc(doc.pod_path, doc.default_locale)
                         if not locale_doc.exists:
                             docs.append(doc)
-                            doc_basenames.add(doc.collection_path)
+                            doc_basenames.add(doc.collection_sub_path_clean)
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
