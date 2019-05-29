@@ -25,7 +25,6 @@ goslate = "==1.5.1"
 "html2text" = "==2018.1.9"
 "httplib2" = "==0.11.3"
 "jinja2" = "==2.10"
-libsass = "==0.14.5"
 markdown = "==2.6.11"
 markupsafe = "==1.0"
 # Pyinstaller ImportError: file_cache is unavailable when using oauth2client >= 4.0.0
