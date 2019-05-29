@@ -63,7 +63,8 @@ class RenderController(object):
         elif route_info.kind == 'error':
             return RenderErrorController(
                 pod, serving_path, route_info, params=params)
-        raise UnknownKindError('Do not have a controller for: {}'.format(kind))
+        raise UnknownKindError(
+            'Do not have a controller for: {}'.format(route_info.kind))
 
     @property
     def locale(self):
