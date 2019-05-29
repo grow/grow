@@ -30,9 +30,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.stage')
 @shared.force_untranslated_option(CFG)
 @shared.preprocess_option(CFG)
 @shared.threaded_option(CFG)
+@shared.work_dir_option
 @click.pass_context
 def stage(context, pod_path, remote, preprocess, subdomain, api_key,
-          force_untranslated, threaded):
+          force_untranslated, threaded, work_dir):
     """Stages a build on a WebReview server."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     auth = context.parent.params.get('auth')
@@ -54,7 +55,8 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
                 deployment.login(auth)
             if preprocess:
                 pod.preprocess()
-            content_generator = deployment.dump(pod, use_threading=threaded)
+            content_generator = deployment.dump(
+                pod, source_dir=work_dir, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
             pod.router.use_simple()
             pod.router.add_all()

@@ -273,9 +273,12 @@ class BaseDestination(object):
     def login(self, account, reauth=False):
         pass
 
-    def dump(self, pod, pod_paths=None, use_threading=True):
+    def dump(self, pod, pod_paths=None, use_threading=True, source_dir=None):
+        """Dump the contents of the pod."""
         pod.set_env(self.get_env())
-        return pod.dump(pod_paths=pod_paths, use_threading=use_threading)
+        return pod.dump(
+            pod_paths=pod_paths, use_threading=use_threading,
+            source_dir=source_dir)
 
     def deploy(self, content_generator, stats=None, repo=None, dry_run=False,
                confirm=False, test=True, is_partial=False, require_translations=False):
