@@ -24,12 +24,17 @@ docker push grow/baseimage:latest
 # Ubuntu Command.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/grow:$GROW_VERSION -t grow/grow:latest \
+  -t gcr.io/grow-prod/grow:$GROW_VERSION -t gcr.io/grow-prod/grow:latest \
   -f Dockerfile.exec .
 
 docker run grow/grow:$GROW_VERSION --version
 
 docker push grow/grow:$GROW_VERSION
 docker push grow/grow:latest
+
+# Google cloud registry.
+docker push gcr.io/grow-prod/grow:$GROW_VERSION
+docker push gcr.io/grow-prod/grow:latest
 
 # Alpine Base.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
