@@ -31,8 +31,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 @shared.out_dir_option(CFG)
 @shared.preprocess_option(CFG)
 @shared.threaded_option(CFG)
+@shared.shards_option
+@shared.shard_option
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
-          locate_untranslated, deployment, threaded, locale):
+          locate_untranslated, deployment, threaded, locale, shards, shard):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -60,17 +62,21 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
             destination.pod = pod
             repo = utils.get_git_repo(pod.root)
             pod.router.use_simple()
+            is_partial = bool(pod_paths) or bool(locale)
             if pod_paths:
                 pod.router.add_pod_paths(pod_paths)
             else:
                 pod.router.add_all()
             if locale:
                 pod.router.filter('whitelist', locales=list(locale))
+            # Shard the routes when using sharding.
+            if shards and shard:
+                is_partial = True
+                pod.router.shard(shards, shard)
             paths = pod.router.routes.paths
             content_generator = renderer.Renderer.rendered_docs(
                 pod, pod.router.routes, use_threading=threaded)
             stats_obj = stats.Stats(pod, paths=paths)
-            is_partial = bool(pod_paths) or bool(locale)
             destination.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=False,
                 test=False, is_partial=is_partial)

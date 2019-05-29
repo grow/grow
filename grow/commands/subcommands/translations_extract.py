@@ -72,6 +72,10 @@ def translations_extract(pod_path, init, update, include_obsolete, localized,
             return
         if localized:
             return
+        # If an output path was specified, there's no further need to init or
+        # update catalogs.
+        if o:
+            return
         if init:
             text = 'Initializing {} empty translation catalogs.'
             pod.logger.info(text.format(len(locales)))

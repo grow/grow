@@ -105,7 +105,7 @@ class Locale(babel.Locale):
 
     def set_alias(self, pod):
         podspec = pod.get_podspec()
-        self._alias = podspec.get_locale_alias(str(self).lower())
+        self.alias = podspec.get_locale_alias(str(self).lower())
 
     @property
     def alias(self):

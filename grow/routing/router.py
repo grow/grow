@@ -64,21 +64,21 @@ class Router(object):
                 doc_basenames = set()
                 for doc in collection.list_docs_unread():
                     # Skip duplicate documents when using non-concrete routing.
-                    if not concrete and doc.basename in doc_basenames:
+                    if not concrete and doc.collection_sub_path_clean in doc_basenames:
                         continue
                     is_default_locale = doc._locale_kwarg == self.pod.podspec.default_locale
                     # Ignore localized names in the files since they will be
                     # picked up when the locales are expanded.
                     if doc.root_pod_path == doc.pod_path or is_default_locale:
                         docs.append(doc)
-                        doc_basenames.add(doc.basename)
+                        doc_basenames.add(doc.collection_sub_path_clean)
                     else:
                         # If this document does not exist with the default
                         # locale it still needs to be added.
                         locale_doc = self.pod.get_doc(doc.pod_path, doc.default_locale)
                         if not locale_doc.exists:
                             docs.append(doc)
-                            doc_basenames.add(doc.basename)
+                            doc_basenames.add(doc.collection_sub_path_clean)
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
@@ -358,6 +358,10 @@ class Router(object):
             self.routes.remove(doc.get_serving_path())
         for doc in add_docs if add_docs else []:
             self.add_doc(doc)
+
+    def shard(self, shard_count, current_shard, attr='kind'):
+        """Removes paths from the routes based on sharding rules."""
+        self.routes.shard(shard_count, current_shard, attr=attr)
 
     def use_simple(self):
         """Switches the routes to be a simple routes object."""
