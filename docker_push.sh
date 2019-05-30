@@ -23,8 +23,10 @@ docker push grow/baseimage:$GROW_VERSION
 docker push grow/baseimage:latest
 
 # Google cloud registry.
-docker push gcr.io/grow-prod/base:$GROW_VERSION
-docker push gcr.io/grow-prod/base:latest
+if [ "$1" == "gcr.io" ]; then
+  docker push gcr.io/grow-prod/base:$GROW_VERSION
+  docker push gcr.io/grow-prod/base:latest
+fi
 
 # Ubuntu Command.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
@@ -38,12 +40,15 @@ docker push grow/grow:$GROW_VERSION
 docker push grow/grow:latest
 
 # Google cloud registry.
-docker push gcr.io/grow-prod/grow:$GROW_VERSION
-docker push gcr.io/grow-prod/grow:latest
+if [ "$1" == "gcr.io" ]; then
+  docker push gcr.io/grow-prod/grow:$GROW_VERSION
+  docker push gcr.io/grow-prod/grow:latest
+fi
 
 # Alpine Base.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/base:$GROW_VERSION-alpine -t grow/base:alpine-latest \
+  -t gcr.io/grow-prod/base:$GROW_VERSION-alpine -t gcr.io/grow-prod/base:alpine-latest \
   -f Dockerfile.alpine .
 
 docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION-alpine  \
@@ -52,12 +57,25 @@ docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION-alpine  \
 docker push grow/base:$GROW_VERSION-alpine
 docker push grow/base:alpine-latest
 
+# Google cloud registry.
+if [ "$1" == "gcr.io" ]; then
+  docker push gcr.io/grow-prod/base:$GROW_VERSION-alpine
+  docker push gcr.io/grow-prod/base:alpine-latest
+fi
+
 # Alpine Command.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/grow:$GROW_VERSION-alpine -t grow/grow:alpine-latest \
+  -t gcr.io/grow-prod/grow:$GROW_VERSION-alpine -t gcr.io/grow-prod/grow:alpine-latest \
   -f Dockerfile.exec .
 
 docker run grow/grow:$GROW_VERSION-alpine --version
 
 docker push grow/grow:$GROW_VERSION-alpine
 docker push grow/grow:alpine-latest
+
+# Google cloud registry.
+if [ "$1" == "gcr.io" ]; then
+  docker push gcr.io/grow-prod/grow:$GROW_VERSION-alpine
+  docker push gcr.io/grow-prod/grow:alpine-latest
+fi
