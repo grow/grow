@@ -40,24 +40,31 @@ class RenderController(object):
         self.is_threaded = is_threaded
 
     @staticmethod
+    def clean_source_dir(source_dir):
+        """Clean the formatting of the source dir to format correctly."""
+        source_dir = source_dir.strip()
+        source_dir = source_dir.rstrip(os.path.sep)
+        return source_dir
+
+    @staticmethod
     def from_route_info(pod, serving_path, route_info, params=None):
         """Create the correct controller based on the route info."""
         if params is None:
             params = {}
-        kind = route_info.kind
-        if kind == 'doc':
+        if route_info.kind == 'doc':
             return RenderDocumentController(
                 pod, serving_path, route_info, params=params)
-        elif kind == 'static':
+        elif route_info.kind == 'static':
             return RenderStaticDocumentController(
                 pod, serving_path, route_info, params=params)
-        elif kind == 'sitemap':
+        elif route_info.kind == 'sitemap':
             return RenderSitemapController(
                 pod, serving_path, route_info, params=params)
-        elif kind == 'error':
+        elif route_info.kind == 'error':
             return RenderErrorController(
                 pod, serving_path, route_info, params=params)
-        raise UnknownKindError('Do not have a controller for: {}'.format(kind))
+        raise UnknownKindError(
+            'Do not have a controller for: {}'.format(route_info.kind))
 
     @property
     def locale(self):
@@ -76,6 +83,10 @@ class RenderController(object):
         if mimetype:
             headers['Content-Type'] = mimetype
         return headers
+
+    def load(self, source_dir):
+        """Load the pod content from file system."""
+        raise NotImplementedError
 
     def render(self, jinja_env):
         """Render the pod content."""
@@ -130,6 +141,41 @@ class RenderDocumentController(RenderController):
         if ext == '.html':
             return 'index.html'
         return ''
+
+    def load(self, source_dir):
+        """Load the pod content from file system."""
+        timer = self.pod.profile.timer(
+            'RenderDocumentController.load',
+            label='{} ({})'.format(self.doc.pod_path, self.doc.locale),
+            meta={
+                'path': self.doc.pod_path,
+                'locale': str(self.doc.locale)}
+        ).start_timer()
+
+        source_dir = self.clean_source_dir(source_dir)
+
+        # Validate the path with the config filters.
+        self.validate_path()
+
+        try:
+            doc = self.doc
+            serving_path = doc.get_serving_path()
+            if serving_path.endswith('/'):
+                serving_path = '{}{}'.format(serving_path, self.suffix)
+
+            rendered_path = '{}{}'.format(source_dir, serving_path)
+            rendered_content = self.pod.read_file(rendered_path)
+
+            rendered_doc = rendered_document.RenderedDocument(
+                serving_path, rendered_content)
+            timer.stop_timer()
+            return rendered_doc
+        except Exception as err:
+            exception = errors.BuildError(str(err))
+            exception.traceback = sys.exc_info()[2]
+            exception.controller = self
+            exception.exception = err
+            raise exception
 
     def render(self, jinja_env=None):
         """Render the document using the render pool."""
@@ -200,9 +246,43 @@ class RenderErrorController(RenderController):
     def __repr__(self):
         return '<RenderErrorController({})>'.format(self.route_info.meta['view'])
 
+    def load(self, source_dir):
+        """Load the pod content from file system."""
+        timer = self.pod.profile.timer(
+            'RenderErrorController.load',
+            label='{} ({})'.format(
+                self.route_info.meta['key'], self.route_info.meta['view']),
+            meta={
+                'key': self.route_info.meta['key'],
+                'view': self.route_info.meta['view'],
+            }
+        ).start_timer()
+
+        source_dir = self.clean_source_dir(source_dir)
+
+        # Validate the path with the config filters.
+        self.validate_path()
+
+        try:
+            serving_path = '/{}.html'.format(self.route_info.meta['key'])
+            rendered_path = '{}{}'.format(source_dir, serving_path)
+            rendered_content = self.pod.read_file(rendered_path)
+            rendered_doc = rendered_document.RenderedDocument(
+                serving_path, rendered_content)
+            timer.stop_timer()
+            return rendered_doc
+        except Exception as err:
+            text = 'Error building {}: {}'
+            if self.pod:
+                self.pod.logger.exception(text.format(self, err))
+            exception = errors.BuildError(text.format(self, err))
+            exception.traceback = sys.exc_info()[2]
+            exception.controller = self
+            exception.exception = err
+            raise exception
+
     def render(self, jinja_env=None):
         """Render the document using the render pool."""
-
         timer = self.pod.profile.timer(
             'RenderErrorController.render',
             label='{} ({})'.format(
@@ -255,9 +335,38 @@ class RenderSitemapController(RenderController):
         """Determine headers to serve for https requests."""
         return mimetypes.guess_type(self.serving_path)[0]
 
+    def load(self, source_dir):
+        """Load the pod content from file system."""
+        timer = self.pod.profile.timer(
+            'RenderSitemapController.load',
+            label='{}'.format(self.serving_path),
+            meta=self.route_info.meta,
+        ).start_timer()
+
+        source_dir = self.clean_source_dir(source_dir)
+
+        # Validate the path with the config filters.
+        self.validate_path()
+
+        try:
+            rendered_path = '{}{}'.format(source_dir, self.serving_path)
+            rendered_content = self.pod.read_file(rendered_path)
+            rendered_doc = rendered_document.RenderedDocument(
+                self.serving_path, rendered_content)
+            timer.stop_timer()
+            return rendered_doc
+        except Exception as err:
+            text = 'Error building {}: {}'
+            if self.pod:
+                self.pod.logger.exception(text.format(self, err))
+            exception = errors.BuildError(text.format(self, err))
+            exception.traceback = sys.exc_info()[2]
+            exception.controller = self
+            exception.exception = err
+            raise exception
+
     def render(self, jinja_env=None):
         """Render the document using the render pool."""
-
         timer = self.pod.profile.timer(
             'RenderSitemapController.render',
             label='{}'.format(self.serving_path),
@@ -364,6 +473,24 @@ class RenderStaticDocumentController(RenderController):
         if self.static_doc.locale:
             headers['X-Grow-Locale'] = self.static_doc.locale
         return headers
+
+    def load(self, source_dir):
+        """Load the pod content from file system."""
+        timer = self.pod.profile.timer(
+            'RenderStaticDocumentController.load', label=self.serving_path,
+            meta={'path': self.serving_path}).start_timer()
+
+        source_dir = self.clean_source_dir(source_dir)
+
+        # Validate the path with the static config specific filter.
+        self.validate_path(self.route_info.meta['path_filter'])
+
+        rendered_path = '{}{}'.format(source_dir, self.serving_path)
+        rendered_content = self.pod.read_file(rendered_path)
+        rendered_doc = rendered_document.RenderedDocument(
+            self.serving_path, rendered_content)
+        timer.stop_timer()
+        return rendered_doc
 
     def render(self, jinja_env=None):
         """Read the static file."""

@@ -23,7 +23,7 @@ class Renderer(object):
     """Handles the rendering and threading of the controllers."""
 
     @staticmethod
-    def rendered_docs(pod, routes, use_threading=True):
+    def rendered_docs(pod, routes, use_threading=True, source_dir=None):
         """Generate the rendered documents for the given routes."""
         with pod.profile.timer('renderer.Renderer.render_docs'):
             routes_len = len(routes)
@@ -43,8 +43,15 @@ class Renderer(object):
             for controller in Renderer.controller_generator(pod, routes):
                 batches.add(controller)
 
-            rendered_docs, render_errors = batches.render(
-                use_threading=use_threading)
+            if source_dir:
+                # When using an input directory, load the files instead of render.
+                rendered_docs, render_errors = batches.load(
+                    use_threading=use_threading, source_dir=source_dir)
+            else:
+                # Default to rendering the documents.
+                rendered_docs, render_errors = batches.render(
+                    use_threading=use_threading)
+
             progress.finish()
 
             if render_errors:

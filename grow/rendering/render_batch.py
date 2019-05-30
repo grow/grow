@@ -30,6 +30,28 @@ class RenderNotStartedError(Error):
     pass
 
 
+def load_func(batch, source_dir, tick=None):
+    """Render the controller."""
+    result = LoadBatchResult()
+    for item in batch:
+        controller = item['controller']
+        try:
+            result.loaded_docs.append(controller.load(source_dir))
+        except errors.BuildError as err:
+            result.load_errors.append(RenderError(
+                "Error loading {}".format(controller.serving_path),
+                err, err.traceback))
+        except Exception as err:  # pylint: disable=broad-except
+            _, _, err_tb = sys.exc_info()
+            result.load_errors.append(RenderError(
+                "Error loading {}".format(controller.serving_path),
+                err, err_tb))
+        finally:
+            if tick:
+                tick()
+    return result
+
+
 def render_func(batch, tick=None):
     """Render the controller."""
     result = RenderBatchResult()
@@ -81,6 +103,29 @@ class RenderBatches(object):
         batch = self._get_batch(controller.locale)
         batch.add(controller, *args, **kwargs)
 
+    def load(self, source_dir, use_threading=True):
+        """Load all of the batches."""
+        load_errors = []
+        load_docs = []
+
+        # Disable threaded rendering until it can be fixed.
+        use_threading = False
+
+        if not ThreadPool or not use_threading:
+            for _, batch in self._batches.iteritems():
+                batch_docs, batch_errors = batch.load_sync(source_dir)
+                load_errors = load_errors + batch_errors
+                load_docs = load_docs + batch_docs
+        else:
+            for _, batch in self._batches.iteritems():
+                batch.load_start(source_dir)
+            for _, batch in self._batches.iteritems():
+                batch_docs, batch_errors = batch.load_finish()
+                load_errors = load_errors + batch_errors
+                load_docs = load_docs + batch_docs
+
+        return load_docs, load_errors
+
     def render(self, use_threading=True):
         """Render all of the batches."""
         render_errors = []
@@ -91,16 +136,16 @@ class RenderBatches(object):
 
         if not ThreadPool or not use_threading:
             for _, batch in self._batches.iteritems():
-                docs, errors = batch.render_sync()
-                render_errors = render_errors + errors
-                rendered_docs = rendered_docs + docs
+                batch_docs, batch_errors = batch.render_sync()
+                render_errors = render_errors + batch_errors
+                rendered_docs = rendered_docs + batch_docs
         else:
             for _, batch in self._batches.iteritems():
                 batch.render_start()
             for _, batch in self._batches.iteritems():
-                docs, errors = batch.render_finish()
-                render_errors = render_errors + errors
-                rendered_docs = rendered_docs + docs
+                batch_docs, batch_errors = batch.render_finish()
+                render_errors = render_errors + batch_errors
+                rendered_docs = rendered_docs + batch_docs
 
         return rendered_docs, render_errors
 
@@ -116,6 +161,7 @@ class RenderLocaleBatch(object):
         self.profile = profile
         self.tick = tick
         self.batches = [[]]
+        self._is_loading = False
         self._is_rendering = False
         self._results = None
         self._thread_pool = None
@@ -144,6 +190,50 @@ class RenderLocaleBatch(object):
             'args': args,
             'kwargs': kwargs,
         })
+
+    def load_start(self, source_dir):
+        """Start the batches loading."""
+        self._thread_pool = ThreadPool(len(self.batches))
+        self._results = self._thread_pool.imap_unordered(
+            load_func, self.batches, source_dir)
+        self._is_loading = True
+
+    def load_finish(self):
+        """Finish in progress batches loading."""
+        if not self._is_loading:
+            raise RenderNotStartedError('Rendering was never started')
+
+        load_errors = []
+        loaded_docs = []
+
+        for batch_result in self._results:
+            load_errors = load_errors + batch_result.load_errors
+            loaded_docs = loaded_docs + batch_result.loaded_docs
+            if self.tick:
+                for _ in batch_result.load_errors:
+                    self.tick()
+                for _ in batch_result.loaded_docs:
+                    self.tick()
+            for result in batch_result.loaded_docs:
+                self.profile.add_timer(result.load_timer)
+
+        self._thread_pool.close()
+        self._thread_pool.join()
+        self._is_loading = False
+
+        return loaded_docs, load_errors
+
+    def load_sync(self, source_dir):
+        """Syncronous loading for non-threaded loading."""
+        load_errors = []
+        loaded_docs = []
+
+        for batch in self.batches:
+            batch_result = load_func(batch, source_dir, tick=self.tick)
+            load_errors = load_errors + batch_result.load_errors
+            loaded_docs = loaded_docs + batch_result.loaded_docs
+
+        return loaded_docs, load_errors
 
     def render_start(self):
         """Start the batches rendering."""
@@ -188,6 +278,14 @@ class RenderLocaleBatch(object):
             rendered_docs = rendered_docs + batch_result.rendered_docs
 
         return rendered_docs, render_errors
+
+
+class LoadBatchResult(object):
+    """Results from a batched loading."""
+
+    def __init__(self):
+        self.load_errors = []
+        self.loaded_docs = []
 
 
 class RenderBatchResult(object):

@@ -33,9 +33,11 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')
 @shared.threaded_option(CFG)
 @shared.shards_option
 @shared.shard_option
+@shared.work_dir_option
 @click.pass_context
 def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
-           test_only, auth, force_untranslated, threaded, shards, shard):
+           test_only, auth, force_untranslated, threaded, shards, shard,
+           work_dir):
     """Deploys a pod to a destination."""
     if auth:
         text = ('--auth must now be specified before deploy. Usage:'
@@ -63,7 +65,8 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             if test_only:
                 deployment.test()
                 return
-            content_generator = deployment.dump(pod, use_threading=threaded)
+            content_generator = deployment.dump(
+                pod, source_dir=work_dir, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
             pod.router.use_simple()
             pod.router.add_all()

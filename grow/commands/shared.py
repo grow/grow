@@ -95,7 +95,7 @@ def localized_option(config):
 
 
 def out_dir_option(config, help_text=None):
-    """Option for localizing catalogs."""
+    """Option for output directory."""
     shared_default = CFG.get('out-dir', None)
     config_default = config.get('out-dir', shared_default)
 
@@ -165,3 +165,11 @@ def threaded_option(config):
             default=config_default,
             help='Use threading during rendering pipeline.')(func)
     return _decorator
+
+
+def work_dir_option(func):
+    """Option for working directory."""
+    help_text = 'Directory to pull working files from.'
+    return click.option(
+        '--work-dir', '--work_dir', type=str, default=None,
+        help=help_text)(func)
