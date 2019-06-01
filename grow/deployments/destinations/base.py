@@ -286,44 +286,45 @@ class BaseDestination(object):
         self.prelaunch(dry_run=dry_run)
         if test:
             self.test()
-        try:
-            deployed_index = self._get_remote_index()
-            if require_translations:
-                self.pod.enable(self.pod.FEATURE_TRANSLATION_STATS)
-            diff, new_index, paths_to_rendered_doc = indexes.Diff.stream(
-                deployed_index, content_generator, repo=repo, is_partial=is_partial)
-            self._diff = diff
-            if indexes.Diff.is_empty(diff):
-                logging.info('Finished with no diffs since the last build.')
-                return
-            if dry_run:
-                return
-            indexes.Diff.pretty_print(diff)
-            if require_translations and self.pod.translation_stats.untranslated:
-                self.pod.translation_stats.pretty_print()
-                raise pods.Error('Aborted deploy due to untranslated strings. '
-                                 'Use the --force-untranslated flag to force deployment.')
-            if confirm:
-                text = 'Proceed to deploy? -> {}'.format(self)
-                if not utils.interactive_confirm(text):
-                    logging.info('Aborted.')
+        with self.pod.profile.timer('deployments.destination.Base.deploy'):
+            try:
+                deployed_index = self._get_remote_index()
+                if require_translations:
+                    self.pod.enable(self.pod.FEATURE_TRANSLATION_STATS)
+                diff, new_index, paths_to_rendered_doc = indexes.Diff.stream(
+                    deployed_index, content_generator, repo=repo, is_partial=is_partial)
+                self._diff = diff
+                if indexes.Diff.is_empty(diff):
+                    logging.info('Finished with no diffs since the last build.')
                     return
-            indexes.Diff.apply(
-                diff, paths_to_rendered_doc, write_func=self.write_file,
-                batch_write_func=self.write_files, delete_func=self.delete_file,
-                threaded=self.threaded, batch_writes=self.batch_writes)
-            self.write_control_file(
-                self.index_basename, indexes.Index.to_string(new_index))
-            if stats is not None:
-                self.write_control_file(self.stats_basename, stats.to_string())
-            else:
-                self.delete_control_file(self.stats_basename)
-            if diff:
+                if dry_run:
+                    return
+                indexes.Diff.pretty_print(diff)
+                if require_translations and self.pod.translation_stats.untranslated:
+                    self.pod.translation_stats.pretty_print()
+                    raise pods.Error('Aborted deploy due to untranslated strings. '
+                                     'Use the --force-untranslated flag to force deployment.')
+                if confirm:
+                    text = 'Proceed to deploy? -> {}'.format(self)
+                    if not utils.interactive_confirm(text):
+                        logging.info('Aborted.')
+                        return
+                indexes.Diff.apply(
+                    diff, paths_to_rendered_doc, write_func=self.write_file,
+                    batch_write_func=self.write_files, delete_func=self.delete_file,
+                    threaded=self.threaded, batch_writes=self.batch_writes)
                 self.write_control_file(
-                    self.diff_basename, indexes.Diff.to_string(diff))
-            self.success = True
-        finally:
-            self.postlaunch()
+                    self.index_basename, indexes.Index.to_string(new_index))
+                if stats is not None:
+                    self.write_control_file(self.stats_basename, stats.to_string())
+                else:
+                    self.delete_control_file(self.stats_basename)
+                if diff:
+                    self.write_control_file(
+                        self.diff_basename, indexes.Diff.to_string(diff))
+                self.success = True
+            finally:
+                self.postlaunch()
         return diff
 
     def command(self, command):
