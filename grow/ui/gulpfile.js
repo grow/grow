@@ -78,12 +78,7 @@ gulp.task('compile-sass', function() {
   .pipe(rename(function(path) {
     path.basename += '.min';
   }))
-  .pipe(gulpAutoprefixer({
-    browsers: [
-      'last 1 version',
-      'last 2 iOS versions'
-    ],
-  }))
+  .pipe(gulpAutoprefixer())
   .pipe(gulp.dest(config.SASS_OUT_DIR));
 });
 
