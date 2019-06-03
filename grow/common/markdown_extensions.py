@@ -49,23 +49,18 @@ class TocExtension(toc.TocExtension):
             val = config.get_assigned_value(item.name)
             if val is not None:
                 config_kwargs[item.name] = val
-        configs = config_kwargs.items()
         # HTML5 allows all non-space characters for a valid id.
-        configs += [(
-            'slugify',
-            # pylint: disable=no-member
-            lambda value, separator: separator.join(value.split()).lower()
-        )]
-        super(TocExtension, self).__init__(configs=configs)
+        config_kwargs['slugify'] = lambda value, separator: separator.join(value.split()).lower()
+        super(TocExtension, self).__init__(**config_kwargs)
 
 
 class IncludePreprocessor(preprocessors.Preprocessor):
 
     REGEX = re.compile(r"^\[include\('([^')]*)'\)\]")
 
-    def __init__(self, pod, markdown_instance):
+    def __init__(self, pod):
+        super(IncludePreprocessor, self).__init__()
         self.pod = pod
-        self.markdown = markdown_instance
 
     def run(self, lines):
         new_lines = []
@@ -87,8 +82,7 @@ class IncludeExtension(extensions.Extension):
 
     def extendMarkdown(self, md, md_globals):
         md.registerExtension(self)
-        self.processor = IncludePreprocessor(self.pod, md)
-        self.processor.md = md
+        self.processor = IncludePreprocessor(self.pod)
         # Adds the preprocessor to the beginning of the list of preprocessors.
         # https://github.com/waylan/Python-Markdown/blob/master/markdown/odict.py#L7
         md.preprocessors.add('include', self.processor, '_begin')
@@ -98,9 +92,9 @@ class UrlPreprocessor(preprocessors.Preprocessor):
 
     REGEX = re.compile("\[url\('([^']*)'\)\]")
 
-    def __init__(self, pod, markdown_instance):
+    def __init__(self, pod):
+        super(UrlPreprocessor, self).__init__()
         self.pod = pod
-        self.markdown = markdown_instance
 
     def run(self, lines):
         new_lines = []
@@ -128,8 +122,7 @@ class UrlExtension(extensions.Extension):
 
     def extendMarkdown(self, md, md_globals):
         md.registerExtension(self)
-        self.processor = UrlPreprocessor(self.pod, md)
-        self.processor.md = md
+        self.processor = UrlPreprocessor(self.pod)
         md.preprocessors.add('url', self.processor, '_begin')
 
 
@@ -150,9 +143,9 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
         highlighter = messages.StringField(3, default='pygments')
         theme = messages.StringField(4, default='default')
 
-    def __init__(self, pod, markdown_instance):
+    def __init__(self, pod):
+        super(CodeBlockPreprocessor, self).__init__()
         self.pod = pod
-        self.markdown = markdown_instance
 
     @property
     @utils.memoize
@@ -207,6 +200,5 @@ class CodeBlockExtension(extensions.Extension):
 
     def extendMarkdown(self, md, md_globals):
         md.registerExtension(self)
-        self.processor = CodeBlockPreprocessor(self.pod, md)
-        self.processor.md = md
+        self.processor = CodeBlockPreprocessor(self.pod)
         md.preprocessors.add('sourcecode', self.processor, '_begin')

@@ -8,19 +8,23 @@
     "@material/linear-progress": "^0.38.0",
     "@material/select": "^0.37.0",
     "@material/textfield": "^0.37.0",
-    "babel-loader": "^8.0.4",
+    "babel-loader": "^8.0.6",
     "babili-webpack-plugin": "^0.1.2",
     "deep-extend": "^0.6.0",
     "fs-readdir-recursive": "^1.1.0",
     "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^6.0.0",
+    "gulp-autoprefixer": "^6.1.0",
     "gulp-rename": "~1.4.0",
     "gulp-sass": "^4.0.2",
-    "marked": "^0.5.1",
-    "pell": "^1.0.4",
-    "superagent": "^3.8.3",
-    "turndown": "^5.0.1",
-    "webpack": "^4.16.0",
-    "webpack-stream": "^5.1.1"
-  }
+    "marked": "^0.6.2",
+    "pell": "^1.0.6",
+    "superagent": "^5.0.5",
+    "turndown": "^5.0.3",
+    "webpack": "^4.32.2",
+    "webpack-stream": "^5.2.1"
+  },
+  "browserslist": [
+    "last 1 version",
+    "last 2 iOS versions"
+  ]
 }
