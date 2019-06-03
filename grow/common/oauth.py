@@ -14,6 +14,8 @@ from oauth2client import tools
 KEYRING_LOG = logging.getLogger('keyring.backend')
 KEYRING_LOG.setLevel(logging.WARNING)
 
+logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+
 try:
     from oauth2client.contrib import appengine
 except ImportError:
