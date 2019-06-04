@@ -43,8 +43,19 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_delete_dir(self):
         """Local storage delete directory."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.delete_dir('content/')
+        self._write_file('dynamic/podspec.yaml', 'test: true')
+        expected = ['podspec.yaml']
+        actual = self.storage.list_dir('dynamic')
+        self.assertEqual(expected, actual)
+
+        self.storage.delete_dir('dynamic/')
+
+        expected = []
+        actual = self.storage.list_dir('dynamic')
+        self.assertEqual(expected, actual)
+
+        # Deleteing a non-existant directory does not error.
+        self.storage.delete_dir('dynamic/')
 
     def test_delete_file(self):
         """Local storage delete file."""

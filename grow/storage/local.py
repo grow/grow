@@ -2,6 +2,7 @@
 
 import errno
 import os
+import shutil
 from grow.storage import base
 
 
@@ -24,11 +25,17 @@ class LocalStorage(base.BaseStorage):
     # def copy_file(self, from_path, to_path):
     #     """Copy the file within the storage."""
     #     pass
-    #
-    # def delete_dir(self, file_path):
-    #     """Delete a directory in the storage."""
-    #     pass
-    #
+
+    def delete_dir(self, file_path):
+        """Delete a directory in the storage."""
+        file_path = self.clean_path(file_path)
+        file_path = self.clean_directory(file_path)
+        full_path = self.expand_path(file_path)
+        try:
+            shutil.rmtree(full_path)
+        except FileNotFoundError:
+            pass
+
     # def delete_file(self, file_path):
     #     """Delete a file in the storage."""
     #     pass
