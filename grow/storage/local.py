@@ -28,11 +28,9 @@ class LocalStorage(base.BaseStorage):
     def copy_file(self, from_path, to_path):
         """Copy the file within the storage."""
         from_path = self.clean_path(from_path)
-        from_full_path = self.expand_path(from_path)
-        self.validate_path(from_full_path)
+        from_full_path = self.expand_and_validate_path(from_path)
         to_path = self.clean_path(to_path)
-        to_full_path = self.expand_path(to_path)
-        self.validate_path(to_full_path)
+        to_full_path = self.expand_and_validate_path(to_path)
         shutil.copyfile(from_full_path, to_full_path)
         shutil.copystat(from_full_path, to_full_path)
 
@@ -45,8 +43,7 @@ class LocalStorage(base.BaseStorage):
         """Delete a directory in the storage."""
         file_path = self.clean_path(file_path)
         file_path = self.clean_directory(file_path)
-        full_path = self.expand_path(file_path)
-        self.validate_path(full_path)
+        full_path = self.expand_and_validate_path(file_path)
         try:
             shutil.rmtree(full_path)
         except FileNotFoundError:
@@ -55,8 +52,7 @@ class LocalStorage(base.BaseStorage):
     def delete_file(self, file_path):
         """Delete a file in the storage."""
         file_path = self.clean_file(file_path)
-        full_path = self.expand_path(file_path)
-        self.validate_path(full_path)
+        full_path = self.expand_and_validate_path(file_path)
         try:
             os.remove(full_path)
         except FileNotFoundError:
@@ -65,23 +61,20 @@ class LocalStorage(base.BaseStorage):
     def file_exists(self, file_path):
         """Determine if the file exists in the storage."""
         file_path = self.clean_file(file_path)
-        full_path = self.expand_path(file_path)
-        self.validate_path(full_path)
+        full_path = self.expand_and_validate_path(file_path)
         return os.path.exists(full_path)
 
     def file_size(self, file_path):
         """Determine the file size."""
         file_path = self.clean_file(file_path)
-        full_path = self.expand_path(file_path)
-        self.validate_path(full_path)
+        full_path = self.expand_and_validate_path(file_path)
         return os.path.getsize(full_path)
 
     def list_dir(self, file_path, recursive=False):
         """List files in a directory in the storage."""
         file_path = self.clean_path(file_path)
         file_path = self.clean_directory(file_path)
-        full_path = self.expand_path(file_path)
-        self.validate_path(full_path)
+        full_path = self.expand_and_validate_path(file_path)
         paths = []
         for root, _, files in self.walk(file_path):
             for filename in files:
@@ -94,11 +87,9 @@ class LocalStorage(base.BaseStorage):
     def move_file(self, from_path, to_path):
         """Move a file within the storage."""
         from_path = self.clean_path(from_path)
-        from_full_path = self.expand_path(from_path)
-        self.validate_path(from_full_path)
+        from_full_path = self.expand_and_validate_path(from_path)
         to_path = self.clean_path(to_path)
-        to_full_path = self.expand_path(to_path)
-        self.validate_path(to_full_path)
+        to_full_path = self.expand_and_validate_path(to_path)
         os.rename(from_full_path, to_full_path)
 
     def move_files(self, from_path_to_path):
@@ -109,8 +100,7 @@ class LocalStorage(base.BaseStorage):
     def read_file(self, file_path):
         """Read a file from the storage."""
         file_path = self.clean_file(file_path)
-        full_path = self.expand_path(file_path)
-        self.validate_path(full_path)
+        full_path = self.expand_and_validate_path(file_path)
         with open(full_path) as file_pointer:
             return file_pointer.read()
 
@@ -119,8 +109,7 @@ class LocalStorage(base.BaseStorage):
         results = {}
         for file_path in file_paths:
             file_path = self.clean_file(file_path)
-            full_path = self.expand_path(file_path)
-            self.validate_path(full_path)
+            full_path = self.expand_and_validate_path(file_path)
             with open(full_path) as file_pointer:
                 results[file_path] = file_pointer.read()
         return results
@@ -138,15 +127,13 @@ class LocalStorage(base.BaseStorage):
         """Walk through the files and directories in path."""
         file_path = self.clean_path(file_path)
         file_path = self.clean_directory(file_path)
-        full_path = self.expand_path(file_path)
-        self.validate_path(full_path)
+        full_path = self.expand_and_validate_path(file_path)
         return os.walk(full_path, topdown=True, followlinks=True)
 
     def write_file(self, file_path, content):
         """Write a file to the storage."""
         file_path = self.clean_file(file_path)
-        full_path = self.expand_path(file_path)
-        self.validate_path(full_path)
+        full_path = self.expand_and_validate_path(file_path)
         self.make_dir(full_path)
         with open(full_path, 'w') as file_pointer:
             file_pointer.write(content)

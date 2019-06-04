@@ -81,6 +81,12 @@ class BaseStorage(object):
         """Expand a path to the full storage path."""
         return '{}{}'.format(self.root_dir, path)
 
+    def expand_and_validate_path(self, path, sep='/'):
+        """Expand a path to the full storage path and validate it."""
+        path = self.expand_path(path)
+        self.validate_path(path, sep=sep)
+        return path
+
     def file_exists(self, file_path):
         """Determine if the file exists in the storage."""
         raise NotImplementedError
