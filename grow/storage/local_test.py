@@ -53,8 +53,11 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_read_files(self):
         """Local storage read multiple files."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.read_files('podspec.yaml', 'package.json')
+        actual = self.storage.read_files('podspec.yaml')
+        expected = {
+            '/podspec.yaml': 'title: Testing Storage\n',
+        }
+        self.assertEqual(actual, expected)
 
     def test_remote_storage(self):
         """Local storage is a remote type storage."""

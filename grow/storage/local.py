@@ -41,10 +41,16 @@ class LocalStorage(base.BaseStorage):
         with open(full_path) as file_pointer:
             return file_pointer.read()
 
-    # def read_files(self, *file_paths):
-    #     """Read multiple files from the storage."""
-    #     pass
-    #
+    def read_files(self, *file_paths):
+        """Read multiple files from the storage."""
+        results = {}
+        for file_path in file_paths:
+            file_path = self.clean_file(file_path)
+            full_path = self.expand_path(file_path)
+            with open(full_path) as file_pointer:
+                results[file_path] = file_pointer.read()
+        return results
+
     # def walk(self, file_path):
     #     """Walk through the files and directories in path."""
     #     pass
