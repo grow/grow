@@ -115,6 +115,9 @@ class LocalStorageTestCase(unittest.TestCase):
         expected = 'test: true'
         self.assertEqual(actual, expected)
 
+        # Works correctly with existing directory.
+        self.storage.write_file('dynamic/write.yaml', 'test: true')
+
     @mock.patch('os.makedirs')
     def test_write_file_fail(self, mock_makedirs):
         """Local storage write file with failure."""
