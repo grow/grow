@@ -1,3 +1,6 @@
 *.pyc
 .coverage
 coverage.xml
+
+# Testing Files.
+grow/storage/testdata/dynamic

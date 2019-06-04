@@ -1,5 +1,7 @@
 """Tests for the local file storage."""
 
+import shutil
+import os
 import unittest
 from grow.storage import local as grow_local
 
@@ -8,6 +10,11 @@ class LocalStorageTestCase(unittest.TestCase):
     """Test the local file storage."""
 
     def setUp(self):
+        # Cleanup from old tests.
+        dynamic_dir = 'grow/storage/testdata/dynamic'
+        shutil.rmtree(dynamic_dir)
+        os.makedirs(dynamic_dir)
+
         self.storage = grow_local.LocalStorage('grow/storage/testdata')
 
     def test_copy_file(self):
@@ -47,8 +54,8 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_read_file(self):
         """Local storage read file."""
-        actual = self.storage.read_file('podspec.yaml').strip()
-        expected = 'title: Testing Storage'
+        actual = self.storage.read_file('podspec.yaml')
+        expected = 'title: Testing Storage\n'
         self.assertEqual(actual, expected)
 
     def test_read_files(self):
@@ -70,8 +77,10 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_write_file(self):
         """Local storage write file."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.write_file('podspec.yaml', 'test: true')
+        self.storage.write_file('dynamic/write.yaml', 'test: true')
+        actual = self.storage.read_file('dynamic/write.yaml')
+        expected = 'test: true'
+        self.assertEqual(actual, expected)
 
 
 if __name__ == '__main__':

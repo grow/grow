@@ -1,5 +1,7 @@
 """Local storage for local filesystem access."""
 
+import errno
+import os
 from grow.storage import base
 
 
@@ -54,7 +56,18 @@ class LocalStorage(base.BaseStorage):
     # def walk(self, file_path):
     #     """Walk through the files and directories in path."""
     #     pass
-    #
-    # def write_file(self, file_path, content):
-    #     """Write a file to the storage."""
-    #     pass
+
+    def write_file(self, file_path, content):
+        """Write a file to the storage."""
+        file_path = self.clean_file(file_path)
+        full_path = self.expand_path(file_path)
+        dirname = os.path.dirname(full_path)
+        try:
+            os.makedirs(dirname)
+        except OSError as error:
+            if error.errno == errno.EEXIST and os.path.isdir(dirname):
+                pass
+            else:
+                raise
+        with open(full_path, 'w') as file_pointer:
+            file_pointer.write(content)
