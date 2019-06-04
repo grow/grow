@@ -66,13 +66,13 @@ class BaseStorageCleanTestCase(unittest.TestCase):
             '{sep}content{sep}index.html'.format(sep=sep),
             self.storage.clean_file('content/index.html', sep=sep))
 
-        with self.assertRaises(grow_base.ErrorInvalidPath):
+        with self.assertRaises(grow_base.InvalidPathError):
             self.storage.clean_file('', sep=sep)
 
-        with self.assertRaises(grow_base.ErrorInvalidPath):
+        with self.assertRaises(grow_base.InvalidPathError):
             self.storage.clean_file('/', sep=sep)
 
-        with self.assertRaises(grow_base.ErrorInvalidPath):
+        with self.assertRaises(grow_base.InvalidPathError):
             self.storage.clean_file('/content/', sep=sep)
 
     def test_clean_file_backslash(self):
@@ -87,13 +87,13 @@ class BaseStorageCleanTestCase(unittest.TestCase):
             '{sep}content{sep}index.html'.format(sep=sep),
             self.storage.clean_file('content/index.html', sep=sep))
 
-        with self.assertRaises(grow_base.ErrorInvalidPath):
+        with self.assertRaises(grow_base.InvalidPathError):
             self.storage.clean_file('', sep=sep)
 
-        with self.assertRaises(grow_base.ErrorInvalidPath):
+        with self.assertRaises(grow_base.InvalidPathError):
             self.storage.clean_file('/', sep=sep)
 
-        with self.assertRaises(grow_base.ErrorInvalidPath):
+        with self.assertRaises(grow_base.InvalidPathError):
             self.storage.clean_file('/content/', sep=sep)
 
     def test_clean_path(self):
@@ -133,6 +133,42 @@ class BaseStorageCleanTestCase(unittest.TestCase):
         self.assertEqual(
             'foo{sep}bar{sep}'.format(sep=sep),
             self.storage.clean_sep('foo/bar/', sep=sep))
+
+    def test_validate_path(self):
+        """Base storage validate path."""
+        # And converts the / to the backslash separator.
+        sep = '/'
+        self.storage.validate_path('/', sep=sep)
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('../', sep=sep)
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('/../', sep=sep)
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('/someting/../', sep=sep)
+
+    def test_validate_path_backslash(self):
+        """Base storage validate path with backslash."""
+        # And converts the / to the backslash separator.
+        sep = '\\'
+
+        self.storage.validate_path('/', sep=sep)
+
+        # Still doesn't work with forward slashes.
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('../', sep=sep)
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('/../', sep=sep)
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('/someting/../', sep=sep)
+
+        # Does not let backslash relative path.
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('..{sep}'.format(sep=sep), sep=sep)
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('{sep}..{sep}'.format(sep=sep), sep=sep)
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path(
+                '{sep}someting{sep}..{sep}'.format(sep=sep), sep=sep)
 
 class BaseStorageTestCase(unittest.TestCase):
     """Test the base storage."""

@@ -6,7 +6,7 @@ class Error(Exception):
     pass
 
 
-class ErrorInvalidPath(Exception):
+class InvalidPathError(Exception):
     """Base Storage file path error."""
     pass
 
@@ -16,8 +16,8 @@ class BaseStorage(object):
 
     IS_REMOTE_STORAGE = False
 
-    def __init__(self, root_dir):
-        self.sep = '/'
+    def __init__(self, root_dir, sep='/'):
+        self.sep = sep
         # Root directory should not have the trailing separator.
         self.root_dir = self.clean_directory(root_dir).rstrip(self.sep)
 
@@ -35,7 +35,7 @@ class BaseStorage(object):
         path = cls.clean_sep(path, sep=sep)
         path = cls.clean_path(path, sep=sep)
         if path.endswith(sep):
-            raise ErrorInvalidPath(
+            raise InvalidPathError(
                 'Directories cannot be used as file path: {}'.format(path))
         return path
 
@@ -52,6 +52,14 @@ class BaseStorage(object):
         if sep != '/':
             path = path.replace('/', sep)
         return path
+
+    @staticmethod
+    def validate_path(path, sep='/'):
+        """Validate that a path is valid."""
+        # Cannot use relative paths for paths.
+        if '..{sep}'.format(sep=sep) in path or '../' in path:
+            raise InvalidPathError(
+                'Unable to use relative paths to reference files.')
 
     def copy_file(self, from_path, to_path):
         """Copy the file within the storage."""
@@ -101,10 +109,6 @@ class BaseStorage(object):
     def read_files(self, *file_paths):
         """Read multiple files from the storage."""
         raise NotImplementedError
-
-    def validate_path(self, file_path):
-        """Validate that the path is valid in the file system."""
-        pass
 
     def walk(self, file_path):
         """Walk through the files and directories in path."""

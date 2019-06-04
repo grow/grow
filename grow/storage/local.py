@@ -9,6 +9,9 @@ from grow.storage import base
 class LocalStorage(base.BaseStorage):
     """Access the local file system as a storage system."""
 
+    def __init__(self, root_dir):
+        super().__init__(root_dir, sep=os.sep)
+        self.root_dir = os.path.realpath(self.root_dir).rstrip(self.sep)
 
     @staticmethod
     def make_dir(file_path):
