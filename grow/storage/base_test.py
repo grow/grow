@@ -4,11 +4,129 @@ import unittest
 from grow.storage import base as grow_base
 
 
-class BaseStorageTestCase(unittest.TestCase):
-    """Test the routes."""
+class BaseStorageCleanTestCase(unittest.TestCase):
+    """Test the base storage cleaning abilities."""
 
     def setUp(self):
-        self.storage = grow_base.BaseStorage()
+        self.storage = grow_base.BaseStorage('./testdata')
+
+    def test_clean_directory(self):
+        """Base storage clean directory."""
+        # Always ends with the separator.
+        # And converts the / to the os separator.
+        sep = '/'
+        self.assertEqual(
+            sep, self.storage.clean_directory('', sep=sep))
+        self.assertEqual(
+            sep, self.storage.clean_directory('/', sep=sep))
+        self.assertEqual(
+            'base{sep}'.format(sep=sep),
+            self.storage.clean_directory('base', sep=sep))
+        self.assertEqual(
+            'base{sep}'.format(sep=sep),
+            self.storage.clean_directory('base/', sep=sep))
+        self.assertEqual(
+            'foo{sep}bar{sep}'.format(sep=sep),
+            self.storage.clean_directory('foo/bar', sep=sep))
+        self.assertEqual(
+            'foo{sep}bar{sep}'.format(sep=sep),
+            self.storage.clean_directory('foo/bar/', sep=sep))
+
+    def test_clean_directory_backslash(self):
+        """Base storage clean directory with backslash."""
+        # Always ends with the separator.
+        # And converts the / to the backslash separator.
+        sep = '\\'
+        self.assertEqual(
+            sep, self.storage.clean_directory('', sep=sep))
+        self.assertEqual(
+            sep, self.storage.clean_directory('/', sep=sep))
+        self.assertEqual(
+            'base{sep}'.format(sep=sep),
+            self.storage.clean_directory('base', sep=sep))
+        self.assertEqual(
+            'base{sep}'.format(sep=sep),
+            self.storage.clean_directory('base/', sep=sep))
+        self.assertEqual(
+            'foo{sep}bar{sep}'.format(sep=sep),
+            self.storage.clean_directory('foo/bar', sep=sep))
+        self.assertEqual(
+            'foo{sep}bar{sep}'.format(sep=sep),
+            self.storage.clean_directory('foo/bar/', sep=sep))
+
+    def test_clean_file(self):
+        """Base storage clean file path."""
+        # Always starts with the separator.
+        sep = '/'
+
+        self.assertEqual(
+            '{sep}index.html'.format(sep=sep),
+            self.storage.clean_file('index.html', sep=sep))
+        self.assertEqual(
+            '{sep}content{sep}index.html'.format(sep=sep),
+            self.storage.clean_file('content/index.html', sep=sep))
+
+        with self.assertRaises(grow_base.ErrorInvalidPath):
+            self.storage.clean_file('', sep=sep)
+
+        with self.assertRaises(grow_base.ErrorInvalidPath):
+            self.storage.clean_file('/', sep=sep)
+
+        with self.assertRaises(grow_base.ErrorInvalidPath):
+            self.storage.clean_file('/content/', sep=sep)
+
+    def test_clean_file_backslash(self):
+        """Base storage clean file path with backslash."""
+        # Always starts with the separator.
+        sep = '\\'
+
+        self.assertEqual(
+            '{sep}index.html'.format(sep=sep),
+            self.storage.clean_file('index.html', sep=sep))
+        self.assertEqual(
+            '{sep}content{sep}index.html'.format(sep=sep),
+            self.storage.clean_file('content/index.html', sep=sep))
+
+        with self.assertRaises(grow_base.ErrorInvalidPath):
+            self.storage.clean_file('', sep=sep)
+
+        with self.assertRaises(grow_base.ErrorInvalidPath):
+            self.storage.clean_file('/', sep=sep)
+
+        with self.assertRaises(grow_base.ErrorInvalidPath):
+            self.storage.clean_file('/content/', sep=sep)
+
+    def test_clean_sep(self):
+        """Base storage clean separators."""
+        # And converts the / to the backslash separator.
+        sep = '/'
+        self.assertEqual(
+            sep, self.storage.clean_sep('/', sep=sep))
+        self.assertEqual(
+            'base{sep}'.format(sep=sep),
+            self.storage.clean_sep('base/', sep=sep))
+        self.assertEqual(
+            'foo{sep}bar{sep}'.format(sep=sep),
+            self.storage.clean_sep('foo/bar/', sep=sep))
+
+    def test_clean_sep_backslash(self):
+        """Base storage clean separators with backslash."""
+        # And converts the / to the backslash separator.
+        sep = '\\'
+        self.assertEqual(
+            sep, self.storage.clean_sep('/', sep=sep))
+        self.assertEqual(
+            'base{sep}'.format(sep=sep),
+            self.storage.clean_sep('base/', sep=sep))
+        self.assertEqual(
+            'foo{sep}bar{sep}'.format(sep=sep),
+            self.storage.clean_sep('foo/bar/', sep=sep))
+
+class BaseStorageTestCase(unittest.TestCase):
+    """Test the base storage."""
+
+    def setUp(self):
+        self.storage = grow_base.BaseStorage('./testdata')
 
     def test_copy_file(self):
         """Base storage copy."""

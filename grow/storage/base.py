@@ -1,10 +1,50 @@
 """Base storage for file access."""
 
 
+class Error(Exception):
+    """Base Storage error."""
+    pass
+
+
+class ErrorInvalidPath(Exception):
+    """Base Storage file path error."""
+    pass
+
+
 class BaseStorage(object):
     """Access to a storage system for file storage."""
 
     IS_REMOTE_STORAGE = False
+
+    def __init__(self, root_dir):
+        self.root_dir = self.clean_directory(root_dir)
+        self.sep = '/'
+
+    @classmethod
+    def clean_directory(cls, path, sep='/'):
+        """Clean up a directory path."""
+        path = cls.clean_sep(path, sep=sep)
+        if not path.endswith(sep):
+            path = '{}{}'.format(path, sep)
+        return path
+
+    @classmethod
+    def clean_file(cls, path, sep='/'):
+        """Clean up a file path."""
+        path = cls.clean_sep(path, sep=sep)
+        if not path.startswith(sep):
+            path = '{}{}'.format(sep, path)
+        if path.endswith(sep):
+            raise ErrorInvalidPath(
+                'Directories cannot be used as file path: {}'.format(path))
+        return path
+
+    @staticmethod
+    def clean_sep(path, sep='/'):
+        """Clean up a file path."""
+        if sep != '/':
+            path = path.replace('/', sep)
+        return path
 
     def copy_file(self, from_path, to_path):
         """Copy the file within the storage."""
