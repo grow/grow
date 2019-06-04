@@ -131,8 +131,6 @@ class LocalStorage(base.BaseStorage):
 
         # Ensure that the path is still inside the root dir.
         if not os.path.abspath(path).startswith(self.root_dir):
-            print(os.path.abspath(path))
-            print(self.root_dir)
             raise base.InvalidPathError(
                 'Cannot use paths outside root directory.')
 
