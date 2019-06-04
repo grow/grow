@@ -174,7 +174,7 @@ class BaseStorageTestCase(unittest.TestCase):
             self.storage.read_files('podspec.yaml', 'package.json')
 
     def test_remote_storage(self):
-        """Base storage is a remote type storage."""
+        """Base storage is not a remote type storage."""
         self.assertFalse(self.storage.IS_REMOTE_STORAGE)
 
     def test_walk(self):

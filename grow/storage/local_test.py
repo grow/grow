@@ -67,7 +67,7 @@ class LocalStorageTestCase(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_remote_storage(self):
-        """Local storage is a remote type storage."""
+        """Local storage is not a remote type storage."""
         self.assertFalse(self.storage.IS_REMOTE_STORAGE)
 
     def test_walk(self):
