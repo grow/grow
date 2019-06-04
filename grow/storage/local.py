@@ -46,13 +46,20 @@ class LocalStorage(base.BaseStorage):
         except FileNotFoundError:
             pass
 
-    # def delete_file(self, file_path):
-    #     """Delete a file in the storage."""
-    #     pass
-    #
-    # def file_exists(self, file_path):
-    #     """Determine if the file exists in the storage."""
-    #     pass
+    def delete_file(self, file_path):
+        """Delete a file in the storage."""
+        file_path = self.clean_file(file_path)
+        full_path = self.expand_path(file_path)
+        try:
+            os.remove(full_path)
+        except FileNotFoundError:
+            pass
+
+    def file_exists(self, file_path):
+        """Determine if the file exists in the storage."""
+        file_path = self.clean_file(file_path)
+        full_path = self.expand_path(file_path)
+        return os.path.exists(full_path)
 
     def file_size(self, file_path):
         """Determine the file size."""

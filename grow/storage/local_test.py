@@ -86,13 +86,21 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_delete_file(self):
         """Local storage delete file."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.delete_file('podspec.yaml')
+        # Non-existant file does not error.
+        self.assertFalse(self.storage.file_exists('podspec.yaml'))
+        self.storage.delete_file('podspec.yaml')
+
+        # Existing file is deleted.
+        self._write_file('podspec.yaml', 'test: true')
+        self.assertTrue(self.storage.file_exists('podspec.yaml'))
+        self.storage.delete_file('podspec.yaml')
+        self.assertFalse(self.storage.file_exists('podspec.yaml'))
 
     def test_file_exists(self):
         """Local storage deterime if file exists."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.file_exists('podspec.yaml')
+        self.assertFalse(self.storage.file_exists('podspec.yaml'))
+        self._write_file('podspec.yaml', 'test: true')
+        self.assertTrue(self.storage.file_exists('podspec.yaml'))
 
     def test_file_size(self):
         """Local storage read file size."""
