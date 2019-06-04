@@ -4,6 +4,9 @@ PIP_ENV := $(shell pipenv --venv)
 # Allows "make test target=grow.pods.pods_test"
 target ?= 'grow'
 
+develop:
+	pipenv install --dev
+
 test:
 	. $(PIP_ENV)/bin/activate
 	$(PIP_ENV)/bin/nosetests \
