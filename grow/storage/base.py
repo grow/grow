@@ -33,11 +33,17 @@ class BaseStorage(object):
     def clean_file(cls, path, sep='/'):
         """Clean up a file path."""
         path = cls.clean_sep(path, sep=sep)
-        if not path.startswith(sep):
-            path = '{}{}'.format(sep, path)
+        path = cls.clean_path(path, sep=sep)
         if path.endswith(sep):
             raise ErrorInvalidPath(
                 'Directories cannot be used as file path: {}'.format(path))
+        return path
+
+    @classmethod
+    def clean_path(cls, path, sep='/'):
+        """Clean up a pod path."""
+        if not path.startswith(sep):
+            path = '{}{}'.format(sep, path)
         return path
 
     @staticmethod
@@ -72,7 +78,7 @@ class BaseStorage(object):
         """Determine the filesize of the file."""
         raise NotImplementedError
 
-    def list_dir(self, file_path):
+    def list_dir(self, file_path, recursive=False):
         """List files in a directory in the storage."""
         raise NotImplementedError
 

@@ -96,6 +96,18 @@ class BaseStorageCleanTestCase(unittest.TestCase):
         with self.assertRaises(grow_base.ErrorInvalidPath):
             self.storage.clean_file('/content/', sep=sep)
 
+    def test_clean_path(self):
+        """Base storage clean path."""
+        # Always starts with the separator.
+        sep = '/'
+
+        self.assertEqual(
+            '{sep}index.html'.format(sep=sep),
+            self.storage.clean_file('index.html', sep=sep))
+        self.assertEqual(
+            '{sep}content{sep}index.html'.format(sep=sep),
+            self.storage.clean_file('content/index.html', sep=sep))
+
     def test_clean_sep(self):
         """Base storage clean separators."""
         # And converts the / to the backslash separator.

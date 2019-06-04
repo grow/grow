@@ -8,6 +8,19 @@ from grow.storage import base
 class LocalStorage(base.BaseStorage):
     """Access the local file system as a storage system."""
 
+
+    @staticmethod
+    def make_dir(file_path):
+        """Make a directory in the storage."""
+        dirname = os.path.dirname(file_path)
+        try:
+            os.makedirs(dirname)
+        except OSError as error:
+            if error.errno == errno.EEXIST and os.path.isdir(dirname):
+                pass
+            else:
+                raise
+
     # def copy_file(self, from_path, to_path):
     #     """Copy the file within the storage."""
     #     pass
@@ -27,21 +40,20 @@ class LocalStorage(base.BaseStorage):
     # def file_size(self, file_path):
     #     """Determine the filesize of the file."""
     #     pass
-    #
-    # def list_dir(self, file_path):
-    #     """List files in a directory in the storage."""
-    #     pass
 
-    def make_dir(self, file_path):
-        """Make a directory in the storage."""
-        dirname = os.path.dirname(file_path)
-        try:
-            os.makedirs(dirname)
-        except OSError as error:
-            if error.errno == errno.EEXIST and os.path.isdir(dirname):
-                pass
-            else:
-                raise
+    def list_dir(self, file_path, recursive=False):
+        """List files in a directory in the storage."""
+        file_path = self.clean_path(file_path)
+        file_path = self.clean_directory(file_path)
+        full_path = self.expand_path(file_path)
+        paths = []
+        for root, _, files in os.walk(full_path, topdown=True, followlinks=True):
+            for filename in files:
+                path = os.path.join(root, filename)[len(full_path):]
+                paths.append(path)
+            if not recursive:
+                return paths
+        return paths
 
     # def move_file(self, from_path, to_path):
     #     """Move a file within the storage."""
