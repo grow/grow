@@ -8,7 +8,7 @@ class BaseStorageCleanTestCase(unittest.TestCase):
     """Test the base storage cleaning abilities."""
 
     def setUp(self):
-        self.storage = grow_base.BaseStorage('./testdata')
+        self.storage = grow_base.BaseStorage('grow/storage/testdata')
 
     def test_clean_directory(self):
         """Base storage clean directory."""

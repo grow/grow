@@ -17,8 +17,9 @@ class BaseStorage(object):
     IS_REMOTE_STORAGE = False
 
     def __init__(self, root_dir):
-        self.root_dir = self.clean_directory(root_dir)
         self.sep = '/'
+        # Root directory should not have the trailing separator.
+        self.root_dir = self.clean_directory(root_dir).rstrip(self.sep)
 
     @classmethod
     def clean_directory(cls, path, sep='/'):
@@ -58,6 +59,11 @@ class BaseStorage(object):
         """Delete a file in the storage."""
         raise NotImplementedError
 
+    def expand_path(self, path):
+        """Expand a path to the full storage path."""
+        self.validate_path(path)
+        return '{}{}'.format(self.root_dir, path)
+
     def file_exists(self, file_path):
         """Determine if the file exists in the storage."""
         raise NotImplementedError
@@ -81,6 +87,10 @@ class BaseStorage(object):
     def read_files(self, *file_paths):
         """Read multiple files from the storage."""
         raise NotImplementedError
+
+    def validate_path(self, file_path):
+        """Validate that the path is valid in the file system."""
+        pass
 
     def walk(self, file_path):
         """Walk through the files and directories in path."""

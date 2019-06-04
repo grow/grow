@@ -8,7 +8,7 @@ class LocalStorageTestCase(unittest.TestCase):
     """Test the local file storage."""
 
     def setUp(self):
-        self.storage = grow_local.LocalStorage('./testdata')
+        self.storage = grow_local.LocalStorage('grow/storage/testdata')
 
     def test_copy_file(self):
         """Local storage copy."""
@@ -47,8 +47,9 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_read_file(self):
         """Local storage read file."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.read_file('podspec.yaml')
+        actual = self.storage.read_file('podspec.yaml').strip()
+        expected = 'title: Testing Storage'
+        self.assertEqual(actual, expected)
 
     def test_read_files(self):
         """Local storage read multiple files."""
