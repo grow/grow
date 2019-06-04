@@ -12,7 +12,10 @@ class LocalStorageTestCase(unittest.TestCase):
     def setUp(self):
         # Cleanup from old tests.
         dynamic_dir = 'grow/storage/testdata/dynamic'
-        shutil.rmtree(dynamic_dir)
+        try:
+            shutil.rmtree(dynamic_dir)
+        except FileNotFoundError:
+            pass
         os.makedirs(dynamic_dir)
 
         self.storage = grow_local.LocalStorage('grow/storage/testdata')
