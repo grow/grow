@@ -6,7 +6,33 @@ import os
 import tempfile
 import unittest
 import mock
+from grow.storage import base as grow_base
 from grow.storage import local as grow_local
+
+
+class LocalStorageCleanTestCase(unittest.TestCase):
+    """Test the local file storage cleaning abilities."""
+
+    def setUp(self):
+        self.content_dir = tempfile.mkdtemp()
+        self.storage = grow_local.LocalStorage(self.content_dir)
+
+    def tearDown(self):
+        try:
+            shutil.rmtree(self.content_dir)
+        except FileNotFoundError:
+            pass
+
+    def test_validate_path(self):
+        """Local storage validate path."""
+        # And converts the / to the backslash separator.
+        sep = '/'
+
+        # Paths inside the root_dir work ok.
+        self.storage.validate_path(
+            '{}{sep}podspec.yaml'.format(self.content_dir, sep=sep), sep=sep)
+        with self.assertRaises(grow_base.InvalidPathError):
+            self.storage.validate_path('/tmp/somewhere/', sep=sep)
 
 
 class LocalStorageTestCase(unittest.TestCase):

@@ -1,5 +1,7 @@
 """Tests for the base file storage."""
 
+import shutil
+import tempfile
 import unittest
 from grow.storage import base as grow_base
 
@@ -8,7 +10,14 @@ class BaseStorageCleanTestCase(unittest.TestCase):
     """Test the base storage cleaning abilities."""
 
     def setUp(self):
-        self.storage = grow_base.BaseStorage('grow/storage/testdata')
+        self.content_dir = tempfile.mkdtemp()
+        self.storage = grow_base.BaseStorage(self.content_dir)
+
+    def tearDown(self):
+        try:
+            shutil.rmtree(self.content_dir)
+        except FileNotFoundError:
+            pass
 
     def test_clean_directory(self):
         """Base storage clean directory."""

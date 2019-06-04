@@ -79,7 +79,6 @@ class BaseStorage(object):
 
     def expand_path(self, path):
         """Expand a path to the full storage path."""
-        self.validate_path(path)
         return '{}{}'.format(self.root_dir, path)
 
     def file_exists(self, file_path):
