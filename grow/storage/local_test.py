@@ -8,7 +8,7 @@ class LocalStorageTestCase(unittest.TestCase):
     """Test the local file storage."""
 
     def setUp(self):
-        self.storage = grow_local.LocalStorage()
+        self.storage = grow_local.LocalStorage('./testdata')
 
     def test_copy_file(self):
         """Local storage copy."""
