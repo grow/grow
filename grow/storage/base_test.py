@@ -141,9 +141,14 @@ class BaseStorageTestCase(unittest.TestCase):
         self.storage = grow_base.BaseStorage('./testdata')
 
     def test_copy_file(self):
-        """Base storage copy."""
+        """Base storage copy file."""
         with self.assertRaises(NotImplementedError):
             self.storage.copy_file('podspec.yaml', 'podspec-copy.yaml')
+
+    def test_copy_files(self):
+        """Base storage copy files."""
+        with self.assertRaises(NotImplementedError):
+            self.storage.copy_files({'podspec.yaml': 'podspec-move.yaml'})
 
     def test_delete_dir(self):
         """Base storage delete directory."""
@@ -174,6 +179,11 @@ class BaseStorageTestCase(unittest.TestCase):
         """Base storage move file."""
         with self.assertRaises(NotImplementedError):
             self.storage.move_file('podspec.yaml', 'podspec-move.yaml')
+
+    def test_move_files(self):
+        """Base storage move files."""
+        with self.assertRaises(NotImplementedError):
+            self.storage.move_files({'podspec.yaml': 'podspec-move.yaml'})
 
     def test_read_file(self):
         """Base storage read file."""

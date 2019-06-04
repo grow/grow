@@ -57,6 +57,10 @@ class BaseStorage(object):
         """Copy the file within the storage."""
         raise NotImplementedError
 
+    def copy_files(self, from_pathto_path):
+        """Copy the files within the storage."""
+        raise NotImplementedError
+
     def delete_dir(self, file_path):
         """Delete a directory in the storage."""
         raise NotImplementedError
@@ -84,6 +88,10 @@ class BaseStorage(object):
 
     def move_file(self, from_path, to_path):
         """Move a file within the storage."""
+        raise NotImplementedError
+
+    def move_files(self, from_path_to_path):
+        """Move files within the storage."""
         raise NotImplementedError
 
     def read_file(self, file_path):

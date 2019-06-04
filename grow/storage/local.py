@@ -22,9 +22,19 @@ class LocalStorage(base.BaseStorage):
             else:
                 raise
 
-    # def copy_file(self, from_path, to_path):
-    #     """Copy the file within the storage."""
-    #     pass
+    def copy_file(self, from_path, to_path):
+        """Copy the file within the storage."""
+        from_path = self.clean_path(from_path)
+        from_full_path = self.expand_path(from_path)
+        to_path = self.clean_path(to_path)
+        to_full_path = self.expand_path(to_path)
+        shutil.copyfile(from_full_path, to_full_path)
+        shutil.copystat(from_full_path, to_full_path)
+
+    def copy_files(self, from_path_to_path):
+        """Copy the files within the storage."""
+        for from_path, to_path in from_path_to_path.items():
+            self.copy_file(from_path, to_path)
 
     def delete_dir(self, file_path):
         """Delete a directory in the storage."""
@@ -62,9 +72,18 @@ class LocalStorage(base.BaseStorage):
                 return paths
         return paths
 
-    # def move_file(self, from_path, to_path):
-    #     """Move a file within the storage."""
-    #     pass
+    def move_file(self, from_path, to_path):
+        """Move a file within the storage."""
+        from_path = self.clean_path(from_path)
+        from_full_path = self.expand_path(from_path)
+        to_path = self.clean_path(to_path)
+        to_full_path = self.expand_path(to_path)
+        os.rename(from_full_path, to_full_path)
+
+    def move_files(self, from_path_to_path):
+        """Move files within the storage."""
+        for from_path, to_path in from_path_to_path.items():
+            self.move_file(from_path, to_path)
 
     def read_file(self, file_path):
         """Read a file from the storage."""

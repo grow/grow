@@ -37,9 +37,36 @@ class LocalStorageTestCase(unittest.TestCase):
             file_pointer.write(content)
 
     def test_copy_file(self):
-        """Local storage copy."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.copy_file('podspec.yaml', 'podspec-copy.yaml')
+        """Local storage copy file."""
+        self._write_file('podspec.yaml', 'test: true')
+        expected = ['podspec.yaml']
+        actual = self.storage.list_dir('/')
+        actual.sort()
+        self.assertListEqual(expected, actual)
+
+        self.storage.copy_file('podspec.yaml', 'podspec-copy.yaml')
+
+        expected = ['podspec.yaml', 'podspec-copy.yaml']
+        expected.sort()
+        actual = self.storage.list_dir('/')
+        actual.sort()
+        self.assertListEqual(expected, actual)
+
+    def test_copy_files(self):
+        """Local storage copy files."""
+        self._write_file('podspec.yaml', 'test: true')
+        expected = ['podspec.yaml']
+        actual = self.storage.list_dir('/')
+        actual.sort()
+        self.assertListEqual(expected, actual)
+
+        self.storage.copy_files({'podspec.yaml': 'podspec-copy.yaml'})
+
+        expected = ['podspec.yaml', 'podspec-copy.yaml']
+        expected.sort()
+        actual = self.storage.list_dir('/')
+        actual.sort()
+        self.assertListEqual(expected, actual)
 
     def test_delete_dir(self):
         """Local storage delete directory."""
@@ -91,8 +118,31 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_move_file(self):
         """Local storage move file."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.move_file('podspec.yaml', 'podspec-move.yaml')
+        self._write_file('podspec.yaml', 'test: true')
+        expected = ['podspec.yaml']
+        actual = self.storage.list_dir('/')
+        actual.sort()
+        self.assertListEqual(expected, actual)
+
+        self.storage.move_file('podspec.yaml', 'podspec-move.yaml')
+
+        expected = ['podspec-move.yaml']
+        actual = self.storage.list_dir('/')
+        self.assertListEqual(expected, actual)
+
+    def test_move_files(self):
+        """Local storage move files."""
+        self._write_file('podspec.yaml', 'test: true')
+        expected = ['podspec.yaml']
+        actual = self.storage.list_dir('/')
+        actual.sort()
+        self.assertListEqual(expected, actual)
+
+        self.storage.move_files({'podspec.yaml': 'podspec-move.yaml'})
+
+        expected = ['podspec-move.yaml']
+        actual = self.storage.list_dir('/')
+        self.assertListEqual(expected, actual)
 
     def test_read_file(self):
         """Local storage read file."""
