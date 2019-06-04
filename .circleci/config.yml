@@ -1,7 +1,7 @@
 version: 2
 
 shortcuts:
-  cache_key: &cache_key *cache_key
+  cache_key: &cache_key pip-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
   pip_install: &pip_install
     name: Pipenv Install
     command: |
