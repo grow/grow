@@ -13,18 +13,18 @@ class LocalStorageTestCase(unittest.TestCase):
     """Test the local file storage."""
 
     def setUp(self):
-        self.dynamic_dir = tempfile.mkdtemp()
-        self.storage = grow_local.LocalStorage(self.dynamic_dir)
+        self.content_dir = tempfile.mkdtemp()
+        self.storage = grow_local.LocalStorage(self.content_dir)
 
     def tearDown(self):
         try:
-            shutil.rmtree(self.dynamic_dir)
+            shutil.rmtree(self.content_dir)
         except FileNotFoundError:
             pass
 
     def _write_file(self, filename, content):
         """Write file for testing outside of the storage class."""
-        filename = os.path.join(self.dynamic_dir, filename)
+        filename = os.path.join(self.content_dir, filename)
         dirname = os.path.dirname(filename)
         try:
             os.makedirs(dirname)
@@ -70,19 +70,19 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_delete_dir(self):
         """Local storage delete directory."""
-        self._write_file('dynamic/podspec.yaml', 'test: true')
-        expected = ['podspec.yaml']
-        actual = self.storage.list_dir('dynamic')
+        self._write_file('content/index.yaml', 'test: true')
+        expected = ['index.yaml']
+        actual = self.storage.list_dir('content')
         self.assertEqual(expected, actual)
 
-        self.storage.delete_dir('dynamic/')
+        self.storage.delete_dir('content/')
 
         expected = []
-        actual = self.storage.list_dir('dynamic')
+        actual = self.storage.list_dir('content')
         self.assertEqual(expected, actual)
 
-        # Deleteing a non-existant directory does not error.
-        self.storage.delete_dir('dynamic/')
+        # Deleting a non-existant directory does not error.
+        self.storage.delete_dir('content/')
 
     def test_delete_file(self):
         """Local storage delete file."""
@@ -102,17 +102,17 @@ class LocalStorageTestCase(unittest.TestCase):
     def test_list_dir(self):
         """Local storage list directory."""
         expected = []
-        actual = self.storage.list_dir('dynamic')
+        actual = self.storage.list_dir('content')
         self.assertEqual(expected, actual)
 
-        self._write_file('dynamic/write.yaml', 'test: true')
+        self._write_file('content/write.yaml', 'test: true')
         expected = ['write.yaml']
-        actual = self.storage.list_dir('dynamic')
+        actual = self.storage.list_dir('content')
         self.assertEqual(expected, actual)
 
         # Recursive
         self._write_file('podspec.yaml', 'test: true')
-        expected = ['podspec.yaml', 'dynamic/write.yaml']
+        expected = ['podspec.yaml', 'content/write.yaml']
         actual = self.storage.list_dir('/', recursive=True)
         self.assertEqual(expected, actual)
 
@@ -166,25 +166,31 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_walk(self):
         """Local storage walk."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.walk('content/')
+        self._write_file('podspec.yaml', 'test: true')
+        self._write_file('content/index.yaml', 'test: true')
+
+        paths = []
+        for root, _, files in self.storage.walk('/'):
+            for filename in files:
+                paths.append('{}{}'.format(root, filename))
+        self.assertEqual(2, len(paths))
 
     def test_write_file(self):
         """Local storage write file."""
-        self.storage.write_file('dynamic/write.yaml', 'test: true')
-        actual = self.storage.read_file('dynamic/write.yaml')
+        self.storage.write_file('content/write.yaml', 'test: true')
+        actual = self.storage.read_file('content/write.yaml')
         expected = 'test: true'
         self.assertEqual(actual, expected)
 
         # Works correctly with existing directory.
-        self.storage.write_file('dynamic/write.yaml', 'test: true')
+        self.storage.write_file('content/write.yaml', 'test: true')
 
     @mock.patch('os.makedirs')
     def test_write_file_fail(self, mock_makedirs):
         """Local storage write file with failure."""
         mock_makedirs.side_effect = OSError(errno.EPERM, 'You shall not pass!')
         with self.assertRaises(OSError):
-            self.storage.write_file('dynamic/write.yaml', 'test: true')
+            self.storage.write_file('content/write.yaml', 'test: true')
 
 
 if __name__ == '__main__':

@@ -64,7 +64,7 @@ class LocalStorage(base.BaseStorage):
         file_path = self.clean_directory(file_path)
         full_path = self.expand_path(file_path)
         paths = []
-        for root, _, files in os.walk(full_path, topdown=True, followlinks=True):
+        for root, _, files in self.walk(file_path):
             for filename in files:
                 path = os.path.join(root, filename)[len(full_path):]
                 paths.append(path)
@@ -102,9 +102,12 @@ class LocalStorage(base.BaseStorage):
                 results[file_path] = file_pointer.read()
         return results
 
-    # def walk(self, file_path):
-    #     """Walk through the files and directories in path."""
-    #     pass
+    def walk(self, file_path):
+        """Walk through the files and directories in path."""
+        file_path = self.clean_path(file_path)
+        file_path = self.clean_directory(file_path)
+        full_path = self.expand_path(file_path)
+        return os.walk(full_path, topdown=True, followlinks=True)
 
     def write_file(self, file_path, content):
         """Write a file to the storage."""
