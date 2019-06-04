@@ -57,7 +57,7 @@ class BaseStorage(object):
         """Copy the file within the storage."""
         raise NotImplementedError
 
-    def copy_files(self, from_pathto_path):
+    def copy_files(self, from_path_to_path):
         """Copy the files within the storage."""
         raise NotImplementedError
 
