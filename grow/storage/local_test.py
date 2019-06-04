@@ -1,8 +1,10 @@
 """Tests for the local file storage."""
 
+import errno
 import shutil
 import os
 import unittest
+import mock
 from grow.storage import local as grow_local
 
 
@@ -84,6 +86,13 @@ class LocalStorageTestCase(unittest.TestCase):
         actual = self.storage.read_file('dynamic/write.yaml')
         expected = 'test: true'
         self.assertEqual(actual, expected)
+
+    @mock.patch('os.makedirs')
+    def test_write_file_fail(self, mock_makedirs):
+        """Local storage write file with failure."""
+        mock_makedirs.side_effect = OSError(errno.EPERM, 'You shall not pass!')
+        with self.assertRaises(OSError):
+            self.storage.write_file('dynamic/write.yaml', 'test: true')
 
 
 if __name__ == '__main__':

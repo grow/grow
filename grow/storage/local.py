@@ -31,7 +31,18 @@ class LocalStorage(base.BaseStorage):
     # def list_dir(self, file_path):
     #     """List files in a directory in the storage."""
     #     pass
-    #
+
+    def make_dir(self, file_path):
+        """Make a directory in the storage."""
+        dirname = os.path.dirname(file_path)
+        try:
+            os.makedirs(dirname)
+        except OSError as error:
+            if error.errno == errno.EEXIST and os.path.isdir(dirname):
+                pass
+            else:
+                raise
+
     # def move_file(self, from_path, to_path):
     #     """Move a file within the storage."""
     #     pass
@@ -61,13 +72,6 @@ class LocalStorage(base.BaseStorage):
         """Write a file to the storage."""
         file_path = self.clean_file(file_path)
         full_path = self.expand_path(file_path)
-        dirname = os.path.dirname(full_path)
-        try:
-            os.makedirs(dirname)
-        except OSError as error:
-            if error.errno == errno.EEXIST and os.path.isdir(dirname):
-                pass
-            else:
-                raise
+        self.make_dir(full_path)
         with open(full_path, 'w') as file_pointer:
             file_pointer.write(content)
