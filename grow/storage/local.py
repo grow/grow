@@ -53,10 +53,12 @@ class LocalStorage(base.BaseStorage):
     # def file_exists(self, file_path):
     #     """Determine if the file exists in the storage."""
     #     pass
-    #
-    # def file_size(self, file_path):
-    #     """Determine the filesize of the file."""
-    #     pass
+
+    def file_size(self, file_path):
+        """Determine the file size."""
+        file_path = self.clean_file(file_path)
+        full_path = self.expand_path(file_path)
+        return os.path.getsize(full_path)
 
     def list_dir(self, file_path, recursive=False):
         """List files in a directory in the storage."""

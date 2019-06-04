@@ -96,8 +96,8 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_file_size(self):
         """Local storage read file size."""
-        with self.assertRaises(NotImplementedError):
-            self.storage.file_size('podspec.yaml')
+        self._write_file('podspec.yaml', 'test: true')
+        self.assertEqual(10, self.storage.file_size('podspec.yaml'))
 
     def test_list_dir(self):
         """Local storage list directory."""
