@@ -1,5 +1,6 @@
 """Tests for the local file storage."""
 
+import errno
 import os  # pylint: disable=unused-import
 import unittest
 import mock
