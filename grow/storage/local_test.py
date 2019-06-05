@@ -8,20 +8,18 @@ import unittest
 import mock
 from grow.storage import base as grow_base
 from grow.storage import local as grow_local
+from grow.testing import storage as test_storage
 
 
 class LocalStorageCleanTestCase(unittest.TestCase):
     """Test the local file storage cleaning abilities."""
 
     def setUp(self):
-        self.content_dir = tempfile.mkdtemp()
-        self.storage = grow_local.LocalStorage(self.content_dir)
+        self.test_fs = test_storage.TestFileStorage()
+        self.storage = grow_local.LocalStorage(self.test_fs.content_dir)
 
     def tearDown(self):
-        try:
-            shutil.rmtree(self.content_dir)
-        except FileNotFoundError:
-            pass
+        self.test_fs.tear_down()
 
     def test_validate_path(self):
         """Local storage validate path."""
@@ -30,7 +28,8 @@ class LocalStorageCleanTestCase(unittest.TestCase):
 
         # Paths inside the root_dir work ok.
         self.storage.validate_path(
-            '{}{sep}podspec.yaml'.format(self.content_dir, sep=sep), sep=sep)
+            '{}{sep}podspec.yaml'.format(self.test_fs.content_dir, sep=sep),
+            sep=sep)
         with self.assertRaises(grow_base.InvalidPathError):
             self.storage.validate_path('/tmp/somewhere/', sep=sep)
 
@@ -39,32 +38,15 @@ class LocalStorageTestCase(unittest.TestCase):
     """Test the local file storage."""
 
     def setUp(self):
-        self.content_dir = tempfile.mkdtemp()
-        self.storage = grow_local.LocalStorage(self.content_dir)
+        self.test_fs = test_storage.TestFileStorage()
+        self.storage = grow_local.LocalStorage(self.test_fs.content_dir)
 
     def tearDown(self):
-        try:
-            shutil.rmtree(self.content_dir)
-        except FileNotFoundError:
-            pass
-
-    def _write_file(self, filename, content):
-        """Write file for testing outside of the storage class."""
-        filename = os.path.join(self.content_dir, filename)
-        dirname = os.path.dirname(filename)
-        try:
-            os.makedirs(dirname)
-        except OSError as error:
-            if error.errno == errno.EEXIST and os.path.isdir(dirname):
-                pass
-            else:
-                raise
-        with open(filename, 'w') as file_pointer:
-            file_pointer.write(content)
+        self.test_fs.tear_down()
 
     def test_copy_file(self):
         """Local storage copy file."""
-        self._write_file('podspec.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
         expected = ['podspec.yaml']
         actual = self.storage.list_dir('/')
         actual.sort()
@@ -80,7 +62,7 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_copy_files(self):
         """Local storage copy files."""
-        self._write_file('podspec.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
         expected = ['podspec.yaml']
         actual = self.storage.list_dir('/')
         actual.sort()
@@ -96,7 +78,7 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_delete_dir(self):
         """Local storage delete directory."""
-        self._write_file('content/index.yaml', 'test: true')
+        self.test_fs.write('content/index.yaml', 'test: true')
         expected = ['index.yaml']
         actual = self.storage.list_dir('content')
         self.assertEqual(expected, actual)
@@ -117,7 +99,7 @@ class LocalStorageTestCase(unittest.TestCase):
         self.storage.delete_file('podspec.yaml')
 
         # Existing file is deleted.
-        self._write_file('podspec.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
         self.assertTrue(self.storage.file_exists('podspec.yaml'))
         self.storage.delete_file('podspec.yaml')
         self.assertFalse(self.storage.file_exists('podspec.yaml'))
@@ -125,12 +107,12 @@ class LocalStorageTestCase(unittest.TestCase):
     def test_file_exists(self):
         """Local storage deterime if file exists."""
         self.assertFalse(self.storage.file_exists('podspec.yaml'))
-        self._write_file('podspec.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
         self.assertTrue(self.storage.file_exists('podspec.yaml'))
 
     def test_file_size(self):
         """Local storage read file size."""
-        self._write_file('podspec.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
         self.assertEqual(10, self.storage.file_size('podspec.yaml'))
 
     def test_list_dir(self):
@@ -139,20 +121,20 @@ class LocalStorageTestCase(unittest.TestCase):
         actual = self.storage.list_dir('content')
         self.assertEqual(expected, actual)
 
-        self._write_file('content/write.yaml', 'test: true')
+        self.test_fs.write('content/write.yaml', 'test: true')
         expected = ['write.yaml']
         actual = self.storage.list_dir('content')
         self.assertEqual(expected, actual)
 
         # Recursive
-        self._write_file('podspec.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
         expected = ['podspec.yaml', 'content/write.yaml']
         actual = self.storage.list_dir('/', recursive=True)
         self.assertEqual(expected, actual)
 
     def test_move_file(self):
         """Local storage move file."""
-        self._write_file('podspec.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
         expected = ['podspec.yaml']
         actual = self.storage.list_dir('/')
         actual.sort()
@@ -166,7 +148,7 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_move_files(self):
         """Local storage move files."""
-        self._write_file('podspec.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
         expected = ['podspec.yaml']
         actual = self.storage.list_dir('/')
         actual.sort()
@@ -181,7 +163,7 @@ class LocalStorageTestCase(unittest.TestCase):
     def test_read_file(self):
         """Local storage read file."""
         expected = 'title: Testing Storage'
-        self._write_file('podspec.yaml', expected)
+        self.test_fs.write('podspec.yaml', expected)
         actual = self.storage.read_file('podspec.yaml')
         self.assertEqual(actual, expected)
 
@@ -190,7 +172,7 @@ class LocalStorageTestCase(unittest.TestCase):
         expected = {
             '/podspec.yaml': 'title: Testing Storage\n',
         }
-        self._write_file('podspec.yaml', expected['/podspec.yaml'])
+        self.test_fs.write('podspec.yaml', expected['/podspec.yaml'])
         actual = self.storage.read_files('podspec.yaml')
         self.assertEqual(actual, expected)
 
@@ -200,8 +182,8 @@ class LocalStorageTestCase(unittest.TestCase):
 
     def test_walk(self):
         """Local storage walk."""
-        self._write_file('podspec.yaml', 'test: true')
-        self._write_file('content/index.yaml', 'test: true')
+        self.test_fs.write('podspec.yaml', 'test: true')
+        self.test_fs.write('content/index.yaml', 'test: true')
 
         paths = []
         for root, _, files in self.storage.walk('/'):
