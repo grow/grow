@@ -1,9 +1,6 @@
 """Tests for the local file storage."""
 
-import errno
-import shutil
-import os
-import tempfile
+import os  # pylint: disable=unused-import
 import unittest
 import mock
 from grow.storage import base as grow_base
