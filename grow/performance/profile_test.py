@@ -34,13 +34,6 @@ class TimerTestCase(unittest.TestCase):
         """Test adding timer by calling the profiler."""
 
         timer = self.profile('test')
-
-        # pylint: disable=protected-access
-        timer._time = self.mock_time
-
-        with timer:
-            pass
-
         self.assertEqual(1, len(self.profile))
         self.assertIn(timer, list(self.profile))
 
