@@ -12,7 +12,7 @@ class BowerInstaller(base_installer.BaseInstaller):
     @property
     def should_run(self):
         """Should the installer run?"""
-        return self.pod.file_exists('/bower.json')
+        return self.pod.storage.file_exists('/bower.json')
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""

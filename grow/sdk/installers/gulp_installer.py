@@ -12,7 +12,7 @@ class GulpInstaller(base_installer.BaseInstaller):
     @property
     def should_run(self):
         """Should the installer run?"""
-        return self.pod.file_exists('/gulpfile.js')
+        return self.pod.storage.file_exists('/gulpfile.js')
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""

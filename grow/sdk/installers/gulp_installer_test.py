@@ -6,20 +6,21 @@ from grow.common import base_config
 from grow.sdk.installers import base_installer
 from grow.sdk.installers import gulp_installer
 from grow.testing import mocks
+from grow.testing import storage as test_storage
 
 
 class GulpInstallerTestCase(unittest.TestCase):
     """Test the Gulp Installer."""
 
     def _make_gulpfile(self):
-        expected_files = ('/gulpfile.js',)
-        self.pod.file_exists.side_effect = lambda name: name in expected_files
+        self.test_fs.write('gulpfile.js', '')
 
     def setUp(self):
+        self.test_fs = test_storage.TestFileStorage()
         self.config = base_config.BaseConfig()
         env = mocks.mock_env(name="testing")
-        self.pod = mocks.mock_pod(env=env, root='/testing/')
-        self.pod.file_exists.return_value = False
+        self.pod = mocks.mock_pod(
+            env=env, root='/testing/', storage=self.test_fs.storage)
         self.installer = gulp_installer.GulpInstaller(
             self.pod, self.config)
 

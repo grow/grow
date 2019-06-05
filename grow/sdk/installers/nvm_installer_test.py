@@ -6,16 +6,21 @@ from grow.common import base_config
 from grow.sdk.installers import base_installer
 from grow.sdk.installers import nvm_installer
 from grow.testing import mocks
+from grow.testing import storage as test_storage
 
 
 class NvmInstallerTestCase(unittest.TestCase):
     """Test the Extensions Installer."""
 
+    def _make_nvm(self):
+        self.test_fs.write('.nvmrc', '')
+
     def setUp(self):
+        self.test_fs = test_storage.TestFileStorage()
         self.config = base_config.BaseConfig()
         env = mocks.mock_env(name="testing")
-        self.pod = mocks.mock_pod(env=env, root='/testing/')
-        self.pod.file_exists.return_value = True
+        self.pod = mocks.mock_pod(
+            env=env, root='/testing/', storage=self.test_fs.storage)
         self.installer = nvm_installer.NvmInstaller(self.pod, self.config)
 
     @mock.patch('subprocess.call')
@@ -24,7 +29,8 @@ class NvmInstallerTestCase(unittest.TestCase):
         mock_call.return_value = 0
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            '. $NVM_DIR/nvm.sh && nvm --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            '. $NVM_DIR/nvm.sh && nvm --version > /dev/null 2>&1',
+            **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_fail(self, mock_call):
@@ -42,7 +48,8 @@ class NvmInstallerTestCase(unittest.TestCase):
         self.installer.install()
         calls = [
             mock.call(
-                '. $NVM_DIR/nvm.sh && nvm install', **self.installer.subprocess_args(shell=True)),
+                '. $NVM_DIR/nvm.sh && nvm install',
+                **self.installer.subprocess_args(shell=True)),
         ]
         mock_popen.assert_has_calls(calls, any_order=True)
 
@@ -70,6 +77,6 @@ class NvmInstallerTestCase(unittest.TestCase):
 
     def test_should_run(self):
         """Detect if should run when using nvm."""
-        self.pod.file_exists.side_effect = [False, True]
         self.assertFalse(self.installer.should_run)
+        self._make_nvm()
         self.assertTrue(self.installer.should_run)

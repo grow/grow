@@ -12,7 +12,7 @@ class NvmInstaller(base_installer.BaseInstaller):
     @property
     def should_run(self):
         """Should the installer run?"""
-        return self.pod.file_exists('/.nvmrc')
+        return self.pod.storage.file_exists('/.nvmrc')
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""

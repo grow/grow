@@ -21,7 +21,7 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
     @property
     def should_run(self):
         """Should the installer run?"""
-        return self.pod.file_exists('/{}'.format(EXTENSIONS_FILE))
+        return self.pod.storage.file_exists('/{}'.format(EXTENSIONS_FILE))
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""
@@ -35,8 +35,8 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
     def install(self):
         """Install dependencies."""
         init_file_name = '/{}/__init__.py'.format(EXTENSIONS_DIR)
-        if not self.pod.file_exists(init_file_name):
-            self.pod.write_file(init_file_name, '')
+        if not self.pod.storage.file_exists(init_file_name):
+            self.pod.storage.write_file(init_file_name, '')
         install_command = 'pip install -U -t {} -r {}'.format(
             EXTENSIONS_DIR, EXTENSIONS_FILE)
         process = subprocess.Popen(

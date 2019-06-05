@@ -6,28 +6,27 @@ from grow.common import base_config
 from grow.sdk.installers import base_installer
 from grow.sdk.installers import npm_installer
 from grow.testing import mocks
+from grow.testing import storage as test_storage
 
 
 class NpmInstallerTestCase(unittest.TestCase):
     """Test the NPM Installer."""
 
     def _make_package(self):
-        expected_files = ('/package.json',)
-        self.pod.file_exists.side_effect = lambda name: name in expected_files
+        self.test_fs.write('package.json', '')
 
     def _make_nvm(self):
-        expected_files = ('/.nvmrc',)
-        self.pod.file_exists.side_effect = lambda name: name in expected_files
+        self.test_fs.write('.nvmrc', '')
 
     def _make_yarn(self):
-        expected_files = ('/yarn.lock',)
-        self.pod.file_exists.side_effect = lambda name: name in expected_files
+        self.test_fs.write('yarn.lock', '')
 
     def setUp(self):
+        self.test_fs = test_storage.TestFileStorage()
         self.config = base_config.BaseConfig()
         env = mocks.mock_env(name="testing")
-        self.pod = mocks.mock_pod(env=env, root='/testing/')
-        self.pod.file_exists.return_value = False
+        self.pod = mocks.mock_pod(
+            env=env, root='/testing/', storage=self.test_fs.storage)
         self.installer = npm_installer.NpmInstaller(self.pod, self.config)
 
     @mock.patch('subprocess.call')

@@ -69,13 +69,14 @@ def mock_locale(identifier, alias=None):
     return locale
 
 
-def mock_pod(podspec=None, env=None, root=None):
+def mock_pod(podspec=None, env=None, root=None, storage=None):
     """Mock grow pod."""
     pod = mock.Mock()
     mock_podspec = mock.Mock()
     if not podspec:
         podspec = {}
     mock_podspec.get_config.return_value = podspec
+    type(pod).storage = mock.PropertyMock(return_value=storage)
     type(pod).podspec = mock.PropertyMock(return_value=mock_podspec)
     type(pod).root = mock.PropertyMock(return_value=root)
     if not env:

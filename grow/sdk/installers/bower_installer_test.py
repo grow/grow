@@ -6,22 +6,26 @@ from grow.common import base_config
 from grow.sdk.installers import base_installer
 from grow.sdk.installers import bower_installer
 from grow.testing import mocks
+from grow.testing import storage as test_storage
 
 
 class BowerInstallerTestCase(unittest.TestCase):
     """Test the Bower Installer."""
 
     def _make_bower(self):
-        expected_files = ('/bower.json',)
-        self.pod.file_exists.side_effect = lambda name: name in expected_files
+        self.test_fs.write('bower.json', '')
 
     def setUp(self):
+        self.test_fs = test_storage.TestFileStorage()
         self.config = base_config.BaseConfig()
         env = mocks.mock_env(name="testing")
-        self.pod = mocks.mock_pod(env=env, root='/testing/')
-        self.pod.file_exists.return_value = False
+        self.pod = mocks.mock_pod(
+            env=env, root='/testing/', storage=self.test_fs.storage)
         self.installer = bower_installer.BowerInstaller(
             self.pod, self.config)
+
+    def tearDown(self):
+        self.test_fs.tear_down()
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites(self, mock_call):

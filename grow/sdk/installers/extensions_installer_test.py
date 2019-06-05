@@ -6,20 +6,21 @@ from grow.common import base_config
 from grow.sdk.installers import base_installer
 from grow.sdk.installers import extensions_installer
 from grow.testing import mocks
+from grow.testing import storage as test_storage
 
 
 class ExtensionsInstallerTestCase(unittest.TestCase):
     """Test the Extensions Installer."""
 
     def _make_extensions(self):
-        expected_files = ('/extensions.txt',)
-        self.pod.file_exists.side_effect = lambda name: name in expected_files
+        self.test_fs.write('extensions.txt', '')
 
     def setUp(self):
+        self.test_fs = test_storage.TestFileStorage()
         self.config = base_config.BaseConfig()
         env = mocks.mock_env(name="testing")
-        self.pod = mocks.mock_pod(env=env, root='/testing/')
-        self.pod.file_exists.return_value = False
+        self.pod = mocks.mock_pod(
+            env=env, root='/testing/', storage=self.test_fs.storage)
         self.installer = extensions_installer.ExtensionsInstaller(
             self.pod, self.config)
 
@@ -45,7 +46,7 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
         self.installer.install()
-        self.pod.write_file.assert_called_with('/extensions/__init__.py', '')
+        self.pod.storage.file_exists('/extensions/__init__.py')
         expected = 'pip install -U -t {} -r extensions.txt'.format(
             'extensions')
         mock_popen.assert_called_once_with(

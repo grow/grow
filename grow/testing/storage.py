@@ -4,12 +4,21 @@ import errno
 import os
 import shutil
 import tempfile
+from grow.storage import local as grow_local
 
 class TestFileStorage(object):
     """Temporary file system access for testing."""
 
     def __init__(self):
         self.content_dir = tempfile.mkdtemp()
+        self._storage = None
+
+    @property
+    def storage(self):
+        """Create a locale storage for tests."""
+        if not self._storage:
+            self._storage = grow_local.LocalStorage(self.content_dir)
+        return self._storage
 
     def tear_down(self):
         """Tear down the storage to cleanup after tests."""
@@ -20,7 +29,7 @@ class TestFileStorage(object):
 
     def write(self, filename, content):
         """Write file for testing outside of the storage class."""
-        filename = os.path.join(self.content_dir, filename)
+        filename = os.path.join(self.content_dir, filename.lstrip('/'))
         dirname = os.path.dirname(filename)
         try:
             os.makedirs(dirname)

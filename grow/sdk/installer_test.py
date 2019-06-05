@@ -38,7 +38,7 @@ class InstallerTestCase(unittest.TestCase):
         mock_popen.return_value = mock_process
         env = mocks.mock_env(name="testing")
         pod = mocks.mock_pod(env=env, root='/testing/')
-        pod.file_exists.return_value = True
+        pod.storage.file_exists.return_value = True
         self.installer = installer.Installer([
             npm_installer.NpmInstaller(pod, config),
         ])
@@ -51,7 +51,7 @@ class InstallerTestCase(unittest.TestCase):
         config = base_config.BaseConfig()
         env = mocks.mock_env(name="testing")
         pod = mocks.mock_pod(env=env, root='/testing/')
-        pod.file_exists.return_value = False
+        pod.storage.file_exists.return_value = False
         self.installer = installer.Installer([
             npm_installer.NpmInstaller(pod, config),
         ])
@@ -66,7 +66,7 @@ class InstallerTestCase(unittest.TestCase):
         mock_call.return_value = 127  # Simulate Yarn not found.
         env = mocks.mock_env(name="testing")
         pod = mocks.mock_pod(env=env, root='/testing/')
-        pod.file_exists.return_value = True
+        pod.storage.file_exists.return_value = True
         self.installer = installer.Installer([
             npm_installer.NpmInstaller(pod, config),
         ], logger=logger)

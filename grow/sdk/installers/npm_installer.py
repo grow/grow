@@ -24,13 +24,13 @@ class NpmInstaller(base_installer.BaseInstaller):
     @property
     def should_run(self):
         """Should the installer run?"""
-        return self.pod.file_exists('/package.json')
+        return self.pod.storage.file_exists('/package.json')
 
     @property
     def using_yarn(self):
         """Is the pod using yarn?"""
         if self._using_yarn is None:
-            self._using_yarn = self.pod.file_exists('/yarn.lock')
+            self._using_yarn = self.pod.storage.file_exists('/yarn.lock')
         return self._using_yarn
 
     def _check_prerequisites_npm(self):
@@ -87,7 +87,7 @@ class NpmInstaller(base_installer.BaseInstaller):
             'There was an error running `yarn install`.')
 
     def _nvm_command(self, command):
-        if self.pod.file_exists('/.nvmrc'):
+        if self.pod.storage.file_exists('/.nvmrc'):
             # Need to source NVM first to get the nvm command to work.
             return '. $NVM_DIR/nvm.sh && nvm exec {}'.format(command)
         return command
