@@ -7,12 +7,14 @@ from grow.sdk import installer
 from grow.sdk.installers import base_installer
 from grow.sdk.installers import npm_installer
 from grow.testing import mocks
+from grow.testing import storage as test_storage
 
 
 class InstallerTestCase(unittest.TestCase):
     """Test the Base Installer."""
 
     def setUp(self):
+        self.test_fs = test_storage.TestFileStorage()
         self.installer = installer.Installer([])
 
     def test_failure(self):
@@ -37,8 +39,9 @@ class InstallerTestCase(unittest.TestCase):
         mock_process.wait.return_value = None
         mock_popen.return_value = mock_process
         env = mocks.mock_env(name="testing")
-        pod = mocks.mock_pod(env=env, root='/testing/')
-        pod.storage.file_exists.return_value = True
+        pod = mocks.mock_pod(
+            env=env, root='/testing/', storage=self.test_fs.storage)
+        self.test_fs.write('package.json', '')
         self.installer = installer.Installer([
             npm_installer.NpmInstaller(pod, config),
         ])
@@ -50,8 +53,8 @@ class InstallerTestCase(unittest.TestCase):
         """Run installers runs even when installer should not run."""
         config = base_config.BaseConfig()
         env = mocks.mock_env(name="testing")
-        pod = mocks.mock_pod(env=env, root='/testing/')
-        pod.storage.file_exists.return_value = False
+        pod = mocks.mock_pod(
+            env=env, root='/testing/', storage=self.test_fs.storage)
         self.installer = installer.Installer([
             npm_installer.NpmInstaller(pod, config),
         ])
@@ -65,8 +68,9 @@ class InstallerTestCase(unittest.TestCase):
         logger = mock.Mock()
         mock_call.return_value = 127  # Simulate Yarn not found.
         env = mocks.mock_env(name="testing")
-        pod = mocks.mock_pod(env=env, root='/testing/')
-        pod.storage.file_exists.return_value = True
+        pod = mocks.mock_pod(
+            env=env, root='/testing/', storage=self.test_fs.storage)
+        self.test_fs.write('package.json', '')
         self.installer = installer.Installer([
             npm_installer.NpmInstaller(pod, config),
         ], logger=logger)
