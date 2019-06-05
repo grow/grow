@@ -20,7 +20,7 @@ class GulpInstallerTestCase(unittest.TestCase):
         self.config = base_config.BaseConfig()
         env = mocks.mock_env(name="testing")
         self.pod = mocks.mock_pod(
-            env=env, root='/testing/', storage=self.test_fs.storage)
+            env=env, root_path='/testing/', storage=self.test_fs.storage)
         self.installer = gulp_installer.GulpInstaller(
             self.pod, self.config)
 
