@@ -30,7 +30,7 @@ def install(pod_path):
         config = base_config.BaseConfig()
         built_in_installers = []
         for installer_class in installers.BUILT_IN_INSTALLERS:
-            built_in_installers.append(installer_class(storage, config))
+            built_in_installers.append(installer_class(pod, config))
         grow_installer = installer.Installer(built_in_installers, pod)
         grow_installer.run_installers()
 
