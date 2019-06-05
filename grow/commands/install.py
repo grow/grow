@@ -31,7 +31,7 @@ def install(pod_path):
         built_in_installers = []
         for installer_class in installers.BUILT_IN_INSTALLERS:
             built_in_installers.append(installer_class(pod, config))
-        grow_installer = installer.Installer(built_in_installers, pod)
+        grow_installer = installer.Installer(built_in_installers)
         grow_installer.run_installers()
 
     return result.CommandResult(pod=pod, profiler=profiler)
