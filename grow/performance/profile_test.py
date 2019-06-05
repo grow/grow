@@ -2,7 +2,7 @@
 
 import unittest
 import mock
-from . import profile
+from grow.performance import profile
 
 class TimerTestCase(unittest.TestCase):
     """Tests for the Timer"""
@@ -27,6 +27,20 @@ class TimerTestCase(unittest.TestCase):
         self.profile.add_timer(None)
         self.assertEqual(0, len(self.profile))
         self.profile.add_timer(timer)
+        self.assertEqual(1, len(self.profile))
+        self.assertIn(timer, list(self.profile))
+
+    def test_callable(self):
+        """Test adding timer by calling the profiler."""
+
+        timer = self.profile('test')
+
+        # pylint: disable=protected-access
+        timer._time = self.mock_time
+
+        with timer:
+            pass
+
         self.assertEqual(1, len(self.profile))
         self.assertIn(timer, list(self.profile))
 

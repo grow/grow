@@ -55,6 +55,9 @@ class Timer(object):
 class Profile(object):
     """Keeps track of all of the timer usage."""
 
+    def __call__(self, *args, **kwargs):
+        return self.timer(*args, **kwargs)
+
     def __init__(self):
         self.timers = []
 
