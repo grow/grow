@@ -62,6 +62,13 @@ class PathFilter(object):
         """Add a new included pattern."""
         self._included.append(re.compile(raw_pattern))
 
+    def export(self):
+        """Export for serialization."""
+        return {
+            'ignored': [item.pattern for item in self._ignored],
+            'included': [item.pattern for item in self._included],
+        }
+
     def is_valid(self, path):
         """Tests if the path is valid according to the known filters."""
         if self._is_ignored(path):
