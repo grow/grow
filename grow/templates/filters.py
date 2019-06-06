@@ -135,7 +135,7 @@ def regex_replace():
     return regex_replace_filter
 
 
-def slug_filter(pod):
+def slug_filter(pod=None):
     """Filters string to remove url unfriendly characters."""
     use_legacy_slugify = pod and pod.is_enabled(pod.FEATURE_OLD_SLUGIFY)
     def _slug_filter(value, delimiter=u'-'):
@@ -156,7 +156,7 @@ def wrap_locale_context(func):
     return _locale_filter
 
 
-def create_builtin_filters(env, pod, locale=None):
+def create_builtin_filters(env, pod=None, locale=None):
     """Filters standard for the template rendering."""
     return (
         ('currency', wrap_locale_context(babel_numbers.format_currency)),
