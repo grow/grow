@@ -100,6 +100,7 @@ class Pod(object):
         self._podcache = None
         self._features = features.Features(disabled=[
             self.FEATURE_TRANSLATION_STATS,
+            self.FEATURE_OLD_SLUGIFY,
         ])
         self._experiments = features.Features(default_enabled=False)
 
