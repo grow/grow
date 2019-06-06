@@ -69,7 +69,6 @@ class WebReviewDestination(base.BaseDestination):
             api_key = os.getenv('WEBREVIEW_API_KEY')
             subdomain = self._get_subdomain()
             self._webreview = webreview.WebReview(
-                pod=self.pod,
                 project=self.config.project,
                 name=subdomain,
                 host=self.config.server,
