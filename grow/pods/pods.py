@@ -76,6 +76,7 @@ class Pod(object):
     DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
     FEATURE_UI = 'ui'
     FEATURE_TRANSLATION_STATS = 'translation_stats'
+    FEATURE_OLD_SLUGIFY = 'legacy_slugify'
     FILE_DEP_CACHE = '.depcache.json'
     FILE_PODSPEC = 'podspec.yaml'
     FILE_EXTENSIONS = 'extensions.txt'
@@ -99,6 +100,7 @@ class Pod(object):
         self._podcache = None
         self._features = features.Features(disabled=[
             self.FEATURE_TRANSLATION_STATS,
+            self.FEATURE_OLD_SLUGIFY,
         ])
         self._experiments = features.Features(default_enabled=False)
 
@@ -109,6 +111,9 @@ class Pod(object):
             _ext_dir = self.abs_path(self.extensions_dir)
             if os.path.exists(_ext_dir):
                 sys.path.insert(0, _ext_dir)
+
+            # Load the features from the podspec.
+            self._load_features()
 
             # Load the experiments from the podspec.
             self._load_experiments()
@@ -144,10 +149,13 @@ class Pod(object):
     def _load_experiments(self):
         config = self.yaml.get('experiments', {})
         for key, value in config.iteritems():
-            # Experiments can be turned on with a True value.
-            # But the true does does not act as a configuration.
+            # Expertiments can be turned on with a True value,
+            # be turned off with a False value,
+            # or turned on by a providing configuration value.
             if value is True:
                 self._experiments.enable(key)
+            elif value is False:
+                self._experiments.disable(key)
             else:
                 self._experiments.enable(key, config=value)
 
@@ -157,6 +165,19 @@ class Pod(object):
         if load_local_extensions and self.exists:
             self._extensions_controller.register_extensions(
                 self.yaml.get('ext', []))
+
+    def _load_features(self):
+        config = self.yaml.get('features', {})
+        for key, value in config.iteritems():
+            # Features can be turned on with a True value,
+            # be turned off with a False value,
+            # or turned on by a providing configuration value.
+            if value is True:
+                self._features.enable(key)
+            elif value is False:
+                self._features.disable(key)
+            else:
+                self._features.enable(key, config=value)
 
     def _normalize_path(self, pod_path):
         if '..' in pod_path:
@@ -577,7 +598,7 @@ class Pod(object):
                 kwargs['bytecode_cache'] = self._get_bytecode_cache()
             kwargs['extensions'].extend(self.list_jinja_extensions())
             env = jinja_dependency.DepEnvironment(**kwargs)
-            env.filters.update(filters.create_builtin_filters())
+            env.filters.update(filters.create_builtin_filters(env, self, locale=locale))
             env.globals.update(
                 **tags.create_builtin_globals(env, self, locale=locale))
             return env

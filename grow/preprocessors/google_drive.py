@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import httplib2
+import slugify
 from googleapiclient import discovery
 from googleapiclient import errors
 from protorpc import messages
@@ -137,7 +138,10 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
                 if title.startswith(IGNORE_INITIAL):
                     self.pod.logger.info('Skipping -> {}'.format(title))
                     continue
-                basename = '{}.md'.format(utils.slugify(title))
+                if self.pod.is_enabled(self.pod.FEATURE_OLD_SLUGIFY):
+                    basename = '{}.md'.format(utils.slugify(title))
+                else:
+                    basename = '{}.md'.format(slugify.slugify(title))
                 docs_to_add.append(basename)
                 path = os.path.join(config.collection, basename)
                 self._execute_doc(path, doc_id, convert)
@@ -476,7 +480,10 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 title = gid_to_sheet[gid]['title']
                 if title.strip().startswith(IGNORE_INITIAL):
                     continue
-                slug = utils.slugify(title)
+                if self.pod.is_enabled(self.pod.FEATURE_OLD_SLUGIFY):
+                    slug = utils.slugify(title)
+                else:
+                    slug = slugify.slugify(title)
                 file_name = '{}.yaml'.format(slug)
                 output_path = os.path.join(collection_path, file_name)
                 gid_to_data[gid] = self._maybe_preserve_content(

@@ -43,14 +43,27 @@ class BuiltinsTestCase(unittest.TestCase):
             filters.hash_value(None, value))
 
     def test_slug_filter(self):
+        slug_filter = filters.slug_filter(self.pod)
         words = 'Foo Bar Baz'
-        self.assertEqual('foo-bar-baz', filters.slug_filter(words))
+        self.assertEqual('foo-bar-baz', slug_filter(words))
 
         words = 'Foo\'s b@z b**'
-        self.assertEqual('foo-s-b-z-b', filters.slug_filter(words))
+        self.assertEqual('foo-s-b-z-b', slug_filter(words))
 
         words = 'Foo: b@z b**'
-        self.assertEqual('foo:b-z-b', filters.slug_filter(words))
+        self.assertEqual('foo-b-z-b', slug_filter(words))
+
+    def test_slug_filter_legacy(self):
+        self.pod.enable(self.pod.FEATURE_OLD_SLUGIFY)
+        slug_filter = filters.slug_filter(self.pod)
+        words = 'Foo Bar Baz'
+        self.assertEqual('foo-bar-baz', slug_filter(words))
+
+        words = 'Foo\'s b@z b**'
+        self.assertEqual('foo-s-b-z-b', slug_filter(words))
+
+        words = 'Foo: b@z b**'
+        self.assertEqual('foo:b-z-b', slug_filter(words))
 
     def test_json(self):
         self.pod.router.add_all()

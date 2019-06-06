@@ -4,7 +4,6 @@ import jinja2
 import os
 import shutil
 
-
 class FileStorage(base_storage.BaseStorage):
 
     @staticmethod

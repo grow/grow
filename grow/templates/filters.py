@@ -7,6 +7,7 @@ import json as json_lib
 import random
 import re
 import jinja2
+import slugify
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
 from grow.common import json_encoder
@@ -134,9 +135,14 @@ def regex_replace():
     return regex_replace_filter
 
 
-def slug_filter(value, delimiter=u'-'):
+def slug_filter(pod=None):
     """Filters string to remove url unfriendly characters."""
-    return utils.slugify(value, delimiter)
+    use_legacy_slugify = pod and pod.is_enabled(pod.FEATURE_OLD_SLUGIFY)
+    def _slug_filter(value, delimiter=u'-'):
+        if use_legacy_slugify:
+            return utils.slugify(value, delimiter)
+        return slugify.slugify(value, separator=delimiter)
+    return _slug_filter
 
 
 def wrap_locale_context(func):
@@ -150,7 +156,7 @@ def wrap_locale_context(func):
     return _locale_filter
 
 
-def create_builtin_filters():
+def create_builtin_filters(env, pod=None, locale=None):
     """Filters standard for the template rendering."""
     return (
         ('currency', wrap_locale_context(babel_numbers.format_currency)),
@@ -168,6 +174,6 @@ def create_builtin_filters():
         ('re_replace', regex_replace()),
         ('render', render_filter),
         ('shuffle', shuffle_filter),
-        ('slug', slug_filter),
+        ('slug', slug_filter(pod=pod)),
         ('time', wrap_locale_context(babel_dates.format_time)),
     )
