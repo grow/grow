@@ -149,10 +149,13 @@ class Pod(object):
     def _load_experiments(self):
         config = self.yaml.get('experiments', {})
         for key, value in config.iteritems():
-            # Features can be turned on with a True value
-            # or provide configuration settings through the value.
+            # Expertiments can be turned on with a True value,
+            # be turned off with a False value,
+            # or turned on by a providing configuration value.
             if value is True:
                 self._experiments.enable(key)
+            elif value is False:
+                self._experiments.disable(key)
             else:
                 self._experiments.enable(key, config=value)
 
