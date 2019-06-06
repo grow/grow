@@ -4,8 +4,8 @@ import json
 import logging
 import os
 import re
+import slugify
 import yaml
-from slugify import slugify
 from grow.common import structures
 from grow.common import untag
 from grow.common import urls
@@ -402,7 +402,7 @@ class Document(object):
             return None
         if self.pod.is_enabled(self.pod.FEATURE_OLD_SLUGIFY):
             return utils.slugify(self.title)
-        return slugify(self.title)
+        return slugify.slugify(self.title)
 
     @property
     def sitemap(self):

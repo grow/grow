@@ -7,9 +7,9 @@ import json as json_lib
 import random
 import re
 import jinja2
+import slugify
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
-from slugify import slugify
 from grow.common import json_encoder
 from grow.common import urls
 from grow.common import utils
@@ -141,7 +141,7 @@ def slug_filter(pod=None):
     def _slug_filter(value, delimiter=u'-'):
         if use_legacy_slugify:
             return utils.slugify(value, delimiter)
-        return slugify(value, separator=delimiter)
+        return slugify.slugify(value, separator=delimiter)
     return _slug_filter
 
 
