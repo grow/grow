@@ -149,8 +149,8 @@ class Pod(object):
     def _load_experiments(self):
         config = self.yaml.get('experiments', {})
         for key, value in config.iteritems():
-            # Experiments can be turned on with a True value.
-            # But the true does does not act as a configuration.
+            # Features can be turned on with a True value
+            # or provide configuration settings through the value.
             if value is True:
                 self._experiments.enable(key)
             else:
@@ -166,8 +166,9 @@ class Pod(object):
     def _load_features(self):
         config = self.yaml.get('features', {})
         for key, value in config.iteritems():
-            # Features can be turned on with a True value.
-            # But the true does does not act as a configuration.
+            # Features can be turned on with a True value,
+            # be turned off with a False value,
+            # or turned on by a providing configuration value.
             if value is True:
                 self._features.enable(key)
             elif value is False:
