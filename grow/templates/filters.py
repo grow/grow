@@ -139,6 +139,8 @@ def slug_filter(pod=None):
     """Filters string to remove url unfriendly characters."""
     use_legacy_slugify = pod and pod.is_enabled(pod.FEATURE_OLD_SLUGIFY)
     def _slug_filter(value, delimiter=u'-'):
+        if not value:
+            return value
         if use_legacy_slugify:
             return utils.slugify(value, delimiter)
         return slugify.slugify(value, separator=delimiter)
