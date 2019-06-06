@@ -77,7 +77,7 @@ class RenderPool(object):
         kwargs['bytecode_cache'] = self.pod.jinja_bytecode_cache
         kwargs['extensions'].extend(self.pod.list_jinja_extensions())
         env = jinja_dependency.DepEnvironment(**kwargs)
-        env.filters.update(filters.create_builtin_filters())
+        env.filters.update(filters.create_builtin_filters(env, self.pod, locale=locale))
         env.globals.update(**tags.create_builtin_globals(env, self.pod, locale=locale))
         env.tests.update(jinja_tests.create_builtin_tests())
         return env

@@ -18,6 +18,7 @@ import httplib2
 from googleapiclient import discovery
 from googleapiclient import errors
 from protorpc import messages
+from slugify import slugify
 from grow.common import oauth
 from grow.common import untag
 from grow.common import utils
@@ -137,7 +138,10 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
                 if title.startswith(IGNORE_INITIAL):
                     self.pod.logger.info('Skipping -> {}'.format(title))
                     continue
-                basename = '{}.md'.format(utils.slugify(title))
+                if self.pod.features(self.pod.FEATURE_OLD_SLUGIFY):
+                    basename = '{}.md'.format(utils.slugify(title))
+                else:
+                    basename = '{}.md'.format(slugify(title))
                 docs_to_add.append(basename)
                 path = os.path.join(config.collection, basename)
                 self._execute_doc(path, doc_id, convert)
@@ -476,7 +480,10 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 title = gid_to_sheet[gid]['title']
                 if title.strip().startswith(IGNORE_INITIAL):
                     continue
-                slug = utils.slugify(title)
+                if self.pod.features(self.pod.FEATURE_OLD_SLUGIFY):
+                    slug = utils.slugify(title)
+                else:
+                    slug = slugify(title)
                 file_name = '{}.yaml'.format(slug)
                 output_path = os.path.join(collection_path, file_name)
                 gid_to_data[gid] = self._maybe_preserve_content(
