@@ -34,10 +34,11 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')
 @shared.shards_option
 @shared.shard_option
 @shared.work_dir_option
+@shared.routes_file_option()
 @click.pass_context
 def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
            test_only, auth, force_untranslated, threaded, shards, shard,
-           work_dir):
+           work_dir, routes_file)):
     """Deploys a pod to a destination."""
     if auth:
         text = ('--auth must now be specified before deploy. Usage:'
@@ -69,7 +70,10 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
                 pod, source_dir=work_dir, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
             pod.router.use_simple()
-            pod.router.add_all()
+            if routes_file:
+                pod.router.from_data(pod.read_json(routes_file))
+            else:
+                pod.router.add_all()
             is_partial = False
             # Filter routes based on deployment config.
             for build_filter in deployment.filters:
