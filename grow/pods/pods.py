@@ -594,7 +594,7 @@ class Pod(object):
                 kwargs['bytecode_cache'] = self._get_bytecode_cache()
             kwargs['extensions'].extend(self.list_jinja_extensions())
             env = jinja_dependency.DepEnvironment(**kwargs)
-            env.filters.update(filters.create_builtin_filters(env, self.pod, locale=locale))
+            env.filters.update(filters.create_builtin_filters(env, self, locale=locale))
             env.globals.update(
                 **tags.create_builtin_globals(env, self, locale=locale))
             return env
