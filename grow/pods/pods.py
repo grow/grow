@@ -112,6 +112,9 @@ class Pod(object):
             if os.path.exists(_ext_dir):
                 sys.path.insert(0, _ext_dir)
 
+            # Load the features from the podspec.
+            self._load_features()
+
             # Load the experiments from the podspec.
             self._load_experiments()
 
@@ -159,6 +162,18 @@ class Pod(object):
         if load_local_extensions and self.exists:
             self._extensions_controller.register_extensions(
                 self.yaml.get('ext', []))
+
+    def _load_features(self):
+        config = self.yaml.get('features', {})
+        for key, value in config.iteritems():
+            # Features can be turned on with a True value.
+            # But the true does does not act as a configuration.
+            if value is True:
+                self._features.enable(key)
+            elif value is False:
+                self._features.disable(key)
+            else:
+                self._features.enable(key, config=value)
 
     def _normalize_path(self, pod_path):
         if '..' in pod_path:
