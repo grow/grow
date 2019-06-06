@@ -138,7 +138,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
                 if title.startswith(IGNORE_INITIAL):
                     self.pod.logger.info('Skipping -> {}'.format(title))
                     continue
-                if self.pod.features(self.pod.FEATURE_OLD_SLUGIFY):
+                if self.pod.is_enabled(self.pod.FEATURE_OLD_SLUGIFY):
                     basename = '{}.md'.format(utils.slugify(title))
                 else:
                     basename = '{}.md'.format(slugify(title))
@@ -480,7 +480,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 title = gid_to_sheet[gid]['title']
                 if title.strip().startswith(IGNORE_INITIAL):
                     continue
-                if self.pod.features(self.pod.FEATURE_OLD_SLUGIFY):
+                if self.pod.is_enabled(self.pod.FEATURE_OLD_SLUGIFY):
                     slug = utils.slugify(title)
                 else:
                     slug = slugify(title)

@@ -400,7 +400,7 @@ class Document(object):
             return value
         if not self.title:
             return None
-        if self.pod.features(self.pod.FEATURE_OLD_SLUGIFY):
+        if self.pod.is_enabled(self.pod.FEATURE_OLD_SLUGIFY):
             return utils.slugify(self.title)
         return slugify(self.title)
 
