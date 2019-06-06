@@ -74,6 +74,19 @@ class Routes(object):
             return
         self._root.add(path, value, options=options)
 
+    def export(self):
+        """Export the routes into a serializable format."""
+        routing_info = {}
+        for path, value, options in self.nodes:
+            value = value.export() if hasattr(value, 'export') else value
+            if options:
+                print options
+            routing_info[path] = {
+                'value': value,
+                'options': options,
+            }
+        return routing_info
+
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
         if not func:

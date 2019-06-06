@@ -33,8 +33,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 @shared.threaded_option(CFG)
 @shared.shards_option
 @shared.shard_option
+@shared.routes_file_option()
 def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
-          locate_untranslated, deployment, threaded, locale, shards, shard):
+          locate_untranslated, deployment, threaded, locale, shards, shard,
+          routes_file):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -65,6 +67,8 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
             is_partial = bool(pod_paths) or bool(locale)
             if pod_paths:
                 pod.router.add_pod_paths(pod_paths)
+            elif routes_file:
+                pod.router.from_data(pod.read_json(routes_file))
             else:
                 pod.router.add_all()
             if locale:

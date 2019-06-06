@@ -352,6 +352,15 @@ class Router(object):
         text = '{} is not found in any static file configuration in the podspec.'
         raise MissingStaticConfigError(text.format(pod_path))
 
+    def from_data(self, routes_data):
+        """Import routes from data."""
+        for key, item in routes_data.iteritems():
+            self.routes.add(
+                key,
+                RouteInfo.from_data(
+                    item['value']['kind'], item['value']['meta']),
+                options=item['options'])
+
     def reconcile_documents(self, remove_docs=None, add_docs=None):
         """Remove old docs and add new docs to the routes."""
         for doc in remove_docs if remove_docs else []:
@@ -388,3 +397,26 @@ class RouteInfo(object):
 
     def __repr__(self):
         return '<RouteInfo kind={} meta={}>'.format(self.kind, self.meta)
+
+    @classmethod
+    def from_data(cls, kind, meta):
+        """Create the route info from data."""
+        # Need to reconstruct the path filter object.
+        if 'path_filter' in meta:
+            meta['path_filter'] = grow_path_filter.PathFilter(
+                meta['path_filter'].get('ignore_paths'),
+                meta['path_filter'].get('include_paths'))
+        return cls(kind, meta)
+
+    def export(self):
+        """Export route information in a serializable format."""
+        export_meta = {}
+        for key in self.meta:
+            meta_value = self.meta[key]
+            if hasattr(meta_value, 'export'):
+                meta_value = meta_value.export()
+            export_meta[key] = meta_value
+        return {
+            'kind': self.kind,
+            'meta': export_meta,
+        }

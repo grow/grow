@@ -133,6 +133,18 @@ def preprocess_option(config):
     return _decorator
 
 
+def routes_file_option(help_text=None):
+    """Option for providing a routes file instead of pulling from content."""
+    if help_text is None:
+        help_text = 'Use routes file to load routes instead of loading from files.'
+
+    def _decorator(func):
+        return click.option(
+            '--routes-file', '--routes_file', type=str, default=None,
+            help=help_text)(func)
+    return _decorator
+
+
 def service_option(func):
     """Option for configuring the transltor service to use."""
     return click.option('--service', '-s', type=str,
