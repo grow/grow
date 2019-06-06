@@ -38,7 +38,7 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.deploy')
 @click.pass_context
 def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
            test_only, auth, force_untranslated, threaded, shards, shard,
-           work_dir, routes_file)):
+           work_dir, routes_file):
     """Deploys a pod to a destination."""
     if auth:
         text = ('--auth must now be specified before deploy. Usage:'
