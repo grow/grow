@@ -76,6 +76,7 @@ class Pod(object):
     DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
     FEATURE_UI = 'ui'
     FEATURE_TRANSLATION_STATS = 'translation_stats'
+    FEATURE_OLD_SLUGIFY = 'legacy_slugify'
     FILE_DEP_CACHE = '.depcache.json'
     FILE_PODSPEC = 'podspec.yaml'
     FILE_EXTENSIONS = 'extensions.txt'

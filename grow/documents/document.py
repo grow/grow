@@ -1,11 +1,11 @@
 """Grow documents."""
 
-import datetime
 import json
 import logging
 import os
 import re
 import yaml
+from slugify import slugify
 from grow.common import structures
 from grow.common import untag
 from grow.common import urls
@@ -398,7 +398,11 @@ class Document(object):
         value = self.fields.get('$slug')
         if value:
             return value
-        return utils.slugify(self.title) if self.title is not None else None
+        if not self.title:
+            return None
+        if self.pod.features(self.pod.FEATURE_OLD_SLUGIFY):
+            return utils.slugify(self.title)
+        return slugify(self.title)
 
     @property
     def sitemap(self):
