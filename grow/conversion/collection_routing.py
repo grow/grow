@@ -59,7 +59,16 @@ class RoutesData(object):
 
     def extract_doc(self, doc):
         """Extract the meta information from the doc to use for the routes."""
-        raw_data = doc.format.front_matter.raw_data
+        if doc.pod_path.endswith('.yaml'):
+            raw_data = yaml.load(
+                doc.pod.read_file(doc.pod_path), Loader=yaml_utils.PlainTextYamlLoader)
+        else:
+            raw_data = doc.format.front_matter.raw_data
+
+        if not raw_data:
+            print 'No raw data found for document: {}'.format(doc.pod_path)
+            return
+
         data = collections.OrderedDict()
 
         tagged_keys = tuple(['{}@'.format(key)
