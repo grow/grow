@@ -21,7 +21,8 @@ from grow.common import yaml_utils
 
 ROUTES_FILENAME = '_blueprint.yaml'
 COLLECTION_META_KEYS = ('$path', '$localization', '$view')
-COLLECTION_BLUEPRINT_KEYS = ('$path', '$localization', '$view', 'path', 'localization', 'view')
+COLLECTION_BLUEPRINT_KEYS = (
+    '$path', '$localization', '$view', 'path', 'localization', 'view')
 
 
 class Error(Exception):
@@ -66,10 +67,17 @@ class RoutesData(object):
 
         for key, value in raw_data.iteritems():
             if key in COLLECTION_META_KEYS or key.startswith(tagged_keys):
-                data[key.lstrip('$')] = value
+                normal_key = key.lstrip('$')
+                if 'path' in key:
+                    collection_path = self.blueprint.get(
+                        key, self.blueprint.get(normal_key))
+                    # Skip the paths that are the same as the collection.
+                    if collection_path == value:
+                        continue
+                data[normal_key] = value
 
         if data:
-            self.paths[doc.collection_path[1:]] = data
+            self.paths[doc.collection_sub_path[1:]] = data
 
     def write_routes(self, pod, collection):
         """Write the converted routes to the configuration file."""
