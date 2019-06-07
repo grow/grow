@@ -79,6 +79,8 @@ PlainTextYamlLoader.add_constructor(
 PlainTextYamlLoader.add_constructor(
     u'!g.static', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
+    u'!g.string', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor(
     u'!g.url', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
     u'!g.yaml', PlainTextYamlLoader.construct_plaintext)
