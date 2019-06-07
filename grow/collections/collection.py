@@ -59,6 +59,9 @@ class Collection(object):
                 and self.collection_path == other.collection_path)
 
     def __getattr__(self, name):
+        # Stay back from the recursion loop... it bites.
+        if name == 'yaml':
+            return object.__getattribute__(self, name)
         try:
             return self.fields[name]
         except KeyError:
@@ -245,7 +248,10 @@ class Collection(object):
     def yaml(self):
         if not self.exists:
             return {}
-        result = utils.parse_yaml(self.pod.read_file(self.blueprint_path))
+        # Use the simple loader to prevent circular loading.
+        result = utils.parse_yaml(
+            self.pod.read_file(self.blueprint_path), pod=self.pod,
+            simple_loader=True)
         if result is None:
             return {}
         return result
