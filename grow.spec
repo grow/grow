@@ -1,6 +1,7 @@
 # -*- mode: python -*-
 
 import glob
+import importlib
 import os
 import stdlib_list
 import sys
@@ -11,9 +12,7 @@ except:
     # PyInstaller==2.1.1
     from PyInstaller.hooks.hookutils import collect_submodules
 
-
 IS_DARWIN = sys.platform == 'darwin'
-
 
 def glob_datas(dir_path):
   files = []
@@ -41,20 +40,6 @@ hiddenimports += [
     'babel.dates',
     'babel.numbers',
     'babel.plural',
-    'keyring',
-    'keyring.backends.Gnome',
-    'keyring.backends.Google',
-    'keyring.backends.OS_X',
-    'keyring.backends.SecretService',
-    'keyring.backends.Windows',
-    'keyring.backends.file',
-    'keyring.backends.keyczar',
-    'keyring.backends.kwallet',
-    'keyring.backends.multi',
-    'keyring.backends.pyfs',
-    'keyring.credentials',
-    'keyring.util.XDG',
-    'keyring.util.escape',
     'markdown',
     'markdown.extensions',
     'pygments.formatters',
@@ -95,14 +80,28 @@ try:
 except AssertionError:
   pass  # Environment doesn't need this to be collected.
 
+
+package_imports = [
+  ('text_unidecode', ['data.bin']),
+]
+
+datas = []
+for package, files in package_imports:
+    proot = os.path.dirname(importlib.import_module(package).__file__)
+    datas.extend((os.path.join(proot, f), package) for f in files)
+
+# Longer paths precede shorter paths for path-stripping.
+env_paths = []
+if 'VIRTUAL_ENV' in os.environ:
+  env_paths.append(
+    os.path.join(os.environ['VIRTUAL_ENV'], 'lib', 'python2.7', 'site-packages'))
+env_paths.append('.')
+
 a = Analysis([
                 'bin/grow',
              ],
-             pathex=[
-                # Longer paths precede shorter paths for path-stripping.
-                './env/lib/python2.7/site-packages/',
-                '.',
-             ],
+             datas=datas,
+             pathex=env_paths,
              hiddenimports=hiddenimports,
              hookspath=None,
              runtime_hooks=None)
