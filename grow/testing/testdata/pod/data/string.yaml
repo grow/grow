@@ -1,0 +1,2 @@
+sun: !g.string stellar.sun
+mars: !g.string stellar.planets.mars

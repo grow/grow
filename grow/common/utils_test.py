@@ -129,6 +129,14 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(expected_deep_yaml, result['deep'])
         self.assertEqual(None, result['unfathomable'])
 
+    def test_parse_yaml_strings(self):
+        """Parsing using strings constructor."""
+        pod = testing.create_test_pod()
+        content = pod.read_file('/data/string.yaml')
+        result = utils.parse_yaml(content, pod=pod)
+        self.assertEqual('Sun', result['sun'])
+        self.assertEqual('Mars', result['mars'])
+
     def test_process_google_comments(self):
         # Google comment link.
         raw = '<div><a id="cmnt" href="https://grow.io/">Link</a></div>'
