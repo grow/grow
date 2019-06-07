@@ -280,8 +280,8 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                 file_cache.add(pod_path, contents)
             return contents
 
-        @staticmethod
-        def read_string(path):
+        @classmethod
+        def read_string(cls, path):
             if '.' not in path:
                 return None
             main, reference = path.split('.', 1)
@@ -289,17 +289,17 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             tracking_func(path)
             if reference:
                 data = structures.DeepReferenceDict(
-                    self.read_yaml(path, locale=self.loader_locale()))
+                    cls.read_yaml(path, locale=cls.loader_locale()))
                 try:
                     allow_draft = pod.podspec.fields.get('strings', {}).get('allow_draft')
                     if allow_draft is False and data.get(DRAFT_KEY):
                         raise DraftStringError('Encountered string in draft -> {}?{}'.format(path, reference))
                     value = data[reference]
                     if value is None:
-                        if self.pod_path():
+                        if cls.pod_path():
                             pod.logger.warning(
                                 'Missing {}.{} in {}'.format(
-                                    main, reference, self.pod_path()))
+                                    main, reference, cls.pod_path()))
                         pod.logger.warning(
                             'Missing {}.{}'.format(main, reference))
                     return value
