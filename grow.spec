@@ -5,12 +5,7 @@ import importlib
 import os
 import stdlib_list
 import sys
-try:
-    # PyInstaller==3.1
-    from PyInstaller.utils.hooks import collect_submodules
-except:
-    # PyInstaller==2.1.1
-    from PyInstaller.hooks.hookutils import collect_submodules
+from PyInstaller.utils.hooks import collect_submodules
 
 IS_DARWIN = sys.platform == 'darwin'
 
@@ -87,8 +82,8 @@ package_imports = [
 
 datas = []
 for package, files in package_imports:
-    proot = os.path.dirname(importlib.import_module(package).__file__)
-    datas.extend((os.path.join(proot, f), package) for f in files)
+    package_root = os.path.dirname(importlib.import_module(package).__file__)
+    datas.extend((os.path.join(package_root, f), package) for f in files)
 
 # Longer paths precede shorter paths for path-stripping.
 env_paths = []
