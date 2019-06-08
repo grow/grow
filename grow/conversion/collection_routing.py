@@ -117,7 +117,8 @@ class ConversionCollection(object):
         print 'Converting: {}'.format(self.collection.pod_path)
 
         # Pull out the meta information from all the docs.
-        for doc in self.collection.list_docs_unread():
+        sorted_docs = sorted(self.collection.list_docs_unread(), key=lambda doc: doc.pod_path)
+        for doc in sorted_docs:
             self.routes_data.extract_doc(doc)
 
         self.routes_data.write_routes(self.pod, self.collection)
