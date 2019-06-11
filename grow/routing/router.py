@@ -4,7 +4,6 @@ import os
 import re
 from protorpc import messages
 from grow.performance import docs_loader
-from grow.performance import yaml_loader
 from grow.rendering import render_controller
 from grow.routing import path_filter as grow_path_filter
 from grow.routing import routes as grow_routes
@@ -60,20 +59,6 @@ class Router(object):
         """Add all documents and static content."""
 
         unchanged_pod_paths = self.from_cache(concrete=concrete)
-
-        with self.pod.profile.timer('preload data yaml'):
-            preload_yamls = []
-            for root, dirs, files in self.pod.walk('/data'):
-                for directory in dirs:
-                    if directory.startswith('.'):
-                        dirs.remove(directory)
-                pod_dir = root.replace(self.pod.root, '')
-                for file_name in files:
-                    if not file_name.endswith('.yaml'):
-                        continue
-                    pod_path = os.path.join(pod_dir, file_name)
-                    preload_yamls.append(pod_path)
-            yaml_loader.YamlLoader.load(self.pod, preload_yamls)
 
         self.add_all_docs(
             concrete=concrete, unchanged_pod_paths=unchanged_pod_paths)
