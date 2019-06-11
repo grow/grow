@@ -8,7 +8,7 @@ class PodCacheTestCase(unittest.TestCase):
     """Tests the PodCache object."""
 
     def setUp(self):
-        self.cache = podcache.PodCache({}, {}, None)
+        self.cache = podcache.PodCache({}, {}, {}, None)
 
     def test_global_object_cache(self):
         """Using a global object cache."""
@@ -38,8 +38,24 @@ class PodCacheTestCase(unittest.TestCase):
                 }
             }
         }
+        routes_cache = {
+            'concrete': {
+                '/': {
+                    'value': {
+                        'kind': 'test',
+                        'pod_path': 'pod_path',
+                        'hashed': 'hashed',
+                        'meta': {},
+                    },
+                    'options': {
+                        'question': '30+12',
+                    },
+                }
+            }
+        }
         cache = podcache.PodCache(
-            dep_cache=dep_cache, obj_cache=obj_cache, pod=None)
+            dep_cache=dep_cache, obj_cache=obj_cache, routes_cache=routes_cache,
+            pod=None)
 
         self.assertEqual(
             {
@@ -52,6 +68,12 @@ class PodCacheTestCase(unittest.TestCase):
                 'answer': 42,
             },
             cache.get_object_cache('named').export())
+
+        self.assertEqual(
+            {
+                'question': '30+12',
+            },
+            cache.routes_cache.get('/', is_concrete=True)['options'])
 
     def test_reset_object_cache_false(self):
         """Check if an object cache will reset."""
