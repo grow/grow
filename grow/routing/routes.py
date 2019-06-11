@@ -79,8 +79,6 @@ class Routes(object):
         routing_info = {}
         for path, value, options in self.nodes:
             value = value.export() if hasattr(value, 'export') else value
-            if options:
-                print options
             routing_info[path] = {
                 'value': value,
                 'options': options,

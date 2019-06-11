@@ -24,6 +24,10 @@ class PathFilter(object):
             for item in included:
                 self.add_included(item)
 
+    def __repr__(self):
+        return '<PathFilter ignored={} included={}>'.format(
+            [i.pattern for i in self.ignored], [i.pattern for i in self.included])
+
     def _is_ignored(self, path):
         """Test for ignored pattern match."""
         for pattern in self.ignored:

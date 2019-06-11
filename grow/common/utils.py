@@ -313,10 +313,18 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             file_cache = pod.podcache.file_cache
             contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
-                contents = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
-                contents = untag.Untag.untag(
-                    contents, locale_identifier=locale, params=untag_params)
-                file_cache.add(pod_path, contents, locale=locale)
+                fields = file_cache.get(pod_path, locale='__raw__')
+                if fields is None:
+                    fields = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
+                    file_cache.add(
+                        pod_path, fields, locale='__raw__')
+                try:
+                    contents = untag.Untag.untag(
+                        fields, locale_identifier=locale, params=untag_params)
+                    file_cache.add(pod_path, contents, locale=locale)
+                except Exception:
+                    logging.error('Error parsing -> {}'.format(pod_path))
+                    raise
             return contents
 
         def _construct_func(self, node, func):

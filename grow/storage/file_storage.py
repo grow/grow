@@ -1,8 +1,11 @@
-from grow.storage import base_storage
+"""Local file storage."""
+
 import errno
-import jinja2
+import hashlib
 import os
 import shutil
+import jinja2
+from grow.storage import base_storage
 
 class FileStorage(base_storage.BaseStorage):
 
@@ -30,6 +33,14 @@ class FileStorage(base_storage.BaseStorage):
     @staticmethod
     def stat(filename):
         return os.stat(filename)
+
+    @staticmethod
+    def hash(filename):
+        hash_md5 = hashlib.md5()
+        with open(filename, "rb") as source_file:
+            for chunk in iter(lambda: source_file.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
 
     @staticmethod
     def listdir(dirpath, recursive=True):

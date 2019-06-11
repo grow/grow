@@ -43,6 +43,10 @@ class BaseStorage(object):
         raise NotImplementedError
 
     @staticmethod
+    def hash(filename):
+        raise NotImplementedError
+
+    @staticmethod
     def JinjaLoader(path):
         raise NotImplementedError
 
