@@ -36,11 +36,11 @@ class FileStorage(base_storage.BaseStorage):
 
     @staticmethod
     def hash(filename):
-        hash_md5 = hashlib.md5()
+        hash_digest = hashlib.sha256()
         with open(filename, "rb") as source_file:
             for chunk in iter(lambda: source_file.read(4096), b""):
-                hash_md5.update(chunk)
-        return hash_md5.hexdigest()
+                hash_digest.update(chunk)
+        return hash_digest.hexdigest()
 
     @staticmethod
     def listdir(dirpath, recursive=True):
