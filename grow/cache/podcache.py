@@ -94,7 +94,7 @@ class PodCache(object):
 
     @property
     def routes_cache(self):
-        """Global object cache."""
+        """Global routes cache."""
         return self._routes_cache
 
     def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None,

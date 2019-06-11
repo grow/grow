@@ -89,6 +89,9 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
                 raise e
         finally:
             if done:
+                if pod.podcache.is_dirty:
+                    pod.podcache.write()
+
                 # Clean up the file watchers.
                 main_observer.stop()
                 podspec_observer.stop()

@@ -59,8 +59,7 @@ class Router(object):
     def add_all(self, concrete=True):
         """Add all documents and static content."""
 
-        unchanged_pod_paths = self.from_cache(
-            self.pod.podcache.routes_cache.raw())
+        unchanged_pod_paths = self.from_cache(concrete=concrete)
 
         with self.pod.profile.timer('preload data yaml'):
             preload_yamls = []
@@ -92,9 +91,11 @@ class Router(object):
                 for doc in collection.list_docs_unread():
                     # Skip when the doc is in the unchanged pod paths set.
                     if doc.pod_path in unchanged_pod_paths:
+                        # TODO: Remove print
                         print 'Skipping: {}'.format(doc.pod_path)
                         continue
-                    print ' -> {}'.format(doc.pod_path)
+                    # TODO: Remove print
+                    print 'Reading: {}'.format(doc.pod_path)
                     # Skip duplicate documents when using non-concrete routing.
                     if not concrete and doc.collection_sub_path_clean in doc_basenames:
                         continue
@@ -186,6 +187,7 @@ class Router(object):
                                 pod_path = os.path.join(pod_dir, file_name)
                                 # Skip when the doc is in the unchanged pod paths set.
                                 if pod_path in unchanged_pod_paths:
+                                    # TODO: Remove print.
                                     print 'Skipping existing static: {}'.format(pod_path)
                                     continue
                                 static_doc = self.pod.get_static(
@@ -412,11 +414,13 @@ class Router(object):
             # For now ignore anything that doesn't have a hash.
             route_info = item['value']
             if not route_info.hashed:
+                # TOOD: Remove print.
                 print 'skipping without hash: {}'.format(key)
                 continue
 
             # If the hash has changed then skip.
             if route_info.hashed != self.pod.hash_file(route_info.pod_path):
+                # TOOD: Remove print.
                 print 'Hash has changed: {}'.format(route_info.pod_path)
                 continue
 
