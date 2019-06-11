@@ -204,7 +204,7 @@ class CollectionsTestCase(unittest.TestCase):
             '/content/collection/folder/subfolder/subfolder.yaml', {})
         pod.write_yaml(
             '/content/collection/folder2/subfolder2/subfolder2.yaml', {})
-        pod.router.add_all()
+        pod.router.add_all(use_cache=False)
         expected = [
             '/root/',
             '/folder/',

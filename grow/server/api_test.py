@@ -14,7 +14,7 @@ class ApiHandlerTestCase(unittest.TestCase):
         """Test that api requests can be completed correctly."""
         dir_path = testing.create_test_pod_dir()
         pod = pods.Pod(dir_path)
-        pod.router.add_all()
+        pod.router.add_all(use_cache=False)
 
         # When serving a pod, should 200.
         app = main.create_wsgi_app(pod, 'localhost', 8080)

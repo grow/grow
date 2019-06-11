@@ -45,7 +45,7 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
         """Handle the request for routes."""
         router = grow_router.Router(pod)
         router.use_simple()
-        router.add_all()
+        router.add_all(concrete=True, use_cache=False)
         routes = router.routes
         return RoutesDevHandlerHook._create_response(
             pod, routes, 'Pod Routes')
@@ -71,7 +71,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
     def _reset_routes(pod):
         with timer.Timer() as router_time:
             pod.router.routes.reset()
-            pod.router.add_all(concrete=False)
+            pod.router.add_all(concrete=False, use_cache=False)
         pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
             len(pod.router.routes), router_time.secs))
 

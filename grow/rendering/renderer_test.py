@@ -19,13 +19,13 @@ class RendererTestCase(unittest.TestCase):
 
     def test_renderer(self):
         """Renders the docs without errors."""
-        self.pod.router.add_all()
+        self.pod.router.add_all(use_cache=False)
         routes = self.pod.router.routes
         self.render.rendered_docs(self.pod, routes)
 
     def test_renderer_sans_threading(self):
         """Renders the docs without threading."""
-        self.pod.router.add_all()
+        self.pod.router.add_all(use_cache=False)
         routes = self.pod.router.routes
         self.render.rendered_docs(self.pod, routes, use_threading=False)
 
@@ -34,7 +34,7 @@ class RendererTestCase(unittest.TestCase):
         """Renders the docs with errors."""
         mock_render.side_effect = ValueError()
 
-        self.pod.router.add_all()
+        self.pod.router.add_all(use_cache=False)
         routes = self.pod.router.routes
 
         with self.assertRaises(renderer.RenderErrors):

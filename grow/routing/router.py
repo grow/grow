@@ -55,10 +55,13 @@ class Router(object):
         self.pod.podcache.routes_cache.add(
             path, route_info, options=options, is_concrete=concrete)
 
-    def add_all(self, concrete=True):
+    def add_all(self, concrete=True, use_cache=True):
         """Add all documents and static content."""
 
-        unchanged_pod_paths = self.from_cache(concrete=concrete)
+        if not use_cache:
+            unchanged_pod_paths = self.from_cache(concrete=concrete)
+        else:
+            unchanged_pod_paths = []
 
         self.add_all_docs(
             concrete=concrete, unchanged_pod_paths=unchanged_pod_paths)
