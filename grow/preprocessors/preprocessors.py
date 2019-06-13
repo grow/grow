@@ -5,6 +5,7 @@ from protorpc import protojson
 from grow.preprocessors import blogger
 from grow.preprocessors import google_drive
 from grow.preprocessors import gulp
+from grow.preprocessors import webpack
 from grow.common import extensions
 
 _preprocessor_kinds_to_classes = {}
@@ -14,6 +15,7 @@ _builtins = (
     google_drive.GoogleDocsPreprocessor,
     google_drive.GoogleSheetsPreprocessor,
     gulp.GulpPreprocessor,
+    webpack.WebpackPreprocessor,
 )
 
 
