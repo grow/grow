@@ -1,4 +1,4 @@
-"""Preprocessor for running gulp tasks."""
+"""Preprocessor for running webpack tasks."""
 
 import os
 import atexit
@@ -16,19 +16,19 @@ _child_processes = []
 
 class Config(messages.Message):
     """Config for Gulp preprocessor."""
-    build_task = messages.StringField(1, default='build')
-    run_task = messages.StringField(2, default='')
-    command = messages.StringField(3, default='gulp')
+    build_task = messages.StringField(1, default='')
+    run_task = messages.StringField(2, default='--watch')
+    command = messages.StringField(3, default='webpack')
 
 
-class GulpPreprocessor(base.BasePreprocessor):
+class WebpackPreprocessor(base.BasePreprocessor):
     """Preprocessor for Gulp."""
 
-    KIND = 'gulp'
+    KIND = 'webpack'
     Config = Config
 
     def _get_command(self, task):
-        """Construct the command to run the given gulp task."""
+        """Construct the command to run the given webpack task."""
         commands = [self.config.command, task]
         if self.pod.file_exists('/.nvmrc'):
             # Need to source NVM first to get the nvm command to work.
