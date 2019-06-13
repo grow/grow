@@ -3,8 +3,8 @@
 import os
 import atexit
 import subprocess
-import time
 from protorpc import messages
+from grow.common import subprocesses
 from grow.preprocessors import base
 from grow.sdk import sdk_utils
 
@@ -56,22 +56,4 @@ class GulpPreprocessor(base.BasePreprocessor):
 @atexit.register
 def _kill_child_process():
     """Sometimes the child process keeps going after grow is done running."""
-    has_pending = False
-    for process in _child_processes:
-        try:
-            if process.poll() is None:
-                has_pending = True
-                process.terminate()
-        except OSError:
-            # Ignore the error.  The OSError doesn't seem to be documented(?)
-            pass
-
-    if not has_pending:
-        return
-
-    # Give the process some time to finish by itself.
-    time.sleep(2)
-
-    for process in _child_processes:
-        if process.poll() is None:
-            process.kill()
+    subprocesses.kill_child_processes(_child_processes)
