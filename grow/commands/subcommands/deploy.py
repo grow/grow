@@ -8,6 +8,7 @@ from grow.common import rc_config
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
+from grow.performance import docs_loader
 from grow.pods import pods
 from grow.rendering import renderer
 from grow import storage
@@ -81,10 +82,15 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
                 pod.router.filter(
                     build_filter.type, collection_paths=build_filter.collections,
                     paths=build_filter.paths, locales=build_filter.locales)
+
             # Shard the routes when using sharding.
             if shards and shard:
                 is_partial = True
                 pod.router.shard(shards, shard)
+
+            # Preload the documents used by the paths after filtering.
+            docs_loader.DocsLoader.load_from_routes(pod, pod.router.routes)
+
             paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)
             deployment.deploy(
