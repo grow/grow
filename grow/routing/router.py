@@ -57,8 +57,7 @@ class Router(object):
 
     def add_all(self, concrete=True, use_cache=True):
         """Add all documents and static content."""
-
-        if not use_cache:
+        if use_cache:
             unchanged_pod_paths = self.from_cache(concrete=concrete)
         else:
             unchanged_pod_paths = []
