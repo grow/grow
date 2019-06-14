@@ -8,6 +8,7 @@ from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
 from grow.deployments.destinations import webreview_destination
+from grow.performance import docs_loader
 from grow.pods import pods
 from grow.rendering import renderer
 from grow import storage
@@ -64,6 +65,10 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
                 pod.router.from_data(pod.read_json(routes_file))
             else:
                 pod.router.add_all()
+
+            # Preload the documents used by the paths after filtering.
+            docs_loader.DocsLoader.load_from_routes(pod, pod.router.routes)
+
             paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)
             deployment.deploy(content_generator, stats=stats_obj, repo=repo,

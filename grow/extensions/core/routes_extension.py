@@ -108,7 +108,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                 pod.podcache.collection_cache.remove_document_locales(doc)
 
             # Force load the docs and fix locales.
-            docs_loader.DocsLoader.load(base_docs, ignore_errors=True)
+            docs_loader.DocsLoader.load(pod, base_docs, ignore_errors=True)
             docs_loader.DocsLoader.fix_default_locale(
                 pod, base_docs, ignore_errors=True)
 

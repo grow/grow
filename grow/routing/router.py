@@ -36,12 +36,12 @@ class Router(object):
 
     def _preload_and_expand(self, docs, expand=True):
         # Force preload the docs.
-        docs_loader.DocsLoader.load(docs)
+        docs_loader.DocsLoader.load(self.pod, docs)
         docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
         if expand:
             # Will need all of the docs, so expand them out and preload.
             docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
-            docs_loader.DocsLoader.load(docs)
+            docs_loader.DocsLoader.load(self.pod, docs)
         return docs
 
     @property
@@ -57,8 +57,7 @@ class Router(object):
 
     def add_all(self, concrete=True, use_cache=True):
         """Add all documents and static content."""
-
-        if not use_cache:
+        if use_cache:
             unchanged_pod_paths = self.from_cache(concrete=concrete)
         else:
             unchanged_pod_paths = []
