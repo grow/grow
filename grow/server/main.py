@@ -129,9 +129,10 @@ class PodServer(object):
         self.debug = debug
         self.routes = self.pod.router.routes
 
-        self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo('console', {
-            'handler': serve_ui_tool,
-        }))
+        self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo(
+            'console', meta={
+                'handler': serve_ui_tool,
+            }))
         editor_meta = {
             'handler': serve_editor,
             'meta': {
@@ -139,13 +140,13 @@ class PodServer(object):
             },
         }
         self.routes.add('/_grow/editor/*path',
-                        router.RouteInfo('console', editor_meta))
+                        router.RouteInfo('console', meta=editor_meta))
         self.routes.add('/_grow/editor',
-                        router.RouteInfo('console', editor_meta))
-        self.routes.add('/_grow/api/*path', router.RouteInfo('console', {
+                        router.RouteInfo('console', meta=editor_meta))
+        self.routes.add('/_grow/api/*path', router.RouteInfo('console', meta={
             'handler': api.serve_api,
         }))
-        self.routes.add('/_grow', router.RouteInfo('console', {
+        self.routes.add('/_grow', router.RouteInfo('console', meta={
             'handler': serve_console,
         }))
 

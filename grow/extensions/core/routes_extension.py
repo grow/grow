@@ -53,15 +53,18 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
     # pylint: disable=arguments-differ
     def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
-        routes.add('/_grow/routes', grow_router.RouteInfo('console', {
-            'handler': RoutesDevHandlerHook.serve_routes_concrete,
-        }))
-        routes.add('/_grow/routes/concrete', grow_router.RouteInfo('console', {
-            'handler': RoutesDevHandlerHook.serve_routes_concrete,
-        }))
-        routes.add('/_grow/routes/abstract', grow_router.RouteInfo('console', {
-            'handler': RoutesDevHandlerHook.serve_routes_abstract,
-        }))
+        routes.add('/_grow/routes', grow_router.RouteInfo(
+            'console', meta={
+                'handler': RoutesDevHandlerHook.serve_routes_concrete,
+            }))
+        routes.add('/_grow/routes/concrete', grow_router.RouteInfo(
+            'console', meta={
+                'handler': RoutesDevHandlerHook.serve_routes_concrete,
+            }))
+        routes.add('/_grow/routes/abstract', grow_router.RouteInfo(
+            'console', meta={
+                'handler': RoutesDevHandlerHook.serve_routes_abstract,
+            }))
 
 
 class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
