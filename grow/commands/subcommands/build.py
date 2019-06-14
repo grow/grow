@@ -7,6 +7,7 @@ from grow.common import rc_config
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
+from grow.performance import docs_loader
 from grow.pods import pods
 from grow.rendering import renderer
 from grow import storage
@@ -73,10 +74,16 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 pod.router.add_all()
             if locale:
                 pod.router.filter('whitelist', locales=list(locale))
+
             # Shard the routes when using sharding.
             if shards and shard:
                 is_partial = True
                 pod.router.shard(shards, shard)
+
+            # Preload the documents used by the paths after filtering.
+            docs_loader.DocsLoader.load_from_routes(pod, pod.router.routes)
+            return
+
             paths = pod.router.routes.paths
             content_generator = renderer.Renderer.rendered_docs(
                 pod, pod.router.routes, use_threading=threaded)

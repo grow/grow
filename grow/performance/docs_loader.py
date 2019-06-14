@@ -80,12 +80,10 @@ class DocsLoader(object):
                         raise
 
     @classmethod
-    def load(cls, docs, ignore_errors=False):
+    def load(cls, pod, docs, ignore_errors=False):
         """Force load the provided docs to read from file system."""
         if not docs:
             return
-
-        pod = docs[0].pod
 
         def load_func(doc):
             """Force the doc to read the source file."""
@@ -110,3 +108,24 @@ class DocsLoader(object):
                 pass
             thread_pool.close()
             thread_pool.join()
+
+    @classmethod
+    def load_from_routes(cls, pod, routes, **kwargs):
+        """Force load the docs from the routes."""
+
+        def _doc_from_routes(routes):
+            """Generator for docs from the routes."""
+            existing_pod_paths = set()
+            docs = []
+
+            for _, value, _ in routes.nodes:
+                if value.kind != 'doc':
+                    continue
+                if 'pod_path' in value.meta:
+                    pod_path = value.meta['pod_path']
+                    if pod_path not in existing_pod_paths:
+                        existing_pod_paths.add(pod_path)
+                        docs.append(pod.get_doc(pod_path))
+            return docs
+
+        cls.load(pod, _doc_from_routes(routes), **kwargs)

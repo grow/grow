@@ -36,12 +36,12 @@ class Router(object):
 
     def _preload_and_expand(self, docs, expand=True):
         # Force preload the docs.
-        docs_loader.DocsLoader.load(docs)
+        docs_loader.DocsLoader.load(self.pod, docs)
         docs_loader.DocsLoader.fix_default_locale(self.pod, docs)
         if expand:
             # Will need all of the docs, so expand them out and preload.
             docs = docs_loader.DocsLoader.expand_locales(self.pod, docs)
-            docs_loader.DocsLoader.load(docs)
+            docs_loader.DocsLoader.load(self.pod, docs)
         return docs
 
     @property
