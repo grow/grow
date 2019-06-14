@@ -23,4 +23,7 @@ class GrowJSONEncoder(json.JSONEncoder):
             # pylint: disable=protected-access
             return o._data
 
+        if isinstance(o, set):
+            return list(o)
+
         return json.JSONEncoder.default(self, o)
