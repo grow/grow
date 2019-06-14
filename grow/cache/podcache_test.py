@@ -73,7 +73,7 @@ class PodCacheTestCase(unittest.TestCase):
             {
                 'question': '30+12',
             },
-            cache.routes_cache.get('/', is_concrete=True)['options'])
+            cache.routes_cache.get('/', concrete=True)['options'])
 
     def test_reset_object_cache_false(self):
         """Check if an object cache will reset."""

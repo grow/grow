@@ -53,7 +53,7 @@ class Router(object):
         """Add to the routes and the route cache."""
         self.routes.add(path, route_info, options=options)
         self.pod.podcache.routes_cache.add(
-            path, route_info, options=options, is_concrete=concrete)
+            path, route_info, options=options, concrete=concrete)
 
     def add_all(self, concrete=True, use_cache=True):
         """Add all documents and static content."""
@@ -390,7 +390,7 @@ class Router(object):
     def from_cache(self, concrete=True):
         """Import routes from routes cache."""
         routes_data = self.pod.podcache.routes_cache.raw(
-            is_concrete=concrete)
+            concrete=concrete)
         unchanged_pod_paths = set()
         for key, item in routes_data.iteritems():
             # For now ignore anything that doesn't have a hash.

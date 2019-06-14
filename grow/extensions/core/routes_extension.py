@@ -16,14 +16,14 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
     """Handle the dev handler hook."""
 
     @staticmethod
-    def _create_response(pod, routes, title, is_concrete=True):
+    def _create_response(pod, routes, title, concrete=True):
         env = ui.create_jinja_env()
         template = env.get_template('views/base.html')
         kwargs = {
             'pod': pod,
             'partials': [{
                 'partial': 'routes',
-                'is_concrete': is_concrete,
+                'concrete': concrete,
                 'routes': routes,
             }],
             'title': title,
