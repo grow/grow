@@ -82,7 +82,6 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
 
             # Preload the documents used by the paths after filtering.
             docs_loader.DocsLoader.load_from_routes(pod, pod.router.routes)
-            return
 
             paths = pod.router.routes.paths
             content_generator = renderer.Renderer.rendered_docs(
