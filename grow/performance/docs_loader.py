@@ -18,38 +18,6 @@ class DocsLoader(object):
     MIN_POOL_COUNT = 50
     POOL_RATIO = 0.02
 
-    @classmethod
-    def load(cls, docs, ignore_errors=False):
-        """Force load the provided docs to read from file system."""
-        if not docs:
-            return
-
-        pod = docs[0].pod
-
-        def load_func(doc):
-            """Force the doc to read the source file."""
-            try:
-                # pylint: disable=pointless-statement
-                doc.has_serving_path()  # Using doc fields forces file read.
-            except document_front_matter.BadFormatError:
-                if not ignore_errors:
-                    raise
-
-        with pod.profile.timer('DocsLoader.load'):
-            if ThreadPool is None or len(docs) < cls.MIN_POOL_COUNT:
-                for doc in docs:
-                    load_func(doc)
-                return
-            pool_size = min(cls.MAX_POOL_SIZE, len(docs) * cls.POOL_RATIO)
-            pool_size = int(round(pool_size))
-            thread_pool = ThreadPool(pool_size)
-            results = thread_pool.imap_unordered(load_func, docs)
-            # Loop results to make sure that the threads are all processed.
-            for _ in results:
-                pass
-            thread_pool.close()
-            thread_pool.join()
-
     @staticmethod
     def expand_locales(pod, docs):
         """Expand out the docs list to have the docs for all locales."""
@@ -110,3 +78,35 @@ class DocsLoader(object):
                 except document_front_matter.BadFormatError:
                     if not ignore_errors:
                         raise
+
+    @classmethod
+    def load(cls, docs, ignore_errors=False):
+        """Force load the provided docs to read from file system."""
+        if not docs:
+            return
+
+        pod = docs[0].pod
+
+        def load_func(doc):
+            """Force the doc to read the source file."""
+            try:
+                # pylint: disable=pointless-statement
+                doc.has_serving_path()  # Using doc fields forces file read.
+            except document_front_matter.BadFormatError:
+                if not ignore_errors:
+                    raise
+
+        with pod.profile.timer('DocsLoader.load'):
+            if ThreadPool is None or len(docs) < cls.MIN_POOL_COUNT:
+                for doc in docs:
+                    load_func(doc)
+                return
+            pool_size = min(cls.MAX_POOL_SIZE, len(docs) * cls.POOL_RATIO)
+            pool_size = int(round(pool_size))
+            thread_pool = ThreadPool(pool_size)
+            results = thread_pool.imap_unordered(load_func, docs)
+            # Loop results to make sure that the threads are all processed.
+            for _ in results:
+                pass
+            thread_pool.close()
+            thread_pool.join()
