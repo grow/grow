@@ -234,6 +234,19 @@ class Pod(object):
                 raise podcache.PodCacheParseError(
                     'Error parsing: {}'.format(path))
 
+    def _parse_routes_cache_file(self):
+        with self.profile.timer('Pod._parse_routes_cache_file'):
+            routes_cache_file_name = '/{}'.format(podcache.FILE_ROUTES_CACHE)
+
+            if not self.file_exists(routes_cache_file_name):
+                return {}
+            try:
+                return self.read_json(routes_cache_file_name) or {}
+            except IOError:
+                path = self.abs_path(routes_cache_file_name)
+                raise podcache.PodCacheParseError(
+                    'Error parsing: {}'.format(path))
+
     @utils.memoize
     def _parse_yaml(self):
         podspec_file_name = '/{}'.format(self.FILE_PODSPEC)
@@ -337,6 +350,7 @@ class Pod(object):
             self._podcache = podcache.PodCache(
                 dep_cache=self._parse_dep_cache_file(),
                 obj_cache=self._parse_object_cache_file(),
+                routes_cache=self._parse_routes_cache_file(),
                 pod=self)
         return self._podcache
 
@@ -666,6 +680,12 @@ class Pod(object):
             raise errors.DocumentDoesNotExistError(
                 'Referenced document does not exist: {}'.format(pod_path))
         return doc.url
+
+    def hash_file(self, pod_path):
+        """Provide the hash of the file from the storage."""
+        path = self._normalize_path(pod_path)
+        with self.profile.timer('Pod.hash_file', label=path, meta={'path': path}):
+            return self.storage.hash(path)
 
     def inject_preprocessors(self, doc=None, collection=None):
         """Conditionally injects or creates data from preprocessors. If a doc

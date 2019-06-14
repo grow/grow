@@ -149,7 +149,7 @@ class PodTest(unittest.TestCase):
             '/json_test/index.html',
             '/yaml_test/index.html',
         ]
-        self.pod.router.add_all()
+        self.pod.router.add_all(use_cache=False)
         self.maxDiff = None
 
         result = [doc.path for doc in self.pod.dump()]
@@ -240,7 +240,7 @@ class PodTest(unittest.TestCase):
         pod.write_file('/source/media/file.txt', 'file')
         pod.write_file('/source/media/extensionless', 'file')
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
-        pod.router.add_all()
+        pod.router.add_all(use_cache=False)
 
         # Verify dump appends suffix.
         expected = [
@@ -272,7 +272,7 @@ class PodTest(unittest.TestCase):
     #     pod.write_file('/source/media/file.txt', 'file')
     #     pod.write_file('/source/media/extensionless', 'file')
     #     pod.write_file('/views/base.html', '{{doc.html|safe}}')
-    #     pod.router.add_all()
+    #     pod.router.add_all(use_cache=False)
     #
     #     # Verify export does not append suffix.
     #     expected = [

@@ -5,10 +5,12 @@ from grow.cache import collection_cache
 from grow.cache import document_cache
 from grow.cache import file_cache
 from grow.cache import object_cache
+from grow.cache import routes_cache as grow_routes_cache
 from grow.pods import dependency
 
 
 FILE_OBJECT_CACHE = object_cache.FILE_OBJECT_CACHE
+FILE_ROUTES_CACHE = grow_routes_cache.FILE_ROUTES_CACHE
 
 
 class Error(Exception):
@@ -26,7 +28,7 @@ class PodCache(object):
 
     KEY_GLOBAL = '__global__'
 
-    def __init__(self, dep_cache, obj_cache, pod):
+    def __init__(self, dep_cache, obj_cache, routes_cache, pod):
         self._pod = pod
 
         self._collection_cache = collection_cache.CollectionCache()
@@ -49,6 +51,9 @@ class PodCache(object):
                 self.create_object_cache(key, **cache_value)
             else:
                 self.create_object_cache(key, **item)
+
+        self._routes_cache = grow_routes_cache.RoutesCache()
+        self._routes_cache.from_data(routes_cache)
 
     @property
     def collection_cache(self):
@@ -78,12 +83,19 @@ class PodCache(object):
         for meta in self._object_caches.itervalues():
             if meta['write_to_file'] and meta['cache'].is_dirty:
                 return True
+        if self.routes_cache.is_dirty:
+            return True
         return False
 
     @property
     def object_cache(self):
         """Global object cache."""
         return self.get_object_cache(self.KEY_GLOBAL)
+
+    @property
+    def routes_cache(self):
+        """Global routes cache."""
+        return self._routes_cache
 
     def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None,
                             separate_file=False):
@@ -154,6 +166,13 @@ class PodCache(object):
                 self._dependency_graph.mark_clean()
                 self._pod.write_file(
                     '/{}'.format(self._pod.FILE_DEP_CACHE),
+                    json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
+
+            if self._routes_cache.is_dirty:
+                output = self._routes_cache.export()
+                self._routes_cache.mark_clean()
+                self._pod.write_file(
+                    '/{}'.format(FILE_ROUTES_CACHE),
                     json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
 
             # Write out any of the object caches configured for write_to_file.

@@ -17,7 +17,7 @@ class RouterTestCase(unittest.TestCase):
 
     def test_filter(self):
         """Filtering reduces routes."""
-        self.router.add_all()
+        self.router.add_all(use_cache=False)
         original_len = len(self.router.routes)
         self.router.filter('whitelist', locales=['en'])
         modified_len = len(self.router.routes)

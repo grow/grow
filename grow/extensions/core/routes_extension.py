@@ -16,14 +16,14 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
     """Handle the dev handler hook."""
 
     @staticmethod
-    def _create_response(pod, routes, title, is_concrete=True):
+    def _create_response(pod, routes, title, concrete=True):
         env = ui.create_jinja_env()
         template = env.get_template('views/base.html')
         kwargs = {
             'pod': pod,
             'partials': [{
                 'partial': 'routes',
-                'is_concrete': is_concrete,
+                'concrete': concrete,
                 'routes': routes,
             }],
             'title': title,
@@ -45,7 +45,7 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
         """Handle the request for routes."""
         router = grow_router.Router(pod)
         router.use_simple()
-        router.add_all()
+        router.add_all(concrete=True, use_cache=False)
         routes = router.routes
         return RoutesDevHandlerHook._create_response(
             pod, routes, 'Pod Routes')
@@ -53,15 +53,18 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
     # pylint: disable=arguments-differ
     def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
-        routes.add('/_grow/routes', grow_router.RouteInfo('console', {
-            'handler': RoutesDevHandlerHook.serve_routes_concrete,
-        }))
-        routes.add('/_grow/routes/concrete', grow_router.RouteInfo('console', {
-            'handler': RoutesDevHandlerHook.serve_routes_concrete,
-        }))
-        routes.add('/_grow/routes/abstract', grow_router.RouteInfo('console', {
-            'handler': RoutesDevHandlerHook.serve_routes_abstract,
-        }))
+        routes.add('/_grow/routes', grow_router.RouteInfo(
+            'console', meta={
+                'handler': RoutesDevHandlerHook.serve_routes_concrete,
+            }))
+        routes.add('/_grow/routes/concrete', grow_router.RouteInfo(
+            'console', meta={
+                'handler': RoutesDevHandlerHook.serve_routes_concrete,
+            }))
+        routes.add('/_grow/routes/abstract', grow_router.RouteInfo(
+            'console', meta={
+                'handler': RoutesDevHandlerHook.serve_routes_abstract,
+            }))
 
 
 class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
@@ -71,7 +74,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
     def _reset_routes(pod):
         with timer.Timer() as router_time:
             pod.router.routes.reset()
-            pod.router.add_all(concrete=False)
+            pod.router.add_all(concrete=False, use_cache=False)
         pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
             len(pod.router.routes), router_time.secs))
 

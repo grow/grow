@@ -20,7 +20,7 @@ class RendererTestCase(unittest.TestCase):
 
     def test_render_batches(self):
         """Renders the docs without errors."""
-        self.pod.router.add_all()
+        self.pod.router.add_all(use_cache=False)
 
         routes = self.pod.router.routes
         for controller in renderer.Renderer.controller_generator(self.pod, routes):
@@ -30,7 +30,7 @@ class RendererTestCase(unittest.TestCase):
 
     def test_render_batches_batch_size(self):
         """Breaks up the rendering into specific sized batches."""
-        self.pod.router.add_all()
+        self.pod.router.add_all(use_cache=False)
 
         # Set a lower max batch size for tests.
         self.batches.batch_size = 3

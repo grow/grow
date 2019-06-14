@@ -307,7 +307,7 @@ class DocumentsTestCase(unittest.TestCase):
             'foo@de': 'foo-de',
         })
 
-        pod.router.add_all()
+        pod.router.add_all(use_cache=False)
 
         # Verify ability to override using the default locale.
         content = testing.render_path(pod, '/page/')
@@ -566,7 +566,7 @@ class DocumentsTestCase(unittest.TestCase):
             '$localization': None,
         })
 
-        pod.router.add_all()
+        pod.router.add_all(use_cache=False)
 
         content = testing.render_path(pod, '/page/')
         self.assertEqual('en', content)
@@ -586,7 +586,7 @@ class DocumentsTestCase(unittest.TestCase):
         })
         pod.podcache.reset()
         pod.router.routes.reset()
-        pod.router.add_all()
+        pod.router.add_all(use_cache=False)
         content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de', content)
         paths = list(pod.router.routes.paths)
@@ -698,7 +698,7 @@ class DocumentsTestCase(unittest.TestCase):
             ),
         )
 
-        pod.router.add_all()
+        pod.router.add_all(use_cache=False)
 
         content = testing.render_path(pod, '/page/')
         self.assertEqual('en en en', content)
@@ -746,7 +746,7 @@ class DocumentsTestCase(unittest.TestCase):
         pod.write_yaml('/content/partials/partial@de.yaml', {})
         pod.write_file('/views/base.html', '{{doc.locale}} {{doc.partial.locale}}')
 
-        pod.router.add_all()
+        pod.router.add_all(use_cache=False)
 
         content = testing.render_path(pod, '/page/')
         self.assertEqual('en en', content)
