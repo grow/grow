@@ -6,6 +6,7 @@ from grow.cache import document_cache
 from grow.cache import file_cache
 from grow.cache import object_cache
 from grow.cache import routes_cache as grow_routes_cache
+from grow.common import json_encoder
 from grow.pods import dependency
 
 
@@ -97,6 +98,12 @@ class PodCache(object):
         """Global routes cache."""
         return self._routes_cache
 
+    def _write_json(self, path, obj):
+        output = json.dumps(
+            obj, cls=json_encoder.GrowJSONEncoder,
+            sort_keys=True, indent=2, separators=(',', ': '))
+        self._pod.write_file(path, output)
+
     def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None,
                             separate_file=False):
         """Create a named object cache."""
@@ -164,16 +171,12 @@ class PodCache(object):
             if self._dependency_graph.is_dirty:
                 output = self._dependency_graph.export()
                 self._dependency_graph.mark_clean()
-                self._pod.write_file(
-                    '/{}'.format(self._pod.FILE_DEP_CACHE),
-                    json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
+                self._write_json('/{}'.format(self._pod.FILE_DEP_CACHE), output)
 
             if self._routes_cache.is_dirty:
                 output = self._routes_cache.export()
                 self._routes_cache.mark_clean()
-                self._pod.write_file(
-                    '/{}'.format(FILE_ROUTES_CACHE),
-                    json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
+                self._write_json('/{}'.format(FILE_ROUTES_CACHE), output)
 
             # Write out any of the object caches configured for write_to_file.
             output = {}
@@ -188,15 +191,10 @@ class PodCache(object):
                     if meta['separate_file']:
                         filename = '/{}'.format(
                             object_cache.FILE_OBJECT_SUB_CACHE.format(key))
-                        self._pod.write_file(
-                            filename,
-                            json.dumps(
-                                cache_info, sort_keys=True, indent=2, separators=(',', ': ')))
+                        self._write_json(filename, cache_info)
                         output[key] = filename
                     else:
                         output[key] = cache_info
                     meta['cache'].mark_clean()
             if output:
-                self._pod.write_file(
-                    '/{}'.format(FILE_OBJECT_CACHE),
-                    json.dumps(output, sort_keys=True, indent=2, separators=(',', ': ')))
+                self._write_json('/{}'.format(FILE_OBJECT_CACHE), output)
