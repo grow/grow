@@ -397,6 +397,10 @@ class Router(object):
             if not route_info.hashed:
                 continue
 
+            # Ignore deleted files.
+            if not self.pod.file_exists(route_info.pod_path):
+                continue
+
             # If the hash has changed then skip.
             if route_info.hashed != self.pod.hash_file(route_info.pod_path):
                 continue
