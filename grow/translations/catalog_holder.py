@@ -203,6 +203,13 @@ class Catalogs(object):
             return False
         return not given_paths or path in given_paths
 
+    @staticmethod
+    def _starts_with_paths(paths, path):
+        for prefix in paths:
+            if path.startswith(prefix):
+                return True
+        return False
+
     def extract(self, include_obsolete=None, localized=None, paths=None,
                 include_header=None, locales=None, use_fuzzy_matching=None,
                 audit=False, out_path=None):
@@ -298,7 +305,10 @@ class Catalogs(object):
         # Strings only extracted for relevant locales, determined by locale
         # scope (pod > collection > document > document part)
         last_pod_path = None
+        collection_paths = []
         for collection in self.pod.list_collections():
+            collection_paths.append(collection.pod_path)
+
             if utils.fnmatches_paths(collection.blueprint_path, paths):
                 text = 'Extracting: {}'.format(collection.blueprint_path)
                 self.pod.logger.info(text)
@@ -358,6 +368,37 @@ class Catalogs(object):
                         for key, msgid in row.iteritems():
                             _handle_field(
                                 pod_path, collection.locales, msgid, key, row)
+
+        # Extract from data directories of /content/:
+        for root, dirs, _ in self.pod.walk('/content/'):
+            for dir_name in dirs:
+                pod_dir = os.path.join(root, dir_name)
+                pod_dir = pod_dir.replace(self.pod.root, '')
+                if not self._starts_with_paths(collection_paths, pod_dir):
+                    for path in self.pod.list_dir(pod_dir, recursive=False):
+                        if not utils.fnmatches_paths(path, paths):
+                            continue
+                        if path.endswith(('.yaml', '.yml')):
+                            pod_path = os.path.join(pod_dir, path.lstrip('/'))
+                            self.pod.logger.info('Extracting: {}'.format(pod_path))
+                            utils.walk(
+                                self.pod.read_yaml(pod_path),
+                                lambda msgid, key, node, **kwargs: _handle_field(
+                                    pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
+                            )
+
+        # Extract from data directories of /data/:
+        for path in self.pod.list_dir('/data/', recursive=True):
+            if not utils.fnmatches_paths(path, paths):
+                continue
+            if path.endswith(('.yaml', '.yml')):
+                pod_path = os.path.join('/data/', path.lstrip('/'))
+                self.pod.logger.info('Extracting: {}'.format(pod_path))
+                utils.walk(
+                    self.pod.read_yaml(pod_path),
+                    lambda msgid, key, node, **kwargs: _handle_field(
+                        pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
+                )
 
         # Extract from root of /content/:
         for path in self.pod.list_dir('/content/', recursive=False):
