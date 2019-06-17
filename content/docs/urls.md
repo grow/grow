@@ -32,7 +32,7 @@ __Remember: don't repeat yourself.__ If you can specify a path format in a colle
 | `{base}` | The document's basename. Ex: `my-page.yaml` -> `my-page`
 | `{collection.root}` | The document's collection's root.
 | `{collection.basename}` | The document's collection's base name. Ex: `/content/pages/my-page.yaml` -> `/pages`
-| `{collection.base_path}` | The document's collection sub directory path. Ex: `/content/pages/sub/my-page.yaml` -> `/sub/`
+| `{collection.sub_path}` | The document's collection sub directory path. Ex: `/content/pages/sub/my-page.yaml` -> `/sub/`
 | `{env.fingerprint}` | A fingerprint assigned to the build environment. By default this is a timestamp. You can optionally override it by specifying `env: fingerprint: <fingerprint>` in a deployment configuration.
 | `{date}` | The document's date.
 | `{locale}` | The document's locale (or its alias, if one exists).
