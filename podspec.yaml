@@ -24,6 +24,7 @@ markdown:
 preprocessors:
 - kind: gulp
   build_task: grow-build
+  command: "npx gulp"
 
 static_dirs:
 - static_dir: /static/images/
