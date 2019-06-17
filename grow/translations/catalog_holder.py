@@ -379,7 +379,7 @@ class Catalogs(object):
                         if not utils.fnmatches_paths(path, paths):
                             continue
                         if path.endswith(('.yaml', '.yml')):
-                            pod_path = os.path.join(pod_dir, path[1:])
+                            pod_path = os.path.join(pod_dir, path.lstrip('/'))
                             self.pod.logger.info('Extracting: {}'.format(pod_path))
                             utils.walk(
                                 self.pod.get_doc(pod_path).format.front_matter.raw_data,
@@ -392,10 +392,10 @@ class Catalogs(object):
             if not utils.fnmatches_paths(path, paths):
                 continue
             if path.endswith(('.yaml', '.yml')):
-                pod_path = os.path.join('/data/', path)
+                pod_path = os.path.join('/data/', path.lstrip('/'))
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
                 utils.walk(
-                    self.pod.get_doc(pod_path).format.front_matter.raw_data,
+                    self.pod.read_yaml(pod_path),
                     lambda msgid, key, node, **kwargs: _handle_field(
                         pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
                 )
