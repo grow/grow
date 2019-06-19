@@ -407,6 +407,10 @@ class Router(object):
             if route_info.hashed != self.pod.hash_file(route_info.pod_path):
                 continue
 
+            # Ignore the fingerprinted files.
+            if 'fingerprinted' in route_info.meta and route_info.meta['fingerprinted']:
+                continue
+
             unchanged_pod_paths.add(route_info.pod_path)
             self.routes.add(key, route_info, options=item['options'])
 
