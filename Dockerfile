@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:latest
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
 ARG grow_version
@@ -25,13 +25,13 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     python python-pip python-setuptools nodejs build-essential python-all-dev zip \
     libc6 libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev \
-    git curl ssh google-cloud-sdk ruby ruby-dev yarn \
+    git ssh google-cloud-sdk ruby ruby-dev yarn \
+  && apt-get upgrade -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Update npm and install packages.
 RUN npm install -g npm@latest \
-  && yarn global add bower \
   && yarn global add gulp \
   && yarn cache clean
 
