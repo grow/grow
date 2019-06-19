@@ -391,6 +391,7 @@ class Router(object):
         routes_data = self.pod.podcache.routes_cache.raw(
             concrete=concrete)
         unchanged_pod_paths = set()
+        removed_paths = []
         for key, item in routes_data.iteritems():
             # For now ignore anything that doesn't have a hash.
             route_info = item['value']
@@ -399,6 +400,7 @@ class Router(object):
 
             # Ignore deleted files.
             if not self.pod.file_exists(route_info.pod_path):
+                removed_paths.append(key)
                 continue
 
             # If the hash has changed then skip.
@@ -407,6 +409,9 @@ class Router(object):
 
             unchanged_pod_paths.add(route_info.pod_path)
             self.routes.add(key, route_info, options=item['options'])
+
+        for key in removed_paths:
+            self.pod.podcache.routes_cache.remove(key, concrete=concrete)
 
         return unchanged_pod_paths
 
