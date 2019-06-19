@@ -48,7 +48,6 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
         pod.set_env(deployment_obj.config.env)
     if not ui:
         pod.disable(pod.FEATURE_UI)
-    pod.router.add_all(concrete=False)
     try:
         manager.start(pod, host=host, port=port, open_browser=browser,
                       debug=debug, preprocess=preprocess,
