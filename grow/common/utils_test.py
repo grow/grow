@@ -164,18 +164,10 @@ class UtilsTestCase(unittest.TestCase):
         pod = testing.create_test_pod()
         content = pod.read_file('/data/constructors.yaml')
 
-        print ''
-        print 'Base'
-        print ''
-
         # Base strings.
         result = utils.parse_yaml(content, pod=pod)
         self.assertEqual('Sun', result['deep_strings']['sun'])
         self.assertEqual('Mars', result['deep_strings']['mars'])
-
-        print ''
-        print 'Localized'
-        print ''
 
         # Localized strings.
         result = utils.parse_yaml(content, pod=pod, locale='es')
