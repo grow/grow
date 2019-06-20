@@ -313,11 +313,11 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             file_cache = pod.podcache.file_cache
             contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
-                fields = file_cache.get(pod_path, locale='__raw__')
+                fields = file_cache.get(pod_path, locale=locale)
                 if fields is None:
                     fields = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
                     file_cache.add(
-                        pod_path, fields, locale='__raw__')
+                        pod_path, fields, locale=locale)
                 try:
                     contents = untag.Untag.untag(
                         fields, locale_identifier=locale, params=untag_params)
