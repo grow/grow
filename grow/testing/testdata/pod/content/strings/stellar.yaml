@@ -1,4 +1,6 @@
 sun: Sun
+sun@es: Sol
 moon: Moon
 planets:
   mars: Mars
+  mars@es: Marte

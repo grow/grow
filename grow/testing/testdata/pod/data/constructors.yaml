@@ -4,4 +4,6 @@ docs: !g.doc
 - /content/pages/about.yaml
 - /content/pages/home.yaml
 deep: !g.yaml /data/deep.yaml?nested.key
+localized: !g.yaml /data/localized.yaml?value
 unfathomable: !g.yaml /data/deep.yaml?not.really.there
+deep_strings: !g.yaml /data/string.yaml
