@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:latest
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
 ARG grow_version
