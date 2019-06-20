@@ -313,18 +313,14 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             file_cache = pod.podcache.file_cache
             contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
-                fields = file_cache.get(pod_path, locale='__raw__')
-                if fields is None:
-                    fields = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
-                    file_cache.add(
-                        pod_path, fields, locale='__raw__')
-                try:
-                    contents = untag.Untag.untag(
-                        fields, locale_identifier=locale, params=untag_params)
-                    file_cache.add(pod_path, contents, locale=locale)
-                except Exception:
-                    logging.error('Error parsing -> {}'.format(pod_path))
-                    raise
+                # Cannot use the file cache to store the raw data with the
+                # `yaml.load` since constructors in the yaml loading are already
+                # completed with the provided locale so untagged data is lost
+                # and cannot be stored as raw data.
+                contents = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
+                contents = untag.Untag.untag(
+                    contents, locale_identifier=locale, params=untag_params)
+                file_cache.add(pod_path, contents, locale=locale)
             return contents
 
         def _construct_func(self, node, func):

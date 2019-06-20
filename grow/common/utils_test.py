@@ -129,13 +129,50 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(expected_deep_yaml, result['deep'])
         self.assertEqual(None, result['unfathomable'])
 
+    def test_parse_yaml_localized(self):
+        """Parsing yaml with a locale correctly loads the localized values."""
+        pod = testing.create_test_pod()
+        content = pod.read_file('/data/constructors.yaml')
+
+        # Base unlocalized works.
+        result = utils.parse_yaml(content, pod=pod)
+        expected = 'base_value'
+        self.assertEqual(expected, result['localized'])
+
+        # Other locals correctly localize.
+        result = utils.parse_yaml(content, pod=pod, locale='es')
+        expected = 'es_value'
+        self.assertEqual(expected, result['localized'])
+
     def test_parse_yaml_strings(self):
         """Parsing using strings constructor."""
         pod = testing.create_test_pod()
         content = pod.read_file('/data/string.yaml')
+
+        # Base strings.
         result = utils.parse_yaml(content, pod=pod)
         self.assertEqual('Sun', result['sun'])
         self.assertEqual('Mars', result['mars'])
+
+        # Localized strings.
+        result = utils.parse_yaml(content, pod=pod, locale='es')
+        self.assertEqual('Sol', result['sun'])
+        self.assertEqual('Marte', result['mars'])
+
+    def test_parse_deep_yaml_strings(self):
+        """Parsing using yaml that contains strings constructor."""
+        pod = testing.create_test_pod()
+        content = pod.read_file('/data/constructors.yaml')
+
+        # Base strings.
+        result = utils.parse_yaml(content, pod=pod)
+        self.assertEqual('Sun', result['deep_strings']['sun'])
+        self.assertEqual('Mars', result['deep_strings']['mars'])
+
+        # Localized strings.
+        result = utils.parse_yaml(content, pod=pod, locale='es')
+        self.assertEqual('Sol', result['deep_strings']['sun'])
+        self.assertEqual('Marte', result['deep_strings']['mars'])
 
     def test_process_google_comments(self):
         # Google comment link.
