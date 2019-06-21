@@ -158,7 +158,7 @@ class Router(object):
                         localized_static_dirs = [
                             localization.get('static_dir')]
 
-                if concrete or fingerprinted:
+                if concrete:
                     # Enumerate static files.
                     for static_dir in static_dirs:
                         for root, dirs, files in self.pod.walk(static_dir):
