@@ -22,7 +22,8 @@ from grow.common import yaml_utils
 ROUTES_FILENAME = '_blueprint.yaml'
 COLLECTION_META_KEYS = ('$path', '$localization', '$view')
 COLLECTION_BLUEPRINT_KEYS = (
-    '$path', '$localization', '$view', 'path', 'localization', 'view')
+    '$path', '$localization', '$view', 'path', 'localization', 'view',
+    'composite_files')
 
 
 class Error(Exception):
