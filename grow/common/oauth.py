@@ -87,6 +87,7 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
     # Avoid logspam by logging the email address only once.
     if hasattr(credentials, 'id_token'):
         email = credentials.id_token['email']
+        # pylint: disable=used-before-assignment
         if _LAST_LOGGED_EMAIL != email:
             logging.info('Authorizing using -> {}'.format(email))
             _LAST_LOGGED_EMAIL = email
