@@ -155,26 +155,6 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
             if added_docs or removed_docs:
                 pod.router.reconcile_documents(
                     remove_docs=removed_docs, add_docs=added_docs)
-        else:
-            # Check if the file is a static file that needs to have the
-            # fingerprint updated.
-            for config in pod.static_configs:
-                if config.get('dev') and not pod.env.dev:
-                    continue
-                fingerprinted = config.get('fingerprinted', False)
-                if not fingerprinted:
-                    continue
-                static_dirs = config.get('static_dirs')
-                if not static_dirs:
-                    static_dirs = [config.get('static_dir')]
-                static_doc = None
-                for static_dir in static_dirs:
-                    if pod_path.startswith(static_dir):
-                        static_doc = pod.get_static(pod_path, locale=None)
-                        pod.router.add_static_doc(static_doc)
-                        break
-                if static_doc:
-                    break
 
         if previous_result:
             return previous_result
