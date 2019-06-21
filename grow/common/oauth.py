@@ -29,6 +29,7 @@ REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 DEFAULT_STORAGE_KEY = 'Grow SDK'
 BROWSER_API_KEY = 'AIzaSyDCb_WtWJnlLPdL8IGLvcVhXAjaBHbRY5E'
 
+_LAST_LOGGED_EMAIL = None
 _CLEARED_AUTH_KEYS = {}
 
 DEFAULT_AUTH_KEY_FILE = 'auth-key.json'
@@ -83,6 +84,11 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         credentials = tools.run_flow(flow, storage, flags)
         # run_flow changes the logging level, so change it back.
         logging.getLogger().setLevel(getattr(logging, 'INFO'))
+    # Avoid logspam by logging the email address only once.
+    if hasattr(credentials, 'id_token'):
+        email = credentials.id_token['email']
+        if _LAST_LOGGED_EMAIL != email:
+            logging.info('Authorizing using -> {}'.format(email))
     return credentials
 
 
