@@ -89,6 +89,7 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         email = credentials.id_token['email']
         if _LAST_LOGGED_EMAIL != email:
             logging.info('Authorizing using -> {}'.format(email))
+            _LAST_LOGGED_EMAIL = email
     return credentials
 
 
