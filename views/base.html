@@ -2,79 +2,141 @@
 <html lang="{{doc.locale}}">
   <head>
     <meta charset="utf-8">
-    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-    {% if podspec.meta.google_site_verification %}
-      <meta name="google-site-verification" content="{{podspec.meta.google_site_verification}}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if doc.description %}<meta name="description" content="{{_(doc.description)}}">{% endif %}
+    {% if podspec.meta.site_author %}<meta name="author" content="{{podspec.meta.site_author}}">{% endif %}
+    <link rel="canonical" href="{{doc.url}}">
+    <link rel="shortcut icon" href="{{g.static(podspec.meta.favicon_path).url.path}}">
+    <title>{% if doc.title %}{{doc.title}} – {% endif %}{{_(podspec.meta.site_name)}}</title>
+    <link href="//fonts.googleapis.com/css?family=Inconsolata|Roboto:400,300,500,300italic,400italic,500italic,100italic,100" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+    <link href="{{g.static('/dist/css/main.min.css').url.path}}" rel="stylesheet">
+    {% if podspec.meta.google_analytics_id %}
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', '{{podspec.meta.google_analytics_id}}');
+      ga('send', 'pageview');
+    </script>
     {% endif %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, height=device-height">
-    <title>
-      {% if doc.title %}{{doc.title}}{% else %}{{podspec.title}}{% endif %}
-      {% if doc.title_suffix %} – {{doc.title_suffix}}{% endif %}
-    </title>
-    {% if podspec.meta.image %}
-      <meta property="og:image" content="{{g.static(podspec.meta.image).url.path}}">
-    {% endif %}
-    <meta property="og:title" content="{% if doc.title %}{{doc.title}} – {% endif %}{{podspec.title}}">
-    <meta property="og:site_name" content="{{podspec.title}}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{doc.url}}">
-    {% if doc.description %}
-      <meta name="description" content="{{doc.description}}">
-      <meta property="og:description" content="{{doc.description}}">
-    {% endif %}
-    {% if podspec.meta.favicon_path %}
-      <link rel="shortcut icon" href="{{g.static(podspec.meta.favicon_path).url.path}}">
-    {% endif %}
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Dosis:300,400,500|Source+Code+Pro" rel="stylesheet">
-    <link href="{{ g.static('/dist/css/composite/global.min.css').url.path }}" rel="stylesheet">
-    {% set compositeCssFiles = [doc.view|replace('.html', '')] %}
-    {% set compositeCssFiles = compositeCssFiles + (doc.composite_files if doc.composite_files else []) %}
-    {% for compositeCssFile in compositeCssFiles %}
-      {% if not compositeCssFile.startswith('/') %}
-        {% set compositeCssFile = '/' ~ compositeCssFile %}
-      {% endif %}
-      {% set viewCssFile = '/dist/css/composite' ~ compositeCssFile ~ '.min.css' %}
-      {% if doc.pod.file_exists(viewCssFile) %}
-        <link href="{{ g.static(viewCssFile).url.path }}" rel="stylesheet">
-      {% endif %}
-    {% endfor %}
-    {% block head %}{% endblock %}
   </head>
   <body>
-    <div class="wrapper">
-      {% include "/partials/header/header.html" %}
-      {% block main %}
-        <div class="block__main">
-          {% include "/views/partials.html" %}
+    <div class="layout">
+      <div class="layout__nav">
+        <div class="layout__nav__content">
+          <div class="layout__nav__content__header">
+            <a class="navbar-brand" href="{{podspec.home.localize(locale=doc.locale).url.path|relative}}">
+              <img src="{{g.static(podspec.meta.site_logo_path).url.path}}" title="{{_(podspec.meta.site_name)}}">
+            </a>
+          </div>
+          <div class="layout__nav__content__body" role="complementary">
+            <div class="layout__nav__content__body__items">
+              {% set collection = g.collection('docs')
+                  if '/content/docs/' in doc.collection.pod_path
+                  else doc.collection %}
+              {% if doc.collection.nav_title %}
+                <div class="layout__nav__content__body__header">{{doc.collection.nav_title}}</div>
+              {% endif %}
+              {% for nav_item in collection.docs(recursive=False, locale=doc.locale) %}
+                <div {% if doc == nav_item %}class="layout__nav__content__body__items__item--active"{% endif %}>
+                  <a href="{{nav_item.url.path|relative}}">{{_(nav_item.title)}}</a>
+                </div>
+              {% endfor %}
+              {% for col in collection.collections()|sort(attribute='order') %}
+                <div class="layout__nav__content__body__header">{{_(col.title)}}</div>
+                {% for sub_doc in col.docs(locale=doc.locale) %}
+                  <div {% if doc == sub_doc %}class="layout__nav__content__body__items__item--active"{% endif %}>
+                    <a href="{{sub_doc.url.path|relative}}">{{ (sub_doc.title)}}</a>
+                  </div>
+                {% endfor %}
+              {% endfor %}
+            </div>
+            <div class="layout__nav__content__body__footer">
+              {% if podspec.meta.pypi_name %}
+              <div>
+                <a href="https://pypi.python.org/pypi/{{podspec.meta.pypi_name}}"><img src="https://img.shields.io/pypi/v/{{podspec.meta.pypi_name}}.svg"></a>
+              </div>
+              {% endif %}
+              {% if podspec.meta.license_badge %}
+              <div class="layout__nav__content__body__footer__info">
+                <img src="https://img.shields.io/badge/License-{{podspec.meta.license_badge}}-yellow.svg">
+              </div>
+              {% endif %}
+            </div>
+          </div>
         </div>
-      {% endblock %}
-      {% include "/partials/footer/footer.html" %}
+      </div>
+      <div class="layout__main">
+        <div class="layout__main__header">
+          <div class="layout__main__header__search">
+            <div class="search">
+              <div class="search__group">
+                <div class="search__group__field">
+                  <input type="search" onfocus="this.value='';" placeholder="{{_('Search')}}" autocomplete="off" id="mkdocs-search-query">
+                  <img src="{{g.static('/source/images/search-icon.svg').url.path}}" width="21px">
+                </div>
+                <div id="mkdocs-search-results"></div>
+              </div>
+            </div>
+          </div>
+          <div class="layout__main__header__buttons">
+            <a href="{{podspec.meta.header_button_url}}" class="button">{{podspec.meta.header_button_label}}</a>
+          </div>
+        </div>
+        <div class="layout__main__body">
+          {% block main %}
+            <div class="layout__main__body__content" role="main">
+              {% if doc.collection.show_title %}
+              <h1>{{doc.title}}</h1>
+              {% endif %}
+              {{doc.html|safe}}
+              {% if doc.collection.show_relative_nav %}
+                <nav class="layout__main__body__content__relative-nav">
+                  {% set prev_doc = doc.prev() %}
+                  {% if prev_doc %}
+                  <a href="{{prev_doc.url.path}}" class="button">
+                    <i class="material-icons">arrow_back</i>
+                    {{prev_doc.title}}
+                  </a>
+                  {% endif %}
+                  {% set next_doc = doc.next() %}
+                  {% if next_doc %}
+                  <a href="{{next_doc.url.path}}" class="button button--icon-end">
+                    {{next_doc.title}}
+                    <i class="material-icons">arrow_forward</i>
+                  </a>
+                  {% endif %}
+                </nav>
+              {% endif %}
+            </div>
+            <div class="layout__main__body__side">
+              <div class="layout__main__body__side__top sidetoc" role="complementary">
+                <div class="layout__main__body__side__top__title">
+                  On this page
+                </div>
+                <ul class="nav layout__main__body__side__top__items bs-sidetoc">
+                </ul>
+              </div>
+              <div class="layout__main__body__side__footer">
+                <a href="https://github.com/{{podspec.meta.github_project}}/edit/master{{doc.pod_path}}" class="button button--sm">Edit</a>
+              </div>
+            </div>
+          {% endblock %}
+        </div>
+      </div>
     </div>
-
-    <script src="{{ g.static('/dist/js/composite/global.min.js').url.path }}"></script>
-    {% set compositeJsFiles = [doc.view|replace('.html', '')] %}
-    {% set compositeJsFiles = compositeJsFiles + (doc.composite_files if doc.composite_files else []) %}
-    {% for compositeJsFile in compositeJsFiles %}
-      {% if not compositeJsFile.startswith('/') %}
-        {% set compositeJsFile = '/' ~ compositeJsFile %}
-      {% endif %}
-      {% set viewJsFile = '/dist/js/composite' ~ compositeJsFile ~ '.min.js' %}
-      {% if doc.pod.file_exists(viewJsFile) %}
-        <script src="{{ g.static(viewJsFile).url.path }}"></script>
-      {% endif %}
-    {% endfor %}
-
-    {% if podspec.meta.google_analytics_id %}
-      <script>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-        ga('create', '{{podspec.meta.google_analytics_id}}', 'auto');
-        ga('send', 'pageview');
-      </script>
-    {% endif %}
-    {% block script %}{% endblock %}
+    {# TODO(jeremydw): Rewrite from mkdocs and use standard gulpfile. #}
+    <script src="{{g.static('/source/vendor/vendor.min.js').url.path}}"></script>
+    <script>
+      var base_url = '{{podspec.root.rstrip('/')}}/assets/search/js';
+      var base_url_locale = '{{doc.locale}}';
+    </script>
+    <script data-main="{{g.static('/source/js/search/search.js').url.path}}" src="{{g.static('/source/js/require.js').url.path}}"></script>
+    <script src="{{g.static('/source/js/base.js').url.path}}"></script>
+    <script src="{{g.static('/source/js/require.js').url.path}}"></script>
+    <script src="{{g.static('/source/js/search/search.js').url.path}}"></script>
   </body>
 </html>

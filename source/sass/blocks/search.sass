@@ -1,0 +1,103 @@
+.search
+
+
+.search__group
+  position: relative
+
+
+.search__group__field
+  display: flex
+  align-items: center
+  position: relative
+
+
+.search__group__field img
+  left: 0.7em
+  opacity: 0.66
+  pointer-events: none
+  position: absolute
+  z-index: 999
+
+
+.search__group__field input
+  border: 1px solid transparent
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2)
+  display: inline
+  font-size: 14px
+  line-height: 1.42857143
+  margin: 12px 0
+  padding: 10px 12px
+  padding-left: 3.25em
+  position: relative
+  transition: border-color ease-in-out .2s, box-shadow ease-in-out .2s
+  width: 100%
+
+  &:focus
+    border: 1px solid rgba(107,165,237,0)
+    border-radius: 3px
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.2)
+    outline: none
+
+
+#mkdocs-search-results
+  background: #fff
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4)
+  text-align: left
+  margin-top: -16px
+  max-height: 90vh
+  position: relative
+  overflow-x: hidden
+  overflow-y: auto
+  z-index: 1
+
+
+#mkdocs-search-results:empty
+  display: none
+
+
+#mkdocs-search-results a
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15)
+  color: inherit
+  display: block
+  padding: 20px
+
+  &:hover
+    background-color: rgba(0, 0, 0, .025)
+
+
+#mkdocs-search-results a:last-child
+  border: none
+
+
+#mkdocs-search-results h3
+  color: black
+  border: none
+  font-size: 1.05em
+  font-weight: 500
+  margin: 0
+
+
+#mkdocs-search-results p
+  margin: 5px 0 0 0
+  font-size: 14px
+  line-height: 24px
+
+
+// No results.
+#mkdocs-search-results > p
+  margin: 0
+  padding: 20px
+
+
+#mkdocs-search-results::-webkit-scrollbar
+  width: 4px
+  height: 4px
+
+
+#mkdocs-search-results::-webkit-scrollbar-thumb
+  background: rgba(255,255,255,.2)
+
+
+#mkdocs-search-results h3:before
+  display: none
+  content: none

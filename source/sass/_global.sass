@@ -1,0 +1,83 @@
+@import mixins/type
+
+html
+  height: 100%
+
+body
+  -webkit-font-smoothing: antialiased //sass-lint:disable-line no-vendor-prefixes
+  background-color: #fff
+  color: $color-text
+  font-family: $font-body
+  font-size: 16px
+  height: 100%
+  line-height: 1.5
+  margin: 0
+  padding: 0
+  position: relative  // Required for Scrollspy.
+  width: 100%
+
+h1,
+h2,
+h3,
+h4
+  color: black
+  font-family: $font-heading
+  font-weight: 400
+  margin: 0
+
+h1
+  +type-h1
+  margin: 60px 0
+
+h2
+  +type-h2
+  margin: 40px 0
+
+h3
+  +type-h3
+  margin: 20px 0
+
+h4
+  font-size: 22px
+  line-height: 1.14
+  margin: 20px 0
+
+table
+  margin: 40px 0
+
+p
+  margin: 20px 0
+
+pre
+  padding: 20px
+  white-space: pre-wrap
+  font-size: 15px
+  font-weight: 500
+  border-radius: 3px
+  font-family: Inconsolata, monospace;
+
+img
+  max-width: 100%
+
+a
+  color: $color-blue
+  text-decoration: none
+  transition: opacity 300ms ease
+
+  &:not(.button):hover
+    opacity: 0.75
+
+.main
+  background-color: $color-white
+  margin: 0 auto
+  overflow: hidden
+  position: relative
+
+.desktop-only
+  display: none
+  +md
+    display: initial
+
+.mobile-only
+  +md
+    display: none

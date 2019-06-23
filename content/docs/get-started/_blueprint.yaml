@@ -1,0 +1,6 @@
+$title@: Get Started
+$order: 1
+$path: /{root}/{collection.basename}/{base}/
+$localization:
+  path: /{root}/{locale}/{collection.basename}/{base}/
+$view: /views/base.html

@@ -1,0 +1,4 @@
+$path: /{root}/assets/search/search_index-en-json.html
+$localization:
+  path: /{root}/assets/search/search_index-{locale}-json.html
+$view: /views/search_index-json.html

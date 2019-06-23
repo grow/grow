@@ -1,47 +1,53 @@
-grow_version: ">=0.3.20"
-title: grow.io
+title@: Grow
+grow_version: ">=0.0.72"
+home: /content/docs/get-started/index.md
+root: "/"
 
-home: /content/pages/home.yaml
+meta:
+  site_name: "Grow"
+  site_logo_path: '/source/images/grow.svg'
+  site_author: "Grow Authors"
+  google_analytics_id: "UA-44018013-3"
+  favicon_path: /source/images/icon.png
+  header_button_url: "https://github.com/grow/grow"
+  header_button_label: GitHub
+  pypi_name: grow
+  license_badge: MIT
+  github_project: grow/grow.io
 
 localization:
   default_locale: en
-
-error_routes:
-  default: /views/errors.html
-
-meta:
-  google_analytics_id: "UA-44018013-3"
-  google_site_verification: ""
-  favicon_path: /static/root/favicon.ico
-
-markdown:
-  extensions:
-  - kind: sourcecode
-    theme: friendly
-  - kind: markdown.extensions.codehilite
-    theme: friendly
+  locales:
+  - en
 
 preprocessors:
 - kind: gulp
-  build_task: grow-build
-  command: "npx gulp"
 
 static_dirs:
-- static_dir: /static/images/
-  serve_at: /static/images/
-- static_dir: /static/root/
-  serve_at: /
-- static_dir: /dist/css/
-  serve_at: /css/
-  fingerprinted: true
-- static_dir: /dist/js/
-  serve_at: /js/
-  fingerprinted: true
+- static_dir: /dist/
+  serve_at: "{root}/static/"
+- static_dir: /source/images/
+  serve_at: "/{root}/assets/images/"
+- static_dir: /source/css/
+  serve_at: "/{root}/assets/css/"
+- static_dir: /source/js/
+  serve_at: "/{root}/assets/js/"
+- static_dir: /source/js/search/
+  serve_at: "/{root}/assets/search/js/"
+- static_dir: /source/vendor/
+  serve_at: "/{root}/assets/vendor/"
 
 sitemap:
   enabled: true
 
 deployments:
+  prod:
+    destination: local
+    out_dir: ./build/
+    env:
+      name: prod
+      host: grow.io
+      scheme: https
   grow.io:
     destination: gcs
     bucket: grow.io

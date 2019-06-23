@@ -1,0 +1,63 @@
+@import ../breakpoints
+
+=type-letter-spacing-body
+  letter-spacing: $font-letter-spacing-body
+
+=type-eyebrow
+  text-transform: uppercase
+  letter-spacing: 1.25px
+  font-size: 11px
+  font-weight: 600
+
+=type-h1
+  font-size: 32px
+  line-height: 38px
+  font-family: $font-heading
+  +lg
+    font-size: 32px
+    margin-bottom: 30px
+
+=type-h2
+  font-size: 22px
+  line-height: 1.14
+  font-family: $font-heading
+  +md
+    font-size: 22px
+
+=type-h3
+  font-size: 20px
+  line-height: 1.22
+  font-family: $font-heading
+  +md
+    font-size: 20px
+
+=type-h4
+  font-size: 22px
+  line-height: 28px
+  font-family: $font-heading
+  +md
+    font-size: 22px
+
+=type-body
+  font-size: 16px
+  line-height: 24px
+  +type-letter-spacing-body
+
+=type-hero-body
+  font-size: 18px
+  line-height: 26px
+  +type-letter-spacing-body
+
+=type-chapter-body
+  +type-hero-body
+
+=type-nav-item
+  font-size: 18px
+  line-height: 1.22
+  font-family: $font-body
+  letter-spacing: 1.17px
+  font-weight: 500
+  +md
+    font-size: 15px
+    line-height: 24px
+    +type-letter-spacing-body

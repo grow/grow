@@ -1,2 +1,4 @@
-view: /views/docs.html
-path: /{root}/{collection.basename}/{collection.base_path}/{base}/
+$view: /views/base.html
+$path: /{root}/{base}/
+$localization:
+  path: /{root}/{locale}/{base}/
