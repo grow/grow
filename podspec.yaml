@@ -54,6 +54,7 @@ deployments:
       port: 443
     headers:
     - extensions:
+      - .html
       - .png
       - .svg
       fields:
