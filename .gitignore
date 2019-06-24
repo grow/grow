@@ -1,9 +1,9 @@
-.grow/
+**.mo
 .DS_Store
 .depcache.json
-extensions/
-dist
-build
-node_modules
+.grow/
+/extensions/
 bower_components
-**.mo
+build
+dist
+node_modules
