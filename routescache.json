@@ -31,7 +31,9 @@
           },
           "pod_path": "/source/images/grow.svg",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
@@ -56,7 +58,9 @@
           },
           "pod_path": "/source/images/icon.png",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
@@ -81,7 +85,9 @@
           },
           "pod_path": "/source/images/search-icon.svg",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
@@ -106,7 +112,9 @@
           },
           "pod_path": "/source/js/base.js",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
@@ -131,39 +139,16 @@
           },
           "pod_path": "/source/js/main.js",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
         "pod_path": "/source/js/main.js"
       }
     },
-    "/assets/js/require.js": {
-      "options": null,
-      "value": {
-        "hashed": "3e3eccb10aa9542c19493b24ba854d0b9fe57be3c787f434c88dede9f2847dc3",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/js/require.js",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/js/require.js"
-      }
-    },
-    "/assets/js/search/lunr.min.js": {
+    "/assets/search/lunr.min.js": {
       "options": null,
       "value": {
         "hashed": "46529b90726ace79e12cb53262176055f081f4e62c254bef4b0682c233d3099f",
@@ -179,16 +164,18 @@
             ],
             "included": []
           },
-          "pod_path": "/source/js/search/lunr.min.js",
+          "pod_path": "/source/search/lunr.min.js",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
-        "pod_path": "/source/js/search/lunr.min.js"
+        "pod_path": "/source/search/lunr.min.js"
       }
     },
-    "/assets/js/search/mustache.min.js": {
+    "/assets/search/mustache.min.js": {
       "options": null,
       "value": {
         "hashed": "4d6f09b49bc8582f0a413c867dfefabaf48920cbb25bfc3d3d760e2848a65f2a",
@@ -204,16 +191,45 @@
             ],
             "included": []
           },
-          "pod_path": "/source/js/search/mustache.min.js",
+          "pod_path": "/source/search/mustache.min.js",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
-        "pod_path": "/source/js/search/mustache.min.js"
+        "pod_path": "/source/search/mustache.min.js"
       }
     },
-    "/assets/js/search/search-results-template.mustache": {
+    "/assets/search/require.js": {
+      "options": null,
+      "value": {
+        "hashed": "3e3eccb10aa9542c19493b24ba854d0b9fe57be3c787f434c88dede9f2847dc3",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/search/require.js",
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
+        },
+        "pod_path": "/source/search/require.js"
+      }
+    },
+    "/assets/search/search-results-template.mustache": {
       "options": null,
       "value": {
         "hashed": "e9be24cc95e4833a5fc280590d0cabe0ef4e4052f0a50c19d6a06086f56bfb7d",
@@ -229,19 +245,21 @@
             ],
             "included": []
           },
-          "pod_path": "/source/js/search/search-results-template.mustache",
+          "pod_path": "/source/search/search-results-template.mustache",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
-        "pod_path": "/source/js/search/search-results-template.mustache"
+        "pod_path": "/source/search/search-results-template.mustache"
       }
     },
-    "/assets/js/search/search.js": {
+    "/assets/search/search.js": {
       "options": null,
       "value": {
-        "hashed": "b3279d86d1ba6987ff768aea9802b75c7a9075a318f3f8a311ef3ef99a1d5fa4",
+        "hashed": "e412ecac6348214ade722e6127477d79209818c337cd1ec50627f9c6ccf27f55",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -254,51 +272,15 @@
             ],
             "included": []
           },
-          "pod_path": "/source/js/search/search.js",
+          "pod_path": "/source/search/search.js",
           "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/js/search/search.js"
-      }
-    },
-    "/assets/js/search/text.js": {
-      "options": null,
-      "value": {
-        "hashed": "060eff42292d4c88eb111554ff6a3e2942bcd24019b978f7e6e35f57c757dad0",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
             "ignored": [
               "^.*/\\.[^/]*$"
             ],
             "included": []
-          },
-          "pod_path": "/source/js/search/text.js",
-          "static_filter": {
-            "ignored": [],
-            "included": []
           }
         },
-        "pod_path": "/source/js/search/text.js"
-      }
-    },
-    "/assets/search/js/search_index-en-json.html": {
-      "options": {},
-      "value": {
-        "hashed": "5c59bf5fdd51bb748060b8c6122c544499bbcd7f15e6ba11f3903103224dc087",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/search",
-          "locale": "en",
-          "pod_path": "/content/search/index.yaml"
-        },
-        "pod_path": "/content/search/index.yaml"
+        "pod_path": "/source/search/search.js"
       }
     },
     "/assets/search/search_index-en-json.html": {
@@ -314,43 +296,31 @@
         "pod_path": "/content/search/index.yaml"
       }
     },
-    "/assets/search/search_index-en.json.html": {
-      "options": {},
+    "/assets/search/text.js": {
+      "options": null,
       "value": {
-        "hashed": "467ab84c1083d03d4253c6bd18e37b0a2d24d3250326fea86d9e4a9da7b626fb",
-        "kind": "doc",
+        "hashed": "060eff42292d4c88eb111554ff6a3e2942bcd24019b978f7e6e35f57c757dad0",
+        "kind": "static",
         "meta": {
-          "collection_path": "/content/search",
-          "locale": "en",
-          "pod_path": "/content/search/index.yaml"
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/search/text.js",
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
-        "pod_path": "/content/search/index.yaml"
-      }
-    },
-    "/assets/search/search_index-en.json/": {
-      "options": {},
-      "value": {
-        "hashed": "467ab84c1083d03d4253c6bd18e37b0a2d24d3250326fea86d9e4a9da7b626fb",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/search",
-          "locale": "en",
-          "pod_path": "/content/search/index.yaml"
-        },
-        "pod_path": "/content/search/index.yaml"
-      }
-    },
-    "/assets/search/search_index-foo-json.html": {
-      "options": {},
-      "value": {
-        "hashed": "28f4739c2206ebb72b68736883c5b95733e32525457ba96f173900d79f62f37b",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/search",
-          "locale": "en",
-          "pod_path": "/content/search/index.yaml"
-        },
-        "pod_path": "/content/search/index.yaml"
+        "pod_path": "/source/search/text.js"
       }
     },
     "/assets/vendor/vendor.min.js": {
@@ -371,7 +341,9 @@
           },
           "pod_path": "/source/vendor/vendor.min.js",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
@@ -506,6 +478,71 @@
           "pod_path": "/content/codelab/9.md"
         },
         "pod_path": "/content/codelab/9.md"
+      }
+    },
+    "/extensions/create/": {
+      "options": {},
+      "value": {
+        "hashed": "1171eceef93ae4b2634973a876cb7d503591f282e37c28dd039f1ce751ecca37",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/create.md"
+        },
+        "pod_path": "/content/docs/extensions/create.md"
+      }
+    },
+    "/extensions/install/": {
+      "options": {},
+      "value": {
+        "hashed": "eeddb5fc5f03ef6f925dfcf6724932811b3dd737a1943573d889af4bdf85eca3",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/install.md"
+        },
+        "pod_path": "/content/docs/extensions/install.md"
+      }
+    },
+    "/extensions/legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "31c196634aec6afe5a9d709e7f7c1564f5def0337f1a9cb43314414b09773d73",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/legacy.md"
+      }
+    },
+    "/extensions/preprocessor-legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "ffe822680cfed0df07f0b62460ef04652cc2624ca61c62d699376c1eff854ae8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+      }
+    },
+    "/extensions/preprocessor/": {
+      "options": {},
+      "value": {
+        "hashed": "83650bf7c207ae2c17ff1ce4ec3701a4cedfc03eb98e38187e2ecbd22a311dd5",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor.md"
       }
     },
     "/get-started/samples/": {
@@ -717,30 +754,51 @@
         "pod_path": null
       }
     },
-    "/start/": {
-      "options": {},
+    "/static/css/blocks/button-06e24753791cc6137f07a9900739e206d8cb077e2b9dde9c79f8da50bc63c7d3.min.css": {
+      "options": null,
       "value": {
-        "hashed": "53d1b95fb289e0a5e23517da4d11abde4aec8f5c3a3b222131d0f0248ab2f317",
-        "kind": "doc",
+        "hashed": "06e24753791cc6137f07a9900739e206d8cb077e2b9dde9c79f8da50bc63c7d3",
+        "kind": "static",
         "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/0.md"
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/button.min.css",
+          "static_filter": {}
         },
-        "pod_path": "/content/codelab/0.md"
+        "pod_path": "/dist/css/blocks/button.min.css"
       }
     },
-    "/start/9/": {
-      "options": {},
+    "/static/css/blocks/button-a6397facb6d464b57666f2eb8aaacd42.min.css": {
+      "options": null,
       "value": {
-        "hashed": "2f71dbacb246d75e6fc37341b7b137a3a285a7fe6b47cdda6a7c0a39a9c4875c",
-        "kind": "doc",
+        "hashed": "06e24753791cc6137f07a9900739e206d8cb077e2b9dde9c79f8da50bc63c7d3",
+        "kind": "static",
         "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/9.md"
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/button.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
-        "pod_path": "/content/codelab/9.md"
+        "pod_path": "/dist/css/blocks/button.min.css"
       }
     },
     "/static/css/blocks/button.min.css": {
@@ -761,11 +819,60 @@
           },
           "pod_path": "/dist/css/blocks/button.min.css",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
         "pod_path": "/dist/css/blocks/button.min.css"
+      }
+    },
+    "/static/css/blocks/layout-4fd673ba619d3f8acfd1ee5cf6ddaab8e9ae0f51ab243989e2fba1ae13ada554.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "4fd673ba619d3f8acfd1ee5cf6ddaab8e9ae0f51ab243989e2fba1ae13ada554",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/layout.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/blocks/layout.min.css"
+      }
+    },
+    "/static/css/blocks/layout-60ec59335479d687a509e3f47f2d1675.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "4fd673ba619d3f8acfd1ee5cf6ddaab8e9ae0f51ab243989e2fba1ae13ada554",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/layout.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/blocks/layout.min.css"
       }
     },
     "/static/css/blocks/layout.min.css": {
@@ -786,11 +893,60 @@
           },
           "pod_path": "/dist/css/blocks/layout.min.css",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
         "pod_path": "/dist/css/blocks/layout.min.css"
+      }
+    },
+    "/static/css/blocks/search-915cab30747d2fb8c01ce94a22f0fc54.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "e86e43b3e415c6d42a39de4a09c934b661f17dc30c5ac991124be2662630e315",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/search.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/blocks/search.min.css"
+      }
+    },
+    "/static/css/blocks/search-e86e43b3e415c6d42a39de4a09c934b661f17dc30c5ac991124be2662630e315.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "e86e43b3e415c6d42a39de4a09c934b661f17dc30c5ac991124be2662630e315",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/search.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/blocks/search.min.css"
       }
     },
     "/static/css/blocks/search.min.css": {
@@ -811,11 +967,60 @@
           },
           "pod_path": "/dist/css/blocks/search.min.css",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
         "pod_path": "/dist/css/blocks/search.min.css"
+      }
+    },
+    "/static/css/composite/docs-ba3f8f77ab81266e66f27e79ef7047da021ac655c625a5658d0c8596638a4621.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "ba3f8f77ab81266e66f27e79ef7047da021ac655c625a5658d0c8596638a4621",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/docs.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/docs.min.css"
+      }
+    },
+    "/static/css/composite/docs-f7da157a92f76d14dfae562341bc6dc1.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "ba3f8f77ab81266e66f27e79ef7047da021ac655c625a5658d0c8596638a4621",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/docs.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/composite/docs.min.css"
       }
     },
     "/static/css/composite/docs.min.css": {
@@ -835,9 +1040,61 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/docs.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/docs.min.css"
+      }
+    },
+    "/static/css/composite/global-815332777827e9f19889b183c4d607cd.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "fd3b7d753284484c35e7fa347c78529fce0aa43962403acd7f1a8f1ce83a3d71",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/global.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/composite/global.min.css"
+      }
+    },
+    "/static/css/composite/global-fd3b7d753284484c35e7fa347c78529fce0aa43962403acd7f1a8f1ce83a3d71.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "fd3b7d753284484c35e7fa347c78529fce0aa43962403acd7f1a8f1ce83a3d71",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/global.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/global.min.css"
       }
     },
     "/static/css/composite/global.min.css": {
@@ -857,9 +1114,61 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/global.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/global.min.css"
+      }
+    },
+    "/static/css/composite/home-067aec70e8e4b53dcfea7a816e58b5b1.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "c76ddcee02cbae5ef44f8baca029d6ea7d2e51eae5250865c90eb476d8ba8db9",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/home.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/composite/home.min.css"
+      }
+    },
+    "/static/css/composite/home-c76ddcee02cbae5ef44f8baca029d6ea7d2e51eae5250865c90eb476d8ba8db9.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "c76ddcee02cbae5ef44f8baca029d6ea7d2e51eae5250865c90eb476d8ba8db9",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/home.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/home.min.css"
       }
     },
     "/static/css/composite/home.min.css": {
@@ -879,9 +1188,61 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/home.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/home.min.css"
+      }
+    },
+    "/static/css/composite/search-d5aefdedc28ffcfd57496e1cd2e41ea1926928b3a899f5dd327ee4fb795442d9.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "d5aefdedc28ffcfd57496e1cd2e41ea1926928b3a899f5dd327ee4fb795442d9",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/search.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/search.min.css"
+      }
+    },
+    "/static/css/composite/search-fc4a7fb15982111edb74b9e0e586d4ae.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "d5aefdedc28ffcfd57496e1cd2e41ea1926928b3a899f5dd327ee4fb795442d9",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/search.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/composite/search.min.css"
       }
     },
     "/static/css/composite/search.min.css": {
@@ -901,9 +1262,61 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/search.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/search.min.css"
+      }
+    },
+    "/static/css/composite/styleguide-80b05f72646235db07a7f693d12e795c.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "f9f9e0d9303c660ee05d1de7daa6e1b6c8e5e1fd395fb956dc3e0a9b42d95a3c",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/styleguide.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/composite/styleguide.min.css"
+      }
+    },
+    "/static/css/composite/styleguide-f9f9e0d9303c660ee05d1de7daa6e1b6c8e5e1fd395fb956dc3e0a9b42d95a3c.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "f9f9e0d9303c660ee05d1de7daa6e1b6c8e5e1fd395fb956dc3e0a9b42d95a3c",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/styleguide.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/styleguide.min.css"
       }
     },
     "/static/css/composite/styleguide.min.css": {
@@ -923,9 +1336,61 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/styleguide.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/styleguide.min.css"
+      }
+    },
+    "/static/css/main-669c25171fa9d06ef54361f1b839522b.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "e137225777740f1ec64d7d9e6882cba63dbe711d47670861969498083c1033d6",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/main.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/main.min.css"
+      }
+    },
+    "/static/css/main-e137225777740f1ec64d7d9e6882cba63dbe711d47670861969498083c1033d6.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "e137225777740f1ec64d7d9e6882cba63dbe711d47670861969498083c1033d6",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/main.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/main.min.css"
       }
     },
     "/static/css/main.min.css": {
@@ -946,11 +1411,60 @@
           },
           "pod_path": "/dist/css/main.min.css",
           "static_filter": {
-            "ignored": [],
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
           }
         },
         "pod_path": "/dist/css/main.min.css"
+      }
+    },
+    "/static/js/composite/docs-0fae6a991467bd40263a3ba8cd82835d.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "4782ad9ac1a80ee009c88376d15643282d28bed9eb6e15717281f1cc1f4e687f",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/docs.min.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/js/composite/docs.min.js"
+      }
+    },
+    "/static/js/composite/docs-4782ad9ac1a80ee009c88376d15643282d28bed9eb6e15717281f1cc1f4e687f.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "4782ad9ac1a80ee009c88376d15643282d28bed9eb6e15717281f1cc1f4e687f",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/docs.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/js/composite/docs.min.js"
       }
     },
     "/static/js/composite/docs.min.js": {
@@ -970,9 +1484,61 @@
             "included": []
           },
           "pod_path": "/dist/js/composite/docs.min.js",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/js/composite/docs.min.js"
+      }
+    },
+    "/static/js/composite/global-59e46906626469ab5b9f435a8bc0fa45647ee9e23ea62836d6d1b0577dc18b46.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "59e46906626469ab5b9f435a8bc0fa45647ee9e23ea62836d6d1b0577dc18b46",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/global.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/js/composite/global.min.js"
+      }
+    },
+    "/static/js/composite/global-e3300c33aa08fc570cabadc3f05d1fae.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "59e46906626469ab5b9f435a8bc0fa45647ee9e23ea62836d6d1b0577dc18b46",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/global.min.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/js/composite/global.min.js"
       }
     },
     "/static/js/composite/global.min.js": {
@@ -992,9 +1558,61 @@
             "included": []
           },
           "pod_path": "/dist/js/composite/global.min.js",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/js/composite/global.min.js"
+      }
+    },
+    "/static/js/composite/home-788830b3edc1ed31052909df6e34a08b.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "99bb7637c49ac9f32c9fe1d231205a481e4a1d30811dc89eeeec44a1c60d1a61",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/home.min.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/js/composite/home.min.js"
+      }
+    },
+    "/static/js/composite/home-99bb7637c49ac9f32c9fe1d231205a481e4a1d30811dc89eeeec44a1c60d1a61.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "99bb7637c49ac9f32c9fe1d231205a481e4a1d30811dc89eeeec44a1c60d1a61",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/home.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/js/composite/home.min.js"
       }
     },
     "/static/js/composite/home.min.js": {
@@ -1014,9 +1632,61 @@
             "included": []
           },
           "pod_path": "/dist/js/composite/home.min.js",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/js/composite/home.min.js"
+      }
+    },
+    "/static/js/main-99eb1c307f44853e26649ba059066594cbde0fdcfaa1651c46cec66162d88062.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "99eb1c307f44853e26649ba059066594cbde0fdcfaa1651c46cec66162d88062",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/main.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/js/main.min.js"
+      }
+    },
+    "/static/js/main-be2c12c61e9debda158ca7adc2138ba1.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "99eb1c307f44853e26649ba059066594cbde0fdcfaa1651c46cec66162d88062",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": true,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/main.min.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/js/main.min.js"
       }
     },
     "/static/js/main.min.js": {
@@ -1036,7 +1706,12 @@
             "included": []
           },
           "pod_path": "/dist/js/main.min.js",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          }
         },
         "pod_path": "/dist/js/main.min.js"
       }
@@ -1057,7 +1732,7 @@
     "/workflow/continuous/": {
       "options": {},
       "value": {
-        "hashed": "769589adf0902fe27999e1f477b9f2f328cfcc70e24bcaa8482f83a675f83cff",
+        "hashed": "11b7dba170f19c0ac0f4c635358173a107ac84b3393a03a619abf7bf6e4f68cb",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/workflow",
@@ -1508,57 +2183,6 @@
         "pod_path": "/content/docs/workflow/development-server.md"
       }
     },
-    "/assets/*": {
-      "options": null,
-      "value": {
-        "hashed": null,
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "path_format": "/assets/",
-          "source_formats": [
-            "/source/"
-          ],
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": null
-      }
-    },
-    "/assets/css/*": {
-      "options": null,
-      "value": {
-        "hashed": null,
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "path_format": "/assets/css/",
-          "source_formats": [
-            "/source/css/"
-          ],
-          "static_filter": {}
-        },
-        "pod_path": null
-      }
-    },
     "/assets/images/*": {
       "options": null,
       "value": {
@@ -1578,7 +2202,10 @@
           "source_formats": [
             "/source/images/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -1602,7 +2229,10 @@
           "source_formats": [
             "/source/js/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -1626,30 +2256,6 @@
           "source_formats": [
             "/source/search/"
           ],
-          "static_filter": {}
-        },
-        "pod_path": null
-      }
-    },
-    "/assets/search/js/*": {
-      "options": null,
-      "value": {
-        "hashed": null,
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "path_format": "/assets/search/js/",
-          "source_formats": [
-            "/source/js/search/"
-          ],
           "static_filter": {
             "ignored": [],
             "included": []
@@ -1671,33 +2277,6 @@
         "pod_path": "/content/search/index.yaml"
       }
     },
-    "/assets/third_party/*": {
-      "options": null,
-      "value": {
-        "hashed": null,
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "path_format": "/assets/third_party/",
-          "source_formats": [
-            "/source/third_party/"
-          ],
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": null
-      }
-    },
     "/assets/vendor/*": {
       "options": null,
       "value": {
@@ -1717,7 +2296,10 @@
           "source_formats": [
             "/source/vendor/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -2112,143 +2694,13 @@
         "pod_path": "/content/docs/reference/urls.md"
       }
     },
-    "/start/": {
-      "options": {},
-      "value": {
-        "hashed": "53d1b95fb289e0a5e23517da4d11abde4aec8f5c3a3b222131d0f0248ab2f317",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/0.md"
-        },
-        "pod_path": "/content/codelab/0.md"
-      }
-    },
-    "/start/1/": {
-      "options": {},
-      "value": {
-        "hashed": "b91437eff40a3a56c64d970ebadbc1d02e4d7140167dad8b2b110b33baa0f9b0",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/1.md"
-        },
-        "pod_path": "/content/codelab/1.md"
-      }
-    },
-    "/start/2/": {
-      "options": {},
-      "value": {
-        "hashed": "35b3d10e65bdb8d7da9767ffd03257d7cc53e291848eced5a1a34c5ad187c28f",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/2.md"
-        },
-        "pod_path": "/content/codelab/2.md"
-      }
-    },
-    "/start/3/": {
-      "options": {},
-      "value": {
-        "hashed": "2a68fdef9b0002ff3234233652e4f8d832e7589dd8c36a9619b3fa07d65d4d23",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/3.md"
-        },
-        "pod_path": "/content/codelab/3.md"
-      }
-    },
-    "/start/4/": {
-      "options": {},
-      "value": {
-        "hashed": "435e42ca60276591488122cef741862a4b4355dc24135dd46daf320e311b92d3",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/4.md"
-        },
-        "pod_path": "/content/codelab/4.md"
-      }
-    },
-    "/start/5/": {
-      "options": {},
-      "value": {
-        "hashed": "2e8bbc698103bc9bf6a5054da938e71c334e79a0b10b9721f2be30c3d4107170",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/5.md"
-        },
-        "pod_path": "/content/codelab/5.md"
-      }
-    },
-    "/start/6/": {
-      "options": {},
-      "value": {
-        "hashed": "1c0320c3ab630c74c112302f2a2f59330f684c2e57a9b714a1dad468dddcb551",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/6.md"
-        },
-        "pod_path": "/content/codelab/6.md"
-      }
-    },
-    "/start/7/": {
-      "options": {},
-      "value": {
-        "hashed": "2c2a9de7fc7e1c67cf794a99666a2a88aa56c8f5fcd92b46631f1fee08ebfafe",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/7.md"
-        },
-        "pod_path": "/content/codelab/7.md"
-      }
-    },
-    "/start/8/": {
-      "options": {},
-      "value": {
-        "hashed": "7a91b0e3d4caebe1b6b76149a8cd748778a1291cccce4102b739ddeae86815cb",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/8.md"
-        },
-        "pod_path": "/content/codelab/8.md"
-      }
-    },
-    "/start/9/": {
-      "options": {},
-      "value": {
-        "hashed": "2f71dbacb246d75e6fc37341b7b137a3a285a7fe6b47cdda6a7c0a39a9c4875c",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/codelab",
-          "locale": "en",
-          "pod_path": "/content/codelab/9.md"
-        },
-        "pod_path": "/content/codelab/9.md"
-      }
-    },
     "/static/*": {
       "options": null,
       "value": {
         "hashed": null,
         "kind": "static",
         "meta": {
-          "fingerprinted": false,
+          "fingerprinted": true,
           "localization": null,
           "localized": false,
           "path_filter": {
@@ -2261,7 +2713,10 @@
           "source_formats": [
             "/dist/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
