@@ -388,6 +388,12 @@ class Router(object):
 
     def from_cache(self, concrete=True):
         """Import routes from routes cache."""
+        fingerprinted_dirs = set()
+        for config in self.pod.static_configs:
+            if 'fingerprinted' in config and config['fingerprinted']:
+                fingerprinted_dirs.add(config['static_dir'])
+        fingerprinted_dirs = tuple(fingerprinted_dirs)
+
         routes_data = self.pod.podcache.routes_cache.raw(
             concrete=concrete)
         unchanged_pod_paths = set()
@@ -408,8 +414,14 @@ class Router(object):
                 continue
 
             # Ignore the fingerprinted files.
-            if 'fingerprinted' in route_info.meta and route_info.meta['fingerprinted']:
-                continue
+            if 'fingerprinted' in route_info.meta:
+                if route_info.meta['fingerprinted']:
+                    continue
+                else:
+                    # Check if the configuration has changed and the path should
+                    # be fingerprinted.
+                    if route_info.pod_path.startswith(fingerprinted_dirs):
+                        continue
 
             unchanged_pod_paths.add(route_info.pod_path)
             self.routes.add(key, route_info, options=item['options'])
