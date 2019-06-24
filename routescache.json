@@ -508,58 +508,6 @@
         "pod_path": "/content/codelab/9.md"
       }
     },
-    "/extensions/create/": {
-      "options": {},
-      "value": {
-        "hashed": "1171eceef93ae4b2634973a876cb7d503591f282e37c28dd039f1ce751ecca37",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs/extensions",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/create.md"
-        },
-        "pod_path": "/content/docs/extensions/create.md"
-      }
-    },
-    "/extensions/install/": {
-      "options": {},
-      "value": {
-        "hashed": "eeddb5fc5f03ef6f925dfcf6724932811b3dd737a1943573d889af4bdf85eca3",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs/extensions",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/install.md"
-        },
-        "pod_path": "/content/docs/extensions/install.md"
-      }
-    },
-    "/extensions/legacy/": {
-      "options": {},
-      "value": {
-        "hashed": "31c196634aec6afe5a9d709e7f7c1564f5def0337f1a9cb43314414b09773d73",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs/extensions",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/legacy.md"
-        },
-        "pod_path": "/content/docs/extensions/legacy.md"
-      }
-    },
-    "/extensions/preprocessor-legacy/": {
-      "options": {},
-      "value": {
-        "hashed": "ffe822680cfed0df07f0b62460ef04652cc2624ca61c62d699376c1eff854ae8",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs/extensions",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
-        },
-        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
-      }
-    },
     "/get-started/samples/": {
       "options": {},
       "value": {
@@ -571,58 +519,6 @@
           "pod_path": "/content/docs/get-started/samples.md"
         },
         "pod_path": "/content/docs/get-started/samples.md"
-      }
-    },
-    "/install/": {
-      "options": {},
-      "value": {
-        "hashed": "ebd9561e6ee3ea01429e587c252fc6fd13d1c469d2715f2d2daf977484c0e357",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/install.md"
-        },
-        "pod_path": "/content/docs/extensions/install.md"
-      }
-    },
-    "/legacy/": {
-      "options": {},
-      "value": {
-        "hashed": "f313de24114ab33e5d68ffc94530430b09c047b63356659936983f3c83f5b62a",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/legacy.md"
-        },
-        "pod_path": "/content/docs/extensions/legacy.md"
-      }
-    },
-    "/preprocessor-legacy/": {
-      "options": {},
-      "value": {
-        "hashed": "71e3f47e38a5c4cba0ed436b6e9e0c9f6e0fab714ced8bcc68af15096d195467",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
-        },
-        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
-      }
-    },
-    "/preprocessor/": {
-      "options": {},
-      "value": {
-        "hashed": "83650bf7c207ae2c17ff1ce4ec3701a4cedfc03eb98e38187e2ecbd22a311dd5",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/preprocessor.md"
-        },
-        "pod_path": "/content/docs/extensions/preprocessor.md"
       }
     },
     "/reference/collections/": {
@@ -922,6 +818,116 @@
         "pod_path": "/dist/css/blocks/search.min.css"
       }
     },
+    "/static/css/composite/docs.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "ba3f8f77ab81266e66f27e79ef7047da021ac655c625a5658d0c8596638a4621",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/docs.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/docs.min.css"
+      }
+    },
+    "/static/css/composite/global.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "fd3b7d753284484c35e7fa347c78529fce0aa43962403acd7f1a8f1ce83a3d71",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/global.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/global.min.css"
+      }
+    },
+    "/static/css/composite/home.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "c76ddcee02cbae5ef44f8baca029d6ea7d2e51eae5250865c90eb476d8ba8db9",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/home.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/home.min.css"
+      }
+    },
+    "/static/css/composite/search.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "d5aefdedc28ffcfd57496e1cd2e41ea1926928b3a899f5dd327ee4fb795442d9",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/search.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/search.min.css"
+      }
+    },
+    "/static/css/composite/styleguide.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "f9f9e0d9303c660ee05d1de7daa6e1b6c8e5e1fd395fb956dc3e0a9b42d95a3c",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/composite/styleguide.min.css",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/css/composite/styleguide.min.css"
+      }
+    },
     "/static/css/main.min.css": {
       "options": null,
       "value": {
@@ -947,10 +953,76 @@
         "pod_path": "/dist/css/main.min.css"
       }
     },
+    "/static/js/composite/docs.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "4782ad9ac1a80ee009c88376d15643282d28bed9eb6e15717281f1cc1f4e687f",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/docs.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/js/composite/docs.min.js"
+      }
+    },
+    "/static/js/composite/global.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "59e46906626469ab5b9f435a8bc0fa45647ee9e23ea62836d6d1b0577dc18b46",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/global.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/js/composite/global.min.js"
+      }
+    },
+    "/static/js/composite/home.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "99bb7637c49ac9f32c9fe1d231205a481e4a1d30811dc89eeeec44a1c60d1a61",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/composite/home.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/dist/js/composite/home.min.js"
+      }
+    },
     "/static/js/main.min.js": {
       "options": null,
       "value": {
-        "hashed": "df7d23554641dfa607eef189f66797e69187be4a8c9eff59e6d36e369e509fc4",
+        "hashed": "99eb1c307f44853e26649ba059066594cbde0fdcfaa1651c46cec66162d88062",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -964,10 +1036,7 @@
             "included": []
           },
           "pod_path": "/dist/js/main.min.js",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/dist/js/main.min.js"
       }
