@@ -36,52 +36,56 @@ class StaticDocumentTestCase(unittest.TestCase):
         """Static filter config."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals(static_doc.filter, {})
+        self.assertEqual(static_doc.filter, {})
 
     def test_path_format(self):
         """Static document path format."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals('/app/static/test.txt', static_doc.path_format)
+        self.assertEqual('/app/static/test.txt', static_doc.path_format)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/something.txt')
-        self.assertEquals('/app/static/something.txt', static_doc.path_format)
+        self.assertEqual('/app/static/something.txt', static_doc.path_format)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/something.txt', locale='de')
-        self.assertEquals(
+        self.assertEqual(
             '/app/{root}/static/somepath/{locale}/something.txt', static_doc.path_format)
 
     def test_path_filter(self):
         """Static path filter."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertTrue(static_doc.path_filter.is_valid(static_doc.serving_path))
+        self.assertTrue(static_doc.path_filter.is_valid(
+            static_doc.serving_path))
 
     def test_serving_path(self):
         """Static document serving path."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals(
-            '/app/static/test-db3f6eaa28bac5ae1180257da33115d8.txt', static_doc.serving_path)
+        self.assertEqual(
+            ('/app/static/test-180e03ea719ad14b0e02701048db567e231eb6fd'
+             '0a23b6359f068b1e8bef135b.txt'),
+            static_doc.serving_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt', locale='de')
-        self.assertEquals(
-            '/app/root/static/somepath/de/test-db3f6eaa28bac5ae1180257da33115d8.txt',
+        self.assertEqual(
+            ('/app/root/static/somepath/de/test-180e03ea719ad14b0e02701'
+             '048db567e231eb6fd0a23b6359f068b1e8bef135b.txt'),
             static_doc.serving_path)
 
     def test_serving_path_parameterized(self):
         """Static document parameterized serving path."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals(
+        self.assertEqual(
             '/app/static/test.txt', static_doc.serving_path_parameterized)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/something.txt', locale='de')
-        self.assertEquals(
+        self.assertEqual(
             '/app/root/static/somepath/:locale/something.txt',
             static_doc.serving_path_parameterized)
 
@@ -89,76 +93,80 @@ class StaticDocumentTestCase(unittest.TestCase):
         """Static document source path."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals('/static/', static_doc.source_path)
+        self.assertEqual('/static/', static_doc.source_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/something.txt', locale='de')
-        self.assertEquals('/static/intl/{locale}/', static_doc.source_path)
+        self.assertEqual('/static/intl/{locale}/', static_doc.source_path)
 
     def test_source_path_multi_paths(self):
         """Static document source path with multiple source dirs."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static-a/test-a.txt')
-        self.assertEquals('/static-a/', static_doc.source_path)
+        self.assertEqual('/static-a/', static_doc.source_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static-b/test-b.txt')
-        self.assertEquals('/static-b/', static_doc.source_path)
+        self.assertEqual('/static-b/', static_doc.source_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static-a/test-a.txt', locale='de')
-        self.assertEquals('/static-a/intl/{locale}/', static_doc.source_path)
+        self.assertEqual('/static-a/intl/{locale}/', static_doc.source_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static-b/test-b.txt', locale='de')
-        self.assertEquals('/static-b/intl/{locale}/', static_doc.source_path)
+        self.assertEqual('/static-b/intl/{locale}/', static_doc.source_path)
 
     def test_source_paths(self):
         """Static document source paths."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static-a/test-a.txt')
-        self.assertEquals('/static-a/', static_doc.source_path)
+        self.assertEqual('/static-a/', static_doc.source_path)
         static_doc = static_document.StaticDocument(
             self.pod, '/static-b/test-b.txt')
-        self.assertEquals('/static-b/', static_doc.source_path)
+        self.assertEqual('/static-b/', static_doc.source_path)
 
     def test_source_pod_path(self):
         """Static document source path."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals('/static/test.txt', static_doc.source_pod_path)
+        self.assertEqual('/static/test.txt', static_doc.source_pod_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt', locale='de')
-        self.assertEquals(
+        self.assertEqual(
             '/static/intl/de/test.txt', static_doc.source_pod_path)
 
     def test_sub_pod_path(self):
         """Static document source path."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals('test.txt', static_doc.sub_pod_path)
+        self.assertEqual('test.txt', static_doc.sub_pod_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/something/test.txt')
-        self.assertEquals('something/test.txt', static_doc.sub_pod_path)
+        self.assertEqual('something/test.txt', static_doc.sub_pod_path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/intl/{locale}/something.txt', locale='de')
-        self.assertEquals('something.txt', static_doc.sub_pod_path)
+        self.assertEqual('something.txt', static_doc.sub_pod_path)
 
     def test_url(self):
         """Static document url."""
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt')
-        self.assertEquals(
-            '/app/static/test-db3f6eaa28bac5ae1180257da33115d8.txt', static_doc.url.path)
+        self.assertEqual(
+            ('/app/static/test-180e03ea719ad14b0e02701048db567e231eb6f'
+             'd0a23b6359f068b1e8bef135b.txt'),
+            static_doc.url.path)
 
         static_doc = static_document.StaticDocument(
             self.pod, '/static/test.txt', locale='de')
-        self.assertEquals(
-            '/app/root/static/somepath/de/test-db3f6eaa28bac5ae1180257da33115d8.txt',
+        self.assertEqual(
+            ('/app/root/static/somepath/de/test-180e03ea719ad14b0e0270'
+             '1048db567e231eb6fd0a23b6359f068b1e8bef135b.txt'),
             static_doc.url.path)
+
 
 if __name__ == '__main__':
     unittest.main()
