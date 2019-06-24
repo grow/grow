@@ -1,9 +1,14 @@
 """Grow static document."""
 
-import hashlib
 import os
+import re
 from grow.common import urls
 from grow.routing import path_filter as grow_path_filter
+
+
+# SHA 256 hash length: 64 characters.
+FINGERPRINT_RE = re.compile(
+    r'(.*)(-[a-f0-9]{64})(\.min)?([\.][a-z0-9]{1,5})$', re.IGNORECASE)
 
 
 class Error(Exception):
@@ -49,9 +54,10 @@ class StaticDocument(object):
                 self.pod_path, self.locale)
         return "<StaticDocument({})>".format(self.pod_path)
 
-    def _create_fingerprint(self):
-        with self.pod.open_file(self.pod_path, 'rb') as pod_file:
-            return hashlib.md5(pod_file.read()).hexdigest()
+    @staticmethod
+    def strip_fingerprint(serving_path):
+        """Strip the fingerprint off a serving path."""
+        return FINGERPRINT_RE.sub(r'\1\3\4', serving_path)
 
     @property
     def base_path_format(self):
@@ -83,7 +89,7 @@ class StaticDocument(object):
     @property
     def fingerprint(self):
         """Fingerprint of the file contents."""
-        return self._create_fingerprint()
+        return self.pod.hash_file(self.pod_path)
 
     @property
     def fingerprinted(self):

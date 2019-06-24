@@ -151,6 +151,29 @@ class StaticDocumentTestCase(unittest.TestCase):
             self.pod, '/static/intl/{locale}/something.txt', locale='de')
         self.assertEqual('something.txt', static_doc.sub_pod_path)
 
+    def test_strip_fingerprint(self):
+        """Strip off fingerprint from the serving path."""
+        serving_path = '/'
+        expected = '/'
+        actual = static_document.StaticDocument.strip_fingerprint(serving_path)
+        self.assertEqual(expected, actual)
+
+        serving_path = '/test.txt'
+        expected = '/test.txt'
+        actual = static_document.StaticDocument.strip_fingerprint(serving_path)
+        self.assertEqual(expected, actual)
+
+        serving_path = '/something/test.txt'
+        expected = '/something/test.txt'
+        actual = static_document.StaticDocument.strip_fingerprint(serving_path)
+        self.assertEqual(expected, actual)
+
+        serving_path = ('/global-fd3b7d753284484c35e7fa347c78529fce0aa43'
+                        '962403acd7f1a8f1ce83a3d71.min.css')
+        expected = '/global.min.css'
+        actual = static_document.StaticDocument.strip_fingerprint(serving_path)
+        self.assertEqual(expected, actual)
+
     def test_url(self):
         """Static document url."""
         static_doc = static_document.StaticDocument(
