@@ -26,7 +26,7 @@ To configure Circle CI, add a `.circleci/config.yml` file in your repository's r
 
 ### Complex Parallel Builds
 
-For large sites using a CI service it is possible to break up a build into parallel builds that each build for specific locales then combine the build results in a "fan-in" build after the locale specific builds.
+For large sites using a CI service it is possible to break up a build into sharded builds that split the routes then re-combine the build results in a "fan-in" deploy.
 
 <script src="https://gist.github.com/Zoramite/93f81a5a58afcb8cbbc474c891ff591c.js"></script>
 
