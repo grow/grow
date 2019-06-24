@@ -34,10 +34,13 @@ static_dirs:
   fingerprinted: true
 - static_dir: /source/search/
   serve_at: "/{root}/assets/search/"
+  fingerprinted: true
 - static_dir: /source/js/
   serve_at: "/{root}/assets/js/"
+  fingerprinted: true
 - static_dir: /source/vendor/
   serve_at: "/{root}/assets/vendor/"
+  fingerprinted: true
 
 sitemap:
   enabled: true
