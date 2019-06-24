@@ -6,6 +6,7 @@ import os
 import sys
 import time
 from grow.common import utils
+from grow.documents import static_document
 from grow.pods import errors
 from grow.rendering import rendered_document
 from grow.templates import doc_dependency
@@ -438,6 +439,9 @@ class RenderStaticDocumentController(RenderController):
                 path_format = '{}{}'.format(source_format, self.params['*'])
                 self._pod_path = self.pod.path_format.format_static(
                     path_format, locale=locale)
+                # Strip the fingerprint to get to the raw static file.
+                self._pod_path = static_document.StaticDocument.strip_fingerprint(
+                    self._pod_path)
                 static_doc = self.pod.get_static(self._pod_path, locale=locale)
                 if static_doc.exists:
                     break
