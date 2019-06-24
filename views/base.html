@@ -131,12 +131,12 @@
     {# TODO(jeremydw): Rewrite from mkdocs and use standard gulpfile. #}
     <script src="{{g.static('/source/vendor/vendor.min.js').url.path}}"></script>
     <script>
-      var base_url = '{{podspec.root.rstrip('/')}}/assets/search/js';
+      var base_url = '{{podspec.root.rstrip('/')}}/assets/search';
       var base_url_locale = '{{doc.locale}}';
     </script>
-    <script data-main="{{g.static('/source/js/search/search.js').url.path}}" src="{{g.static('/source/js/require.js').url.path}}"></script>
+    <script data-main="{{g.static('/source/search/search.js').url.path}}" src="{{g.static('/source/search/require.js').url.path}}"></script>
     <script src="{{g.static('/source/js/base.js').url.path}}"></script>
-    <script src="{{g.static('/source/js/require.js').url.path}}"></script>
-    <script src="{{g.static('/source/js/search/search.js').url.path}}"></script>
+    <script src="{{g.static('/source/search/require.js').url.path}}"></script>
+    <script src="{{g.static('/source/search/search.js').url.path}}"></script>
   </body>
 </html>

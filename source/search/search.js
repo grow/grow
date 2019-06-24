@@ -2,7 +2,7 @@ require.config({
   baseUrl: base_url
 });
 
-var SEARCH_PATH = 'text!../search_index-' + base_url_locale + '-json.html';
+var SEARCH_PATH = 'text!search_index-' + base_url_locale + '-json.html';
 
 require([
   'mustache.min',

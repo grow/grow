@@ -1220,54 +1220,6 @@
         "pod_path": "/content/docs/get-started/samples.md"
       }
     },
-    "/:locale/open-source/": {
-      "options": {
-        "locale": [
-          "en"
-        ]
-      },
-      "value": {
-        "hashed": "3594fa180b840dd402e6b910c10be1c3b2afeddd7f50c6d00bf325a7e6da4cb9",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "pod_path": "/content/pages/open-source.md"
-        },
-        "pod_path": "/content/pages/open-source.md"
-      }
-    },
-    "/:locale/plugins/": {
-      "options": {
-        "locale": [
-          "en"
-        ]
-      },
-      "value": {
-        "hashed": "a5f26515452ca25b23d8c3fe91a2ed4322c9884d329bb27ff24d5535281e101f",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "pod_path": "/content/pages/plugins.md"
-        },
-        "pod_path": "/content/pages/plugins.md"
-      }
-    },
-    "/:locale/policies/": {
-      "options": {
-        "locale": [
-          "en"
-        ]
-      },
-      "value": {
-        "hashed": "d6677aa9601c5ac34f3366e9ff3b1943241fac49ab4d93cb84495cdded09f9b7",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "pod_path": "/content/pages/policies.md"
-        },
-        "pod_path": "/content/pages/policies.md"
-      }
-    },
     "/:locale/reference/collections/": {
       "options": {
         "locale": [
@@ -1387,7 +1339,7 @@
         ]
       },
       "value": {
-        "hashed": "841365657aedd1010352fd4afaaa2a16a9e4540ee53f1864a4c4142d12ca1ec5",
+        "hashed": "1179511ddb4a93ae4168f4d8ffa4d269b5573c8e83053b7042c3718f74e55982",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/reference",
@@ -1602,10 +1554,7 @@
           "source_formats": [
             "/source/css/"
           ],
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": null
       }
@@ -1629,10 +1578,7 @@
           "source_formats": [
             "/source/images/"
           ],
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": null
       }
@@ -1656,10 +1602,31 @@
           "source_formats": [
             "/source/js/"
           ],
-          "static_filter": {
-            "ignored": [],
+          "static_filter": {}
+        },
+        "pod_path": null
+      }
+    },
+    "/assets/search/*": {
+      "options": null,
+      "value": {
+        "hashed": null,
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
             "included": []
-          }
+          },
+          "path_format": "/assets/search/",
+          "source_formats": [
+            "/source/search/"
+          ],
+          "static_filter": {}
         },
         "pod_path": null
       }
@@ -1750,10 +1717,7 @@
           "source_formats": [
             "/source/vendor/"
           ],
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": null
       }
@@ -1966,45 +1930,6 @@
         "pod_path": "/content/docs/get-started/samples.md"
       }
     },
-    "/open-source/": {
-      "options": {},
-      "value": {
-        "hashed": "3594fa180b840dd402e6b910c10be1c3b2afeddd7f50c6d00bf325a7e6da4cb9",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "locale": "en",
-          "pod_path": "/content/pages/open-source.md"
-        },
-        "pod_path": "/content/pages/open-source.md"
-      }
-    },
-    "/plugins/": {
-      "options": {},
-      "value": {
-        "hashed": "a5f26515452ca25b23d8c3fe91a2ed4322c9884d329bb27ff24d5535281e101f",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "locale": "en",
-          "pod_path": "/content/pages/plugins.md"
-        },
-        "pod_path": "/content/pages/plugins.md"
-      }
-    },
-    "/policies/": {
-      "options": {},
-      "value": {
-        "hashed": "d6677aa9601c5ac34f3366e9ff3b1943241fac49ab4d93cb84495cdded09f9b7",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "locale": "en",
-          "pod_path": "/content/pages/policies.md"
-        },
-        "pod_path": "/content/pages/policies.md"
-      }
-    },
     "/reference/collections/": {
       "options": {},
       "value": {
@@ -2099,7 +2024,7 @@
     "/reference/podspec/": {
       "options": {},
       "value": {
-        "hashed": "841365657aedd1010352fd4afaaa2a16a9e4540ee53f1864a4c4142d12ca1ec5",
+        "hashed": "1179511ddb4a93ae4168f4d8ffa4d269b5573c8e83053b7042c3718f74e55982",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/reference",
@@ -2336,10 +2261,7 @@
           "source_formats": [
             "/dist/"
           ],
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": null
       }
