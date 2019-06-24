@@ -52,11 +52,3 @@ deployments:
     env:
       name: grow.io
       port: 443
-    headers:
-    - extensions:
-      - .html
-      - .png
-      - .svg
-      fields:
-      - name: Cache-Control
-        value: "max-age=60, must-revalidate"
