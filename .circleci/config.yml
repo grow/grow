@@ -9,14 +9,14 @@ jobs:
 
       - restore_cache:
           keys:
-            - grow-cache-{{ .Branch }}-{{ checksum "package.json" }}
+            - &cache_key grow-cache-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
 
       - run:
           name: Grow Install
           command: grow install
 
       - save_cache:
-          key: grow-cache-{{ .Branch }}-{{ checksum "package.json" }}
+          key: *cache_key
           paths:
             - node_modules
 
