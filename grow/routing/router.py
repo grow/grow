@@ -79,7 +79,7 @@ class Router(object):
                     # Skip when the doc is in the unchanged pod paths set.
                     if doc.pod_path in unchanged_pod_paths:
                         # Even though it is being skipped, mark that it has been
-                        # loaded.
+                        # loaded to prevent issues with paramaterized serving paths.
                         doc_basenames.add(doc.collection_sub_path_clean)
                         continue
                     # Skip duplicate documents when using non-concrete routing.
