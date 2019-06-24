@@ -1,2 +1,5 @@
-view: /views/codelab.html
-path: /{root}/start/{base}/
+$view: /views/base.html
+$path: /{root}/codelab/{base}/
+nav_title: Codelab
+show_title: true
+show_relative_nav: true

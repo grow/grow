@@ -1,0 +1,24 @@
+{% set docs = [] %}
+
+{# Collect root docs. #}
+{% for item in g.docs('docs', recursive=false) %}
+  {% do docs.append({
+    'location': item.url.path,
+    'title': _(item.title),
+    'text': item.html|striptags
+  }) %}
+{% endfor %}
+
+{# Collect sub-collections. #}
+{% for col in g.collection('docs').collections() %}
+  {% for item in col.docs() %}
+    {% do docs.append({
+      'location': item.url.path,
+      'title': _(item.title),
+      'text': item.html|striptags
+    }) %}
+  {% endfor %}
+{% endfor %}
+
+{% set index = {'docs': docs} %}
+{{index|jsonify|safe}}

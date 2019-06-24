@@ -3,495 +3,20 @@
     "/": {
       "options": {},
       "value": {
-        "hashed": "7eadf510b18ebeced2526ac8ced60ee17809eebdd896d72d93be73ff62f092d2",
+        "hashed": "e4165a6d109d9a88a63dd2a822298471a7900bd6126d7cd03ed76da1f7f8bd71",
         "kind": "doc",
         "meta": {
-          "collection_path": "/content/pages",
+          "collection_path": "/content/docs/get-started",
           "locale": "en",
-          "pod_path": "/content/pages/home.yaml"
+          "pod_path": "/content/docs/get-started/index.md"
         },
-        "pod_path": "/content/pages/home.yaml"
+        "pod_path": "/content/docs/get-started/index.md"
       }
     },
-    "/404.html": {
+    "/assets/images/grow.svg": {
       "options": null,
       "value": {
-        "hashed": null,
-        "kind": "error",
-        "meta": {
-          "key": 404,
-          "view": "/views/errors.html"
-        },
-        "pod_path": null
-      }
-    },
-    "/css/composite/docs-f7da157a92f76d14dfae562341bc6dc1.min.css": {
-      "options": null,
-      "value": {
-        "hashed": "ba3f8f77ab81266e66f27e79ef7047da021ac655c625a5658d0c8596638a4621",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": true,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/dist/css/composite/docs.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/dist/css/composite/docs.min.css"
-      }
-    },
-    "/css/composite/global-815332777827e9f19889b183c4d607cd.min.css": {
-      "options": null,
-      "value": {
-        "hashed": "fd3b7d753284484c35e7fa347c78529fce0aa43962403acd7f1a8f1ce83a3d71",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": true,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/dist/css/composite/global.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/dist/css/composite/global.min.css"
-      }
-    },
-    "/css/composite/home-067aec70e8e4b53dcfea7a816e58b5b1.min.css": {
-      "options": null,
-      "value": {
-        "hashed": "c76ddcee02cbae5ef44f8baca029d6ea7d2e51eae5250865c90eb476d8ba8db9",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": true,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/dist/css/composite/home.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/dist/css/composite/home.min.css"
-      }
-    },
-    "/css/composite/search-fc4a7fb15982111edb74b9e0e586d4ae.min.css": {
-      "options": null,
-      "value": {
-        "hashed": "d5aefdedc28ffcfd57496e1cd2e41ea1926928b3a899f5dd327ee4fb795442d9",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": true,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/dist/css/composite/search.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/dist/css/composite/search.min.css"
-      }
-    },
-    "/css/composite/styleguide-80b05f72646235db07a7f693d12e795c.min.css": {
-      "options": null,
-      "value": {
-        "hashed": "f9f9e0d9303c660ee05d1de7daa6e1b6c8e5e1fd395fb956dc3e0a9b42d95a3c",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": true,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/dist/css/composite/styleguide.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/dist/css/composite/styleguide.min.css"
-      }
-    },
-    "/docs/": {
-      "options": {},
-      "value": {
-        "hashed": "e1edbec37a9b5ade98529b0fc0e2b89bf3ffa532f9268966948e3d83ec42c0db",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/index.md"
-        },
-        "pod_path": "/content/docs/index.md"
-      }
-    },
-    "/docs/building/": {
-      "options": {},
-      "value": {
-        "hashed": "cf3c220309059f5b888af1ff76251ed7366ea4e88bccf8ae584a9abde8cd9e83",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/building.md"
-        },
-        "pod_path": "/content/docs/building.md"
-      }
-    },
-    "/docs/collections/": {
-      "options": {},
-      "value": {
-        "hashed": "880f8595cea2b982cf3cd23754a3cda0340a229aa0bd9f2b3fa5218922e1a5ae",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/collections.md"
-        },
-        "pod_path": "/content/docs/collections.md"
-      }
-    },
-    "/docs/content-localization/": {
-      "options": {},
-      "value": {
-        "hashed": "4c24e2a2bd2c944a86b40c01c0ace94519113888eb9d1a4b7cffc77d102ec295",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/content-localization.md"
-        },
-        "pod_path": "/content/docs/content-localization.md"
-      }
-    },
-    "/docs/continuous/": {
-      "options": {},
-      "value": {
-        "hashed": "a8145fcb4d4bb58eb6096d6bdea5e9d2f2db3202aefe4088f3902ad8d8f52a3f",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/continuous.md"
-        },
-        "pod_path": "/content/docs/continuous.md"
-      }
-    },
-    "/docs/deployment/": {
-      "options": {},
-      "value": {
-        "hashed": "ea9a2e63bcbc95bfb33e9a7077d93639215cd0ef7b35cac4be8f8440d3952b75",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/deployment.md"
-        },
-        "pod_path": "/content/docs/deployment.md"
-      }
-    },
-    "/docs/development-server/": {
-      "options": {},
-      "value": {
-        "hashed": "319aecb84aaf5cf075a160aaf3f332882572c5941f9a1ebdde1ab9dcad0ef33c",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/development-server.md"
-        },
-        "pod_path": "/content/docs/development-server.md"
-      }
-    },
-    "/docs/directory-structure/": {
-      "options": {},
-      "value": {
-        "hashed": "8c84e4fb2a18fa9b27b1ad7fb46d7c4f654d52efb08e463cf59065eb905fe749",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/directory-structure.md"
-        },
-        "pod_path": "/content/docs/directory-structure.md"
-      }
-    },
-    "/docs/documents/": {
-      "options": {},
-      "value": {
-        "hashed": "1e78437ae22d0fd4cbf9089f14e69b9c3674d70f7917429436ad93a8bd9581b4",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/documents.md"
-        },
-        "pod_path": "/content/docs/documents.md"
-      }
-    },
-    "/docs/environments/": {
-      "options": {},
-      "value": {
-        "hashed": "2705d764339fd9a63f8862ec8e840b78f357c8566d0c9b71dff41b7491e10737",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/environments.md"
-        },
-        "pod_path": "/content/docs/environments.md"
-      }
-    },
-    "/docs/extensions-install/": {
-      "options": {},
-      "value": {
-        "hashed": "ebd9561e6ee3ea01429e587c252fc6fd13d1c469d2715f2d2daf977484c0e357",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions-install.md"
-        },
-        "pod_path": "/content/docs/extensions-install.md"
-      }
-    },
-    "/docs/extensions-legacy/": {
-      "options": {},
-      "value": {
-        "hashed": "f313de24114ab33e5d68ffc94530430b09c047b63356659936983f3c83f5b62a",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions-legacy.md"
-        },
-        "pod_path": "/content/docs/extensions-legacy.md"
-      }
-    },
-    "/docs/extensions-preprocessor-legacy/": {
-      "options": {},
-      "value": {
-        "hashed": "71e3f47e38a5c4cba0ed436b6e9e0c9f6e0fab714ced8bcc68af15096d195467",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions-preprocessor-legacy.md"
-        },
-        "pod_path": "/content/docs/extensions-preprocessor-legacy.md"
-      }
-    },
-    "/docs/extensions-preprocessor/": {
-      "options": {},
-      "value": {
-        "hashed": "83650bf7c207ae2c17ff1ce4ec3701a4cedfc03eb98e38187e2ecbd22a311dd5",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions-preprocessor.md"
-        },
-        "pod_path": "/content/docs/extensions-preprocessor.md"
-      }
-    },
-    "/docs/extensions/": {
-      "options": {},
-      "value": {
-        "hashed": "4276aba5f8a9c74cf985ef8baf0270e754948fb7977de7e9d2c72fdb9e48dc07",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions.md"
-        },
-        "pod_path": "/content/docs/extensions.md"
-      }
-    },
-    "/docs/git-usage/": {
-      "options": {},
-      "value": {
-        "hashed": "b1d62cae57b1c3c24d079e9b0483ce5e80711fc3c0e2187af518508aeea06dc9",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/git-usage.md"
-        },
-        "pod_path": "/content/docs/git-usage.md"
-      }
-    },
-    "/docs/markdown-extensions/": {
-      "options": {},
-      "value": {
-        "hashed": "7672547ee1914988ff8ed95d26810afcd9d6a2706e674338af62e78bf20daf46",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/markdown-extensions.md"
-        },
-        "pod_path": "/content/docs/markdown-extensions.md"
-      }
-    },
-    "/docs/partials/": {
-      "options": {},
-      "value": {
-        "hashed": "90c308bf4ae306c23666f658cc6b4cb4c2b52dee7b7310f9b1368fce35208d07",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/partials.md"
-        },
-        "pod_path": "/content/docs/partials.md"
-      }
-    },
-    "/docs/podspec/": {
-      "options": {},
-      "value": {
-        "hashed": "678bacc6a744c50f5421110224b5b1088f8a304e9c1f62209fe9ab7852f3d5b2",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/podspec.md"
-        },
-        "pod_path": "/content/docs/podspec.md"
-      }
-    },
-    "/docs/preferences/": {
-      "options": {},
-      "value": {
-        "hashed": "2ce19ff5ceda0ba89d09f700087cb415be5a52b41898c24eb8c74fccf147e308",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/preferences.md"
-        },
-        "pod_path": "/content/docs/preferences.md"
-      }
-    },
-    "/docs/preprocessors/": {
-      "options": {},
-      "value": {
-        "hashed": "7870bdffd427de8d89b13bdc45847c8d2186d19fc2da6c14556e1f2e4db1bf40",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/preprocessors.md"
-        },
-        "pod_path": "/content/docs/preprocessors.md"
-      }
-    },
-    "/docs/samples/": {
-      "options": {},
-      "value": {
-        "hashed": "afa1a6c8cfa6ad2794c7fb8e642b94b6d4f36cc79d7f3b1a2f2c00be382cb505",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/samples.md"
-        },
-        "pod_path": "/content/docs/samples.md"
-      }
-    },
-    "/docs/templates/": {
-      "options": {},
-      "value": {
-        "hashed": "18ced1a02284681939e15208acce469ffb721ae3e19b279954e1c05874c32dc7",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/templates.md"
-        },
-        "pod_path": "/content/docs/templates.md"
-      }
-    },
-    "/docs/translations/": {
-      "options": {},
-      "value": {
-        "hashed": "2a6d46b4d27a211492dc192a3d7d61f39438c385fe16b12c6880fb3f43c5c18d",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/translations.md"
-        },
-        "pod_path": "/content/docs/translations.md"
-      }
-    },
-    "/docs/ui-tools/": {
-      "options": {},
-      "value": {
-        "hashed": "b7c814251877d59d102b2ef74bca203fe82fbe5bb2a62715e2760e6dd16c5b01",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/ui-tools.md"
-        },
-        "pod_path": "/content/docs/ui-tools.md"
-      }
-    },
-    "/docs/urls/": {
-      "options": {},
-      "value": {
-        "hashed": "73797c58b52083548bc374d40431b21484ee95b9df72a84b75b5cf9263f2b314",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/urls.md"
-        },
-        "pod_path": "/content/docs/urls.md"
-      }
-    },
-    "/favicon.ico": {
-      "options": null,
-      "value": {
-        "hashed": "3d03257da4c5c89f205d44477d283bd2f03de61dd157dcdfe0c1747d9b56d2d7",
+        "hashed": "205ccdcc793d09bf71ae5aafe6b7b655dd37e176dbd61489cec49f5d5e1fd25c",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -504,22 +29,22 @@
             ],
             "included": []
           },
-          "pod_path": "/static/root/favicon.ico",
+          "pod_path": "/source/images/grow.svg",
           "static_filter": {
             "ignored": [],
             "included": []
           }
         },
-        "pod_path": "/static/root/favicon.ico"
+        "pod_path": "/source/images/grow.svg"
       }
     },
-    "/js/composite/docs-0fae6a991467bd40263a3ba8cd82835d.min.js": {
+    "/assets/images/icon.png": {
       "options": null,
       "value": {
-        "hashed": "4782ad9ac1a80ee009c88376d15643282d28bed9eb6e15717281f1cc1f4e687f",
+        "hashed": "83acac4a8f1fffd70e71507442d396cf47a544f0c756d67a3632f064018fec5f",
         "kind": "static",
         "meta": {
-          "fingerprinted": true,
+          "fingerprinted": false,
           "locale": null,
           "localization": null,
           "localized": false,
@@ -529,22 +54,22 @@
             ],
             "included": []
           },
-          "pod_path": "/dist/js/composite/docs.min.js",
+          "pod_path": "/source/images/icon.png",
           "static_filter": {
             "ignored": [],
             "included": []
           }
         },
-        "pod_path": "/dist/js/composite/docs.min.js"
+        "pod_path": "/source/images/icon.png"
       }
     },
-    "/js/composite/docs-86f8da85c9025afce6b585ab59548634.min.js": {
+    "/assets/images/search-icon.svg": {
       "options": null,
       "value": {
-        "hashed": "81c53d05048c39eb063fac19fc4a52543c01d8ce4857a4c02a44e38210e38b62",
+        "hashed": "b86bd9e182faf6479052c1549f350cf2bada76d3aa9f19bf64b8197c305e677f",
         "kind": "static",
         "meta": {
-          "fingerprinted": true,
+          "fingerprinted": false,
           "locale": null,
           "localization": null,
           "localized": false,
@@ -554,22 +79,22 @@
             ],
             "included": []
           },
-          "pod_path": "/dist/js/composite/docs.min.js",
+          "pod_path": "/source/images/search-icon.svg",
           "static_filter": {
             "ignored": [],
             "included": []
           }
         },
-        "pod_path": "/dist/js/composite/docs.min.js"
+        "pod_path": "/source/images/search-icon.svg"
       }
     },
-    "/js/composite/global-7bb167004cd34288c477594f56fc1413.min.js": {
+    "/assets/js/base.js": {
       "options": null,
       "value": {
-        "hashed": "ea45e328fb3795e9ead9e4ac05c7a1e53fd654e097199bcfe29e6d45d682690b",
+        "hashed": "954946d08b19537b3da15f0337bbbfc944b247e4084e32d7d66b6eef4b256c18",
         "kind": "static",
         "meta": {
-          "fingerprinted": true,
+          "fingerprinted": false,
           "locale": null,
           "localization": null,
           "localized": false,
@@ -579,22 +104,22 @@
             ],
             "included": []
           },
-          "pod_path": "/dist/js/composite/global.min.js",
+          "pod_path": "/source/js/base.js",
           "static_filter": {
             "ignored": [],
             "included": []
           }
         },
-        "pod_path": "/dist/js/composite/global.min.js"
+        "pod_path": "/source/js/base.js"
       }
     },
-    "/js/composite/global-e3300c33aa08fc570cabadc3f05d1fae.min.js": {
+    "/assets/js/main.js": {
       "options": null,
       "value": {
-        "hashed": "59e46906626469ab5b9f435a8bc0fa45647ee9e23ea62836d6d1b0577dc18b46",
+        "hashed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "kind": "static",
         "meta": {
-          "fingerprinted": true,
+          "fingerprinted": false,
           "locale": null,
           "localization": null,
           "localized": false,
@@ -604,22 +129,22 @@
             ],
             "included": []
           },
-          "pod_path": "/dist/js/composite/global.min.js",
+          "pod_path": "/source/js/main.js",
           "static_filter": {
             "ignored": [],
             "included": []
           }
         },
-        "pod_path": "/dist/js/composite/global.min.js"
+        "pod_path": "/source/js/main.js"
       }
     },
-    "/js/composite/home-058c9b064cc1399ab42e49e499640cfd.min.js": {
+    "/assets/js/require.js": {
       "options": null,
       "value": {
-        "hashed": "3dd2250f8b8e474110848669b97bf606505f89cfd1899e9f5bda5d16888a6728",
+        "hashed": "3e3eccb10aa9542c19493b24ba854d0b9fe57be3c787f434c88dede9f2847dc3",
         "kind": "static",
         "meta": {
-          "fingerprinted": true,
+          "fingerprinted": false,
           "locale": null,
           "localization": null,
           "localized": false,
@@ -629,22 +154,22 @@
             ],
             "included": []
           },
-          "pod_path": "/dist/js/composite/home.min.js",
+          "pod_path": "/source/js/require.js",
           "static_filter": {
             "ignored": [],
             "included": []
           }
         },
-        "pod_path": "/dist/js/composite/home.min.js"
+        "pod_path": "/source/js/require.js"
       }
     },
-    "/js/composite/home-788830b3edc1ed31052909df6e34a08b.min.js": {
+    "/assets/js/search/lunr.min.js": {
       "options": null,
       "value": {
-        "hashed": "99bb7637c49ac9f32c9fe1d231205a481e4a1d30811dc89eeeec44a1c60d1a61",
+        "hashed": "46529b90726ace79e12cb53262176055f081f4e62c254bef4b0682c233d3099f",
         "kind": "static",
         "meta": {
-          "fingerprinted": true,
+          "fingerprinted": false,
           "locale": null,
           "localization": null,
           "localized": false,
@@ -654,39 +179,632 @@
             ],
             "included": []
           },
-          "pod_path": "/dist/js/composite/home.min.js",
+          "pod_path": "/source/js/search/lunr.min.js",
           "static_filter": {
             "ignored": [],
             "included": []
           }
         },
-        "pod_path": "/dist/js/composite/home.min.js"
+        "pod_path": "/source/js/search/lunr.min.js"
       }
     },
-    "/project/": {
+    "/assets/js/search/mustache.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "4d6f09b49bc8582f0a413c867dfefabaf48920cbb25bfc3d3d760e2848a65f2a",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/js/search/mustache.min.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/source/js/search/mustache.min.js"
+      }
+    },
+    "/assets/js/search/search-results-template.mustache": {
+      "options": null,
+      "value": {
+        "hashed": "e9be24cc95e4833a5fc280590d0cabe0ef4e4052f0a50c19d6a06086f56bfb7d",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/js/search/search-results-template.mustache",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/source/js/search/search-results-template.mustache"
+      }
+    },
+    "/assets/js/search/search.js": {
+      "options": null,
+      "value": {
+        "hashed": "b3279d86d1ba6987ff768aea9802b75c7a9075a318f3f8a311ef3ef99a1d5fa4",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/js/search/search.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/source/js/search/search.js"
+      }
+    },
+    "/assets/js/search/text.js": {
+      "options": null,
+      "value": {
+        "hashed": "060eff42292d4c88eb111554ff6a3e2942bcd24019b978f7e6e35f57c757dad0",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/js/search/text.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/source/js/search/text.js"
+      }
+    },
+    "/assets/search/js/search_index-en-json.html": {
       "options": {},
       "value": {
-        "hashed": "7c45ce28a987f7e17a2977859a9f8c1f4fa64830bd30f8e59ab389dc5359646b",
+        "hashed": "5c59bf5fdd51bb748060b8c6122c544499bbcd7f15e6ba11f3903103224dc087",
         "kind": "doc",
         "meta": {
-          "collection_path": "/content/pages",
+          "collection_path": "/content/search",
           "locale": "en",
-          "pod_path": "/content/pages/project.yaml"
+          "pod_path": "/content/search/index.yaml"
         },
-        "pod_path": "/content/pages/project.yaml"
+        "pod_path": "/content/search/index.yaml"
       }
     },
-    "/search/": {
+    "/assets/search/search_index-en-json.html": {
       "options": {},
       "value": {
-        "hashed": "cd1d2c95f32ff03b2ae440cb301b208b04017eee362b2d50fbfa80ee72a3128b",
+        "hashed": "b7271f41a2fda28d340eeea1e81204e105d78bb51a64d7a3c835bf13245680aa",
         "kind": "doc",
         "meta": {
-          "collection_path": "/content/pages",
+          "collection_path": "/content/search",
           "locale": "en",
-          "pod_path": "/content/pages/search.yaml"
+          "pod_path": "/content/search/index.yaml"
         },
-        "pod_path": "/content/pages/search.yaml"
+        "pod_path": "/content/search/index.yaml"
+      }
+    },
+    "/assets/search/search_index-en.json.html": {
+      "options": {},
+      "value": {
+        "hashed": "467ab84c1083d03d4253c6bd18e37b0a2d24d3250326fea86d9e4a9da7b626fb",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/search",
+          "locale": "en",
+          "pod_path": "/content/search/index.yaml"
+        },
+        "pod_path": "/content/search/index.yaml"
+      }
+    },
+    "/assets/search/search_index-en.json/": {
+      "options": {},
+      "value": {
+        "hashed": "467ab84c1083d03d4253c6bd18e37b0a2d24d3250326fea86d9e4a9da7b626fb",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/search",
+          "locale": "en",
+          "pod_path": "/content/search/index.yaml"
+        },
+        "pod_path": "/content/search/index.yaml"
+      }
+    },
+    "/assets/search/search_index-foo-json.html": {
+      "options": {},
+      "value": {
+        "hashed": "28f4739c2206ebb72b68736883c5b95733e32525457ba96f173900d79f62f37b",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/search",
+          "locale": "en",
+          "pod_path": "/content/search/index.yaml"
+        },
+        "pod_path": "/content/search/index.yaml"
+      }
+    },
+    "/assets/vendor/vendor.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "4540f5c7b18b4c01f537c5ce438135a00ea750545f1f882c76ad727812a45bbe",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/vendor/vendor.min.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/source/vendor/vendor.min.js"
+      }
+    },
+    "/codelab/": {
+      "options": {},
+      "value": {
+        "hashed": "a98cf82b69dd39542afa2b3edd3fe26bff22b5391877d8b6c7272c26ad0f5f5d",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/0.md"
+        },
+        "pod_path": "/content/codelab/0.md"
+      }
+    },
+    "/codelab/1/": {
+      "options": {},
+      "value": {
+        "hashed": "b91437eff40a3a56c64d970ebadbc1d02e4d7140167dad8b2b110b33baa0f9b0",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/1.md"
+        },
+        "pod_path": "/content/codelab/1.md"
+      }
+    },
+    "/codelab/2/": {
+      "options": {},
+      "value": {
+        "hashed": "35b3d10e65bdb8d7da9767ffd03257d7cc53e291848eced5a1a34c5ad187c28f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/2.md"
+        },
+        "pod_path": "/content/codelab/2.md"
+      }
+    },
+    "/codelab/3/": {
+      "options": {},
+      "value": {
+        "hashed": "2a68fdef9b0002ff3234233652e4f8d832e7589dd8c36a9619b3fa07d65d4d23",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/3.md"
+        },
+        "pod_path": "/content/codelab/3.md"
+      }
+    },
+    "/codelab/4/": {
+      "options": {},
+      "value": {
+        "hashed": "435e42ca60276591488122cef741862a4b4355dc24135dd46daf320e311b92d3",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/4.md"
+        },
+        "pod_path": "/content/codelab/4.md"
+      }
+    },
+    "/codelab/5/": {
+      "options": {},
+      "value": {
+        "hashed": "2e8bbc698103bc9bf6a5054da938e71c334e79a0b10b9721f2be30c3d4107170",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/5.md"
+        },
+        "pod_path": "/content/codelab/5.md"
+      }
+    },
+    "/codelab/6/": {
+      "options": {},
+      "value": {
+        "hashed": "1c0320c3ab630c74c112302f2a2f59330f684c2e57a9b714a1dad468dddcb551",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/6.md"
+        },
+        "pod_path": "/content/codelab/6.md"
+      }
+    },
+    "/codelab/7/": {
+      "options": {},
+      "value": {
+        "hashed": "2c2a9de7fc7e1c67cf794a99666a2a88aa56c8f5fcd92b46631f1fee08ebfafe",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/7.md"
+        },
+        "pod_path": "/content/codelab/7.md"
+      }
+    },
+    "/codelab/8/": {
+      "options": {},
+      "value": {
+        "hashed": "7a91b0e3d4caebe1b6b76149a8cd748778a1291cccce4102b739ddeae86815cb",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/8.md"
+        },
+        "pod_path": "/content/codelab/8.md"
+      }
+    },
+    "/codelab/9/": {
+      "options": {},
+      "value": {
+        "hashed": "2f71dbacb246d75e6fc37341b7b137a3a285a7fe6b47cdda6a7c0a39a9c4875c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/9.md"
+        },
+        "pod_path": "/content/codelab/9.md"
+      }
+    },
+    "/extensions/create/": {
+      "options": {},
+      "value": {
+        "hashed": "1171eceef93ae4b2634973a876cb7d503591f282e37c28dd039f1ce751ecca37",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/create.md"
+        },
+        "pod_path": "/content/docs/extensions/create.md"
+      }
+    },
+    "/extensions/install/": {
+      "options": {},
+      "value": {
+        "hashed": "eeddb5fc5f03ef6f925dfcf6724932811b3dd737a1943573d889af4bdf85eca3",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/install.md"
+        },
+        "pod_path": "/content/docs/extensions/install.md"
+      }
+    },
+    "/extensions/legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "31c196634aec6afe5a9d709e7f7c1564f5def0337f1a9cb43314414b09773d73",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/legacy.md"
+      }
+    },
+    "/extensions/preprocessor-legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "ffe822680cfed0df07f0b62460ef04652cc2624ca61c62d699376c1eff854ae8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+      }
+    },
+    "/get-started/samples/": {
+      "options": {},
+      "value": {
+        "hashed": "0ef392a5203bb966aa272dcae4d8c068e921b6c2ebf7e66576d4c52a3cf611a0",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/get-started",
+          "locale": "en",
+          "pod_path": "/content/docs/get-started/samples.md"
+        },
+        "pod_path": "/content/docs/get-started/samples.md"
+      }
+    },
+    "/install/": {
+      "options": {},
+      "value": {
+        "hashed": "ebd9561e6ee3ea01429e587c252fc6fd13d1c469d2715f2d2daf977484c0e357",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/install.md"
+        },
+        "pod_path": "/content/docs/extensions/install.md"
+      }
+    },
+    "/legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "f313de24114ab33e5d68ffc94530430b09c047b63356659936983f3c83f5b62a",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/legacy.md"
+      }
+    },
+    "/preprocessor-legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "71e3f47e38a5c4cba0ed436b6e9e0c9f6e0fab714ced8bcc68af15096d195467",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+      }
+    },
+    "/preprocessor/": {
+      "options": {},
+      "value": {
+        "hashed": "83650bf7c207ae2c17ff1ce4ec3701a4cedfc03eb98e38187e2ecbd22a311dd5",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor.md"
+      }
+    },
+    "/reference/collections/": {
+      "options": {},
+      "value": {
+        "hashed": "fe725d55dea4e5877e21b1392c42bc42393d2e1b838301fabc6588d974e31fb1",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/collections.md"
+        },
+        "pod_path": "/content/docs/reference/collections.md"
+      }
+    },
+    "/reference/content-localization/": {
+      "options": {},
+      "value": {
+        "hashed": "493e29e3a25f510d2e4dd8cf906592b11b719cc87a943f08ef2aa00759783a2f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/content-localization.md"
+        },
+        "pod_path": "/content/docs/reference/content-localization.md"
+      }
+    },
+    "/reference/directory-structure/": {
+      "options": {},
+      "value": {
+        "hashed": "a92bec7d6ae82cdbdea724d4773325998502fd80f2fcbf7d7b32e7e28d8931ce",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/directory-structure.md"
+        },
+        "pod_path": "/content/docs/reference/directory-structure.md"
+      }
+    },
+    "/reference/documents/": {
+      "options": {},
+      "value": {
+        "hashed": "aea8de9c79a47e7dc97afacf62a8a2db975b630cfaaa2dfa87cf8b8e2ebaf987",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/documents.md"
+        },
+        "pod_path": "/content/docs/reference/documents.md"
+      }
+    },
+    "/reference/environments/": {
+      "options": {},
+      "value": {
+        "hashed": "503b41bf8657a45f52e61876123fc8f27492cff9f83308767cc92ba6cedf7150",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/environments.md"
+        },
+        "pod_path": "/content/docs/reference/environments.md"
+      }
+    },
+    "/reference/markdown-extensions/": {
+      "options": {},
+      "value": {
+        "hashed": "0a59340cc03f6e34c909234cd10d66de06543fbd493bb00c74ca0eaebe800d20",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/markdown-extensions.md"
+        },
+        "pod_path": "/content/docs/reference/markdown-extensions.md"
+      }
+    },
+    "/reference/partials/": {
+      "options": {},
+      "value": {
+        "hashed": "f0c4d90fef6938dfa64583328c58a537c7e78a20c7856b3b929bceb153d2081c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/partials.md"
+        },
+        "pod_path": "/content/docs/reference/partials.md"
+      }
+    },
+    "/reference/podspec/": {
+      "options": {},
+      "value": {
+        "hashed": "1179511ddb4a93ae4168f4d8ffa4d269b5573c8e83053b7042c3718f74e55982",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/podspec.md"
+        },
+        "pod_path": "/content/docs/reference/podspec.md"
+      }
+    },
+    "/reference/preferences/": {
+      "options": {},
+      "value": {
+        "hashed": "726a3181c2bd44cd45d1b56c100e0824ce4bb2028574f2c34b2a7606653a653f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/preferences.md"
+        },
+        "pod_path": "/content/docs/reference/preferences.md"
+      }
+    },
+    "/reference/preprocessors/": {
+      "options": {},
+      "value": {
+        "hashed": "6da6ac3d7015401c6db63291a4413a21f00b7144d42574a3def3a1c23effdbba",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/preprocessors.md"
+        },
+        "pod_path": "/content/docs/reference/preprocessors.md"
+      }
+    },
+    "/reference/templates/": {
+      "options": {},
+      "value": {
+        "hashed": "a294401ac8191a67468c8ebbc8ad6dd73028b73ab6a0383bd5d6561c36a8871e",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/templates.md"
+        },
+        "pod_path": "/content/docs/reference/templates.md"
+      }
+    },
+    "/reference/translations/": {
+      "options": {},
+      "value": {
+        "hashed": "cd54808c5b12e5abb7b810cb885c14780cf50f0e7b7c8211856c6935c5b83943",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/translations.md"
+        },
+        "pod_path": "/content/docs/reference/translations.md"
+      }
+    },
+    "/reference/ui-tools/": {
+      "options": {},
+      "value": {
+        "hashed": "1780d65cfd98d46cce6a3c13f0edbe9392e8f695b0be9287c10940f0f2767a9f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/ui-tools.md"
+        },
+        "pod_path": "/content/docs/reference/ui-tools.md"
+      }
+    },
+    "/reference/urls/": {
+      "options": {},
+      "value": {
+        "hashed": "014c60cbc6b6f6eb679a7184d6f8ff705c345348df14a4b715acde9d254a5398",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/urls.md"
+        },
+        "pod_path": "/content/docs/reference/urls.md"
       }
     },
     "/sitemap.xml": {
@@ -706,7 +824,1304 @@
     "/start/": {
       "options": {},
       "value": {
-        "hashed": "c29baca5dba1cb7d28f0cbc769ebd74fac0921cbaa521ee7878a025575554191",
+        "hashed": "53d1b95fb289e0a5e23517da4d11abde4aec8f5c3a3b222131d0f0248ab2f317",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/0.md"
+        },
+        "pod_path": "/content/codelab/0.md"
+      }
+    },
+    "/start/9/": {
+      "options": {},
+      "value": {
+        "hashed": "2f71dbacb246d75e6fc37341b7b137a3a285a7fe6b47cdda6a7c0a39a9c4875c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/9.md"
+        },
+        "pod_path": "/content/codelab/9.md"
+      }
+    },
+    "/static/css/blocks/button.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "06e24753791cc6137f07a9900739e206d8cb077e2b9dde9c79f8da50bc63c7d3",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/button.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/blocks/button.min.css"
+      }
+    },
+    "/static/css/blocks/layout.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "4fd673ba619d3f8acfd1ee5cf6ddaab8e9ae0f51ab243989e2fba1ae13ada554",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/layout.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/blocks/layout.min.css"
+      }
+    },
+    "/static/css/blocks/search.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "e86e43b3e415c6d42a39de4a09c934b661f17dc30c5ac991124be2662630e315",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/blocks/search.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/blocks/search.min.css"
+      }
+    },
+    "/static/css/main.min.css": {
+      "options": null,
+      "value": {
+        "hashed": "e137225777740f1ec64d7d9e6882cba63dbe711d47670861969498083c1033d6",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/css/main.min.css",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/css/main.min.css"
+      }
+    },
+    "/static/js/main.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "df7d23554641dfa607eef189f66797e69187be4a8c9eff59e6d36e369e509fc4",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/dist/js/main.min.js",
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": "/dist/js/main.min.js"
+      }
+    },
+    "/workflow/building/": {
+      "options": {},
+      "value": {
+        "hashed": "0599180bcddd7f4299bd45f080fb8a47d9e93aa047e9a57d9f353dc19c08883e",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "locale": "en",
+          "pod_path": "/content/docs/workflow/building.md"
+        },
+        "pod_path": "/content/docs/workflow/building.md"
+      }
+    },
+    "/workflow/continuous/": {
+      "options": {},
+      "value": {
+        "hashed": "769589adf0902fe27999e1f477b9f2f328cfcc70e24bcaa8482f83a675f83cff",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "locale": "en",
+          "pod_path": "/content/docs/workflow/continuous.md"
+        },
+        "pod_path": "/content/docs/workflow/continuous.md"
+      }
+    },
+    "/workflow/deployment/": {
+      "options": {},
+      "value": {
+        "hashed": "c19e52b4309ce86b278ba939a29bea957386333e16398dbb552100438ad9fe8b",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "locale": "en",
+          "pod_path": "/content/docs/workflow/deployment.md"
+        },
+        "pod_path": "/content/docs/workflow/deployment.md"
+      }
+    },
+    "/workflow/development-server/": {
+      "options": {},
+      "value": {
+        "hashed": "5386d80988bc4a42b2c827371cf2a84d8e3d620953beb4ad8798e6181f4d13a8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "locale": "en",
+          "pod_path": "/content/docs/workflow/development-server.md"
+        },
+        "pod_path": "/content/docs/workflow/development-server.md"
+      }
+    }
+  },
+  "dynamic": {
+    "/": {
+      "options": {},
+      "value": {
+        "hashed": "e4165a6d109d9a88a63dd2a822298471a7900bd6126d7cd03ed76da1f7f8bd71",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/get-started",
+          "locale": "en",
+          "pod_path": "/content/docs/get-started/index.md"
+        },
+        "pod_path": "/content/docs/get-started/index.md"
+      }
+    },
+    "/:locale/extensions/create/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "1171eceef93ae4b2634973a876cb7d503591f282e37c28dd039f1ce751ecca37",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "pod_path": "/content/docs/extensions/create.md"
+        },
+        "pod_path": "/content/docs/extensions/create.md"
+      }
+    },
+    "/:locale/extensions/install/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "eeddb5fc5f03ef6f925dfcf6724932811b3dd737a1943573d889af4bdf85eca3",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "pod_path": "/content/docs/extensions/install.md"
+        },
+        "pod_path": "/content/docs/extensions/install.md"
+      }
+    },
+    "/:locale/extensions/legacy/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "31c196634aec6afe5a9d709e7f7c1564f5def0337f1a9cb43314414b09773d73",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "pod_path": "/content/docs/extensions/legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/legacy.md"
+      }
+    },
+    "/:locale/extensions/preprocessor-legacy/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "ffe822680cfed0df07f0b62460ef04652cc2624ca61c62d699376c1eff854ae8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+      }
+    },
+    "/:locale/extensions/preprocessor/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "83650bf7c207ae2c17ff1ce4ec3701a4cedfc03eb98e38187e2ecbd22a311dd5",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "pod_path": "/content/docs/extensions/preprocessor.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor.md"
+      }
+    },
+    "/:locale/get-started/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "e4165a6d109d9a88a63dd2a822298471a7900bd6126d7cd03ed76da1f7f8bd71",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/get-started",
+          "pod_path": "/content/docs/get-started/index.md"
+        },
+        "pod_path": "/content/docs/get-started/index.md"
+      }
+    },
+    "/:locale/get-started/samples/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "0ef392a5203bb966aa272dcae4d8c068e921b6c2ebf7e66576d4c52a3cf611a0",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/get-started",
+          "pod_path": "/content/docs/get-started/samples.md"
+        },
+        "pod_path": "/content/docs/get-started/samples.md"
+      }
+    },
+    "/:locale/open-source/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "3594fa180b840dd402e6b910c10be1c3b2afeddd7f50c6d00bf325a7e6da4cb9",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/pages",
+          "pod_path": "/content/pages/open-source.md"
+        },
+        "pod_path": "/content/pages/open-source.md"
+      }
+    },
+    "/:locale/plugins/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "a5f26515452ca25b23d8c3fe91a2ed4322c9884d329bb27ff24d5535281e101f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/pages",
+          "pod_path": "/content/pages/plugins.md"
+        },
+        "pod_path": "/content/pages/plugins.md"
+      }
+    },
+    "/:locale/policies/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "d6677aa9601c5ac34f3366e9ff3b1943241fac49ab4d93cb84495cdded09f9b7",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/pages",
+          "pod_path": "/content/pages/policies.md"
+        },
+        "pod_path": "/content/pages/policies.md"
+      }
+    },
+    "/:locale/reference/collections/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "fe725d55dea4e5877e21b1392c42bc42393d2e1b838301fabc6588d974e31fb1",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/collections.md"
+        },
+        "pod_path": "/content/docs/reference/collections.md"
+      }
+    },
+    "/:locale/reference/content-localization/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "493e29e3a25f510d2e4dd8cf906592b11b719cc87a943f08ef2aa00759783a2f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/content-localization.md"
+        },
+        "pod_path": "/content/docs/reference/content-localization.md"
+      }
+    },
+    "/:locale/reference/directory-structure/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "a92bec7d6ae82cdbdea724d4773325998502fd80f2fcbf7d7b32e7e28d8931ce",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/directory-structure.md"
+        },
+        "pod_path": "/content/docs/reference/directory-structure.md"
+      }
+    },
+    "/:locale/reference/documents/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "aea8de9c79a47e7dc97afacf62a8a2db975b630cfaaa2dfa87cf8b8e2ebaf987",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/documents.md"
+        },
+        "pod_path": "/content/docs/reference/documents.md"
+      }
+    },
+    "/:locale/reference/environments/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "503b41bf8657a45f52e61876123fc8f27492cff9f83308767cc92ba6cedf7150",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/environments.md"
+        },
+        "pod_path": "/content/docs/reference/environments.md"
+      }
+    },
+    "/:locale/reference/markdown-extensions/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "0a59340cc03f6e34c909234cd10d66de06543fbd493bb00c74ca0eaebe800d20",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/markdown-extensions.md"
+        },
+        "pod_path": "/content/docs/reference/markdown-extensions.md"
+      }
+    },
+    "/:locale/reference/partials/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "f0c4d90fef6938dfa64583328c58a537c7e78a20c7856b3b929bceb153d2081c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/partials.md"
+        },
+        "pod_path": "/content/docs/reference/partials.md"
+      }
+    },
+    "/:locale/reference/podspec/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "841365657aedd1010352fd4afaaa2a16a9e4540ee53f1864a4c4142d12ca1ec5",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/podspec.md"
+        },
+        "pod_path": "/content/docs/reference/podspec.md"
+      }
+    },
+    "/:locale/reference/preferences/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "726a3181c2bd44cd45d1b56c100e0824ce4bb2028574f2c34b2a7606653a653f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/preferences.md"
+        },
+        "pod_path": "/content/docs/reference/preferences.md"
+      }
+    },
+    "/:locale/reference/preprocessors/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "6da6ac3d7015401c6db63291a4413a21f00b7144d42574a3def3a1c23effdbba",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/preprocessors.md"
+        },
+        "pod_path": "/content/docs/reference/preprocessors.md"
+      }
+    },
+    "/:locale/reference/templates/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "a294401ac8191a67468c8ebbc8ad6dd73028b73ab6a0383bd5d6561c36a8871e",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/templates.md"
+        },
+        "pod_path": "/content/docs/reference/templates.md"
+      }
+    },
+    "/:locale/reference/translations/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "cd54808c5b12e5abb7b810cb885c14780cf50f0e7b7c8211856c6935c5b83943",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/translations.md"
+        },
+        "pod_path": "/content/docs/reference/translations.md"
+      }
+    },
+    "/:locale/reference/ui-tools/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "1780d65cfd98d46cce6a3c13f0edbe9392e8f695b0be9287c10940f0f2767a9f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/ui-tools.md"
+        },
+        "pod_path": "/content/docs/reference/ui-tools.md"
+      }
+    },
+    "/:locale/reference/urls/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "014c60cbc6b6f6eb679a7184d6f8ff705c345348df14a4b715acde9d254a5398",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "pod_path": "/content/docs/reference/urls.md"
+        },
+        "pod_path": "/content/docs/reference/urls.md"
+      }
+    },
+    "/:locale/workflow/building/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "0599180bcddd7f4299bd45f080fb8a47d9e93aa047e9a57d9f353dc19c08883e",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "pod_path": "/content/docs/workflow/building.md"
+        },
+        "pod_path": "/content/docs/workflow/building.md"
+      }
+    },
+    "/:locale/workflow/continuous/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "769589adf0902fe27999e1f477b9f2f328cfcc70e24bcaa8482f83a675f83cff",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "pod_path": "/content/docs/workflow/continuous.md"
+        },
+        "pod_path": "/content/docs/workflow/continuous.md"
+      }
+    },
+    "/:locale/workflow/deployment/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "c19e52b4309ce86b278ba939a29bea957386333e16398dbb552100438ad9fe8b",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "pod_path": "/content/docs/workflow/deployment.md"
+        },
+        "pod_path": "/content/docs/workflow/deployment.md"
+      }
+    },
+    "/:locale/workflow/development-server/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "5386d80988bc4a42b2c827371cf2a84d8e3d620953beb4ad8798e6181f4d13a8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "pod_path": "/content/docs/workflow/development-server.md"
+        },
+        "pod_path": "/content/docs/workflow/development-server.md"
+      }
+    },
+    "/assets/*": {
+      "options": null,
+      "value": {
+        "hashed": null,
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "path_format": "/assets/",
+          "source_formats": [
+            "/source/"
+          ],
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": null
+      }
+    },
+    "/assets/css/*": {
+      "options": null,
+      "value": {
+        "hashed": null,
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "path_format": "/assets/css/",
+          "source_formats": [
+            "/source/css/"
+          ],
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": null
+      }
+    },
+    "/assets/images/*": {
+      "options": null,
+      "value": {
+        "hashed": null,
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "path_format": "/assets/images/",
+          "source_formats": [
+            "/source/images/"
+          ],
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": null
+      }
+    },
+    "/assets/js/*": {
+      "options": null,
+      "value": {
+        "hashed": null,
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "path_format": "/assets/js/",
+          "source_formats": [
+            "/source/js/"
+          ],
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": null
+      }
+    },
+    "/assets/search/js/*": {
+      "options": null,
+      "value": {
+        "hashed": null,
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "path_format": "/assets/search/js/",
+          "source_formats": [
+            "/source/js/search/"
+          ],
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": null
+      }
+    },
+    "/assets/search/search_index-en-json.html": {
+      "options": {},
+      "value": {
+        "hashed": "b7271f41a2fda28d340eeea1e81204e105d78bb51a64d7a3c835bf13245680aa",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/search",
+          "locale": "en",
+          "pod_path": "/content/search/index.yaml"
+        },
+        "pod_path": "/content/search/index.yaml"
+      }
+    },
+    "/assets/third_party/*": {
+      "options": null,
+      "value": {
+        "hashed": null,
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "path_format": "/assets/third_party/",
+          "source_formats": [
+            "/source/third_party/"
+          ],
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": null
+      }
+    },
+    "/assets/vendor/*": {
+      "options": null,
+      "value": {
+        "hashed": null,
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "path_format": "/assets/vendor/",
+          "source_formats": [
+            "/source/vendor/"
+          ],
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
+        },
+        "pod_path": null
+      }
+    },
+    "/codelab/": {
+      "options": {},
+      "value": {
+        "hashed": "a98cf82b69dd39542afa2b3edd3fe26bff22b5391877d8b6c7272c26ad0f5f5d",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/0.md"
+        },
+        "pod_path": "/content/codelab/0.md"
+      }
+    },
+    "/codelab/1/": {
+      "options": {},
+      "value": {
+        "hashed": "b91437eff40a3a56c64d970ebadbc1d02e4d7140167dad8b2b110b33baa0f9b0",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/1.md"
+        },
+        "pod_path": "/content/codelab/1.md"
+      }
+    },
+    "/codelab/2/": {
+      "options": {},
+      "value": {
+        "hashed": "35b3d10e65bdb8d7da9767ffd03257d7cc53e291848eced5a1a34c5ad187c28f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/2.md"
+        },
+        "pod_path": "/content/codelab/2.md"
+      }
+    },
+    "/codelab/3/": {
+      "options": {},
+      "value": {
+        "hashed": "2a68fdef9b0002ff3234233652e4f8d832e7589dd8c36a9619b3fa07d65d4d23",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/3.md"
+        },
+        "pod_path": "/content/codelab/3.md"
+      }
+    },
+    "/codelab/4/": {
+      "options": {},
+      "value": {
+        "hashed": "435e42ca60276591488122cef741862a4b4355dc24135dd46daf320e311b92d3",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/4.md"
+        },
+        "pod_path": "/content/codelab/4.md"
+      }
+    },
+    "/codelab/5/": {
+      "options": {},
+      "value": {
+        "hashed": "2e8bbc698103bc9bf6a5054da938e71c334e79a0b10b9721f2be30c3d4107170",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/5.md"
+        },
+        "pod_path": "/content/codelab/5.md"
+      }
+    },
+    "/codelab/6/": {
+      "options": {},
+      "value": {
+        "hashed": "1c0320c3ab630c74c112302f2a2f59330f684c2e57a9b714a1dad468dddcb551",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/6.md"
+        },
+        "pod_path": "/content/codelab/6.md"
+      }
+    },
+    "/codelab/7/": {
+      "options": {},
+      "value": {
+        "hashed": "2c2a9de7fc7e1c67cf794a99666a2a88aa56c8f5fcd92b46631f1fee08ebfafe",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/7.md"
+        },
+        "pod_path": "/content/codelab/7.md"
+      }
+    },
+    "/codelab/8/": {
+      "options": {},
+      "value": {
+        "hashed": "7a91b0e3d4caebe1b6b76149a8cd748778a1291cccce4102b739ddeae86815cb",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/8.md"
+        },
+        "pod_path": "/content/codelab/8.md"
+      }
+    },
+    "/codelab/9/": {
+      "options": {},
+      "value": {
+        "hashed": "2f71dbacb246d75e6fc37341b7b137a3a285a7fe6b47cdda6a7c0a39a9c4875c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/codelab",
+          "locale": "en",
+          "pod_path": "/content/codelab/9.md"
+        },
+        "pod_path": "/content/codelab/9.md"
+      }
+    },
+    "/extensions/create/": {
+      "options": {},
+      "value": {
+        "hashed": "1171eceef93ae4b2634973a876cb7d503591f282e37c28dd039f1ce751ecca37",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/create.md"
+        },
+        "pod_path": "/content/docs/extensions/create.md"
+      }
+    },
+    "/extensions/install/": {
+      "options": {},
+      "value": {
+        "hashed": "eeddb5fc5f03ef6f925dfcf6724932811b3dd737a1943573d889af4bdf85eca3",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/install.md"
+        },
+        "pod_path": "/content/docs/extensions/install.md"
+      }
+    },
+    "/extensions/legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "31c196634aec6afe5a9d709e7f7c1564f5def0337f1a9cb43314414b09773d73",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/legacy.md"
+      }
+    },
+    "/extensions/preprocessor-legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "ffe822680cfed0df07f0b62460ef04652cc2624ca61c62d699376c1eff854ae8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+      }
+    },
+    "/extensions/preprocessor/": {
+      "options": {},
+      "value": {
+        "hashed": "83650bf7c207ae2c17ff1ce4ec3701a4cedfc03eb98e38187e2ecbd22a311dd5",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor.md"
+      }
+    },
+    "/get-started/samples/": {
+      "options": {},
+      "value": {
+        "hashed": "0ef392a5203bb966aa272dcae4d8c068e921b6c2ebf7e66576d4c52a3cf611a0",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/get-started",
+          "locale": "en",
+          "pod_path": "/content/docs/get-started/samples.md"
+        },
+        "pod_path": "/content/docs/get-started/samples.md"
+      }
+    },
+    "/open-source/": {
+      "options": {},
+      "value": {
+        "hashed": "3594fa180b840dd402e6b910c10be1c3b2afeddd7f50c6d00bf325a7e6da4cb9",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/pages",
+          "locale": "en",
+          "pod_path": "/content/pages/open-source.md"
+        },
+        "pod_path": "/content/pages/open-source.md"
+      }
+    },
+    "/plugins/": {
+      "options": {},
+      "value": {
+        "hashed": "a5f26515452ca25b23d8c3fe91a2ed4322c9884d329bb27ff24d5535281e101f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/pages",
+          "locale": "en",
+          "pod_path": "/content/pages/plugins.md"
+        },
+        "pod_path": "/content/pages/plugins.md"
+      }
+    },
+    "/policies/": {
+      "options": {},
+      "value": {
+        "hashed": "d6677aa9601c5ac34f3366e9ff3b1943241fac49ab4d93cb84495cdded09f9b7",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/pages",
+          "locale": "en",
+          "pod_path": "/content/pages/policies.md"
+        },
+        "pod_path": "/content/pages/policies.md"
+      }
+    },
+    "/reference/collections/": {
+      "options": {},
+      "value": {
+        "hashed": "fe725d55dea4e5877e21b1392c42bc42393d2e1b838301fabc6588d974e31fb1",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/collections.md"
+        },
+        "pod_path": "/content/docs/reference/collections.md"
+      }
+    },
+    "/reference/content-localization/": {
+      "options": {},
+      "value": {
+        "hashed": "493e29e3a25f510d2e4dd8cf906592b11b719cc87a943f08ef2aa00759783a2f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/content-localization.md"
+        },
+        "pod_path": "/content/docs/reference/content-localization.md"
+      }
+    },
+    "/reference/directory-structure/": {
+      "options": {},
+      "value": {
+        "hashed": "a92bec7d6ae82cdbdea724d4773325998502fd80f2fcbf7d7b32e7e28d8931ce",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/directory-structure.md"
+        },
+        "pod_path": "/content/docs/reference/directory-structure.md"
+      }
+    },
+    "/reference/documents/": {
+      "options": {},
+      "value": {
+        "hashed": "aea8de9c79a47e7dc97afacf62a8a2db975b630cfaaa2dfa87cf8b8e2ebaf987",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/documents.md"
+        },
+        "pod_path": "/content/docs/reference/documents.md"
+      }
+    },
+    "/reference/environments/": {
+      "options": {},
+      "value": {
+        "hashed": "503b41bf8657a45f52e61876123fc8f27492cff9f83308767cc92ba6cedf7150",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/environments.md"
+        },
+        "pod_path": "/content/docs/reference/environments.md"
+      }
+    },
+    "/reference/markdown-extensions/": {
+      "options": {},
+      "value": {
+        "hashed": "0a59340cc03f6e34c909234cd10d66de06543fbd493bb00c74ca0eaebe800d20",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/markdown-extensions.md"
+        },
+        "pod_path": "/content/docs/reference/markdown-extensions.md"
+      }
+    },
+    "/reference/partials/": {
+      "options": {},
+      "value": {
+        "hashed": "f0c4d90fef6938dfa64583328c58a537c7e78a20c7856b3b929bceb153d2081c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/partials.md"
+        },
+        "pod_path": "/content/docs/reference/partials.md"
+      }
+    },
+    "/reference/podspec/": {
+      "options": {},
+      "value": {
+        "hashed": "841365657aedd1010352fd4afaaa2a16a9e4540ee53f1864a4c4142d12ca1ec5",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/podspec.md"
+        },
+        "pod_path": "/content/docs/reference/podspec.md"
+      }
+    },
+    "/reference/preferences/": {
+      "options": {},
+      "value": {
+        "hashed": "726a3181c2bd44cd45d1b56c100e0824ce4bb2028574f2c34b2a7606653a653f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/preferences.md"
+        },
+        "pod_path": "/content/docs/reference/preferences.md"
+      }
+    },
+    "/reference/preprocessors/": {
+      "options": {},
+      "value": {
+        "hashed": "6da6ac3d7015401c6db63291a4413a21f00b7144d42574a3def3a1c23effdbba",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/preprocessors.md"
+        },
+        "pod_path": "/content/docs/reference/preprocessors.md"
+      }
+    },
+    "/reference/templates/": {
+      "options": {},
+      "value": {
+        "hashed": "a294401ac8191a67468c8ebbc8ad6dd73028b73ab6a0383bd5d6561c36a8871e",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/templates.md"
+        },
+        "pod_path": "/content/docs/reference/templates.md"
+      }
+    },
+    "/reference/translations/": {
+      "options": {},
+      "value": {
+        "hashed": "cd54808c5b12e5abb7b810cb885c14780cf50f0e7b7c8211856c6935c5b83943",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/translations.md"
+        },
+        "pod_path": "/content/docs/reference/translations.md"
+      }
+    },
+    "/reference/ui-tools/": {
+      "options": {},
+      "value": {
+        "hashed": "1780d65cfd98d46cce6a3c13f0edbe9392e8f695b0be9287c10940f0f2767a9f",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/ui-tools.md"
+        },
+        "pod_path": "/content/docs/reference/ui-tools.md"
+      }
+    },
+    "/reference/urls/": {
+      "options": {},
+      "value": {
+        "hashed": "014c60cbc6b6f6eb679a7184d6f8ff705c345348df14a4b715acde9d254a5398",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/reference",
+          "locale": "en",
+          "pod_path": "/content/docs/reference/urls.md"
+        },
+        "pod_path": "/content/docs/reference/urls.md"
+      }
+    },
+    "/start/": {
+      "options": {},
+      "value": {
+        "hashed": "53d1b95fb289e0a5e23517da4d11abde4aec8f5c3a3b222131d0f0248ab2f317",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/codelab",
@@ -719,7 +2134,7 @@
     "/start/1/": {
       "options": {},
       "value": {
-        "hashed": "5b0553549b4c44dda7411a5c1b14b23c6c39fc743d9f2010f21368f3e283196b",
+        "hashed": "b91437eff40a3a56c64d970ebadbc1d02e4d7140167dad8b2b110b33baa0f9b0",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/codelab",
@@ -833,14 +2248,13 @@
         "pod_path": "/content/codelab/9.md"
       }
     },
-    "/static/images/banner/banner-11.svg": {
+    "/static/*": {
       "options": null,
       "value": {
-        "hashed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hashed": null,
         "kind": "static",
         "meta": {
           "fingerprinted": false,
-          "locale": null,
           "localization": null,
           "localized": false,
           "path_filter": {
@@ -849,703 +2263,69 @@
             ],
             "included": []
           },
-          "pod_path": "/static/images/banner/banner-11.svg",
+          "path_format": "/static/",
+          "source_formats": [
+            "/dist/"
+          ],
           "static_filter": {
             "ignored": [],
             "included": []
           }
         },
-        "pod_path": "/static/images/banner/banner-11.svg"
+        "pod_path": null
       }
     },
-    "/static/images/banner/banner-12.svg": {
-      "options": null,
-      "value": {
-        "hashed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner-12.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner-12.svg"
-      }
-    },
-    "/static/images/banner/banner_closure.svg": {
-      "options": null,
-      "value": {
-        "hashed": "43745d36e6f15235ef741521a8411156f43a298c10c94415379b73bc65d1018a",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_closure.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_closure.svg"
-      }
-    },
-    "/static/images/banner/banner_custom.svg": {
-      "options": null,
-      "value": {
-        "hashed": "d5f360b676f582e0880718e9bc4a003ddffff91f0c8075cfdca2f5275f498907",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_custom.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_custom.svg"
-      }
-    },
-    "/static/images/banner/banner_dropbox.svg": {
-      "options": null,
-      "value": {
-        "hashed": "be4619177a553c7ef72532e057b5864fcf881c4e0714db687955f0502a4b0e4b",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_dropbox.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_dropbox.svg"
-      }
-    },
-    "/static/images/banner/banner_gae.svg": {
-      "options": null,
-      "value": {
-        "hashed": "ee12152b7ee2ae2c32228345b109d72d2193f768cd8be798f8839aa1308279c8",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_gae.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_gae.svg"
-      }
-    },
-    "/static/images/banner/banner_gcs.svg": {
-      "options": null,
-      "value": {
-        "hashed": "fef4a69adff29a06a0a2ff2e0520f63ea9b4ec601c5b213df5eb2af48a325b38",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_gcs.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_gcs.svg"
-      }
-    },
-    "/static/images/banner/banner_gettext.svg": {
-      "options": null,
-      "value": {
-        "hashed": "a0e11ba4a5611e6f84fd3ac33b0b52b99ea8040e683096d6a3a7f839ccbaa560",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_gettext.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_gettext.svg"
-      }
-    },
-    "/static/images/banner/banner_git.svg": {
-      "options": null,
-      "value": {
-        "hashed": "c091ba25bd0186c868cc880ece131e70ab44f7343722ee254d8ca145736bf1c7",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_git.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_git.svg"
-      }
-    },
-    "/static/images/banner/banner_github.svg": {
-      "options": null,
-      "value": {
-        "hashed": "a9cee89afe2bb23e630fbce698a305a6134894afeb50e0495c368dca614ddc1f",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_github.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_github.svg"
-      }
-    },
-    "/static/images/banner/banner_jinja.svg": {
-      "options": null,
-      "value": {
-        "hashed": "6901f4cdc57beb182dc920ea82c36ac1dff297ad9537ecc4b12629f7e7e547d5",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_jinja.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_jinja.svg"
-      }
-    },
-    "/static/images/banner/banner_markdown.svg": {
-      "options": null,
-      "value": {
-        "hashed": "aec38eb169422d5e10e2067ad4cc9be61e22e9c3180b20ed0a2e8a363f94b790",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_markdown.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_markdown.svg"
-      }
-    },
-    "/static/images/banner/banner_s3.svg": {
-      "options": null,
-      "value": {
-        "hashed": "a7008d808cf9696e3d596d98d2e83992d389537a56df22887eb036c06a2ced94",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_s3.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_s3.svg"
-      }
-    },
-    "/static/images/banner/banner_sass.svg": {
-      "options": null,
-      "value": {
-        "hashed": "f0d0acc77b69e0ca20ab5e56f016be5a68cfa4bd5e61520dbf5e942325a3ac83",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/banner/banner_sass.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/banner/banner_sass.svg"
-      }
-    },
-    "/static/images/config.svg": {
-      "options": null,
-      "value": {
-        "hashed": "593db52b45de2df72abe1e49842d994422fc3a021bb6f2978ddd3f1ad8b304ec",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/config.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/config.svg"
-      }
-    },
-    "/static/images/deploy.svg": {
-      "options": null,
-      "value": {
-        "hashed": "1a98e72babfa81b171c4422455b923558edf0801bdc7a7016693c2abaff9aaf6",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/deploy.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/deploy.svg"
-      }
-    },
-    "/static/images/grow.png": {
-      "options": null,
-      "value": {
-        "hashed": "cf5d45b115172f06666cb5d4bd24be8ad86e1df409f276b3b22b15f9e5bb3e66",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/grow.png",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/grow.png"
-      }
-    },
-    "/static/images/grow.svg": {
-      "options": null,
-      "value": {
-        "hashed": "f9bf890012192f6426e689609ba43f9c46bf973a300f5a2a29470505b1c8ac48",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/grow.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/grow.svg"
-      }
-    },
-    "/static/images/header.png": {
-      "options": null,
-      "value": {
-        "hashed": "faff12d6522cccd5965eefde592af084f01f6b77165629e8c892e2536be65b1e",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/header.png",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/header.png"
-      }
-    },
-    "/static/images/i18n.svg": {
-      "options": null,
-      "value": {
-        "hashed": "b03a97c0f305025604ccfc9e88f3a5461435a6dbcc1b83722b65b5d7f16bffb7",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/i18n.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/i18n.svg"
-      }
-    },
-    "/static/images/icon.png": {
-      "options": null,
-      "value": {
-        "hashed": "7114463885a8cff880d3afa67f93548942a62102d50afabe2ce20391b0b0e8e0",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/icon.png",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/icon.png"
-      }
-    },
-    "/static/images/launch.svg": {
-      "options": null,
-      "value": {
-        "hashed": "ea4126914e2d0ea5563d3080d31c5e82993a5389b33df66fdbabe084678933cf",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/launch.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/launch.svg"
-      }
-    },
-    "/static/images/light.svg": {
-      "options": null,
-      "value": {
-        "hashed": "8bbd5848073ab3c90faf9d25ac4b2a65c468b31bbe44143bf51e2a06f614fb0f",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/light.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/light.svg"
-      }
-    },
-    "/static/images/map.svg": {
-      "options": null,
-      "value": {
-        "hashed": "dcdb7618942580e93de28a49dd56ee854d554180431bee918a52b394ff2885c4",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/map.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/map.svg"
-      }
-    },
-    "/static/images/pattern.png": {
-      "options": null,
-      "value": {
-        "hashed": "179b1cc26ab21a3306ab573fdc032798951dad1518991b7b45e8408c7df038c4",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/pattern.png",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/pattern.png"
-      }
-    },
-    "/static/images/pattern.svg": {
-      "options": null,
-      "value": {
-        "hashed": "f7e88d4d2a7ecf5a942115c57c34993396c78e6e1919c78e105a04875af9d38f",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/pattern.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/pattern.svg"
-      }
-    },
-    "/static/images/pencil.svg": {
-      "options": null,
-      "value": {
-        "hashed": "87aa300147afa855f72bbf87c98463265e0dffff5fcf83c1c38c3031f3a46cfb",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/pencil.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/pencil.svg"
-      }
-    },
-    "/static/images/zen.svg": {
-      "options": null,
-      "value": {
-        "hashed": "8a8846d4f404486e2fd21bb3f5bf87fdcd24b42b742fb7de00d9b0ccbfc9973f",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/static/images/zen.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/static/images/zen.svg"
-      }
-    },
-    "/styleguide/": {
+    "/workflow/building/": {
       "options": {},
       "value": {
-        "hashed": "d7ca825b5dd8f0d395a08bc76365f68c233bc5037d910969a0e74e27f77179e7",
+        "hashed": "0599180bcddd7f4299bd45f080fb8a47d9e93aa047e9a57d9f353dc19c08883e",
         "kind": "doc",
         "meta": {
-          "collection_path": "/content/pages",
+          "collection_path": "/content/docs/workflow",
           "locale": "en",
-          "pod_path": "/content/pages/styleguide.yaml"
+          "pod_path": "/content/docs/workflow/building.md"
         },
-        "pod_path": "/content/pages/styleguide.yaml"
+        "pod_path": "/content/docs/workflow/building.md"
+      }
+    },
+    "/workflow/continuous/": {
+      "options": {},
+      "value": {
+        "hashed": "769589adf0902fe27999e1f477b9f2f328cfcc70e24bcaa8482f83a675f83cff",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "locale": "en",
+          "pod_path": "/content/docs/workflow/continuous.md"
+        },
+        "pod_path": "/content/docs/workflow/continuous.md"
+      }
+    },
+    "/workflow/deployment/": {
+      "options": {},
+      "value": {
+        "hashed": "c19e52b4309ce86b278ba939a29bea957386333e16398dbb552100438ad9fe8b",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "locale": "en",
+          "pod_path": "/content/docs/workflow/deployment.md"
+        },
+        "pod_path": "/content/docs/workflow/deployment.md"
+      }
+    },
+    "/workflow/development-server/": {
+      "options": {},
+      "value": {
+        "hashed": "5386d80988bc4a42b2c827371cf2a84d8e3d620953beb4ad8798e6181f4d13a8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/workflow",
+          "locale": "en",
+          "pod_path": "/content/docs/workflow/development-server.md"
+        },
+        "pod_path": "/content/docs/workflow/development-server.md"
       }
     }
-  },
-  "dynamic": {}
+  }
 }
