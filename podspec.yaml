@@ -26,10 +26,12 @@ preprocessors:
 static_dirs:
 - static_dir: /dist/
   serve_at: "{root}/static/"
+  fingerprinted: true
 - static_dir: /source/images/
   serve_at: "/{root}/assets/images/"
 - static_dir: /source/css/
   serve_at: "/{root}/assets/css/"
+  fingerprinted: true
 - static_dir: /source/search/
   serve_at: "/{root}/assets/search/"
 - static_dir: /source/js/
