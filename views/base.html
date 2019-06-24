@@ -37,6 +37,8 @@
               {% set collection = g.collection('docs')
                   if '/content/docs/' in doc.collection.pod_path
                   else doc.collection %}
+
+              {# /content/codelab/ collection. #}
               {% if doc.collection.nav_title %}
                 <div class="layout__nav__content__body__header">{{doc.collection.nav_title}}</div>
               {% endif %}
@@ -45,6 +47,8 @@
                   <a href="{{nav_item.url.path|relative}}">{{_(nav_item.title)}}</a>
                 </div>
               {% endfor %}
+
+              {# /content/docs/ collection. #}
               {% for col in collection.collections()|sort(attribute='order') %}
                 <div class="layout__nav__content__body__header">{{_(col.title)}}</div>
                 {% for sub_doc in col.docs(locale=doc.locale) %}
@@ -53,6 +57,7 @@
                   </div>
                 {% endfor %}
               {% endfor %}
+
             </div>
             <div class="layout__nav__content__body__footer">
               {% if podspec.meta.pypi_name %}
