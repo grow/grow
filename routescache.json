@@ -13,369 +13,6 @@
         "pod_path": "/content/docs/get-started/index.md"
       }
     },
-    "/.DS_Store/": {
-      "options": {},
-      "value": {
-        "hashed": "b069b8044855fdad7a9ffb90c2bdf5f2309f9647b8c8d510df70335de350eba3",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/.DS_Store"
-        },
-        "pod_path": "/content/docs/.DS_Store"
-      }
-    },
-    "/assets/css/base.css": {
-      "options": null,
-      "value": {
-        "hashed": "ba5574ff31b02064384d8f185a207fe56ff1515a5c3c860b6b5b30d853383ddb",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/css/base.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/css/base.css"
-      }
-    },
-    "/assets/images/3d-export/ae_expression.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "4e26c11f69241c650fd1b6265c502e1eeeea0bef700356be69bc4fc3c1745881",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/3d-export/ae_expression.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/3d-export/ae_expression.jpg"
-      }
-    },
-    "/assets/images/3d-export/ae_parent.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "d90fd288d55ebf4ceaa9072af06cd022522b52004b01b7c4b7190dfbea7f7af2",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/3d-export/ae_parent.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/3d-export/ae_parent.jpg"
-      }
-    },
-    "/assets/images/3d-export/ae_rotated.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "49156d9ad907bd396847c16297a5c590ba063c830ed958732a1a1fc1444c50d2",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/3d-export/ae_rotated.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/3d-export/ae_rotated.jpg"
-      }
-    },
-    "/assets/images/3d-export/ae_run-script.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "dd27b951364aac9387c31a01c0804372e047edb7145e69dcf84b524c8567fb39",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/3d-export/ae_run-script.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/3d-export/ae_run-script.jpg"
-      }
-    },
-    "/assets/images/3d-export/export_menu.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "6744a07a1e858f62bf57bf662d9d252ed1817860c78877a619b2d91c38aa3aac",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/3d-export/export_menu.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/3d-export/export_menu.jpg"
-      }
-    },
-    "/assets/images/3d-export/render_setting.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "a568c9ee7b5e8816631511c8cca9d2419bb7f42ee479f8be16aff9589730c563",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/3d-export/render_setting.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/3d-export/render_setting.jpg"
-      }
-    },
-    "/assets/images/3d-export/tp_multiview.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "30936ebd69515b262418205d8a73d1743ac49b05d701dbf96aa02183dccaea3b",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/3d-export/tp_multiview.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/3d-export/tp_multiview.jpg"
-      }
-    },
-    "/assets/images/3d-export/tp_panel.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "9014a77a8686e0638e7b78f1952734fcff8e591171cb7682529ec4db816522a4",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/3d-export/tp_panel.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/3d-export/tp_panel.jpg"
-      }
-    },
-    "/assets/images/assets/dots-filled.svg": {
-      "options": null,
-      "value": {
-        "hashed": "86f1568be0386e0b391929c74e86a478ca6f3a9e23f76e48b819b9ae307b4b53",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/assets/dots-filled.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/assets/dots-filled.svg"
-      }
-    },
-    "/assets/images/attributes/TOD_clouds.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "45df8ff0994af2f8b43c6f5acf816bc3236f9df9f7e566353803238c7c642f2f",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/attributes/TOD_clouds.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/attributes/TOD_clouds.jpg"
-      }
-    },
-    "/assets/images/attributes/ocean_overlay.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "f13baf09d703dd06a9dd43ab889e43697c37694ac0fdaf0e5ab87c6549cd6efc",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/attributes/ocean_overlay.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/attributes/ocean_overlay.jpg"
-      }
-    },
-    "/assets/images/global/search-icon.svg": {
-      "options": null,
-      "value": {
-        "hashed": "4e789bfa1055d8c1c5a402b88cbeee94fde1d7c8019c9290ae5c8bb9b527dce1",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/global/search-icon.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/global/search-icon.svg"
-      }
-    },
-    "/assets/images/global/studio-logo.svg": {
-      "options": null,
-      "value": {
-        "hashed": "664bd41ddbcc9283dd37827e4ed544225f7318dcbb34b2c0877b277ed1134981",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/global/studio-logo.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/global/studio-logo.svg"
-      }
-    },
     "/assets/images/grow.svg": {
       "options": null,
       "value": {
@@ -426,606 +63,6 @@
         "pod_path": "/source/images/icon.png"
       }
     },
-    "/assets/images/interface/attributes.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "a8b48bbfe3baa253fa8473bf716f0f163a69ce4b5db59c48efc50c20860bd7bf",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/interface/attributes.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/interface/attributes.jpg"
-      }
-    },
-    "/assets/images/interface/editor.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "7ef08ec142295cba35fa5603525d11c8860558395b065efa0b1f05001e8c4007",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/interface/editor.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/interface/editor.jpg"
-      }
-    },
-    "/assets/images/interface/playhead.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "d64b0618df7dc703a997644e8dc751166cc913482a109e0187dbc5ac6e591c20",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/interface/playhead.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/interface/playhead.jpg"
-      }
-    },
-    "/assets/images/interface/search.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "11c52d990b7cb268b9a97d34ac04ed772e9f898e076c4516d919df22e2583aeb",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/interface/search.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/interface/search.jpg"
-      }
-    },
-    "/assets/images/interface/snapshot.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "39e5a695176e5714d5173fdc15f8a0e73f72ca5b06ac1751f7db1ee261b2846c",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/interface/snapshot.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/interface/snapshot.jpg"
-      }
-    },
-    "/assets/images/interface/topbar.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "efdeac1de0af70610a00ccc5190c2f29736b96869ff4c3b1a5e815979b4bf501",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/interface/topbar.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/interface/topbar.jpg"
-      }
-    },
-    "/assets/images/interface/view_menu.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "6ad0ac5578f405e50af37581326bba30f45a390d7383780233834f2fdb9abd57",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/interface/view_menu.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/interface/view_menu.jpg"
-      }
-    },
-    "/assets/images/logarithmic/affected_segment.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "941e858f19cf5d605a0e29c73c61a28baf7575fbc9693313bb18ca21305e565e",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/logarithmic/affected_segment.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/logarithmic/affected_segment.jpg"
-      }
-    },
-    "/assets/images/logarithmic/altitude_scale.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "d62c953ca93ea211cd08d9045e55355e02da014a302f9fe7d3db236aaa7243e4",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/logarithmic/altitude_scale.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/logarithmic/altitude_scale.jpg"
-      }
-    },
-    "/assets/images/logarithmic/logarithmic_menu.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "05c0f7deaf6ffc1a1e383973d75b2de41a495627d0c42817c22e5180f6e96da5",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/logarithmic/logarithmic_menu.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/logarithmic/logarithmic_menu.jpg"
-      }
-    },
-    "/assets/images/multiview/menus.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "83ebcef480ec6eb3cd9a04bedc99d5ee2bd61d0b85df4c2dc4a48ca94a46eb83",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/multiview/menus.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/multiview/menus.jpg"
-      }
-    },
-    "/assets/images/multiview/settings.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "60ef4498aab73bcb3374b064619aced85d105115800780eff8a3d47bfa56be44",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/multiview/settings.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/multiview/settings.jpg"
-      }
-    },
-    "/assets/images/overlays/clipping.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "8736465bf057c160060a1f8f11a9357318058bd3fad7d654a7eacae8d9bff3a3",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/overlays/clipping.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/overlays/clipping.jpg"
-      }
-    },
-    "/assets/images/overlays/embed_KML.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "f1114d764903b72f02526108b6702a46fa251941e06ac0b62c22bd7bfdab391b",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/overlays/embed_KML.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/overlays/embed_KML.jpg"
-      }
-    },
-    "/assets/images/overlays/overlay_menu.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "4b8ab7139304d8491dd855e3d2d88aa3e0ea2c067c790abc022ec0ebe8852f35",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/overlays/overlay_menu.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/overlays/overlay_menu.jpg"
-      }
-    },
-    "/assets/images/projects/copy_location.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "db3e99d36db47f995dd86e1456305078d39b1e7ad6b6d6e34cb52dc91cf0ad24",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/projects/copy_location.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/projects/copy_location.jpg"
-      }
-    },
-    "/assets/images/projects/embed.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "93d957aa9d5c481c5b1e306567cce55f4d47402f4075c4c40ade92e5214af98b",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/projects/embed.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/projects/embed.jpg"
-      }
-    },
-    "/assets/images/projects/file_manager.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "40dbe6c4547b8f31b543b869cc5125220a6ba6f0a2d23446bfd9974f7aaef11d",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/projects/file_manager.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/projects/file_manager.jpg"
-      }
-    },
-    "/assets/images/projects/import.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "f7f8a92491468a38f853b442774d1f08a379b123242b73112e64f3a54121c20b",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/projects/import.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/projects/import.jpg"
-      }
-    },
-    "/assets/images/projects/maps_url.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "6f090427be60780ba9723b8b1fe338f5043e425752f2f6355b5e367380e746b0",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/projects/maps_url.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/projects/maps_url.jpg"
-      }
-    },
-    "/assets/images/projects/paste_url.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "878baa437bcb7787b905c045a5ee642765ced6acd9eae56477e8dd9ab8bb1969",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/projects/paste_url.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/projects/paste_url.jpg"
-      }
-    },
-    "/assets/images/projects/save.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "98cf69620c64c5d47c71b2900a665f2c74201959069bc71ca8f5ed12a7325c39",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/projects/save.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/projects/save.jpg"
-      }
-    },
-    "/assets/images/projects/settings.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "6085866b4dcc01b04f685385f0fb549f6d6f941b5825d683ed21174331d92559",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/projects/settings.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/projects/settings.jpg"
-      }
-    },
-    "/assets/images/rendering/tiling_high_v_normal.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "7ba881d114f18b5cd115524345807c6877cc9446c505a21eb4ccc68fcbe20840",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/rendering/tiling_high_v_normal.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/rendering/tiling_high_v_normal.jpg"
-      }
-    },
     "/assets/images/search-icon.svg": {
       "options": null,
       "value": {
@@ -1051,35 +88,10 @@
         "pod_path": "/source/images/search-icon.svg"
       }
     },
-    "/assets/images/started/logout.jpg": {
-      "options": null,
-      "value": {
-        "hashed": "1ec4d3db44c77e27d5576bc2cb3d966f4e942075a2c8acb66201dbed7cb15178",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/images/started/logout.jpg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/images/started/logout.jpg"
-      }
-    },
     "/assets/js/base.js": {
       "options": null,
       "value": {
-        "hashed": "263d4fe3191c9cc36a940ec661f4ad3c1488d42ff98af1874942d5a2270d0506",
+        "hashed": "954946d08b19537b3da15f0337bbbfc944b247e4084e32d7d66b6eef4b256c18",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -1341,60 +353,10 @@
         "pod_path": "/content/search/index.yaml"
       }
     },
-    "/assets/third_party/third_party_css-bundle.css": {
-      "options": null,
-      "value": {
-        "hashed": "ec5023ff554e30a39a2111ee80fb047260648b55eef22bcdea12750b02a45c9f",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/third_party/third_party_css-bundle.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/third_party/third_party_css-bundle.css"
-      }
-    },
-    "/assets/third_party/third_party_js-bundle.js": {
-      "options": null,
-      "value": {
-        "hashed": "bce235d08fc780cacde9265bc464da856898122d7f86826b75d8ef5ca52b04c2",
-        "kind": "static",
-        "meta": {
-          "fingerprinted": false,
-          "locale": null,
-          "localization": null,
-          "localized": false,
-          "path_filter": {
-            "ignored": [
-              "^.*/\\.[^/]*$"
-            ],
-            "included": []
-          },
-          "pod_path": "/source/third_party/third_party_js-bundle.js",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
-        },
-        "pod_path": "/source/third_party/third_party_js-bundle.js"
-      }
-    },
     "/assets/vendor/vendor.min.js": {
       "options": null,
       "value": {
-        "hashed": "feb392d45310be170af6bcd54b539cd1655e8b30446d62b59b1bc5d03776a5a6",
+        "hashed": "4540f5c7b18b4c01f537c5ce438135a00ea750545f1f882c76ad727812a45bbe",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -1546,62 +508,10 @@
         "pod_path": "/content/codelab/9.md"
       }
     },
-    "/extensions-install/": {
-      "options": {},
-      "value": {
-        "hashed": "ebd9561e6ee3ea01429e587c252fc6fd13d1c469d2715f2d2daf977484c0e357",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/extensions-install.md"
-        },
-        "pod_path": "/content/docs/extensions/extensions-install.md"
-      }
-    },
-    "/extensions-legacy/": {
-      "options": {},
-      "value": {
-        "hashed": "f313de24114ab33e5d68ffc94530430b09c047b63356659936983f3c83f5b62a",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/extensions-legacy.md"
-        },
-        "pod_path": "/content/docs/extensions/extensions-legacy.md"
-      }
-    },
-    "/extensions-preprocessor-legacy/": {
-      "options": {},
-      "value": {
-        "hashed": "71e3f47e38a5c4cba0ed436b6e9e0c9f6e0fab714ced8bcc68af15096d195467",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/extensions-preprocessor-legacy.md"
-        },
-        "pod_path": "/content/docs/extensions/extensions-preprocessor-legacy.md"
-      }
-    },
-    "/extensions-preprocessor/": {
-      "options": {},
-      "value": {
-        "hashed": "83650bf7c207ae2c17ff1ce4ec3701a4cedfc03eb98e38187e2ecbd22a311dd5",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/docs",
-          "locale": "en",
-          "pod_path": "/content/docs/extensions/extensions-preprocessor.md"
-        },
-        "pod_path": "/content/docs/extensions/extensions-preprocessor.md"
-      }
-    },
     "/extensions/create/": {
       "options": {},
       "value": {
-        "hashed": "4276aba5f8a9c74cf985ef8baf0270e754948fb7977de7e9d2c72fdb9e48dc07",
+        "hashed": "1171eceef93ae4b2634973a876cb7d503591f282e37c28dd039f1ce751ecca37",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/extensions",
@@ -1609,6 +519,45 @@
           "pod_path": "/content/docs/extensions/create.md"
         },
         "pod_path": "/content/docs/extensions/create.md"
+      }
+    },
+    "/extensions/install/": {
+      "options": {},
+      "value": {
+        "hashed": "eeddb5fc5f03ef6f925dfcf6724932811b3dd737a1943573d889af4bdf85eca3",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/install.md"
+        },
+        "pod_path": "/content/docs/extensions/install.md"
+      }
+    },
+    "/extensions/legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "31c196634aec6afe5a9d709e7f7c1564f5def0337f1a9cb43314414b09773d73",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/legacy.md"
+      }
+    },
+    "/extensions/preprocessor-legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "ffe822680cfed0df07f0b62460ef04652cc2624ca61c62d699376c1eff854ae8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
       }
     },
     "/get-started/samples/": {
@@ -1648,45 +597,6 @@
           "pod_path": "/content/docs/extensions/legacy.md"
         },
         "pod_path": "/content/docs/extensions/legacy.md"
-      }
-    },
-    "/open-source/": {
-      "options": {},
-      "value": {
-        "hashed": "3594fa180b840dd402e6b910c10be1c3b2afeddd7f50c6d00bf325a7e6da4cb9",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "locale": "en",
-          "pod_path": "/content/pages/open-source.md"
-        },
-        "pod_path": "/content/pages/open-source.md"
-      }
-    },
-    "/plugins/": {
-      "options": {},
-      "value": {
-        "hashed": "a5f26515452ca25b23d8c3fe91a2ed4322c9884d329bb27ff24d5535281e101f",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "locale": "en",
-          "pod_path": "/content/pages/plugins.md"
-        },
-        "pod_path": "/content/pages/plugins.md"
-      }
-    },
-    "/policies/": {
-      "options": {},
-      "value": {
-        "hashed": "d6677aa9601c5ac34f3366e9ff3b1943241fac49ab4d93cb84495cdded09f9b7",
-        "kind": "doc",
-        "meta": {
-          "collection_path": "/content/pages",
-          "locale": "en",
-          "pod_path": "/content/pages/policies.md"
-        },
-        "pod_path": "/content/pages/policies.md"
       }
     },
     "/preprocessor-legacy/": {
@@ -1796,7 +706,7 @@
     "/reference/partials/": {
       "options": {},
       "value": {
-        "hashed": "90c308bf4ae306c23666f658cc6b4cb4c2b52dee7b7310f9b1368fce35208d07",
+        "hashed": "f0c4d90fef6938dfa64583328c58a537c7e78a20c7856b3b929bceb153d2081c",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/reference",
@@ -1809,7 +719,7 @@
     "/reference/podspec/": {
       "options": {},
       "value": {
-        "hashed": "841365657aedd1010352fd4afaaa2a16a9e4540ee53f1864a4c4142d12ca1ec5",
+        "hashed": "1179511ddb4a93ae4168f4d8ffa4d269b5573c8e83053b7042c3718f74e55982",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/reference",
@@ -1887,7 +797,7 @@
     "/reference/urls/": {
       "options": {},
       "value": {
-        "hashed": "62f097598f497949b395a44d79ad39d4dba389da61df2990e9b8a22f8b380fa4",
+        "hashed": "014c60cbc6b6f6eb679a7184d6f8ff705c345348df14a4b715acde9d254a5398",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/reference",
@@ -2040,7 +950,7 @@
     "/static/js/main.min.js": {
       "options": null,
       "value": {
-        "hashed": "8468f4a47b2cb82a55995e384264cf7af77fbdfd157c668ef5a8063bd5233304",
+        "hashed": "df7d23554641dfa607eef189f66797e69187be4a8c9eff59e6d36e369e509fc4",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -2623,7 +1533,10 @@
           "source_formats": [
             "/source/css/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -2647,7 +1560,10 @@
           "source_formats": [
             "/source/images/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -2671,7 +1587,10 @@
           "source_formats": [
             "/source/js/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -2695,7 +1614,10 @@
           "source_formats": [
             "/source/js/search/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -2759,7 +1681,10 @@
           "source_formats": [
             "/source/vendor/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -3342,7 +2267,10 @@
           "source_formats": [
             "/dist/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
