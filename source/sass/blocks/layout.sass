@@ -1,3 +1,4 @@
+@import ../mixins/scrollbar
 @import ../colors
 
 $padding: 10px
@@ -22,6 +23,7 @@ $padding: 10px
   position: sticky
   top: 0
   width: 250px
+  +scrollbar-sm
 
 .layout__nav__content__header
   align-items: center
@@ -85,12 +87,22 @@ $padding: 10px
   display: flex
   flex-direction: column
   font-size: 14px
-  height: calc(100vh - 86px)  // 86 = height of search
+  height: calc(100vh)
   line-height: 16px
+  overflow-y: auto
   padding: $padding * 3 0
   position: sticky
   top: 0
   width: 200px
+  +scrollbar-sm
+
+  &::-webkit-scrollbar-thumb
+    background: rgba(162,192,218, 0)
+    transition: background 200ms ease
+
+  &:hover
+    &::-webkit-scrollbar-thumb
+      background: rgba(162,192,218, 0.5)
 
 .layout__main__body__content__relative-nav
   border-top: 1px solid #efefef

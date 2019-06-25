@@ -7,8 +7,7 @@ $(document).ready(function() {
 function createSideNavigation() {
   var toc = document.querySelector('.bs-sidetoc');
   var main = document.querySelector('[role=main]');
-  var headlines = main.querySelectorAll('h2');
-  var els = headlines.length ? headlines : main.querySelectorAll('h4');
+  var els = main.querySelectorAll('h2, h3, h4');
   [].forEach.call(els, function(el) {
     var li = document.createElement('li');
     var a = document.createElement('a');
