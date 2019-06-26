@@ -85,10 +85,10 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         # run_flow changes the logging level, so change it back.
         logging.getLogger().setLevel(getattr(logging, 'INFO'))
     # Avoid logspam by logging the email address only once.
-    if hasattr(credentials, 'id_token'):
-        email = credentials.id_token['email']
-        # pylint: disable=used-before-assignment
-        if _LAST_LOGGED_EMAIL != email:
+    if hasattr(credentials, 'id_token') and credentials.id_token:
+        email = credentials.id_token.get('email')
+        global _LAST_LOGGED_EMAIL
+        if email and _LAST_LOGGED_EMAIL != email:
             logging.info('Authorizing using -> {}'.format(email))
             _LAST_LOGGED_EMAIL = email
     return credentials
