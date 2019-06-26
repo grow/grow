@@ -19,7 +19,6 @@ class RoutesCacheTestCase(unittest.TestCase):
         """Adding a value to the cache."""
         self.assertFalse(self.routes_cache.is_dirty)
         self.routes_cache.add('answer', 42)
-        print self.routes_cache._cache
         self.assertEqual(42, self.routes_cache.get('answer')['value'])
         self.assertTrue(self.routes_cache.is_dirty)
 
