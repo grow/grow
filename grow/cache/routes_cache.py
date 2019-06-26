@@ -86,7 +86,7 @@ class RoutesCache(object):
 
     def get(self, key, concrete=False, env=None):
         """Retrieve the value from the cache."""
-        return self._cache[self._cache_key(concrete)][env].get(key, None)
+        return self._cache[self._cache_key(concrete)].get(env, {}).get(key, None)
 
     @property
     def is_dirty(self):
