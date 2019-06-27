@@ -53,7 +53,8 @@ class Router(object):
         """Add to the routes and the route cache."""
         self.routes.add(path, route_info, options=options)
         self.pod.podcache.routes_cache.add(
-            path, route_info, options=options, concrete=concrete)
+            path, route_info, options=options, concrete=concrete,
+            env=self.pod.env.name)
 
     def add_all(self, concrete=True, use_cache=True):
         """Add all documents and static content."""
@@ -398,7 +399,7 @@ class Router(object):
         fingerprinted_dirs = tuple(fingerprinted_dirs)
 
         routes_data = self.pod.podcache.routes_cache.raw(
-            concrete=concrete)
+            concrete=concrete, env=self.pod.env.name)
         unchanged_pod_paths = set()
         removed_paths = []
         for key, item in routes_data.iteritems():

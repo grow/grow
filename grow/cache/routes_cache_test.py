@@ -57,29 +57,34 @@ class RoutesCacheTestCase(unittest.TestCase):
         }, concrete=True, options={'dev': True})
         self.assertDictEqual({
             'dynamic': {
-                'answer': {
-                    'options': None,
-                    'value': {
-                        'question': '???'
-                    }
+                None: {
+                    'answer': {
+                        'options': None,
+                        'value': {
+                            'question': '???'
+                        },
+                    },
+                    'question': {
+                        'options': None,
+                        'value': {
+                            'answer': 42
+                        },
+                    },
                 },
-                'question': {
-                    'options': None,
-                    'value': {
-                        'answer': 42
-                    }
-                }
             },
             'concrete': {
-                'query': {
-                    'options': {
-                        'dev': True,
-                    },
-                    'value': {
-                        'query': 'What is blue?',
+                None: {
+                    'query': {
+                        'options': {
+                            'dev': True,
+                        },
+                        'value': {
+                            'query': 'What is blue?',
+                        },
                     },
                 },
             },
+            'version': 1,
         }, self.routes_cache.export())
 
     def test_mark_clean(self):

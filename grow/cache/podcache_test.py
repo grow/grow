@@ -39,17 +39,20 @@ class PodCacheTestCase(unittest.TestCase):
             }
         }
         routes_cache = {
+            'version': 1,
             'concrete': {
-                '/': {
-                    'value': {
-                        'kind': 'test',
-                        'pod_path': 'pod_path',
-                        'hashed': 'hashed',
-                        'meta': {},
-                    },
-                    'options': {
-                        'question': '30+12',
-                    },
+                None: {
+                    '/': {
+                        'value': {
+                            'kind': 'test',
+                            'pod_path': 'pod_path',
+                            'hashed': 'hashed',
+                            'meta': {},
+                        },
+                        'options': {
+                            'question': '30+12',
+                        },
+                    }
                 }
             }
         }

@@ -28,17 +28,24 @@ class RoutesCache(object):
     @staticmethod
     def _export_cache(routes):
         routing_info = {}
-        for path, item in routes.iteritems():
-            value = item['value'].export() if hasattr(item['value'], 'export') else item['value']
-            routing_info[path] = {
-                'value': value,
-                'options': item['options'],
-            }
+        for env, env_routes in routes.iteritems():
+            routing_info[env] = {}
+            for path, item in env_routes.iteritems():
+                if hasattr(item['value'], 'export'):
+                    value = item['value'].export()
+                else:
+                    value = item['value']
+                routing_info[env][path] = {
+                    'value': value,
+                    'options': item['options'],
+                }
         return routing_info
 
-    def add(self, key, value, options=None, concrete=False):
+    def add(self, key, value, options=None, concrete=False, env=None):
         """Add a new item to the cache or overwrite an existing value."""
-        cache = self._cache[self._cache_key(concrete)]
+        if env not in self._cache[self._cache_key(concrete)]:
+            self._cache[self._cache_key(concrete)][env] = {}
+        cache = self._cache[self._cache_key(concrete)][env]
         cache_value = {
             'value': value,
             'options': options,
@@ -51,6 +58,7 @@ class RoutesCache(object):
         """Returns the raw cache data."""
         if concrete is None:
             return {
+                'version': 1,
                 self.KEY_CONCRETE: self._export_cache(self._cache[self.KEY_CONCRETE]),
                 self.KEY_DYNAMIC: self._export_cache(self._cache[self.KEY_DYNAMIC]),
             }
@@ -60,18 +68,25 @@ class RoutesCache(object):
 
     def from_data(self, data):
         """Set the cache from data."""
+        # Check for version changes in the data format.
+        version = data.get('version')
+        if not version or version < 1:
+            return
+
         for super_key in [self.KEY_DYNAMIC, self.KEY_CONCRETE]:
             if super_key in data:
                 concrete = super_key == self.KEY_CONCRETE
-                for key, item in data[super_key].iteritems():
-                    self.add(
-                        key,
-                        router.RouteInfo.from_data(**item['value']),
-                        options=item['options'], concrete=concrete)
+                for env, env_data in data[super_key].iteritems():
+                    for key, item in env_data.iteritems():
+                        self.add(
+                            key,
+                            router.RouteInfo.from_data(**item['value']),
+                            options=item['options'], concrete=concrete,
+                            env=env)
 
-    def get(self, key, concrete=False):
+    def get(self, key, concrete=False, env=None):
         """Retrieve the value from the cache."""
-        return self._cache[self._cache_key(concrete)].get(key, None)
+        return self._cache[self._cache_key(concrete)].get(env, {}).get(key, None)
 
     @property
     def is_dirty(self):
@@ -82,18 +97,16 @@ class RoutesCache(object):
         """Mark that the object cache is clean."""
         self._is_dirty = False
 
-    def raw(self, concrete=None):
+    def raw(self, concrete=None, env=None):
         """Returns the raw cache data."""
         if concrete is None:
             return self._cache
-        if concrete:
-            return self._cache[self.KEY_CONCRETE]
-        return self._cache[self.KEY_DYNAMIC]
+        return self._cache[self._cache_key(concrete)].get(env, {})
 
-    def remove(self, key, concrete=False):
+    def remove(self, key, concrete=False, env=None):
         """Removes a single element from the cache."""
         self._is_dirty = True
-        return self._cache[self._cache_key(concrete)].pop(key, None)
+        return self._cache[self._cache_key(concrete)].get(env, {}).pop(key, None)
 
     def reset(self):
         """Reset the internal cache object."""
