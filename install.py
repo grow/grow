@@ -17,15 +17,16 @@ import zipfile
 
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
-ALIAS_FILES_LINUX = ['.bash_aliases', '.bash_profile', '.profile', '.bashrc']
-ALIAS_FILES_MAC = ['.bash_profile']
-ALIAS_FILES_DEFAULT = '.bashrc'
-ALIAS_RE = re.compile(r'^alias grow\=([\'"])(.*)\1$', re.MULTILINE)
+RC_FILES_LINUX = ['.bash_profile', '.profile', '.bashrc']
+RC_FILES_MAC = ['.bash_profile']
+RC_FILE_DEFAULT = '.bashrc'
 
 if 'Linux' in platform.system():
     PLATFORM = 'linux'
+    BIN_PATH = '/usr/local/bin/grow'
 elif 'Darwin' in platform.system():
     PLATFORM = 'mac'
+    BIN_PATH = '/usr/local/bin/grow'
 else:
     print('{} is not a supported platform. Please file an issue at '
           'https://github.com/grow/grow/issues'.format(sys.platform))
@@ -56,43 +57,13 @@ def orly(text, default=False):
     return default
 
 
-def find_conflicting_aliases(existing_aliases, bin_path):
-    files_to_alias = {}
-    for filename, paths in existing_aliases.iteritems():
-        conflicting = [path for path in paths if path != bin_path]
-        if conflicting:
-            files_to_alias[filename] = conflicting
-    return files_to_alias
-
-
-def find_matching_alias(existing_aliases, bin_path):
-    for filename, paths in existing_aliases.iteritems():
-        matching = [path for path in paths if path == bin_path]
-        if matching:
-            return filename
-    return None
-
-
-def get_alias_path():
-    alias_files = ALIAS_FILES_LINUX if PLATFORM == 'linux' else ALIAS_FILES_MAC
-    for basename in alias_files:
+def get_rc_path():
+    rc_files = RC_FILES_LINUX if PLATFORM == 'linux' else RC_FILES_MAC
+    for basename in rc_files:
         basepath = os.path.expanduser('~/{}'.format(basename))
         if os.path.exists(basepath):
             return basepath
-    return os.path.expanduser('~/{}'.format(ALIAS_FILES_DEFAULT))
-
-
-def get_existing_aliases():
-    files_to_alias = {}
-    alias_files = ALIAS_FILES_LINUX if PLATFORM == 'linux' else ALIAS_FILES_MAC
-    for basename in alias_files:
-        basepath = os.path.expanduser('~/{}'.format(basename))
-        if os.path.exists(basepath):
-            profile = open(basepath).read()
-            matches = re.findall(ALIAS_RE, profile)
-            if matches:
-                files_to_alias[basepath] = [x[1] for x in matches]
-    return files_to_alias
+    return os.path.expanduser('~/{}'.format(RC_FILE_DEFAULT))
 
 
 def get_release_for_platform(releases, platform):
@@ -104,7 +75,13 @@ def get_release_for_platform(releases, platform):
     return None
 
 
+def has_bin_in_path(bin_path):
+    """Determine if the binary path is part of the system paths."""
+    return '{}:'.format(bin_path) in os.environ['PATH']
+
+
 def install(rc_path=None, bin_path=None, force=False):
+    """Download and install the binary."""
     resp = json.loads(urllib.urlopen(RELEASES_API).read())
     try:
         release = get_release_for_platform(resp, PLATFORM)
@@ -128,53 +105,48 @@ def install(rc_path=None, bin_path=None, force=False):
     download_url = DOWNLOAD_URL_FORMAT.format(
         version=version, name=asset['name'])
 
-    bin_path = os.path.expanduser(bin_path or '~/bin/grow')
-    rc_path = os.path.expanduser(rc_path or get_alias_path())
-    alias_cmd = 'alias grow="{}"'.format(bin_path)
-    alias_comment = '# Added by Grow SDK Installer ({})'.format(
+    bin_path = os.path.expanduser(bin_path or BIN_PATH)
+    rc_comment = '# Added by Grow SDK Installer ({})'.format(
         datetime.datetime.now())
+    rc_path = os.path.expanduser(rc_path or get_rc_path())
+    rc_path_append = 'export PATH={}:$PATH'.format(bin_path)
 
     hai('{yellow}Welcome to the installer for Grow SDK v{}{/yellow}', version)
     hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/{}', version)
     hai('{blue}==>{/blue} {green}This script will install:{/green} {}', bin_path)
 
-    existing_aliases = get_existing_aliases()
-    conflicting_aliases = find_conflicting_aliases(existing_aliases, bin_path)
-    matching_alias = find_matching_alias(existing_aliases, bin_path)
+    bin_in_path = has_bin_in_path(bin_path)
 
-    has_alias = bool(matching_alias)
-    has_conflicts = bool(conflicting_aliases)
-
-    if has_conflicts:
-        hai('{red}[✗] You have conflicting aliases for "grow" in:{/red} {}',
-            ' '.join([x for x in conflicting_aliases]))
-
-    if has_alias:
-        hai('{blue}[✓]{/blue} {green}You already have an alias for "grow" in:{/green} {}', rc_path)
+    if bin_in_path:
+        hai(
+            '{blue}[✓]{/blue} {green}You already have the binary directory in PATH:{/green} {}',
+            bin_path)
     else:
-        hai('{blue}==>{/blue} {green}An alias for "grow" will be created in:{/green} {}', rc_path)
+        hai(
+            '{blue}==>{/blue} {green}{} will be added to the PATH in:{/green} {}',
+            bin_path, rc_path)
 
     if not force:
         result = orly('Continue installation? [Y]es / [n]o: ', default=True)
         if not result:
-            hai('Aborted installation.')
+            hai('{yellow}Aborted installation.{/yellow}')
             sys.exit(-1)
 
     remote = urllib2.urlopen(download_url)
     try:
         hai('Downloading from {}'.format(download_url))
         local, temp_path = tempfile.mkstemp()
-        local = os.fdopen(local, 'w')
-        while True:
-            content = remote.read(1048576)  # 1MB.
-            if not content:
-                sys.stdout.write(' done!\n')
-                break
-            local.write(content)
-            sys.stdout.write('.')
-            sys.stdout.flush()
+        with os.fdopen(local, 'w') as local_file:
+            while True:
+                content = remote.read(1048576)  # 1MB.
+                if not content:
+                    sys.stdout.write(' done!\n')
+                    sys.stdout.flush()
+                    break
+                local_file.write(content)
+                sys.stdout.write('.')
+                sys.stdout.flush()
         remote.close()
-        local.close()
         with open(temp_path, 'rb') as fp:
             zp = zipfile.ZipFile(fp)
             try:
@@ -192,11 +164,12 @@ def install(rc_path=None, bin_path=None, force=False):
     finally:
         os.remove(temp_path)
 
-    if not has_alias:
+    if not bin_in_path:
         with open(rc_path, 'a') as fp:
-            fp.write('\n' + alias_comment + '\n')
-            fp.write(alias_cmd)
-        hai('{blue}[✓]{/blue} {green}Created "grow" alias in:{/green} {}', rc_path)
+            fp.write('\n' + rc_comment + '\n')
+            fp.write(rc_path_append)
+        hai('{blue}[✓]{/blue} {green}Added {} to path in:{/green} {}',
+            bin_path, rc_path)
         hai('{green}All done. To use Grow SDK...{/green}')
         hai(' ...reload your shell session OR use `source {}`,', rc_path)
         hai(' ...then type `grow` and press enter.')
