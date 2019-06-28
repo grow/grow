@@ -7,6 +7,7 @@ import sys
 import threading
 from grow.common import colors
 from grow.common import timer
+from grow.documents import document
 from grow.preprocessors import file_watchers
 from grow.sdk import updater
 from grow.server import main as main_lib
@@ -41,7 +42,7 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
 
 def print_server_ready_message(pod, host, port):
     home_doc = pod.get_home_doc()
-    root_path = home_doc.url.path if home_doc else '/'
+    root_path = home_doc.url.path if home_doc and home_doc.exists else '/'
     url = 'http://{}:{}{}'.format(host, port, root_path)
     logging.info('Pod: '.rjust(20) + pod.root)
     logging.info('Address: '.rjust(20) + url)

@@ -1,8 +1,17 @@
 """Response handlers for dev server."""
 
+import logging
 import mimetypes
+import re
+import sys
+import traceback
+import jinja2
 import webob
+# NOTE: exc imported directly, webob.exc doesn't work when frozen.
+from webob import exc as webob_exc
 from werkzeug import wrappers
+from grow.documents import document
+from grow.pods import errors
 from grow.pods import ui
 
 
@@ -36,6 +45,52 @@ def serve_editor(pod, _request, matched, meta=None, **_kwargs):
     template = env.get_template('/views/editor.html')
     content = template.render(kwargs)
     response = wrappers.Response(content)
+    response.headers['Content-Type'] = 'text/html'
+    return response
+
+
+def serve_exception(pod, request, exc, **_kwargs):
+    """Serve the exception page."""
+    debug = True
+    log = logging.exception
+    if isinstance(exc, webob_exc.HTTPException):
+        status = exc.status_int
+        log('{}: {}'.format(status, request.path))
+    elif isinstance(exc, errors.RouteNotFoundError):
+        status = 404
+        log('{}: {}'.format(status, request.path))
+    else:
+        status = 500
+        log('{}: {} - {}'.format(status, request.path, exc))
+    env = ui.create_jinja_env()
+    template = env.get_template('/views/error.html')
+    if (isinstance(exc, errors.BuildError)):
+        t_back = exc.traceback
+    else:
+        unused_error_type, unused_value, t_back = sys.exc_info()
+    formatted_traceback = [
+        re.sub('^  ', '', line)
+        for line in traceback.format_tb(t_back)]
+    formatted_traceback = '\n'.join(formatted_traceback)
+    kwargs = {
+        'exception': exc,
+        'is_web_exception': isinstance(exc, webob_exc.HTTPException),
+        'pod': pod,
+        'status': status,
+        'traceback': formatted_traceback,
+    }
+    home_doc = pod.get_home_doc()
+    if home_doc and home_doc.exists:
+        kwargs['home_url'] = home_doc.url.path
+    if (isinstance(exc, errors.BuildError)):
+        kwargs['build_error'] = exc.exception
+    if (isinstance(exc, errors.BuildError)
+            and isinstance(exc.exception, jinja2.TemplateSyntaxError)):
+        kwargs['template_exception'] = exc.exception
+    elif isinstance(exc, jinja2.TemplateSyntaxError):
+        kwargs['template_exception'] = exc
+    content = template.render(**kwargs)
+    response = wrappers.Response(content, status=status)
     response.headers['Content-Type'] = 'text/html'
     return response
 
