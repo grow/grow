@@ -1,7 +1,6 @@
 """Grow local development server."""
 
 import logging
-import mimetypes
 import os
 import re
 import sys
@@ -18,18 +17,13 @@ from werkzeug import serving
 from werkzeug import wsgi
 from grow.common import config
 from grow.common import utils
-from grow.routing import router
 from grow.pods import errors
 from grow.pods import ui
-from grow.server import api
+from grow.server import handlers
 
 
 class Request(webob.Request):
     pass
-
-
-class Response(webob.Response):
-    default_conditional_response = True
 
 
 # Use grow's logger instead of werkzeug's default.
@@ -41,74 +35,6 @@ class RequestHandler(serving.WSGIRequestHandler):
 
     def log(self, *args, **kwargs):
         pass
-
-
-def serve_console(pod, _request, _matched, **_kwargs):
-    """Serve the default console page."""
-    kwargs = {'pod': pod}
-    env = ui.create_jinja_env()
-    template = env.get_template('/views/base.html')
-    content = template.render(kwargs)
-    response = wrappers.Response(content)
-    response.headers['Content-Type'] = 'text/html'
-    return response
-
-
-def serve_editor(pod, _request, matched, meta=None, **_kwargs):
-    """Serve the default console page."""
-    kwargs = {
-        'pod': pod,
-        'meta': meta,
-        'path': matched.params['path'] if 'path' in matched.params else '',
-    }
-    env = ui.create_jinja_env()
-    template = env.get_template('/views/editor.html')
-    content = template.render(kwargs)
-    response = wrappers.Response(content)
-    response.headers['Content-Type'] = 'text/html'
-    return response
-
-
-def serve_pod(pod, request, matched, **_kwargs):
-    """Serve pod contents using the new routing."""
-    controller = pod.router.get_render_controller(
-        request.path, matched.value, params=matched.params)
-    response = None
-    headers = controller.get_http_headers()
-    if 'X-AppEngine-BlobKey' in headers:
-        return Response(headers=headers)
-    jinja_env = pod.render_pool.get_jinja_env(
-        controller.doc.locale) if controller.use_jinja else None
-    rendered_document = controller.render(jinja_env=jinja_env)
-    content = rendered_document.read()
-    response = Response(body=content)
-    response.headers.update(headers)
-
-    if pod.podcache.is_dirty:
-        pod.podcache.write()
-
-    return response
-
-
-def serve_ui_tool(pod, request, values, **_kwargs):
-    tool_path = 'node_modules/{}'.format(values.get('tool'))
-    response = wrappers.Response(pod.read_file(tool_path))
-    guessed_type = mimetypes.guess_type(tool_path)
-    mime_type = guessed_type[0] or 'text/plain'
-    response.headers['Content-Type'] = mime_type
-    return response
-
-
-def serve_run_preprocessor(pod, request, values):
-    name = values.get('name')
-    if name:
-        pod.preprocess([name])
-        out = 'Finished preprocessor run -> {}'.format(name)
-    else:
-        out = 'No preprocessor found.'
-    response = wrappers.Response(out)
-    response.headers['Content-Type'] = 'text/plain'
-    return response
 
 
 class PodServer(object):
@@ -128,27 +54,6 @@ class PodServer(object):
         self.pod.render_pool.pool_size = 1
         self.debug = debug
         self.routes = self.pod.router.routes
-
-        self.routes.add('/_grow/ui/tools/:tool', router.RouteInfo(
-            'console', meta={
-                'handler': serve_ui_tool,
-            }))
-        editor_meta = {
-            'handler': serve_editor,
-            'meta': {
-                'app': self,
-            },
-        }
-        self.routes.add('/_grow/editor/*path',
-                        router.RouteInfo('console', meta=editor_meta))
-        self.routes.add('/_grow/editor',
-                        router.RouteInfo('console', meta=editor_meta))
-        self.routes.add('/_grow/api/*path', router.RouteInfo('console', meta={
-            'handler': api.serve_api,
-        }))
-        self.routes.add('/_grow', router.RouteInfo('console', meta={
-            'handler': serve_console,
-        }))
 
         # Trigger the dev handler hook.
         self.pod.extensions_controller.trigger(
@@ -173,8 +78,8 @@ class PodServer(object):
                     handler_meta = matched.value.meta['meta']
                 return matched.value.meta['handler'](
                     self.pod, request, matched, meta=handler_meta)
-            return serve_console(self.pod, request, matched)
-        return serve_pod(self.pod, request, matched)
+            return handlers.serve_console(self.pod, request, matched)
+        return handlers.serve_pod(self.pod, request, matched)
 
     def handle_exception(self, request, exc):
         self.debug = True
