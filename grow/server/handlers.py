@@ -6,6 +6,10 @@ from werkzeug import wrappers
 from grow.pods import ui
 
 
+class Request(webob.Request):
+    pass
+
+
 class Response(webob.Response):
     default_conditional_response = True
 
@@ -37,7 +41,7 @@ def serve_editor(pod, _request, matched, meta=None, **_kwargs):
 
 
 def serve_pod(pod, request, matched, **_kwargs):
-    """Serve pod contents using the new routing."""
+    """Serve pod contents using the routing."""
     controller = pod.router.get_render_controller(
         request.path, matched.value, params=matched.params)
     response = None

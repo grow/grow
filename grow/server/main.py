@@ -7,11 +7,8 @@ import sys
 import traceback
 import urllib
 import jinja2
-import webob
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
-from werkzeug import routing
-from werkzeug import utils as werkzeug_utils
 from werkzeug import wrappers
 from werkzeug import serving
 from werkzeug import wsgi
@@ -20,10 +17,6 @@ from grow.common import utils
 from grow.pods import errors
 from grow.pods import ui
 from grow.server import handlers
-
-
-class Request(webob.Request):
-    pass
 
 
 # Use grow's logger instead of werkzeug's default.
@@ -43,7 +36,7 @@ class PodServer(object):
         try:
             return self.wsgi_app(environ, start_response)
         except Exception as e:
-            request = Request(environ)
+            request = handlers.Request(environ)
             response = self.handle_exception(request, e)
             return response(environ, start_response)
 
@@ -129,7 +122,7 @@ class PodServer(object):
         return response
 
     def wsgi_app(self, environ, start_response):
-        request = Request(environ)
+        request = handlers.Request(environ)
         response = self.dispatch_request(request)
         return response(environ, start_response)
 
