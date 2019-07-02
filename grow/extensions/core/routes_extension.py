@@ -2,8 +2,6 @@
 
 import os
 from werkzeug import wrappers
-# NOTE: exc imported directly, webob.exc doesn't work when frozen.
-from webob import exc as webob_exc
 from grow import extensions
 from grow.collections import collection
 from grow.common import timer
@@ -11,6 +9,9 @@ from grow.extensions import hooks
 from grow.performance import docs_loader
 from grow.pods import ui
 from grow.routing import router as grow_router
+from grow.server import api
+from grow.server import handlers
+
 
 class RoutesDevHandlerHook(hooks.DevHandlerHook):
     """Handle the dev handler hook."""
@@ -53,6 +54,27 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
     # pylint: disable=arguments-differ
     def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
+        routes.add('/_grow/ui/tools/:tool', grow_router.RouteInfo(
+            'console', meta={
+                'handler': handlers.serve_ui_tool,
+            }))
+        editor_meta = {
+            'handler': handlers.serve_editor,
+            'meta': {
+                'app': self,
+            },
+        }
+        routes.add('/_grow/editor/*path',
+                   grow_router.RouteInfo('console', meta=editor_meta))
+        routes.add('/_grow/editor',
+                   grow_router.RouteInfo('console', meta=editor_meta))
+        routes.add('/_grow/api/*path', grow_router.RouteInfo('console', meta={
+            'handler': api.serve_api,
+        }))
+        routes.add('/_grow', grow_router.RouteInfo('console', meta={
+            'handler': handlers.serve_console,
+        }))
+
         routes.add('/_grow/routes', grow_router.RouteInfo(
             'console', meta={
                 'handler': RoutesDevHandlerHook.serve_routes_concrete,
@@ -75,6 +97,9 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
         with timer.Timer() as router_time:
             pod.router.routes.reset()
             pod.router.add_all(concrete=False, use_cache=False)
+            # Trigger the dev handler hook.
+            pod.extensions_controller.trigger(
+                'dev_handler', pod.router.routes)
         pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
             len(pod.router.routes), router_time.secs))
 
