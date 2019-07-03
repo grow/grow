@@ -102,8 +102,11 @@ class Updater(object):
                 logging.info('  > Auto-updating to version: {}'.format(
                     colors.stylize(str(sem_latest), colors.HIGHLIGHT)))
             else:  # pragma: no cover
-                choice = raw_input(
-                    'Auto update now? [Y]es / [n]o / [a]lways: ').strip().lower()
+                try:
+                    choice = raw_input(
+                        'Auto update now? [Y]es / [n]o / [a]lways: ').strip().lower()
+                except KeyboardInterrupt:
+                    choice = 'n'
                 if choice not in ('y', 'a', ''):
                     return
                 if choice == 'a':
