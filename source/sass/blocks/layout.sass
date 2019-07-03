@@ -81,6 +81,18 @@ $padding: 10px
 .layout__main__body__content > *:first-child
   margin-top: 0
 
+.layout__main__body__content figcaption
+  background: #f8f8f8
+  border-bottom: 1px solid #CCCCCC
+  color: $color-pink
+  font-family: Inconsolata, monospace;
+  font-size: 13px
+  font-weight: bold
+  padding: 5px 10px
+
+  & + .code pre
+    margin-top: 0
+
 .layout__main__body__side
   box-sizing: border-box
   display: flex
@@ -126,5 +138,3 @@ $padding: 10px
   &.active
     a
       color: inherit
-
-.layout__main__body__side__footer

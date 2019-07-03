@@ -3,7 +3,7 @@
     "/": {
       "options": {},
       "value": {
-        "hashed": "e4165a6d109d9a88a63dd2a822298471a7900bd6126d7cd03ed76da1f7f8bd71",
+        "hashed": "dc7b19173d145def177b95376c5e1512d133ba5a388224afb29968feaf0275f6",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/get-started",
@@ -30,10 +30,7 @@
             "included": []
           },
           "pod_path": "/source/images/grow.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/source/images/grow.svg"
       }
@@ -55,10 +52,7 @@
             "included": []
           },
           "pod_path": "/source/images/icon.png",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/source/images/icon.png"
       }
@@ -80,10 +74,7 @@
             "included": []
           },
           "pod_path": "/source/images/search-icon.svg",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/source/images/search-icon.svg"
       }
@@ -91,7 +82,7 @@
     "/assets/js/base.js": {
       "options": null,
       "value": {
-        "hashed": "954946d08b19537b3da15f0337bbbfc944b247e4084e32d7d66b6eef4b256c18",
+        "hashed": "6350e924dcbdef0958e13eee0b1c76b2af275efca65676a4ae1c11423b114f38",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -105,10 +96,7 @@
             "included": []
           },
           "pod_path": "/source/js/base.js",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/source/js/base.js"
       }
@@ -130,10 +118,7 @@
             "included": []
           },
           "pod_path": "/source/js/main.js",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/source/js/main.js"
       }
@@ -301,6 +286,116 @@
         "pod_path": "/content/search/index.yaml"
       }
     },
+    "/assets/search/lunr.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "46529b90726ace79e12cb53262176055f081f4e62c254bef4b0682c233d3099f",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/search/lunr.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/source/search/lunr.min.js"
+      }
+    },
+    "/assets/search/mustache.min.js": {
+      "options": null,
+      "value": {
+        "hashed": "4d6f09b49bc8582f0a413c867dfefabaf48920cbb25bfc3d3d760e2848a65f2a",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/search/mustache.min.js",
+          "static_filter": {}
+        },
+        "pod_path": "/source/search/mustache.min.js"
+      }
+    },
+    "/assets/search/require.js": {
+      "options": null,
+      "value": {
+        "hashed": "3e3eccb10aa9542c19493b24ba854d0b9fe57be3c787f434c88dede9f2847dc3",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/search/require.js",
+          "static_filter": {}
+        },
+        "pod_path": "/source/search/require.js"
+      }
+    },
+    "/assets/search/search-results-template.mustache": {
+      "options": null,
+      "value": {
+        "hashed": "e9be24cc95e4833a5fc280590d0cabe0ef4e4052f0a50c19d6a06086f56bfb7d",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/search/search-results-template.mustache",
+          "static_filter": {}
+        },
+        "pod_path": "/source/search/search-results-template.mustache"
+      }
+    },
+    "/assets/search/search.js": {
+      "options": null,
+      "value": {
+        "hashed": "e412ecac6348214ade722e6127477d79209818c337cd1ec50627f9c6ccf27f55",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/search/search.js",
+          "static_filter": {}
+        },
+        "pod_path": "/source/search/search.js"
+      }
+    },
     "/assets/search/search_index-en-json.html": {
       "options": {},
       "value": {
@@ -353,6 +448,28 @@
         "pod_path": "/content/search/index.yaml"
       }
     },
+    "/assets/search/text.js": {
+      "options": null,
+      "value": {
+        "hashed": "060eff42292d4c88eb111554ff6a3e2942bcd24019b978f7e6e35f57c757dad0",
+        "kind": "static",
+        "meta": {
+          "fingerprinted": false,
+          "locale": null,
+          "localization": null,
+          "localized": false,
+          "path_filter": {
+            "ignored": [
+              "^.*/\\.[^/]*$"
+            ],
+            "included": []
+          },
+          "pod_path": "/source/search/text.js",
+          "static_filter": {}
+        },
+        "pod_path": "/source/search/text.js"
+      }
+    },
     "/assets/vendor/vendor.min.js": {
       "options": null,
       "value": {
@@ -370,10 +487,7 @@
             "included": []
           },
           "pod_path": "/source/vendor/vendor.min.js",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/source/vendor/vendor.min.js"
       }
@@ -506,6 +620,71 @@
           "pod_path": "/content/codelab/9.md"
         },
         "pod_path": "/content/codelab/9.md"
+      }
+    },
+    "/extensions/create/": {
+      "options": {},
+      "value": {
+        "hashed": "1171eceef93ae4b2634973a876cb7d503591f282e37c28dd039f1ce751ecca37",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/create.md"
+        },
+        "pod_path": "/content/docs/extensions/create.md"
+      }
+    },
+    "/extensions/install/": {
+      "options": {},
+      "value": {
+        "hashed": "eeddb5fc5f03ef6f925dfcf6724932811b3dd737a1943573d889af4bdf85eca3",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/install.md"
+        },
+        "pod_path": "/content/docs/extensions/install.md"
+      }
+    },
+    "/extensions/legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "31c196634aec6afe5a9d709e7f7c1564f5def0337f1a9cb43314414b09773d73",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/legacy.md"
+      }
+    },
+    "/extensions/preprocessor-legacy/": {
+      "options": {},
+      "value": {
+        "hashed": "ffe822680cfed0df07f0b62460ef04652cc2624ca61c62d699376c1eff854ae8",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor-legacy.md"
+      }
+    },
+    "/extensions/preprocessor/": {
+      "options": {},
+      "value": {
+        "hashed": "83650bf7c207ae2c17ff1ce4ec3701a4cedfc03eb98e38187e2ecbd22a311dd5",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/docs/extensions",
+          "locale": "en",
+          "pod_path": "/content/docs/extensions/preprocessor.md"
+        },
+        "pod_path": "/content/docs/extensions/preprocessor.md"
       }
     },
     "/get-started/samples/": {
@@ -760,10 +939,7 @@
             "included": []
           },
           "pod_path": "/dist/css/blocks/button.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/dist/css/blocks/button.min.css"
       }
@@ -771,7 +947,7 @@
     "/static/css/blocks/layout.min.css": {
       "options": null,
       "value": {
-        "hashed": "4fd673ba619d3f8acfd1ee5cf6ddaab8e9ae0f51ab243989e2fba1ae13ada554",
+        "hashed": "dbb3fe07102f094fe570edcc0e6e937027de80d748afeafbb09ebe41cb412149",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -785,10 +961,7 @@
             "included": []
           },
           "pod_path": "/dist/css/blocks/layout.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/dist/css/blocks/layout.min.css"
       }
@@ -810,10 +983,7 @@
             "included": []
           },
           "pod_path": "/dist/css/blocks/search.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/dist/css/blocks/search.min.css"
       }
@@ -835,7 +1005,10 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/docs.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/docs.min.css"
       }
@@ -857,7 +1030,10 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/global.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/global.min.css"
       }
@@ -879,7 +1055,10 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/home.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/home.min.css"
       }
@@ -901,7 +1080,10 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/search.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/search.min.css"
       }
@@ -923,7 +1105,10 @@
             "included": []
           },
           "pod_path": "/dist/css/composite/styleguide.min.css",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": "/dist/css/composite/styleguide.min.css"
       }
@@ -931,7 +1116,7 @@
     "/static/css/main.min.css": {
       "options": null,
       "value": {
-        "hashed": "e137225777740f1ec64d7d9e6882cba63dbe711d47670861969498083c1033d6",
+        "hashed": "164901005fcb97f548d598f1673a6907b08267fb2f5b88d82237db320f383cf1",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -945,10 +1130,7 @@
             "included": []
           },
           "pod_path": "/dist/css/main.min.css",
-          "static_filter": {
-            "ignored": [],
-            "included": []
-          }
+          "static_filter": {}
         },
         "pod_path": "/dist/css/main.min.css"
       }
@@ -970,7 +1152,10 @@
             "included": []
           },
           "pod_path": "/dist/js/composite/docs.min.js",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": "/dist/js/composite/docs.min.js"
       }
@@ -992,7 +1177,10 @@
             "included": []
           },
           "pod_path": "/dist/js/composite/global.min.js",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": "/dist/js/composite/global.min.js"
       }
@@ -1014,7 +1202,10 @@
             "included": []
           },
           "pod_path": "/dist/js/composite/home.min.js",
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": "/dist/js/composite/home.min.js"
       }
@@ -1022,7 +1213,7 @@
     "/static/js/main.min.js": {
       "options": null,
       "value": {
-        "hashed": "99eb1c307f44853e26649ba059066594cbde0fdcfaa1651c46cec66162d88062",
+        "hashed": "df7d23554641dfa607eef189f66797e69187be4a8c9eff59e6d36e369e509fc4",
         "kind": "static",
         "meta": {
           "fingerprinted": false,
@@ -1041,6 +1232,32 @@
         "pod_path": "/dist/js/main.min.js"
       }
     },
+    "/style/directory-strucure/": {
+      "options": {},
+      "value": {
+        "hashed": "2f17d663ff7a44a1ffbd20911d7e8cb8bbc021a71bb6b01680a152c1939bf67c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/directory-strucure.md"
+        },
+        "pod_path": "/content/style/directory-strucure.md"
+      }
+    },
+    "/style/partials/": {
+      "options": {},
+      "value": {
+        "hashed": "a3c1913b43e95adc97665ff603be350ec8be3889efefdeaef377578ce5ed73dc",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/partials.md"
+        },
+        "pod_path": "/content/style/partials.md"
+      }
+    },
     "/workflow/building/": {
       "options": {},
       "value": {
@@ -1057,7 +1274,7 @@
     "/workflow/continuous/": {
       "options": {},
       "value": {
-        "hashed": "769589adf0902fe27999e1f477b9f2f328cfcc70e24bcaa8482f83a675f83cff",
+        "hashed": "11b7dba170f19c0ac0f4c635358173a107ac84b3393a03a619abf7bf6e4f68cb",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/workflow",
@@ -1098,7 +1315,7 @@
     "/": {
       "options": {},
       "value": {
-        "hashed": "e4165a6d109d9a88a63dd2a822298471a7900bd6126d7cd03ed76da1f7f8bd71",
+        "hashed": "dc7b19173d145def177b95376c5e1512d133ba5a388224afb29968feaf0275f6",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/get-started",
@@ -1195,7 +1412,7 @@
         ]
       },
       "value": {
-        "hashed": "e4165a6d109d9a88a63dd2a822298471a7900bd6126d7cd03ed76da1f7f8bd71",
+        "hashed": "dc7b19173d145def177b95376c5e1512d133ba5a388224afb29968feaf0275f6",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/get-started",
@@ -1444,6 +1661,22 @@
         "pod_path": "/content/docs/reference/urls.md"
       }
     },
+    "/:locale/style/directory-strucure/": {
+      "options": {
+        "locale": [
+          "en"
+        ]
+      },
+      "value": {
+        "hashed": "2f17d663ff7a44a1ffbd20911d7e8cb8bbc021a71bb6b01680a152c1939bf67c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "pod_path": "/content/style/directory-strucure.md"
+        },
+        "pod_path": "/content/style/directory-strucure.md"
+      }
+    },
     "/:locale/workflow/building/": {
       "options": {
         "locale": [
@@ -1467,7 +1700,7 @@
         ]
       },
       "value": {
-        "hashed": "769589adf0902fe27999e1f477b9f2f328cfcc70e24bcaa8482f83a675f83cff",
+        "hashed": "11b7dba170f19c0ac0f4c635358173a107ac84b3393a03a619abf7bf6e4f68cb",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/workflow",
@@ -1554,7 +1787,10 @@
           "source_formats": [
             "/source/css/"
           ],
-          "static_filter": {}
+          "static_filter": {
+            "ignored": [],
+            "included": []
+          }
         },
         "pod_path": null
       }
@@ -2266,6 +2502,19 @@
         "pod_path": null
       }
     },
+    "/style/directory-strucure/": {
+      "options": {},
+      "value": {
+        "hashed": "2f17d663ff7a44a1ffbd20911d7e8cb8bbc021a71bb6b01680a152c1939bf67c",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/directory-strucure.md"
+        },
+        "pod_path": "/content/style/directory-strucure.md"
+      }
+    },
     "/workflow/building/": {
       "options": {},
       "value": {
@@ -2282,7 +2531,7 @@
     "/workflow/continuous/": {
       "options": {},
       "value": {
-        "hashed": "769589adf0902fe27999e1f477b9f2f328cfcc70e24bcaa8482f83a675f83cff",
+        "hashed": "11b7dba170f19c0ac0f4c635358173a107ac84b3393a03a619abf7bf6e4f68cb",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/workflow",
