@@ -288,7 +288,7 @@ In the partial loop example earlier, a partial can be disabled by setting the
 top-level `partial` key to `null`. This permits use of Grow's YAML tagging to
 conditionally render partials (such as varying by locale or environment).
 
-<figcaption>/content/pages.index.yaml</figcaption>
+<figcaption>/content/pages/index.yaml</figcaption>
 ```yaml
 partials:
 
