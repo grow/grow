@@ -17,8 +17,7 @@ import zipfile
 
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
-RC_FILES_LINUX = ['.bash_profile', '.profile', '.bashrc']
-RC_FILES_MAC = ['.bash_profile']
+RC_FILES = ['.bashrc', '.zshrc', '.bash_profile', '.profile']
 RC_FILE_DEFAULT = '.bashrc'
 
 if 'Linux' in platform.system():
@@ -58,8 +57,7 @@ def orly(text, default=False):
 
 
 def get_rc_path():
-    rc_files = RC_FILES_LINUX if PLATFORM == 'linux' else RC_FILES_MAC
-    for basename in rc_files:
+    for basename in RC_FILES:
         basepath = os.path.expanduser('~/{}'.format(basename))
         if os.path.exists(basepath):
             return basepath
@@ -77,7 +75,7 @@ def get_release_for_platform(releases, platform):
 
 def has_bin_in_path(bin_path):
     """Determine if the binary path is part of the system paths."""
-    return '{}:'.format(bin_path) in os.environ['PATH']
+    return bin_path in os.environ['PATH'].split(':')
 
 
 def install(rc_path=None, bin_path=None, force=False):
