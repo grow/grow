@@ -59,6 +59,69 @@ class RoutesTestCase(unittest.TestCase):
         result = self.routes.match('/de/about')
         self.assertEqual(None, result)
 
+    def test_routes_add_params_inline_values(self):
+        """Tests that routes can be added with values for mid-string params."""
+        options = {
+            'locale': [
+                'en',
+                'es'
+            ]
+        }
+        doc = self._add('/index-{locale}.html', '/content/pages/home', options=options)
+        result = self.routes.match('/index-en.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-es.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-fr.html')
+        self.assertEqual(None, result)
+
+        # Cannot have multiple adds for min-string params.
+        with self.assertRaises(grow_routes.PathConflictError):
+            self._add('/index-{locale}.html', '/content/pages/bar')
+
+    def test_routes_add_params_inline_values_multi(self):
+        """Tests that routes can be added with values for mid-string multiple params."""
+        options = {
+            'env': [
+                'prod',
+                'staging'
+            ],
+            'locale': [
+                'en',
+                'es'
+            ],
+        }
+        doc = self._add('/index-{locale}-{env}.html', '/content/pages/home', options=options)
+        result = self.routes.match('/index-en-prod.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-es-prod.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-fr-prod.html')
+        self.assertEqual(None, result)
+        result = self.routes.match('/index-en-staging.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-es-staging.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-fr-staging.html')
+        self.assertEqual(None, result)
+
+        # Cannot have multiple adds for min-string params.
+        with self.assertRaises(grow_routes.PathConflictError):
+            self._add('/index-{locale}-{env}.html', '/content/pages/bar')
+
+    def test_routes_add_params_inline_values_missing(self):
+        """Tests that routes can be added with values for mid-string missing params."""
+        options = {
+            'locale': [
+                'en',
+                'es'
+            ],
+        }
+
+        # Cannot use with template without options.
+        with self.assertRaises(grow_routes.MissingOptionError):
+            self._add('/index-{locale}-{env}.html', '/content/pages/home', options=options)
+
     def test_routes_add_conflict(self):
         """Tests that routes can be added but not conflicting."""
 
