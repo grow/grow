@@ -93,6 +93,39 @@ $padding: 10px
   & + .code pre
     margin-top: 0
 
+.layout__main__body__content section
+  display: grid
+  grid-gap: 25px
+  grid-template-columns: 1fr 1fr
+  margin: 20px 0 40px
+
+.layout__main__body__content section div
+  // display: flex
+  flex-direction: column
+
+.layout__main__body__content section div > div
+  flex-grow: 1
+
+.layout__main__body__content section do,
+.layout__main__body__content section dont
+  border-top: 15px solid #4caf50
+  font-family: inherit
+  color: #4caf50
+  display: block
+  font-weight: 500
+  margin-top: 10px
+  margin-bottom: 5px
+  padding-top: 5px
+  width: 100%
+
+.layout__main__body__content section dont
+  color: #d32f2f
+  border-top-color: #d32f2f
+
+.layout__main__body__content section label
+  font-size: 13px
+  line-height: 16px
+
 .layout__main__body__side
   box-sizing: border-box
   display: flex

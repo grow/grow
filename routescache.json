@@ -1232,6 +1232,19 @@
         "pod_path": "/dist/js/main.min.js"
       }
     },
+    "/style/css/": {
+      "options": {},
+      "value": {
+        "hashed": "81f9f6262ae13f10c5bda74816a1aca1bfa2d487ed11bb6ee43e8d0aba0932d4",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/css.md"
+        },
+        "pod_path": "/content/style/css.md"
+      }
+    },
     "/style/directory-strucure/": {
       "options": {},
       "value": {
@@ -2544,7 +2557,7 @@
     "/style/partials/": {
       "options": {},
       "value": {
-        "hashed": "8094ad4194e2c131ddab0b1852e39268fcda27d1e31b0d88b1e106fc725147ef",
+        "hashed": "a01b1efb185b5d7116cb9e66ffcd80795c5e4ac7ed19e7674fc7f3f1c10bf3a3",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/style",
@@ -2557,7 +2570,7 @@
     "/style/variations/": {
       "options": {},
       "value": {
-        "hashed": "a98779aa8ffc281207af73a855374a5ea06062620be6f727ea9bfc6c6a2b81c2",
+        "hashed": "4f2d8ac78e141833e7aba77d272d6f34274040e1068af2b7b9b05f3fbbe69070",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/style",
