@@ -4,3 +4,16 @@
 
   &::-webkit-scrollbar-thumb
     background: rgb(162,192,218)
+
+=scrollbar-sm-hover
+  &::-webkit-scrollbar
+    height: 2px
+    width: 2px
+    opacity: 0.15
+
+  &::-webkit-scrollbar-thumb
+    background: rgb(162,192,218)
+
+  &:hover
+    &::-webkit-scrollbar
+      opacity: 0.75

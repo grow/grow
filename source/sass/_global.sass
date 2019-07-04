@@ -1,3 +1,4 @@
+@import mixins/scrollbar
 @import mixins/type
 
 html
@@ -58,13 +59,14 @@ code
   padding: 2px 4px
 
 pre
+  +scrollbar-sm-hover
   border-radius: 3px
   color: #3b415e
   font-family: Inconsolata, monospace;
   font-size: 15px
   font-weight: 500
+  overflow-x: auto
   padding: 20px
-  white-space: pre-wrap
 
 img
   max-width: 100%

@@ -1258,6 +1258,19 @@
         "pod_path": "/content/style/directory-strucure.md"
       }
     },
+    "/style/images/": {
+      "options": {},
+      "value": {
+        "hashed": "3224718f305409cb69407f6c4aa1c032d04829f8e67e1a22041c0384ce5631ad",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/images.md"
+        },
+        "pod_path": "/content/style/images.md"
+      }
+    },
     "/style/partials/": {
       "options": {},
       "value": {
