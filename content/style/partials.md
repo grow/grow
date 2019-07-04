@@ -89,6 +89,9 @@ partials:
   avatar: !g.static /source/images/home/steven.png
 ```
 
+In this example, the `index` page renders a hero, and three person partials.
+The `hero`, and `person` templates can subsequently be reused on other pages.
+
 If the same content is reused, put partial content documents into the
 `/content/partials` folder, and then import them into pages.
 
@@ -147,9 +150,6 @@ Create corresponding styles encapsulated into a single Sass file.
 .hero__body
   +font-body
 ```
-
-In this example, the `index` page renders a hero, and three person partials.
-The `hero`, and `person` templates can subsequently be reused on other pages.
 
 ## Reuse
 

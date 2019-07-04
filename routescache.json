@@ -1258,6 +1258,32 @@
         "pod_path": "/content/style/partials.md"
       }
     },
+    "/style/philosophy/": {
+      "options": {},
+      "value": {
+        "hashed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/philosophy.md"
+        },
+        "pod_path": "/content/style/philosophy.md"
+      }
+    },
+    "/style/variations/": {
+      "options": {},
+      "value": {
+        "hashed": "d03c03dd556d293c3431809bafd2ed7237531313f5019520076d27ae9138d42e",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/variations.md"
+        },
+        "pod_path": "/content/style/variations.md"
+      }
+    },
     "/workflow/building/": {
       "options": {},
       "value": {
@@ -1524,7 +1550,7 @@
         ]
       },
       "value": {
-        "hashed": "0a59340cc03f6e34c909234cd10d66de06543fbd493bb00c74ca0eaebe800d20",
+        "hashed": "f5b19bb462beb44ffc1cf4b4a3589d0637c9cc15213b666f703f7709e12f2c1f",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/reference",
@@ -2234,7 +2260,7 @@
     "/reference/markdown-extensions/": {
       "options": {},
       "value": {
-        "hashed": "0a59340cc03f6e34c909234cd10d66de06543fbd493bb00c74ca0eaebe800d20",
+        "hashed": "f5b19bb462beb44ffc1cf4b4a3589d0637c9cc15213b666f703f7709e12f2c1f",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/docs/reference",
@@ -2505,7 +2531,7 @@
     "/style/directory-strucure/": {
       "options": {},
       "value": {
-        "hashed": "2f17d663ff7a44a1ffbd20911d7e8cb8bbc021a71bb6b01680a152c1939bf67c",
+        "hashed": "00074aeb59e37145eba9f0422a818e79f977987b0047f4e8f9db6bd911964be1",
         "kind": "doc",
         "meta": {
           "collection_path": "/content/style",
@@ -2513,6 +2539,32 @@
           "pod_path": "/content/style/directory-strucure.md"
         },
         "pod_path": "/content/style/directory-strucure.md"
+      }
+    },
+    "/style/partials/": {
+      "options": {},
+      "value": {
+        "hashed": "8094ad4194e2c131ddab0b1852e39268fcda27d1e31b0d88b1e106fc725147ef",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/partials.md"
+        },
+        "pod_path": "/content/style/partials.md"
+      }
+    },
+    "/style/variations/": {
+      "options": {},
+      "value": {
+        "hashed": "a98779aa8ffc281207af73a855374a5ea06062620be6f727ea9bfc6c6a2b81c2",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/variations.md"
+        },
+        "pod_path": "/content/style/variations.md"
       }
     },
     "/workflow/building/": {
