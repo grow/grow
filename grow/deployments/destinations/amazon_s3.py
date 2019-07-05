@@ -59,11 +59,14 @@ class AmazonS3Destination(base.BaseDestination):
                 return boto_connection.create_bucket(self.config.bucket)
             raise
 
-    def dump(self, pod, use_threading=True):
+    def dump(self, pod, pod_paths=None, use_threading=True, source_dir=None):
         pod.set_env(self.get_env())
         return pod.dump(
             suffix=self.config.index_document,
-            append_slashes=self.config.redirect_trailing_slashes, use_threading=use_threading)
+            append_slashes=self.config.redirect_trailing_slashes,
+            pod_paths=pod_paths,
+            use_threading=use_threading,
+            source_dir=source_dir)
 
     def prelaunch(self, dry_run=False):
         if dry_run:
