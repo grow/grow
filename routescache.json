@@ -1232,6 +1232,19 @@
         "pod_path": "/dist/js/main.min.js"
       }
     },
+    "/style/about/": {
+      "options": {},
+      "value": {
+        "hashed": "3d54f2b094c3adb64ef64026bc861d8ab143d61e9531aa5d92165ac2c1d17a5b",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/about.md"
+        },
+        "pod_path": "/content/style/about.md"
+      }
+    },
     "/style/css/": {
       "options": {},
       "value": {
@@ -1256,6 +1269,19 @@
           "pod_path": "/content/style/directory-strucure.md"
         },
         "pod_path": "/content/style/directory-strucure.md"
+      }
+    },
+    "/style/git/": {
+      "options": {},
+      "value": {
+        "hashed": "a7740cddcdae9119acb252d637371ec47447bda65629296b8236249a9e74edbb",
+        "kind": "doc",
+        "meta": {
+          "collection_path": "/content/style",
+          "locale": "en",
+          "pod_path": "/content/style/git.md"
+        },
+        "pod_path": "/content/style/git.md"
       }
     },
     "/style/images/": {
