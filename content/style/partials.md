@@ -154,7 +154,7 @@ Create corresponding styles encapsulated into a single Sass file.
 ## Reuse
 
 Partials can be easily reused across pages, making it easy to implement a
-modular design or design system. If several pages within your site all leverage
+modular design or design system. If several pages all leverage
 the same or similar modules, the selective application and mixing and matching
 of partials make it possible to easily build a large, templatized site.
 
@@ -247,11 +247,11 @@ leverage the top-level `class` key.
 ### Guidelines
 
 Partials should be named in a concise yet descriptive way. Naming is hard – be
-generic, but not too generic. For example, if your site design has a
+generic, but not too generic. For example, if a design has a
 commonly-used "top" or "hero" module, name it `hero`. Or a commonly used
 column module, name it `columns`.
 
-Avoid coupling the partial's name to a specific page on your site, unless the
+Avoid coupling the partial's name to a specific page, unless the
 partial's design can in no way be applied elsewhere. If there is a slight
 variation between two pages, use a generic name. If a module is unique to a
 page and will always be for the forseeable future, you may prefix the partial's
