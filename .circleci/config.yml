@@ -28,25 +28,27 @@ jobs:
           name: Deploy to Prod
           command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io ; fi
 
-      - restore_cache:
-          keys:
-            - gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
-
-      - run:
-          name: Install Gems
-          command: bundle install
-
-      - save_cache:
-          key: gem-cache-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+      - persist_to_workspace:
+          root: ~/grow
           paths:
-            - vendor/bundle
+            - build/*
 
-      - run:
-          name: Percy Snapshots
-          command: percy snapshot --widths "412,1280" --enable_javascript build/
+  snapshot:
+    working_directory: ~/grow
+    docker:
+    - image: zoramite/percy-base:latest
 
+    steps:
+    - attach_workspace:
+        at: ~/grow
+    - run:
+        name: Percy Snapshots
+        command: percy snapshot --widths "412,1280" --enable_javascript build/
 workflows:
   version: 2
   build:
     jobs:
     - build
+    - snapshot:
+        requires:
+        - build
