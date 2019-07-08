@@ -17,15 +17,15 @@ import zipfile
 
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
+ALIAS_FILES = ['.bash_aliases', '.bash_profile', '.profile', '.bashrc']
 RC_FILES = ['.bashrc', '.zshrc', '.bash_profile', '.profile']
 RC_FILE_DEFAULT = '.bashrc'
+BIN_PATH = '~/bin/grow'
 
 if 'Linux' in platform.system():
     PLATFORM = 'linux'
-    BIN_PATH = '/usr/local/bin/grow'
 elif 'Darwin' in platform.system():
     PLATFORM = 'mac'
-    BIN_PATH = '/usr/local/bin/grow'
 else:
     print('{} is not a supported platform. Please file an issue at '
           'https://github.com/grow/grow/issues'.format(sys.platform))
@@ -104,31 +104,41 @@ def install(rc_path=None, bin_path=None, force=False):
         version=version, name=asset['name'])
 
     bin_path = os.path.expanduser(bin_path or BIN_PATH)
+    bin_dir = os.path.dirname(bin_path)
     rc_comment = '# Added by Grow SDK Installer ({})'.format(
         datetime.datetime.now())
     rc_path = os.path.expanduser(rc_path or get_rc_path())
-    rc_path_append = 'export PATH={}:$PATH'.format(bin_path)
+    rc_path_append = 'export PATH={}:$PATH'.format(bin_dir)
 
     hai('{yellow}Welcome to the installer for Grow SDK v{}{/yellow}', version)
     hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/{}', version)
     hai('{blue}==>{/blue} {green}This script will install:{/green} {}', bin_path)
 
-    bin_in_path = has_bin_in_path(bin_path)
+    bin_in_path = has_bin_in_path(bin_dir)
 
     if bin_in_path:
         hai(
             '{blue}[✓]{/blue} {green}You already have the binary directory in PATH:{/green} {}',
-            bin_path)
+            bin_dir)
     else:
         hai(
             '{blue}==>{/blue} {green}{} will be added to the PATH in:{/green} {}',
-            bin_path, rc_path)
+            bin_dir, rc_path)
 
     if not force:
-        result = orly('Continue installation? [Y]es / [n]o: ', default=True)
+        try:
+            result = orly('Continue installation? [Y]es / [n]o: ', default=True)
+        except KeyboardInterrupt:
+            result = False
         if not result:
-            hai('{yellow}Aborted installation.{/yellow}')
+            hai('\n\r{yellow}Aborted installation.{/yellow}')
             sys.exit(-1)
+
+    try:
+        os.makedirs(bin_dir)
+    except OSError:
+        # If the directory already exists, let it go.
+        pass
 
     remote = urllib2.urlopen(download_url)
     try:
