@@ -186,11 +186,11 @@ def install(rc_path=None, bin_path=None, force=False):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bin-path', default=None,
-                        help='Where to install `grow` executable.')
+                        help='Where to install `grow` executable. Ex: ~/bin/grow')
     parser.add_argument('--force', dest='force', action='store_true',
                         help='Whether to force install and bypass prompts.')
     parser.add_argument('--rc-path', default=None,
-                        help='Profile to update with PATH.')
+                        help='Profile to update with PATH. Ex: ~/.bashrc')
     parser.set_defaults(force=False)
     return parser.parse_args()
 
