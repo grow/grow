@@ -88,7 +88,7 @@ You can also highlight specific lines:
 
 Which appears as:
 
-​[sourcecode:html, hl_lines="1 3"]
+[sourcecode:html, hl_lines="1 3"]
 <!doctype html>
 <meta charset="utf-8">
 <title>Hello World!</title>

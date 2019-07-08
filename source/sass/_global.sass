@@ -1,3 +1,4 @@
+@import mixins/scrollbar
 @import mixins/type
 
 html
@@ -48,13 +49,24 @@ table
 p
   margin: 20px 0
 
+code 
+  background: #f5f7f7
+  border-radius: 5px
+  color: #3b415e
+  font-family: Inconsolata, monospace;
+  font-size: 15px
+  font-weight: 600
+  padding: 2px 4px
+
 pre
-  padding: 20px
-  white-space: pre-wrap
+  +scrollbar-sm-hover
+  border-radius: 3px
+  color: #3b415e
+  font-family: Inconsolata, monospace;
   font-size: 15px
   font-weight: 500
-  border-radius: 3px
-  font-family: Inconsolata, monospace;
+  overflow-x: auto
+  padding: 20px
 
 img
   max-width: 100%
@@ -66,6 +78,22 @@ a
 
   &:not(.button):hover
     opacity: 0.75
+
+table
+  border-collapse: collapse
+
+table thead
+  background: #F7F9FC
+
+table tr th
+  font-weight: 500
+  text-align: left
+
+table tr td,
+table tr th
+  border: 1px solid #efefef
+  padding: 8px
+  vertical-align: top
 
 .main
   background-color: $color-white

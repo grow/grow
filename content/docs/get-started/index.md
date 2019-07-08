@@ -7,7 +7,7 @@ $path: /
 $category: Get started
 $order: 0
 ---
-# A delcarative, file-based static website generator
+# A declarative, file-based static website generator
 
 Grow is a static site generator optimized for building highly-interactive,
 localized microsites. With a focus on workflow and building projects that are

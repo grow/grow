@@ -1,13 +1,13 @@
+@import ../mixins/scrollbar
 @import ../colors
 
 $padding: 10px
 
 .layout
   display: grid
-  grid-template-columns: minmax(252px,calc((100% - 1262px) / 2 + 226px)) 1010px 1fr
-  height: 100%
-  width: 100%
+  grid-template-columns: minmax(252px, calc((100% - 1262px) / 2 + 226px)) minmax(700px, 1010px) 1fr
   height: 100vh
+  width: 100%
 
 .layout__nav
   background: linear-gradient(rgba(255,255,255,0.3),rgba(255,255,255,0))
@@ -22,6 +22,7 @@ $padding: 10px
   position: sticky
   top: 0
   width: 250px
+  +scrollbar-sm
 
 .layout__nav__content__header
   align-items: center
@@ -80,17 +81,76 @@ $padding: 10px
 .layout__main__body__content > *:first-child
   margin-top: 0
 
+.layout__main__body__content figcaption
+  background: #f8f8f8
+  border-bottom: 1px solid #CCCCCC
+  color: $color-pink
+  font-family: Inconsolata, monospace;
+  font-size: 13px
+  font-weight: bold
+  padding: 5px 10px
+
+  & + .code pre
+    margin-top: 0
+
+.layout__main__body__content section
+  display: grid
+  grid-gap: 25px
+  grid-template-columns: 1fr 1fr
+  margin: 20px 0 40px
+
+.layout__main__body__content section div
+  // display: flex
+  flex-direction: column
+  overflow-x: auto
+
+.layout__main__body__content section div > div
+  flex-grow: 1
+
+.layout__main__body__content section div > div > pre
+  margin: 0
+
+.layout__main__body__content section do,
+.layout__main__body__content section dont
+  border-top: 15px solid #4caf50
+  font-family: inherit
+  color: #4caf50
+  display: block
+  font-weight: 500
+  margin-top: 10px
+  margin-bottom: 5px
+  padding-top: 5px
+  width: 100%
+
+.layout__main__body__content section dont
+  color: #d32f2f
+  border-top-color: #d32f2f
+
+.layout__main__body__content section label
+  font-size: 13px
+  line-height: 16px
+
 .layout__main__body__side
   box-sizing: border-box
   display: flex
   flex-direction: column
   font-size: 14px
-  height: calc(100vh - 86px)  // 86 = height of search
+  height: calc(100vh)
   line-height: 16px
+  overflow-y: auto
   padding: $padding * 3 0
   position: sticky
   top: 0
   width: 200px
+  +scrollbar-sm
+
+  &::-webkit-scrollbar-thumb
+    background: rgba(162,192,218, 0)
+    transition: background 200ms ease
+
+  &:hover
+    &::-webkit-scrollbar-thumb
+      background: rgba(162,192,218, 0.5)
 
 .layout__main__body__content__relative-nav
   border-top: 1px solid #efefef
@@ -115,5 +175,3 @@ $padding: 10px
   &.active
     a
       color: inherit
-
-.layout__main__body__side__footer
