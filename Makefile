@@ -17,6 +17,9 @@ export PATH := $(HOME)/go/bin/:$(PATH)
 # Default test target for "make test". Allows "make target=grow.pods.pods_test test"
 target ?= 'grow/'
 
+# Default test target for "make test". Allows "make target=grow.pods.pods_test test"
+coverage ?= false
+
 develop:
 	@pip --version > /dev/null || { \
 	  echo "pip not installed. Trying to install pip..."; \
@@ -78,14 +81,22 @@ pylint:
 
 test:
 	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/nosetests \
-	  -v \
-	  --rednose \
-	  --with-coverage \
-	  --cover-erase \
-		--cover-xml \
-	  --cover-package=grow \
-	  $(target)
+	@echo "coverage: $(coverage)"
+	@if [ "$(coverage)" == true ]; then \
+		$(PIP_ENV)/bin/nosetests \
+		  -v \
+		  --rednose \
+			--with-coverage \
+			--cover-erase \
+			--cover-xml \
+			--cover-package=grow \
+		  $(target);\
+	else \
+		$(PIP_ENV)/bin/nosetests \
+			-v \
+			--rednose \
+			$(target);\
+	fi
 
 test-nosetests:
 	. $(PIP_ENV)/bin/activate

@@ -24,10 +24,10 @@ class RoutesTestCase(unittest.TestCase):
 
         doc = self._add('/', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         doc_foo_bar = self._add('/foo/bar', '/content/pages/foo')
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
 
     def test_routes_add_params_values(self):
         """Tests that routes can be added with values for params."""
@@ -39,11 +39,11 @@ class RoutesTestCase(unittest.TestCase):
         }
         doc = self._add('/:locale/', '/content/pages/home', options=options)
         result = self.routes.match('/en/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/es/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/fr/')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
         # Adding another option adds to the set of locale options.
         options = {
@@ -53,18 +53,81 @@ class RoutesTestCase(unittest.TestCase):
         }
         doc_new = self._add('/:locale/about', '/content/pages/about', options=options)
         result = self.routes.match('/es/about')
-        self.assertEquals(doc_new['value'], result.value)
+        self.assertEqual(doc_new['value'], result.value)
         result = self.routes.match('/fr/about')
-        self.assertEquals(doc_new['value'], result.value)
+        self.assertEqual(doc_new['value'], result.value)
         result = self.routes.match('/de/about')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
+
+    def test_routes_add_params_inline_values(self):
+        """Tests that routes can be added with values for mid-string params."""
+        options = {
+            'locale': [
+                'en',
+                'es'
+            ]
+        }
+        doc = self._add('/index-{locale}.html', '/content/pages/home', options=options)
+        result = self.routes.match('/index-en.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-es.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-fr.html')
+        self.assertEqual(None, result)
+
+        # Cannot have multiple adds for min-string params.
+        with self.assertRaises(grow_routes.PathConflictError):
+            self._add('/index-{locale}.html', '/content/pages/bar')
+
+    def test_routes_add_params_inline_values_multi(self):
+        """Tests that routes can be added with values for mid-string multiple params."""
+        options = {
+            'env': [
+                'prod',
+                'staging'
+            ],
+            'locale': [
+                'en',
+                'es'
+            ],
+        }
+        doc = self._add('/index-{locale}-{env}.html', '/content/pages/home', options=options)
+        result = self.routes.match('/index-en-prod.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-es-prod.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-fr-prod.html')
+        self.assertEqual(None, result)
+        result = self.routes.match('/index-en-staging.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-es-staging.html')
+        self.assertEqual(doc['value'], result.value)
+        result = self.routes.match('/index-fr-staging.html')
+        self.assertEqual(None, result)
+
+        # Cannot have multiple adds for min-string params.
+        with self.assertRaises(grow_routes.PathConflictError):
+            self._add('/index-{locale}-{env}.html', '/content/pages/bar')
+
+    def test_routes_add_params_inline_values_missing(self):
+        """Tests that routes can be added with values for mid-string missing params."""
+        options = {
+            'locale': [
+                'en',
+                'es'
+            ],
+        }
+
+        # Cannot use with template without options.
+        with self.assertRaises(grow_routes.MissingOptionError):
+            self._add('/index-{locale}-{env}.html', '/content/pages/home', options=options)
 
     def test_routes_add_conflict(self):
         """Tests that routes can be added but not conflicting."""
 
         doc = self._add('/', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         with self.assertRaises(grow_routes.PathConflictError):
             self._add('/', '/content/pages/bar')
 
@@ -73,7 +136,7 @@ class RoutesTestCase(unittest.TestCase):
 
         doc = self._add('/:foo', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         with self.assertRaises(grow_routes.PathConflictError):
             self._add('/:foo', '/content/pages/bar')
 
@@ -82,7 +145,7 @@ class RoutesTestCase(unittest.TestCase):
 
         doc = self._add('/:foo', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         with self.assertRaises(grow_routes.PathParamNameConflictError):
             self._add('/:bar', '/content/pages/bar')
 
@@ -91,7 +154,7 @@ class RoutesTestCase(unittest.TestCase):
 
         doc = self._add('/*', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         with self.assertRaises(grow_routes.PathConflictError):
             self._add('/*', '/content/pages/bar')
 
@@ -100,72 +163,72 @@ class RoutesTestCase(unittest.TestCase):
 
         doc = self._add('/', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         doc_foo_bar = self._add('/foo/bar', '/content/pages/foo')
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
 
         new_routes = grow_routes.Routes()
         doc_bar = self._add('/bar', '/content/pages/bar',
                             custom_routes=new_routes)
         result = new_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
 
         added_routes = self.routes + new_routes
 
         # Verify that the new routes has both the other route paths.
         result = added_routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = added_routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
         result = added_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
 
         # Verify that the originals were not changed.
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/bar')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
         result = new_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
         result = new_routes.match('/foo/bar')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
     def test_routes_update_operation(self):
         """Tests that routes can be updated."""
 
         doc = self._add('/', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         doc_foo_bar = self._add('/foo/bar', '/content/pages/foo/bar')
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
 
         new_routes = grow_routes.Routes()
         doc_bar = self._add(
             '/bar', '/content/pages/bar', custom_routes=new_routes)
         result = new_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
 
         self.routes.update(new_routes)
 
         # Verify that the original routes has both the route paths.
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
         result = self.routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
 
         # Verify that the new routes were not changed.
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
         result = new_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
         result = new_routes.match('/foo/bar')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
     def test_nodes(self):
         """Tests that routes' nodes can be retrieved."""
@@ -184,7 +247,7 @@ class RoutesTestCase(unittest.TestCase):
             '/foo', '/tem/pon',
         ]
         actual = [path for path, _, _ in self.routes.nodes]
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_paths(self):
         """Tests that routes' paths can be retrieved."""
@@ -203,7 +266,7 @@ class RoutesTestCase(unittest.TestCase):
             '/foo', '/tem/pon',
         ]
         actual = list(self.routes.paths)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_filter(self):
         """Tests that routes' can be filtered."""
@@ -222,9 +285,9 @@ class RoutesTestCase(unittest.TestCase):
             '/foo', '/tem/pon',
         ]
         actual = list(self.routes.paths)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
         self.routes.filter(None)  # Does nothing.
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
         # Filter specific nodes and test new paths.
         def _filter_func(_, value):
@@ -236,40 +299,40 @@ class RoutesTestCase(unittest.TestCase):
 
         expected = ['/bax/bar', '/bax/pan', '/foo', '/tem/pon']
         actual = list(self.routes.paths)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_remove(self):
         """Tests that paths can be removed."""
 
         doc = self._add('/foo', '/content/foo')
         result = self.routes.match('/foo')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.remove('/foo')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/foo')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
     def test_remove_param(self):
         """Tests that param paths can be removed."""
 
         doc = self._add('/:foo', '/content/foo')
         result = self.routes.match('/foo')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.remove('/:foo')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/foo')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
     def test_remove_wildcard(self):
         """Tests that wildcard paths can be removed."""
 
         doc = self._add('/*foo', '/content/foo')
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.remove('/*foo')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/foo/bar')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
     def test_param(self):
         """Test that params work for matching paths."""
@@ -277,60 +340,60 @@ class RoutesTestCase(unittest.TestCase):
         # Top level param.
         doc = self._add('/path/:bar', '/static')
         result = self.routes.match('/path/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'bar': 'foo'
         })
         result = self.routes.match('/path/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'bar': 'bar'
         })
 
         # Nested param.
         doc = self._add('/path/to/:bar', '/static')
         result = self.routes.match('/path/to/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'bar': 'foo'
         })
         result = self.routes.match('/path/to/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'bar': 'bar'
         })
 
         # Root param.
         doc = self._add('/path/of/:baz', '/static')
         result = self.routes.match('/path/of/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'foo'
         })
         result = self.routes.match('/path/of/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'bar'
         })
 
         # Middle param.
         doc = self._add('/of/:baz/to', '/static')
         result = self.routes.match('/of/foo/to')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'foo'
         })
         result = self.routes.match('/of/baz/to')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'baz'
         })
 
@@ -339,16 +402,16 @@ class RoutesTestCase(unittest.TestCase):
 
         doc = self._add('/path/:bar/:baz', '/static')
         result = self.routes.match('/path/foo/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'bar': 'foo',
             'baz': 'bar',
         })
         result = self.routes.match('/path/bar/baz')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'bar': 'bar',
             'baz': 'baz',
         })
@@ -359,45 +422,45 @@ class RoutesTestCase(unittest.TestCase):
         # Top level wildcard.
         doc = self._add('/path/*', '/static')
         result = self.routes.match('/path/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             '*': 'foo'
         })
         result = self.routes.match('/path/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             '*': 'bar'
         })
 
         # Nested wildcard.
         doc = self._add('/path/to/*', '/static')
         result = self.routes.match('/path/to/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             '*': 'foo'
         })
         result = self.routes.match('/path/to/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             '*': 'bar'
         })
 
         # Root wildcard.
         doc = self._add('/*', '/static')
         result = self.routes.match('/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             '*': 'foo'
         })
         result = self.routes.match('/foo/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             '*': 'foo/bar'
         })
 
@@ -407,45 +470,45 @@ class RoutesTestCase(unittest.TestCase):
         # Top level wildcard.
         doc = self._add('/path/*baz', '/static')
         result = self.routes.match('/path/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'foo'
         })
         result = self.routes.match('/path/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'bar'
         })
 
         # Nested wildcard.
         doc = self._add('/path/to/*baz', '/static')
         result = self.routes.match('/path/to/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'foo'
         })
         result = self.routes.match('/path/to/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'bar'
         })
 
         # Root wildcard.
         doc = self._add('/*baz', '/static')
         result = self.routes.match('//foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'foo'
         })
         result = self.routes.match('/foo/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'baz': 'foo/bar'
         })
 
@@ -455,16 +518,16 @@ class RoutesTestCase(unittest.TestCase):
         # Mixing a param with a wildcard.
         doc = self._add('/:path/*', '/static')
         result = self.routes.match('/path/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'path': 'path',
             '*': 'foo',
         })
         result = self.routes.match('/foo/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'path': 'foo',
             '*': 'bar',
         })
@@ -472,16 +535,16 @@ class RoutesTestCase(unittest.TestCase):
         # Mixing a param with a wildcard in a nested path.
         doc = self._add('/root/:path/*', '/static')
         result = self.routes.match('/root/path/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'path': 'path',
             '*': 'foo',
         })
         result = self.routes.match('/root/foo/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'path': 'foo',
             '*': 'bar',
         })
@@ -492,16 +555,16 @@ class RoutesTestCase(unittest.TestCase):
         # Mixing a param with a wildcard.
         doc = self._add('/:path/*baz', '/static')
         result = self.routes.match('/path/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'path': 'path',
             'baz': 'foo',
         })
         result = self.routes.match('/foo/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'path': 'foo',
             'baz': 'bar',
         })
@@ -509,16 +572,16 @@ class RoutesTestCase(unittest.TestCase):
         # Mixing a param with a wildcard in a nested path.
         doc = self._add('/root/:path/*baz', '/static')
         result = self.routes.match('/root/path/foo')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'path': 'path',
             'baz': 'foo',
         })
         result = self.routes.match('/root/foo/bar')
-        self.assertEquals(result.path, doc['path'])
-        self.assertEquals(result.value, doc['value'])
-        self.assertEquals(result.params, {
+        self.assertEqual(result.path, doc['path'])
+        self.assertEqual(result.value, doc['value'])
+        self.assertEqual(result.params, {
             'path': 'foo',
             'baz': 'bar',
         })
@@ -543,17 +606,17 @@ class RoutesSimpleTestCase(unittest.TestCase):
 
         doc = self._add('/', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         doc_foo_bar = self._add('/foo/bar', '/content/pages/foo')
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
 
     def test_routes_add_conflict(self):
         """Tests that routes can be added but not conflicting."""
 
         doc = self._add('/', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         with self.assertRaises(grow_routes.PathConflictError):
             self._add('/', '/content/pages/bar')
 
@@ -562,72 +625,72 @@ class RoutesSimpleTestCase(unittest.TestCase):
 
         doc = self._add('/', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         doc_foo_bar = self._add('/foo/bar', '/content/pages/foo')
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
 
         new_routes = grow_routes.RoutesSimple()
         doc_bar = self._add('/bar', '/content/pages/bar',
                             custom_routes=new_routes)
         result = new_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
 
         added_routes = self.routes + new_routes
 
         # Verify that the new routes has both the other route paths.
         result = added_routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = added_routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
         result = added_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
 
         # Verify that the originals were not changed.
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/bar')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
         result = new_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
         result = new_routes.match('/foo/bar')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
     def test_routes_update_operation(self):
         """Tests that routes can be updated."""
 
         doc = self._add('/', '/content/pages/home')
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         doc_foo_bar = self._add('/foo/bar', '/content/pages/foo/bar')
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
 
         new_routes = grow_routes.RoutesSimple()
         doc_bar = self._add(
             '/bar', '/content/pages/bar', custom_routes=new_routes)
         result = new_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
 
         self.routes.update(new_routes)
 
         # Verify that the original routes has both the route paths.
         result = self.routes.match('/')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
         result = self.routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
 
         # Verify that the new routes were not changed.
         result = self.routes.match('/foo/bar')
-        self.assertEquals(doc_foo_bar['value'], result.value)
+        self.assertEqual(doc_foo_bar['value'], result.value)
         result = new_routes.match('/bar')
-        self.assertEquals(doc_bar['value'], result.value)
+        self.assertEqual(doc_bar['value'], result.value)
         result = new_routes.match('/foo/bar')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
     def test_nodes(self):
         """Tests that routes' nodes can be retrieved."""
@@ -646,7 +709,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
             '/foo', '/tem/pon',
         ]
         actual = [path for path, _, _ in self.routes.nodes]
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_paths(self):
         """Tests that routes' paths can be retrieved."""
@@ -665,7 +728,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
             '/foo', '/tem/pon',
         ]
         actual = list(self.routes.paths)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_filter(self):
         """Tests that routes' can be filtered."""
@@ -684,7 +747,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
             '/foo', '/tem/pon',
         ]
         actual = list(self.routes.paths)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
         # Filter specific nodes and test new paths.
         def _filter_func(_, value):
@@ -696,7 +759,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
 
         expected = ['/bax/bar', '/bax/pan', '/foo', '/tem/pon']
         actual = list(self.routes.paths)
-        self.assertEquals(expected, actual)
+        self.assertEqual(expected, actual)
 
     def test_shard(self):
         """Tests that routes' can be sharded equally."""
@@ -718,7 +781,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
                 '/foo', '/tem/pon',
             ]
             actual = list(self.routes.paths)
-            self.assertEquals(expected, actual)
+            self.assertEqual(expected, actual)
 
         # Shard 1
         _reset_routes()
@@ -836,11 +899,11 @@ class RoutesSimpleTestCase(unittest.TestCase):
 
         doc = self._add('/foo', '/content/foo')
         result = self.routes.match('/foo')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.remove('/foo')
-        self.assertEquals(doc['value'], result.value)
+        self.assertEqual(doc['value'], result.value)
         result = self.routes.match('/foo')
-        self.assertEquals(None, result)
+        self.assertEqual(None, result)
 
 
 if __name__ == '__main__':

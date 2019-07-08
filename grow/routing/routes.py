@@ -1,17 +1,28 @@
 """Routes trie for mapping grow documents to paths."""
 
 import collections
+from grow.common import utils
 
 
 PREFIX_PARAMETER = ':'
 PREFIX_WILDCARD = '*'
 URL_SEPARATOR = '/'
 SHARD_KEY_DEFAULT = '_default'
+TEMPLATE_CHAR = '{'
 
 
 class Error(Exception):
     """Base routes error."""
     pass
+
+
+class MissingOptionError(Error):
+    """Error when there is a missing option when using templated path."""
+
+    def __init__(self, path):
+        super(MissingOptionError, self).__init__(
+            'Missing a templated option in path: {}'.format(path))
+        self.path = path
 
 
 class PathConflictError(Error):
@@ -22,6 +33,7 @@ class PathConflictError(Error):
             'Path already exists: {} ({} != {})'.format(path, existing, value))
         self.path = path
         self.value = value
+        self.existing = existing
 
 
 class PathParamNameConflictError(Error):
@@ -282,6 +294,7 @@ class RouteNode(object):
     def __init__(self, param_name=None):
         super(RouteNode, self).__init__()
         self.path = None
+        self.paths = set()
         self.value = None
         self.options = None
         self.param_name = param_name
@@ -311,11 +324,46 @@ class RouteNode(object):
             for item in self._dynamic_children[key].nodes:
                 yield item
 
+    @property
+    def is_templated(self):
+        """Does the node have a templated path?"""
+        return len(self.paths) > 1
+
     def _dynamic_params(self, matched, last_segment):
         # Parameterized nodes need to add in their param when returning.
         if matched is not None and self.param_name:
             matched.params[self.param_name] = last_segment
         return matched
+
+    @staticmethod
+    def _dynamic_paths(path, options):
+        """Use the path to format using the options to determine all paths."""
+        path = RouteTrie.clean_path(path)
+        possible_paths = set([path])
+
+        # Check for string formatting.
+        if not options or '{' not in path:
+            return possible_paths
+
+        for key in options:
+            for option in options[key]:
+                format_keys = {key: option}
+                new_paths = []
+                for possible_path in possible_paths:
+                    new_paths.append(utils.safe_format(possible_path, **format_keys))
+                possible_paths = possible_paths.union(new_paths)
+
+        paths = set()
+
+        # Don't include paths that still have format symbols.
+        for possible_path in possible_paths:
+            if '{' not in possible_path:
+                paths.add(possible_path)
+
+        if not paths:
+            raise MissingOptionError(path)
+
+        return paths
 
     def add(self, segments, path, value, options=None):
         """Recursively add into the trie based upon the given segments."""
@@ -326,6 +374,8 @@ class RouteNode(object):
             self.path = path
             self.value = value
             self.options = options
+            # Generate all possible values for the path using the options.
+            self.paths = self._dynamic_paths(path, options)
             return
 
         segment = segments.popleft()
@@ -407,6 +457,11 @@ class RouteNode(object):
             # Check for removed nodes.
             if self.path is None:
                 return None
+
+            # Check for templated paths to have a direct match with paths.
+            if self.is_templated and last_segment not in self.paths:
+                return None
+
             matched = MatchResult(self.path, self.value)
             return self._dynamic_params(matched, last_segment)
 
@@ -418,6 +473,14 @@ class RouteNode(object):
                 segments, last_segment=segment)
             if matched is not None:
                 return self._dynamic_params(matched, last_segment)
+        else:
+            # Check for templated static children.
+            for key in self._static_children:
+                child = self._static_children[key]
+                if child.is_templated:
+                    matched = child.match(segments, last_segment=segment)
+                    if matched is not None:
+                        return self._dynamic_params(matched, last_segment)
 
         # Check if this is a parameterized segement.
         if PREFIX_PARAMETER in self._dynamic_children:
