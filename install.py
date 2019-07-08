@@ -17,10 +17,13 @@ import zipfile
 
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
-ALIAS_FILES = ['.bash_aliases', '.bash_profile', '.profile', '.bashrc']
 RC_FILES = ['.bashrc', '.zshrc', '.bash_profile', '.profile']
 RC_FILE_DEFAULT = '.bashrc'
 BIN_PATH = '~/bin/grow'
+
+# TODO: Remove when no longer checking for alias.
+ALIAS_FILES = ['.bash_aliases', '.bash_profile', '.profile', '.bashrc']
+ALIAS_RE = re.compile(r'^alias grow\=([\'"])(.*)\1$', re.MULTILINE)
 
 if 'Linux' in platform.system():
     PLATFORM = 'linux'
@@ -34,8 +37,6 @@ else:
 
 def hai(text, *args):
     print text.format(*args, **{
-        'blue': '\033[0;34m',
-        '/blue': '\033[0;m',
         'red': '\033[0;31m',
         '/red': '\033[0;m',
         'green': '\033[0;32m',
@@ -54,6 +55,20 @@ def orly(text, default=False):
     elif resp == 'n':
         return False
     return default
+
+
+# TODO: Remove when no longer checking for alias.
+def get_existing_aliases():
+    """Find all existing aliases using the regex."""
+    files_to_alias = {}
+    for basename in ALIAS_FILES:
+        basepath = os.path.expanduser('~/{}'.format(basename))
+        if os.path.exists(basepath):
+            profile = open(basepath).read()
+            matches = re.findall(ALIAS_RE, profile)
+            if matches:
+                files_to_alias[basepath] = [x[1] for x in matches]
+    return files_to_alias
 
 
 def get_rc_path():
@@ -84,9 +99,9 @@ def install(rc_path=None, bin_path=None, force=False):
     try:
         release = get_release_for_platform(resp, PLATFORM)
     except KeyError:
-        print 'There was a problem accessing the GitHub Releases API.'
+        hai('{red}There was a problem accessing the GitHub Releases API.{/red}')
         if 'message' in resp:
-            print resp['message']
+            hai('{red}{}{/red}', resp['message'])
         sys.exit(-1)
 
     if release is None:
@@ -112,17 +127,17 @@ def install(rc_path=None, bin_path=None, force=False):
 
     hai('{yellow}Welcome to the installer for Grow SDK v{}{/yellow}', version)
     hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/{}', version)
-    hai('{blue}==>{/blue} {green}This script will install:{/green} {}', bin_path)
+    hai('{yellow}[ ]{/yellow} {green}This script will install:{/green} {}', bin_path)
 
     bin_in_path = has_bin_in_path(bin_dir)
 
     if bin_in_path:
         hai(
-            '{blue}[✓]{/blue} {green}You already have the binary directory in PATH:{/green} {}',
+            '{green}[✓] You already have the binary directory in PATH:{/green} {}',
             bin_dir)
     else:
         hai(
-            '{blue}==>{/blue} {green}{} will be added to the PATH in:{/green} {}',
+            '{yellow}[ ]{/yellow} {green}{} will be added to the PATH in:{/green} {}',
             bin_dir, rc_path)
 
     if not force:
@@ -131,7 +146,7 @@ def install(rc_path=None, bin_path=None, force=False):
         except KeyboardInterrupt:
             result = False
         if not result:
-            hai('\n\r{yellow}Aborted installation.{/yellow}')
+            hai('\n\r{red}Aborted installation.{/red}')
             sys.exit(-1)
 
     try:
@@ -166,7 +181,7 @@ def install(rc_path=None, bin_path=None, force=False):
                     hai('You can use the installer by running: curl https://install.grow.io | bash')
                     sys.exit(-1)
                 raise
-        hai('{blue}[✓]{/blue} {green}Installed Grow SDK to:{/green} {}', bin_path)
+        hai('{green}[✓] Installed Grow SDK to:{/green} {}', bin_path)
         stat = os.stat(bin_path)
         os.chmod(bin_path, stat.st_mode | 0111)
     finally:
@@ -176,11 +191,20 @@ def install(rc_path=None, bin_path=None, force=False):
         with open(rc_path, 'a') as fp:
             fp.write('\n' + rc_comment + '\n')
             fp.write(rc_path_append)
-        hai('{blue}[✓]{/blue} {green}Added {} to path in:{/green} {}',
+        hai('{green}[✓] Added {} to path in:{/green} {}',
             bin_path, rc_path)
-        hai('{green}All done. To use Grow SDK...{/green}')
-        hai(' ...reload your shell session OR use `source {}`,', rc_path)
-        hai(' ...then type `grow` and press enter.')
+
+    hai('{green}[✓] All done. Grow v{} successfully installed.{/green}', version)
+
+    if not bin_in_path:
+        hai('   To use Grow: reload your shell session OR use `source {}`,', rc_path)
+        hai('   then type `grow` and press enter.')
+
+    # TODO: Remove when no longer checking for alias.
+    aliases = get_existing_aliases()
+    if aliases:
+        hai('{red}Aliases for grow detected in: {}{/red}', ', '.join(aliases.keys()))
+        hai('   {red}please remove the old aliases to prevent version conflicts.{/red}')
 
 
 def parse_args():
