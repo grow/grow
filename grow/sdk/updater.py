@@ -67,12 +67,12 @@ class Updater(object):
             logging.error(colors.stylize(text, colors.ERROR))
             raise LatestVersionCheckError(str(err))
 
-    def check_for_updates(self, auto_update_prompt=False):
+    def check_for_updates(self, auto_update_prompt=False, force=False):
         """Check for updates to the sdk."""
         grow_rc_config = rc_config.RC_CONFIG
 
         # Rate limited update checks.
-        if not grow_rc_config.needs_update_check:
+        if not grow_rc_config.needs_update_check and not force:
             return
 
         try:
@@ -129,9 +129,10 @@ class Updater(object):
                 logging.error(text)
                 sys.exit(-1)
         else:
-            logging.info('  Update using: ' +
-                         colors.stylize('pip install --upgrade grow', colors.CAUTION))
+            install_command = colors.stylize('pip install --upgrade grow', colors.CAUTION)
+            logging.info('  Update using: {}'.format(install_command))
         logging.info('')
+        return True
 
     def verify_required_version(self):
         """Verify that the required version for the pod is met."""
