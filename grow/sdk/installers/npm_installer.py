@@ -86,7 +86,9 @@ class NpmInstaller(base_installer.BaseInstaller):
 
     def _generate_hashes(self):
         """Create hash string based on the package and lock files."""
-        hash_string = self.pod.hash_file(PACKAGE_FILE)
+        hash_string = ''
+        if self.pod.file_exists(PACKAGE_FILE):
+            hash_string = self.pod.hash_file(PACKAGE_FILE)
         if self.pod.file_exists(YARN_LOCK_FILE):
             hash_string = '{} {}'.format(hash_string, self.pod.hash_file(YARN_LOCK_FILE))
         if self.pod.file_exists(NPM_LOCK_FILE):

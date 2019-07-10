@@ -14,6 +14,8 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
 
     def _generate_hashes(self):
         """Create hash string based on the package and lock files."""
+        if not self.pod.file_exists(self.extensions_filename):
+            return ''
         return self.pod.hash_file(self.extensions_filename)
 
     @property
