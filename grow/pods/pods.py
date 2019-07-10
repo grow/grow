@@ -258,6 +258,13 @@ class Pod(object):
                 raise PodDoesNotExistError('Pod not found in: {}'.format(path))
             raise podspec.PodSpecParseError('Error parsing: {}'.format(path))
 
+    @staticmethod
+    def clean_pod_path(pod_path):
+        """Cleanup the pod path."""
+        if not pod_path.startswith('/'):
+            pod_path = '/{}'.format(pod_path)
+        return pod_path
+
     def set_env(self, env):
         if not isinstance(env, environment.Env):
             env = environment.Env(env)
