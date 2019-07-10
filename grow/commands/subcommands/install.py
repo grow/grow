@@ -21,7 +21,7 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.install')
                    'If omitted, Grow will attempt to detect whether there is a '
                    'known Gerrit host amongst the remotes in your repository.')
 @click.option('--force', '-f', default=False, is_flag=True,
-             help='Whether to overwrite existing files.')
+             help='Whether to force install even when no changes found.')
 def install(pod_path, gerrit, force):
     """Checks whether the pod depends on npm, bower, and gulp and installs them
     if necessary. Then, runs install commands. Also optionally installs the
