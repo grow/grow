@@ -10,6 +10,7 @@ from grow.commands.subcommands import preprocess
 from grow.commands.subcommands import run
 from grow.commands.subcommands import stage
 from grow.commands.subcommands import translations
+from grow.commands.subcommands import upgrade
 
 
 def add_subcommands(group):
@@ -24,3 +25,4 @@ def add_subcommands(group):
     group.add_command(run.run)
     group.add_command(stage.stage)
     group.add_command(translations.translations)
+    group.add_command(upgrade.upgrade)
