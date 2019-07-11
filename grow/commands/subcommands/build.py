@@ -68,6 +68,7 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
             pod.router.use_simple()
             is_partial = bool(pod_paths) or bool(locale)
             if pod_paths:
+                pod_paths = [pod.clean_pod_path(path) for path in pod_paths]
                 pod.router.add_pod_paths(pod_paths)
             elif routes_file:
                 pod.router.from_data(pod.read_json(routes_file))

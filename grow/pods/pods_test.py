@@ -70,6 +70,14 @@ class PodTest(unittest.TestCase):
     def test_list_collections(self):
         self.pod.list_collections()
 
+    def test_clean_pod_path(self):
+        self.assertEqual(
+            '/content/pages/index.yaml',
+            self.pod.clean_pod_path('/content/pages/index.yaml'))
+        self.assertEqual(
+            '/content/pages/index.yaml',
+            self.pod.clean_pod_path('content/pages/index.yaml'))
+
     def test_export(self):
         for _ in self.pod.export():
             pass
