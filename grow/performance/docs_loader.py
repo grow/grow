@@ -1,5 +1,7 @@
 """Threaded loader that forces a list of docs to be loaded from filesystem."""
 
+import sys
+import traceback
 from grow.common import utils as common_utils
 from grow.documents import document_front_matter
 
@@ -8,6 +10,28 @@ if common_utils.is_appengine():
     ThreadPool = None
 else:
     from multiprocessing.dummy import Pool as ThreadPool
+
+
+class Error(Exception):
+    """Base loading error."""
+    pass
+
+
+class LoadError(Error):
+    """Error that occured during the loading."""
+
+    def __init__(self, message, err, err_tb):
+        super(LoadError, self).__init__(message)
+        self.err = err
+        self.err_tb = err_tb
+
+
+class LoadingErrors(Error):
+    """Errors that occured during the loading."""
+
+    def __init__(self, message, errors):
+        super(LoadingErrors, self).__init__(message)
+        self.errors = errors
 
 
 # pylint: disable=too-few-public-methods
@@ -80,19 +104,29 @@ class DocsLoader(object):
                         raise
 
     @classmethod
-    def load(cls, pod, docs, ignore_errors=False):
+    def load(cls, pod, docs, ignore_errors=False, tick=None):
         """Force load the provided docs to read from file system."""
         if not docs:
             return
 
         def load_func(doc):
             """Force the doc to read the source file."""
+            result = LoadResult()
             try:
-                # pylint: disable=pointless-statement
-                doc.has_serving_path()  # Using doc fields forces file read.
+                # Using doc fields forces file read.
+                _ = doc.has_serving_path()
             except document_front_matter.BadFormatError:
                 if not ignore_errors:
                     raise
+            except Exception as err:  # pylint: disable=broad-except
+                _, _, err_tb = sys.exc_info()
+                result.errors.append(LoadError(
+                    "Error loading {}".format(doc.pod_path),
+                    err, err_tb))
+            finally:
+                if tick:
+                    tick()
+            return result
 
         with pod.profile.timer('DocsLoader.load'):
             if ThreadPool is None or len(docs) < cls.MIN_POOL_COUNT:
@@ -104,10 +138,20 @@ class DocsLoader(object):
             thread_pool = ThreadPool(pool_size)
             results = thread_pool.imap_unordered(load_func, docs)
             # Loop results to make sure that the threads are all processed.
-            for _ in results:
-                pass
+            errors = []
+            for result in results:
+                errors = errors + result.errors
             thread_pool.close()
             thread_pool.join()
+
+            if errors:
+                for error in errors:
+                    print error.message
+                    print error.err.message
+                    traceback.print_tb(error.err_tb)
+                    print ''
+                text = 'There were {} errors during doc loading.'
+                raise LoadingErrors(text.format(len(errors)), errors)
 
     @classmethod
     def load_from_routes(cls, pod, routes, **kwargs):
@@ -129,3 +173,10 @@ class DocsLoader(object):
             return docs
 
         cls.load(pod, _doc_from_routes(routes), **kwargs)
+
+
+class LoadResult(object):
+    """Results from a doc loading."""
+
+    def __init__(self):
+        self.errors = []
