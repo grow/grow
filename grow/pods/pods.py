@@ -77,7 +77,7 @@ class Pod(object):
     FEATURE_UI = 'ui'
     FEATURE_TRANSLATION_STATS = 'translation_stats'
     FEATURE_OLD_SLUGIFY = 'legacy_slugify'
-    FILE_DEP_CACHE = '.depcache.json'
+    FILE_DEP_CACHE = 'depcache.json'
     FILE_PODSPEC = 'podspec.yaml'
     FILE_EXTENSIONS = 'extensions.txt'
     PATH_CONTROL = '/.grow/'

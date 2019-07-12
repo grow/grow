@@ -171,12 +171,14 @@ class PodCache(object):
             if self._dependency_graph.is_dirty:
                 output = self._dependency_graph.export()
                 self._dependency_graph.mark_clean()
-                self._write_json('/{}'.format(self._pod.FILE_DEP_CACHE), output)
+                self._write_json('{}{}'.format(
+                    self._pod.PATH_CONTROL, self._pod.FILE_DEP_CACHE), output)
 
             if self._routes_cache.is_dirty:
                 output = self._routes_cache.export()
                 self._routes_cache.mark_clean()
-                self._write_json('/{}'.format(FILE_ROUTES_CACHE), output)
+                self._write_json('{}{}'.format(
+                    self._pod.PATH_CONTROL, FILE_ROUTES_CACHE), output)
 
             # Write out any of the object caches configured for write_to_file.
             output = {}
