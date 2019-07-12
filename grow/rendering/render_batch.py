@@ -132,7 +132,7 @@ class RenderBatches(object):
         rendered_docs = []
 
         # Disable threaded rendering until it can be fixed.
-        use_threading = False
+        # use_threading = False
 
         if not ThreadPool or not use_threading:
             for _, batch in self._batches.iteritems():

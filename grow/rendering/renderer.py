@@ -1,22 +1,9 @@
 """Renderer for performing render operations for the pod."""
 
-import traceback
 import progressbar
 from grow.common import progressbar_non
+from grow.common import bulk_errors
 from grow.rendering import render_batch
-
-
-class Error(Exception):
-    """Base renderer error."""
-    pass
-
-
-class RenderErrors(Error):
-    """Errors that occured during the rendering."""
-
-    def __init__(self, message, errors):
-        super(RenderErrors, self).__init__(message)
-        self.errors = errors
 
 
 class Renderer(object):
@@ -55,13 +42,8 @@ class Renderer(object):
             progress.finish()
 
             if render_errors:
-                for error in render_errors:
-                    print error.message
-                    print error.err.message
-                    traceback.print_tb(error.err_tb)
-                    print ''
                 text = 'There were {} errors during rendering.'
-                raise RenderErrors(text.format(
+                raise bulk_errors.BulkErrors(text.format(
                     len(render_errors)), render_errors)
             return rendered_docs
 

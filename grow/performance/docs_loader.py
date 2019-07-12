@@ -2,6 +2,7 @@
 
 import sys
 import traceback
+from grow.common import bulk_errors
 from grow.common import utils as common_utils
 from grow.documents import document_front_matter
 
@@ -24,14 +25,6 @@ class LoadError(Error):
         super(LoadError, self).__init__(message)
         self.err = err
         self.err_tb = err_tb
-
-
-class LoadingErrors(Error):
-    """Errors that occured during the loading."""
-
-    def __init__(self, message, errors):
-        super(LoadingErrors, self).__init__(message)
-        self.errors = errors
 
 
 # pylint: disable=too-few-public-methods
@@ -145,13 +138,8 @@ class DocsLoader(object):
             thread_pool.join()
 
             if errors:
-                for error in errors:
-                    print error.message
-                    print error.err.message
-                    traceback.print_tb(error.err_tb)
-                    print ''
                 text = 'There were {} errors during doc loading.'
-                raise LoadingErrors(text.format(len(errors)), errors)
+                raise bulk_errors.BulkErrors(text.format(len(errors)), errors)
 
     @classmethod
     def load_from_routes(cls, pod, routes, **kwargs):

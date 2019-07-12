@@ -3,6 +3,7 @@
 import os
 import click
 from grow.commands import shared
+from grow.common import bulk_errors
 from grow.common import rc_config
 from grow.common import utils
 from grow.deployments import stats
@@ -74,11 +75,11 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
             deployment.deploy(content_generator, stats=stats_obj, repo=repo,
                               confirm=False, test=False, require_translations=require_translations)
             pod.podcache.write()
-    except renderer.RenderErrors as err:
+    except bulk_errors.BulkErrors as err:
         # Write the podcache files even when there are rendering errors.
         pod.podcache.write()
-        # Ignore the build error since it outputs the errors.
-        raise click.ClickException(str(err))
+        bulk_errors.display_bulk_errors(err)
+        raise click.Abort()
     except base.Error as err:
         raise click.ClickException(str(err))
     except pods.Error as err:
