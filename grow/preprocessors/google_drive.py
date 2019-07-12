@@ -398,7 +398,9 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                 if name in properties:
                     new_data[META_KEY]['properties'][name] = properties[name]
         # Tabs colored red are marked draft.
-        if self.config.color_as_draft and properties.get('tabColor'):
+        if isinstance(new_data, dict) \
+                and self.config.color_as_draft \
+                and properties.get('tabColor'):
             if properties['tabColor'] == {'red': 1}:
                 new_data[DRAFT_KEY] = True
         if path.endswith(('.yaml', '.yml')) and self.config.preserve:
