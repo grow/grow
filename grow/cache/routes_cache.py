@@ -43,9 +43,10 @@ class RoutesCache(object):
 
     def add(self, key, value, options=None, concrete=False, env=None):
         """Add a new item to the cache or overwrite an existing value."""
-        if env not in self._cache[self._cache_key(concrete)]:
-            self._cache[self._cache_key(concrete)][env] = {}
-        cache = self._cache[self._cache_key(concrete)][env]
+        cache_key = self._cache_key(concrete)
+        if env not in self._cache[cache_key]:
+            self._cache[cache_key][env] = {}
+        cache = self._cache[cache_key][env]
         cache_value = {
             'value': value,
             'options': options,

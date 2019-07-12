@@ -49,12 +49,15 @@ class Router(object):
         """Routes reflective of the docs."""
         return self._routes
 
-    def _add_to_routes(self, path, route_info, concrete=True, options=None):
+    def _add_to_routes(self, path, route_info, concrete=True, options=None, fingerprinted=None):
         """Add to the routes and the route cache."""
         self.routes.add(path, route_info, options=options)
-        self.pod.podcache.routes_cache.add(
-            path, route_info, options=options, concrete=concrete,
-            env=self.pod.env.name)
+
+        # Don't want to keep track of the concrete fingerprinted routes.
+        if not concrete or not fingerprinted:
+            self.pod.podcache.routes_cache.add(
+                path, route_info, options=options, concrete=concrete,
+                env=self.pod.env.name)
 
     def add_all(self, concrete=True, use_cache=True):
         """Add all documents and static content."""
@@ -131,7 +134,8 @@ class Router(object):
                     'template': sitemap.get('template'),
                     'path': sitemap_path,
                 })
-                self._add_to_routes(sitemap_path, route_info, concrete=concrete)
+                self._add_to_routes(
+                    sitemap_path, route_info, concrete=concrete)
 
     def add_all_static(self, concrete=True, unchanged_pod_paths=None):
         """Add all pod docs to the router."""
@@ -195,7 +199,8 @@ class Router(object):
                         'path_filter': path_filter,
                     })
                     self._add_to_routes(
-                        serve_at + '*', route_info, concrete=concrete)
+                        serve_at + '*', route_info, concrete=concrete,
+                        fingerprinted=fingerprinted)
 
                     if localization:
                         localized_serve_at = self.pod.path_format.format_pod(
@@ -210,7 +215,8 @@ class Router(object):
                             'path_filter': path_filter,
                         })
                         self._add_to_routes(
-                            localized_serve_at + '*', route_info, concrete=concrete)
+                            localized_serve_at + '*', route_info, concrete=concrete,
+                            fingerprinted=fingerprinted)
             if skipped_paths:
                 self.pod.logger.info(
                     'Ignored {} static files.'.format(len(skipped_paths)))
@@ -331,7 +337,8 @@ class Router(object):
                 'path_filter': static_doc.path_filter,
             })
         self._add_to_routes(
-            static_doc.serving_path, route_info, concrete=concrete)
+            static_doc.serving_path, route_info, concrete=concrete,
+            fingerprinted=static_doc.fingerprinted)
 
     def filter(self, filter_type, collection_paths=None, paths=None, locales=None):
         """Filter the routes based on the filter type and criteria."""
