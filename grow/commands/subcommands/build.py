@@ -95,13 +95,13 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 content_generator, stats=stats_obj, repo=repo, confirm=False,
                 test=False, is_partial=is_partial)
             pod.podcache.write()
-    except pods.Error as err:
-        raise click.ClickException(str(err))
     except bulk_errors.BulkErrors as err:
         # Write the podcache files even when there are rendering errors.
         pod.podcache.write()
         bulk_errors.display_bulk_errors(err)
         raise click.Abort()
+    except pods.Error as err:
+        raise click.ClickException(str(err))
     if locate_untranslated:
         pod.translation_stats.pretty_print()
         destination.export_untranslated_catalogs()
