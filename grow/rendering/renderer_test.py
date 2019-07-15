@@ -4,6 +4,7 @@ import unittest
 import mock
 from grow.pods import pods
 from grow import storage
+from grow.common import bulk_errors
 from grow.rendering import render_controller
 from grow.rendering import renderer
 from grow.testing import testing
@@ -37,7 +38,7 @@ class RendererTestCase(unittest.TestCase):
         self.pod.router.add_all(use_cache=False)
         routes = self.pod.router.routes
 
-        with self.assertRaises(renderer.RenderErrors):
+        with self.assertRaises(bulk_errors.BulkErrors):
             self.render.rendered_docs(self.pod, routes)
 
 
