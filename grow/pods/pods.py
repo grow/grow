@@ -869,6 +869,8 @@ class Pod(object):
         return contents
 
     def reset_yaml(self):
+        # Mark that the yaml needs to be reparsed.
+        self._yaml = utils.SENTINEL
         # Tell the cached property to reset.
         # pylint: disable=no-member
         self._parse_yaml.reset()
