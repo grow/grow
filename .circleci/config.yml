@@ -26,7 +26,7 @@ jobs:
 
       - run:
           name: Deploy to Prod
-          command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io ; fi
+          command: if [ "$CIRCLE_BRANCH" == "master" ] && [ "$CIRCLE_PULL_REQUEST" == "" ] ; then grow deploy --noconfirm grow.io && grow deploy --noconfirm grow.dev; fi
 
       - persist_to_workspace:
           root: ~/grow
@@ -44,6 +44,7 @@ jobs:
     - run:
         name: Percy Snapshots
         command: percy snapshot --widths "412,1280" --enable_javascript build/
+
 workflows:
   version: 2
   build:
