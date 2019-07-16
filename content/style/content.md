@@ -1,5 +1,5 @@
 ---
-$title: Cntent
+$title: Content
 $order: 5
 ---
 ## Strings
