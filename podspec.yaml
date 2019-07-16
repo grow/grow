@@ -53,3 +53,9 @@ deployments:
     env:
       name: grow.io
       port: 443
+  grow.dev:
+    destinatdevn: gcs
+    bucket: grow.dev
+    env:
+      name: grow.dev
+      port: 443
