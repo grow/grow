@@ -84,3 +84,10 @@ class Profile(object):
     def export(self):
         """Export the timer data for each timer created."""
         return [t.export() for t in self.timers]
+
+
+class Profiler(object):
+    """Generic profiling support for object."""
+
+    def __init__(self, *args, profiler=None, **kwargs):
+        self.profiler = profiler or Profile()

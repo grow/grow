@@ -13,3 +13,10 @@ def get_logger(name='grow.pod'):
     return logger
 
 LOGGER = get_logger('grow.pod')
+
+
+class Logger(object):
+    """Generic logging support for object."""
+
+    def __init__(self, *args, logger=None, **kwargs):
+        self.logger = logger or LOGGER
