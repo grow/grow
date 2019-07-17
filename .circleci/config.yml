@@ -49,7 +49,7 @@ jobs:
 
       - run:
           name: Run Tests
-          command: make test
+          command: make test coverage=true
 
       - run:
           name: Code Coverage
