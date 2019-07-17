@@ -16,13 +16,12 @@ class MissingStaticConfigError(Exception):
     pass
 
 
-class Router(object):
+class Router(grow_logger.Logger, profile.Profiler):
     """Pod Router."""
 
-    def __init__(self, path_filter=None, logger=None, profiler=None):
+    def __init__(self, *args, path_filter=None, **kwargs):
+        super().__init__(*args, **kwargs)
         self.path_filter = path_filter or grow_path_filter.PathFilter()
-        self.logger = logger or grow_logger.LOGGER
-        self.profiler = profiler or profile.Profile()
         self._routes = grow_routes.Routes()
 
     @property

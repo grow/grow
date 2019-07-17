@@ -16,13 +16,12 @@ class Error(Exception):
     pass
 
 
-class Installer(object):
+class Installer(grow_logger.Logger, profile.Profiler):
     """Grow installer for dependencies."""
 
-    def __init__(self, installers, logger=None, profiler=None):
+    def __init__(self, installers, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.installers = installers
-        self.profiler = profiler or profile.Profile()
-        self.logger = logger or grow_logger.LOGGER
 
     @staticmethod
     def format_message(message, extras=None):

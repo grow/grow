@@ -29,11 +29,11 @@ class LatestVersionCheckError(Error):
     pass
 
 
-class Updater(object):
+class Updater(grow_logger.Logger):
     """Grow updater for dependencies."""
 
-    def __init__(self, required_spec=None, logger=None):
-        self.logger = logger or grow_logger.LOGGER
+    def __init__(self, *args, required_spec=None, **kwargs):
+        super().__init__(*args, **kwargs)
         if required_spec:
             self.required_spec = semantic_version.Spec(required_spec)
         else:

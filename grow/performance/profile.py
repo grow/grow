@@ -86,8 +86,9 @@ class Profile(object):
         return [t.export() for t in self.timers]
 
 
-class Profiler(object):
+class Profiler:
     """Generic profiling support for object."""
 
     def __init__(self, *args, profiler=None, **kwargs):
+        super().__init__(*args, **kwargs)
         self.profiler = profiler or Profile()

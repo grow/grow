@@ -260,7 +260,7 @@ class UpdaterTestCase(unittest.TestCase):
 
         # Equal version numbers.
         mock_current_version.return_value = '0.1.0'
-        self.updater = updater.Updater('>=0.1.0')
+        self.updater = updater.Updater(required_spec='>=0.1.0')
         self.updater.verify_required_spec()
 
         # Verify with newer version.
@@ -272,6 +272,6 @@ class UpdaterTestCase(unittest.TestCase):
     def test_verify_required_spec_old(self, mock_current_version):
         """Verify installed version in spec."""
         mock_current_version.return_value = '0.0.1'
-        self.updater = updater.Updater('>=0.1.0')
+        self.updater = updater.Updater(required_spec='>=0.1.0')
         with self.assertRaises(updater.LatestVersionCheckError):
             self.updater.verify_required_spec()
