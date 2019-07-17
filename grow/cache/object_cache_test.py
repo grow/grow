@@ -2,7 +2,7 @@
 
 import re
 import unittest
-from . import object_cache
+from grow.cache import object_cache
 
 
 class ObjectCacheTestCase(unittest.TestCase):
