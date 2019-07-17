@@ -72,5 +72,19 @@ class TimerTestCase(unittest.TestCase):
         self.assertEqual('<Timer key=test label=foobar duration=10>', repr(timer))
 
 
+class ProfilerCase(unittest.TestCase):
+    """Tests for the Timer"""
+
+    def test_init(self):
+        """Init with value correctly uses value."""
+        profiler = profile.Profiler(profiler='test')
+        self.assertEqual('test', profiler.profiler)
+
+    def test_init_default(self):
+        """Init with no value correctly uses creates new profiler."""
+        profiler = profile.Profiler()
+        self.assertIsInstance(profiler.profiler, profile.Profile)
+
+
 if __name__ == '__main__':
     unittest.main()
