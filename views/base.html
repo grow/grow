@@ -54,7 +54,8 @@
                 <div class="layout__nav__content__body__header">{{_(col.title)}}</div>
                 {% for sub_doc in col.docs(locale=doc.locale) %}
                   <div {% if doc == sub_doc %}class="layout__nav__content__body__items__item--active"{% endif %}>
-                    <a href="{{sub_doc.url.path|relative}}">{{ (sub_doc.title)}}</a>
+                    {% set url = sub_doc.reference.url.path if sub_doc.reference else sub_doc.url.path %}
+                    <a href="{{url|relative}}">{{ (sub_doc.title)}}</a>
                   </div>
                 {% endfor %}
               {% endfor %}
