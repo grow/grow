@@ -4,6 +4,7 @@ Cache for storing and retrieving routing information in a pod.
 
 FILE_ROUTES_CACHE = 'routescache.json'
 EXPORT_KEY = 'routes'
+VERSION = 1
 
 
 class RoutesCache(object):
@@ -45,7 +46,7 @@ class RoutesCache(object):
     def export(self):
         """Returns the raw cache data."""
         return {
-            'version': 1,
+            'version': VERSION,
             EXPORT_KEY: self._export_cache(self._cache),
         }
 
@@ -53,13 +54,13 @@ class RoutesCache(object):
         """Set the cache from data."""
         # Check for version changes in the data format.
         version = data.get('version')
-        if not version or version < 1:
+        if not version or version < VERSION:
             return
 
         for env, env_data in data[EXPORT_KEY].items():
             for key, item in env_data.items():
                 self.add(
-                    key, generator(**item['value']),
+                    key, generator(item['value']),
                     options=item['options'], env=env)
 
     def get(self, key, env=None):
@@ -74,10 +75,6 @@ class RoutesCache(object):
     def mark_clean(self):
         """Mark that the object cache is clean."""
         self._is_dirty = False
-
-    def raw(self, env=None):
-        """Returns the raw cache data."""
-        return self._cache.get(env, {})
 
     def remove(self, key, env=None):
         """Removes a single element from the cache."""

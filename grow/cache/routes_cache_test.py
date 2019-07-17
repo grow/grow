@@ -67,6 +67,35 @@ class RoutesCacheTestCase(unittest.TestCase):
             'version': 1,
         }, self.routes_cache.export())
 
+    def test_from_data(self):
+        """Import from raw data."""
+        def _generator(value):
+            return value
+
+        import_data = {
+            routes_cache.EXPORT_KEY: {
+                None: {
+                    'answer': {
+                        'options': None,
+                        'value': 42,
+                    },
+                },
+            },
+            'version': 0,
+        }
+
+        # Old versions ar ignored.
+        self.routes_cache.from_data(import_data, _generator)
+        self.assertDictEqual({
+            routes_cache.EXPORT_KEY: {},
+            'version': routes_cache.VERSION,
+        }, self.routes_cache.export())
+
+        # Current version import data works.
+        import_data['version'] = routes_cache.VERSION
+        self.routes_cache.from_data(import_data, _generator)
+        self.assertDictEqual(import_data, self.routes_cache.export())
+
     def test_mark_clean(self):
         """Can mark as clean?"""
         self.assertFalse(self.routes_cache.is_dirty)
@@ -76,7 +105,7 @@ class RoutesCacheTestCase(unittest.TestCase):
         self.assertFalse(self.routes_cache.is_dirty)
 
     def test_remove(self):
-        """Test removing a key from the cache."""
+        """Removing a key from the cache."""
         value = {
             'answer': 42
         }
@@ -91,6 +120,14 @@ class RoutesCacheTestCase(unittest.TestCase):
             }, self.routes_cache.remove('question'))
         self.assertEqual(None, self.routes_cache.get('question'))
         self.assertTrue(self.routes_cache.is_dirty)
+
+    def test_reset(self):
+        """Reset a key from the cache."""
+        value = 42
+        self.routes_cache.add('question', value)
+        self.assertEqual(42, self.routes_cache.get('question')['value'])
+        self.routes_cache.reset()
+        self.assertEqual(None, self.routes_cache.get('question'))
 
 
 if __name__ == '__main__':
