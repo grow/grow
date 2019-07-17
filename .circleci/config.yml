@@ -28,7 +28,7 @@ jobs:
 
       - run:
           name: Pylint
-          command: make test-pylint
+          command: make lint
 
   test:
     working_directory: ~/grow

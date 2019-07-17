@@ -10,6 +10,10 @@ coverage ?= false
 develop:
 	pipenv install --dev
 
+lint:
+	. $(PIP_ENV)/bin/activate
+	$(PIP_ENV)/bin/pylint --errors-only $(target)
+
 test:
 	. $(PIP_ENV)/bin/activate
 
@@ -28,7 +32,3 @@ test:
 			--rednose \
 			$(target);\
 	fi
-
-test-pylint:
-	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/pylint --errors-only $(target)
