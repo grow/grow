@@ -1,7 +1,7 @@
 {% set docs = [] %}
 
 {# Collect root docs. #}
-{% for item in g.docs('docs', recursive=false) %}
+{% for item in g.docs('docs', recursive=false) if item.path_format %}
   {% do docs.append({
     'location': item.url.path,
     'title': _(item.title),
@@ -11,7 +11,7 @@
 
 {# Collect sub-collections. #}
 {% for col in g.collection('docs').collections() %}
-  {% for item in col.docs() %}
+  {% for item in col.docs() if item.path_format %}
     {% do docs.append({
       'location': item.url.path,
       'title': _(item.title),
