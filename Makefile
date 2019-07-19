@@ -81,8 +81,7 @@ pylint:
 
 test:
 	. $(PIP_ENV)/bin/activate
-	@echo "coverage: $(coverage)"
-	@if [ "$(coverage)" == true ]; then \
+	@if [ "$(coverage)" = true ]; then \
 		$(PIP_ENV)/bin/nosetests \
 		  -v \
 		  --rednose \
