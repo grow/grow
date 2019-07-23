@@ -767,8 +767,8 @@ class Pod(object):
                     kind, params, self)
                 results.append(preprocessor)
             except ValueError as err:
-                # New extensions will not show up here.
-                self.logger.info(err)
+                # New extensions don't exists and are considered a value error.
+                pass
         return results
 
     def list_statics(self, pod_path, locale=None, include_hidden=False):
