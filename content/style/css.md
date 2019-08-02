@@ -28,7 +28,8 @@ $order: 3
 
 ## Naming conventions
 
-- Use lowercase, hyphen-delimited names for files, variables, functions, and mixins.
+- Use URL-style casing (lowercase, hyphen-delimited) for files, variables, functions, animations, mixins, etc.
+- Avoid using underscores or camel case to separate words.
 - Avoid prefixing with your project name, unless your website is specifically required to embed within a dirty CSS space.
 
 ## Use BEM
