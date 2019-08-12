@@ -5,7 +5,7 @@ $order: 1.07
 ---
 # Content localization
 
-In addition to controlling [site-wide localization]({{g.doc('/docs/content-localization/').url.path}}#localization) in podspec.yaml, you can create and manage fully localized content at the collection-level or the document-level.
+In addition to controlling [site-wide localization](/reference/podspec/#localization) in podspec.yaml, you can create and manage fully localized content at the collection-level or the document-level.
 
 ## Front matter localization
 
