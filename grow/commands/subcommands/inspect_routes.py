@@ -13,12 +13,16 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.routes')
 
 
 @click.command(name='routes')
+@shared.deployment_option(CFG)
 @shared.routes_file_option('Export route information to a json file.')
 @shared.pod_path_argument
-def inspect_routes(pod_path, routes_file):
+def inspect_routes(pod_path, routes_file, deployment):
     """Lists routes handled by a pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
+    if deployment:
+        deployment_obj = pod.get_deployment(deployment)
+        pod.set_env(deployment_obj.config.env)
     with pod.profile.timer('grow_inspect_routes'):
         out = []
         pod.router.use_simple()

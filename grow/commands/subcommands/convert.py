@@ -19,11 +19,15 @@ CONVERT_CHOICES = [
 
 @click.command()
 @shared.pod_path_argument
+@shared.deployment_option(CFG)
 @click.option('--type', 'convert_type', type=click.Choice(CONVERT_CHOICES))
-def convert(pod_path, convert_type):
+def convert(pod_path, convert_type, deployment):
     """Converts pod files from an earlier version of Grow."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
+    if deployment:
+        deployment_obj = pod.get_deployment(deployment)
+        pod.set_env(deployment_obj.config.env)
 
     if convert_type == 'content_locale_split':
         content_locale_split.Converter.convert(pod)
