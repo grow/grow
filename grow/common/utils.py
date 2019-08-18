@@ -300,8 +300,9 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                             pod.logger.warning(
                                 'Missing {}.{} in {}'.format(
                                     main, reference, cls.pod_path()))
-                        pod.logger.warning(
-                            'Missing {}.{}'.format(main, reference))
+                        else:
+                            pod.logger.warning(
+                                'Missing {}.{}'.format(main, reference))
                     return value
                 except KeyError:
                     return None
