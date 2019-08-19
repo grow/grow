@@ -19,6 +19,10 @@ from grow.translations import importers
 from grow.translations import locales as grow_locales
 
 
+_IGNORED_PREFIXS = (
+    '.',
+    '_',
+)
 _TRANSLATABLE_EXTENSIONS = (
     '.html',
     '.md',
@@ -418,8 +422,10 @@ class Catalogs(object):
         # (htm, html, tpl, dtml, jtml, ...)
         if not audit:
             for path in self.pod.list_dir('/views/'):
+                filename = os.path.basename(path)
                 if not utils.fnmatches_paths(path, paths) \
-                        or path.startswith('.'):
+                        or path.startswith(_IGNORED_PREFIXS) \
+                        or filename.startswith(_IGNORED_PREFIXS):
                     continue
                 pod_path = os.path.join('/views/', path)
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
@@ -429,8 +435,10 @@ class Catalogs(object):
         # Extract from /partials/:
         if not audit:
             for path in self.pod.list_dir('/partials/'):
+                filename = os.path.basename(path)
                 if not utils.fnmatches_paths(path, paths) \
-                        or path.startswith('.'):
+                        or path.startswith(_IGNORED_PREFIXS) \
+                        or filename.startswith(_IGNORED_PREFIXS):
                     continue
                 pod_path = os.path.join('/partials/', path)
                 if path.endswith(('.yaml', '.yml')):
