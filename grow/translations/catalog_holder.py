@@ -394,8 +394,10 @@ class Catalogs(object):
             if path.endswith(('.yaml', '.yml')):
                 pod_path = os.path.join('/data/', path.lstrip('/'))
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
+                fields = utils.parse_yaml(
+                    self.pod.read_file(pod_path), pod=self.pod)
                 utils.walk(
-                    self.pod.read_yaml(pod_path),
+                    fields,
                     lambda msgid, key, node, **kwargs: _handle_field(
                         pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
                 )
