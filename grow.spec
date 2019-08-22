@@ -114,18 +114,6 @@ a.datas += glob_datas('grow/ui/dist')
 a.datas += glob_datas('grow/pods/templates')
 
 
-# Crypto doesn't seem to be needed when building on Mac. TODO(jeremydw):
-# research this dependency and determine if it can be eliminated from
-# non-Mac builds.
-if not IS_DARWIN:
-  def get_crypto_path():
-    import Crypto
-    crypto_path = Crypto.__path__[0]
-    return crypto_path
-  dict_tree = Tree(get_crypto_path(), prefix='Crypto', excludes=["*.pyc"])
-  a.datas += dict_tree
-
-
 # Include PyQt4 on Darwin. TODO(jeremydw): See if we can kill this.
 if IS_DARWIN:
   try:
