@@ -47,6 +47,13 @@ categories:
   - title: Preprocessor deployments
   - title: Monitoring
   - title: Domain
+
+- title: Localization
+  parts:
+  - title: All content translated
+  - title: Language chooser
+  - title: <html lang> tag
+  - title: <link hreflang> tags
 ---
 <div class="checklist">
   {% for category in doc.categories %}
