@@ -95,11 +95,15 @@
         </div>
         <div class="layout__main__body">
           {% block main %}
-            <div class="layout__main__body__content" role="main">
+            <div class="layout__main__body__content {{"layout__main__body__content--wide" if doc.enable_sidebar is sameas false}}" role="main">
               {% if doc.collection.show_title %}
               <h1>{{doc.title}}</h1>
               {% endif %}
-              {{doc.html|safe}}
+              {% if doc.render %}
+                {{doc.html|render|safe}}
+              {% else %}
+                {{doc.html|safe}}
+              {% endif %}
               {% if doc.collection.show_relative_nav %}
                 <nav class="layout__main__body__content__relative-nav">
                   {% set prev_doc = doc.prev() %}
@@ -119,6 +123,7 @@
                 </nav>
               {% endif %}
             </div>
+            {% if doc.enable_sidebar is not sameas false %}
             <div class="layout__main__body__side">
               <div class="layout__main__body__side__top sidetoc" role="complementary">
                 <div class="layout__main__body__side__top__title">
@@ -131,6 +136,7 @@
                 <a href="https://github.com/{{podspec.meta.github_project}}/edit/master{{doc.pod_path}}" class="button button--sm">Edit</a>
               </div>
             </div>
+            {% endif %}
           {% endblock %}
         </div>
       </div>
