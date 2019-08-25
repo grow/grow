@@ -105,7 +105,7 @@ def serve_pod(pod, request, matched, **_kwargs):
         return Response(headers=headers)
     jinja_env = pod.render_pool.get_jinja_env(
         controller.doc.locale) if controller.use_jinja else None
-    rendered_document = controller.render(jinja_env=jinja_env)
+    rendered_document = controller.render(jinja_env=jinja_env, request=request)
     content = rendered_document.read()
     response = Response(body=content)
     response.headers.update(headers)
