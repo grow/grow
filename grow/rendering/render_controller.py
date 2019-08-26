@@ -89,7 +89,7 @@ class RenderController(object):
         """Load the pod content from file system."""
         raise NotImplementedError
 
-    def render(self, jinja_env):
+    def render(self, jinja_env, request=None):
         """Render the pod content."""
         raise NotImplementedError
 
@@ -178,7 +178,7 @@ class RenderDocumentController(RenderController):
             exception.exception = err
             raise exception
 
-    def render(self, jinja_env=None):
+    def render(self, jinja_env=None, request=None):
         """Render the document using the render pool."""
         timer = self.pod.profile.timer(
             'RenderDocumentController.render',
@@ -218,6 +218,7 @@ class RenderDocumentController(RenderController):
 
             rendered_content = template.render({
                 'doc': doc,
+                'request': request,
                 'env': self.pod.env,
                 'podspec': self.pod.podspec,
                 '_track_dependency': track_dependency,
@@ -282,7 +283,7 @@ class RenderErrorController(RenderController):
             exception.exception = err
             raise exception
 
-    def render(self, jinja_env=None):
+    def render(self, jinja_env=None, request=None):
         """Render the document using the render pool."""
         timer = self.pod.profile.timer(
             'RenderErrorController.render',
@@ -366,7 +367,7 @@ class RenderSitemapController(RenderController):
             exception.exception = err
             raise exception
 
-    def render(self, jinja_env=None):
+    def render(self, jinja_env=None, request=None):
         """Render the document using the render pool."""
         timer = self.pod.profile.timer(
             'RenderSitemapController.render',
@@ -496,7 +497,7 @@ class RenderStaticDocumentController(RenderController):
         timer.stop_timer()
         return rendered_doc
 
-    def render(self, jinja_env=None):
+    def render(self, jinja_env=None, request=None):
         """Read the static file."""
         timer = self.pod.profile.timer(
             'RenderStaticDocumentController.render', label=self.serving_path,
