@@ -15,6 +15,7 @@ class FilterConfig(messages.Message):
     collections = messages.StringField(2, repeated=True)
     paths = messages.StringField(3, repeated=True)
     locales = messages.StringField(4, repeated=True)
+    kinds = messages.StringField(5, repeated=True)
 
 
 class Error(Exception):
@@ -30,9 +31,9 @@ class MissingStaticConfigError(Exception):
 class Router(object):
     """Router for pods."""
 
-    def __init__(self, pod):
+    def __init__(self, pod, routes=None):
         self.pod = pod
-        self._routes = grow_routes.Routes()
+        self._routes = routes or grow_routes.Routes()
 
     def _preload_and_expand(self, docs, expand=True):
         # Force preload the docs.
@@ -132,6 +133,7 @@ class Router(object):
                     'collections': sitemap.get('collections'),
                     'locales': sitemap.get('locales'),
                     'template': sitemap.get('template'),
+                    'filters': sitemap.get('filters'),
                     'path': sitemap_path,
                 })
                 self._add_to_routes(
@@ -340,7 +342,7 @@ class Router(object):
             static_doc.serving_path, route_info, concrete=concrete,
             fingerprinted=static_doc.fingerprinted)
 
-    def filter(self, filter_type, collection_paths=None, paths=None, locales=None):
+    def filter(self, filter_type, collection_paths=None, paths=None, locales=None, kinds=None):
         """Filter the routes based on the filter type and criteria."""
         # Convert paths to be regex.
         regex_paths = []
@@ -369,6 +371,10 @@ class Router(object):
                     if route_info.meta['locale'] in locales:
                         return True
 
+                # Check for whitelisted kind of routes.
+                if kinds and route_info.kind in kinds:
+                    return True
+
                 # Not whitelist.
                 return False
 
@@ -391,7 +397,11 @@ class Router(object):
                     if route_info.meta['locale'] in locales:
                         return False
 
-                # Not wlacklisted.
+                # Check for blacklisted kinds of routes.
+                if kinds and route_info.kind in kinds:
+                    return False
+
+                # Not blacklisted.
                 return True
 
             count = self.routes.filter(_filter_blacklist)

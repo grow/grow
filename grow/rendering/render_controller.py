@@ -378,6 +378,18 @@ class RenderSitemapController(RenderController):
         # Validate the path with the config filters.
         self.validate_path()
 
+        # Duplicate the routes to use the filters without messing up routing.
+        routes_copy = self.pod.router.routes + self.pod.router.routes.__class__()
+        temp_router = self.pod.router.__class__(self.pod, routes=routes_copy)
+
+        # Sitemaps only show documents...?
+        temp_router.filter('whitelist', kinds=['doc'])
+
+        for sitemap_filter in self.route_info.meta.get('filters') or []:
+            temp_router.filter(
+                sitemap_filter['type'], collection_paths=sitemap_filter.get('collections'),
+                paths=sitemap_filter.get('paths'), locales=sitemap_filter.get('locales'))
+
         # Need a custom root for rendering sitemap.
         root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
         jinja_env = self.pod.render_pool.custom_jinja_env(root=root)
@@ -391,14 +403,14 @@ class RenderSitemapController(RenderController):
 
             try:
                 docs = []
-                locales = self.route_info.meta.get('locales')
-                collections = self.route_info.meta.get('collections')
-                for col in list(self.pod.list_collections(collections)):
-                    docs += col.list_servable_documents(locales=locales)
+                for _, value, _ in temp_router.routes.nodes:
+                    docs.append(self.pod.get_doc(value.meta['pod_path'], locale=value.meta['locale']))
                 rendered_doc = rendered_document.RenderedDocument(
                     self.serving_path, template.render({
                         'pod': self.pod,
+                        'env': self.pod.env,
                         'docs': docs,
+                        'podspec': self.pod.podspec,
                     }).lstrip())
                 timer.stop_timer()
                 return rendered_doc
