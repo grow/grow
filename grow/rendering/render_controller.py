@@ -384,7 +384,7 @@ class RenderSitemapController(RenderController):
         # Sitemaps only show documents...?
         temp_router.filter('whitelist', kinds=['doc'])
 
-        for sitemap_filter in self.route_info.meta.get('filters', []):
+        for sitemap_filter in self.route_info.meta.get('filters') or []:
             temp_router.filter(
                 sitemap_filter['type'], collection_paths=sitemap_filter.get('collections'),
                 paths=sitemap_filter.get('paths'), locales=sitemap_filter.get('locales'))
