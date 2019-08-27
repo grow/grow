@@ -372,7 +372,7 @@ class Router(object):
                         return True
 
                 # Check for whitelisted kind of routes.
-                if not kinds or route_info.kind in kinds:
+                if kinds and route_info.kind in kinds:
                     return True
 
                 # Not whitelist.
