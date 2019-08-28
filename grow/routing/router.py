@@ -379,7 +379,8 @@ class Router(object):
                 return False
 
             count = self.routes.filter(_filter_whitelist)
-            print 'Whitelist filtered out {} routes.'.format(count)
+            if count > 0:
+                self.pod.logger.info('Whitelist filtered out {} routes.'.format(count))
         else:
             def _filter_blacklist(serving_path, route_info):
                 # Check for blacklisted collection path.
@@ -405,7 +406,8 @@ class Router(object):
                 return True
 
             count = self.routes.filter(_filter_blacklist)
-            print 'Blacklist filtered out {} routes.'.format(count)
+            if count > 0:
+                self.pod.logger.info('Blacklist filtered out {} routes.'.format(count))
 
     def from_cache(self, concrete=True):
         """Import routes from routes cache."""
