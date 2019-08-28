@@ -76,7 +76,7 @@ class Document(object):
         self.basename = Document._clean_basename(pod_path)
         self.base, self.ext = os.path.splitext(self.basename)
         self.pod = _pod
-        self.collection = _collection
+        self.collection = self._collection_exists(_collection)
         self._locale = utils.SENTINEL
 
     def __ne__(self, other):
@@ -91,6 +91,16 @@ class Document(object):
     def _clean_basename(cls, pod_path):
         base_pod_path = cls._locale_paths(pod_path)[-1]
         return os.path.basename(base_pod_path)
+
+    @staticmethod
+    def _collection_exists(collection):
+        orig_collection = collection
+        while not collection.exists:
+            collection = collection.parent
+            if not collection:
+                collection = orig_collection
+                break
+        return collection
 
     @classmethod
     def _locale_paths(cls, pod_path):
