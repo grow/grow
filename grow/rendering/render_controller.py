@@ -379,8 +379,8 @@ class RenderSitemapController(RenderController):
         self.validate_path()
 
         # Duplicate the routes to use the filters without messing up routing.
-        routes_copy = self.pod.router.routes + self.pod.router.routes.__class__()
-        temp_router = self.pod.router.__class__(self.pod, routes=routes_copy)
+        temp_router = self.pod.router.__class__(self.pod)
+        temp_router.add_all()
 
         # Sitemaps only show documents...?
         temp_router.filter('whitelist', kinds=['doc'])
