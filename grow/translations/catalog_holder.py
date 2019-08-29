@@ -231,7 +231,7 @@ class Catalogs(object):
         # This is built up as we extract
         localized_catalogs = {}
         untagged_strings = []
-        unlocalized_catalog = catalogs.Catalog()  # for localized=False case
+        unlocalized_catalog = catalogs.Catalog(pod=self.pod)  # for localized=False case
 
         comment_tags = [
             ':',

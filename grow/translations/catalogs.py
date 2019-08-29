@@ -32,6 +32,8 @@ class Catalog(catalog.Catalog):
         super(Catalog, self).__init__(locale=self.locale)
         if not is_template and self.exists:
             self.load()
+        self._use_old_formatting = self.pod.podspec.get_config().get(
+            'templates', {}).get('old_string_format', False)
 
     def __repr__(self):
         return '<Catalog: {}>'.format(self.pod_path)
@@ -96,6 +98,9 @@ class Catalog(catalog.Catalog):
         return catalog_message
 
     def save(self, include_header=False):
+        if not self._use_old_formatting:
+            for message in self:
+                message.flags.discard('python-format')
         if not self.pod.file_exists(self.pod_path):
             self.pod.write_file(self.pod_path, '')
         outfile = self.pod.open_file(self.pod_path, mode='w')
