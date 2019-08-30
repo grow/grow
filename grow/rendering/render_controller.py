@@ -455,10 +455,11 @@ class RenderStaticDocumentController(RenderController):
                 # Strip the fingerprint to get to the raw static file.
                 self._pod_path = static_document.StaticDocument.strip_fingerprint(
                     self._pod_path)
-                static_doc = self.pod.get_static(self._pod_path, locale=locale)
-                if static_doc.exists:
+                try:
+                    # Throws an error when the document doesn't exist.
+                    _ = self.pod.get_static(self._pod_path, locale=locale)
                     break
-                else:
+                except errors.DocumentDoesNotExistError:
                     self._pod_path = None
         return self._pod_path
 
