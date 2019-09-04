@@ -13,13 +13,21 @@ class NpmInstallerTestCase(unittest.TestCase):
     """Test the NPM Installer."""
 
     def _make_package(self):
-        self.test_fs.write('package.json', '')
+        self.test_fs.write(npm_installer.PACKAGE_FILE, '')
+
+    def _make_hash(self):
+        self.test_fs.write(
+            npm_installer.INSTALL_HASH_FILE,
+            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855')
+
+    def _make_hash_outdated(self):
+        self.test_fs.write(npm_installer.INSTALL_HASH_FILE, 'old_invalid_hash')
 
     def _make_nvm(self):
         self.test_fs.write('.nvmrc', '')
 
     def _make_yarn(self):
-        self.test_fs.write('yarn.lock', '')
+        self.test_fs.write(npm_installer.YARN_LOCK_FILE, '')
 
     def setUp(self):
         self.test_fs = test_storage.TestFileStorage()
@@ -35,7 +43,8 @@ class NpmInstallerTestCase(unittest.TestCase):
         mock_call.return_value = 0
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'npm --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            'npm --version > /dev/null 2>&1',
+            **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_yarn(self, mock_call):
@@ -44,7 +53,8 @@ class NpmInstallerTestCase(unittest.TestCase):
         self._make_yarn()
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'yarn --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            'yarn --version > /dev/null 2>&1',
+            **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_fail_npm(self, mock_call):
@@ -80,7 +90,8 @@ class NpmInstallerTestCase(unittest.TestCase):
         mock_popen.return_value = mock_process
         self.installer.install()
         mock_popen.assert_called_once_with(
-            '. $NVM_DIR/nvm.sh && nvm exec npm install', **self.installer.subprocess_args(shell=True))
+            '. $NVM_DIR/nvm.sh && nvm exec npm install',
+            **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.Popen')
     def test_install_yarn(self, mock_popen):
@@ -125,6 +136,22 @@ class NpmInstallerTestCase(unittest.TestCase):
         """Detect if should run when using npm."""
         self.assertFalse(self.installer.should_run)
         self._make_package()
+        self.assertTrue(self.installer.should_run)
+
+    def test_should_run_force(self):
+        """Detect if should run when using npm and forcing the run."""
+        self._make_package()
+        self._make_hash()
+        self.assertFalse(self.installer.should_run)
+        self.config.set('force', True)
+        self.assertTrue(self.installer.should_run)
+
+    def test_should_run_outdated_hash(self):
+        """Detect if should run when using npm with outdated hash."""
+        self._make_package()
+        self._make_hash()
+        self.assertFalse(self.installer.should_run)
+        self._make_hash_outdated()
         self.assertTrue(self.installer.should_run)
 
     def test_using_yarn_false(self):
