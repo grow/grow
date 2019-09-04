@@ -5,6 +5,12 @@ from grow.common import system
 from grow.sdk.installers import base_installer
 
 
+INSTALL_HASH_FILE = '/node_modules/install-hash.txt'
+NPM_LOCK_FILE = '/package-lock.json'
+PACKAGE_FILE = '/package.json'
+YARN_LOCK_FILE = '/yarn.lock'
+
+
 class NpmInstaller(base_installer.BaseInstaller):
     """Grow npm and yarn installer."""
 
@@ -24,13 +30,26 @@ class NpmInstaller(base_installer.BaseInstaller):
     @property
     def should_run(self):
         """Should the installer run?"""
-        return self.pod.storage.file_exists('/package.json')
+        if not self.pod.storage.file_exists(PACKAGE_FILE):
+            return False
+
+        if self.config.get('force', None):
+            return True
+
+        if self.pod.storage.file_exists(INSTALL_HASH_FILE):
+            existing_hash = self.pod.storage.read_file(INSTALL_HASH_FILE)
+            current_hash = self._generate_hashes()
+            if existing_hash == current_hash:
+                self.pod.logger.info('Skipping npm/yarn install since no changes detected.')
+                self.pod.logger.info('   Use `grow install -f` to force install.')
+                return False
+        return True
 
     @property
     def using_yarn(self):
         """Is the pod using yarn?"""
         if self._using_yarn is None:
-            self._using_yarn = self.pod.storage.file_exists('/yarn.lock')
+            self._using_yarn = self.pod.storage.file_exists(YARN_LOCK_FILE)
         return self._using_yarn
 
     def _check_prerequisites_npm(self):
@@ -66,12 +85,26 @@ class NpmInstaller(base_installer.BaseInstaller):
             raise base_installer.MissingPrerequisiteError(
                 'The `yarn` command was not found.', install_commands=install_commands)
 
+    def _generate_hashes(self):
+        """Create hash string based on the package and lock files."""
+        hash_string = ''
+        if self.pod.storage.file_exists(PACKAGE_FILE):
+            hash_string = self.pod.storage.file_hash(PACKAGE_FILE)
+        if self.pod.storage.file_exists(YARN_LOCK_FILE):
+            hash_string = '{} {}'.format(
+                hash_string, self.pod.storage.file_hash(YARN_LOCK_FILE))
+        if self.pod.storage.file_exists(NPM_LOCK_FILE):
+            hash_string = '{} {}'.format(
+                hash_string, self.pod.storage.file_hash(NPM_LOCK_FILE))
+        return hash_string
+
     def _install_npm(self):
         """Install dependencies using npm."""
         install_command = self._nvm_command('npm install')
         process = subprocess.Popen(install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
+            self.pod.storage.write_file(INSTALL_HASH_FILE, self._generate_hashes())
             return
         raise base_installer.InstallError(
             'There was an error running `npm install`.')
@@ -82,6 +115,7 @@ class NpmInstaller(base_installer.BaseInstaller):
         process = subprocess.Popen(install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
+            self.pod.storage.write_file(INSTALL_HASH_FILE, self._generate_hashes())
             return
         raise base_installer.InstallError(
             'There was an error running `yarn install`.')
