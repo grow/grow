@@ -91,6 +91,10 @@ class BaseStorage(object):
         """Determine if the file exists in the storage."""
         raise NotImplementedError
 
+    def file_hash(self, file_path):
+        """Determine the hash of the file."""
+        raise NotImplementedError
+
     def file_size(self, file_path):
         """Determine the filesize of the file."""
         raise NotImplementedError

@@ -210,6 +210,11 @@ class BaseStorageTestCase(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             self.storage.file_exists('podspec.yaml')
 
+    def test_file_hash(self):
+        """Base storage deterime the file hash."""
+        with self.assertRaises(NotImplementedError):
+            self.storage.file_hash('podspec.yaml')
+
     def test_file_size(self):
         """Base storage read file size."""
         with self.assertRaises(NotImplementedError):

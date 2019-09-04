@@ -1,6 +1,7 @@
 """Local storage for local filesystem access."""
 
 import errno
+import hashlib
 import os
 import shutil
 from grow.storage import base
@@ -69,6 +70,16 @@ class LocalStorage(base.BaseStorage):
         file_path = self.clean_file(file_path)
         full_path = self.expand_and_validate_path(file_path)
         return os.path.getsize(full_path)
+
+    def file_hash(self, file_path):
+        """Determine the file hash."""
+        file_path = self.clean_file(file_path)
+        full_path = self.expand_and_validate_path(file_path)
+        hash_digest = hashlib.sha256()
+        with open(full_path, "rb") as source_file:
+            for chunk in iter(lambda: source_file.read(4096), b""):
+                hash_digest.update(chunk)
+        return hash_digest.hexdigest()
 
     def list_dir(self, file_path, recursive=False):
         """List files in a directory in the storage."""

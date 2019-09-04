@@ -108,6 +108,13 @@ class LocalStorageTestCase(unittest.TestCase):
         self.test_fs.write('podspec.yaml', 'test: true')
         self.assertTrue(self.storage.file_exists('podspec.yaml'))
 
+    def test_file_hash(self):
+        """Local storage hash file."""
+        self.test_fs.write('podspec.yaml', 'test: true')
+        self.assertEqual(
+            '7fa52a0bd7923a33d2529807051276eb53385a91281866b39cbb47fd58c6bffc',
+            self.storage.file_hash('podspec.yaml'))
+
     def test_file_size(self):
         """Local storage read file size."""
         self.test_fs.write('podspec.yaml', 'test: true')
