@@ -7,6 +7,12 @@ from grow.common import features
 class FeaturesTestCase(unittest.TestCase):
     """Test the features control."""
 
+    def test_call(self):
+        """Can be called as a method to check for enabled feature."""
+        feat = features.Features(enabled=['a', 'b'], default_enabled=False)
+        self.assertTrue(feat('a'))
+        self.assertFalse(feat('c'))
+
     def test_default_enabled(self):
         """Does the default enabled work?"""
         feat = features.Features(default_enabled=True)
