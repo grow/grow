@@ -19,7 +19,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.install')
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
-def install(pod_path):
+@click.option(
+    '--force', '-f', default=False, is_flag=True,
+    help='Whether to force install even when no changes found.')
+def install(pod_path, force):
     """Installs local dependencies for such as extensions, npm, yarn, etc."""
     profiler = profile.Profile()
     with profiler('grow.install'):
@@ -28,6 +31,7 @@ def install(pod_path):
         pod = grow_pod.Pod(root_path, storage=storage, profiler=profiler)
 
         config = base_config.BaseConfig()
+        config.set('force', force)
         built_in_installers = []
         for installer_class in installers.BUILT_IN_INSTALLERS:
             built_in_installers.append(installer_class(pod, config))
