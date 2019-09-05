@@ -23,7 +23,7 @@ class ObjectCache(object):
     def __init__(self):
         self._cache = {}
         self._is_dirty = False
-        self.reset()
+        self._used_keys = set()
 
     def add(self, key, value):
         """Add a new item to the cache or overwrite an existing value."""
@@ -36,12 +36,25 @@ class ObjectCache(object):
         for key, value in key_to_cached.items():
             self.add(key, value)
 
+    def cleanup_unused(self):
+        """Removes any cached items that have not been retrieved using get."""
+        unused_cache = {}
+        unused_keys = [key for key in self._cache if key not in self._used_keys]
+
+        for key in unused_keys:
+            unused_cache[key] = self._cache.pop(key)
+
+        if unused_cache:
+            self._is_dirty = True
+        return unused_cache
+
     def export(self):
         """Returns the raw cache data."""
         return self._cache
 
     def get(self, key):
         """Retrieve the value from the cache."""
+        self._used_keys.add(key)
         return self._cache.get(key, None)
 
     @property
@@ -62,6 +75,7 @@ class ObjectCache(object):
         """Reset the internal cache object."""
         self._cache = {}
         self._is_dirty = False
+        self._used_keys = set()
 
     def search(self, pattern):
         """Search through the cache and return all the matching elements."""

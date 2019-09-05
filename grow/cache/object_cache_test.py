@@ -50,6 +50,29 @@ class ObjectCacheTestCase(unittest.TestCase):
         self.assertEqual('???', self.obj_cache.get(
             '/content/pages/intro.md')['question'])
 
+    def test_cleanup_unused(self):
+        """Unused cache keys can be removed."""
+        self.obj_cache.add('answer', 42)
+        self.obj_cache.add('question', '???')
+        self.obj_cache.mark_clean()
+        self.assertFalse(self.obj_cache.is_dirty)
+        _ = self.obj_cache.get('question')
+        unused = self.obj_cache.cleanup_unused()
+        self.assertTrue('answer' in unused)
+        self.assertTrue(self.obj_cache.is_dirty)
+
+    def test_cleanup_unused_non_op(self):
+        """Unused cache keys with no operation stays clean."""
+        self.obj_cache.add('answer', 42)
+        self.obj_cache.add('question', '???')
+        self.obj_cache.mark_clean()
+        self.assertFalse(self.obj_cache.is_dirty)
+        _ = self.obj_cache.get('answer')
+        _ = self.obj_cache.get('question')
+        unused = self.obj_cache.cleanup_unused()
+        self.assertFalse(unused)
+        self.assertFalse(self.obj_cache.is_dirty)
+
     def test_export(self):
         """Raw cache export."""
         self.obj_cache.add('question', {
