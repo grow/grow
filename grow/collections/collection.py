@@ -177,7 +177,7 @@ class Collection(object):
         ])
 
         # Enable the separate_routing feature if there are routes specified.
-        if self.yaml.get('routes', {}):
+        if self.yaml.get('routes', None) is not None:
             coll_features.enable(self.FEATURE_SEPARATE_ROUTING)
 
         return coll_features
