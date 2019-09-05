@@ -16,12 +16,16 @@ class NpmInstallerTestCase(unittest.TestCase):
         self.test_fs.write(npm_installer.PACKAGE_FILE, '')
 
     def _make_hash(self):
+        # Hash for empty package.json and package-lock.json
         self.test_fs.write(
             npm_installer.INSTALL_HASH_FILE,
-            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855')
+            ' '.join(['e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'] * 2))
 
     def _make_hash_outdated(self):
         self.test_fs.write(npm_installer.INSTALL_HASH_FILE, 'old_invalid_hash')
+
+    def _make_npm(self):
+        self.test_fs.write(npm_installer.NPM_LOCK_FILE, '')
 
     def _make_nvm(self):
         self.test_fs.write('.nvmrc', '')
@@ -141,6 +145,7 @@ class NpmInstallerTestCase(unittest.TestCase):
     def test_should_run_force(self):
         """Detect if should run when using npm and forcing the run."""
         self._make_package()
+        self._make_npm()
         self._make_hash()
         self.assertFalse(self.installer.should_run)
         self.config.set('force', True)
@@ -149,6 +154,7 @@ class NpmInstallerTestCase(unittest.TestCase):
     def test_should_run_outdated_hash(self):
         """Detect if should run when using npm with outdated hash."""
         self._make_package()
+        self._make_npm()
         self._make_hash()
         self.assertFalse(self.installer.should_run)
         self._make_hash_outdated()
