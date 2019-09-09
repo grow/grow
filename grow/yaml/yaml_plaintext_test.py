@@ -21,3 +21,14 @@ class YamlPlaintextTestCase(unittest.TestCase):
             'tag': u'!g.yaml',
             'value': u'/data/deep.yaml?not.really.there'
         })
+
+    def test_dict_representor(self):
+        """Plaintext dictionary representer."""
+        raw_yaml = textwrap.dedent("""
+            strings:
+            - test1
+            - test2
+            """)
+        result = yaml_plaintext.load_yaml(raw_yaml)
+        self.assertEqual(
+            result, {'strings': ['test1', 'test2']})

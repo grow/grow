@@ -33,16 +33,12 @@ class PlainTextYamlDumper(yaml.Dumper):
     pass
 
 
-def plain_text_dict_constructor(loader, node):
-    return OrderedDict(loader.construct_pairs(node))
-
-
 def plain_text_dict_representer(dumper, data):
-    return dumper.represent_dict(data.iteritems())
+    return dumper.represent_dict(data.iteritems())  # pragma: no cover
 
 
 def plain_text_representer(dumper, data):
-    return dumper.represent_scalar(data['tag'], data['value'])
+    return dumper.represent_scalar(data['tag'], data['value'])  # pragma: no cover
 
 
 # Don't want to actually process the constructors, just keep the values

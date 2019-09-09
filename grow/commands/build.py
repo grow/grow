@@ -27,7 +27,10 @@ def build(pod_path, out_dir, deployment):
         storage = local_storage.LocalStorage(root_path)
         pod = grow_pod.Pod(root_path, storage=storage, profiler=profiler)
         out_dir = out_dir or os.path.join(root_path, shared.DEFAULT_OUT_DIR)
-        pod_deployment = pod.podspec.get_deployment(deployment)
+        if deployment:
+            pod_deployment = pod.podspec['deployments.{}'.format(deployment)]
+        else:
+            pod_deployment = {}
 
         pipeline = render_pipeline.RenderPipeline(
             pod, logger=pod.logger, profiler=profiler)
