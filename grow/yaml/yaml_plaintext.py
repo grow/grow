@@ -1,7 +1,6 @@
 """Plaintext yaml loader."""
 
 import datetime
-import types
 from collections import OrderedDict
 import yaml
 from yaml.representer import Representer
