@@ -17,8 +17,9 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
+@shared.pod_path_argument
 @shared.out_dir_option(CFG)
-def build(pod_path, out_dir):
+def build(pod_path, out_dir, deployment):
     """Generates static files and writes them to a local destination."""
     profiler = profile.Profile()
     with profiler('grow.build'):
@@ -26,10 +27,11 @@ def build(pod_path, out_dir):
         storage = local_storage.LocalStorage(root_path)
         pod = grow_pod.Pod(root_path, storage=storage, profiler=profiler)
         out_dir = out_dir or os.path.join(root_path, shared.DEFAULT_OUT_DIR)
+        pod_deployment = pod.podspec.get_deployment(deployment)
 
         pipeline = render_pipeline.RenderPipeline(
             pod, logger=pod.logger, profiler=profiler)
 
-        pipeline.render(out_dir)
+        pipeline.render(pod_deployment)
 
         return result.CommandResult(pod=pod, profiler=profiler)

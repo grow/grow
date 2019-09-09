@@ -13,6 +13,7 @@ class Untag(object):
     @staticmethod
     def untag(data, locale_identifier=None, params=None):
         """Untags fields, handling translation priority."""
+        data = data or {}
         paths_to_keep_tagged = set()
 
         # pylint: disable=too-many-return-statements
