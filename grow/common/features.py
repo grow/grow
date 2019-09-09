@@ -40,3 +40,11 @@ class Features(object):
         if feature in self._enabled:
             return True
         return self.default_enabled is True
+
+
+class Featurer:
+    """Generic feature support for object."""
+
+    def __init__(self, *args, features=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.features = features or Features()

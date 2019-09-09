@@ -1,11 +1,12 @@
 """Grow pod container class."""
 
+from grow.common import features as grow_features
 from grow.common import logger as grow_logger
 from grow.performance import profile
 from grow.storage import storage
 
 
-class Pod(grow_logger.Logger, profile.Profiler, storage.Storager):
+class Pod(grow_logger.Logger, profile.Profiler, storage.Storager, grow_features.Featurer):
     """Grow pod container."""
 
     def __init__(self, root_path, *args, **kwargs):

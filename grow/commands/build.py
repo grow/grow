@@ -7,6 +7,7 @@ from grow.commands import shared
 from grow.common import rc_config
 from grow.performance import profile
 from grow.pod import pod as grow_pod
+from grow.rendering import render_pipeline
 from grow.storage import local as local_storage
 
 
@@ -24,9 +25,11 @@ def build(pod_path, out_dir):
         root_path = os.path.abspath(os.path.join(os.getcwd(), pod_path))
         storage = local_storage.LocalStorage(root_path)
         pod = grow_pod.Pod(root_path, storage=storage, profiler=profiler)
-        out_dir = out_dir or os.path.join(root_path, 'build')
+        out_dir = out_dir or os.path.join(root_path, shared.DEFAULT_OUT_DIR)
 
-        print('Root: {}'.format(pod.root_path))
-        print('Out Dir: {}'.format(out_dir))
+        pipeline = render_pipeline.RenderPipeline(
+            pod, logger=pod.logger, profiler=profiler)
+
+        pipeline.render(out_dir)
 
         return result.CommandResult(pod=pod, profiler=profiler)

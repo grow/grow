@@ -96,7 +96,7 @@ class Router(grow_logger.Logger, profile.Profiler):
     def filter(self, locales=None):
         """Filter the routes based on a criteria."""
         if locales:
-            # Ability to specify a none locale using commanf flag.
+            # Ability to specify a none locale using command flag.
             if 'None' in locales:
                 locales.append(None)
 

@@ -5,6 +5,7 @@ from grow.common import rc_config
 
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.shared')
+DEFAULT_OUT_DIR = 'build'
 
 
 def pod_path_argument(func):
