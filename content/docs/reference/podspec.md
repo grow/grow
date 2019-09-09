@@ -224,7 +224,7 @@ localization:
 ```yaml
 # /content/collectiion/document.yaml
 foo: base
-foo@locale.group1: tagged for de, fr, or it locales.
+foo@locales.group1: tagged for de, fr, or it locales.
 ```
 
 ### preprocessors
