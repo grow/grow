@@ -18,6 +18,11 @@ class PodTest(unittest.TestCase):
         self.test_fs = test_storage.TestFileStorage()
         self.storage = grow_local.LocalStorage(self.test_fs.content_dir)
 
+    def test_missing_podspec(self):
+        """Podspec missing."""
+        with self.assertRaises(pod.MissingPodspecError):
+            pod.Pod('/testing', storage=self.storage)
+
     def test_root_path(self):
         """Pod root path."""
         self._make_podspec()

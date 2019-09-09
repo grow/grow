@@ -13,7 +13,7 @@ class Error(Exception):
     pass
 
 
-class MissingPodError(Error):
+class MissingPodspecError(Error):
     """No pod exists in root path."""
     pass
 
@@ -26,7 +26,7 @@ class Pod(grow_logger.Logger, profile.Profiler, storage.Storager, grow_features.
         self.root_path = root_path
 
         if not self.storage.file_exists(podspec.POD_SPEC_FILE):
-            raise MissingPodError(
+            raise MissingPodspecError(
                 'Unable to find the {} file in the {} directory.'.format(
                     podspec.POD_SPEC_FILE, root_path))
 
