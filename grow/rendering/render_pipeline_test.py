@@ -14,6 +14,7 @@ class RenderPipelineTestCase(unittest.TestCase):
         })
         self.pipeline = render_pipeline.RenderPipeline(pod)
 
-    def test_some(self):
-        """Default."""
-        pass
+    def test_render(self):
+        """Test rendering."""
+        # TODO: A comprehensive test when render actually does something.
+        self.pipeline.render('test')
