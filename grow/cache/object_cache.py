@@ -71,12 +71,6 @@ class ObjectCache(object):
         self._is_dirty = True
         return self._cache.pop(key, None)
 
-    def reset(self):
-        """Reset the internal cache object."""
-        self._cache = {}
-        self._is_dirty = False
-        self._used_keys = set()
-
     def search(self, pattern):
         """Search through the cache and return all the matching elements."""
         if type(pattern) is not type(re.compile('.')):
