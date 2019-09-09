@@ -9,7 +9,7 @@ from yaml.representer import SafeRepresenter
 
 try:
     from yaml import CLoader as YamlLoader
-except ImportError:
+except ImportError:  # pragma: no cover
     from yaml import Loader as YamlLoader
 
 
