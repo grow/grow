@@ -165,7 +165,7 @@ class RenderDocumentController(RenderController):
                 serving_path = '{}{}'.format(serving_path, self.suffix)
 
             rendered_path = '{}{}'.format(source_dir, serving_path)
-            rendered_content = self.pod.read_file(rendered_path)
+            rendered_content = self.pod.storage.read(rendered_path)
 
             rendered_doc = rendered_document.RenderedDocument(
                 serving_path, rendered_content)
@@ -268,7 +268,7 @@ class RenderErrorController(RenderController):
         try:
             serving_path = '/{}.html'.format(self.route_info.meta['key'])
             rendered_path = '{}{}'.format(source_dir, serving_path)
-            rendered_content = self.pod.read_file(rendered_path)
+            rendered_content = self.pod.storage.read(rendered_path)
             rendered_doc = rendered_document.RenderedDocument(
                 serving_path, rendered_content)
             timer.stop_timer()
@@ -352,7 +352,7 @@ class RenderSitemapController(RenderController):
 
         try:
             rendered_path = '{}{}'.format(source_dir, self.serving_path)
-            rendered_content = self.pod.read_file(rendered_path)
+            rendered_content = self.pod.storage.read(rendered_path)
             rendered_doc = rendered_document.RenderedDocument(
                 self.serving_path, rendered_content)
             timer.stop_timer()
@@ -504,7 +504,7 @@ class RenderStaticDocumentController(RenderController):
         self.validate_path(self.route_info.meta['path_filter'])
 
         rendered_path = '{}{}'.format(source_dir, self.serving_path)
-        rendered_content = self.pod.read_file(rendered_path)
+        rendered_content = self.pod.storage.read(rendered_path)
         rendered_doc = rendered_document.RenderedDocument(
             self.serving_path, rendered_content)
         timer.stop_timer()
