@@ -9,6 +9,7 @@ from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
 from grow.deployments.destinations import webreview_destination
+from grow.extensions import hooks
 from grow.performance import docs_loader
 from grow.pods import pods
 from grow.rendering import renderer
@@ -58,8 +59,6 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
                 deployment.login(auth)
             if preprocess:
                 pod.preprocess()
-            content_generator = deployment.dump(
-                pod, source_dir=work_dir, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
             pod.router.use_simple()
             if routes_file:
@@ -72,6 +71,10 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
 
             paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)
+            content_generator = deployment.dump(
+                pod, source_dir=work_dir, use_threading=threaded)
+            content_generator = hooks.generator_wrapper(
+                pod, 'pre_deploy', content_generator, 'stage')
             deployment.deploy(content_generator, stats=stats_obj, repo=repo,
                               confirm=False, test=False, require_translations=require_translations)
             pod.podcache.write()
