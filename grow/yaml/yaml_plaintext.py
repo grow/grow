@@ -13,6 +13,7 @@ except ImportError:  # pragma: no cover
 
 
 class PlainText(dict):
+    """Storage for plain text tags and values."""
 
     def __init__(self, tag, value):
         super(PlainText, self)
@@ -33,10 +34,12 @@ class PlainTextYamlDumper(yaml.Dumper):
 
 
 def plain_text_dict_representer(dumper, data):
+    """Represent dict without parsing it."""
     return dumper.represent_dict(data.iteritems())  # pragma: no cover
 
 
 def plain_text_representer(dumper, data):
+    """Represent scalar data without parsing it."""
     return dumper.represent_scalar(data['tag'], data['value'])  # pragma: no cover
 
 
