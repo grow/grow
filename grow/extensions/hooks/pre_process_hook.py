@@ -6,7 +6,7 @@ from protorpc import protojson
 from grow.extensions.hooks import base_hook
 
 
-class PreprocessHook(base_hook.BaseHook):
+class PreProcessHook(base_hook.BaseHook):
     """Hook for preprocess."""
 
     KEY = 'preprocess'
