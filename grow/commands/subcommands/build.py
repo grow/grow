@@ -8,6 +8,7 @@ from grow.common import rc_config
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
+from grow.extensions import hooks
 from grow.performance import docs_loader
 from grow.pods import pods
 from grow.rendering import renderer
@@ -90,6 +91,8 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
             content_generator = renderer.Renderer.rendered_docs(
                 pod, pod.router.routes, source_dir=work_dir,
                 use_threading=threaded)
+            content_generator = hooks.generator_wrapper(
+                pod, 'pre_deploy', content_generator, 'build')
             stats_obj = stats.Stats(pod, paths=paths)
             destination.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=False,

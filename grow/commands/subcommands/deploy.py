@@ -9,6 +9,7 @@ from grow.common import rc_config
 from grow.common import utils
 from grow.deployments import stats
 from grow.deployments.destinations import base
+from grow.extensions import hooks
 from grow.performance import docs_loader
 from grow.pods import pods
 from grow.rendering import renderer
@@ -68,8 +69,6 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             if test_only:
                 deployment.test()
                 return
-            content_generator = deployment.dump(
-                pod, source_dir=work_dir, use_threading=threaded)
             repo = utils.get_git_repo(pod.root)
             pod.router.use_simple()
             if routes_file:
@@ -94,6 +93,10 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
 
             paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)
+            content_generator = deployment.dump(
+                pod, source_dir=work_dir, use_threading=threaded)
+            content_generator = hooks.generator_wrapper(
+                pod, 'pre_deploy', content_generator, 'deploy')
             deployment.deploy(
                 content_generator, stats=stats_obj, repo=repo, confirm=confirm,
                 test=test, require_translations=require_translations,
