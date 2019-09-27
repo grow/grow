@@ -37,7 +37,7 @@ except ImportError:
 APPENGINE_SERVER_PREFIXES = ('Development/', 'Google App Engine/')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
-SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.;]+')
 SLUG_SUBSTITUTE = ((':{}', ':'),)
 
 
@@ -443,7 +443,8 @@ def slugify(text, delim=u'-'):
     if not isinstance(text, basestring):
         text = str(text)
     result = []
-    for word in SLUG_REGEX.split(text.lower()):
+    ascii_value = text.lower().encode('ascii', 'ignore')
+    for word in SLUG_REGEX.split(ascii_value):
         if not isinstance(word, unicode):
             word = word.decode('utf-8')
         word = word.encode('translit/long')

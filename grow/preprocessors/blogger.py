@@ -87,6 +87,8 @@ class BloggerPreprocessor(base.BasePreprocessor):
 
             request = posts_doc.list_next(request, posts_doc)
 
+
+
         return items
 
     @classmethod
