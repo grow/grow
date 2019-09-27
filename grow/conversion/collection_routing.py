@@ -79,8 +79,9 @@ class RoutesData(object):
             if key in COLLECTION_META_KEYS or key.startswith(tagged_keys):
                 normal_key = key.lstrip('$')
                 if 'path' in key:
+                    # Use `__NONE` as sentinel to support equating a `value` of None.
                     collection_path = self.blueprint.get(
-                        key, self.blueprint.get(normal_key))
+                            key, self.blueprint.get(normal_key, '__NONE'))
                     # Skip the paths that are the same as the collection.
                     if collection_path == value:
                         continue
