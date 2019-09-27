@@ -88,8 +88,9 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
                 is_partial = True
                 pod.router.shard(shards, shard)
 
-            # Preload the documents used by the paths after filtering.
-            docs_loader.DocsLoader.load_from_routes(pod, pod.router.routes)
+            if not work_dir:
+                # Preload the documents used by the paths after filtering.
+                docs_loader.DocsLoader.load_from_routes(pod, pod.router.routes)
 
             paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)

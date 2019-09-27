@@ -84,8 +84,9 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
                 is_partial = True
                 pod.router.shard(shards, shard)
 
-            # Preload the documents used by the paths after filtering.
-            docs_loader.DocsLoader.load_from_routes(pod, pod.router.routes)
+            if not work_dir:
+                # Preload the documents used by the paths after filtering.
+                docs_loader.DocsLoader.load_from_routes(pod, pod.router.routes)
 
             paths = pod.router.routes.paths
             content_generator = renderer.Renderer.rendered_docs(
