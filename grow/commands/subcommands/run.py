@@ -4,6 +4,7 @@ import os
 import click
 from grow.commands import shared
 from grow.common import rc_config
+from grow.common import structures
 from grow.pods import env
 from grow.pods import pods
 from grow import storage
@@ -38,14 +39,14 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
     """Starts a development server for a single pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     scheme = 'https' if https else 'http'
-    config = env.EnvConfig(host=host, port=port, name=env.Name.DEV,
-                           scheme=scheme, cached=False, dev=True)
+    config = structures.AttributeDict(
+        host=host, port=port, name=env.Name.DEV, scheme=scheme, cached=False, dev=True)
     environment = env.Env(config)
     pod = pods.Pod(
         root, storage=storage.FileStorage, env=environment)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
-        pod.set_env(deployment_obj.config.env)
+        pod.set_env(deployment_obj.get_env())
     if not ui:
         pod.disable(pod.FEATURE_UI)
     try:
