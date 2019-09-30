@@ -77,7 +77,6 @@ import os
 import subprocess
 import re
 import sys
-from grow.common import structures
 from grow.common import utils
 from grow.deployments import indexes
 from grow.deployments import tests
@@ -129,9 +128,8 @@ class BaseDestination(object):
     batch_writes = False
     success = False
 
-    def __init__(self, config, env=None, name='default'):
+    def __init__(self, config, name='default'):
         self.config = config
-        self.env = env
         self.name = name
         self.pod = None
         self._diff = None
@@ -200,11 +198,10 @@ class BaseDestination(object):
 
     def get_env(self):
         """Returns an environment object based on the config."""
-        if self.env:
-            return env.Env(structures.AttributeDict(self.env))
         if self.config.env:
-            return env.Env(structures.AttributeDict(self.config.env.all_fields()))
-        return env.Env(structures.AttributeDict(host='localhost'))
+            return env.Env(self.config.env)
+        config = env.EnvConfig(host='localhost')
+        return env.Env(config)
 
     def read_file(self, path):
         """Returns a file-like object."""

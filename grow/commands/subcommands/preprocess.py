@@ -36,7 +36,7 @@ def preprocess(pod_path, preprocessor, run_all, tag, ratelimit, deployment):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
-        pod.set_env(deployment_obj.get_env())
+        pod.set_env(deployment_obj.config.env)
     with pod.profile.timer('grow_preprocess'):
         pod.preprocess(preprocessor, run_all=run_all, tags=tag, ratelimit=ratelimit)
     return pod
