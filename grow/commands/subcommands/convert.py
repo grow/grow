@@ -27,7 +27,7 @@ def convert(pod_path, convert_type, deployment):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
-        pod.set_env(deployment_obj.get_env())
+        pod.set_env(deployment_obj.config.env)
 
     if convert_type == 'content_locale_split':
         content_locale_split.Converter.convert(pod)

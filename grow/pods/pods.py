@@ -21,7 +21,6 @@ from grow.common import extensions
 from grow.common import features
 from grow.common import logger
 from grow.common import progressbar_non
-from grow.common import structures
 from grow.common import untag
 from grow.common import utils
 from grow.documents import document
@@ -94,7 +93,7 @@ class Pod(object):
         self.root = (root if self.storage.is_cloud_storage
                      else os.path.abspath(root))
         self.env = (env if env
-                    else environment.Env(structures.AttributeDict(host='localhost')))
+                    else environment.Env(environment.EnvConfig(host='localhost')))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self._jinja_env_lock = threading.RLock()

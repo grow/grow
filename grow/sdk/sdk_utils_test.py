@@ -3,7 +3,6 @@
 import os
 import unittest
 from grow.common import base_config
-from grow.common import structures
 from grow.pods import env as environment
 from grow.pods import pods
 from grow import storage
@@ -28,7 +27,7 @@ class SdkUtilsTestCase(unittest.TestCase):
 
     def test_subprocess_args_env_name(self):
         """Test subprocess args env name."""
-        self.pod.set_env(environment.Env(structures.AttributeDict(name='testing')))
+        self.pod.set_env(environment.Env(environment.EnvConfig(name='testing')))
         args = sdk_utils.subprocess_args(self.pod)
         self.assertEqual(args['env']['GROW_ENVIRONMENT_NAME'], 'testing')
 
