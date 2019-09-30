@@ -35,12 +35,14 @@ def make_deployment(kind, config, name='default'):
     if _destination_kinds_to_classes is None:
         register_builtins()
     class_obj = _destination_kinds_to_classes.get(kind)
+    # Use the raw env so that arbitrary data can be passed.
+    env = config.get('env')
     if class_obj is None:
         raise ValueError('No configuration exists for "{}".'.format(kind))
     if isinstance(config, dict):
         config = json.dumps(config)
         config = config_from_json(class_obj, config)
-    return class_obj(config, name=name)
+    return class_obj(config, env=env, name=name)
 
 
 def config_from_json(deployment_class, content):
