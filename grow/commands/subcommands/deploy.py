@@ -57,8 +57,8 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             deployment = pod.get_deployment(deployment_name)
             # use the deployment's environment for preprocessing and later
             # steps.
-            if deployment.config.env:
-                pod.set_env(deployment.config.env)
+            if deployment.get_env():
+                pod.set_env(deployment.get_env())
             require_translations = pod.podspec.localization.get(
                 'require_translations', False)
             require_translations = require_translations and not force_untranslated
