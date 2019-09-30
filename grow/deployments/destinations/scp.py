@@ -24,6 +24,7 @@ class Config(messages.Message):
     env = messages.MessageField(env.EnvConfig, 5)
     keep_control_dir = messages.BooleanField(6, default=False)
     filters = messages.MessageField(router.FilterConfig, 7, repeated=True)
+    tags = messages.StringField(8, repeated=True)
 
 
 class ScpDestination(base.BaseDestination):

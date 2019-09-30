@@ -28,6 +28,7 @@ class Config(messages.Message):
     subdomain = messages.StringField(9)
     subdomain_prefix = messages.StringField(10)
     filters = messages.MessageField(router.FilterConfig, 11, repeated=True)
+    tags = messages.StringField(12, repeated=True)
 
 
 class WebReviewDestination(base.BaseDestination):

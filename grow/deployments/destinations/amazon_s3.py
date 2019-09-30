@@ -36,6 +36,7 @@ class Config(messages.Message):
     error_document = messages.StringField(8, default='404.html')
     headers = messages.MessageField(HeaderMessage, 9, repeated=True)
     filters = messages.MessageField(router.FilterConfig, 10, repeated=True)
+    tags = messages.StringField(11, repeated=True)
 
 
 class AmazonS3Destination(base.BaseDestination):
