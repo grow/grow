@@ -18,6 +18,7 @@ class Config(messages.Message):
     after_deploy = messages.StringField(5, repeated=True)
     control_dir = messages.StringField(6)
     filters = messages.MessageField(router.FilterConfig, 7, repeated=True)
+    tags = messages.StringField(8, repeated=True)
 
 
 class LocalDestination(base.BaseDestination):

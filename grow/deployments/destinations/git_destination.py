@@ -25,6 +25,7 @@ class Config(messages.Message):
     root_dir = messages.StringField(4, default='')
     keep_control_dir = messages.BooleanField(5, default=False)
     filters = messages.MessageField(router.FilterConfig, 6, repeated=True)
+    tags = messages.StringField(7, repeated=True)
 
 
 class GitDestination(base.BaseDestination):

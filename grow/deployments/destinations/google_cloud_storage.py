@@ -47,6 +47,7 @@ class Config(messages.Message):
     oauth2 = messages.BooleanField(12, default=False)
     headers = messages.MessageField(HeaderMessage, 13, repeated=True)
     filters = messages.MessageField(router.FilterConfig, 14, repeated=True)
+    tags = messages.StringField(15, repeated=True)
 
 
 class GoogleCloudStorageDestination(base.BaseDestination):
