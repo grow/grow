@@ -22,41 +22,41 @@ class EnvConfig(messages.Message):
 class Env(object):
 
     def __init__(self, config):
-        self.name = config.name
         self.config = config
-        self.cached = config.cached
-        self.fingerprint = config.fingerprint or str(int(time.time()))
+        self.name = config.get('name')
+        self.cached = config.get('cached', True)
+        self.fingerprint = config.get('fingerprint') or str(int(time.time()))
 
     def __repr__(self):
         return '<Env: {}>'.format(self.url)
 
     @property
     def host(self):
-        return self.config.host or 'localhost'
+        return self.config.get('host', 'localhost')
 
     @host.setter
     def host(self, value):
-        self.config.host = value
+        self.config['host'] = value
 
     @property
     def port(self):
-        return self.config.port
+        return self.config.get('port')
 
     @port.setter
     def port(self, value):
-        self.config.port = value
+        self.config['port'] = value
 
     @property
     def scheme(self):
-        return self.config.scheme
+        return self.config.get('scheme')
 
     @scheme.setter
     def scheme(self, value):
-        self.config.scheme = value
+        self.config['scheme'] = value
 
     @property
     def dev(self):
-        return self.config.dev
+        return self.config.get('dev', False)
 
     @property
     def url(self):

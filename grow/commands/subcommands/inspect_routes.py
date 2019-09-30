@@ -22,7 +22,7 @@ def inspect_routes(pod_path, routes_file, deployment):
     pod = pods.Pod(root, storage=storage.FileStorage)
     if deployment:
         deployment_obj = pod.get_deployment(deployment)
-        pod.set_env(deployment_obj.config.env)
+        pod.set_env(deployment_obj.get_env())
     with pod.profile.timer('grow_inspect_routes'):
         out = []
         pod.router.use_simple()

@@ -55,10 +55,8 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             # Always clear the cache when building.
             pod.podcache.reset()
             deployment = pod.get_deployment(deployment_name)
-            # use the deployment's environment for preprocessing and later
-            # steps.
-            if deployment.config.env:
-                pod.set_env(deployment.config.env)
+            # Use the deployment's environment for preprocessing and later steps.
+            pod.set_env(deployment.get_env())
             require_translations = pod.podspec.localization.get(
                 'require_translations', False)
             require_translations = require_translations and not force_untranslated

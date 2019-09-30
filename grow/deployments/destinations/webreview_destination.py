@@ -4,9 +4,10 @@ import logging
 import os
 import urlparse
 from protorpc import messages
+from grow.common import structures
+from grow.common import utils as common_utils
 from grow.deployments.destinations import base
 from grow.deployments import utils
-from grow.common import utils as common_utils
 from grow.pods import env
 from grow.routing import router
 
@@ -56,11 +57,13 @@ class WebReviewDestination(base.BaseDestination):
 
     def get_env(self):
         """Returns an environment object based on the config."""
+        if self.env:
+            return env.Env(structures.AttributeDict(self.env))
         if self.config.env:
-            return env.Env(self.config.env)
+            return env.Env(structures.AttributeDict(self.config.env.all_fields()))
         subdomain = self._get_subdomain()
         host = '{}-dot-{}'.format(subdomain, self.config.server)
-        config = env.EnvConfig(name='webreview', host=host, scheme='https')
+        config = structures.AttributeDict(name='webreview', host=host, scheme='https')
         return env.Env(config)
 
     @property
