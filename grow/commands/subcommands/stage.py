@@ -84,8 +84,8 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
         pod.podcache.write()
         bulk_errors.display_bulk_errors(err)
         raise click.Abort()
-    except base.Error as err:
-        raise click.ClickException(str(err))
+    # except base.Error as err:
+    #     raise click.ClickException(str(err))
     except pods.Error as err:
         raise click.ClickException(str(err))
     return pod
