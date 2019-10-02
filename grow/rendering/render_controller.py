@@ -128,12 +128,21 @@ class RenderDocumentController(RenderController):
     @property
     def locale(self):
         """Locale to use for rendering."""
+        if 'locale' in self.route_info.meta:
+            return self.route_info.meta['locale']
         return self.doc.locale if self.doc else None
 
     @property
     def mimetype(self):
         """Determine headers to serve for https requests."""
         return mimetypes.guess_type(self.doc.view)[0]
+
+    @property
+    def pod_path(self):
+        """Locale to use for rendering."""
+        if 'pod_path' in self.route_info.meta:
+            return self.route_info.meta['pod_path']
+        return self.doc.pod_path if self.doc else None
 
     @property
     def suffix(self):
@@ -147,10 +156,10 @@ class RenderDocumentController(RenderController):
         """Load the pod content from file system."""
         timer = self.pod.profile.timer(
             'RenderDocumentController.load',
-            label='{} ({})'.format(self.doc.pod_path, self.doc.locale),
+            label='{} ({})'.format(self.pod_path, self.locale),
             meta={
-                'path': self.doc.pod_path,
-                'locale': str(self.doc.locale)}
+                'path': self.pod_path,
+                'locale': str(self.locale)}
         ).start_timer()
 
         source_dir = self.clean_source_dir(source_dir)
@@ -160,7 +169,7 @@ class RenderDocumentController(RenderController):
 
         try:
             doc = self.doc
-            serving_path = doc.get_serving_path()
+            serving_path = self.serving_path
             if serving_path.endswith('/'):
                 serving_path = '{}{}'.format(serving_path, self.suffix)
 
