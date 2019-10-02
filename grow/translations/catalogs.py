@@ -178,6 +178,14 @@ class Catalog(catalog.Catalog):
     def needs_compilation(self):
         return self.modified > self.mo_modified
 
+    def _skip_compile_error(self, error):
+        # Reduces logspam by hiding errors related to placeholders.
+        if (not self._use_old_formatting
+            and ('incompatible format for placeholder' in error
+                 or 'placeholders are incompatible' in error)):
+            return True
+        return False
+
     def compile(self):
         self.pod.catalogs.clear_gettext_cache()
         localization = self.pod.podspec.localization
@@ -194,6 +202,8 @@ class Catalog(catalog.Catalog):
         try:
             for message, errors in self.check():
                 for error in errors:
+                    if self._skip_compile_error(error):
+                        continue
                     text = 'Error compiling ({}:{}): {}'
                     message = text.format(self.locale, message.lineno, error)
                     self.pod.logger.error(message)
