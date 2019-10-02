@@ -140,9 +140,9 @@ class RenderDocumentController(RenderController):
     @property
     def pod_path(self):
         """Locale to use for rendering."""
-        if 'locale' in self.route_info.meta:
-            return self.route_info.meta['locale']
-        return self.doc.locale if self.doc else None
+        if 'pod_path' in self.route_info.meta:
+            return self.route_info.meta['pod_path']
+        return self.doc.pod_path if self.doc else None
 
     @property
     def suffix(self):
