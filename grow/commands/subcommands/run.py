@@ -54,4 +54,7 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
                       update_check=update_check)
     except pods.Error as e:
         raise click.ClickException(str(e))
+    except KeyboardInterrupt:
+        print 'Keyboard!'
+        pass  # Let the normal process work when doing keyboard inturrupt.
     return pod
