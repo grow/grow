@@ -236,8 +236,8 @@ class Pod(object):
 
     def _parse_routes_cache_file(self):
         with self.profile.timer('Pod._parse_routes_cache_file'):
-            routes_cache_file_name = '/{}'.format(podcache.FILE_ROUTES_CACHE)
-
+            routes_cache_file_name = '{}{}'.format(
+                self.PATH_CONTROL, podcache.FILE_ROUTES_CACHE)
             if not self.file_exists(routes_cache_file_name):
                 return {}
             try:

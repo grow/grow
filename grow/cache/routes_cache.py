@@ -63,9 +63,7 @@ class RoutesCache(object):
                 self.KEY_CONCRETE: self._export_cache(self._cache[self.KEY_CONCRETE]),
                 self.KEY_DYNAMIC: self._export_cache(self._cache[self.KEY_DYNAMIC]),
             }
-        if concrete:
-            return self._export_cache(self._cache[self.KEY_CONCRETE])
-        return self._export_cache(self._cache[self.KEY_DYNAMIC])
+        return self._export_cache(self._cache[self._cache_key(concrete)])
 
     def from_data(self, data):
         """Set the cache from data."""
