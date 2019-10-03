@@ -285,9 +285,11 @@ workflows:
         <<: *filter_only_tags
         requires:
         - test
+        - test-osx
     - release-package-osx:
         <<: *filter_only_tags
         requires:
+        - test
         - test-osx
     - release-package-pypi:
         <<: *filter_only_tags
