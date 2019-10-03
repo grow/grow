@@ -96,10 +96,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
                 # Clean up the file watchers.
                 main_observer.stop()
                 podspec_observer.stop()
-
-                # Ensure ctrl+c works no matter what.
-                # https://github.com/grow/grow/issues/149
-                os._exit(0)
+                return
 
     text = 'Unable to find a port for the server (tried {}).'
     pod.logger.error(text.format(port))
