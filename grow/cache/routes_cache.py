@@ -102,7 +102,9 @@ class RoutesCache(object):
         """Returns the raw cache data."""
         if concrete is None:
             return self._cache
-        return self._cache[self._cache_key(concrete)].get(env, {})
+        if concrete:
+            return self._cache[self.KEY_CONCRETE].get(env, {})
+        return self._cache[self.KEY_DYNAMIC].get(env, {})
 
     def remove(self, key, concrete=False, env=None):
         """Removes a single element from the cache."""
