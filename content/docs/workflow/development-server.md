@@ -4,6 +4,29 @@ $order: 10.1
 $category: Workflow
 ---
 
+## Installation
+
+```
+# Install using the installer.
+curl https://install.grow.io | bash
+
+# Install using pip.
+pip install grow
+```
+
+Many Grow projects use Python and JavaScript extensions. On a fresh Mac OS, you may need `pip` and `yarn` (or `npm`) to successfully develop these projects on your machine.
+
+```
+# Install pip on Mac.
+sudo easy_install pip
+
+# Install Homebrew (used to install Yarn)
+# See instructions: https://brew.sh/
+
+# Install Yarn.
+brew install yarn
+```
+
 ## Using the development server
 
 Grow comes with a built-in development server. The development server dynamically renders and builds pages when requested. This avoids the need to watch files for changes and allows you to iteratively develop without rebuilding your entire site.
