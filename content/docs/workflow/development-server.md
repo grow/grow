@@ -14,11 +14,16 @@ curl https://install.grow.io | bash
 pip install grow
 ```
 
+### Mac setup
+
 Many Grow projects use Python and JavaScript extensions. On a fresh Mac OS, you may need `pip` and `yarn` (or `npm`) to successfully develop these projects on your machine.
 
 ```
-# Install pip on Mac.
+# Install pip.
 sudo easy_install pip
+
+# Install nvm (used to install node)
+# See instructions: https://github.com/nvm-sh/nvm#install-script
 
 # Install Homebrew (used to install Yarn)
 # See instructions: https://brew.sh/
