@@ -16,7 +16,7 @@ pip install grow
 
 ### Mac setup
 
-Many Grow projects use Python and JavaScript extensions. On a fresh Mac OS, you may need `pip` and `yarn` (or `npm`) to successfully develop these projects on your machine.
+Many Grow projects use Python and JavaScript extensions. On a fresh Mac OS, you may need `pip` and `yarn` (or `npm`) to successfully develop these projects on your machine in addition to Grow.
 
 ```
 # Install pip.
@@ -31,6 +31,10 @@ sudo easy_install pip
 # Install Yarn.
 brew install yarn
 ```
+
+Note: some Node programs (e.g. certain versions of `node-sass`) may require Xcode and the command line tools to compile. Install Xcode (using App Store) and then follow the `xcode-select` instructions [here](https://github.com/nodejs/node-gyp/issues/569#issue-55705963).
+
+This should cover most scenarios for installing and using Grow.
 
 ## Using the development server
 
