@@ -392,6 +392,8 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
     # Tracing function for dependency graph.
     tracking_func = lambda *args, **kwargs: None
     if pod and doc:
+        # Add the path to the dependency graph in case it has no external refs.
+        pod.podcache.dependency_graph.add(doc.pod_path, doc.pod_path)
         def _track_dep(path):
             pod.podcache.dependency_graph.add(doc.pod_path, path)
         tracking_func = _track_dep

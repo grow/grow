@@ -319,8 +319,6 @@ class Router(object):
                     pod_path)
                 for dep_path in dependents:
                     docs.append(self.pod.get_doc(dep_path))
-                # Ensure the documents themselves are added.
-                docs.append(self.pod.get_doc(pod_path))
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
