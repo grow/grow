@@ -315,10 +315,12 @@ class Router(object):
         with self.pod.profile.timer('Router.add_pod_paths'):
             docs = []
             for pod_path in pod_paths:
-                depedents = self.pod.podcache.dependency_graph.match_dependents(
+                dependents = self.pod.podcache.dependency_graph.match_dependents(
                     pod_path)
-                for dep_path in depedents:
+                for dep_path in dependents:
                     docs.append(self.pod.get_doc(dep_path))
+                # Ensure the documents themselves are added.
+                docs.append(self.pod.get_doc(pod_path))
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
