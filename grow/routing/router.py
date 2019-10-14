@@ -314,14 +314,13 @@ class Router(object):
     def add_pod_paths(self, pod_paths, concrete=True):
         """Add pod paths to the router."""
         with self.pod.profile.timer('Router.add_pod_paths'):
-            doc_pod_paths = set()
-            all_doc_pod_paths = set()
-
             # Find all of the doc pod_path for matching.
+            all_doc_pod_paths = set()
             for collection in self.pod.list_collections():
                 for doc in collection.list_docs_unread():
                     all_doc_pod_paths.add(doc.pod_path)
 
+            doc_pod_paths = set()
             for pod_path in pod_paths:
                 # Add docs from the depdency graph.
                 dependents = self.pod.podcache.dependency_graph.match_dependents(
