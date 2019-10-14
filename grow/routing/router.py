@@ -1,5 +1,6 @@
 """Router for grow documents."""
 
+import fnmatch
 import os
 import re
 from protorpc import messages
@@ -313,12 +314,29 @@ class Router(object):
     def add_pod_paths(self, pod_paths, concrete=True):
         """Add pod paths to the router."""
         with self.pod.profile.timer('Router.add_pod_paths'):
-            docs = []
+            doc_pod_paths = set()
+            all_doc_pod_paths = set()
+
+            # Find all of the doc pod_path for matching.
+            for collection in self.pod.list_collections():
+                for doc in collection.list_docs_unread():
+                    all_doc_pod_paths.add(doc.pod_path)
+
             for pod_path in pod_paths:
+                # Add docs from the depdency graph.
                 dependents = self.pod.podcache.dependency_graph.match_dependents(
                     pod_path)
                 for dep_path in dependents:
-                    docs.append(self.pod.get_doc(dep_path))
+                    doc_pod_paths.add(dep_path)
+
+                # Add docs based just on the doc pod paths.
+                for doc_pod_path in all_doc_pod_paths:
+                    if fnmatch.fnmatch(doc_pod_path, pod_path):
+                        doc_pod_paths.add(doc_pod_path)
+
+            docs = []
+            for pod_path in doc_pod_paths:
+                docs.append(self.pod.get_doc(pod_path))
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
