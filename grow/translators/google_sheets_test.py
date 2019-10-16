@@ -413,32 +413,6 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
             }
         }, requests)
 
-        # Filter View for content paths.
-        self.assertIn({
-            'addFilterView': {
-                'filter': {
-                    'range': {
-                        'endColumnIndex': 4,
-                        'sheetId': 765,
-                        'startColumnIndex': 0,
-                        'startRowIndex': 0
-                    },
-                    'criteria': {
-                        '3': {
-                            'condition': {
-                                'values': [{
-                                    'userEnteredValue': u'/views/home.html'
-                                }],
-                                'type': 'TEXT_CONTAINS'
-                            }
-                        }
-                    },
-                    'filterViewId': 63754494,
-                    'title': u'/views/home.html'
-                }
-            }
-        }, requests)
-
     @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
     def test_upload_translations(self, mock_service_drive, mock_service_sheets):
