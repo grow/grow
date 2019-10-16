@@ -440,52 +440,6 @@ class GoogleSheetsTranslator(base.Translator):
 
         return requests
 
-    def _generate_filter_view_resource_requests(self, sheet_id, sheet, catalog=None):
-        requests = []
-
-        if not catalog:
-            return requests
-
-        lang = str(catalog.locale)
-        location_to_filter_id = {}
-        filter_ids = set()
-
-        # Find all the unique resource locations.
-        for message in catalog:
-            if not message.id:
-                continue
-
-            for raw_location in message.locations:
-                location = raw_location[0]
-                if not location in location_to_filter_id:
-                    # Try to match up with the document hash value.
-                    location_to_filter_id[
-                        location] = self._content_hash(location, lang)
-
-        for location, filter_id in location_to_filter_id.iteritems():
-            requests += self._generate_filter_view_requests(sheet_id, sheet, {
-                'filterViewId': filter_id,
-                'range': {
-                    'sheetId': sheet_id,
-                    'startColumnIndex': 0,
-                    'endColumnIndex': 4,
-                    'startRowIndex': 0,
-                },
-                'title': location,
-                'criteria': {
-                    '3': {
-                        'condition': {
-                            'type': 'TEXT_CONTAINS',
-                            'values': [
-                                {'userEnteredValue': location},
-                            ],
-                        },
-                    },
-                },
-            })
-
-        return requests
-
     def _generate_new_sheet_id(self):
         return random.randrange(100, 9999999)
 
@@ -647,10 +601,6 @@ class GoogleSheetsTranslator(base.Translator):
                 },
             },
         })
-
-        # Filter view for each content path.
-        requests += self._generate_filter_view_resource_requests(
-            sheet_id, sheet, catalog)
 
         return requests
 
