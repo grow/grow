@@ -11,3 +11,7 @@ $order: 5
 - Add as little as possible, but as much as necessary to the CMS to facilitate easy content management.
 - Avoid placing too much information into the CMS, and look out for scenarios where content management may be simplified by hardcoding data in YAML files.
 - Only place content in the CMS when, in doing so, management of the content is made simpler.
+
+### What to place in CMS?
+
+- Stuff that the stakeholder changes
