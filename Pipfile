@@ -7,7 +7,7 @@ name = "pypi"
 babel = ">=2.6.0"
 boltons = ">=19.2.0"
 click = ">=6.7"
-# UnsupportedOperation: fileno with 1.4.x
+# https://gitlab.com/dslackw/colored/issues/14
 colored = "==1.3.93"
 markdown = ">=2.6.11"
 protorpc = ">=0.12.0"
