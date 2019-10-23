@@ -15,15 +15,17 @@ class SystemTestCase(unittest.TestCase):
             original_meipass = sys._MEIPASS
         except AttributeError:
             original_meipass = None
-        if original_meipass:
+
+        try:
+            if original_meipass:
+                del sys._MEIPASS
+            self.assertFalse(system.is_packaged_app())
+
+            # Check that it works with the CI environment variable.
+            sys._MEIPASS = True
+            self.assertTrue(system.is_packaged_app())
             del sys._MEIPASS
-        self.assertFalse(system.is_packaged_app())
-
-        # Check that it works with the CI environment variable.
-        sys._MEIPASS = True
-        self.assertTrue(system.is_packaged_app())
-        del sys._MEIPASS
-
-        # Reset the environment.
-        if original_meipass:
-            sys._MEIPASS = original_meipass
+        finally:
+            # Reset the environment.
+            if original_meipass:
+                sys._MEIPASS = original_meipass

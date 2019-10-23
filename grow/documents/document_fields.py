@@ -2,7 +2,7 @@
 
 import re
 from boltons import iterutils
-from grow.common import untag
+from grow.data import untag
 
 
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')

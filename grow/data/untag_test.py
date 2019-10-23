@@ -2,7 +2,7 @@
 
 import copy
 import unittest
-from grow.common import untag
+from grow.data import untag
 
 
 class UntagTestCase(unittest.TestCase):

@@ -5,6 +5,7 @@ from boltons import iterutils
 
 
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
+PARAM_KEY_REGEX_TEMPLATE = r'(.*)@({})\.([^@]+)$'
 
 
 class Untag(object):
@@ -34,8 +35,8 @@ class Untag(object):
 
             # Support <key>@<param key>.<param value>: <value>.
             if params:
-                param_regex = re.compile(
-                    r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())))
+                param_regex = re.compile(PARAM_KEY_REGEX_TEMPLATE.format(
+                    '|'.join(params.keys())))
                 param_match = param_regex.match(key)
                 if param_match:
                     untagged_key, param_key, param_value = param_match.groups()

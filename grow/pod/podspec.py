@@ -2,7 +2,7 @@
 
 from grow.cache import locale_alias_cache
 from grow.common import structures
-from grow.common import untag
+from grow.data import untag
 
 
 POD_SPEC_FILE = 'podspec.yaml'
