@@ -31,6 +31,7 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
                 self.pod.router.add_all(concrete=False)
             except bulk_errors.BulkErrors as err:
                 bulk_errors.display_bulk_errors(err)
+                sys.exit(-1)
         self.pod.logger.info('{} routes built in {:.3f} s'.format(
             len(self.pod.router.routes), router_time.secs))
 
