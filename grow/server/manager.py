@@ -5,6 +5,7 @@ import os
 import socket
 import sys
 import threading
+from grow.common import bulk_errors
 from grow.common import colors
 from grow.common import timer
 from grow.documents import document
@@ -26,7 +27,10 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
         _, port = self.server_address
         self.pod.env.port = port
         with timer.Timer() as router_time:
-            self.pod.router.add_all(concrete=False)
+            try:
+                self.pod.router.add_all(concrete=False)
+            except bulk_errors.BulkErrors as err:
+                bulk_errors.display_bulk_errors(err)
         self.pod.logger.info('{} routes built in {:.3f} s'.format(
             len(self.pod.router.routes), router_time.secs))
 
