@@ -7,6 +7,12 @@ enable_sidebar: false
 
 categories:
 
+- title: Design QA
+  parts: 
+  - title: No obvious visual issues
+  - title: All buttons and hyperlinks work
+  - title: Images and copy match intended design
+  
 - title: Performance
   parts:
   - title: Image optimization
