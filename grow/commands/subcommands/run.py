@@ -1,5 +1,4 @@
 """Command to run the local development server."""
-
 import os
 import click
 from grow.commands import shared
@@ -55,6 +54,5 @@ def run(host, port, https, debug, browser, update_check, preprocess, ui,
     except pods.Error as e:
         raise click.ClickException(str(e))
     except KeyboardInterrupt:
-        print 'Keyboard!'
         pass  # Let the normal process work when doing keyboard inturrupt.
     return pod

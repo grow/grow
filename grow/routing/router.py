@@ -72,7 +72,8 @@ class Router(object):
             concrete=concrete, unchanged_pod_paths=unchanged_pod_paths)
         self.add_all_static(
             concrete=concrete, unchanged_pod_paths=unchanged_pod_paths)
-        self.add_all_other()
+        self.add_all_other(concrete=concrete)
+        self.add_all_hook(concrete=concrete)
 
     def add_all_docs(self, concrete=True, unchanged_pod_paths=None):
         """Add all pod docs to the router."""
@@ -107,6 +108,12 @@ class Router(object):
                             doc_basenames.add(doc.collection_sub_path_clean)
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
+
+    def add_all_hook(self, concrete=True):
+        """Trigger the hook for adding all to the routes."""
+        with self.pod.profile.timer('Router.add_all_hook'):
+            self.pod.extensions_controller.trigger(
+                'router_add', self, concrete=concrete)
 
     def add_all_other(self, concrete=True):
         """Add all pod docs to the router."""

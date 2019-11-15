@@ -6,6 +6,7 @@ from . import post_render_hook
 from . import pre_deploy_hook
 from . import pre_render_hook
 from . import pre_process_hook
+from . import router_add_hook
 
 # pylint: disable=invalid-name
 DevFileChangeHook = dev_file_change_hook.DevFileChangeHook
@@ -15,6 +16,7 @@ PreDeployHook = pre_deploy_hook.PreDeployHook
 PreRenderHook = pre_render_hook.PreRenderHook
 PreProcessHook = pre_process_hook.PreProcessHook
 PreprocessHook = pre_process_hook.PreProcessHook  # Legacy support.
+RouterAddHook = router_add_hook.RouterAddHook
 
 HOOKS = (
     dev_file_change_hook.DevFileChangeHook,
@@ -23,6 +25,7 @@ HOOKS = (
     pre_deploy_hook.PreDeployHook,
     pre_render_hook.PreRenderHook,
     pre_process_hook.PreProcessHook,
+    router_add_hook.RouterAddHook,
 )
 
 
