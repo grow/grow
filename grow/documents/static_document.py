@@ -8,7 +8,7 @@ from grow.routing import path_filter as grow_path_filter
 
 # SHA 256 hash length: 64 characters.
 FINGERPRINT_RE = re.compile(
-    r'(.*)(-[a-f0-9]{64})(\.min)?([\.][a-z0-9]{1,5})$', re.IGNORECASE)
+    r'(.*)(-[a-f0-9]{64})((\.min|)[\.][a-z0-9]{1,5})$', re.IGNORECASE)
 
 
 class Error(Exception):
@@ -57,7 +57,7 @@ class StaticDocument(object):
     @staticmethod
     def strip_fingerprint(serving_path):
         """Strip the fingerprint off a serving path."""
-        return FINGERPRINT_RE.sub(r'\1\3\4', serving_path)
+        return FINGERPRINT_RE.sub(r'\1\3', serving_path)
 
     @property
     def base_path_format(self):
