@@ -389,6 +389,11 @@ class Pod(object):
         for config in podspec_config['static_dirs']:
             yield config
 
+        # Allow for extensions to create static directory configs.
+        hook_static_dirs = self.extensions_controller.trigger('static_dir')
+        for config in hook_static_dirs:
+            yield config
+
     @utils.cached_property
     def tmp_dir(self):
         """Temp directory for temporary file caching."""
