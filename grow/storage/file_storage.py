@@ -59,8 +59,8 @@ class FileStorage(base_storage.BaseStorage):
         return os.walk(dirpath, followlinks=True)
 
     @staticmethod
-    def JinjaLoader(path):
-        return jinja2.FileSystemLoader(path)
+    def JinjaLoader(*paths):
+        return jinja2.FileSystemLoader(paths)
 
     @classmethod
     def write(cls, path, content):

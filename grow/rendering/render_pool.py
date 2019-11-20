@@ -1,5 +1,6 @@
 """Rendering pool for grow documents."""
 
+import os
 import random
 import threading
 from grow.templates import filters
@@ -59,6 +60,12 @@ class RenderPool(object):
                 self._pool[locale_str] = self._pool[locale_str][:pool_size]
 
     def _create_jinja_env(self, locale='', root=None):
+        loader_paths = [self.pod.root if root is None else root]
+        if self.pod.file_exists('{}/__init__.py'.format(self.pod.extensions_dir)):
+            loader_paths.append(os.path.join(self.pod.root, self.pod.extensions_dir))
+        # Common inline extension directory.
+        if self.pod.file_exists('ext/__init__.py'):
+            loader_paths.append(os.path.join(self.pod.root, 'ext'))
         kwargs = {
             'autoescape': True,
             'extensions': [
@@ -68,7 +75,7 @@ class RenderPool(object):
                 'jinja2.ext.loopcontrols',
                 'jinja2.ext.with_',
             ],
-            'loader': self.pod.storage.JinjaLoader(self.pod.root if root is None else root),
+            'loader': self.pod.storage.JinjaLoader(*loader_paths),
             'lstrip_blocks': True,
             'trim_blocks': True,
         }
