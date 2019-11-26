@@ -216,14 +216,14 @@ Sprinkle partial variation styles throughout different rules in the file.
 ## Element usage
 
 - Use `div` elements for all layout, with proper `aria` and `role` attributes for accessibility.
-- Avoid using semantic HTML elements in site structure.
+- Avoid using semantic HTML elements (for non-interactive elements) in site structure.
 - Use semantic HTML and styles only for elements within user-supplied (or content manager-supplied) content (such as Markdown or "textarea fields" from a CMS).
 - Don't use reset stylesheets.
 
-Using `div` removes the need to guess which HTML element should correctly
-satisfy a design. It also removes the need for a reset stylesheet, and permits
-default styles for semantic elements to be (correctly) applied to large
-Markdown blocks or user-supplied content.
+### Justification
+
+- Using `div` removes the need to guess which HTML element should correctly satisfy a design.
+- It also removes the need for a reset stylesheet, and permits default styles for semantic elements to be (correctly) applied to large Markdown blocks or user-supplied content. For example, if a reset stylesheet was used, a content manager could enter a `<b>` tag within a CMS-powered content block and observe no bolded text, and wonder why it's not working.
 
 ## Repeated rules and sizes
 
