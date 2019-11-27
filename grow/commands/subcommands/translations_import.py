@@ -2,6 +2,7 @@
 
 import os
 import click
+import glob
 from grow.commands import shared
 from grow.common import rc_config
 from grow.pods import pods
@@ -34,8 +35,10 @@ def translations_import(pod_path, source, locale, include_obsolete, untranslated
     pod = pods.Pod(root, storage=storage.FileStorage)
     if not pod.exists:
         raise click.ClickException('Pod does not exist: {}'.format(pod.root))
+    source = glob.glob(source)
     with pod.profile.timer('translations_grow_i'):
-        pod.catalogs.import_translations(
-            source, locale=locale, include_obsolete=include_obsolete,
-            untranslated=untranslated)
+        for path in source:
+            pod.catalogs.import_translations(
+                path, locale=locale, include_obsolete=include_obsolete,
+                untranslated=untranslated)
     return pod
