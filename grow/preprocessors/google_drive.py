@@ -188,6 +188,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         header_row_index = messages.IntegerField(12, default=1)
         include_properties = messages.StringField(13, repeated=True)
         color_as_draft = messages.BooleanField(14, default=True)
+        keep_empty_values = messages.BooleanField(15, default=False)
 
     @staticmethod
     def _convert_rows_to_mapping(reader):
@@ -233,7 +234,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
 
     @classmethod
     def download(cls, spreadsheet_id, gids=None, format_as='list', logger=None,
-                 generate_ids=False, header_row_count=1, header_row_index=1):
+                 generate_ids=False, header_row_count=1, header_row_index=1,
+                 keep_empty_values=False):
         logger = logger or logging
         # Show metadata about the file to help the user better understand what
         # they are downloading. Also include a link in the output to permit the
@@ -354,7 +356,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                                     grid_key = grid_key.encode('utf-8')
                                 value = (row[col] if row_len >
                                          col else '').strip()
-                                if value:
+                                if value or keep_empty_values:
                                     grid_obj[grid_key] = value
                             gid_to_data[gid][key] = grid_obj
                     elif format_as_map:
@@ -369,14 +371,18 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         if key and not key.startswith(IGNORE_INITIAL):
                             if format_as == 'strings' and '@' not in key:
                                 key = '{}@'.format(key)
-                            gid_to_data[gid][key] = (
-                                row[1] if len(row) == 2 else '')
+                            value = row[1] if len(row) == 2 else ''
+                            # Ignore empty values.
+                            if value or keep_empty_values:
+                                gid_to_data[gid][key] = value
                     else:
                         row_values = {}
                         for idx, column in enumerate(headers):
                             if not column.startswith(IGNORE_INITIAL):
-                                row_values[column] = (
-                                    row[idx] if len(row) > idx else '')
+                                value = row[idx] if len(row) > idx else ''
+                                # Ignore empty values.
+                                if value or keep_empty_values:
+                                    row_values[column] = value
                         gid_to_data[gid].append(row_values)
 
         return gid_to_sheet, gid_to_data
@@ -434,6 +440,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         if not gids and not config.collection:
             gids.append(0)
         format_as = config.format
+        keep_empty_values = config.keep_empty_values
         if (config.collection and
                 format_as not in GoogleSheetsPreprocessor.MAP_TYPES and
                 format_as not in GoogleSheetsPreprocessor.GRID_TYPES):
@@ -442,7 +449,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             spreadsheet_id=spreadsheet_id, gids=gids, format_as=format_as,
             logger=self.pod.logger, generate_ids=config.generate_ids,
             header_row_count=config.header_row_count,
-            header_row_index=config.header_row_index)
+            header_row_index=config.header_row_index,
+            keep_empty_values=keep_empty_values)
 
         if config.path:
             # Single sheet import.
