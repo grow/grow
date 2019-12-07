@@ -373,7 +373,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                                 key = '{}@'.format(key)
                             value = row[1] if len(row) == 2 else ''
                             # Ignore empty values.
-                            if value.strip() or keep_empty_values:
+                            if value or keep_empty_values:
                                 gid_to_data[gid][key] = value
                     else:
                         row_values = {}
@@ -381,7 +381,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             if not column.startswith(IGNORE_INITIAL):
                                 value = row[idx] if len(row) > idx else ''
                                 # Ignore empty values.
-                                if value.strip() or keep_empty_values:
+                                if value or keep_empty_values:
                                     row_values[column] = value
                         gid_to_data[gid].append(row_values)
 
