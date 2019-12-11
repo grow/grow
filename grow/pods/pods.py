@@ -837,12 +837,7 @@ class Pod(object):
 
     def read_csv(self, path, locale=utils.SENTINEL):
         with self.profile.timer('Pod.read_csv', label=path, meta={'path': path}):
-            contents = utils.get_rows_from_csv(pod=self, path=path, locale=locale)
-            contents = untag.Untag.untag(
-                contents, locale_identifier=locale, params={
-                    'env': untag.UntagParamRegex(self.env.name),
-                })
-            return contents
+            return utils.get_rows_from_csv(pod=self, path=path, locale=locale)
 
     def read_file(self, pod_path):
         path = self._normalize_path(pod_path)
@@ -852,12 +847,7 @@ class Pod(object):
     def read_json(self, path, locale=None):
         """Read and parse a json file."""
         with self.open_file(path, 'r') as json_file:
-            contents = json.load(json_file)
-            contents = untag.Untag.untag(
-                contents, locale_identifier=locale, params={
-                    'env': untag.UntagParamRegex(self.env.name),
-                })
-            return contents
+            return json.load(json_file)
 
     def read_yaml(self, path, locale=None):
         """Read, parse, and untag a yaml file."""
@@ -873,10 +863,7 @@ class Pod(object):
                     self.podcache.file_cache.add(
                         path, fields, locale='__raw__')
                 try:
-                    contents = untag.Untag.untag(
-                        fields, locale_identifier=locale, params={
-                            'env': untag.UntagParamRegex(self.env.name),
-                        })
+                    contents = self.untag(fields, locale=locale)
                     self.podcache.file_cache.add(path, contents, locale=locale)
                 except Exception:
                     logging.error('Error parsing -> {}'.format(path))
@@ -889,6 +876,13 @@ class Pod(object):
         # Tell the cached property to reset.
         # pylint: disable=no-member
         self._parse_yaml.reset()
+
+    def untag(self, contents, locale=None):
+        """Untag data using the pod specific untagging params."""
+        return untag.Untag.untag(
+            contents, locale_identifier=locale, params={
+                'env': untag.UntagParamRegex(self.env.name),
+            })
 
     def walk(self, pod_path):
         path = self._normalize_path(pod_path)
