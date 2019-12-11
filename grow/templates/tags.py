@@ -44,17 +44,19 @@ def _read_csv(pod, pod_path, locale):
     contents = file_cache.get(pod_path, locale=locale)
     if contents is None:
         contents = pod.read_csv(pod_path, locale=locale)
+        contents = pod.untag(contents, locale=locale)
         file_cache.add(pod_path, contents, locale=locale)
     return contents
 
 
-def _read_json(pod, pod_path):
+def _read_json(pod, pod_path, locale):
     """Reads a json file using a cache."""
     file_cache = pod.podcache.file_cache
     contents = file_cache.get(pod_path)
     if contents is None:
         contents = pod.read_json(pod_path)
-        file_cache.add(pod_path, contents)
+        contents = pod.untag(contents, locale=locale)
+        file_cache.add(pod_path, contents, locale=locale)
     return contents
 
 
@@ -131,9 +133,9 @@ def get_doc(pod_path, locale=None, _pod=None):
 
 
 @utils.memoize_tag
-def json(path, _pod):
+def json(path, _pod, locale=None):
     """Retrieves a json file from the pod."""
-    return _read_json(_pod, path)
+    return _read_json(_pod, path, locale=locale)
 
 
 @utils.memoize_tag

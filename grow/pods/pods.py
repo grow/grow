@@ -863,10 +863,7 @@ class Pod(object):
                     self.podcache.file_cache.add(
                         path, fields, locale='__raw__')
                 try:
-                    contents = untag.Untag.untag(
-                        fields, locale_identifier=locale, params={
-                            'env': untag.UntagParamRegex(self.env.name),
-                        })
+                    contents = self.untag(fields, locale=locale)
                     self.podcache.file_cache.add(path, contents, locale=locale)
                 except Exception:
                     logging.error('Error parsing -> {}'.format(path))
@@ -879,6 +876,13 @@ class Pod(object):
         # Tell the cached property to reset.
         # pylint: disable=no-member
         self._parse_yaml.reset()
+
+    def untag(self, contents, locale=None):
+        """Untag data using the pod specific untagging params."""
+        return untag.Untag.untag(
+            contents, locale_identifier=locale, params={
+                'env': untag.UntagParamRegex(self.env.name),
+            })
 
     def walk(self, pod_path):
         path = self._normalize_path(pod_path)
