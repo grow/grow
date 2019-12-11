@@ -844,7 +844,7 @@ class Pod(object):
         with self.profile.timer('Pod.read_file', label=path, meta={'path': path}):
             return self.storage.read(path)
 
-    def read_json(self, path, locale=None):
+    def read_json(self, path):
         """Read and parse a json file."""
         with self.open_file(path, 'r') as json_file:
             return json.load(json_file)
