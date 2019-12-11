@@ -837,17 +837,27 @@ class Pod(object):
 
     def read_csv(self, path, locale=utils.SENTINEL):
         with self.profile.timer('Pod.read_csv', label=path, meta={'path': path}):
-            return utils.get_rows_from_csv(pod=self, path=path, locale=locale)
+            contents = utils.get_rows_from_csv(pod=self, path=path, locale=locale)
+            contents = untag.Untag.untag(
+                fields, locale_identifier=locale, params={
+                    'env': untag.UntagParamRegex(self.env.name),
+                })
+            return contents
 
     def read_file(self, pod_path):
         path = self._normalize_path(pod_path)
         with self.profile.timer('Pod.read_file', label=path, meta={'path': path}):
             return self.storage.read(path)
 
-    def read_json(self, path):
+    def read_json(self, path, locale=None):
         """Read and parse a json file."""
         with self.open_file(path, 'r') as json_file:
-            return json.load(json_file)
+            contents = json.load(json_file)
+            contents = untag.Untag.untag(
+                fields, locale_identifier=locale, params={
+                    'env': untag.UntagParamRegex(self.env.name),
+                })
+            return contents
 
     def read_yaml(self, path, locale=None):
         """Read, parse, and untag a yaml file."""
