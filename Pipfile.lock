@@ -305,6 +305,7 @@
                 "sha256:6e0f4a39e66cb5bb9a137b00276a2eff74f93b71dcbdad6f10ff7df9d3557fcc",
                 "sha256:b7f8e0369580bb4a24d5ba1d7cc29660a4a6987763faf1d8a8046830e020e7e2"
             ],
+            "markers": "python_version < '3'",
             "version": "==1.0.23"
         },
         "jinja2": {
@@ -413,7 +414,6 @@
         },
         "pycparser": {
             "hashes": [
-                "sha256:68e9b93a74b172f60022d02f44c0c65b6fe90f5b5c3bb19db290caf7db674d9f",
                 "sha256:a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3"
             ],
             "version": "==2.19"
