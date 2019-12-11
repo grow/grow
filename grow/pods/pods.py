@@ -839,7 +839,7 @@ class Pod(object):
         with self.profile.timer('Pod.read_csv', label=path, meta={'path': path}):
             contents = utils.get_rows_from_csv(pod=self, path=path, locale=locale)
             contents = untag.Untag.untag(
-                fields, locale_identifier=locale, params={
+                contents, locale_identifier=locale, params={
                     'env': untag.UntagParamRegex(self.env.name),
                 })
             return contents
@@ -854,7 +854,7 @@ class Pod(object):
         with self.open_file(path, 'r') as json_file:
             contents = json.load(json_file)
             contents = untag.Untag.untag(
-                fields, locale_identifier=locale, params={
+                contents, locale_identifier=locale, params={
                     'env': untag.UntagParamRegex(self.env.name),
                 })
             return contents
