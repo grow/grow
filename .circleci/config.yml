@@ -12,7 +12,7 @@ commands:
         default: /root/.local/share/virtualenvs/
     steps:
       - restore_cache:
-          key: pip-<< parameters.key >>-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          key: &pip-cache pip-<< parameters.key >>-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
 
       - run:
           name: Pipenv Install
@@ -28,7 +28,7 @@ commands:
             PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
 
       - save_cache:
-          key: pip-<< parameters.key >>-{{ .Branch }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}
+          key: *pip-cache
           paths:
           - << parameters.dir >>
 

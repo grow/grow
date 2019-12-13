@@ -27,7 +27,7 @@ goslate==1.5.1
 html2text==2019.8.11
 httplib2==0.13.1
 idna==2.8
-ipaddress==1.0.23 ; python_version < '3'
+ipaddress==1.0.23
 jinja2==2.10.1
 markdown==3.1.1
 markupsafe==1.1.1
