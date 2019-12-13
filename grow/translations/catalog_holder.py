@@ -334,6 +334,7 @@ class Catalogs(object):
                         )
                     )
                     last_pod_path = doc.pod_path
+
                 # If doc.locale is set, this is a doc part: only extract for
                 # its own locales (not those of base doc).
                 if doc.locale:
@@ -382,6 +383,18 @@ class Catalogs(object):
                     for path in self.pod.list_dir(pod_dir, recursive=False):
                         if not utils.fnmatches_paths(path, paths):
                             continue
+
+                        # Extract from non-collection csv files.
+                        if path.endswith('.csv'):
+                            pod_path = os.path.join(pod_dir, path.lstrip('/'))
+                            self.pod.logger.info('Extracting: {}'.format(pod_path))
+                            rows = self.pod.read_csv(pod_path)
+                            for i, row in enumerate(rows):
+                                for key, msgid in row.iteritems():
+                                    _handle_field(
+                                        pod_path, self.pod.list_locales(), msgid, key, row)
+
+                        # Extract from non-collection yaml files.
                         if path.endswith(('.yaml', '.yml')):
                             pod_path = os.path.join(pod_dir, path.lstrip('/'))
                             self.pod.logger.info('Extracting: {}'.format(pod_path))
@@ -395,6 +408,15 @@ class Catalogs(object):
         for path in self.pod.list_dir('/data/', recursive=True):
             if not utils.fnmatches_paths(path, paths):
                 continue
+            if path.endswith(('.csv')):
+                pod_path = os.path.join('/data/', path.lstrip('/'))
+                self.pod.logger.info('Extracting: {}'.format(pod_path))
+                rows = self.pod.read_csv(pod_path)
+                for i, row in enumerate(rows):
+                    for key, msgid in row.iteritems():
+                        _handle_field(
+                            pod_path, self.pod.list_locales(), msgid, key, row)
+
             if path.endswith(('.yaml', '.yml')):
                 pod_path = os.path.join('/data/', path.lstrip('/'))
                 self.pod.logger.info('Extracting: {}'.format(pod_path))

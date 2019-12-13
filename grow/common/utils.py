@@ -251,13 +251,23 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             return None
 
         @staticmethod
-        def read_csv(pod_path):
+        def deep_reference(data, reference):
+            data = structures.DeepReferenceDict(data)
+            try:
+                return data[reference]
+            except KeyError:
+                return None
+
+        @staticmethod
+        def read_csv(pod_path, locale):
             """Reads a csv file using a cache."""
             file_cache = pod.podcache.file_cache
-            contents = file_cache.get(pod_path)
+            contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
-                contents = pod.read_csv(pod_path)
-                file_cache.add(pod_path, contents)
+                contents = pod.read_csv(pod_path, locale=locale)
+                contents = untag.Untag.untag(
+                    contents, locale_identifier=locale, params=untag_params)
+                file_cache.add(pod_path, contents, locale=locale)
             return contents
 
         @staticmethod
@@ -271,13 +281,15 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             return contents
 
         @staticmethod
-        def read_json(pod_path):
+        def read_json(pod_path, locale):
             """Reads a json file using a cache."""
             file_cache = pod.podcache.file_cache
-            contents = file_cache.get(pod_path)
+            contents = file_cache.get(pod_path, locale=locale)
             if contents is None:
                 contents = pod.read_json(pod_path)
-                file_cache.add(pod_path, contents)
+                contents = untag.Untag.untag(
+                    contents, locale_identifier=locale, params=untag_params)
+                file_cache.add(pod_path, contents, locale=locale)
             return contents
 
         @classmethod
@@ -340,8 +352,15 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             return _func
 
         def construct_csv(self, node):
-            return self._construct_func(
-                node, self._track_dep_func(self.read_csv))
+            def func(path):
+                if '?' in path:
+                    path, reference = path.split('?')
+                    tracking_func(path)
+                    return self.deep_reference(
+                        self.read_csv(path, locale=self.loader_locale()), reference)
+                tracking_func(path)
+                return self.read_csv(path, locale=self.loader_locale())
+            return self._construct_func(node, func)
 
         def construct_file(self, node):
             return self._construct_func(
@@ -351,8 +370,15 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             return self._construct_func(node, gettext.gettext)
 
         def construct_json(self, node):
-            return self._construct_func(
-                node, self._track_dep_func(self.read_json))
+            def func(path):
+                if '?' in path:
+                    path, reference = path.split('?')
+                    tracking_func(path)
+                    return self.deep_reference(
+                        self.read_json(path, locale=self.loader_locale()), reference)
+                tracking_func(path)
+                return self.read_json(path, locale=self.loader_locale())
+            return self._construct_func(node, func)
 
         def construct_string(self, node):
             return self._construct_func(node, self.read_string)
