@@ -56,7 +56,7 @@ build-ui:
 	    exit 1; \
 	  fi \
 	}
-	@cd grow/ui; npm install  .
+	@cd grow/ui; yarn install
 	@cd grow/ui; ./node_modules/gulp/bin/gulp.js build
 
 develop-linux:
