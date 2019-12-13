@@ -22,7 +22,7 @@ const config = {
     './admin/partials/**/*.js',
     './js/**/*.js',
   ],
-  JS_OUT_DIR: './dist/js/composite/',
+  JS_OUT_DIR: './dist/js/',
   JS_OPTIONS: {
     uglify: {
       mangle: false
@@ -33,7 +33,7 @@ const config = {
     './admin/partials/**/*.{sass,scss}',
     './sass/**/*.{sass,scss}',
   ],
-  SASS_OUT_DIR: './dist/css/composite/'
+  SASS_OUT_DIR: './dist/css/'
 };
 
 const jsFiles = readdirRecursive(config.JS_SOURCE_DIR);
