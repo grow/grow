@@ -73,7 +73,10 @@ task('compile-js', function() {
 task('compile-sass', function(cb) {
   return src(config.SASS_SOURCE_DIR)
     .pipe(sass({
-      outputStyle: 'compressed'
+      outputStyle: 'compressed',
+      includePaths: [
+        "node_modules"
+      ]
     })).on('error', sass.logError)
     .pipe(rename(function(path) {
       path.basename += '.min';
