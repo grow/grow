@@ -48,14 +48,14 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+          key: &ui-cache ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}-{{ checksum "grow/ui/yarn.lock" }}
 
       - run:
           name: Build UI
           command: make build-ui
 
       - save_cache:
-          key: ui-{{ .Branch }}-{{ checksum "grow/ui/package.json" }}
+          key: *ui-cache
           paths:
             - "grow/ui/node_modules"
 

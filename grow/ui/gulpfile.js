@@ -28,10 +28,10 @@ const config = {
       mangle: false
     }
   },
-  SASS_SOURCE_DIR: './source/sass/composite/**/*.{sass,scss}',
+  SASS_SOURCE_DIR: './sass/composite/**/*.{sass,scss}',
   SASS_SOURCES: [
-    './partials/**/*.{sass,scss}',
-    './source/sass/**/*.{sass,scss}',
+    './admin/partials/**/*.{sass,scss}',
+    './sass/**/*.{sass,scss}',
   ],
   SASS_OUT_DIR: './dist/css/composite/'
 };
