@@ -38,7 +38,7 @@ APPENGINE_SERVER_PREFIXES = ('Development/', 'Google App Engine/')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
 DRAFT_KEY = '$draft'
-SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+SLUG_REGEX = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},\.;]+')
 SLUG_SUBSTITUTE = ((':{}', ':'),)
 
 
