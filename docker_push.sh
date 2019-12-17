@@ -6,7 +6,7 @@ GROW_VERSION=`cat grow/VERSION`
 
 if [ "$1" == "gcr.io" ]; then
   echo "Building and Pushing Grow $GROW_VERSION to gcr.io"
-  echo "  To build and push to Docker run './docker_push.sh'"
+  echo "  To build and push to Docker hub run './docker_push.sh'"
   echo "  To build and push to both run './docker_push.sh all'"
 fi
 
