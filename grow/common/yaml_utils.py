@@ -50,10 +50,8 @@ PlainTextYamlDumper.add_representer(OrderedDict, plain_text_dict_representer)
 PlainTextYamlDumper.add_representer(PlainText, plain_text_representer)
 PlainTextYamlDumper.add_representer(type(None), SafeRepresenter.represent_none)
 PlainTextYamlDumper.add_representer(str, SafeRepresenter.represent_str)
-PlainTextYamlDumper.add_representer(str, SafeRepresenter.represent_unicode)
 PlainTextYamlDumper.add_representer(bool, SafeRepresenter.represent_bool)
 PlainTextYamlDumper.add_representer(int, SafeRepresenter.represent_int)
-PlainTextYamlDumper.add_representer(int, SafeRepresenter.represent_long)
 PlainTextYamlDumper.add_representer(float, SafeRepresenter.represent_float)
 PlainTextYamlDumper.add_representer(list, SafeRepresenter.represent_list)
 PlainTextYamlDumper.add_representer(tuple, SafeRepresenter.represent_list)
@@ -64,7 +62,6 @@ PlainTextYamlDumper.add_representer(
 PlainTextYamlDumper.add_representer(
     datetime.datetime, SafeRepresenter.represent_datetime)
 PlainTextYamlDumper.add_representer(None, SafeRepresenter.represent_undefined)
-PlainTextYamlDumper.add_multi_representer(types.InstanceType, Representer.represent_instance)
 PlainTextYamlDumper.add_multi_representer(object, Representer.represent_object)
 
 
