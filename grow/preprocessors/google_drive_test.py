@@ -1,6 +1,6 @@
 """Tests for Google Drive preprocessor."""
 
-import cStringIO
+import io
 import copy
 import csv
 import json
@@ -735,7 +735,7 @@ class GoogleSheetsPreprocessorTest(unittest.TestCase):
             ['name', 'alice'],
             ['color', 'red'],
         ]
-        fp = cStringIO.StringIO()
+        fp = io.StringIO()
         writer = csv.writer(fp)
         for row in rows:
             writer.writerow(row)

@@ -74,7 +74,7 @@ class CloudStorage(base_storage.BaseStorage):
 
     @classmethod
     def write(cls, path, content):
-        if isinstance(content, unicode):
+        if isinstance(content, str):
             content = content.encode('utf-8')
         path = CloudStorage.normalize_path(path)
         file_obj = cls.open(path, mode='w')

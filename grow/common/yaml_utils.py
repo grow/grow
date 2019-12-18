@@ -38,7 +38,7 @@ def plain_text_dict_constructor(loader, node):
 
 
 def plain_text_dict_representer(dumper, data):
-    return dumper.represent_dict(data.iteritems())
+    return dumper.represent_dict(iter(data.items()))
 
 
 def plain_text_representer(dumper, data):
@@ -50,10 +50,10 @@ PlainTextYamlDumper.add_representer(OrderedDict, plain_text_dict_representer)
 PlainTextYamlDumper.add_representer(PlainText, plain_text_representer)
 PlainTextYamlDumper.add_representer(type(None), SafeRepresenter.represent_none)
 PlainTextYamlDumper.add_representer(str, SafeRepresenter.represent_str)
-PlainTextYamlDumper.add_representer(unicode, SafeRepresenter.represent_unicode)
+PlainTextYamlDumper.add_representer(str, SafeRepresenter.represent_unicode)
 PlainTextYamlDumper.add_representer(bool, SafeRepresenter.represent_bool)
 PlainTextYamlDumper.add_representer(int, SafeRepresenter.represent_int)
-PlainTextYamlDumper.add_representer(long, SafeRepresenter.represent_long)
+PlainTextYamlDumper.add_representer(int, SafeRepresenter.represent_long)
 PlainTextYamlDumper.add_representer(float, SafeRepresenter.represent_float)
 PlainTextYamlDumper.add_representer(list, SafeRepresenter.represent_list)
 PlainTextYamlDumper.add_representer(tuple, SafeRepresenter.represent_list)
@@ -69,18 +69,18 @@ PlainTextYamlDumper.add_multi_representer(object, Representer.represent_object)
 
 
 PlainTextYamlLoader.add_constructor(
-    u'!_', PlainTextYamlLoader.construct_plaintext)
+    '!_', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.csv', PlainTextYamlLoader.construct_plaintext)
+    '!g.csv', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.doc', PlainTextYamlLoader.construct_plaintext)
+    '!g.doc', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.json', PlainTextYamlLoader.construct_plaintext)
+    '!g.json', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.static', PlainTextYamlLoader.construct_plaintext)
+    '!g.static', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.string', PlainTextYamlLoader.construct_plaintext)
+    '!g.string', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.url', PlainTextYamlLoader.construct_plaintext)
+    '!g.url', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.yaml', PlainTextYamlLoader.construct_plaintext)
+    '!g.yaml', PlainTextYamlLoader.construct_plaintext)

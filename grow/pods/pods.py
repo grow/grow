@@ -148,7 +148,7 @@ class Pod(object):
 
     def _load_experiments(self):
         config = self.yaml.get('experiments', {})
-        for key, value in config.iteritems():
+        for key, value in config.items():
             # Expertiments can be turned on with a True value,
             # be turned off with a False value,
             # or turned on by a providing configuration value.
@@ -168,7 +168,7 @@ class Pod(object):
 
     def _load_features(self):
         config = self.yaml.get('features', {})
-        for key, value in config.iteritems():
+        for key, value in config.items():
             # Features can be turned on with a True value,
             # be turned off with a False value,
             # or turned on by a providing configuration value.
@@ -568,7 +568,7 @@ class Pod(object):
         destination_configs = self.yaml['deployments']
         if nickname not in destination_configs:
             text = 'No deployment named {}. Valid deployments: {}.'
-            keys = ', '.join(destination_configs.keys())
+            keys = ', '.join(list(destination_configs.keys()))
             raise ValueError(text.format(nickname, keys))
         deployment_params = destination_configs[nickname]
         kind = deployment_params.pop('destination')
@@ -732,7 +732,7 @@ class Pod(object):
     def list_deployments(self):
         destination_configs = self.yaml['deployments']
         results = []
-        for name in destination_configs.keys():
+        for name in list(destination_configs.keys()):
             results.append(self.get_deployment(name))
         return results
 
@@ -791,7 +791,7 @@ class Pod(object):
 
     def normalize_locale(self, locale, default=None):
         locale = locale or default or self.podspec.default_locale
-        if isinstance(locale, basestring):
+        if isinstance(locale, str):
             try:
                 locale = locales.Locale.parse(locale)
             except ValueError as err:

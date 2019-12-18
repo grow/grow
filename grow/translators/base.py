@@ -137,9 +137,9 @@ class Translator(object):
         stats_to_download = stats[self.KIND]
         if locales:
             stats_to_download = dict([(lang, stat)
-                                      for (lang, stat) in stats_to_download.iteritems()
+                                      for (lang, stat) in stats_to_download.items()
                                       if lang in locales])
-        for lang, stat in stats_to_download.iteritems():
+        for lang, stat in stats_to_download.items():
             if isinstance(stat, TranslatorStat):
                 stat = json.loads(protojson.encode_message(stat))
             stat['lang'] = lang
@@ -178,7 +178,7 @@ class Translator(object):
             new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
             langs_to_translations[lang] = content
             new_stats.append(new_stat)
-        for i, (lang, stat) in enumerate(stats_to_download.iteritems()):
+        for i, (lang, stat) in enumerate(stats_to_download.items()):
             if inject:
                 thread = threading.Thread(
                     target=_do_download, args=(lang, stat))
@@ -198,7 +198,7 @@ class Translator(object):
             bar.finish()
 
         has_changed_content = False
-        for lang, translations in langs_to_translations.iteritems():
+        for lang, translations in langs_to_translations.items():
             if inject:
                 if self.pod.catalogs.inject_translations(locale=lang, content=translations):
                     has_changed_content = True
@@ -223,11 +223,11 @@ class Translator(object):
             return
         if self.has_multiple_langs_in_one_resource:
             self._update_acls(stats_to_download, locales)
-            stat = stats_to_download.values()[0]
+            stat = list(stats_to_download.values())[0]
             self.pod.logger.info('ACL updated -> {}'.format(stat.ident))
             return
         threads = []
-        for i, (locale, stat) in enumerate(stats_to_download.iteritems()):
+        for i, (locale, stat) in enumerate(stats_to_download.items()):
             thread = threading.Thread(
                 target=self._update_acl, args=(stat, locale))
             threads.append(thread)
@@ -251,7 +251,7 @@ class Translator(object):
             self.pod.logger.info('No documents found to update.')
             return
         threads = []
-        for i, (locale, stat) in enumerate(stats_to_download.iteritems()):
+        for i, (locale, stat) in enumerate(stats_to_download.items()):
             catalog_for_meta = self.pod.catalogs.get(locale)
             thread = threading.Thread(
                 target=self._update_meta, args=(stat, locale, catalog_for_meta))

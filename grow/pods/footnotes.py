@@ -18,24 +18,24 @@ import re
 
 SYMBOLS = [
     '*',
-    u'†',
-    u'‡',
-    u'§',
-    u'||',
-    u'¶',
+    '†',
+    '‡',
+    '§',
+    '||',
+    '¶',
     '#',
 ]
 NUMERICAL_SYMBOLS = {
-    u'0': u'⁰',
-    u'1': u'¹',
-    u'2': u'²',
-    u'3': u'³',
-    u'4': u'⁴',
-    u'5': u'⁵',
-    u'6': u'⁶',
-    u'7': u'⁷',
-    u'8': u'⁸',
-    u'9': u'⁹',
+    '0': '⁰',
+    '1': '¹',
+    '2': '²',
+    '3': '³',
+    '4': '⁴',
+    '5': '⁵',
+    '6': '⁶',
+    '7': '⁷',
+    '8': '⁸',
+    '9': '⁹',
 }
 NUMERIC_LOCALES_REGEX = re.compile(r'_(DE)$', re.IGNORECASE)
 
@@ -83,7 +83,7 @@ class Footnotes(object):
         return self.symbol_to_footnote[key]
 
     def __iter__(self):
-        return self.symbol_to_footnote.iteritems()
+        return iter(self.symbol_to_footnote.items())
 
     def __len__(self):
         return len(self.symbol_to_footnote)
@@ -93,7 +93,7 @@ class Footnotes(object):
         return self.symbol_to_footnote
 
     def add(self, value):
-        for symbol, note_value in self.symbol_to_footnote.iteritems():
+        for symbol, note_value in self.symbol_to_footnote.items():
             if value == note_value:
                 return symbol
 
@@ -103,13 +103,13 @@ class Footnotes(object):
         return symbol
 
     def index(self, key):
-        return self.symbol_to_footnote.keys().index(key)
+        return list(self.symbol_to_footnote.keys()).index(key)
 
     def items(self):
-        return self.symbol_to_footnote.items()
+        return list(self.symbol_to_footnote.items())
 
     def iteritems(self):
-        return self.symbol_to_footnote.iteritems()
+        return iter(self.symbol_to_footnote.items())
 
     def reset(self):
         self.symbol_to_footnote = collections.OrderedDict()

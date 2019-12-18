@@ -72,7 +72,7 @@ class CollectionCache(object):
                             # locales.
                             generic_key = CollectionCache.generate_cache_key(
                                 path, '')
-                            for key in self._cache[collection_path]['docs'].keys():
+                            for key in list(self._cache[collection_path]['docs'].keys()):
                                 if key.startswith(generic_key):
                                     del self._cache[
                                         collection_path]['docs'][key]
@@ -109,7 +109,7 @@ class CollectionCache(object):
                 doc_cache_key = CollectionCache.generate_cache_key(
                     doc.pod_path, '')
                 invalid_keys = []
-                for cache_key in self._cache[col.collection_path]['docs'].iterkeys():
+                for cache_key in self._cache[col.collection_path]['docs'].keys():
                     if cache_key.startswith(doc_cache_key):
                         invalid_keys.append(cache_key)
                 for cache_key in invalid_keys:

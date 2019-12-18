@@ -2,7 +2,7 @@
 
 import datetime
 import base64
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import httplib2
 from googleapiclient import discovery
 from googleapiclient import errors
@@ -90,7 +90,7 @@ class Gtt(object):
         }
         url = '{}/{}?{}'.format(
             GTT_DOCUMENTS_BASE_URL,
-            urllib.quote(document_id), urllib.urlencode(params))
+            urllib.parse.quote(document_id), urllib.parse.urlencode(params))
         response, content = self.http.request(url)
         try:
             if response.status >= 400:

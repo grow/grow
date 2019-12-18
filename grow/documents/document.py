@@ -117,7 +117,7 @@ class Document(object):
         """Removed the localized part of the path."""
         if '@' in pod_path and locale is not None:
             base, _ = os.path.splitext(pod_path)
-            if isinstance(locale, basestring):
+            if isinstance(locale, str):
                 locale_str = locale
             else:
                 locale_str = locale.alias or str(locale)
@@ -587,7 +587,7 @@ class Document(object):
 
 # Allow the yaml dump to write out a representation of the document.
 def doc_representer(dumper, data):
-    return dumper.represent_scalar(u'!g.doc', data.pod_path)
+    return dumper.represent_scalar('!g.doc', data.pod_path)
 
 
 yaml.SafeDumper.add_representer(Document, doc_representer)

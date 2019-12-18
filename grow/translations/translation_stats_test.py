@@ -2,7 +2,7 @@
 
 import textwrap
 import unittest
-import cStringIO
+import io
 import mock
 from babel.messages import catalog
 from grow.pods import pods
@@ -15,7 +15,7 @@ class TranslationStatsTestCase(unittest.TestCase):
 
     @staticmethod
     def _mock_log():
-        lines = cStringIO.StringIO()
+        lines = io.StringIO()
         def _mock_log(line):
             lines.write(line)
         return lines, _mock_log

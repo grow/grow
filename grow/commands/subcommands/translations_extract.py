@@ -68,7 +68,7 @@ def translations_extract(pod_path, init, update, include_obsolete, localized,
                 untagged_strings, extracted_catalogs)
             # NOTE: Should use click.echo_via_pager; but blocked by
             # UnicodeDecodeError issue.
-            print tables
+            print(tables)
             return
         if localized:
             return

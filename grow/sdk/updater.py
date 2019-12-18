@@ -103,7 +103,7 @@ class Updater(object):
                     colors.stylize(str(sem_latest), colors.HIGHLIGHT)))
             else:  # pragma: no cover
                 try:
-                    choice = raw_input(
+                    choice = input(
                         'Auto update now? [Y]es / [n]o / [a]lways: ').strip().lower()
                 except KeyboardInterrupt:
                     choice = 'n'

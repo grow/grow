@@ -42,7 +42,7 @@ class NvmInstallerTestCase(unittest.TestCase):
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
         self.installer.install()
-        print mock_popen.call_count
+        print(mock_popen.call_count)
         calls = [
             mock.call(
                 '. $NVM_DIR/nvm.sh && nvm install', **self.installer.subprocess_args(shell=True)),

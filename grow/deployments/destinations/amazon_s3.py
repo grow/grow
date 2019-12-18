@@ -1,6 +1,6 @@
 """Amazon S3 deployment destination."""
 
-import cStringIO
+import io
 import logging
 import os
 import mimetypes
@@ -87,7 +87,7 @@ class AmazonS3Destination(base.BaseDestination):
         file_key.key = path
         try:
             return file_key.get_contents_as_string()
-        except boto.exception.S3ResponseError, e:
+        except boto.exception.S3ResponseError as e:
             if e.status != 404:
                 raise
             raise IOError('File not found: {}'.format(path))
@@ -102,11 +102,11 @@ class AmazonS3Destination(base.BaseDestination):
         content = rendered_doc.read()
         path = path.lstrip('/')
         path = path if path != '' else self.config.index_document
-        if isinstance(content, unicode):
+        if isinstance(content, str):
             content = content.encode('utf-8')
         bucket_key = key.Key(self.bucket)
         bucket_key.key = path
-        fp = cStringIO.StringIO()
+        fp = io.StringIO()
         fp.write(content)
         ext = os.path.splitext(path)[-1] or '.html'
         mimetype = mimetypes.guess_type(path)[0]

@@ -93,7 +93,7 @@ class TocExtensionTestCase(unittest.TestCase):
         header = '<h1 id="did-you-see-the-rocket-launch?">Did you see the rocket launch?</h1>'
         self.assertIn(header, result)
 
-        header = u'<h1 id="로켓-발사를-봤어?">로켓 발사를 봤어?</h1>'
+        header = '<h1 id="로켓-발사를-봤어?">로켓 발사를 봤어?</h1>'
         self.assertIn(header, result)
 
 
