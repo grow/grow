@@ -47,7 +47,7 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 # Fixes PyInstaller issues with below imports.
 # pylint: disable=wrong-import-position, unused-import
 import copy
-import exceptions
+# import exceptions
 import json
 import weakref
 from email.mime.application import MIMEApplication
