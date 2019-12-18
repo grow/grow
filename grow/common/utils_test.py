@@ -206,7 +206,7 @@ class UtilsTestCase(unittest.TestCase):
         actual = utils.slugify('Does it {work}')
         self.assertEqual('does-it-work', actual)
 
-        actual = utils.slugify(u'Îñtérñåtîøñålization')
+        actual = utils.slugify('Îñtérñåtîøñålization')
         self.assertEqual('internaationaalization', actual)
 
     def test_validate_name(self):
@@ -223,7 +223,7 @@ class UtilsTestCase(unittest.TestCase):
         utils.validate_name('/you/shall/pass')
         utils.validate_name('you/shall/pass')
         utils.validate_name('./you/shall/pass')
-        utils.validate_name(u'\xbe4/\xb05/\xb93')
+        utils.validate_name('\xbe4/\xb05/\xb93')
 
     def test_version_enforcement(self):
         with mock.patch('grow.pods.pods.Pod.grow_version',

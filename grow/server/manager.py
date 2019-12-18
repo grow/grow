@@ -118,7 +118,7 @@ def start_browser_in_thread(url):
 
 
 def patch_broken_pipe_error():
-    from SocketServer import BaseServer
+    from socketserver import BaseServer
     from wsgiref import handlers
 
     handle_error = BaseServer.handle_error

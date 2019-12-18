@@ -83,6 +83,6 @@ class ScpDestination(base.BaseDestination):
             base += part + '/'
             try:
                 self.sftp.lstat(base)
-            except IOError, e:
+            except IOError as e:
                 if e.errno == errno.ENOENT:
                     self.sftp.mkdir(base)

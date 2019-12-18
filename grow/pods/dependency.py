@@ -27,7 +27,7 @@ class DependencyGraph(object):
 
     def add_all(self, path_to_dependencies):
         """Add all from a dict of paths to dependencies."""
-        for path, dependencies in path_to_dependencies.iteritems():
+        for path, dependencies in path_to_dependencies.items():
             self.add_references(path, dependencies)
 
     def add(self, source, reference):
@@ -86,7 +86,7 @@ class DependencyGraph(object):
     def export(self):
         """Formats the dependency graph for export."""
         result = OrderedDict()
-        for key in sorted(self._dependencies.iterkeys()):
+        for key in sorted(self._dependencies.keys()):
             result[key] = sorted(list(self._dependencies[key]))
         return result
 

@@ -98,8 +98,8 @@ class DepEnvironment(Environment):
     def select_template(self, names, parent=None, globals=None, context=None):
         """Copied from upstream. Added context arg passthrough."""
         if not names:
-            raise TemplatesNotFound(message=u'Tried to select from an empty list '
-                                            u'of templates.')
+            raise TemplatesNotFound(message='Tried to select from an empty list '
+                                            'of templates.')
         globals = self.make_globals(globals)
         for name in names:
             if isinstance(name, Template):

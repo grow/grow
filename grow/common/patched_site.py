@@ -63,7 +63,7 @@ ImportError exception, it is silently ignored.
 
 import sys
 import os
-import __builtin__
+import builtins
 import traceback
 
 # Prefixes for site-packages; add additional prefixes like /usr/local here
@@ -90,7 +90,7 @@ def makepath(*paths):
 
 def abs__file__():
     """Set all module' __file__ attribute to an absolute path"""
-    for m in sys.modules.values():
+    for m in list(sys.modules.values()):
         if hasattr(m, '__loader__'):
             continue   # don't mess with a PEP 302-supplied __file__
         try:
@@ -152,7 +152,7 @@ def addpackage(sitedir, name, known_paths):
                 continue
             try:
                 if line.startswith(("import ", "import\t")):
-                    exec line
+                    exec(line)
                     continue
                 line = line.rstrip()
                 dir, dircase = makepath(sitedir, line)
@@ -160,12 +160,12 @@ def addpackage(sitedir, name, known_paths):
                     sys.path.append(dir)
                     known_paths.add(dircase)
             except Exception as err:
-                print >>sys.stderr, "Error processing line {:d} of {}:\n".format(
-                    n+1, fullname)
+                print("Error processing line {:d} of {}:\n".format(
+                    n+1, fullname), file=sys.stderr)
                 for record in traceback.format_exception(*sys.exc_info()):
                     for line in record.splitlines():
-                        print >>sys.stderr, '  '+line
-                print >>sys.stderr, "\nRemainder of file ignored"
+                        print('  '+line, file=sys.stderr)
+                print("\nRemainder of file ignored", file=sys.stderr)
                 break
     if reset:
         known_paths = None
@@ -361,8 +361,8 @@ def setquit():
             except:
                 pass
             raise SystemExit(code)
-    __builtin__.quit = Quitter('quit')
-    __builtin__.exit = Quitter('exit')
+    builtins.quit = Quitter('quit')
+    builtins.exit = Quitter('exit')
 
 
 class _Printer(object):
@@ -413,14 +413,14 @@ class _Printer(object):
         while 1:
             try:
                 for i in range(lineno, lineno + self.MAXLINES):
-                    print self.__lines[i]
+                    print(self.__lines[i])
             except IndexError:
                 break
             else:
                 lineno += self.MAXLINES
                 key = None
                 while key is None:
-                    key = raw_input(prompt)
+                    key = input(prompt)
                     if key not in ('', 'q'):
                         key = None
                 if key == 'q':
@@ -428,17 +428,17 @@ class _Printer(object):
 
 def setcopyright():
     """Set 'copyright' and 'credits' in __builtin__"""
-    __builtin__.copyright = _Printer("copyright", sys.copyright)
+    builtins.copyright = _Printer("copyright", sys.copyright)
     if sys.platform[:4] == 'java':
-        __builtin__.credits = _Printer(
+        builtins.credits = _Printer(
             "credits",
             "Jython is maintained by the Jython developers (www.jython.org).")
     else:
-        __builtin__.credits = _Printer("credits", """\
+        builtins.credits = _Printer("credits", """\
     Thanks to CWI, CNRI, BeOpen.com, Zope Corporation and a cast of thousands
     for supporting Python development.  See www.python.org for more information.""")
     here = os.path.dirname(os.__file__)
-    __builtin__.license = _Printer(
+    builtins.license = _Printer(
         "license", "See https://www.python.org/psf/license/",
         ["LICENSE.txt", "LICENSE"],
         [os.path.join(here, os.pardir), here, os.curdir])
@@ -458,7 +458,7 @@ class _Helper(object):
         return pydoc.help(*args, **kwds)
 
 def sethelper():
-    __builtin__.help = _Helper()
+    builtins.help = _Helper()
 
 def aliasmbcs():
     """On Windows, some default encodings are not provided by Python,
@@ -505,8 +505,7 @@ def execsitecustomize():
         if sys.flags.verbose:
             sys.excepthook(*sys.exc_info())
         else:
-            print >>sys.stderr, \
-                "'import sitecustomize' failed; use -v for traceback"
+            print("'import sitecustomize' failed; use -v for traceback", file=sys.stderr)
 
 
 def execusercustomize():
@@ -519,8 +518,7 @@ def execusercustomize():
         if sys.flags.verbose:
             sys.excepthook(*sys.exc_info())
         else:
-            print>>sys.stderr, \
-                "'import usercustomize' failed; use -v for traceback"
+            print("'import usercustomize' failed; use -v for traceback", file=sys.stderr)
 
 
 def main():
@@ -568,15 +566,15 @@ def _script():
     """
     args = sys.argv[1:]
     if not args:
-        print "sys.path = ["
+        print("sys.path = [")
         for dir in sys.path:
-            print "    %r," % (dir,)
-        print "]"
-        print "USER_BASE: %r (%s)" % (USER_BASE,
-            "exists" if os.path.isdir(USER_BASE) else "doesn't exist")
-        print "USER_SITE: %r (%s)" % (USER_SITE,
-            "exists" if os.path.isdir(USER_SITE) else "doesn't exist")
-        print "ENABLE_USER_SITE: %r" %  ENABLE_USER_SITE
+            print("    %r," % (dir,))
+        print("]")
+        print("USER_BASE: %r (%s)" % (USER_BASE,
+            "exists" if os.path.isdir(USER_BASE) else "doesn't exist"))
+        print("USER_SITE: %r (%s)" % (USER_SITE,
+            "exists" if os.path.isdir(USER_SITE) else "doesn't exist"))
+        print("ENABLE_USER_SITE: %r" %  ENABLE_USER_SITE)
         sys.exit(0)
 
     buffer = []
@@ -586,7 +584,7 @@ def _script():
         buffer.append(USER_SITE)
 
     if buffer:
-        print os.pathsep.join(buffer)
+        print(os.pathsep.join(buffer))
         if ENABLE_USER_SITE:
             sys.exit(0)
         elif ENABLE_USER_SITE is False:
@@ -597,7 +595,7 @@ def _script():
             sys.exit(3)
     else:
         import textwrap
-        print textwrap.dedent(help % (sys.argv[0], os.pathsep))
+        print(textwrap.dedent(help % (sys.argv[0], os.pathsep)))
         sys.exit(10)
 
 if __name__ == '__main__':

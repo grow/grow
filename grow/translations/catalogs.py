@@ -152,7 +152,7 @@ class Catalog(catalog.Catalog):
 
     def merge_obsolete(self):
         """Copy obsolete terms into the main catalog."""
-        for msgid, message in self.obsolete.iteritems():
+        for msgid, message in self.obsolete.items():
             self[msgid] = message
 
     @property
@@ -257,14 +257,14 @@ class Catalog(catalog.Catalog):
             message = messages_to_translate[i]
             # Replace numerical placeholders with named placeholders.
             if placeholders[i]:
-                for num_placeholder, name_placeholder in placeholders[i].iteritems():
+                for num_placeholder, name_placeholder in placeholders[i].items():
                     string = string.replace(num_placeholder, name_placeholder)
             message.string = string
-            if isinstance(string, unicode):
+            if isinstance(string, str):
                 string = string.encode('utf-8')
             source = message.id
             source = (source.encode('utf-8')
-                      if isinstance(source, unicode) else source)
+                      if isinstance(source, str) else source)
         outfile = self.pod.open_file(self.pod_path, mode='w')
         try:
             pofile.write_po(outfile, babel_catalog, width=80)

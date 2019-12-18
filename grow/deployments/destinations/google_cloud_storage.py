@@ -3,7 +3,7 @@
 import logging
 import mimetypes
 import os
-import cStringIO
+import io
 import boto
 from boto import auth_handler
 from boto.gs import key
@@ -118,7 +118,7 @@ class GoogleCloudStorageDestination(base.BaseDestination):
         content = rendered_doc.read()
         path = path.lstrip('/')
         path = path if path != '' else self.config.main_page_suffix
-        fp = cStringIO.StringIO()
+        fp = io.StringIO()
         fp.write(content)
         size = fp.tell()
         try:

@@ -15,10 +15,10 @@ class YamlUtilsTestCase(unittest.TestCase):
         content = pod.read_file('/data/constructors.yaml')
         result = yaml.load(content, Loader=yaml_utils.PlainTextYamlLoader)
         self.assertEqual(
-            result['doc'], {'tag': u'!g.doc', 'value': u'/content/pages/home.yaml'})
+            result['doc'], {'tag': '!g.doc', 'value': '/content/pages/home.yaml'})
         self.assertEqual(result['unfathomable'], {
-            'tag': u'!g.yaml',
-            'value': u'/data/deep.yaml?not.really.there'
+            'tag': '!g.yaml',
+            'value': '/data/deep.yaml?not.really.there'
         })
 
 

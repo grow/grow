@@ -4,7 +4,7 @@ import datetime
 import logging
 import sys
 import traceback
-import ConfigParser
+import configparser
 import progressbar
 import texttable
 from grow.common import progressbar_non
@@ -59,9 +59,9 @@ class Diff(object):
             return ''
         author_name = author.name
         author_email = author.email
-        if isinstance(author_name, unicode):
+        if isinstance(author_name, str):
             author_name = author_name.encode('utf-8')
-        if isinstance(author_email, unicode):
+        if isinstance(author_email, str):
             author_email = author_email.encode('utf-8')
         if include_email:
             return '{} <{}>'.format(author_name, author_email)
@@ -141,7 +141,7 @@ class Diff(object):
         for file_message in theirs.files:
             their_paths_to_shas[file_message.path] = file_message.sha
 
-        for path, sha in index_paths_to_shas.iteritems():
+        for path, sha in index_paths_to_shas.items():
             if path in their_paths_to_shas:
                 if index_paths_to_shas[path] == their_paths_to_shas[path]:
                     file_message = messages.FileMessage()
@@ -164,7 +164,7 @@ class Diff(object):
         # When doing partial diffs we do not have enough information to know
         # which files have been deleted.
         if not is_partial:
-            for path, sha in their_paths_to_shas.iteritems():
+            for path, sha in their_paths_to_shas.items():
                 file_message = messages.FileMessage()
                 file_message.path = path
                 file_message.deployed = theirs.deployed
@@ -179,7 +179,7 @@ class Diff(object):
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
                     '{}..{}'.format(theirs.commit.sha, index.commit.sha))
-                if isinstance(what_changed, unicode):
+                if isinstance(what_changed, str):
                     what_changed = what_changed.encode('utf-8')
                 diff.what_changed = what_changed.decode('utf-8')
             except git.GitCommandError:
@@ -191,7 +191,7 @@ class Diff(object):
             what_changed = repo.git.log(
                 '--date=short',
                 '--pretty=format:[%h] %ad <%ae> %s')
-            if isinstance(what_changed, unicode):
+            if isinstance(what_changed, str):
                 what_changed = what_changed.encode('utf-8')
             diff.what_changed = what_changed.decode('utf-8')
 
@@ -286,10 +286,10 @@ class Diff(object):
 
         if apply_errors:
             for error in apply_errors:
-                print error.message
-                print error.err
+                print(error.message)
+                print(error.err)
                 traceback.print_tb(error.err_tb)
-                print ''
+                print('')
             text = 'There were {} errors during deployment.'
             raise DeploymentErrors(text.format(
                 len(apply_errors)), apply_errors)
@@ -342,7 +342,7 @@ class Diff(object):
         # When doing partial diffs we do not have enough information to know
         # which files have been deleted.
         if not is_partial:
-            for path, _ in their_paths_to_shas.iteritems():
+            for path, _ in their_paths_to_shas.items():
                 file_message = messages.FileMessage()
                 file_message.path = path
                 file_message.deployed = theirs.deployed
@@ -357,7 +357,7 @@ class Diff(object):
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
                     '{}..{}'.format(theirs.commit.sha, index.commit.sha))
-                if isinstance(what_changed, unicode):
+                if isinstance(what_changed, str):
                     what_changed = what_changed.encode('utf-8')
                 diff.what_changed = what_changed.decode('utf-8')
             except git.GitCommandError:
@@ -369,7 +369,7 @@ class Diff(object):
             what_changed = repo.git.log(
                 '--date=short',
                 '--pretty=format:[%h] %ad <%ae> %s')
-            if isinstance(what_changed, unicode):
+            if isinstance(what_changed, str):
                 what_changed = what_changed.encode('utf-8')
             changed_lines = what_changed.splitlines()
             num_lines = len(changed_lines)
@@ -392,7 +392,7 @@ class Index(object):
         message.files = []
         if paths_to_rendered_doc is None:
             return message
-        for _, rendered_doc in paths_to_rendered_doc.iteritems():
+        for _, rendered_doc in paths_to_rendered_doc.items():
             cls.add_file(message, rendered_doc)
         return message
 
@@ -411,7 +411,7 @@ class Index(object):
             message.deployed_by = messages.AuthorMessage(
                 name=config.get('user', 'name'),
                 email=config.get('user', 'email'))
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             logging.warning("Couldn't find user info in repository config.")
         try:
             message.commit = utils.create_commit_message(repo)

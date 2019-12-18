@@ -120,7 +120,7 @@ class Router(object):
         with self.pod.profile.timer('Router.add_all_other'):
             podspec = self.pod.podspec.get_config()
             if 'error_routes' in podspec:
-                for key, error_route in podspec['error_routes'].iteritems():
+                for key, error_route in podspec['error_routes'].items():
                     if key == 'default':
                         key = 404
 
@@ -291,7 +291,7 @@ class Router(object):
                     localized_path = doc.get_serving_path_localized()
                     if not localized_path or ':locale' not in localized_path:
                         localized_paths = doc.get_serving_paths_localized()
-                        for locale, path in localized_paths.iteritems():
+                        for locale, path in localized_paths.items():
                             route_info = RouteInfo(
                                 'doc', pod_path=doc.pod_path,
                                 hashed=self.pod.hash_file(doc.pod_path),
@@ -445,7 +445,7 @@ class Router(object):
             concrete=concrete, env=self.pod.env.name)
         unchanged_pod_paths = set()
         removed_paths = []
-        for key, item in routes_data.iteritems():
+        for key, item in routes_data.items():
             # For now ignore anything that doesn't have a hash.
             route_info = item['value']
             if not route_info.hashed:
@@ -480,7 +480,7 @@ class Router(object):
 
     def from_data(self, routes_data):
         """Import routes from data."""
-        for key, item in routes_data.iteritems():
+        for key, item in routes_data.items():
             self.routes.add(
                 key,
                 RouteInfo.from_data(**item['value']),
@@ -504,7 +504,7 @@ class Router(object):
             static_dirs = config.get('static_dirs')
             if not static_dirs:
                 static_dirs = [config.get('static_dir')]
-            if isinstance(static_dirs, basestring):
+            if isinstance(static_dirs, str):
                 static_dirs = [static_dirs]
             for static_dir in static_dirs:
                 if pod_path.startswith(static_dir):
@@ -514,7 +514,7 @@ class Router(object):
                 static_dirs = intl.get('static_dirs')
                 if not static_dirs:
                     static_dirs = [intl.get('static_dir')]
-                if isinstance(static_dirs, basestring):
+                if isinstance(static_dirs, str):
                     static_dirs = [static_dirs]
                 for static_dir in static_dirs:
                     if pod_path.startswith(static_dir):

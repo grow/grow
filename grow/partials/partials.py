@@ -24,7 +24,7 @@ class Partials(object):
         """Find all of the editor configs from all partials."""
 
         for partial in self.get_partials():
-            print partial
+            print(partial)
 
     def get_partial(self, key):
         """Returns a specific partial in the pod."""

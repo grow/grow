@@ -188,7 +188,7 @@ class BaseDestination(object):
             self.pod, dir_path=dir_path)
         self.pod.delete_files([dir_path], recursive=True,
                               pattern=re.compile(r'\.po$'))
-        for _, catalog in catalogs.iteritems():
+        for _, catalog in catalogs.items():
             catalog.save()
         if self.pod.translation_stats.stacktraces:
             self.pod.write_file(os.path.join(dir_path, 'tracebacks.log'),

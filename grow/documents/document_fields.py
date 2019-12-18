@@ -31,7 +31,7 @@ class DocumentFields(object):
         return self._data.get(key, default)
 
     def keys(self):
-        return self._data.keys()
+        return list(self._data.keys())
 
     def update(self, updated):
         updated = untag.Untag.untag(

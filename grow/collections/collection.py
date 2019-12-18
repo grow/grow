@@ -199,7 +199,7 @@ class Collection(object):
     @property
     def order(self):
         # Default to maxint so unordered collections go to the end.
-        return self.fields.get('$order', sys.maxint)
+        return self.fields.get('$order', sys.maxsize)
 
     @property
     def parent(self):
@@ -299,7 +299,7 @@ class Collection(object):
         reverse = False if reverse is None else reverse
         if order_by is None:
             order_by = ('order', 'pod_path')
-        elif isinstance(order_by, basestring):
+        elif isinstance(order_by, str):
             order_by = (order_by, 'pod_path')
         key = operator.attrgetter(*order_by)
         sorted_docs = structures.SortedCollection(key=key)

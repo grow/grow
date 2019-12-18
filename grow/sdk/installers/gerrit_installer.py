@@ -1,7 +1,7 @@
 """Gerrit installer class."""
 
 import subprocess
-import urlparse
+import urllib.parse
 from grow.common import utils
 from grow.sdk.installers import base_installer
 
@@ -27,7 +27,7 @@ class GerritInstaller(base_installer.BaseInstaller):
             return False
         for remote in repo.remotes:
             url = remote.config_reader.get('url')
-            result = urlparse.urlparse(url)
+            result = urllib.parse.urlparse(url)
             if result.netloc.endswith(KNOWN_GERRIT_HOSTS):
                 return True
         return False

@@ -2,7 +2,7 @@
 
 import logging
 import os
-import urlparse
+import urllib.parse
 from protorpc import messages
 from grow.deployments.destinations import base
 from grow.deployments import utils
@@ -121,7 +121,7 @@ class WebReviewDestination(base.BaseDestination):
             if 'fileset' in finalize_response:
                 url = finalize_response['fileset']['url']
                 # Append the homepage path to the staging link.
-                result = urlparse.urlparse(url)
+                result = urllib.parse.urlparse(url)
                 if not result.path and self.pod and self.pod.get_home_doc():
                   home_doc = self.pod.get_home_doc()
                   url = url.rstrip('/') + home_doc.url.path

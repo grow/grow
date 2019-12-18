@@ -41,7 +41,7 @@ class Untag(object):
             # Support <key>@<param key>.<param value>: <value>.
             if params:
                 param_regex = re.compile(
-                    r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())),
+                    r'(.*)@({})\.([^@]+)$'.format('|'.join(list(params.keys()))),
                     re.IGNORECASE)
                 param_match = param_regex.match(key)
                 if param_match:
@@ -100,7 +100,7 @@ class Untag(object):
                                           new_parent, new_items)
             if paths_to_keep_tagged and isinstance(resp, dict):
                 updated_values = {}
-                for sub_key, value in resp.items():
+                for sub_key, value in list(resp.items()):
                     if not isinstance(value, list):
                         continue
                     new_key = '{}@'.format(sub_key)

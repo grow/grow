@@ -17,9 +17,9 @@ class RenderPoolTestCase(unittest.TestCase):
 
     def test_render_pool_pool_size(self):
         """Test that the pool size can be changed."""
-        self.assertEquals(1, self.pool.pool_size)
+        self.assertEqual(1, self.pool.pool_size)
         self.pool.pool_size = 3
-        self.assertEquals(3, self.pool.pool_size)
+        self.assertEqual(3, self.pool.pool_size)
 
 
 if __name__ == '__main__':

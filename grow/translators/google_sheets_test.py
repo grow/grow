@@ -174,9 +174,9 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         })
         new_stats = translator.download(locales=['de'])
         new_stat = new_stats[0]
-        self.assertEquals('en', new_stat.source_lang)
-        self.assertEquals('de', new_stat.lang)
-        self.assertEquals('A1B2C3D4E5F6', new_stat.ident)
+        self.assertEqual('en', new_stat.source_lang)
+        self.assertEqual('de', new_stat.lang)
+        self.assertEqual('A1B2C3D4E5F6', new_stat.ident)
 
     @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')

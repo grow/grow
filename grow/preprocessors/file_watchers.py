@@ -150,7 +150,7 @@ class ManagedObserver(observers.Observer):
         super(ManagedObserver, self).join()
 
     def run_handlers(self):
-        for handlers in self._handlers.values():
+        for handlers in list(self._handlers.values()):
             for handler in handlers:
                 handler.handle()
 

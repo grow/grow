@@ -1,7 +1,7 @@
 """Grow local development server."""
 
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from werkzeug import serving
 from werkzeug import wsgi
 from grow.common import config
@@ -47,7 +47,7 @@ class PodServer(object):
         self.pod.podcache.dependency_graph.mark_clean()
 
     def dispatch_request(self, request):
-        path = urllib.unquote(request.path)  # Support escaped paths.
+        path = urllib.parse.unquote(request.path)  # Support escaped paths.
         matched = self.routes.match(path)
 
         if not matched:

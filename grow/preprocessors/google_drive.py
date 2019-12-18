@@ -9,7 +9,7 @@
     to markdown.
 """
 
-import cStringIO
+import io
 import csv
 import json
 import logging
@@ -80,7 +80,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             logger.error(text.format(path))
             logger.error('Received: {}'.format(resp))
             return
-        for mimetype, url in resp['exportLinks'].iteritems():
+        for mimetype, url in resp['exportLinks'].items():
             if not mimetype.endswith('html'):
                 continue
             resp, content = service._http.request(url)
@@ -246,7 +246,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             fileId=spreadsheet_id,
             fields='name,modifiedTime,lastModifyingUser,webViewLink').execute()
         title = resp['name']
-        if isinstance(title, unicode):
+        if isinstance(title, str):
             title = title.encode('utf-8')
         if 'lastModifyingUser' in resp:
             # Sometimes the email address isn't included.
@@ -275,7 +275,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             gid_to_sheet[sheet['properties']['sheetId']] = sheet['properties']
 
         if not gids:
-            gids = gid_to_sheet.keys()
+            gids = list(gid_to_sheet.keys())
         if gids and len(gids) > 1:
             url = GoogleSheetsPreprocessor._sheet_edit_url_format.format(
                 id=spreadsheet_id)
@@ -305,7 +305,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             range_names.append(range_name)
 
         # pylint: disable=no-member
-        batch_resp = service.spreadsheets().values().batchGet(
+        batch_resp = list(service.spreadsheets().values()).batchGet(
             spreadsheetId=spreadsheet_id, ranges=range_names).execute()
 
         for i, gid in enumerate(gids_to_process):
@@ -337,7 +337,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         if not row:  # Skip empty rows.
                             continue
                         key = row[0].strip()
-                        if isinstance(key, unicode):
+                        if isinstance(key, str):
                             key = key.encode('utf-8')
                         if key and key in gid_to_data[gid]:
                             # The key is already in use.
@@ -352,7 +352,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             for col, grid_key in enumerate(headers):
                                 if not grid_key or grid_key.startswith(IGNORE_INITIAL):
                                     continue
-                                if isinstance(grid_key, unicode):
+                                if isinstance(grid_key, str):
                                     grid_key = grid_key.encode('utf-8')
                                 value = (row[col] if row_len >
                                          col else '').strip()
@@ -363,7 +363,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         if not row:  # Skip empty rows.
                             continue
                         key = row[0].strip()
-                        if isinstance(key, unicode):
+                        if isinstance(key, str):
                             key = key.encode('utf-8')
                         if not key and generate_ids:
                             key = 'untranslated_{}'.format(generated_key_index)
@@ -479,7 +479,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             collection_path = config.collection
 
             if not gids:
-                gids = gid_to_sheet.keys()
+                gids = list(gid_to_sheet.keys())
 
             num_saved = 0
             for gid in gids:
@@ -526,7 +526,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         """Formats content into either a CSV (text), list, or dictionary."""
         convert_to = cls.get_convert_to(path)
         if convert_to in ['.json', '.yaml', '.yml']:
-            fp = cStringIO.StringIO()
+            fp = io.StringIO()
             fp.write(content)
             fp.seek(0)
             if format_as == 'map':
@@ -568,7 +568,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
     def _normalize_formatted_content(self, fields):
         # A hack that sends fields through a roundtrip json serialization to
         # avoid encoding issues with injected output from Google Sheets.
-        fp = cStringIO.StringIO()
+        fp = io.StringIO()
         json.dump(fields, fp)
         fp.seek(0)
         return json.load(fp)

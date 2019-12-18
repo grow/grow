@@ -1,6 +1,6 @@
 """Grow translation importers."""
 
-import cStringIO
+import io
 import collections
 import copy
 import csv
@@ -27,7 +27,7 @@ builtin_locales = {
     'zh-HK': 'zh_Hant_HK',
     'zh-TW': 'zh_Hant_TW',
 }
-for key, value in builtin_locales.iteritems():
+for key, value in builtin_locales.items():
     default_external_to_babel_locales[key].append(value)
 
 
@@ -82,7 +82,7 @@ class Importer(object):
                     raise Error(text)
                 msgid = row[default_locale]
                 msgid = msgid.decode('utf-8')
-                for locale, translation in row.iteritems():
+                for locale, translation in row.items():
                     if locale == default_locale:
                         continue
                     translation = translation.decode('utf-8')
@@ -90,8 +90,8 @@ class Importer(object):
                     if locale not in locales_to_catalogs:
                         locales_to_catalogs[locale] = catalog.Catalog()
                     locales_to_catalogs[locale][msgid] = message
-        for locale, catalog_obj in locales_to_catalogs.iteritems():
-            fp = cStringIO.StringIO()
+        for locale, catalog_obj in locales_to_catalogs.items():
+            fp = io.StringIO()
             pofile.write_po(fp, catalog_obj)
             fp.seek(0)
             content = fp.read()
@@ -160,7 +160,7 @@ class Importer(object):
         if self.pod.podspec.localization:
             if 'import_as' in self.pod.podspec.localization:
                 import_as = self.pod.podspec.localization['import_as']
-                for external_locale, babel_locales in import_as.iteritems():
+                for external_locale, babel_locales in import_as.items():
                     for babel_locale in babel_locales:
                         external_to_babel_locales[external_locale].append(
                             babel_locale)

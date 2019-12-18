@@ -50,7 +50,7 @@ class PathFormat(object):
     def _locale_or_alias(locale):
         if not locale:
             return ''
-        if not isinstance(locale, basestring) and locale.alias is not None:
+        if not isinstance(locale, str) and locale.alias is not None:
             return locale.alias
         return str(locale)
 
@@ -157,8 +157,8 @@ class PathFormat(object):
     def params_lower(self, path, params):
         """Update to support lowercase when in the path."""
         if '|lower' in path:
-            for key, value in params.items():
-                if isinstance(value, basestring):
+            for key, value in list(params.items()):
+                if isinstance(value, str):
                     params['{}|lower'.format(key)] = value.lower()
         return params
 

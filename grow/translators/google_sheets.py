@@ -8,10 +8,10 @@ from googleapiclient import errors
 from grow.preprocessors import google_drive
 from grow.translators import errors as translator_errors
 try:
-    import cStringIO as StringIO
+    import io as StringIO
 except ImportError:  # pragma: no cover
     try:
-        import StringIO
+        import io
     except ImportError:
         from io import StringIO
 from . import base
@@ -84,7 +84,7 @@ class GoogleSheetsTranslator(base.Translator):
         rangeName = "'{}'!A:D".format(locale)
         try:
             # pylint: disable=no-member
-            resp = service.spreadsheets().values().get(
+            resp = list(service.spreadsheets().values()).get(
                 spreadsheetId=spreadsheet_id, range=rangeName).execute()
         except errors.HttpError as e:
             if e.resp['status'] == '400':
@@ -118,7 +118,7 @@ class GoogleSheetsTranslator(base.Translator):
             downloaded=datetime.datetime.now(),
             source_lang=stat.source_lang,
             ident=stat.ident)
-        fp = StringIO.StringIO()
+        fp = io.StringIO()
         pofile.write_po(fp, babel_catalog)
         fp.seek(0)
         content = fp.read()
@@ -139,7 +139,7 @@ class GoogleSheetsTranslator(base.Translator):
         spreadsheet_id = None
         stats_to_download = self._get_stats_to_download([])
         if stats_to_download:
-            stat = stats_to_download.values()[0]
+            stat = list(stats_to_download.values())[0]
             spreadsheet_id = stat.ident if stat else None
 
         # NOTE: Manging locales across multiple spreadsheets is unsupported.
@@ -632,7 +632,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _generate_update_sheets_requests(self, sheet_ids_to_catalogs,
                                          source_lang, spreadsheet_id, prune=False):
         requests = []
-        for sheet_id, catalog in sheet_ids_to_catalogs.iteritems():
+        for sheet_id, catalog in sheet_ids_to_catalogs.items():
             lang = str(catalog.locale)
             existing_values = self._download_sheet(spreadsheet_id, lang)
             for x in range(self.HEADER_ROW_COUNT):
@@ -792,7 +792,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _update_acls(self, stats, locales):
         if 'acl' not in self.config:
             return
-        stat = stats.values()[0]
+        stat = list(stats.values())[0]
         spreadsheet_id = stat.ident
         acl = self.config['acl']
         if not acl:

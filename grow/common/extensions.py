@@ -93,7 +93,7 @@ def import_extension(name, paths):
         original_sys_prefix = sys.prefix
         if os.path.exists(MAC_SYS_PREFIX):
             sys.prefix = MAC_SYS_PREFIX
-        import patched_site  # Updates sys.path.
+        from . import patched_site  # Updates sys.path.
         patched_site.main()
         try:
             module = _get_module(part1, paths)
