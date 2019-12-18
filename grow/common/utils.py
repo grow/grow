@@ -1,6 +1,7 @@
 """Common grow utility functions."""
 
 import csv as csv_lib
+import codecs
 import fnmatch
 import functools
 import gettext
@@ -530,7 +531,7 @@ def slugify(text, delim='-'):
     for word in SLUG_REGEX.split(text.lower()):
         if not isinstance(word, str):
             word = word.decode('utf-8')
-        word = word.encode('translit/long')
+        word = codecs.encode(word, 'translit/long')
         if word:
             result.append(word)
     slug = str(delim.join(result))
