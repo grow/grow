@@ -57,16 +57,6 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
             'console', meta={
                 'handler': handlers.serve_ui_tool,
             }))
-        editor_meta = {
-            'handler': handlers.serve_editor,
-            'meta': {
-                'app': self,
-            },
-        }
-        routes.add('/_grow/editor/*path',
-                   grow_router.RouteInfo('console', meta=editor_meta))
-        routes.add('/_grow/editor',
-                   grow_router.RouteInfo('console', meta=editor_meta))
         routes.add('/_grow', grow_router.RouteInfo('console', meta={
             'handler': handlers.serve_console,
         }))

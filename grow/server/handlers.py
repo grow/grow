@@ -34,21 +34,6 @@ def serve_console(pod, _request, _matched, **_kwargs):
     return response
 
 
-def serve_editor(pod, _request, matched, meta=None, **_kwargs):
-    """Serve the default console page."""
-    kwargs = {
-        'pod': pod,
-        'meta': meta,
-        'path': matched.params['path'] if 'path' in matched.params else '',
-    }
-    env = ui.create_jinja_env()
-    template = env.get_template('/views/editor.html')
-    content = template.render(kwargs)
-    response = wrappers.Response(content)
-    response.headers['Content-Type'] = 'text/html'
-    return response
-
-
 def serve_exception(pod, request, exc, **_kwargs):
     """Serve the exception page."""
     debug = True
