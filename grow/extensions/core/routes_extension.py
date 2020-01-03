@@ -9,7 +9,6 @@ from grow.extensions import hooks
 from grow.performance import docs_loader
 from grow.pods import ui
 from grow.routing import router as grow_router
-from grow.server import api
 from grow.server import handlers
 
 
@@ -68,9 +67,6 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
                    grow_router.RouteInfo('console', meta=editor_meta))
         routes.add('/_grow/editor',
                    grow_router.RouteInfo('console', meta=editor_meta))
-        routes.add('/_grow/api/*path', grow_router.RouteInfo('console', meta={
-            'handler': api.serve_api,
-        }))
         routes.add('/_grow', grow_router.RouteInfo('console', meta={
             'handler': handlers.serve_console,
         }))
