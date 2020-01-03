@@ -4,10 +4,6 @@
   "description": "Grow UI",
   "private": true,
   "dependencies": {
-    "@material/icon-toggle": "^0.37.0",
-    "@material/linear-progress": "^0.38.0",
-    "@material/select": "^0.37.0",
-    "@material/textfield": "^0.37.0",
     "babel-loader": "^8.0.6",
     "babili-webpack-plugin": "^0.1.2",
     "deep-extend": "^0.6.0",
@@ -16,10 +12,6 @@
     "gulp-autoprefixer": "^7.0.0",
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^4.0.2",
-    "marked": "^0.6.2",
-    "pell": "^1.0.6",
-    "superagent": "^5.0.5",
-    "turndown": "^5.0.3",
     "webpack": "^4.32.2",
     "webpack-stream": "^5.2.1"
   },
