@@ -41,7 +41,7 @@ class PodServer(object):
 
         # Trigger the dev handler hook.
         self.pod.extensions_controller.trigger(
-            'dev_handler', self.routes, debug=debug)
+            'dev_handler', self.routes, host=host, port=port, debug=debug)
 
         # Start off the server with a clean dependency graph.
         self.pod.podcache.dependency_graph.mark_clean()
