@@ -48,7 +48,6 @@ class NoLocalesError(Error):
 class Collection(object):
     CONTENT_PATH = '/content'
     BLUEPRINT_PATH = '_blueprint.yaml'
-    EDITOR_PATH = '_editor.yaml'
     FEATURE_SEPARATE_ROUTING = 'separate_routing'
     IGNORE_INITIAL = ('_',)
 
@@ -75,8 +74,6 @@ class Collection(object):
         self.basename = os.path.basename(self.collection_path)
         self.blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
-        self.editor_path = os.path.join(
-            self.pod_path, Collection.EDITOR_PATH)
 
     def __iter__(self):
         for doc in self.list_docs():
@@ -153,15 +150,6 @@ class Collection(object):
         if self.localization and 'default_locale' in self.localization:
             locale = self.localization['default_locale']
         return self.pod.normalize_locale(locale)
-
-    @utils.cached_property
-    def editor_config(self):
-        if not self.pod.file_exists(self.editor_path):
-            return {}
-        result = utils.parse_yaml(self.pod.read_file(self.editor_path))
-        if result is None:
-            return {}
-        return result
 
     @property
     def exists(self):

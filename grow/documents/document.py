@@ -219,15 +219,6 @@ class Document(object):
             return self.pod.normalize_locale(localization['default_locale'])
         return self.collection.default_locale
 
-    @utils.cached_property
-    def editor_config(self):
-        """Editor configuration for the document."""
-        fields = self.format.front_matter.data
-        config = fields.get('$editor')
-        if config:
-            return config
-        return self.collection.editor_config
-
     @property
     def exists(self):
         return self.pod.file_exists(self.pod_path)
