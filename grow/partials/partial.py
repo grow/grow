@@ -1,12 +1,9 @@
 """Partials contain organized units for templating."""
 
 import os
-import re
-import yaml
 
 
 class Partial(object):
-    EDITOR_PATH = '_editor.yaml'
     IGNORE_INITIAL = ('_',)
     PARTIALS_PATH = '/partials'
 
@@ -22,15 +19,6 @@ class Partial(object):
     def clean_path(cls, pod_path):
         """Clean up the pod path for the partials."""
         return pod_path.rstrip('/')
-
-    @property
-    def editor_config(self):
-        """Return the editor configuration for the partial."""
-        editor_path = '{}/{}'.format(self.pod_path, self.EDITOR_PATH)
-        if self.pod.file_exists(editor_path):
-            raw_yaml = self.pod.read_file(editor_path)
-            return yaml.load(raw_yaml)
-        return {}
 
     @property
     def exists(self):
