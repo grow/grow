@@ -84,23 +84,6 @@ class PodHandlerTestCase(unittest.TestCase):
         response = request.get_response(app)
         self.assertEqual(200, response.status_int)
 
-    def test_editor(self):
-        dir_path = testing.create_test_pod_dir()
-        pod = pods.Pod(dir_path)
-        pod.router.add_all(use_cache=False)
-        app = main.create_wsgi_app(pod, 'localhost', 8080)
-
-        # Verify routes are served.
-        request = webapp2.Request.blank('/_grow/editor')
-        response = request.get_response(app)
-        self.assertEqual(200, response.status_int)
-        js_sentinel = 'front_matter'
-        self.assertIn(js_sentinel, response.body)
-
-        request = webapp2.Request.blank('/_grow/ui/css/editor.min.css')
-        response = request.get_response(app)
-        self.assertEqual(200, response.status_int)
-
     def test_ui(self):
         dir_path = testing.create_test_pod_dir()
         pod = pods.Pod(dir_path)
