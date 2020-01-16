@@ -59,10 +59,6 @@ class Diff(object):
             return ''
         author_name = author.name
         author_email = author.email
-        if isinstance(author_name, str):
-            author_name = author_name.encode('utf-8')
-        if isinstance(author_email, str):
-            author_email = author_email.encode('utf-8')
         if include_email:
             return '{} <{}>'.format(author_name, author_email)
         return author_name
@@ -179,8 +175,6 @@ class Diff(object):
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
                     '{}..{}'.format(theirs.commit.sha, index.commit.sha))
-                if isinstance(what_changed, str):
-                    what_changed = what_changed.encode('utf-8')
                 diff.what_changed = what_changed
             except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
@@ -191,8 +185,6 @@ class Diff(object):
             what_changed = repo.git.log(
                 '--date=short',
                 '--pretty=format:[%h] %ad <%ae> %s')
-            if isinstance(what_changed, str):
-                what_changed = what_changed.encode('utf-8')
             diff.what_changed = what_changed
 
         return diff
@@ -357,8 +349,6 @@ class Diff(object):
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
                     '{}..{}'.format(theirs.commit.sha, index.commit.sha))
-                if isinstance(what_changed, str):
-                    what_changed = what_changed.encode('utf-8')
                 diff.what_changed = what_changed
             except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
@@ -369,8 +359,6 @@ class Diff(object):
             what_changed = repo.git.log(
                 '--date=short',
                 '--pretty=format:[%h] %ad <%ae> %s')
-            if isinstance(what_changed, str):
-                what_changed = what_changed.encode('utf-8')
             changed_lines = what_changed.splitlines()
             num_lines = len(changed_lines)
             if num_lines > cls.GIT_LOG_MAX:

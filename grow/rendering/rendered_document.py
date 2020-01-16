@@ -40,15 +40,10 @@ class RenderedDocument(object):
 
         with open(self._get_tmp_file_path(), "r") as tmp_file:
             file_contents = tmp_file.read()
-            if isinstance(file_contents, str):
-                file_contents = file_contents.encode('utf-8')
             return file_contents
 
     def write(self, content):
         """Writes the content to the temp filesystem or keeps in memory."""
-        if isinstance(content, str):
-            content = content.encode('utf-8')
-
         if content is None:
             self.hash = None
         else:

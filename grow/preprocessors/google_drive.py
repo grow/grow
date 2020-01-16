@@ -246,8 +246,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             fileId=spreadsheet_id,
             fields='name,modifiedTime,lastModifyingUser,webViewLink').execute()
         title = resp['name']
-        if isinstance(title, str):
-            title = title.encode('utf-8')
         if 'lastModifyingUser' in resp:
             # Sometimes the email address isn't included.
             name = resp['lastModifyingUser']['displayName']
@@ -337,8 +335,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         if not row:  # Skip empty rows.
                             continue
                         key = row[0].strip()
-                        if isinstance(key, str):
-                            key = key.encode('utf-8')
                         if key and key in gid_to_data[gid]:
                             # The key is already in use.
                             raise base.PreprocessorError(
@@ -352,8 +348,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                             for col, grid_key in enumerate(headers):
                                 if not grid_key or grid_key.startswith(IGNORE_INITIAL):
                                     continue
-                                if isinstance(grid_key, str):
-                                    grid_key = grid_key.encode('utf-8')
                                 value = (row[col] if row_len >
                                          col else '').strip()
                                 if value or keep_empty_values:
@@ -363,8 +357,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         if not row:  # Skip empty rows.
                             continue
                         key = row[0].strip()
-                        if isinstance(key, str):
-                            key = key.encode('utf-8')
                         if not key and generate_ids:
                             key = 'untranslated_{}'.format(generated_key_index)
                             generated_key_index += 1
