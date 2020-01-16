@@ -73,8 +73,12 @@ class FileStorage(base_storage.BaseStorage):
                 pass
             else:
                 raise
-        with cls.open(path, mode='w') as fp:
-            fp.write(content)
+        try:
+            with cls.open(path, mode='w') as fp:
+                fp.write(content)
+        except TypeError:
+            with cls.open(path, mode='wb') as fp:
+                fp.write(content)
 
     @staticmethod
     def exists(filename):
