@@ -91,7 +91,7 @@ class Importer(object):
                         locales_to_catalogs[locale] = catalog.Catalog()
                     locales_to_catalogs[locale][msgid] = message
         for locale, catalog_obj in list(locales_to_catalogs.items()):
-            fp = io.StringIO()
+            fp = io.BytesIO()
             pofile.write_po(fp, catalog_obj)
             fp.seek(0)
             content = fp.read()
@@ -206,7 +206,7 @@ class Importer(object):
 
                 if num_imported > 0:
                     has_changed_content = True
-                    existing_po_file = self.pod.open_file(pod_po_path, mode='w')
+                    existing_po_file = self.pod.open_file(pod_po_path, mode='wb')
                     pofile.write_po(existing_po_file, existing_catalog, width=80,
                                     sort_output=True, sort_by_file=True)
                     text = 'Updated {} of {} translations: {}'
