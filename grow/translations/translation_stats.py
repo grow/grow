@@ -156,7 +156,7 @@ class TranslationStats(object):
             if not self.stacktraces:
                 output.write(
                     _text_line('No untranslated strings found.'))
-                return output.getvalue().encode('utf-8')
+                return output.getvalue()
 
             for item in self.stacktraces:
                 output.write('{} :: {}\n'.format(item['locale'], item['id']))
@@ -164,7 +164,7 @@ class TranslationStats(object):
                     output.write('{}'.format(line))
                 output.write(_blank_line())
 
-            return output.getvalue().encode('utf-8')
+            return output.getvalue()
 
     def tick(self, message, locale, default_locale, location=None):
         """Count a translation."""

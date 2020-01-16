@@ -267,8 +267,6 @@ class Catalogs(object):
             #   field@#: Extracted comment for field@.
             auto_comments = []
             if isinstance(node, dict):
-                if isinstance(key, str):
-                    key = key.encode('utf-8')
                 auto_comment = node.get('{}#'.format(key))
                 if auto_comment:
                     auto_comments.append(auto_comment)
@@ -357,7 +355,7 @@ class Catalogs(object):
 
                 # Extract body: {{_('Extract me')}}
                 if doc.body:
-                    doc_body = io.StringIO(doc.body.encode('utf-8'))
+                    doc_body = io.StringIO(doc.body)
                     _babel_extract(doc_body, doc_locales, doc.pod_path)
 
             # Extract from CSVs for this collection's locales

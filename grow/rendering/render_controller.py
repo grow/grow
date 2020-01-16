@@ -223,7 +223,7 @@ class RenderDocumentController(RenderController):
 
             content = self.pod.extensions_controller.trigger('pre_render', doc, doc.body)
             if content:
-                doc.format.update(content=content.encode('utf-8'))
+                doc.format.update(content=content)
 
             rendered_content = template.render({
                 'doc': doc,

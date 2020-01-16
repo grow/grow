@@ -56,7 +56,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
         item_id = item.pop('id')
         ext = 'md' if self.config.markdown else 'html'
         basename = '{}.{}'.format(item_id, ext)
-        body = item.pop('content').encode('utf-8')
+        body = item.pop('content')
         fields = item
         # Formatted like: 2011-05-20T11:45:23-07:00
         published = fields['published'][:-6]

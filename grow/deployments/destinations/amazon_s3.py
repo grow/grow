@@ -102,8 +102,6 @@ class AmazonS3Destination(base.BaseDestination):
         content = rendered_doc.read()
         path = path.lstrip('/')
         path = path if path != '' else self.config.index_document
-        if isinstance(content, str):
-            content = content.encode('utf-8')
         bucket_key = key.Key(self.bucket)
         bucket_key.key = path
         fp = io.StringIO()

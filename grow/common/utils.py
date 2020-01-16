@@ -604,7 +604,7 @@ def clean_html(content, convert_to_markdown=False):
         h2t.bypass_tables = True
         h2t.single_line_break = False
         content = h2t.handle(content).strip()
-    return content.encode('utf-8')
+    return content
 
 
 def _process_google_hrefs(soup):

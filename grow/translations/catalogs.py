@@ -260,11 +260,7 @@ class Catalog(catalog.Catalog):
                 for num_placeholder, name_placeholder in list(placeholders[i].items()):
                     string = string.replace(num_placeholder, name_placeholder)
             message.string = string
-            if isinstance(string, str):
-                string = string.encode('utf-8')
             source = message.id
-            source = (source.encode('utf-8')
-                      if isinstance(source, str) else source)
         outfile = self.pod.open_file(self.pod_path, mode='w')
         try:
             pofile.write_po(outfile, babel_catalog, width=80)
