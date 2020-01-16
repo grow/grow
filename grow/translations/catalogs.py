@@ -103,7 +103,7 @@ class Catalog(catalog.Catalog):
                 message.flags.discard('python-format')
         if not self.pod.file_exists(self.pod_path):
             self.pod.write_file(self.pod_path, '')
-        outfile = self.pod.open_file(self.pod_path, mode='w')
+        outfile = self.pod.open_file(self.pod_path, mode='wb')
         Catalog.set_header_comment(self.pod, self)
         pofile.write_po(
             outfile,
@@ -176,6 +176,8 @@ class Catalog(catalog.Catalog):
 
     @property
     def needs_compilation(self):
+        if self.mo_modified is None or self.modified is None:
+            return True
         return self.modified > self.mo_modified
 
     def _skip_compile_error(self, error):
@@ -211,7 +213,7 @@ class Catalog(catalog.Catalog):
             self.pod.logger.info('Skipped catalog check for: {}'.format(self))
         text = 'Compiled: {} ({}/{})'
         self.pod.logger.info(text.format(self.locale, num_translated, num_total))
-        mo_file = self.pod.open_file(mo_filename, 'w')
+        mo_file = self.pod.open_file(mo_filename, 'wb')
         try:
             mofile.write_mo(mo_file, self, use_fuzzy=compile_fuzzy)
         finally:
@@ -261,7 +263,7 @@ class Catalog(catalog.Catalog):
                     string = string.replace(num_placeholder, name_placeholder)
             message.string = string
             source = message.id
-        outfile = self.pod.open_file(self.pod_path, mode='w')
+        outfile = self.pod.open_file(self.pod_path, mode='wb')
         try:
             pofile.write_po(outfile, babel_catalog, width=80)
         finally:
