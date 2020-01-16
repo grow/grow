@@ -152,7 +152,7 @@ class Catalog(catalog.Catalog):
 
     def merge_obsolete(self):
         """Copy obsolete terms into the main catalog."""
-        for msgid, message in self.obsolete.items():
+        for msgid, message in list(self.obsolete.items()):
             self[msgid] = message
 
     @property
@@ -257,7 +257,7 @@ class Catalog(catalog.Catalog):
             message = messages_to_translate[i]
             # Replace numerical placeholders with named placeholders.
             if placeholders[i]:
-                for num_placeholder, name_placeholder in placeholders[i].items():
+                for num_placeholder, name_placeholder in list(placeholders[i].items()):
                     string = string.replace(num_placeholder, name_placeholder)
             message.string = string
             if isinstance(string, str):

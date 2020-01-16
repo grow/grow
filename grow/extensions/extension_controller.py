@@ -30,7 +30,7 @@ class ExtensionController(object):
             new_extensions.append(ext)
 
         # Register the hooks with the hook controllers.
-        for _, hook in self._hooks.items():
+        for _, hook in list(self._hooks.items()):
             hook.register_extensions(new_extensions)
 
     def register_extensions(self, extension_configs):
@@ -49,7 +49,7 @@ class ExtensionController(object):
             self._extensions[extension_path] = ext
 
         # Register the hooks with the hook controllers.
-        for _, hook in self._hooks.items():
+        for _, hook in list(self._hooks.items()):
             hook.register_extensions(new_extensions)
 
     def trigger(self, hook_key, *args, **kwargs):

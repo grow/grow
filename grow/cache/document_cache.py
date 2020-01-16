@@ -21,7 +21,7 @@ class DocumentCache(object):
         self._cache[doc.pod_path] = value
 
     def add_all(self, path_to_cached):
-        for path, value in path_to_cached.items():
+        for path, value in list(path_to_cached.items()):
             self._cache[path] = value
 
     def add_property(self, doc, prop, value):

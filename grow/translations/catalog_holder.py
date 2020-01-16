@@ -75,7 +75,7 @@ class Catalogs(object):
                 diffed_catalog[message.id] = message
                 diffed_locales_to_catalogs[locale] += 1
             diffed_catalog.save()
-        for locale, num_diff in diffed_locales_to_catalogs.items():
+        for locale, num_diff in list(diffed_locales_to_catalogs.items()):
             self.pod.logger.info('Found different messages for {} -> {}'.format(locale, num_diff))
 
     def get(self, locale, basename='messages.po', dir_path=None):
@@ -370,7 +370,7 @@ class Catalogs(object):
                     self.pod.logger.info('Extracting: {}'.format(pod_path))
                     rows = self.pod.read_csv(pod_path)
                     for i, row in enumerate(rows):
-                        for key, msgid in row.items():
+                        for key, msgid in list(row.items()):
                             _handle_field(
                                 pod_path, collection.locales, msgid, key, row)
 
@@ -390,7 +390,7 @@ class Catalogs(object):
                             self.pod.logger.info('Extracting: {}'.format(pod_path))
                             rows = self.pod.read_csv(pod_path)
                             for i, row in enumerate(rows):
-                                for key, msgid in row.items():
+                                for key, msgid in list(row.items()):
                                     _handle_field(
                                         pod_path, self.pod.list_locales(), msgid, key, row)
 
@@ -413,7 +413,7 @@ class Catalogs(object):
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
                 rows = self.pod.read_csv(pod_path)
                 for i, row in enumerate(rows):
-                    for key, msgid in row.items():
+                    for key, msgid in list(row.items()):
                         _handle_field(
                             pod_path, self.pod.list_locales(), msgid, key, row)
 
