@@ -290,14 +290,20 @@ class Catalogs(object):
                     fp,
                     options=options,
                     comment_tags=comment_tags)
-                for parts in all_parts:
-                    lineno, msgid, comments, context = parts
-                    message = babel_catalog.Message(
-                        msgid,
-                        None,
-                        auto_comments=comments,
-                        locations=[(path, lineno)])
-                    _add_to_catalog(message, locales)
+
+                try:
+                    for parts in all_parts:
+                        lineno, msgid, comments, context = parts
+                        message = babel_catalog.Message(
+                            msgid,
+                            None,
+                            auto_comments=comments,
+                            locations=[(path, lineno)])
+                        _add_to_catalog(message, locales)
+                except:
+                    print(fp)
+                    print(list(all_parts))
+                    raise
             except tokenize.TokenError:
                 self.pod.logger.error(
                     'Problem extracting body: {}'.format(path))
@@ -355,7 +361,7 @@ class Catalogs(object):
 
                 # Extract body: {{_('Extract me')}}
                 if doc.body:
-                    doc_body = io.StringIO(doc.body)
+                    doc_body = io.BytesIO(bytes(doc.body, 'utf-8'))
                     _babel_extract(doc_body, doc_locales, doc.pod_path)
 
             # Extract from CSVs for this collection's locales
@@ -451,7 +457,7 @@ class Catalogs(object):
                     continue
                 pod_path = os.path.join('/views/', path)
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
-                with self.pod.open_file(pod_path) as f:
+                with self.pod.open_file(pod_path, 'rb') as f:
                     _babel_extract(f, self.pod.list_locales(), pod_path)
 
         # Extract from /partials/:
@@ -472,7 +478,7 @@ class Catalogs(object):
                     )
                 if path.endswith(('.html', '.htm')):
                     self.pod.logger.info('Extracting: {}'.format(pod_path))
-                    with self.pod.open_file(pod_path) as f:
+                    with self.pod.open_file(pod_path, 'rb') as f:
                         _babel_extract(f, self.pod.list_locales(), pod_path)
 
         # Extract from podspec.yaml:
@@ -525,7 +531,7 @@ class Catalogs(object):
 
     def write_template(self, template_path, catalog, include_obsolete=False,
                        include_header=False):
-        template_file = self.pod.open_file(template_path, mode='w')
+        template_file = self.pod.open_file(template_path, mode='wb')
         catalogs.Catalog.set_header_comment(self.pod, catalog)
         pofile.write_po(
             template_file, catalog, width=80, omit_header=(not include_header),
@@ -543,7 +549,7 @@ class Catalogs(object):
                 '/translations', identifier, 'LC_MESSAGES',
                 'messages.mo')
             try:
-                return path, self.pod.open_file(path)
+                return path, self.pod.open_file(path, 'rb')
             except IOError:
                 pass
         return None, None
@@ -552,11 +558,11 @@ class Catalogs(object):
         self._gettext_translations = {}
 
     def inject_translations(self, locale, content):
-        po_file_to_merge = io.StringIO()
-        po_file_to_merge.write(content)
+        po_file_to_merge = io.BytesIO()
+        po_file_to_merge.write(bytes(content, "utf8"))
         po_file_to_merge.seek(0)
         catalog_to_merge = pofile.read_po(po_file_to_merge, locale)
-        mo_fp = io.StringIO()
+        mo_fp = io.BytesIO()
         mofile.write_mo(mo_fp, catalog_to_merge)
         mo_fp.seek(0)
         translation_obj = support.Translations(mo_fp, domain='messages')
@@ -583,14 +589,22 @@ class Catalogs(object):
         if not localized and out_path is None:
             raise UsageError('Must specify -o when not using --localized.')
         filtered_catalogs = []
-        messages_to_locales = collections.defaultdict(list)
+        messages_to_locales = {}
         for locale in locales:
             locale_catalog = self.get(locale)
             missing_messages = locale_catalog.list_untranslated(paths=paths)
             num_missing = len(missing_messages)
             num_total = len(locale_catalog)
             for message in missing_messages:
-                messages_to_locales[message].append(locale_catalog.locale)
+                if message.id not in messages_to_locales:
+                    messages_to_locales[message.id] = {
+                        'message': message,
+                        'locales': [locale_catalog.locale]
+                    }
+                else:
+                    messages_to_locales[message.id]['locales'].append(
+                        locale_catalog.locale)
+
             # Generate localized catalogs.
             if localized:
                 filtered_catalog = self.get(locale, dir_path=out_dir)
@@ -612,8 +626,8 @@ class Catalogs(object):
         # Generate a single catalog template.
         self.pod.write_file(out_path, '')
         babel_catalog = pofile.read_po(self.pod.open_file(out_path))
-        for message in list(messages_to_locales.keys()):
-            babel_catalog[message.id] = message
+        for message_id in list(messages_to_locales.keys()):
+            babel_catalog[message_id] = messages_to_locales[message_id]['message']
         self.write_template(out_path, babel_catalog,
                             include_header=include_header)
         return [babel_catalog]
