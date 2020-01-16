@@ -1,5 +1,10 @@
 version: 2.1
 
+shortcuts:
+  lang_env: &lang_env
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
+
 commands:
   pip_install:
     description: "Install using pipenv and caching."
@@ -219,6 +224,7 @@ jobs:
       - run:
           name: Run Tests
           command: make test-nosetests
+          environment: *lang_env
 
       - run:
           name: Code Coverage
@@ -242,6 +248,7 @@ jobs:
       - run:
           name: Run Tests
           command: make test-nosetests
+          environment: *lang_env
 
       - run:
           name: Code Coverage

@@ -63,13 +63,6 @@ class CatalogTest(unittest.TestCase):
         untranslated = fr_catalog.list_untranslated()
         self.assertEqual(14, len(untranslated))
 
-    def test_machine_translate(self):
-        # Skip this test in Travis to avoid Google Translate 503s.
-        if os.getenv('TRAVIS'):
-            return
-        de_catalog = self.pod.catalogs.get('de')
-        de_catalog.machine_translate()
-
     def test__message_in_paths(self):
         class DummyMessage(object):
             def __init__(self, locations):
