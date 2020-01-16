@@ -14,9 +14,9 @@ class CatalogsTest(unittest.TestCase):
         self.pod.catalogs.compile()
 
     def test_list_locales(self):
-        self.assertItemsEqual(
-            ['de', 'fr', 'en', 'it', 'ja'],
-            self.pod.catalogs.list_locales())
+        self.assertEqual(
+            sorted(['de', 'fr', 'en', 'it', 'ja']),
+            sorted(self.pod.catalogs.list_locales()))
 
     def test_extract_options(self):
         pod = testing.create_pod()

@@ -786,30 +786,30 @@ class RoutesSimpleTestCase(unittest.TestCase):
         # Shard 1
         _reset_routes()
         self.routes.shard(3, 1, attr=None)
-        expected = [
+        expected = sorted([
             '/bax/bar', '/bax/pan',
-        ]
-        actual = list(self.routes.paths)
-        self.assertItemsEqual(expected, actual)
+        ])
+        actual = sorted(list(self.routes.paths))
+        self.assertEqual(expected, actual)
 
         # Shard 2
         _reset_routes()
         self.routes.shard(3, 2, attr=None)
-        expected = [
+        expected = sorted([
             '/bax/coo/lib', '/foo',
-        ]
-        actual = list(self.routes.paths)
-        self.assertItemsEqual(expected, actual)
+        ])
+        actual = sorted(list(self.routes.paths))
+        self.assertEqual(expected, actual)
 
         # Shard 3
         _reset_routes()
         self.routes.shard(3, 3, attr=None)
 
-        expected = [
+        expected = sorted([
             '/bax/coo/vin', '/tem/pon',
-        ]
-        actual = list(self.routes.paths)
-        self.assertItemsEqual(expected, actual)
+        ])
+        actual = sorted(list(self.routes.paths))
+        self.assertEqual(expected, actual)
 
     def test_shard_attr(self):
         """Tests that routes' can be sharded equally by attribute."""
@@ -838,35 +838,35 @@ class RoutesSimpleTestCase(unittest.TestCase):
             self._add('/tem/tan', value=_RouteInfo('static'))  # 2 - static
 
             # Expect the yielded nodes to be in order.
-            expected = [
+            expected = sorted([
                 '/bax/bar', '/bax/coo/lib', '/bax/coo/vin', '/bax/pan',
                 '/foo', '/tem/pon', '/bax/pan/taw', '/bax/vew/vin', '/fes/pon',
                 '/tem/tan',
-            ]
-            actual = list(self.routes.paths)
-            self.assertItemsEqual(expected, actual)
+            ])
+            actual = sorted(list(self.routes.paths))
+            self.assertEqual(expected, actual)
 
         # Shard 1
         _reset_routes()
         self.routes.shard(3, 1)
-        expected = ['/bax/bar', '/bax/coo/lib', '/fes/pon', '/foo', '/tem/pon']
-        actual = list(self.routes.paths)
-        self.assertItemsEqual(expected, actual)
+        expected = sorted(['/bax/bar', '/bax/coo/lib', '/fes/pon', '/foo', '/tem/pon'])
+        actual = sorted(list(self.routes.paths))
+        self.assertEqual(expected, actual)
 
         # Shard 2
         _reset_routes()
         self.routes.shard(3, 2)
-        expected = ['/bax/coo/vin', '/bax/pan', '/tem/tan']
-        actual = list(self.routes.paths)
-        self.assertItemsEqual(expected, actual)
+        expected = sorted(['/bax/coo/vin', '/bax/pan', '/tem/tan'])
+        actual = sorted(list(self.routes.paths))
+        self.assertEqual(expected, actual)
 
         # Shard 3
         _reset_routes()
         self.routes.shard(3, 3)
 
-        expected = ['/bax/pan/taw', '/bax/vew/vin']
-        actual = list(self.routes.paths)
-        self.assertItemsEqual(expected, actual)
+        expected = sorted(['/bax/pan/taw', '/bax/vew/vin'])
+        actual = sorted(list(self.routes.paths))
+        self.assertEqual(expected, actual)
 
     def test_shard_errors(self):
         """Tests that errors happen with invalid shard values."""
