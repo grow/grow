@@ -181,7 +181,7 @@ class Diff(object):
                     '{}..{}'.format(theirs.commit.sha, index.commit.sha))
                 if isinstance(what_changed, str):
                     what_changed = what_changed.encode('utf-8')
-                diff.what_changed = what_changed.decode('utf-8')
+                diff.what_changed = what_changed
             except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
 
@@ -193,7 +193,7 @@ class Diff(object):
                 '--pretty=format:[%h] %ad <%ae> %s')
             if isinstance(what_changed, str):
                 what_changed = what_changed.encode('utf-8')
-            diff.what_changed = what_changed.decode('utf-8')
+            diff.what_changed = what_changed
 
         return diff
 
@@ -359,7 +359,7 @@ class Diff(object):
                     '{}..{}'.format(theirs.commit.sha, index.commit.sha))
                 if isinstance(what_changed, str):
                     what_changed = what_changed.encode('utf-8')
-                diff.what_changed = what_changed.decode('utf-8')
+                diff.what_changed = what_changed
             except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
 
@@ -378,7 +378,7 @@ class Diff(object):
                 changed_lines.append(
                     ' ... +{} more commits.'.format(num_lines-cls.GIT_LOG_MAX))
                 what_changed = '\n'.join(changed_lines)
-            diff.what_changed = what_changed.decode('utf-8')
+            diff.what_changed = what_changed
 
         return diff, index, paths_to_rendered_doc
 

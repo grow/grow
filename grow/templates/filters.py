@@ -83,7 +83,7 @@ def markdown_filter(ctx, value):
     m_down = doc.pod.markdown
     try:
         if isinstance(value, str):
-            value = value.decode('utf-8')
+            value = value
         value = value or ''
         return m_down.convert(value)
     except UnicodeEncodeError:
