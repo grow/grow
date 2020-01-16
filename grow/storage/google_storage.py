@@ -124,6 +124,6 @@ class CloudStorageLoader(jinja2.BaseLoader):
         except cloudstorage.NotFoundError:
             raise jinja2.TemplateNotFound(template)
         # TODO(jeremydw): Make this function properly.
-        source = source.decode('utf-8')
+        source = source
         return source, path, lambda: True
 #    return source, path, lambda: mtime == CloudStorage.modified(path)

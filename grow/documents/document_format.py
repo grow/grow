@@ -185,7 +185,7 @@ class HtmlDocumentFormat(DocumentFormat):
     @utils.cached_property
     def formatted(self):
         val = self.content
-        return val.decode('utf-8') if val is not None else None
+        return val if val is not None else None
 
 
 class MarkdownDocumentFormat(DocumentFormat):
@@ -207,7 +207,7 @@ class MarkdownDocumentFormat(DocumentFormat):
     def formatted(self):
         """Markdown formatted content."""
         return self.markdown.convert(
-            self.content.decode('utf-8')) if self.content else None
+            self.content) if self.content else None
 
 
 class TextDocumentFormat(DocumentFormat):

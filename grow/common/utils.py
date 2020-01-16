@@ -530,7 +530,7 @@ def slugify(text, delim='-'):
     result = []
     for word in SLUG_REGEX.split(text.lower()):
         if not isinstance(word, str):
-            word = word.decode('utf-8')
+            word = word
         word = codecs.encode(word, 'translit/long')
         if word:
             result.append(word)
@@ -572,7 +572,7 @@ def get_rows_from_csv(pod, path, locale=SENTINEL):
         for header, cell in list(row.items()):
             if cell is None:
                 cell = ''
-            data[header] = cell.decode('utf-8')
+            data[header] = cell
         rows.append(data)
     return rows
 

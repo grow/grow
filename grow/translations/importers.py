@@ -81,11 +81,11 @@ class Importer(object):
                     text = 'Locale {} not found in {}'.format(default_locale, path)
                     raise Error(text)
                 msgid = row[default_locale]
-                msgid = msgid.decode('utf-8')
+                msgid = msgid
                 for locale, translation in list(row.items()):
                     if locale == default_locale:
                         continue
-                    translation = translation.decode('utf-8')
+                    translation = translation
                     message = catalog.Message(msgid, translation)
                     if locale not in locales_to_catalogs:
                         locales_to_catalogs[locale] = catalog.Catalog()

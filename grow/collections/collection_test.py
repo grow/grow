@@ -211,7 +211,8 @@ class CollectionsTestCase(unittest.TestCase):
             '/subfolder/',
             '/subfolder2/',
         ]
-        self.assertItemsEqual(expected, list(pod.router.routes.paths))
+        self.assertEqual(
+            sorted(expected), sorted(list(pod.router.routes.paths)))
 
         # Blueprints one level deep.
         fields = {

@@ -170,7 +170,7 @@ class Document(object):
 
     @property
     def body(self):
-        return self.format.content.decode('utf-8') if self.format.content else None
+        return self.format.content if self.format.content else None
 
     @property
     def category(self):
@@ -194,7 +194,7 @@ class Document(object):
 
     @property
     def content(self):
-        return self.format.raw_content.decode('utf-8')
+        return self.format.raw_content
 
     @property
     def date(self):
@@ -302,7 +302,7 @@ class Document(object):
 
     @property
     def order(self):
-        return self.fields.get('$order')
+        return self.fields.get('$order', 0)
 
     @property
     @utils.memoize
