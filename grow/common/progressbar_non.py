@@ -69,7 +69,7 @@ class NonInteractiveProgressBar(object):
         """Finished with the progressbar."""
         self._finished_on = datetime.datetime.now()
         for widget in self._widgets:
-            print(widget(self, self.data()))
+            print((widget(self, self.data())))
 
     def start(self):
         """Started with the progressbar."""
@@ -80,7 +80,7 @@ class NonInteractiveProgressBar(object):
         self._value = value
         if self._last_update - self._last_print > self._min_delta:
             for widget in self._widgets:
-                print(widget(self, self.data()))
+                print((widget(self, self.data())))
             self._last_print = self._last_update
 
 

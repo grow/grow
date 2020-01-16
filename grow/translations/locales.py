@@ -98,7 +98,7 @@ class Locale(babel.Locale):
         config = podspec.get_config()
         if 'localization' in config and 'aliases' in config['localization']:
             aliases = config['localization']['aliases']
-            for custom_locale, babel_locale in aliases.items():
+            for custom_locale, babel_locale in list(aliases.items()):
                 if custom_locale == alias:
                     return cls.parse(babel_locale)
         return cls.parse(alias)

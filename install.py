@@ -36,7 +36,7 @@ else:
 
 
 def hai(text, *args):
-    print(text.format(*args, **{
+    print((text.format(*args, **{
         'red': '\033[0;31m',
         '/red': '\033[0;m',
         'green': '\033[0;32m',
@@ -45,7 +45,7 @@ def hai(text, *args):
         '/yellow': '\033[0;m',
         'white': '\033[0;37m',
         '/white': '\033[0;m',
-    }))
+    })))
 
 
 def orly(text, default=False):
@@ -105,7 +105,7 @@ def install(rc_path=None, bin_path=None, force=False):
         sys.exit(-1)
 
     if release is None:
-        print('Not available for platform: {}.'.format(platform.system()))
+        print(('Not available for platform: {}.'.format(platform.system())))
         sys.exit(-1)
 
     version = release['tag_name']

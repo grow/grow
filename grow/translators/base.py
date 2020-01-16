@@ -137,9 +137,9 @@ class Translator(object):
         stats_to_download = stats[self.KIND]
         if locales:
             stats_to_download = dict([(lang, stat)
-                                      for (lang, stat) in stats_to_download.items()
+                                      for (lang, stat) in list(stats_to_download.items())
                                       if lang in locales])
-        for lang, stat in stats_to_download.items():
+        for lang, stat in list(stats_to_download.items()):
             if isinstance(stat, TranslatorStat):
                 stat = json.loads(protojson.encode_message(stat))
             stat['lang'] = lang
@@ -198,7 +198,7 @@ class Translator(object):
             bar.finish()
 
         has_changed_content = False
-        for lang, translations in langs_to_translations.items():
+        for lang, translations in list(langs_to_translations.items()):
             if inject:
                 if self.pod.catalogs.inject_translations(locale=lang, content=translations):
                     has_changed_content = True

@@ -28,9 +28,9 @@ class TranslationStats(object):
     @property
     def missing(self):
         """Messages that are untagged and untranslated during rendering."""
-        untagged_messages = set([msg for _, msg in self.untagged.items()])
+        untagged_messages = set([msg for _, msg in list(self.untagged.items())])
         tracking = {}
-        for locale, messages in self._untranslated.items():
+        for locale, messages in list(self._untranslated.items()):
             if locale not in tracking:
                 tracking[locale] = {}
             for message in messages:
@@ -55,7 +55,7 @@ class TranslationStats(object):
     def untranslated(self):
         """Untranslated messages by locale."""
         tracking = {}
-        for locale, messages in self._untranslated.items():
+        for locale, messages in list(self._untranslated.items()):
             if locale not in tracking:
                 tracking[locale] = {}
             for message in messages:
@@ -67,7 +67,7 @@ class TranslationStats(object):
     def count_untranslated(self):
         """Max number of untranslated strings for any locale."""
         untranslated_ids = set()
-        for _, messages in self._untranslated.items():
+        for _, messages in list(self._untranslated.items()):
             for message in messages:
                 untranslated_ids.add(message)
         return len(untranslated_ids)
@@ -114,7 +114,7 @@ class TranslationStats(object):
     def export_untranslated_catalogs(self, pod, dir_path=None):
         """Export the untranslated messages into catalogs based on locale."""
         locale_to_catalog = {}
-        for locale, messages in self.untranslated.items():
+        for locale, messages in list(self.untranslated.items()):
             if locale not in locale_to_catalog:
                 locale_to_catalog[locale] = pod.catalogs.get(
                     locale, basename='untranslated.po', dir_path=dir_path)

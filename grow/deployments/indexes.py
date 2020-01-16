@@ -141,7 +141,7 @@ class Diff(object):
         for file_message in theirs.files:
             their_paths_to_shas[file_message.path] = file_message.sha
 
-        for path, sha in index_paths_to_shas.items():
+        for path, sha in list(index_paths_to_shas.items()):
             if path in their_paths_to_shas:
                 if index_paths_to_shas[path] == their_paths_to_shas[path]:
                     file_message = messages.FileMessage()
@@ -164,7 +164,7 @@ class Diff(object):
         # When doing partial diffs we do not have enough information to know
         # which files have been deleted.
         if not is_partial:
-            for path, sha in their_paths_to_shas.items():
+            for path, sha in list(their_paths_to_shas.items()):
                 file_message = messages.FileMessage()
                 file_message.path = path
                 file_message.deployed = theirs.deployed
@@ -286,8 +286,8 @@ class Diff(object):
 
         if apply_errors:
             for error in apply_errors:
-                print(error.message)
-                print(error.err)
+                print((error.message))
+                print((error.err))
                 traceback.print_tb(error.err_tb)
                 print('')
             text = 'There were {} errors during deployment.'
@@ -342,7 +342,7 @@ class Diff(object):
         # When doing partial diffs we do not have enough information to know
         # which files have been deleted.
         if not is_partial:
-            for path, _ in their_paths_to_shas.items():
+            for path, _ in list(their_paths_to_shas.items()):
                 file_message = messages.FileMessage()
                 file_message.path = path
                 file_message.deployed = theirs.deployed
@@ -392,7 +392,7 @@ class Index(object):
         message.files = []
         if paths_to_rendered_doc is None:
             return message
-        for _, rendered_doc in paths_to_rendered_doc.items():
+        for _, rendered_doc in list(paths_to_rendered_doc.items()):
             cls.add_file(message, rendered_doc)
         return message
 

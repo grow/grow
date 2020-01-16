@@ -28,9 +28,9 @@ class RoutesCache(object):
     @staticmethod
     def _export_cache(routes):
         routing_info = {}
-        for env, env_routes in routes.items():
+        for env, env_routes in list(routes.items()):
             routing_info[env] = {}
-            for path, item in env_routes.items():
+            for path, item in list(env_routes.items()):
                 if hasattr(item['value'], 'export'):
                     value = item['value'].export()
                 else:
@@ -75,8 +75,8 @@ class RoutesCache(object):
         for super_key in [self.KEY_DYNAMIC, self.KEY_CONCRETE]:
             if super_key in data:
                 concrete = super_key == self.KEY_CONCRETE
-                for env, env_data in data[super_key].items():
-                    for key, item in env_data.items():
+                for env, env_data in list(data[super_key].items()):
+                    for key, item in list(env_data.items()):
                         self.add(
                             key,
                             router.RouteInfo.from_data(**item['value']),

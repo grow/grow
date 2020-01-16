@@ -256,7 +256,7 @@ class ConversionDocumentTestCase(unittest.TestCase):
         doc = content_locale_split.ConversionDocument(
             self.pod, '/content/test.md', 'en_us')
         doc.convert()
-        for key, value in expected.items():
+        for key, value in list(expected.items()):
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_empty_front_section(self):
@@ -275,7 +275,7 @@ class ConversionDocumentTestCase(unittest.TestCase):
         doc = content_locale_split.ConversionDocument(
             self.pod, '/content/test.yaml', 'en_us')
         doc.convert()
-        for key, value in expected.items():
+        for key, value in list(expected.items()):
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_existing(self):
@@ -328,7 +328,7 @@ class ConversionDocumentTestCase(unittest.TestCase):
             self.pod, '/content/test.yaml', 'en_us')
         doc.convert()
 
-        for key, value in expected.items():
+        for key, value in list(expected.items()):
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_missing_locale(self):
@@ -390,7 +390,7 @@ class ConversionDocumentTestCase(unittest.TestCase):
             self.pod, '/content/test.md', 'en_us')
         doc.convert()
 
-        for key, value in expected.items():
+        for key, value in list(expected.items()):
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_gather_array(self):
@@ -452,7 +452,7 @@ class ConversionDocumentTestCase(unittest.TestCase):
             self.pod, '/content/test.md', 'en_us')
         doc.convert()
 
-        for key, value in expected.items():
+        for key, value in list(expected.items()):
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_gather_trailing(self):
@@ -505,7 +505,7 @@ class ConversionDocumentTestCase(unittest.TestCase):
             self.pod, '/content/test.md', 'en_us')
         doc.convert()
 
-        for key, value in expected.items():
+        for key, value in list(expected.items()):
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_split(self):

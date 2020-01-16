@@ -148,7 +148,7 @@ class Pod(object):
 
     def _load_experiments(self):
         config = self.yaml.get('experiments', {})
-        for key, value in config.items():
+        for key, value in list(config.items()):
             # Expertiments can be turned on with a True value,
             # be turned off with a False value,
             # or turned on by a providing configuration value.
@@ -168,7 +168,7 @@ class Pod(object):
 
     def _load_features(self):
         config = self.yaml.get('features', {})
-        for key, value in config.items():
+        for key, value in list(config.items()):
             # Features can be turned on with a True value,
             # be turned off with a False value,
             # or turned on by a providing configuration value.
