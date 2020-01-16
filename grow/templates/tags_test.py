@@ -146,38 +146,38 @@ class BuiltinsTestCase(unittest.TestCase):
         doc = pod.get_doc('/content/pages/doc3.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages')
-        self.assertItemsEqual([
+        self.assertEqual(sorted([
             '/content/pages/doc2.yaml',
             '/content/pages/doc3.yaml',
-        ], [doc.pod_path for doc in docs])
+        ]), sorted([doc.pod_path for doc in docs]))
 
         # Verify a calling ja_JP doc only gets ja_JP docs.
         doc = pod.get_doc('/content/pages/doc1.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages')
-        self.assertItemsEqual([
+        self.assertEqual(sorted([
             '/content/pages/doc1.yaml',
             '/content/pages/doc3.yaml',
-        ], [doc.pod_path for doc in docs])
+        ]), sorted([doc.pod_path for doc in docs]))
 
         # Verify an explicit `locale=None` returns all docs regardless of the
         # calling document's locale.
         doc = pod.get_doc('/content/pages/doc1.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages', locale=None)
-        self.assertItemsEqual([
+        self.assertEqual(sorted([
             '/content/pages/doc1.yaml',
             '/content/pages/doc2.yaml',
             '/content/pages/doc3.yaml',
-        ], [doc.pod_path for doc in docs])
+        ]), sorted([doc.pod_path for doc in docs]))
         doc = pod.get_doc('/content/pages/doc2.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages', locale=None)
-        self.assertItemsEqual([
+        self.assertEqual(sorted([
             '/content/pages/doc1.yaml',
             '/content/pages/doc2.yaml',
             '/content/pages/doc3.yaml',
-        ], [doc.pod_path for doc in docs])
+        ]), sorted([doc.pod_path for doc in docs]))
 
     def test_gettext_format(self):
         """Verify that the gettext formatting works."""

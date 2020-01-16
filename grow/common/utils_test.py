@@ -246,8 +246,8 @@ class UtilsTestCase(unittest.TestCase):
         callback = lambda item, key, node, parent_node: actual.append(item)
         utils.walk(data, callback)
 
-        expected = ['bar', 'bar2', 'bar3', 'bar4']
-        self.assertItemsEqual(expected, actual)
+        expected = sorted(['bar', 'bar2', 'bar3', 'bar4'])
+        self.assertEqual(expected, sorted(actual))
 
     def test_walk_empty(self):
         data = None
@@ -257,7 +257,7 @@ class UtilsTestCase(unittest.TestCase):
         utils.walk(data, callback)
 
         expected = []
-        self.assertItemsEqual(expected, actual)
+        self.assertEqual(expected, sorted(actual))
 
 
 if __name__ == '__main__':

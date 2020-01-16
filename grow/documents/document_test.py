@@ -39,11 +39,11 @@ class DocumentsTestCase(unittest.TestCase):
         doc = self.pod.get_doc('/content/pages/intro.md')
         self.assertEqual('About page.', doc.body)
         self.assertEqual('<p>About page.</p>', doc.html)
-        keys = ['$title', '$order', '$titles', 'key', 'root_key']
-        self.assertItemsEqual(keys, list(doc.fields.keys()))
+        keys = sorted(['$title', '$order', '$titles', 'key', 'root_key'])
+        self.assertEqual(keys, sorted(list(doc.fields.keys())))
 
         doc = self.pod.get_doc('/content/pages/home.yaml')
-        keys = [
+        keys = sorted([
             '$localization',
             '$order',
             '$path',
@@ -60,8 +60,8 @@ class DocumentsTestCase(unittest.TestCase):
             'tagged_fields',
             'yaml_data',
             'yaml_data@',
-        ]
-        self.assertItemsEqual(keys, list(doc.fields.keys()))
+        ])
+        self.assertEqual(keys, sorted(list(doc.fields.keys())))
         self.assertIsNone(doc.html)
 
         about = self.pod.get_doc('/content/pages/about.yaml')
@@ -272,8 +272,8 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('fr_value', fr_doc.key)
         self.assertEqual('root_key_value', de_doc.root_key)
         self.assertEqual('root_key_value', fr_doc.root_key)
-        keys = ['$title', '$order', '$titles', 'key', 'root_key']
-        self.assertItemsEqual(keys, list(fr_doc.fields.keys()))
+        keys = sorted(['$title', '$order', '$titles', 'key', 'root_key'])
+        self.assertEqual(keys, sorted(list(fr_doc.fields.keys())))
 
     def test_default_locale_override(self):
         pod = testing.create_pod()
