@@ -108,9 +108,6 @@ class Footnotes(object):
     def items(self):
         return list(self.symbol_to_footnote.items())
 
-    def iteritems(self):
-        return iter(list(self.symbol_to_footnote.items()))
-
     def reset(self):
         self.symbol_to_footnote = collections.OrderedDict()
         if self.is_numeric:

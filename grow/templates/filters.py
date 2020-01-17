@@ -57,6 +57,8 @@ def expand_partial(_ctx, partial_name):
 @jinja2.contextfilter
 def hash_value(_ctx, value, algorithm='sha'):
     """Hash the value using the algorithm."""
+    value = value.encode('utf-8')
+
     if algorithm in ('md5',):
         return hashlib.md5(value).hexdigest()
     if algorithm in ('sha1',):
