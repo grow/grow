@@ -22,9 +22,9 @@ class Menu(object):
         """Builds the menu from the set of nodes."""
         self._recursive_build(self.items, None, nodes)
 
-    def iteritems(self):
+    def items(self):
         """Iterate through items."""
-        return iter(list(self.items.items()))
+        return self.items.items()
 
     def _recursive_build(self, tree, parent, nodes):
         children = [n for n in nodes if n.parent == parent]
