@@ -175,8 +175,11 @@ class Importer(object):
                     existing_po_file = self.pod.open_file(pod_po_path)
                     existing_catalog = pofile.read_po(
                         existing_po_file, babel_locale)
-                    po_file_to_merge = cStringIO.StringIO()
-                    po_file_to_merge.write(content)
+                    po_file_to_merge = io.StringIO()
+                    try:
+                        po_file_to_merge.write(content)
+                    except TypeError:
+                        po_file_to_merge.write(content.decode())
                     po_file_to_merge.seek(0)
                     catalog_to_merge = pofile.read_po(
                         po_file_to_merge, babel_locale)
