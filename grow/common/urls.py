@@ -33,6 +33,9 @@ class Url(object):
             and self.port == other.port
             and self.scheme == other.scheme)
 
+    def __lt__(self, other):
+        return str(self) < str(other)
+
     def __repr__(self):
         return '<Url: {}>'.format(str(self))
 
