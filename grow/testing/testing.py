@@ -39,7 +39,7 @@ class TestCase(unittest.TestCase):
     def setUp(self, *args, **kwargs):
         self.is_appengine = utils.is_appengine()
         if self.is_appengine:
-            # pylint: disable=import-error
+            # pylint: disable=import-error,no-name-in-module
             from google.appengine.ext import testbed
             self.testbed = testbed.Testbed()
             self.testbed.activate()

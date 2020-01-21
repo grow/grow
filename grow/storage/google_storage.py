@@ -27,25 +27,29 @@ class CloudStorage(base_storage.BaseStorage):
     def open(filename, *args, **kwargs):
         if 'mode' in kwargs and kwargs['mode'] is None:
             kwargs['mode'] = 'r'
+        # pylint: disable=no-member
         return cloudstorage.open(filename, *args, **kwargs)
 
     @staticmethod
     def read(filename):
         try:
+            # pylint: disable=no-member
             return cloudstorage.open(filename).read()
-        except cloudstorage.NotFoundError as e:
+        except cloudstorage.NotFoundError as e:  # pylint: disable=no-member
             logging.error(filename)
             raise IOError(str(e))
 
     @staticmethod
     def modified(filename):
+        # pylint: disable=no-member
         return cloudstorage.stat(filename).st_ctime
 
     @staticmethod
     def stat(filename):
         try:
+            # pylint: disable=no-member
             return cloudstorage.stat(filename)
-        except cloudstorage.NotFoundError:
+        except cloudstorage.NotFoundError:  # pylint: disable=no-member
             raise IOError('File {} not found.'.format(filename))
 
     @staticmethod
@@ -53,6 +57,7 @@ class CloudStorage(base_storage.BaseStorage):
         bucket, prefix = filename[1:].split('/', 1)
         bucket = '/' + bucket
         names = set()
+        # pylint: disable=no-member
         for item in cloudstorage.listbucket(bucket, prefix=prefix):
             name = item.filename[len(bucket) + len(prefix) + 1:]
             if name and (recursive or '/' not in name):
@@ -83,14 +88,16 @@ class CloudStorage(base_storage.BaseStorage):
     @classmethod
     def delete(cls, path):
         path = CloudStorage.normalize_path(path)
+        # pylint: disable=no-member
         cloudstorage.delete(path)
 
     @staticmethod
     def exists(filename):
         try:
+            # pylint: disable=no-member
             cloudstorage.stat(filename)
             return True
-        except cloudstorage.NotFoundError:
+        except cloudstorage.NotFoundError:  # pylint: disable=no-member
             return False
 
     @staticmethod
@@ -100,6 +107,7 @@ class CloudStorage(base_storage.BaseStorage):
     @staticmethod
     def move_to(path, target_path):
         CloudStorage.copy_to(path, target_path)
+        # pylint: disable=no-member
         cloudstorage.delete(path)
 
     @staticmethod
@@ -119,9 +127,8 @@ class CloudStorageLoader(jinja2.BaseLoader):
         path = os.path.join(self.path, template.lstrip('/'))
         try:
             source = CloudStorage.read(path)
-        except cloudstorage.NotFoundError:
+        except cloudstorage.NotFoundError:  # pylint: disable=no-member
             raise jinja2.TemplateNotFound(template)
         # TODO(jeremydw): Make this function properly.
         source = source
         return source, path, lambda: True
-#    return source, path, lambda: mtime == CloudStorage.modified(path)
