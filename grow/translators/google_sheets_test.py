@@ -194,7 +194,7 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         mock_service_sheets.return_value = mock_sheets_service['service']
 
         mock_sheets_service['spreadsheets.values.get'].execute.side_effect = errors.HttpError(
-            {'status': '400'}, '')
+            {'status': '400'}, bytes('', 'utf-8'))
 
         translator = self.pod.get_translator('google_sheets')
         self.pod.write_yaml(translator.TRANSLATOR_STATS_PATH, {
