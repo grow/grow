@@ -175,7 +175,10 @@ class Importer(object):
                 existing_catalog = pofile.read_po(
                     existing_po_file, babel_locale)
                 po_file_to_merge = io.StringIO()
-                po_file_to_merge.write(content)
+                try:
+                    po_file_to_merge.write(content)
+                except TypeError:
+                    po_file_to_merge.write(content.decode())
                 po_file_to_merge.seek(0)
                 try:
                     catalog_to_merge = pofile.read_po(
