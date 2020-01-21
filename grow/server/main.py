@@ -75,6 +75,7 @@ def create_wsgi_app(pod, host, port, debug=False):
     podserver_app = PodServer(pod, host, port, debug=debug)
     assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'admin', 'assets')
     ui_path = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
+    # pylint: disable=no-member
     return wsgi.SharedDataMiddleware(podserver_app, {
         '/_grow/ui': ui_path,
         '/_grow/assets': assets_path,

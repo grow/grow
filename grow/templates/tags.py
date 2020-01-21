@@ -16,15 +16,15 @@ class Menu(object):
     """Helper class for creating navigation menus."""
 
     def __init__(self):
-        self.items = py_collections.OrderedDict()
+        self._items = py_collections.OrderedDict()
 
     def build(self, nodes):
         """Builds the menu from the set of nodes."""
-        self._recursive_build(self.items, None, nodes)
+        self._recursive_build(self._items, None, nodes)
 
     def items(self):
         """Iterate through items."""
-        return self.items.items()
+        return self._items.items()
 
     def _recursive_build(self, tree, parent, nodes):
         children = [n for n in nodes if n.parent == parent]
