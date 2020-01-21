@@ -114,6 +114,7 @@ class CloudStorage(base_storage.BaseStorage):
     def update_headers(headers, path):
         if blobstore is None:
             raise Exception('Cannot use blobstore outside App Engine environment.')
+        # pylint: disable=no-member
         blob_key = blobstore.create_gs_key('/gs' + path)
         headers['X-AppEngine-BlobKey'] = blob_key
 

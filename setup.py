@@ -32,6 +32,7 @@ setup(
         'node_modules',
     ]),
     install_requires=INSTALL_REQ,
+    python_requires='>=3.3',
     scripts=[
         'bin/grow',
     ],
@@ -39,8 +40,6 @@ setup(
         'grow',
         'cms',
         'static site generator',
-        's3',
-        'google cloud storage',
         'content management'
     ],
     classifiers=[
