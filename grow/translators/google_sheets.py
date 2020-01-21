@@ -1,6 +1,7 @@
 """Google Sheets for translating pod content."""
 
 import datetime
+import io
 import random
 from babel.messages import catalog
 from babel.messages import pofile
@@ -118,7 +119,7 @@ class GoogleSheetsTranslator(base.Translator):
             downloaded=datetime.datetime.now(),
             source_lang=stat.source_lang,
             ident=stat.ident)
-        fp = io.StringIO()
+        fp = io.BytesIO()
         pofile.write_po(fp, babel_catalog)
         fp.seek(0)
         content = fp.read()
@@ -139,7 +140,7 @@ class GoogleSheetsTranslator(base.Translator):
         spreadsheet_id = None
         stats_to_download = self._get_stats_to_download([])
         if stats_to_download:
-            stat = stats_to_download.values()[0]
+            stat = list(stats_to_download.values())[0]
             spreadsheet_id = stat.ident if stat else None
 
         # NOTE: Manging locales across multiple spreadsheets is unsupported.
