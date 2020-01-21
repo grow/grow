@@ -196,7 +196,7 @@ class DocumentsTestCase(unittest.TestCase):
         docs = collection.list_docs()
         doc = self.pod.get_doc('/content/pages/contact.yaml')
         doc.next(docs)
-        self.assertRaises(ValueError, doc.__next__, [1, 2, 3])
+        self.assertRaises(ValueError, doc.next, [1, 2, 3])
         doc.prev(docs)
         self.assertRaises(ValueError, doc.prev, [1, 2, 3])
 
