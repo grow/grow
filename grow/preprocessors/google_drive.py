@@ -303,7 +303,7 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             range_names.append(range_name)
 
         # pylint: disable=no-member
-        batch_resp = list(service.spreadsheets().values()).batchGet(
+        batch_resp = service.spreadsheets().values().batchGet(
             spreadsheetId=spreadsheet_id, ranges=range_names).execute()
 
         for i, gid in enumerate(gids_to_process):
