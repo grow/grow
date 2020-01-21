@@ -84,7 +84,7 @@ class GoogleSheetsTranslator(base.Translator):
         rangeName = "'{}'!A:D".format(locale)
         try:
             # pylint: disable=no-member
-            resp = list(service.spreadsheets().values()).get(
+            resp = service.spreadsheets().values().get(
                 spreadsheetId=spreadsheet_id, range=rangeName).execute()
         except errors.HttpError as e:
             if e.resp['status'] == '400':
@@ -139,7 +139,7 @@ class GoogleSheetsTranslator(base.Translator):
         spreadsheet_id = None
         stats_to_download = self._get_stats_to_download([])
         if stats_to_download:
-            stat = list(stats_to_download.values())[0]
+            stat = stats_to_download.values()[0]
             spreadsheet_id = stat.ident if stat else None
 
         # NOTE: Manging locales across multiple spreadsheets is unsupported.
@@ -792,7 +792,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _update_acls(self, stats, locales):
         if 'acl' not in self.config:
             return
-        stat = list(stats.values())[0]
+        stat = stats.values()[0]
         spreadsheet_id = stat.ident
         acl = self.config['acl']
         if not acl:
