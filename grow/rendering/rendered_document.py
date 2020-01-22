@@ -47,7 +47,10 @@ class RenderedDocument(object):
         if content is None:
             self.hash = None
         else:
-            self.hash = hashlib.sha1(content.encode('utf-8')).hexdigest()
+            try:
+                self.hash = hashlib.sha1(content.encode('utf-8')).hexdigest()
+            except AttributeError:
+                self.hash = hashlib.sha1(content).hexdigest()
 
         if self._has_tmp_file_path():
             with open(self._get_tmp_file_path(), "w") as tmp_file:

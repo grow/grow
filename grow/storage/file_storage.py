@@ -18,9 +18,12 @@ class FileStorage(base_storage.BaseStorage):
 
     @staticmethod
     def read(filename):
-        fp = open(filename)
-        content = fp.read()
-        fp.close()
+        try:
+            with open(filename) as fp:
+                content = fp.read()
+        except UnicodeDecodeError as e:
+            with open(filename, 'rb') as fp:
+                content = fp.read()
         return content
 
     @staticmethod

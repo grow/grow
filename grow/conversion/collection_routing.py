@@ -27,7 +27,10 @@ COLLECTION_BLUEPRINT_KEYS = (
 
 
 class Error(Exception):
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class RoutesData(object):

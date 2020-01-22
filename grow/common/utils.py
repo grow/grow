@@ -46,13 +46,19 @@ SLUG_SUBSTITUTE = ((':{}', ':'),)
 class Error(Exception):
     """Base error class."""
 
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
+
 
 class UnavailableError(Error):
     """Raised when a feature is not available."""
+    pass
 
 
 class DraftStringError(Error):
     """Raised when a draft string is used yet not allowed."""
+    pass
 
 
 def is_packaged_app():

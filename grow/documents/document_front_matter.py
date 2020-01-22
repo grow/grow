@@ -25,7 +25,10 @@ def _update_deep(orig_dict, new_dict):
 
 class Error(Exception):
     """General document front matter error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class BadFormatError(Error, ValueError):
