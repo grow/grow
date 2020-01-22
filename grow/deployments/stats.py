@@ -21,7 +21,7 @@ class Stats(object):
                 ext = os.path.splitext(path)[-1]
                 file_counts[ext] += 1
         ms = []
-        for ext, count in list(file_counts.items()):
+        for ext, count in file_counts.items():
             ms.append(messages.FileCountMessage(ext=ext, count=count))
         return ms
 

@@ -20,13 +20,13 @@ class ProfileReport(object):
     def export(self):
         """Export the timer data for each timer."""
         exported = {}
-        for key, item in list(self.items.items()):
+        for key, item in self.items.items():
             exported[key] = item.export()
         return exported
 
     def pretty_print(self):
         """Prints out the report in a nice format."""
-        for _, item in list(self.items.items()):
+        for _, item in self.items.items():
             print(('{} ({}): Avg {} Min {} Max {} '.format(
                 item.key, len(item), item.average_duration, item.min_duration, item.max_duration)))
             if len(item) > 1:

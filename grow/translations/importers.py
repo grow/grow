@@ -27,7 +27,7 @@ builtin_locales = {
     'zh-HK': 'zh_Hant_HK',
     'zh-TW': 'zh_Hant_TW',
 }
-for key, value in list(builtin_locales.items()):
+for key, value in builtin_locales.items():
     default_external_to_babel_locales[key].append(value)
 
 
@@ -85,7 +85,7 @@ class Importer(object):
                     raise Error(text)
                 msgid = row[default_locale]
                 msgid = msgid
-                for locale, translation in list(row.items()):
+                for locale, translation in row.items():
                     if locale == default_locale:
                         continue
                     translation = translation
@@ -93,7 +93,7 @@ class Importer(object):
                     if locale not in locales_to_catalogs:
                         locales_to_catalogs[locale] = catalog.Catalog()
                     locales_to_catalogs[locale][msgid] = message
-        for locale, catalog_obj in list(locales_to_catalogs.items()):
+        for locale, catalog_obj in locales_to_catalogs.items():
             fp = io.BytesIO()
             pofile.write_po(fp, catalog_obj)
             fp.seek(0)
@@ -163,7 +163,7 @@ class Importer(object):
         if self.pod.podspec.localization:
             if 'import_as' in self.pod.podspec.localization:
                 import_as = self.pod.podspec.localization['import_as']
-                for external_locale, babel_locales in list(import_as.items()):
+                for external_locale, babel_locales in import_as.items():
                     for babel_locale in babel_locales:
                         external_to_babel_locales[external_locale].append(
                             babel_locale)

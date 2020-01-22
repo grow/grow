@@ -38,7 +38,7 @@ def plain_text_dict_constructor(loader, node):
 
 
 def plain_text_dict_representer(dumper, data):
-    return dumper.represent_dict(iter(list(data.items())))
+    return dumper.represent_dict(data.items())
 
 
 def plain_text_representer(dumper, data):

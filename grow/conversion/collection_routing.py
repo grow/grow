@@ -78,7 +78,7 @@ class RoutesData(object):
         tagged_keys = tuple(['{}@'.format(key)
                              for key in COLLECTION_META_KEYS])
 
-        for key, value in list(raw_data.items()):
+        for key, value in raw_data.items():
             if key in COLLECTION_META_KEYS or key.startswith(tagged_keys):
                 normal_key = key.lstrip('$')
                 if 'path' in key:

@@ -83,7 +83,7 @@ class Footnotes(object):
         return self.symbol_to_footnote[key]
 
     def __iter__(self):
-        return iter(list(self.symbol_to_footnote.items()))
+        return self.symbol_to_footnote.items()
 
     def __len__(self):
         return len(self.symbol_to_footnote)
@@ -93,7 +93,7 @@ class Footnotes(object):
         return self.symbol_to_footnote
 
     def add(self, value):
-        for symbol, note_value in list(self.symbol_to_footnote.items()):
+        for symbol, note_value in self.symbol_to_footnote.items():
             if value == note_value:
                 return symbol
 
@@ -106,7 +106,7 @@ class Footnotes(object):
         return list(self.symbol_to_footnote.keys()).index(key)
 
     def items(self):
-        return list(self.symbol_to_footnote.items())
+        return self.symbol_to_footnote.items()
 
     def reset(self):
         self.symbol_to_footnote = collections.OrderedDict()

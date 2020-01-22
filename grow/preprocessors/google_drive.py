@@ -80,7 +80,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
             logger.error(text.format(path))
             logger.error('Received: {}'.format(resp))
             return
-        for mimetype, url in list(resp['exportLinks'].items()):
+        for mimetype, url in resp['exportLinks'].items():
             if not mimetype.endswith('html'):
                 continue
             resp, content = service._http.request(url)

@@ -157,7 +157,7 @@ class PathFormat(object):
     def params_lower(self, path, params):
         """Update to support lowercase when in the path."""
         if '|lower' in path:
-            for key, value in list(params.items()):
+            for key, value in params.items():
                 if isinstance(value, str):
                     params['{}|lower'.format(key)] = value.lower()
         return params

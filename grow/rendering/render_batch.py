@@ -90,7 +90,7 @@ class RenderBatches(object):
 
     def __len__(self):
         count = 0
-        for _, batch in list(self._batches.items()):
+        for _, batch in self._batches.items():
             count = count + len(batch)
         return count
 
@@ -115,14 +115,14 @@ class RenderBatches(object):
         use_threading = False
 
         if not ThreadPool or not use_threading:
-            for _, batch in list(self._batches.items()):
+            for _, batch in self._batches.items():
                 batch_docs, batch_errors = batch.load_sync(source_dir)
                 load_errors = load_errors + batch_errors
                 load_docs = load_docs + batch_docs
         else:
-            for _, batch in list(self._batches.items()):
+            for _, batch in self._batches.items():
                 batch.load_start(source_dir)
-            for _, batch in list(self._batches.items()):
+            for _, batch in self._batches.items():
                 batch_docs, batch_errors = batch.load_finish()
                 load_errors = load_errors + batch_errors
                 load_docs = load_docs + batch_docs
@@ -138,14 +138,14 @@ class RenderBatches(object):
         use_threading = False
 
         if not ThreadPool or not use_threading:
-            for _, batch in list(self._batches.items()):
+            for _, batch in self._batches.items():
                 batch_docs, batch_errors = batch.render_sync()
                 render_errors = render_errors + batch_errors
                 rendered_docs = rendered_docs + batch_docs
         else:
-            for _, batch in list(self._batches.items()):
+            for _, batch in self._batches.items():
                 batch.render_start()
-            for _, batch in list(self._batches.items()):
+            for _, batch in self._batches.items():
                 batch_docs, batch_errors = batch.render_finish()
                 render_errors = render_errors + batch_errors
                 rendered_docs = rendered_docs + batch_docs
