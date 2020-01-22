@@ -19,7 +19,7 @@ from grow.templates.tags import _gettext_alias
 def _deep_gettext(ctx, fields):
     if isinstance(fields, dict):
         new_dct = {}
-        for key, val in list(fields.items()):
+        for key, val in fields.items():
             if isinstance(val, (dict, list, set)):
                 new_dct[key] = _deep_gettext(ctx, val)
             elif isinstance(val, str):

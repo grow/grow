@@ -33,7 +33,7 @@ class ObjectCache(object):
 
     def add_all(self, key_to_cached):
         """Update the cache with a preexisting set of data."""
-        for key, value in list(key_to_cached.items()):
+        for key, value in key_to_cached.items():
             self.add(key, value)
 
     def export(self):
@@ -70,7 +70,7 @@ class ObjectCache(object):
 
         results = {}
 
-        for key, value in list(self._cache.items()):
+        for key, value in self._cache.items():
             if pattern.search(key) is not None:
                 results[key] = value
 

@@ -633,7 +633,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _generate_update_sheets_requests(self, sheet_ids_to_catalogs,
                                          source_lang, spreadsheet_id, prune=False):
         requests = []
-        for sheet_id, catalog in list(sheet_ids_to_catalogs.items()):
+        for sheet_id, catalog in sheet_ids_to_catalogs.items():
             lang = str(catalog.locale)
             existing_values = self._download_sheet(spreadsheet_id, lang)
             for x in range(self.HEADER_ROW_COUNT):

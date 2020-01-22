@@ -78,7 +78,7 @@ class Catalogs(object):
                 diffed_catalog[message.id] = message
                 diffed_locales_to_catalogs[locale] += 1
             diffed_catalog.save()
-        for locale, num_diff in list(diffed_locales_to_catalogs.items()):
+        for locale, num_diff in diffed_locales_to_catalogs.items():
             self.pod.logger.info('Found different messages for {} -> {}'.format(locale, num_diff))
 
     def get(self, locale, basename='messages.po', dir_path=None):
@@ -240,7 +240,7 @@ class Catalogs(object):
             ':',
         ]
         options = {
-            'extensions': ','.join(list(env.extensions.keys())),
+            'extensions': ','.join(env.extensions.keys()),
             'silent': 'false',
         }
 
@@ -377,7 +377,7 @@ class Catalogs(object):
                     self.pod.logger.info('Extracting: {}'.format(pod_path))
                     rows = self.pod.read_csv(pod_path)
                     for i, row in enumerate(rows):
-                        for key, msgid in list(row.items()):
+                        for key, msgid in row.items():
                             _handle_field(
                                 pod_path, collection.locales, msgid, key, row)
 
@@ -397,7 +397,7 @@ class Catalogs(object):
                             self.pod.logger.info('Extracting: {}'.format(pod_path))
                             rows = self.pod.read_csv(pod_path)
                             for i, row in enumerate(rows):
-                                for key, msgid in list(row.items()):
+                                for key, msgid in row.items():
                                     _handle_field(
                                         pod_path, self.pod.list_locales(), msgid, key, row)
 
@@ -420,7 +420,7 @@ class Catalogs(object):
                 self.pod.logger.info('Extracting: {}'.format(pod_path))
                 rows = self.pod.read_csv(pod_path)
                 for i, row in enumerate(rows):
-                    for key, msgid in list(row.items()):
+                    for key, msgid in row.items():
                         _handle_field(
                             pod_path, self.pod.list_locales(), msgid, key, row)
 
@@ -497,7 +497,7 @@ class Catalogs(object):
         # If an out path is specified, always collect strings into the one catalog.
         if localized and not out_path:
             # Save each localized catalog
-            for locale, new_catalog in list(localized_catalogs.items()):
+            for locale, new_catalog in localized_catalogs.items():
                 # Skip if `locales` defined but doesn't include this locale
                 if locales and locale not in locales:
                     continue
@@ -516,7 +516,7 @@ class Catalogs(object):
                         num_translated=num_messages - len(missing),
                         num_messages=num_messages)
                 )
-            return untagged_strings, list(localized_catalogs.items())
+            return untagged_strings, localized_catalogs.items()
         else:
             # --localized omitted / --no-localized
             template_catalog = self.get_template(self.template_path)
@@ -629,7 +629,7 @@ class Catalogs(object):
         # Generate a single catalog template.
         self.pod.write_file(out_path, '')
         babel_catalog = pofile.read_po(self.pod.open_file(out_path))
-        for message_id in list(messages_to_locales.keys()):
+        for message_id in messages_to_locales.keys():
             babel_catalog[message_id] = messages_to_locales[message_id]['message']
         self.write_template(out_path, babel_catalog,
                             include_header=include_header)

@@ -575,7 +575,7 @@ def get_rows_from_csv(pod, path, locale=SENTINEL):
     rows = []
     for row in csv_lib.DictReader(fp):
         data = {}
-        for header, cell in list(row.items()):
+        for header, cell in row.items():
             if cell is None:
                 cell = ''
             data[header] = cell

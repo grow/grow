@@ -100,7 +100,7 @@ class Untag(object):
                                           new_parent, new_items)
             if paths_to_keep_tagged and isinstance(resp, dict):
                 updated_values = {}
-                for sub_key, value in list(resp.items()):
+                for sub_key, value in resp.items():
                     if not isinstance(value, list):
                         continue
                     new_key = '{}@'.format(sub_key)

@@ -52,7 +52,7 @@ SINGLE_TEMPLATE = '{}\n'
 
 
 def _update_deep(orig_dict, new_dict):
-    for k, v in list(new_dict.items()):
+    for k, v in new_dict.items():
         if (k in orig_dict and isinstance(orig_dict[k], dict)
                 and isinstance(new_dict[k], collections.Mapping)):
             _update_deep(orig_dict[k], new_dict[k])
@@ -82,7 +82,7 @@ def dict_constructor(loader, node):
 
 
 def dict_representer(dumper, data):
-    return dumper.represent_dict(iter(list(data.items())))
+    return dumper.represent_dict(data.items())
 
 
 def plain_text_representer(dumper, data):
@@ -346,7 +346,7 @@ class ConversionDocument(object):
                 locale_to_front_matter[locale] = locale_front_matter
 
         # Write the final locale files.
-        for locale, locale_front_matter in list(locale_to_front_matter.items()):
+        for locale, locale_front_matter in locale_to_front_matter.items():
             content = locale_to_content.get(locale, None)
             locale_filename = self.file_name_for_locale(locale)
             logging.info('Writing: {}'.format(locale_filename))
