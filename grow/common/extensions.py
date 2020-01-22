@@ -44,8 +44,7 @@ import os
 import sys
 
 IS_PACKAGED_APP = utils.is_packaged_app()
-
-MAC_SYS_PREFIX = '/System/Library/Frameworks/Python.framework/Versions/2.7'
+MAC_SYS_PREFIX = '/System/Library/Frameworks/Python.framework/Versions/3.7'
 
 
 class FrozenImportFixer():
@@ -62,7 +61,7 @@ class FrozenImportFixer():
         self._frozen_meta_path = sys.meta_path[:]
         self._frozen_sys_path = sys.path[:]
         if os.path.exists(MAC_SYS_PREFIX):
-            sys.path.insert(0, MAC_SYS_PREFIX + '/lib/python2.7')
+            sys.path.insert(0, MAC_SYS_PREFIX + '/lib/python3.7')
         sys.meta_path = sys.meta_path[2:]
 
     def __exit__(self, type, value, traceback):
