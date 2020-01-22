@@ -6,7 +6,7 @@ ARG grow_version
 RUN echo "Grow: $grow_version"
 
 # Use LTS Versions when available.
-ENV CLOUD_SDK_VERSION=213.0.0 NODE_VERSION=v8.11.4 NPM_VERSION=6 YARN_VERSION=latest
+ENV CLOUD_SDK_VERSION=277.0.0 NODE_VERSION=v12.14.1 NPM_VERSION=6 YARN_VERSION=latest
 
 ENV PATH /google-cloud-sdk/bin:$PATH
 
