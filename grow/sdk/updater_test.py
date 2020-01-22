@@ -138,7 +138,7 @@ class UpdaterTestCase(unittest.TestCase):
         """Update check works when cannot get latest version."""
         mock_config.needs_update_check = True
         mock_is_packaged_app.return_value = True
-        mock_latest_version.side_effect = updater.LatestVersionCheckError()
+        mock_latest_version.side_effect = updater.LatestVersionCheckError('Update fail')
         mock_current_version.return_value = '0.1.0'
         mock_subprocess_call.return_value = 0
         mock_os_execl.return_value = True
