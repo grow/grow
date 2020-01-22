@@ -425,6 +425,6 @@ class Converter(object):
                 try:
                     doc.convert()
                 except:
-                    print(('Error trying to convert: {}'.format(
-                        os.path.join(pod_dir, file_name))))
+                    print('Error trying to convert: {}'.format(
+                        os.path.join(pod_dir, file_name)))
                     raise

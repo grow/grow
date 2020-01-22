@@ -18,4 +18,4 @@ class Timer(object):
         self.secs = self.end - self.start
         self.msecs = self.secs * 1000  # millisecs
         if self.verbose:
-            print(('Elapsed time: {:.3f} ms'.format(self.msecs)))
+            print('Elapsed time: {:.3f} ms'.format(self.msecs))
