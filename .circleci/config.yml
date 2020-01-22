@@ -272,13 +272,13 @@ jobs:
           command: pipenv run pyinstaller grow.spec
 
       # Currently causes a seg fault in docker.
-      # - run:
-      #     name: Test Packaged Grow
-      #     command: ./dist/grow
-      #
-      # - run:
-      #     name: Test Packaged Grow Build
-      #     command: ./dist/grow build ./grow/testing/testdata/pod
+      - run:
+          name: Test Packaged Grow
+          command: ./dist/grow
+
+      - run:
+          name: Test Packaged Grow Build
+          command: ./dist/grow build ./grow/testing/testdata/pod
 
       - store_artifacts:
           path: dist/
