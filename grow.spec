@@ -37,6 +37,7 @@ hiddenimports += [
     'babel.plural',
     'markdown',
     'markdown.extensions',
+    'pkg_resources.py2_warn',
     'pygments.formatters',
     'pygments.formatters.html',
     'pygments.lexers',
