@@ -1,16 +1,29 @@
 """Grow Setup."""
 
+import re
 from setuptools import find_packages
 from setuptools import setup
 
 
+DEP_RE = re.compile(r'([\S]*)\s?=\s? [\"\']?([^\'\"]*)[\"\']?', re.IGNORECASE)
 INSTALL_REQ = []
 
-for i in open('requirements.txt').readlines():
-    req = i.strip()
-    if req.startswith(('#', '-')):
-        continue
-    INSTALL_REQ.append(req)
+with open('Pipfile') as pipfile:
+    in_dep_section = False
+    for line in pipfile.readlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        if in_dep_section:
+            if line.startswith('['):
+                in_dep_section = False
+                continue
+
+            line_match = DEP_RE.match(line)
+            if line_match:
+                INSTALL_REQ.append('{}{}'.format(line_match.group(1), line_match.group(2)))
+        elif line == '[packages]':
+            in_dep_section = True
 
 
 setup(
