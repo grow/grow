@@ -48,6 +48,7 @@ class TranslatorServiceError(Exception):
                 ident, message)
         else:
             new_message = message
+        self.message = new_message
         super(TranslatorServiceError, self).__init__(new_message)
 
 

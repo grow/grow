@@ -11,7 +11,10 @@ MESSAGE_FORMAT = '[{}] {}'
 
 class Error(Exception):
     """Base error for installers."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class Installer(object):

@@ -15,15 +15,18 @@ from grow.templates import tags
 
 class Error(Exception):
     """Base rendering pool error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
-class UnknownKindError(Exception):
+class UnknownKindError(Error):
     """Unknown kind of information."""
     pass
 
 
-class IgnoredPathError(Exception):
+class IgnoredPathError(Error):
     """Document is being served at an ignored path."""
     pass
 

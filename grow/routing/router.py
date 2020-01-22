@@ -21,10 +21,13 @@ class FilterConfig(messages.Message):
 
 class Error(Exception):
     """Base router error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
-class MissingStaticConfigError(Exception):
+class MissingStaticConfigError(Error):
     """Error for missing a configuration for a static file."""
     pass
 

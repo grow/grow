@@ -16,7 +16,10 @@ FILE_ROUTES_CACHE = grow_routes_cache.FILE_ROUTES_CACHE
 
 class Error(Exception):
     """General podcache error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class PodCacheParseError(Error):

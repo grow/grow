@@ -52,7 +52,10 @@ from . import podspec
 
 
 class Error(Exception):
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class PodDoesNotExistError(Error, IOError):
