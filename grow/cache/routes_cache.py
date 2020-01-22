@@ -13,6 +13,7 @@ class RoutesCache(object):
 
     KEY_CONCRETE = 'concrete'
     KEY_DYNAMIC = 'dynamic'
+    KEY_NONE = '__None__'
 
     def __init__(self):
         self._cache = {
@@ -43,6 +44,8 @@ class RoutesCache(object):
 
     def add(self, key, value, options=None, concrete=False, env=None):
         """Add a new item to the cache or overwrite an existing value."""
+        if env is None:
+            env = self.KEY_NONE
         cache_key = self._cache_key(concrete)
         if env not in self._cache[cache_key]:
             self._cache[cache_key][env] = {}
@@ -85,6 +88,8 @@ class RoutesCache(object):
 
     def get(self, key, concrete=False, env=None):
         """Retrieve the value from the cache."""
+        if env is None:
+            env = self.KEY_NONE
         return self._cache[self._cache_key(concrete)].get(env, {}).get(key, None)
 
     @property
@@ -100,10 +105,14 @@ class RoutesCache(object):
         """Returns the raw cache data."""
         if concrete is None:
             return self._cache
+        if env is None:
+            env = self.KEY_NONE
         return self._cache[self._cache_key(concrete)].get(env, {})
 
     def remove(self, key, concrete=False, env=None):
         """Removes a single element from the cache."""
+        if env is None:
+            env = self.KEY_NONE
         self._is_dirty = True
         return self._cache[self._cache_key(concrete)].get(env, {}).pop(key, None)
 
