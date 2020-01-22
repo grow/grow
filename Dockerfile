@@ -1,12 +1,13 @@
-FROM ubuntu:latest
+FROM ubuntu:bionic
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
 ARG grow_version
-
 RUN echo "Grow: $grow_version"
 
 # Set environment variables.
 ENV TERM=xterm
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends curl ca-certificates \
@@ -23,10 +24,9 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
 # Install Grow dependencies.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    python python-pip python-setuptools nodejs build-essential python-all-dev zip \
+    python3 python3-pip python3-setuptools python3-all-dev nodejs build-essential zip \
     libc6 libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev \
-    git ssh google-cloud-sdk ruby ruby-dev yarn \
-  && apt-get upgrade -y \
+    git curl ssh google-cloud-sdk ruby ruby-dev yarn \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -34,12 +34,13 @@ RUN apt-get update \
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/`curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")'`/install.sh | bash \
   && . ~/.bashrc \
   && npm install -g npm@latest \
+  && yarn global add node-sass \
   && yarn global add gulp \
   && yarn cache clean
 
 # Install Grow.
-RUN pip install --no-cache-dir --upgrade wheel \
-  && pip install --no-cache-dir grow==$grow_version
+RUN pip3 install --no-cache-dir --upgrade wheel \
+  && pip3 install --no-cache-dir grow==$grow_version
 
 # Install ruby bundle.
 RUN gem install bundler
