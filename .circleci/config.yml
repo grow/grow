@@ -258,9 +258,72 @@ jobs:
           name: Test build
           command: ./scripts/grow build ./grow/testing/testdata/pod
 
+  test-package:
+    executor: grow
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - pip_install
+
+      - run:
+          name: Build Package
+          command: pipenv run pyinstaller grow.spec
+
+      # Currently causes a seg fault in docker.
+      # - run:
+      #     name: Test Packaged Grow
+      #     command: ./dist/grow
+      #
+      # - run:
+      #     name: Test Packaged Grow Build
+      #     command: ./dist/grow build ./grow/testing/testdata/pod
+
+      - store_artifacts:
+          path: dist/
+
+  test-package-osx:
+    executor: osx
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - run:
+          name: Install Packages
+          command: brew update && brew install golang && brew upgrade libyaml
+
+      - pip_install:
+          dir: /Users/distiller/.local/share/virtualenvs/
+          key: osx
+
+      - run:
+          name: Build Package
+          command: pipenv run pyinstaller grow.spec
+
+
+      - run:
+          name: Test Packaged Grow
+          command: ./dist/grow
+
+      - run:
+          name: Test Packaged Grow Build
+          command: ./dist/grow build ./grow/testing/testdata/pod
+
+      - store_artifacts:
+          path: dist/
+
 filter_all_tags: &filter_all_tags
   filters:
     tags:
+      only: /.*/
+
+filter_only_branches: &filter_only_branches
+  filters:
+    tags:
+      ignore: /.*/
+    branches:
       only: /.*/
 
 filter_only_tags: &filter_only_tags
@@ -286,6 +349,14 @@ workflows:
         - init
     - test-osx:
         <<: *filter_all_tags
+        requires:
+        - init
+    - test-package:
+        <<: *filter_only_branches
+        requires:
+        - init
+    - test-package-osx:
+        <<: *filter_only_branches
         requires:
         - init
     - release-package-linux:
