@@ -70,7 +70,7 @@ class RoutesData(object):
             raw_data = doc.format.front_matter.raw_data
 
         if not raw_data:
-            print(('No raw data found for document: {}'.format(doc.pod_path)))
+            print('No raw data found for document: {}'.format(doc.pod_path))
             return
 
         data = collections.OrderedDict()
@@ -98,14 +98,14 @@ class RoutesData(object):
         routes_file = os.path.join(collection.pod_path, ROUTES_FILENAME)
 
         if self.data['routes']:
-            print((' └─ Writing: {}'.format(routes_file)))
+            print(' └─ Writing: {}'.format(routes_file))
             print('')
             output = yaml.dump(
                 self.data, Dumper=yaml_utils.PlainTextYamlDumper,
                 default_flow_style=False, allow_unicode=True, width=800)
             pod.write_file(routes_file, output)
         else:
-            print((' └─ Skipping: {}'.format(routes_file)))
+            print(' └─ Skipping: {}'.format(routes_file))
             print('')
 
 
@@ -119,7 +119,7 @@ class ConversionCollection(object):
 
     def convert(self):
         """Perform the conversion to use collection based routing."""
-        print(('Converting: {}'.format(self.collection.pod_path)))
+        print('Converting: {}'.format(self.collection.pod_path))
 
         # Pull out the meta information from all the docs.
         sorted_docs = sorted(self.collection.list_docs_unread(), key=lambda doc: doc.pod_path)

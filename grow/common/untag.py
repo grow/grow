@@ -41,7 +41,7 @@ class Untag(object):
             # Support <key>@<param key>.<param value>: <value>.
             if params:
                 param_regex = re.compile(
-                    r'(.*)@({})\.([^@]+)$'.format('|'.join(list(params.keys()))),
+                    r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())),
                     re.IGNORECASE)
                 param_match = param_regex.match(key)
                 if param_match:
