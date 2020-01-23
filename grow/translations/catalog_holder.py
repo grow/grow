@@ -294,19 +294,14 @@ class Catalogs(object):
                     options=options,
                     comment_tags=comment_tags)
 
-                try:
-                    for parts in all_parts:
-                        lineno, msgid, comments, context = parts
-                        message = babel_catalog.Message(
-                            msgid,
-                            None,
-                            auto_comments=comments,
-                            locations=[(path, lineno)])
-                        _add_to_catalog(message, locales)
-                except:
-                    print(fp)
-                    print(list(all_parts))
-                    raise
+                for parts in all_parts:
+                    lineno, msgid, comments, context = parts
+                    message = babel_catalog.Message(
+                        msgid,
+                        None,
+                        auto_comments=comments,
+                        locations=[(path, lineno)])
+                    _add_to_catalog(message, locales)
             except tokenize.TokenError:
                 self.pod.logger.error(
                     'Problem extracting body: {}'.format(path))
