@@ -63,12 +63,6 @@ translators:
     - user: hikingfan@gmail.com
 
 deployments:
-  gcs:
-    destination: gcs
-    bucket: gcs.example.com
-  s3:
-    destination: gcs
-    bucket: s3.example.com
   local:
     destination: local
     out_dir: dist/

@@ -1,6 +1,4 @@
-from .destinations import amazon_s3
 from .destinations import git_destination
-from .destinations import google_cloud_storage
 from .destinations import local
 from .destinations import scp
 from .destinations import webreview_destination
@@ -10,12 +8,10 @@ import json
 _destination_kinds_to_classes = None
 
 _builtins = (
-    amazon_s3.AmazonS3Destination,
     webreview_destination.WebReviewDestination,
     webreview_destination.LegacyJetwayDestination,
     git_destination.GitDestination,
     local.LocalDestination,
-    google_cloud_storage.GoogleCloudStorageDestination,
     scp.ScpDestination)
 
 
