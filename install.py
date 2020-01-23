@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 """Standalone Grow SDK installer. Downloads Grow SDK and sets up command aliases."""
@@ -29,13 +29,13 @@ if 'Linux' in platform.system():
 elif 'Darwin' in platform.system():
     PLATFORM = 'mac'
 else:
-    print(('{} is not a supported platform. Please file an issue at '
-          'https://github.com/grow/grow/issues'.format(sys.platform)))
+    print('{} is not a supported platform. Please file an issue at '
+          'https://github.com/grow/grow/issues'.format(sys.platform))
     sys.exit(-1)
 
 
 def hai(text, *args):
-    print((text.format(*args, **{
+    print(text.format(*args, **{
         'red': '\033[0;31m',
         '/red': '\033[0;m',
         'green': '\033[0;32m',
@@ -44,7 +44,7 @@ def hai(text, *args):
         '/yellow': '\033[0;m',
         'white': '\033[0;37m',
         '/white': '\033[0;m',
-    })))
+    }))
 
 
 def orly(text, default=False):

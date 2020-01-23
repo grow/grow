@@ -90,7 +90,7 @@ for package, files in package_imports:
 env_paths = []
 if 'VIRTUAL_ENV' in os.environ:
   env_paths.append(
-    os.path.join(os.environ['VIRTUAL_ENV'], 'lib', 'python2.7', 'site-packages'))
+    os.path.join(os.environ['VIRTUAL_ENV'], 'lib', 'python3', 'site-packages'))
 env_paths.append('.')
 
 a = Analysis([
