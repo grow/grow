@@ -40,7 +40,7 @@ commands:
 executors:
   grow:
     docker:
-      - image: grow/grow-internal-image
+      - image: grow/grow-internal-image:latest
   osx:
     macos:
       xcode: "10.0.0"
