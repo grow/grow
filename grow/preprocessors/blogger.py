@@ -29,7 +29,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
 
     @staticmethod
     def create_service(authenticated=True):
-        http = httplib2.Http(ca_certs=utils.get_cacerts_path())
+        http = httplib2.Http()
         if authenticated:
             credentials = oauth.get_or_create_credentials(
                 scope=OAUTH_SCOPE, storage_key='Grow SDK')

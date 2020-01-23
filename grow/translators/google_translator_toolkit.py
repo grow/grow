@@ -45,7 +45,7 @@ class Gtt(object):
     def http(self):
         credentials = oauth.get_or_create_credentials(
             scope=OAUTH_SCOPE, storage_key=STORAGE_KEY)
-        http = httplib2.Http(ca_certs=utils.get_cacerts_path())
+        http = httplib2.Http()
         http = credentials.authorize(http)
         return http
 
