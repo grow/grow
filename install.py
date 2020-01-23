@@ -11,9 +11,8 @@ import platform
 import re
 import sys
 import tempfile
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 import zipfile
+from urllib import request as url_request
 
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
@@ -95,7 +94,7 @@ def has_bin_in_path(bin_path):
 
 def install(rc_path=None, bin_path=None, force=False):
     """Download and install the binary."""
-    resp = json.loads(urllib.request.urlopen(RELEASES_API).read())
+    resp = json.loads(url_request.urlopen(RELEASES_API).read())
     try:
         release = get_release_for_platform(resp, PLATFORM)
     except KeyError:
@@ -155,7 +154,7 @@ def install(rc_path=None, bin_path=None, force=False):
         # If the directory already exists, let it go.
         pass
 
-    remote = urllib.request.urlopen(download_url)
+    remote = url_request.urlopen(download_url)
     try:
         hai('Downloading from {}'.format(download_url))
         local, temp_path = tempfile.mkstemp()
