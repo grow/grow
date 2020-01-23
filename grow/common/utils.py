@@ -13,7 +13,7 @@ import string
 import sys
 import threading
 import time
-import urllib.request, urllib.parse, urllib.error
+from urllib import parse as url_parse
 from collections import OrderedDict
 import yaml
 import bs4
@@ -634,7 +634,7 @@ def _clean_google_href(href):
     match = re.match(regex, href)
     if match:
         encoded_url = match.group(2)
-        return urllib.parse.unquote(encoded_url)
+        return url_parse.unquote(encoded_url)
     return href
 
 
