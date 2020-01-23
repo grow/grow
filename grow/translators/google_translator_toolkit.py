@@ -2,8 +2,8 @@
 
 import datetime
 import base64
-import urllib.request, urllib.parse, urllib.error
 import httplib2
+from urllib import parse as url_parse
 from googleapiclient import discovery
 from googleapiclient import errors
 from grow.common import oauth
@@ -90,7 +90,7 @@ class Gtt(object):
         }
         url = '{}/{}?{}'.format(
             GTT_DOCUMENTS_BASE_URL,
-            urllib.parse.quote(document_id), urllib.parse.urlencode(params))
+            url_parse.quote(document_id), url_parse.urlencode(params))
         response, content = self.http.request(url)
         try:
             if response.status >= 400:
