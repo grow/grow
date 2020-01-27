@@ -18,19 +18,19 @@ Specify and use your custom preprocessor in `podspec.yaml`:
 
 extensions:
   preprocessors:
-  - extensions.preprocessors.hello.HelloPreprocessor
+  - ext.hello.HelloPreprocessor
 
 preprocessors:
 - kind: hello
   person: Zoey
 ```
 
-Define the preprocessor in a corresponding place in the `/extensions/` folder.
+Define the preprocessor in the `/ext/` folder.
 Grow preprocessors should subclass `grow.Preprocessor` and use ProtoRPC Messages
 to define their configuration.
 
 ```python
-# /extensions/preprocessors/hello.py
+# /ext/hello.py
 
 import grow
 from protorpc import messages
@@ -47,6 +47,8 @@ class HelloPreprocessor(grow.Preprocessor):
     def run(self, build=True):
         print 'Hello, {}!'.format(self.config.person)
 ```
+
+Lastly, in the same `/ext` folder, create an empty file called `__init__.py` to let Grow know that this is a module.
 
 Now, you can use the preprocessor.
 
