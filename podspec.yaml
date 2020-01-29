@@ -20,6 +20,10 @@ localization:
   locales:
   - en
 
+ext:
+- extensions.editor.EditorExtension:
+    enabled@env.prod: False
+
 preprocessors:
 - kind: gulp
 
