@@ -183,8 +183,8 @@ class Catalog(catalog.Catalog):
     def _skip_compile_error(self, error):
         # Reduces logspam by hiding errors related to placeholders.
         if (not self._use_old_formatting
-            and ('incompatible format for placeholder' in error
-                 or 'placeholders are incompatible' in error)):
+            and ('incompatible format for placeholder' in str(error)
+                 or 'placeholders are incompatible' in str(error))):
             return True
         return False
 
