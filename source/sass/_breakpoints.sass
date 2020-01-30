@@ -1,0 +1,44 @@
+$ak-breakpoint-xs: 380px
+$ak-breakpoint-sm: 480px
+$ak-breakpoint-md: 718px
+$ak-breakpoint-lg: 1024px
+$ak-breakpoint-xl: 1440px
+$ak-breakpoint-map: (xs: $ak-breakpoint-xs, sm: $ak-breakpoint-sm, md: $ak-breakpoint-md, lg: $ak-breakpoint-lg, xl: $ak-breakpoint-xl) !default
+
+@mixin ak-breakpoint-gt($size)
+  $width: map-get($ak-breakpoint-map, $size)
+  @media (min-width: $width)
+    @content
+
+@mixin ak-breakpoint-rule-gt($sizes: (sm, md, lg), $include-root: true)
+  @if $include-root
+    @content
+
+  @each $size in $sizes
+    &--gt-#{$size}
+      @include ak-breakpoint-gt($size)
+        @content
+
+@mixin xs
+  @include ak-breakpoint-gt(xs)
+    @content
+
+@mixin sm
+  @include ak-breakpoint-gt(sm)
+    @content
+
+@mixin md
+  @include ak-breakpoint-gt(md)
+    @content
+
+@mixin lg
+  @include ak-breakpoint-gt(lg)
+    @content
+
+@mixin xl
+  @include ak-breakpoint-gt(xl)
+    @content
+
+=mobile-landscape
+  @media only screen and (min-device-width: 320px) and (max-device-width: 900px) and (orientation: landscape)
+    @content
