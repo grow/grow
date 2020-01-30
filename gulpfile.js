@@ -16,23 +16,23 @@ const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 
 const config = {
-  JS_SOURCE_DIR: './source/js/composite/',
+  JS_SOURCE_DIR: './source/js/',
   JS_SOURCES: [
     './partials/**/*.js',
     './source/js/**/*.js',
   ],
-  JS_OUT_DIR: './dist/js/composite/',
+  JS_OUT_DIR: './dist/js/',
   JS_OPTIONS: {
     uglify: {
       mangle: false
     }
   },
-  SASS_SOURCE_DIR: './source/sass/composite/**/*.{sass,scss}',
+  SASS_SOURCE_DIR: './source/sass/**/*.{sass,scss}',
   SASS_SOURCES: [
     './partials/**/*.{sass,scss}',
     './source/sass/**/*.{sass,scss}',
   ],
-  SASS_OUT_DIR: './dist/css/composite/'
+  SASS_OUT_DIR: './dist/css/'
 };
 
 const entry = {
