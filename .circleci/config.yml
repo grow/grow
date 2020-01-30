@@ -9,7 +9,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - &cache_key grow-cache-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+            - &cache_key grow-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}-{{ checksum "package-lock.json" }}
 
       - run:
           name: Grow Install
