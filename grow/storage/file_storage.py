@@ -4,8 +4,9 @@ import errno
 import hashlib
 import os
 import shutil
-import jinja2
 from grow.storage import base_storage
+from grow.templates import jinja_loader
+
 
 class FileStorage(base_storage.BaseStorage):
 
@@ -60,7 +61,7 @@ class FileStorage(base_storage.BaseStorage):
 
     @staticmethod
     def JinjaLoader(path):
-        return jinja2.FileSystemLoader(path)
+        return jinja_loader.FrontMatterLoader(path)
 
     @classmethod
     def write(cls, path, content):
