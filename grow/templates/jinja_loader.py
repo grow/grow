@@ -16,7 +16,8 @@ class FrontMatterLoader(jinja2.FileSystemLoader):
             source_lines = source.splitlines(True)
             separator_index = None
             for index, line in enumerate(source_lines):
-                if line.strip() == self.SEPARATOR:
+                # Look for the separator, ignoring the first line.
+                if line.strip() == self.SEPARATOR and index > 0:
                     separator_index = index
                     break
             if separator_index:
