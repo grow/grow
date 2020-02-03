@@ -24,12 +24,7 @@ class RequestHandler(serving.WSGIRequestHandler):
 class PodServer(object):
 
     def __call__(self, environ, start_response):
-        try:
-            return self.wsgi_app(environ, start_response)
-        except Exception as e:
-            request = handlers.Request(environ)
-            response = handlers.serve_exception(self.pod, request, e)
-            return response(environ, start_response)
+        return self.wsgi_app(environ, start_response)
 
     def __init__(self, pod, host, port, debug=False):
         self.pod = pod
@@ -66,9 +61,14 @@ class PodServer(object):
         return handlers.serve_pod(self.pod, request, matched)
 
     def wsgi_app(self, environ, start_response):
-        request = handlers.Request(environ)
-        response = self.dispatch_request(request)
-        return response(environ, start_response)
+        try:
+            request = handlers.Request(environ)
+            response = self.dispatch_request(request)
+            return response(environ, start_response)
+        except Exception as e:
+            request = handlers.Request(environ)
+            response = handlers.serve_exception(self.pod, request, e)
+            return response(environ, start_response)
 
 
 def create_wsgi_app(pod, host, port, debug=False):
