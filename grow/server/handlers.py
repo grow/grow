@@ -89,6 +89,11 @@ def serve_pod(pod, request, matched, **_kwargs):
     controller = pod.router.get_render_controller(
         request.path, matched.value, params=matched.params)
     response = None
+
+    if controller.pod_path is None:
+        text = '{} was not found in routes.'
+        raise errors.RouteNotFoundError(text.format(request.path))
+
     headers = controller.get_http_headers()
     if 'X-AppEngine-BlobKey' in headers:
         return Response(headers=headers)
