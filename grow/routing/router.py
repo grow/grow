@@ -496,6 +496,10 @@ class Router(object):
 
     def get_static_config_for_pod_path(self, pod_path):
         """Return the static configuration for a pod path."""
+        if pod_path is None:
+            text = '{} is not found in any static file configuration in the podspec.'
+            raise MissingStaticConfigError(text.format(pod_path))
+
         for config in self.pod.static_configs:
             if config.get('dev') and not self.pod.env.dev:
                 continue

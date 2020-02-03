@@ -492,6 +492,8 @@ class RenderStaticDocumentController(RenderController):
     def get_http_headers(self):
         """Determine headers to serve for http requests."""
         headers = super(RenderStaticDocumentController, self).get_http_headers()
+        if self.pod_path is None:
+            return headers
         path = self.pod.abs_path(self.static_doc.pod_path)
         self.pod.storage.update_headers(headers, path)
         modified = self.pod.storage.modified(path)
