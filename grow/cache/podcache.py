@@ -1,6 +1,8 @@
 """Caching for pod meta information."""
 
 import json
+import slugify
+from pymemcache.client.base import Client as MemcachedClient
 from grow.cache import collection_cache
 from grow.cache import document_cache
 from grow.cache import file_cache
@@ -34,6 +36,7 @@ class PodCache(object):
 
     def __init__(self, dep_cache, obj_cache, routes_cache, pod):
         self._pod = pod
+        self._memcached_client = None
 
         self._collection_cache = collection_cache.CollectionCache()
         self._document_cache = document_cache.DocumentCache()
@@ -146,6 +149,28 @@ class PodCache(object):
         for meta in self._object_caches.values():
             if meta['can_reset'] or force:
                 meta['cache'].reset()
+
+    def set_memcached(self, host, port=11211):
+        """Set the memcached server information."""
+        with self._pod.profile.timer('Podcache.set_memcached'):
+            # Use a has of the pod rood as a cache prefix.
+            # TODO: Need a shorter pod specifc prefix.
+            prefix = '{}:'.format(slugify.slugify(self._pod.root))
+            self._memcached_client = MemcachedClient(
+                (host, port), connect_timeout=8000, timeout=3000,
+                key_prefix=prefix)
+
+            # TODO Update existing caches to use the memcached client.
+            # self._collection_cache
+            # self._document_cache
+            # self._file_cache
+            # self._dependency_graph
+
+            for key in self._object_caches:
+                cache = self._object_caches[key]['cache']
+                cache.set_memcached(self._memcached_client, prefix=key)
+
+            # self._routes_cache
 
     def update(self, dep_cache=None, obj_cache=None):
         """Update the values in the dependency cache and/or the object cache."""

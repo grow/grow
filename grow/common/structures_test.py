@@ -40,6 +40,71 @@ class DeepReferenceDictTestCase(unittest.TestCase):
         with self.assertRaises(KeyError):
             _ = obj['key.sub_key.value']
 
+
+class LocalMemcachedCacheTestCase(unittest.TestCase):
+    """Test the deep reference dict structure."""
+
+    def setUp(self):
+        self.cache = structures.LocalMemcachedCache()
+
+    def test_add(self):
+        """Adding single value."""
+        self.cache.add('foo', 'bar')
+        self.assertEqual(self.cache.get('foo'), 'bar')
+
+    def test_delete(self):
+        """Deleting single values."""
+        self.cache.add('foo', 'bar')
+        self.assertTrue(self.cache.delete('foo'))
+        # Doesn't exist the second time.
+        self.assertFalse(self.cache.delete('foo'))
+
+    def test_delete_many(self):
+        """Deleting many at a time."""
+        # Deleting with matching keys returns true.
+        self.cache.add('foo', 'bar')
+        self.cache.add('baz', 'bam')
+        self.assertTrue(self.cache.delete_many(['foo', 'baz']))
+
+        # Deleting with missing keys returns false.
+        self.cache.add('foo', 'bar')
+        self.assertFalse(self.cache.delete_many(['foo', 'baz']))
+
+    def test_get_many(self):
+        """Getting many at a time."""
+        # Getting with matching keys returns true.
+        self.cache.add('foo', 'bar')
+        self.cache.add('baz', 'bam')
+        self.assertEquals(self.cache.get_many(['foo', 'baz']), {
+            'foo': 'bar',
+            'baz': 'bam',
+        })
+
+        # Getting with missing keys returns None in place.
+        self.cache.delete('baz')
+        self.assertEquals(self.cache.get_many(['foo', 'baz']), {
+            'foo': 'bar',
+            'baz': None,
+        })
+
+    def test_gets_many(self):
+        """Getting many at a time."""
+        # Getting with matching keys returns true.
+        self.cache.add('foo', 'bar')
+        self.cache.add('baz', 'bam')
+        self.assertEquals(self.cache.gets_many(['foo', 'baz']), {
+            'foo': ('bar', None),
+            'baz': ('bam', None),
+        })
+
+        # Getting with missing keys returns None in place.
+        self.cache.delete('baz')
+        self.assertEquals(self.cache.gets_many(['foo', 'baz']), {
+            'foo': ('bar', None),
+            'baz': (None, None),
+        })
+
+
 class SortedCollectionTestCase(unittest.TestCase):
     """Test the sorted collection structure."""
 

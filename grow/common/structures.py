@@ -34,6 +34,114 @@ class DeepReferenceDict(dict):
             return data
 
 
+class LocalMemcachedCache(object):
+    """Local replacement dict for memcached client.
+
+    Based off the pymemcached client.
+    """
+
+    def __init__(self):
+        self.data = {}
+
+    def add(self, key, value, expire=0, noreply=None, flags=None):
+        """Add value to cache."""
+        self.data[key] = value
+        return True
+
+    def append(self, key, value, expire=0, noreply=None, flags=None):
+        raise NotImplementedError('append not implemented')
+
+    def cache_memlimit(self, memlimit):
+        raise NotImplementedError('cache_memlimit not implemented')
+
+    def cas(self, key, value, cas, expire=0, noreply=False, flags=None):
+        raise NotImplementedError('cas not implemented')
+
+    def check_key(self, key):
+        raise NotImplementedError('check_key not implemented')
+
+    def close(self):
+        pass
+
+    def decr(self, key, value, noreply=False):
+        raise NotImplementedError('decr not implemented')
+
+    def delete(self, key, noreply=None):
+        """Delete a value."""
+        try:
+            del self.data[key]
+        except KeyError:
+            return False
+        return True
+
+    def delete_many(self, keys, noreply=None):
+        """Delete multiple values at a time."""
+        deleted_all = True
+        for key in keys:
+            try:
+                del self.data[key]
+            except KeyError:
+                deleted_all = False
+        return deleted_all
+
+    delete_multi = delete_many
+
+    def flush_all(self, delay=0, noreply=None):
+        self.data = {}
+        return True
+
+    def get(self, key, default=None):
+        return self.data.get(key, default)
+
+    def gets(self, key, default=None, cas_default=None):
+        return self.get(key, default=default)
+
+    def get_many(self, keys):
+        result = {}
+        for key in keys:
+            result[key] = self.data.get(key)
+        return result
+
+    get_multi = get_many
+
+    def gets_many(self, keys):
+        result = {}
+        for key in keys:
+            result[key] = (self.data.get(key), None)
+        return result
+
+    def incr(self, key, value, noreply=False):
+        raise NotImplementedError('incr not implemented')
+
+    def prepend(self, key, value, expire=0, noreply=None, flags=None):
+        raise NotImplementedError('preprend not implemented')
+
+    def quit(self):
+        pass
+
+    def replace(self, key, value, expire=0, noreply=None, flags=None):
+        pass
+
+    def set(self, key, value, expire=0, noreply=None, flags=None):
+        self.data[key] = value
+        return True
+
+    def set_many(self, values, expire=0, noreply=None, flags=None):
+        self.data.update(values)
+        return []
+
+    set_multi = set_many
+
+    def stats(self, *_args):
+        raise NotImplementedError('stats not implemented')
+
+    def touch(self, key, expire=0, noreply=None):
+        raise NotImplementedError('touch not implemented')
+
+    def version(self):
+        raise NotImplementedError('version not implemented')
+
+
 class SafeDict(dict):
     """Keeps the unmatched format params in place."""
 
