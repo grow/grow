@@ -14,7 +14,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Node, Yarn, GCloud sources.
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
   && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
   && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
   && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
@@ -31,7 +31,9 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Update npm and install packages.
-RUN npm install -g npm@latest \
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/`curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")'`/install.sh | bash \
+  && . ~/.bashrc \
+  && npm install -g npm@latest \
   && yarn global add gulp \
   && yarn cache clean
 
@@ -46,6 +48,7 @@ RUN gem install bundler
 RUN echo "Grow: `grow --version`" \
   && echo "Node: `node -v`" \
   && echo "NPM: `npm -v`" \
+  && echo "NVM: `nvm --version`" \
   && echo "Yarn: `yarn --version`" \
   && echo "Gulp: `gulp -v`" \
   && echo "GCloud: `gcloud -v`" \
