@@ -21,7 +21,8 @@ with open('Pipfile') as pipfile:
 
             line_match = DEP_RE.match(line)
             if line_match:
-                INSTALL_REQ.append('{}{}'.format(line_match.group(1), line_match.group(2)))
+                INSTALL_REQ.append(
+                    '{}{}'.format(line_match.group(1).strip('"'), line_match.group(2)))
         elif line == '[packages]':
             in_dep_section = True
 
