@@ -26,7 +26,7 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         mock_call.return_value = 0
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'pip --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            'pip3 --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_fail(self, mock_call):
@@ -47,7 +47,7 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         self.assertFalse(self.pod.file_exists(extensions_init_file))
         self.installer.install()
         self.assertTrue(self.pod.file_exists(extensions_init_file))
-        expected = 'pip install -U -t {} -r extensions.txt'.format(
+        expected = 'pip3 install -U -t {} -r extensions.txt'.format(
             extensions_dir)
         mock_popen.assert_called_once_with(
             expected, **self.installer.subprocess_args(shell=True))
