@@ -18,6 +18,9 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
   && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
   && echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 
+RUN add-apt-repository ppa:linuxuprising/java
+RUN apt-get install oracle-java10-installer oracle-java10-set-default
+
 # Install Grow dependencies.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
@@ -44,10 +47,11 @@ RUN gem install bundler
 
 # Confirm versions that are installed.
 RUN echo "Grow: `grow --version`" \
-  && echo "Node: `node -v`" \
+  && echo "GCloud: `gcloud -v`" \
+  && echo "Gulp: `gulp -v`" \
+  && echo "Java: `java --version`" \
   && echo "NPM: `npm -v`" \
   && echo "NVM: `nvm --version`" \
-  && echo "Yarn: `yarn --version`" \
-  && echo "Gulp: `gulp -v`" \
-  && echo "GCloud: `gcloud -v`" \
-  && echo "Ruby: `ruby -v`"
+  && echo "Node: `node -v`" \
+  && echo "Ruby: `ruby -v`" \
+  && echo "Yarn: `yarn --version`"

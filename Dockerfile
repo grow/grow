@@ -13,6 +13,9 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+RUN add-apt-repository ppa:linuxuprising/java
+RUN apt-get install oracle-java10-installer oracle-java10-set-default
+
 # Node, Yarn, GCloud sources.
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
   && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
@@ -46,10 +49,11 @@ RUN gem install bundler
 
 # Confirm versions that are installed.
 RUN echo "Grow: `grow --version`" \
-  && echo "Node: `node -v`" \
+  && echo "GCloud: `gcloud -v`" \
+  && echo "Gulp: `gulp -v`" \
+  && echo "Java: `java --version`" \
   && echo "NPM: `npm -v`" \
   && echo "NVM: `nvm --version`" \
-  && echo "Yarn: `yarn --version`" \
-  && echo "Gulp: `gulp -v`" \
-  && echo "GCloud: `gcloud -v`" \
-  && echo "Ruby: `ruby -v`"
+  && echo "Node: `node -v`" \
+  && echo "Ruby: `ruby -v`" \
+  && echo "Yarn: `yarn --version`"
