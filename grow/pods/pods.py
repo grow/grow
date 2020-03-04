@@ -13,7 +13,7 @@ import tempfile
 import yaml
 import jinja2
 import progressbar
-from werkzeug.contrib import cache as werkzeug_cache
+import cachelib
 from grow import storage as grow_storage
 from grow.cache import podcache
 from grow.collections import collection
@@ -293,8 +293,8 @@ class Pod(object):
     @utils.cached_property
     def cache(self):
         if utils.is_appengine():
-            return werkzeug_cache.MemcachedCache(default_timeout=0)
-        return werkzeug_cache.SimpleCache(default_timeout=0)
+            return cachelib.MemcachedCache(default_timeout=0)
+        return cachelib.SimpleCache(default_timeout=0)
 
     @property
     def error_routes(self):

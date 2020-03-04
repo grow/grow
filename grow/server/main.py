@@ -3,7 +3,7 @@
 import os
 from urllib import parse as url_parse
 from werkzeug import serving
-from werkzeug import wsgi
+from werkzeug.middleware import shared_data
 from grow.common import config
 from grow.common import utils
 from grow.pods import errors
@@ -76,7 +76,7 @@ def create_wsgi_app(pod, host, port, debug=False):
     assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'admin', 'assets')
     ui_path = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
     # pylint: disable=no-member
-    return wsgi.SharedDataMiddleware(podserver_app, {
+    return shared_data.SharedDataMiddleware(podserver_app, {
         '/_grow/ui': ui_path,
         '/_grow/assets': assets_path,
     })
