@@ -171,16 +171,16 @@ class Importer(object):
                 'translations', babel_locale, 'LC_MESSAGES')
             pod_po_path = os.path.join(pod_translations_dir, 'messages.po')
             if self.pod.file_exists(pod_po_path):
-                existing_po_file = self.pod.open_file(pod_po_path)
-                existing_catalog = pofile.read_po(
-                    existing_po_file, babel_locale)
-                po_file_to_merge = cStringIO.StringIO()
-                po_file_to_merge.write(content)
-                po_file_to_merge.seek(0)
                 try:
+                    existing_po_file = self.pod.open_file(pod_po_path)
+                    existing_catalog = pofile.read_po(
+                        existing_po_file, babel_locale)
+                    po_file_to_merge = cStringIO.StringIO()
+                    po_file_to_merge.write(content)
+                    po_file_to_merge.seek(0)
                     catalog_to_merge = pofile.read_po(
                         po_file_to_merge, babel_locale)
-                except:
+                except Exception as e:
                     text = 'Error merging catalogs for locale -> {}'
                     logging.error(text.format(locale))
                     raise
