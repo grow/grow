@@ -489,6 +489,9 @@ class RenderStaticDocumentController(RenderController):
     def get_http_headers(self):
         """Determine headers to serve for http requests."""
         headers = super(RenderStaticDocumentController, self).get_http_headers()
+        # Request path doesn't match any route, just return.
+        if not self.pod_path:
+            return headers
         path = self.pod.abs_path(self.static_doc.pod_path)
         self.pod.storage.update_headers(headers, path)
         modified = self.pod.storage.modified(path)
@@ -525,7 +528,7 @@ class RenderStaticDocumentController(RenderController):
             'RenderStaticDocumentController.render', label=self.serving_path,
             meta={'path': self.serving_path}).start_timer()
 
-        if not self.pod.file_exists(self.pod_path):
+        if not self.pod_path or not self.pod.file_exists(self.pod_path):
             text = '{} was not found in static files.'
             raise errors.RouteNotFoundError(text.format(self.serving_path))
 
