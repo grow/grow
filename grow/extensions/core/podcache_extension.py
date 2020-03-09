@@ -10,8 +10,13 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
     """Handle the dev file change hook."""
 
     # pylint: disable=arguments-differ
-    def trigger(self, previous_result, pod_path, *_args, **_kwargs):
+    def trigger(self, previous_result, pod_path, *_args, **kwargs):
         """Trigger the file change hook."""
+
+        # We don't want to write cache files when just serving.
+        write_cache_file = True
+        if 'write_cache_file' in kwargs:
+            write_cache_file = kwargs['write_cache_file']
 
         # Remove any raw file in the cache.
         self.pod.podcache.file_cache.remove(pod_path)
@@ -24,7 +29,7 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
             self.pod.podcache.collection_cache.remove_collection(doc.collection)
         elif pod_path == '/{}'.format(podcache.FILE_OBJECT_CACHE):
             self.pod.podcache.update(obj_cache=self.pod._parse_object_cache_file())
-            if self.pod.podcache.is_dirty:
+            if write_cache_file and self.pod.podcache.is_dirty:
                 self.pod.logger.info('Object cache changed, updating with new data.')
                 self.pod.podcache.write()
 

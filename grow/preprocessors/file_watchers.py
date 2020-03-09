@@ -20,13 +20,20 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
     def __init__(self, pod, managed_observer, *args, **kwargs):
         self.pod = pod
         self.managed_observer = managed_observer
+
+        # We don't want to write cache files when just serving.
+        self.write_cache_file = True
+        if 'write_cache_file' in kwargs:
+            self.write_cache_file = kwargs.pop('write_cache_file')
+
         if 'ignore_patterns' not in kwargs:
             kwargs['ignore_patterns'] = IGNORED_PATTERNS
         super(PodFileEventHandler, self).__init__(*args, **kwargs)
 
     def trigger_file_changed(self, pod_path):
         try:
-            self.pod.extensions_controller.trigger('dev_file_change', pod_path)
+            self.pod.extensions_controller.trigger(
+                'dev_file_change', pod_path, write_cache_file=self.write_cache_file)
         except Exception:  # pylint: disable=broad-except
             # Avoid an inconsistent state where preprocessor doesn't run again
             # if it encounters an exception. https://github.com/grow/grow/issues/528
@@ -86,8 +93,9 @@ class ManagedObserver(observers.Observer):
         self._child_observers = []
         super(ManagedObserver, self).__init__()
 
-    def schedule_podfile(self):
-        podfile_handler = PodFileEventHandler(self.pod, managed_observer=self)
+    def schedule_podfile(self, write_cache_file=True):
+        podfile_handler = PodFileEventHandler(
+            self.pod, managed_observer=self, write_cache_file=write_cache_file)
         self.schedule(podfile_handler, path=self.pod.root, recursive=True)
 
     def schedule_builtins(self):
@@ -147,14 +155,14 @@ class ManagedObserver(observers.Observer):
                 handler.handle()
 
 
-def create_dev_server_observers(pod):
+def create_dev_server_observers(pod, write_cache_file=True):
     """Create the file watchers for the pod."""
     main_observer = ManagedObserver(pod)
     main_observer.schedule_builtins()
     main_observer.schedule_preprocessors()
 
     podspec_observer = ManagedObserver(pod)
-    podspec_observer.schedule_podfile()
+    podspec_observer.schedule_podfile(write_cache_file=write_cache_file)
     podspec_observer.add_child(main_observer)
     podspec_observer.start()
     return main_observer, podspec_observer
