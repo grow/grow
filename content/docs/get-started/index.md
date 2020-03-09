@@ -34,6 +34,8 @@ pip install grow
 curl https://install.grow.io | bash
 ```
 
+[See complete installation instructions for Mac and Linux](/workflow/development-server/)
+
 ## Learning Grow
 
 Grow is simple yet powerful and prefers configuration over code for defining
