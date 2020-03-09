@@ -17,6 +17,11 @@ class ExtensionController(object):
             self._hooks[hook.KEY] = hook_controller.HookController(
                 self.pod, hook.KEY, hook(None))
 
+    def extension_config(self, extension_path):
+        if extension_path not in self._extensions:
+            return {}
+        return  self._extensions[extension_path].config
+
     def register_builtins(self):
         """Add new built-in extensions."""
         new_extensions = []
