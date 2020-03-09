@@ -242,6 +242,11 @@ class Pod(object):
                 return {}
             try:
                 return self.read_json(routes_cache_file_name) or {}
+            except ValueError:
+                # File became corrupted; delete it and start over.
+                # https://github.com/grow/grow/issues/1050#issuecomment-596346032
+                self.delete_file(routes_cache_file_name)
+                return {}
             except IOError:
                 path = self.abs_path(routes_cache_file_name)
                 raise podcache.PodCacheParseError(
