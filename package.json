@@ -1,6 +1,6 @@
 {
   "name": "grow",
-  "version": "0.8.21",
+  "version": "0.8.22",
   "description": "A declarative, file-based website generator for rapid website production.",
   "repository": {
     "type": "git",
