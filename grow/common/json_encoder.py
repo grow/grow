@@ -12,6 +12,9 @@ class GrowJSONEncoder(json.JSONEncoder):
     # pylint: disable=method-hidden
     def default(self, o):
         """Attempt to encode known objects."""
+        if isinstance(o, datetime.date):
+            return o.isoformat()
+
         if isinstance(o, datetime.datetime):
             return o.isoformat()
 
