@@ -246,7 +246,7 @@ leverage the top-level `class` key.
 
 ### Guidelines
 
-Choose an obvious, memorable name.
+**Choose an obvious, memorable name.**
 
 Partials should be named in a concise yet descriptive way. Naming is hard – be
 generic, but not too generic. For example, if a design has a
@@ -254,13 +254,18 @@ commonly-used "top" or "hero" module, name it `hero`. Or a commonly used
 column module, name it `columns`.
 
 Avoid coupling the partial's name to a specific page, unless the
-partial's design can in no way be applied elsewhere. If there is a slight
+partial's design cannot be applied elsewhere. If there is a slight
 variation between two pages, use a generic name. If a module is unique to a
 page and will always be for the forseeable future, you may prefix the partial's
 name with the page's basename.
 
+If using the specific page's name would help you or others remember and refer to
+the partial, disregard the previous rule. For example, if a new column module
+is created for the "foo page", and if the design is henceforth referred to as the
+"foo columns", just name the partial "foo columns".
+
 Avoid names that include "count numbers". For example, a `two-column` partial
-may eventually grow to be an `x-column` mask.
+may eventually grow to be an `x-column` partial.
 
 ### Example names
 
