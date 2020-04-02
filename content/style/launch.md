@@ -21,7 +21,7 @@ categories:
 
 - title: Analytics and SEO
   parts:
-  - title: Social meta tags
+  - title: Social meta tags and images (`1200x630`)
   - title: Page titles and descriptions
   - title: Favicon
   - title: Analytics
