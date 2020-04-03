@@ -9,8 +9,9 @@ from grow.common import untag
 from grow.common import utils
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}\s*$', re.MULTILINE)
-CONVERT_MESSAGE = """Document contains too many parts: {},
-    Please run `grow convert --type content_locale_split` to help update files."""
+CONVERT_MESSAGE = """Document contains too many parts: {}
+    Remove superfluous separators (`---`).
+    Or, please run `grow convert --type content_locale_split` to help update files."""
 
 
 def _update_deep(orig_dict, new_dict):
@@ -41,13 +42,13 @@ class DocumentFrontMatter(object):
         self.update_raw_front_matter(raw_front_matter)
 
     @staticmethod
-    def split_front_matter(content):
+    def split_front_matter(content, pod_path=''):
         """Takes raw document content and separates the front matter and content."""
         parts = BOUNDARY_REGEX.split(content)
         if parts[0].strip() == '':
             parts.pop(0)
         if len(parts) > 2:
-            message = CONVERT_MESSAGE.format('')
+            message = CONVERT_MESSAGE.format(pod_path)
             raise BadFormatError(message)
         if len(parts) == 2:
             return parts[0].strip() or None, parts[1].strip()
@@ -76,7 +77,7 @@ class DocumentFrontMatter(object):
             self._raw_front_matter = raw_front_matter
         elif self._doc.exists:
             self._raw_front_matter, _ = DocumentFrontMatter.split_front_matter(
-                self._doc.raw_content)
+                self._doc.raw_content, pod_path=self._doc.pod_path)
 
         if self._raw_front_matter:
             new_data = self._load_yaml(self._raw_front_matter)
