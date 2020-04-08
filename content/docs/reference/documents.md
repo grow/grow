@@ -40,14 +40,44 @@ csv:    !g.csv /pod/path/to.csv
 doc:    !g.doc /content/page/about.yaml
 json:   !g.json /pod/path/to.json
 static: !g.static /pod/path/to.img
+string: !g.string string.key.reference
 url:    !g.url /content/page/about.yaml
 yaml:   !g.yaml /pod/path/to.yaml
 ```
 
-Yaml constructors can also reference specific keys in the referenced yaml file.
+##### Deep reference
+
+Yaml and JSON constructors can also reference specific keys in the referenced yaml file.
 
 ```yaml
 yaml:   !g.yaml /pod/path/to.yaml?key.sub_key
+json:   !g.json /pod/path/to.json?key.sub_key
+```
+
+##### String reference
+
+The `!g.string` is a special constructor that makes it easy to reference strings
+defined in an yaml file. This makes it easier to reuse strings in multiple places
+or have the strings managed in a third party process (such as a Google Sheet).
+
+All strings referenced by the `!g.string` constructor are defined in yaml files in
+the `/content/strings/` directory. The value of the constructor is in the format of
+`<file_base_name>.<key>.<subkey>`
+
+As an example:
+
+```yaml
+# /content/strings/products.yaml
+categories:
+  art: Art
+  tech: Technology
+  science: Science
+```
+
+```yaml
+# /content/page/art.yaml
+category:
+  title: !g.yaml products.categories.art
 ```
 
 ### Body
