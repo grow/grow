@@ -77,7 +77,7 @@ categories:
 ```yaml
 # /content/page/art.yaml
 category:
-  title: !g.yaml products.categories.art
+  title: !g.string products.categories.art
 ```
 
 ### Body
