@@ -1,5 +1,6 @@
 """Document formatting specifics for parsing and working with documents."""
 
+import collections
 import logging
 from grow.common import utils
 from grow.documents import document_front_matter as doc_front_matter
@@ -103,6 +104,60 @@ class DocumentFormat(object):
     def formatted(self):
         return self.content
 
+    def organizeFields(self, fields):
+        """Structure the fields data to keep some minimal structure."""
+        new_fields = collections.OrderedDict()
+
+        # Deep sort all fields by default.
+        def _walk_field(item, key, node, parent_node):
+            try:
+                value = node[key]
+                new_value = collections.OrderedDict()
+                for sub_key in sorted(value.keys()):
+                    new_value[sub_key] = value[sub_key]
+                node[key] = new_value
+            except:
+                pass
+        utils.walk(fields, _walk_field)
+
+        # Organization rules:
+        # $ prefixed fields should come first.
+        # Partials key is last.
+        # Partials' partial key should be first in partial data.
+        # Sort the fields to keep consistent between saves.
+
+        other_keys = []
+        for key in sorted(fields.keys()):
+            if key.startswith('$'):
+                new_fields[key] = fields[key]
+            elif key == 'partials':
+                pass
+            else:
+                other_keys.append(key)
+
+        for key in other_keys:
+            new_fields[key] = fields[key]
+
+        if 'partials' in fields:
+            new_partials = []
+
+            for partial in fields['partials']:
+                new_partial = collections.OrderedDict()
+
+                # Put the partial name first for easy readability.
+                if 'partial' in partial:
+                    new_partial['partial'] = partial['partial']
+
+                for key in sorted(partial.keys()):
+                    if key != 'partial':
+                        new_partial[key] = partial[key]
+
+                new_partials.append(new_partial)
+
+            new_fields['partials'] = new_partials
+
+        return new_fields
+
     def to_raw_content(self):
         """Formats the front matter and content into a raw_content string."""
         raw_front_matter = self.front_matter.export()
@@ -111,6 +166,9 @@ class DocumentFormat(object):
     def update(self, fields=utils.SENTINEL, content=utils.SENTINEL):
         """Updates content and frontmatter."""
         if fields is not utils.SENTINEL:
+            # Organize some of the fields for minimal consistency.
+            fields = self.organizeFields(fields)
+
             raw_front_matter = utils.dump_yaml(fields)
             self.front_matter.update_raw_front_matter(raw_front_matter)
             self._doc.pod.podcache.document_cache.add_property(
