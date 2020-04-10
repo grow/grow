@@ -10,6 +10,7 @@ import webob
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
 from werkzeug import wrappers
+from werkzeug.exceptions import NotFound
 from grow.documents import document
 from grow.pods import errors
 from grow.pods import ui
@@ -42,6 +43,9 @@ def serve_exception(pod, request, exc, **_kwargs):
         status = exc.status_int
         log('{}: {}'.format(status, request.path))
     elif isinstance(exc, errors.RouteNotFoundError):
+        status = 404
+        log('{}: {}'.format(status, request.path))
+    elif isinstance(exc, NotFound):
         status = 404
         log('{}: {}'.format(status, request.path))
     else:
