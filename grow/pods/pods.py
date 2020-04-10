@@ -440,6 +440,11 @@ class Pod(object):
         path = os.path.join(self.root, pod_path.lstrip('/'))
         return os.path.join(self.root, path)
 
+    def copy_file_to(self, source_pod_path, destination_pod_path):
+        source_path = self._normalize_path(source_pod_path)
+        dest_path = self._normalize_path(destination_pod_path)
+        return self.storage.copy_to(source_path, dest_path)
+
     def create_collection(self, collection_path, fields):
         pod_path = os.path.join(
             collection.Collection.CONTENT_PATH, collection_path)
