@@ -122,13 +122,16 @@ prep-release:
 
 upload-pypi:
 	. $(PIP_ENV)/bin/activate
-	$(MAKE) ensure-master
-	git pull origin master
+	# TODO: While on branch for python 3 this doesn't work.
+	# $(MAKE) ensure-master
+	# git pull origin master
 	$(MAKE) prep-release
 	python setup.py sdist bdist_wheel
-	pip2 install urllib3[secure] --upgrade
-	pip2 install twine --upgrade
-	twine upload dist/grow-$(VERSION)*
+	pip3 install urllib3[secure] --upgrade
+	pip3 install twine --upgrade
+	# twine upload dist/grow-$(VERSION)*
+	# TODO: Using temporary crazy version numbers.
+	twine upload dist/grow-1.0.0a1*
 
 upload-github:
 	@github-release > /dev/null || { \
