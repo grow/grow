@@ -657,7 +657,6 @@ class Pod(object):
                 or not self.yaml['translators']['services']):
             return None
         translator_config = self.yaml['translators']
-        inject_name = translator_config.get('inject')
         translators.register_extensions(
             self.yaml.get('extensions', {}).get('translators', []),
             self.root,
@@ -679,10 +678,8 @@ class Pod(object):
         for service_config in translator_services:
             if service_config.get('service') == service or len(translator_services) == 1:
                 translator_kind = service_config.pop('service')
-                inject = inject_name == translator_kind
                 return translators.create_translator(
                     self, translator_kind, service_config,
-                    inject=inject,
                     project_title=translator_config.get('project_title'),
                     instructions=translator_config.get('instructions'))
         raise ValueError('No translator service found: {}'.format(service))
@@ -717,13 +714,6 @@ class Pod(object):
                 if preprocessor.can_inject(collection=collection):
                     preprocessor.inject(collection=collection)
                     return preprocessor
-
-    def inject_translators(self, doc):
-        translator = self.get_translator()
-        if not translator:
-            return
-        translator.inject(doc=doc)
-        return translator
 
     def is_enabled(self, feature):
         return self._features.is_enabled(feature)
