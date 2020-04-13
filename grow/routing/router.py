@@ -496,8 +496,8 @@ class Router(object):
 
     def get_static_config_for_pod_path(self, pod_path):
         """Return the static configuration for a pod path."""
+        text = '{} is not found in any static file configuration in the podspec.'
         if pod_path is None:
-            text = '{} is not found in any static file configuration in the podspec.'
             raise MissingStaticConfigError(text.format(pod_path))
 
         for config in self.pod.static_configs:
@@ -522,7 +522,7 @@ class Router(object):
                     if pod_path.startswith(static_dir):
                         return config
 
-        raise MissingStaticConfigError(missing_text.format(pod_path))
+        raise MissingStaticConfigError(text.format(pod_path))
 
     def reconcile_documents(self, remove_docs=None, add_docs=None):
         """Remove old docs and add new docs to the routes."""
