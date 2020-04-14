@@ -82,6 +82,8 @@ def get_rc_path():
 def get_release_for_platform(releases, platform):
     """Find the latest release available for the platform."""
     for release in releases:
+        if release['prerelease']:
+            continue
         for each_asset in release['assets']:
             if platform in each_asset.get('name', '').lower():
                 return release
