@@ -52,11 +52,10 @@ class GoogleSheetsTranslator(base.Translator):
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = True
 
-    def __init__(self, pod, config=None, project_title=None,
-                 instructions=None, inject=False):
+    def __init__(self, pod, config=None, project_title=None, instructions=None):
         super(GoogleSheetsTranslator, self).__init__(
             pod, config=config, project_title=project_title,
-            instructions=instructions, inject=inject)
+            instructions=instructions)
         self.update_meta_after_upload = False
 
     def needs_meta_update(self):
