@@ -595,10 +595,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
                         preserve=self.config.preserve, key_to_update=key_to_update)
 
                 gid_to_data[gid] = untag.Untag.untag(gid_to_data[gid])
-                doc.inject(fields=gid_to_data[gid])
-        else:
-            # TODO Multi sheet import.
-            pass
 
     def get_edit_url(self, doc=None):
         """Returns the URL to edit in Google Sheets."""

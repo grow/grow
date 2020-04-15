@@ -21,13 +21,12 @@ def install_builtins():
         install_translator(builtin)
 
 
-def create_translator(pod, kind, config, inject=False,
-                      project_title=None, instructions=None):
+def create_translator(pod, kind, config, project_title=None, instructions=None):
     install_builtins()
     if kind not in _kinds_to_classes:
         raise ValueError('No translator exists: "{}"'.format(kind))
     translator = _kinds_to_classes[kind]
-    return translator(pod=pod, config=config, inject=inject,
+    return translator(pod=pod, config=config,
                       project_title=project_title, instructions=instructions)
 
 

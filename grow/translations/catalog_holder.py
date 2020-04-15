@@ -555,18 +555,6 @@ class Catalogs(object):
     def clear_gettext_cache(self):
         self._gettext_translations = {}
 
-    def inject_translations(self, locale, content):
-        po_file_to_merge = io.BytesIO()
-        po_file_to_merge.write(bytes(content, "utf8"))
-        po_file_to_merge.seek(0)
-        catalog_to_merge = pofile.read_po(po_file_to_merge, locale)
-        mo_fp = io.BytesIO()
-        mofile.write_mo(mo_fp, catalog_to_merge)
-        mo_fp.seek(0)
-        translation_obj = support.Translations(mo_fp, domain='messages')
-        self._gettext_translations[locale] = translation_obj
-        self.pod.logger.info('Injected translations -> {}'.format(locale))
-
     def get_gettext_translations(self, locale):
         if locale in self._gettext_translations:
             return self._gettext_translations[locale]

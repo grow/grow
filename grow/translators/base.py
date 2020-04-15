@@ -58,13 +58,11 @@ class Translator(object):
     has_immutable_translation_resources = False
     has_multiple_langs_in_one_resource = False
 
-    def __init__(self, pod, config=None, project_title=None,
-                 instructions=None, inject=False):
+    def __init__(self, pod, config=None, project_title=None, instructions=None):
         self.pod = pod
         self.config = config or {}
         self.project_title = project_title or 'Untitled Grow Website'
         self.instructions = instructions
-        self._inject = inject
 
     def _cleanup_locales(self, locales):
         """Certain locales should be ignored."""
@@ -148,7 +146,7 @@ class Translator(object):
             stats_to_download[lang] = stat_message
         return stats_to_download
 
-    def download(self, locales, save_stats=True, inject=False, include_obsolete=False):
+    def download(self, locales, save_stats=True, include_obsolete=False):
         # TODO: Rename to `download_and_import`.
         if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
             text = 'File {} not found. Nothing to download.'
@@ -160,10 +158,9 @@ class Translator(object):
         num_files = len(stats_to_download)
         text = 'Downloading translations: %(value)d/{} (in %(time_elapsed).9s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
-        if not inject:
-            bar = progressbar_non.create_progressbar(
-                "Downloading translations...", widgets=widgets, max_value=num_files)
-            bar.start()
+        bar = progressbar_non.create_progressbar(
+            "Downloading translations...", widgets=widgets, max_value=num_files)
+        bar.start()
         threads = []
         langs_to_translations = {}
         new_stats = []
@@ -180,12 +177,8 @@ class Translator(object):
             langs_to_translations[lang] = content
             new_stats.append(new_stat)
         for i, (lang, stat) in enumerate(stats_to_download.items()):
-            if inject:
-                thread = threading.Thread(
-                    target=_do_download, args=(lang, stat))
-            else:
-                thread = utils.ProgressBarThread(
-                    bar, True, target=_do_download, args=(lang, stat))
+            thread = utils.ProgressBarThread(
+                bar, True, target=_do_download, args=(lang, stat))
             threads.append(thread)
             thread.start()
             # Perform the first operation synchronously to avoid oauth2 refresh
@@ -195,15 +188,11 @@ class Translator(object):
         for i, thread in enumerate(threads):
             if i > 0:
                 thread.join()
-        if not inject:
-            bar.finish()
+        bar.finish()
 
         has_changed_content = False
         for lang, translations in langs_to_translations.items():
-            if inject:
-                if self.pod.catalogs.inject_translations(locale=lang, content=translations):
-                    has_changed_content = True
-            elif self.pod.catalogs.import_translations(
+            if self.pod.catalogs.import_translations(
                     locale=lang, content=translations,
                     include_obsolete=include_obsolete):
                 has_changed_content = True
@@ -369,9 +358,3 @@ class Translator(object):
             return
         stat = stats[doc.locale]
         return stat.url
-
-    def inject(self, doc):
-        if not self._inject or not doc.locale:
-            return
-        self.download(locales=[doc.locale], save_stats=False, inject=True)
-        return self
