@@ -78,61 +78,6 @@ class GoogleSheetsTranslator(base.Translator):
         return google_drive.BaseGooglePreprocessor.create_service(
             'sheets', 'v4')
 
-    def download(self, locales, save_stats=True, include_obsolete=False):
-        # TODO: Rename to `download_and_import`.
-        if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
-            text = 'File {} not found. Nothing to download.'
-            self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))
-            return
-        stats_to_download = self._get_stats_to_download(locales)
-        if not stats_to_download:
-            return
-        num_files = len(stats_to_download)
-        text = 'Downloading translations: %(value)d/{} (in %(time_elapsed).9s)'
-        widgets = [progressbar.FormatLabel(text.format(num_files))]
-        bar = progressbar_non.create_progressbar(
-            "Downloading translations...", widgets=widgets, max_value=num_files)
-        bar.start()
-        threads = []
-        langs_to_translations = {}
-        new_stats = []
-
-        def _do_download(lang, stat):
-            try:
-                new_stat, content = self._download_content(stat)
-            except translator_errors.NotFoundError:
-                text = 'No translations to download for: {}'
-                self.pod.logger.info(text.format(lang))
-                return
-
-            new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
-            langs_to_translations[lang] = content
-            new_stats.append(new_stat)
-
-        for i, (lang, stat) in enumerate(stats_to_download.iteritems()):
-            thread = utils.ProgressBarThread(bar, True, target=_do_download, args=(lang, stat))
-            threads.append(thread)
-            thread.start()
-            # Perform the first operation synchronously to avoid oauth2 refresh
-            # locking issues.
-            if i == 0:
-                thread.join()
-        for i, thread in enumerate(threads):
-            if i > 0:
-                thread.join()
-        bar.finish()
-
-        has_changed_content = False
-        for lang, translations in langs_to_translations.iteritems():
-            if self.pod.catalogs.import_translations(
-                    locale=lang, content=translations,
-                    include_obsolete=include_obsolete):
-                has_changed_content = True
-
-        if save_stats and has_changed_content:
-            self.save_stats(new_stats)
-        return new_stats
-
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
         rangeName = "'{}'!A:D".format(locale)
