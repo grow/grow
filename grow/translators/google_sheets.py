@@ -142,7 +142,6 @@ class GoogleSheetsTranslator(base.Translator):
 
             return locale_to_values
         except errors.HttpError as e:
-            print (e)
             if e.resp['status'] == '400':
                 raise translator_errors.NotFoundError(
                     'Translation for {} not found.'.format(locales))
