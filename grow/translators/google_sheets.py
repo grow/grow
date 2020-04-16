@@ -1,10 +1,13 @@
 """Google Sheets for translating pod content."""
 
+from __future__ import print_function
 import datetime
+import progressbar
 import random
 from babel.messages import catalog
 from babel.messages import pofile
 from googleapiclient import errors
+from grow.common import progressbar_non
 from grow.preprocessors import google_drive
 from grow.translators import errors as translator_errors
 try:
@@ -98,9 +101,54 @@ class GoogleSheetsTranslator(base.Translator):
             resp['values'][:] = [i + missing_columns for i in resp['values']]
         return resp['values']
 
-    def _download_content(self, stat):
-        spreadsheet_id = stat.ident
-        values = self._download_sheet(spreadsheet_id, stat.lang)
+    def _download_sheets(self, spreadsheet_id, locales):
+        service = self._create_service()
+
+        # Find out which locales have sheets.
+        # pylint: disable=no-member
+        resp = service.spreadsheets().get(
+            spreadsheetId=spreadsheet_id).execute()
+        existing_locales = []
+        for sheet in resp['sheets']:
+            existing_locales.append(sheet['properties']['title'])
+
+        rangeNames = []
+        rangeLocales = []
+        for locale in locales:
+            # Skip locales that do not have sheets.
+            if locale not in existing_locales:
+                self.pod.logger.info(
+                'Skipping locale, missing sheet: {}'.format(locale))
+                continue
+
+            rangeLocales.append(locale)
+            rangeNames.append("'{}'!A:D".format(locale))
+
+        try:
+            # pylint: disable=no-member
+            batch_resp = service.spreadsheets().values().batchGet(
+                spreadsheetId=spreadsheet_id, ranges=rangeNames).execute()
+
+            locale_to_values = {}
+            for i, locale in enumerate(rangeLocales):
+                resp = batch_resp['valueRanges'][i]
+
+                # Check for spreadsheets that are missing columns.
+                column_count = len(self.HEADER_LABELS)
+                if len(resp['values'][0]) < column_count:
+                    missing_columns = [None] * (column_count - len(resp['values'][0]))
+                    resp['values'][:] = [i + missing_columns for i in resp['values']]
+                locale_to_values[locale] = resp['values']
+
+            return locale_to_values
+        except errors.HttpError as e:
+            if e.resp['status'] == '400':
+                raise translator_errors.NotFoundError(
+                    'Translation for {} not found.'.format(locales))
+            raise
+
+    def _download_content(self, stat, values):
+        # Ignore the header row.
         values.pop(0)
         babel_catalog = catalog.Catalog(stat.lang)
         for row in values:
@@ -812,6 +860,61 @@ class GoogleSheetsTranslator(base.Translator):
             requests += self._generate_style_requests(
                 sheet_id, sheet=sheet, catalog=catalog)
         self._perform_batch_update(spreadsheet_id, requests)
+
+    def download(self, locales, save_stats=True, include_obsolete=False):
+        """Override base download to remove the threading and simplify."""
+        if not self.pod.file_exists(base.Translator.TRANSLATOR_STATS_PATH):
+            text = 'File {} not found. Nothing to download.'
+            self.pod.logger.info(text.format(base.Translator.TRANSLATOR_STATS_PATH))
+            return
+        stats_to_download = self._get_stats_to_download(locales)
+        if not stats_to_download:
+            return
+        num_files = len(stats_to_download)
+        text = 'Downloading translations: %(value)d/{} (in %(time_elapsed).9s)'
+        widgets = [progressbar.FormatLabel(text.format(num_files))]
+        bar = progressbar_non.create_progressbar(
+            "Downloading translations...", widgets=widgets, max_value=num_files)
+        bar.start()
+
+        spreadsheet_id_to_locales = {}
+        for locale in stats_to_download:
+
+            stat = stats_to_download[locale]
+            if stat.ident not in spreadsheet_id_to_locales:
+                spreadsheet_id_to_locales[stat.ident] = set()
+            spreadsheet_id_to_locales[stat.ident].add(locale)
+
+        langs_to_translations = {}
+        new_stats = []
+
+        # Batch download for each sheet id.
+        for spreadsheet_id in spreadsheet_id_to_locales:
+            locales = spreadsheet_id_to_locales[spreadsheet_id]
+            locale_to_values = self._download_sheets(spreadsheet_id, locales)
+
+            for i, (lang, stat) in enumerate(stats_to_download.iteritems()):
+                if lang not in locale_to_values:
+                    continue
+
+                new_stat, content = self._download_content(stat, locale_to_values[lang])
+                bar.update(bar.value + 1)
+                new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
+                langs_to_translations[lang] = content
+                new_stats.append(new_stat)
+
+        bar.finish()
+
+        has_changed_content = False
+        for lang, translations in langs_to_translations.iteritems():
+            if self.pod.catalogs.import_translations(
+                    locale=lang, content=translations,
+                    include_obsolete=include_obsolete):
+                has_changed_content = True
+
+        if save_stats and has_changed_content:
+            self.save_stats(new_stats)
+        return new_stats
 
     def get_edit_url(self, doc):
         if not doc.locale:
