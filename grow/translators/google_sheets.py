@@ -910,13 +910,24 @@ class GoogleSheetsTranslator(base.Translator):
         bar.finish()
 
         has_changed_content = False
+        unchanged_locales = []
+        changed_locales = {}
         for lang, translations in langs_to_translations.iteritems():
-            if self.pod.catalogs.import_translations(
+            has_changed_content, imported_translations, total_translations = self.pod.catalogs.import_translations(
                     locale=lang, content=translations,
-                    include_obsolete=include_obsolete):
+                    include_obsolete=include_obsolete)
+            if imported_translations == 0:
+                unchanged_locales.append(lang)
+            else:
+                changed_locales[lang] = {
+                    'imported': imported_translations,
+                    'total': total_translations,
+                }
+            if has_changed_content:
                 has_changed_content = True
 
         if save_stats and has_changed_content:
+            self._log_catalog_changes(unchanged_locales, changed_locales)
             self.save_stats(new_stats)
         return new_stats
 

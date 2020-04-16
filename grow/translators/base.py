@@ -104,6 +104,15 @@ class Translator(object):
     def _download_content(self, stat):
         raise NotImplementedError
 
+    def _log_catalog_changes(self, unchanged_locales, changed_locales):
+        if unchanged_locales:
+            self.pod.logger.info('No translations updated: {}'.format(
+                ', '.join(sorted(unchanged_locales))))
+        if changed_locales:
+            for locale, value in changed_locales.items():
+                self.pod.logger.info('Updated {} of {} translations: {}'.format(
+                    value['imported'], value['total'], locale))
+
     def _upload_catalog(self, catalog, source_lang, prune):
         raise NotImplementedError
 
@@ -189,13 +198,24 @@ class Translator(object):
         bar.finish()
 
         has_changed_content = False
+        unchanged_locales = []
+        changed_locales = {}
         for lang, translations in langs_to_translations.iteritems():
-            if self.pod.catalogs.import_translations(
+            has_changed_content, imported_translations, total_translations = self.pod.catalogs.import_translations(
                     locale=lang, content=translations,
-                    include_obsolete=include_obsolete):
+                    include_obsolete=include_obsolete)
+            if imported_translations == 0:
+                unchanged_locales.append(lang)
+            else:
+                changed_locales[lang] = {
+                    'imported': imported_translations,
+                    'total': total_translations,
+                }
+            if has_changed_content:
                 has_changed_content = True
 
         if save_stats and has_changed_content:
+            self._log_catalog_changes(unchanged_locales, changed_locales)
             self.save_stats(new_stats)
         return new_stats
 
