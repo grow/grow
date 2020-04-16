@@ -114,15 +114,19 @@ class GoogleSheetsTranslator(base.Translator):
 
         rangeNames = []
         rangeLocales = []
+        skipped_locales = []
         for locale in locales:
             # Skip locales that do not have sheets.
             if locale not in existing_locales:
-                self.pod.logger.info(
-                'Skipping locale, missing sheet: {}'.format(locale))
+                skipped_locales.append(locale)
                 continue
 
             rangeLocales.append(locale)
             rangeNames.append("'{}'!A:D".format(locale))
+
+        if skipped_locales:
+            self.pod.logger.info(
+                'Skipping locales, missing sheet: {}'.format(', '.join(skipped_locales)))
 
         try:
             # pylint: disable=no-member
