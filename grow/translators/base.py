@@ -215,8 +215,8 @@ class Translator(object):
                 has_changed_content = True
 
         if save_stats and has_changed_content:
-            self._log_catalog_changes(unchanged_locales, changed_locales)
             self.save_stats(new_stats)
+        self._log_catalog_changes(unchanged_locales, changed_locales)
         return new_stats
 
     def update_acl(self, locales=None):
