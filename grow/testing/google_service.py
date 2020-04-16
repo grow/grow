@@ -73,5 +73,6 @@ class GoogleServiceMock(object):
             'spreadsheets.batchUpdate': mock_batch_update,
             'spreadsheets.create': mock_create,
             'spreadsheets.get': mock_get,
+            'spreadsheets.values.batchGet': mock_values_batch_get,
             'spreadsheets.values.get': mock_values_get,
         }
