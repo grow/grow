@@ -1,5 +1,6 @@
 """Google Sheets for translating pod content."""
 
+from __future__ import print_function
 import datetime
 import random
 from babel.messages import catalog
@@ -97,6 +98,31 @@ class GoogleSheetsTranslator(base.Translator):
             missing_columns = [None] * (column_count - len(resp['values'][0]))
             resp['values'][:] = [i + missing_columns for i in resp['values']]
         return resp['values']
+
+    def _download_sheets(self, spreadsheet_id, locales):
+        service = self._create_service()
+        rangeNames = []
+        for locale in locales:
+            rangeNames.append("'{}'!A:D".format(locale))
+
+        try:
+            # pylint: disable=no-member
+            resp = service.spreadsheets().values().batchGet(
+                spreadsheetId=spreadsheet_id, ranges=rangeNames).execute()
+
+            print(resp)
+        except errors.HttpError as e:
+            if e.resp['status'] == '400':
+                raise translator_errors.NotFoundError(
+                    'Translation for {} not found.'.format(locales))
+            raise
+
+        # # Check for spreadsheets that are missing columns.
+        # column_count = len(self.HEADER_LABELS)
+        # if len(resp['values'][0]) < column_count:
+        #     missing_columns = [None] * (column_count - len(resp['values'][0]))
+        #     resp['values'][:] = [i + missing_columns for i in resp['values']]
+        # return resp['values']
 
     def _download_content(self, stat):
         spreadsheet_id = stat.ident
@@ -812,6 +838,71 @@ class GoogleSheetsTranslator(base.Translator):
             requests += self._generate_style_requests(
                 sheet_id, sheet=sheet, catalog=catalog)
         self._perform_batch_update(spreadsheet_id, requests)
+
+    def download(self, locales, save_stats=True, include_obsolete=False):
+        """Override base download to remove the threading and simplify."""
+        if not self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH):
+            text = 'File {} not found. Nothing to download.'
+            self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))
+            return
+        stats_to_download = self._get_stats_to_download(locales)
+        if not stats_to_download:
+            return
+        num_files = len(stats_to_download)
+        text = 'Downloading translations: %(value)d/{} (in %(time_elapsed).9s)'
+        widgets = [progressbar.FormatLabel(text.format(num_files))]
+        bar = progressbar_non.create_progressbar(
+            "Downloading translations...", widgets=widgets, max_value=num_files)
+        bar.start()
+
+        bar.finish()
+
+        print('Downloading translations.')
+        print(stats_to_download)
+
+
+
+
+        # langs_to_translations = {}
+        # new_stats = []
+        #
+        # for i, (lang, stat) in enumerate(stats_to_download.iteritems()):
+        #     print(lang)
+        #     print(stat)
+        #
+        # def _do_download(lang, stat):
+        #     try:
+        #         new_stat, content = self._download_content(stat)
+        #     except translator_errors.NotFoundError:
+        #         text = 'No translations to download for: {}'
+        #         self.pod.logger.info(text.format(lang))
+        #         return
+        #
+        #     new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
+        #     langs_to_translations[lang] = content
+        #     new_stats.append(new_stat)
+        #     thread = utils.ProgressBarThread(bar, True, target=_do_download, args=(lang, stat))
+        #     threads.append(thread)
+        #     thread.start()
+        #     # Perform the first operation synchronously to avoid oauth2 refresh
+        #     # locking issues.
+        #     if i == 0:
+        #         thread.join()
+        # for i, thread in enumerate(threads):
+        #     if i > 0:
+        #         thread.join()
+        # bar.finish()
+        #
+        # has_changed_content = False
+        # for lang, translations in langs_to_translations.iteritems():
+        #     if self.pod.catalogs.import_translations(
+        #             locale=lang, content=translations,
+        #             include_obsolete=include_obsolete):
+        #         has_changed_content = True
+        #
+        # if save_stats and has_changed_content:
+        #     self.save_stats(new_stats)
+        # return new_stats
 
     def get_edit_url(self, doc):
         if not doc.locale:
