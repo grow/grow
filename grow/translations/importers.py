@@ -210,16 +210,16 @@ class Importer(object):
                     existing_po_file = self.pod.open_file(pod_po_path, mode='w')
                     pofile.write_po(existing_po_file, existing_catalog, width=80,
                                     sort_output=True, sort_by_file=True)
-                    existing_po_file = self.pod.open_file(pod_po_path)
-                    existing_catalog = pofile.read_po(
-                        existing_po_file, babel_locale)
-                    imported_translations = len(existing_catalog)
-                    total_translations = imported_translations
             else:
                 # Skip new catalogs if not including obsolete messages.
                 if not self.include_obsolete:
                     continue
                 has_changed_content = True
                 self.pod.write_file(pod_po_path, content)
+                existing_po_file = self.pod.open_file(pod_po_path)
+                existing_catalog = pofile.read_po(
+                    existing_po_file, babel_locale)
+                imported_translations = len(existing_catalog)
+                total_translations = imported_translations
 
         return has_changed_content, imported_translations, total_translations
