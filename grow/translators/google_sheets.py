@@ -909,15 +909,35 @@ class GoogleSheetsTranslator(base.Translator):
 
         bar.finish()
 
+        text = 'Importing translations: %(value)d/{} (in %(time_elapsed).9s)'
+        widgets = [progressbar.FormatLabel(text.format(num_files))]
+        bar = progressbar_non.create_progressbar(
+            "Importing translations...", widgets=widgets, max_value=num_files)
+        bar.start()
+
         has_changed_content = False
+        unchanged_locales = []
+        changed_locales = {}
         for lang, translations in langs_to_translations.iteritems():
-            if self.pod.catalogs.import_translations(
+            has_changed_content, imported_translations, total_translations = self.pod.catalogs.import_translations(
                     locale=lang, content=translations,
-                    include_obsolete=include_obsolete):
+                    include_obsolete=include_obsolete)
+            bar.update(bar.value + 1)
+            if imported_translations == 0:
+                unchanged_locales.append(lang)
+            else:
+                changed_locales[lang] = {
+                    'imported': imported_translations,
+                    'total': total_translations,
+                }
+            if has_changed_content:
                 has_changed_content = True
+
+        bar.finish()
 
         if save_stats and has_changed_content:
             self.save_stats(new_stats)
+        self._log_catalog_changes(unchanged_locales, changed_locales)
         return new_stats
 
     def get_edit_url(self, doc):
