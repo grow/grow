@@ -7,6 +7,7 @@ RUN echo "Grow: Master"
 ENV TERM=xterm
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
+ENV NVM_DIR=~/.nvm
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends curl ca-certificates \
@@ -46,7 +47,8 @@ RUN pip3 install --no-cache-dir --upgrade wheel \
 RUN gem install bundler
 
 # Confirm versions that are installed.
-RUN echo "Grow: `grow --version`" \
+RUN . ~/.bashrc \
+  && echo "Grow: `grow --version`" \
   && echo "Node: `node -v`" \
   && echo "NPM: `npm -v`" \
   && echo "NVM: `nvm --version`" \
