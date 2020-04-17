@@ -210,6 +210,7 @@ class Importer(object):
                     existing_po_file = self.pod.open_file(pod_po_path, mode='w')
                     pofile.write_po(existing_po_file, existing_catalog, width=80,
                                     sort_output=True, sort_by_file=True)
+                    total_translations = len(catalog_to_merge)
             else:
                 # Skip new catalogs if not including obsolete messages.
                 if not self.include_obsolete:
