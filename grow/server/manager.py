@@ -14,7 +14,6 @@ from grow.sdk import updater
 from grow.server import main as main_lib
 from werkzeug import serving
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 # Number of tries to find a free port.
 NUM_TRIES = 10
@@ -49,10 +48,28 @@ def print_server_ready_message(pod, host, port):
     home_doc = pod.get_home_doc()
     root_path = home_doc.url.path if home_doc and home_doc.exists else '/'
     url = 'http://{}:{}{}'.format(host, port, root_path)
-    logging.info('Pod: '.rjust(20) + pod.root)
-    logging.info('Address: '.rjust(20) + url)
-    ready_message = colors.stylize('Server ready. '.rjust(20), colors.HIGHLIGHT)
-    logging.info(ready_message + 'Press ctrl-c to quit.')
+
+    first_column_width = 20
+    def _display(title, message, color=None):
+        message_format = '{} {}'
+        if color:
+            pod.logger.info(message_format.format(
+                colors.stylize(title.rjust(first_column_width), color),
+                message))
+            return
+        pod.logger.info(message_format.format(
+            title.rjust(first_column_width),
+            message))
+
+    _display('Pod:', pod.root, colors.HIGHLIGHT)
+    _display('Server:', url, colors.HIGHLIGHT)
+
+    # Trigger the dev manager message hook.
+    pod.extensions_controller.trigger(
+        'dev_manager_message', _display, url)
+
+    _display('Ready.', 'Press ctrl-c to quit.', colors.SUCCESS)
+
     return url
 
 
