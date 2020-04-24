@@ -49,16 +49,23 @@ def print_server_ready_message(pod, host, port):
     root_path = home_doc.url.path if home_doc and home_doc.exists else '/'
     url = 'http://{}:{}{}'.format(host, port, root_path)
     first_column_width = 20
-    pod.logger.info('Pod: '.rjust(first_column_width) + pod.root)
-    pod.logger.info('Server: '.rjust(first_column_width) + url)
+    def _column(message, color=None):
+        if color:
+            return colors.stylize(message.rjust(first_column_width), color)
+        return message.rjust(first_column_width)
+
+    pod.logger.info(
+        _column('Pod: ', colors.HIGHLIGHT) + pod.root)
+    pod.logger.info(
+        _column('Server: ', colors.HIGHLIGHT) + url)
 
     # Trigger the dev manager message hook.
     pod.extensions_controller.trigger(
-        'dev_manager_message', first_column_width, url)
+        'dev_manager_message', _column, url)
 
-    ready_message = colors.stylize(
-        'Ready. '.rjust(first_column_width), colors.HIGHLIGHT)
-    pod.logger.info(ready_message + 'Press ctrl-c to quit.')
+    pod.logger.info(
+        _column('Ready. ', colors.SUCCESS) + 'Press ctrl-c to quit.')
+
     return url
 
 
