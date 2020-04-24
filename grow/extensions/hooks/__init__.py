@@ -25,15 +25,15 @@ RouterAddHook = router_add_hook.RouterAddHook
 StubHook = stub_hook.StubHook
 
 HOOKS = (
-    dev_file_change_hook.DevFileChangeHook,
-    dev_handler_hook.DevHandlerHook,
-    dev_manager_message_hook.DevManagerMessageHook,
-    podspec_static_dir_hook.PodspecStaticDirHook,
-    post_render_hook.PostRenderHook,
-    pre_deploy_hook.PreDeployHook,
-    pre_render_hook.PreRenderHook,
-    pre_process_hook.PreProcessHook,
-    router_add_hook.RouterAddHook,
+    DevFileChangeHook,
+    DevHandlerHook,
+    DevManagerMessageHook,
+    PodspecStaticDirHook,
+    PostRenderHook,
+    PreDeployHook,
+    PreRenderHook,
+    PreProcessHook,
+    RouterAddHook,
 )
 
 
