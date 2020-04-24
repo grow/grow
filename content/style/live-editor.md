@@ -4,7 +4,7 @@ $order: 5.1
 ---
 ## Philosophy
 
-- The Live Editor is a (Grow extension](https://github.com/grow/grow-ext-editor) that creates an interactive content management environment for mangaging Grow projects.
+- The Live Editor is a [Grow extension](https://github.com/grow/grow-ext-editor) that creates an interactive content management environment for mangaging Grow projects.
 - Pages should be constructed to be compatible with the Live Editor, even if the Live Editor is not being actively used for a project. This ensures that pages will be editable by non-Git users in the future, if that becomes a requirement. 
 
 ## Ensure site-wide editor compatibility
