@@ -104,7 +104,7 @@ class DocumentFormat(object):
     def formatted(self):
         return self.content
 
-    def organizeFields(self, fields):
+    def organize_fields(self, fields):
         """Structure the fields data to keep some minimal structure."""
         new_fields = collections.OrderedDict()
 
@@ -144,15 +144,19 @@ class DocumentFormat(object):
             for partial in fields['partials']:
                 new_partial = collections.OrderedDict()
 
-                # Put the partial name first for easy readability.
-                if 'partial' in partial:
-                    new_partial['partial'] = partial['partial']
+                try:
+                    # Put the partial name first for easy readability.
+                    if 'partial' in partial:
+                        new_partial['partial'] = partial['partial']
 
-                for key in sorted(partial.keys()):
-                    if key != 'partial':
-                        new_partial[key] = partial[key]
+                    for key in sorted(partial.keys()):
+                        if key != 'partial':
+                            new_partial[key] = partial[key]
 
-                new_partials.append(new_partial)
+                    new_partials.append(new_partial)
+                except TypeError:
+                    # When unable to sort the partial keys, use original.
+                    new_partials.append(partial)
 
             new_fields['partials'] = new_partials
 
@@ -167,7 +171,7 @@ class DocumentFormat(object):
         """Updates content and frontmatter."""
         if fields is not utils.SENTINEL:
             # Organize some of the fields for minimal consistency.
-            fields = self.organizeFields(fields)
+            fields = self.organize_fields(fields)
 
             raw_front_matter = utils.dump_yaml(fields)
             self.front_matter.update_raw_front_matter(raw_front_matter)
