@@ -156,6 +156,8 @@ class Importer(object):
 
         # Track if the imported content is actually changing the translations.
         has_changed_content = False
+        imported_translations = 0
+        total_translations = 0
 
         # Leverage user-defined locale identifiers when importing translations.
         external_to_babel_locales = copy.deepcopy(
@@ -190,7 +192,6 @@ class Importer(object):
                     text = 'Error merging catalogs for locale -> {}'
                     logging.error(text.format(locale))
                     raise
-                num_imported = 0
                 for message in catalog_to_merge:
                     if message.id not in existing_catalog:
                         # Skip messages that don't exist if we are not
@@ -199,7 +200,7 @@ class Importer(object):
                             continue
                         existing_catalog[message.id] = message
                         if message.id:  # Only count the non-header messages.
-                            num_imported += 1
+                            imported_translations += 1
                     elif (message.string
                           and existing_catalog[message.id].string != message.string):
                         # Skip messages that have translations in the catalog
@@ -208,28 +209,24 @@ class Importer(object):
                             continue
                         # Avoid overwriting with empty/identical strings.
                         existing_catalog[message.id].string = message.string
-                        num_imported += 1
+                        imported_translations += 1
 
-                if num_imported > 0:
+                if imported_translations > 0:
                     has_changed_content = True
                     existing_po_file = self.pod.open_file(pod_po_path, mode='wb')
                     pofile.write_po(existing_po_file, existing_catalog, width=80,
                                     sort_output=True, sort_by_file=True)
-                    text = 'Updated {} of {} translations: {}'
-                    message = text.format(num_imported, len(
-                        catalog_to_merge), babel_locale)
-                    self.pod.logger.info(message)
-                else:
-                    text = 'No translations updated: {}'
-                    message = text.format(babel_locale)
-                    self.pod.logger.info(message)
+                    total_translations = len(catalog_to_merge)
             else:
                 # Skip new catalogs if not including obsolete messages.
                 if not self.include_obsolete:
                     continue
                 has_changed_content = True
                 self.pod.write_file(pod_po_path, content)
-                message = 'Imported new catalog: {}'.format(babel_locale)
-                self.pod.logger.info(message)
+                existing_po_file = self.pod.open_file(pod_po_path)
+                existing_catalog = pofile.read_po(
+                    existing_po_file, babel_locale)
+                imported_translations = len(existing_catalog)
+                total_translations = imported_translations
 
-        return has_changed_content
+        return has_changed_content, imported_translations, total_translations

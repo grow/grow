@@ -10,6 +10,7 @@ from grow.pods import pods
 from grow import storage
 from grow.testing import google_service
 from grow.testing import testing
+from grow.translators import errors as translator_errors
 from . import google_sheets
 
 
@@ -35,7 +36,8 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
 
 class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
 
-    def _setup_mocks(self, sheets_create=None, sheets_get=None, sheets_values=None):
+    def _setup_mocks(self, sheets_create=None, sheets_get=None, sheets_values=None,
+                     sheets_batch_values=None):
         if sheets_create is None:
             sheets_create = {
                 'spreadsheetId': '98765',
@@ -55,7 +57,8 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
 
         mock_drive_service = google_service.GoogleServiceMock.mock_drive_service()
         mock_sheets_service = google_service.GoogleServiceMock.mock_sheets_service(
-            create=sheets_create, get=sheets_get, values=sheets_values)
+            create=sheets_create, get=sheets_get, values=sheets_values,
+            batch_values=sheets_batch_values)
 
         return mock_drive_service, mock_sheets_service
 
@@ -149,13 +152,17 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
                     'sheetId': 765,
                 },
             }]
-        }, sheets_values={
-            'values': [
-                ['en', 'es'],
-                ['jimbo', 'jimmy'],
-                [],
-                [''],
-                ['suzette', 'sue'],
+        }, sheets_batch_values={
+            'valueRanges': [
+                {
+                    'values': [
+                        ['en', 'es'],
+                        ['jimbo', 'jimmy'],
+                        [],
+                        [''],
+                        ['suzette', 'sue'],
+                    ],
+                },
             ],
         })
         mock_service_drive.return_value = mock_drive_service['service']
@@ -193,7 +200,7 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         mock_service_drive.return_value = mock_drive_service['service']
         mock_service_sheets.return_value = mock_sheets_service['service']
 
-        mock_sheets_service['spreadsheets.values.get'].execute.side_effect = errors.HttpError(
+        mock_sheets_service['spreadsheets.values.batchGet'].execute.side_effect = errors.HttpError(
             {'status': '400'}, bytes('', 'utf-8'))
 
         translator = self.pod.get_translator('google_sheets')
@@ -208,10 +215,12 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
             },
         })
 
-        translator.download(locales=['de'])
+        with self.assertRaises(translator_errors.NotFoundError):
+            translator.download(locales=['de'])
+
         # Error is caught by the base download.
-        self.assertTrue(mock_sheets_service[
-                        'spreadsheets.values.get'].execute.called)
+        self.assertTrue(
+            mock_sheets_service['spreadsheets.values.batchGet'].execute.called)
 
     @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
