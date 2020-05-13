@@ -53,9 +53,7 @@ class PathFormatError(Error, ValueError):
 
 
 class Document(object):
-
-    def __cmp__(self, other):
-        return self.pod_path == other.pod_path and self.pod == other.pod
+    """Grow content document."""
 
     def __eq__(self, other):
         return (isinstance(self, Document)
@@ -70,6 +68,16 @@ class Document(object):
         except KeyError:
             return object.__getattribute__(self, name)
 
+    def __ge__(self, other):
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id >= other_id
+
+    def __gt__(self, other):
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id > other_id
+
     def __init__(self, pod_path, _pod, locale=None, _collection=None):
         self._locale_kwarg = locale
         utils.validate_name(pod_path)
@@ -81,6 +89,16 @@ class Document(object):
         self.pod = _pod
         self.collection = self._collection_exists(_collection)
         self._locale = utils.SENTINEL
+
+    def __le__(self, other):
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id <= other_id
+
+    def __lt__(self, other):
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id < other_id
 
     def __ne__(self, other):
         return self.pod_path != other.pod_path or self.pod != other.pod

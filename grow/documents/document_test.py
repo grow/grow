@@ -17,6 +17,7 @@ class DocumentsTestCase(unittest.TestCase):
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
     def test_eq(self):
+        """Test equal comparison."""
         doc1 = self.pod.get_doc('/content/pages/contact.yaml')
         doc2 = self.pod.get_doc('/content/pages/contact.yaml')
         self.assertEqual(doc1, doc2)
@@ -30,6 +31,62 @@ class DocumentsTestCase(unittest.TestCase):
         doc1 = self.pod.get_doc('/content/pages/about.yaml')
         doc2 = self.pod.get_doc('/content/pages/about@de.yaml')
         self.assertEqual(doc1, doc2)
+
+    def test_ge(self):
+        """Test greater-than-equal comparison."""
+        doc1 = self.pod.get_doc('/content/pages/delta.yaml')
+        doc2 = self.pod.get_doc('/content/pages/charlie.yaml')
+        self.assertTrue(doc1 >= doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='de')
+        self.assertTrue(doc1 >= doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        self.assertTrue(doc1 >= doc2)
+
+    def test_gt(self):
+        """Test greater-than comparison."""
+        doc1 = self.pod.get_doc('/content/pages/delta.yaml')
+        doc2 = self.pod.get_doc('/content/pages/charlie.yaml')
+        self.assertTrue(doc1 > doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='de')
+        self.assertTrue(doc1 > doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/delta.yaml')
+        doc2 = self.pod.get_doc('/content/pages/delta.yaml')
+        self.assertFalse(doc1 > doc2)
+
+    def test_le(self):
+        """Test less-than-equal comparison."""
+        doc1 = self.pod.get_doc('/content/pages/charlie.yaml')
+        doc2 = self.pod.get_doc('/content/pages/delta.yaml')
+        self.assertTrue(doc1 <= doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='de')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='ru')
+        self.assertTrue(doc1 <= doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        self.assertTrue(doc1 <= doc2)
+
+    def test_lt(self):
+        """Test less-than comparison."""
+        doc1 = self.pod.get_doc('/content/pages/charlie.yaml')
+        doc2 = self.pod.get_doc('/content/pages/delta.yaml')
+        self.assertTrue(doc1 < doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='de')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='en')
+        self.assertTrue(doc1 < doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/delta.yaml')
+        doc2 = self.pod.get_doc('/content/pages/delta.yaml')
+        self.assertFalse(doc1 < doc2)
 
     def test_doc_storage(self):
         # Because this test involves translation priority, ensure that we have
