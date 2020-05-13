@@ -131,7 +131,7 @@ upload-pypi:
 	pip3 install twine --upgrade
 	# twine upload dist/grow-$(VERSION)*
 	# TODO: Using temporary crazy version numbers.
-	twine upload dist/grow-1.0.0a2*
+	twine upload dist/grow-1.0.0a*
 
 upload-github:
 	@github-release > /dev/null || { \
