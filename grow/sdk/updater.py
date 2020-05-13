@@ -142,7 +142,11 @@ class Updater(object):
         if self.pod.grow_version is None:
             return
         sem_current = semantic_version.Version(self.current_version)
-        spec_required = semantic_version.Spec(self.pod.grow_version)
+        grow_version_pattern = '{}'.format(self.pod.grow_version)
+        # Include pre-releases in the version check.
+        if '-' not in grow_version_pattern:
+            grow_version_pattern = '{}-'.format(grow_version_pattern)
+        spec_required = semantic_version.SimpleSpec(grow_version_pattern)
         if sem_current not in spec_required:
             text = 'ERROR! Pod requires Grow SDK version: {}'.format(
                 self.pod.grow_version)
