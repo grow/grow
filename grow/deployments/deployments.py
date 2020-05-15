@@ -1,44 +1,34 @@
-from .destinations import git_destination
-from .destinations import local
-from .destinations import scp
-from .destinations import webreview_destination
+"""Grow deployment management."""
+
 from protorpc import protojson
 import json
 
-_destination_kinds_to_classes = None
 
-_builtins = (
-    webreview_destination.WebReviewDestination,
-    webreview_destination.LegacyJetwayDestination,
-    git_destination.GitDestination,
-    local.LocalDestination,
-    scp.ScpDestination)
+class Deployments:
+    """Manage the deployment destinations."""
 
+    def __init__(self):
+        self._deployments = {}
 
-def register_destination(class_obj):
-    _destination_kinds_to_classes[class_obj.KIND] = class_obj
+    @staticmethod
+    def config_from_json(deployment_cls, content):
+        """Create a deployment config from json content."""
+        config_cls = deployment_cls.Config
+        return protojson.decode_message(config_cls, content)
 
+    def register_destination(self, destination_cls):
+        """Register or override a deployment destination."""
+        self._deployments[destination_cls.KIND] = destination_cls
 
-def register_builtins():
-    global _destination_kinds_to_classes
-    if _destination_kinds_to_classes is None:
-        _destination_kinds_to_classes = {}
-    for builtin in _builtins:
-        register_destination(builtin)
+    def make_deployment(self, kind, config, name='default'):
+        """Create an instance of the deployment destination."""
+        destination_cls = self._deployments.get(kind)
+        if destination_cls is None:
+            raise ValueError('No deployment destination exists for "{}".'.format(kind))
 
-
-def make_deployment(kind, config, name='default'):
-    if _destination_kinds_to_classes is None:
-        register_builtins()
-    class_obj = _destination_kinds_to_classes.get(kind)
-    if class_obj is None:
-        raise ValueError('No configuration exists for "{}".'.format(kind))
-    if isinstance(config, dict):
-        config = json.dumps(config)
-        config = config_from_json(class_obj, config)
-    return class_obj(config, name=name)
-
-
-def config_from_json(deployment_class, content):
-    config_class = deployment_class.Config
-    return protojson.decode_message(config_class, content)
+        if isinstance(config, dict):
+            config = json.dumps(config)
+        if not config:
+            config = '{}'
+        config = self.config_from_json(destination_cls, config)
+        return destination_cls(config, name=name)

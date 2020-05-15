@@ -575,7 +575,7 @@ class Pod(object):
     def get_deployment(self, nickname):
         """Returns a pod-specific deployment."""
         # Lazy import avoids environment errors and speeds up importing.
-        from grow.deployments import deployments
+        from grow.deployments import deployments as grow_deployments
         if 'deployments' not in self.yaml:
             raise ValueError('No pod-specific deployments configured.')
         destination_configs = self.yaml['deployments']
@@ -587,6 +587,9 @@ class Pod(object):
         kind = deployment_params.pop('destination')
         try:
             config = destination_configs[nickname]
+            deployments = grow_deployments.Deployments()
+            self.extensions_controller.trigger(
+                'deployment_register', deployments)
             deployment = deployments.make_deployment(
                 kind, config, name=nickname)
         except TypeError:
