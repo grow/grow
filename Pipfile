@@ -39,7 +39,7 @@ translitcodec = "==0.5.2"
 "urllib3[secure]" = "==1.25.8"
 watchdog = "==0.10.2"
 webob = "==1.8.6"
-webreview = "==0.3.0"
+webreview = "==0.3.1"
 werkzeug = "==1.0.1"
 
 [dev-packages]
