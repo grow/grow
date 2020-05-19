@@ -5,6 +5,9 @@ from grow.documents import document_front_matter
 from grow.common import utils
 
 
+split_front_matter = document_front_matter.DocumentFrontMatter.split_front_matter
+
+
 class Partial(object):
     """Partial from the partial directory."""
 
@@ -26,7 +29,6 @@ class Partial(object):
         if not self.exists:
             return {}
 
-        split_front_matter = document_front_matter.DocumentFrontMatter.split_front_matter
         front_matter, _ = split_front_matter(
             pod.read_file(self.template_pod_path))
         if not front_matter:
@@ -64,7 +66,6 @@ class ViewPartial(object):
         if not self.exists:
             return {}
 
-        split_front_matter = document_front_matter.DocumentFrontMatter.split_front_matter
         front_matter, _ = split_front_matter(self.pod.read_file(
             self.template_pod_path))
         if not front_matter:
