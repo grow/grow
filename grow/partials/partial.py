@@ -30,7 +30,7 @@ class Partial(object):
             return {}
 
         front_matter, _ = split_front_matter(
-            pod.read_file(self.template_pod_path))
+            self.pod.read_file(self.template_pod_path))
         if not front_matter:
             return {}
         return utils.parse_yaml(front_matter, pod=self.pod)
