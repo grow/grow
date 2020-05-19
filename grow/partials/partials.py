@@ -1,7 +1,6 @@
 """Partials contain organized units for templating."""
 
 import os
-import re
 from grow.partials import partial as grow_partial
 
 
