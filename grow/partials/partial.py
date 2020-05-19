@@ -4,8 +4,6 @@ import os
 from grow.documents import document_front_matter
 from grow.common import utils
 
-IGNORE_INITIAL = ('_',)
-
 
 class Partial(object):
     """Partial from the partial directory."""
