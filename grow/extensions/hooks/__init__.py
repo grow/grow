@@ -4,6 +4,8 @@ from . import deployment_register_hook
 from . import dev_file_change_hook
 from . import dev_handler_hook
 from . import dev_manager_message_hook
+from . import jinja_env_init_hook
+from . import jinja_extension_hook
 from . import post_render_hook
 from . import pre_deploy_hook
 from . import pre_render_hook
@@ -17,6 +19,8 @@ DeploymentRegisterHook = deployment_register_hook.DeploymentRegisterHook
 DevFileChangeHook = dev_file_change_hook.DevFileChangeHook
 DevHandlerHook = dev_handler_hook.DevHandlerHook
 DevManagerMessageHook = dev_manager_message_hook.DevManagerMessageHook
+JinjaEnvInitHook = jinja_env_init_hook.JinjaEnvInitHook
+JinjaExtensionHook = jinja_extension_hook.JinjaExtensionHook
 PodspecStaticDirHook = podspec_static_dir_hook.PodspecStaticDirHook
 PostRenderHook = post_render_hook.PostRenderHook
 PreDeployHook = pre_deploy_hook.PreDeployHook
@@ -31,6 +35,8 @@ HOOKS = (
     DevFileChangeHook,
     DevHandlerHook,
     DevManagerMessageHook,
+    JinjaEnvInitHook,
+    JinjaExtensionHook,
     PodspecStaticDirHook,
     PostRenderHook,
     PreDeployHook,

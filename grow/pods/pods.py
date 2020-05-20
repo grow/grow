@@ -757,6 +757,8 @@ class Pod(object):
                     'the pod root.', repr(name))
                 raise
             loaded_extensions.append(value)
+        loaded_extensions.extend(
+            self.extensions_controller.trigger('jinja_extensions'))
         return loaded_extensions
 
     def list_locales(self):

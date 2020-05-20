@@ -83,6 +83,7 @@ class RenderPool(object):
         env.filters.update(filters.create_builtin_filters(env, self.pod, locale=locale))
         env.globals.update(**tags.create_builtin_globals(env, self.pod, locale=locale))
         env.tests.update(jinja_tests.create_builtin_tests())
+        self.pod.extensions_controller.trigger('jinja_env_init', env)
         return env
 
     def custom_jinja_env(self, locale='', root=None):
