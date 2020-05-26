@@ -89,7 +89,10 @@ def import_extension(name, paths):
         return import_extension(part2, [pathname])
     if not IS_PACKAGED_APP:
         module = _get_module(part1, paths)
-    elif not NO_CHANGE_PATHS:
+    elif NO_CHANGE_PATHS:
+        # Unable to find the module and cannot change the PATH.
+        raise ImportError
+    else:
         original_sys_path = sys.path[:]
         original_sys_prefix = sys.prefix
         if os.path.exists(MAC_SYS_PREFIX):
@@ -105,8 +108,5 @@ def import_extension(name, paths):
             # If extension modifies sys.path, preserve the modification.
             sys.prefix = original_sys_prefix
             sys.path = original_sys_path
-    else:
-        # Unable to find the module and cannot change the PATH.
-        raise ImportError
     result = getattr(module, part2)
     return result
