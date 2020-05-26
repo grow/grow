@@ -44,6 +44,7 @@ import os
 import sys
 
 IS_PACKAGED_APP = utils.is_packaged_app()
+NO_CHANGE_PATHS = bool(os.environ.get('GROW_NO_CHANGE_PATH', False))
 
 MAC_SYS_PREFIX = '/System/Library/Frameworks/Python.framework/Versions/2.7'
 
@@ -88,7 +89,7 @@ def import_extension(name, paths):
         return import_extension(part2, [pathname])
     if not IS_PACKAGED_APP:
         module = _get_module(part1, paths)
-    else:
+    elif not NO_CHANGE_PATHS:
         original_sys_path = sys.path[:]
         original_sys_prefix = sys.prefix
         if os.path.exists(MAC_SYS_PREFIX):
@@ -100,8 +101,12 @@ def import_extension(name, paths):
         except ImportError:
             with FrozenImportFixer():
                 module = _get_module(part1, paths)
-        # If extension modifies sys.path, preserve the modification.
-        sys.prefix = original_sys_prefix
-        sys.path = original_sys_path
+        finally:
+            # If extension modifies sys.path, preserve the modification.
+            sys.prefix = original_sys_prefix
+            sys.path = original_sys_path
+    else:
+        # Unable to find the module and cannot change the PATH.
+        raise ImportError
     result = getattr(module, part2)
     return result
