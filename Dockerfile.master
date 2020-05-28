@@ -42,7 +42,8 @@ ENV NVM_DIR=~/.nvm
 
 # Install Grow.
 RUN pip3 install --no-cache-dir --upgrade wheel \
-  && pip3 install --no-cache-dir git+git://github.com/grow/grow.git@feature/python3
+  && pip3 install --no-cache-dir git+git://github.com/grow/grow.git@feature/python3 \
+  && pip3 install pyyaml --upgrade --force
 
 # Install ruby bundle.
 RUN gem install bundler
@@ -50,6 +51,7 @@ RUN gem install bundler
 # Confirm versions that are installed.
 RUN . ~/.bashrc \
   && echo "Grow: `grow --version`" \
+  && echo "Python: `python3 --version`" \
   && echo "Node: `node -v`" \
   && echo "NPM: `npm -v`" \
   && echo "NVM: `nvm --version`" \
