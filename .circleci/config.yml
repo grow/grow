@@ -166,7 +166,7 @@ jobs:
           command: pipenv run pip3 install -U --global-option="--with-libyaml" pyyaml
           environment:
             LDFLAGS: "-L/usr/local/lib/"
-            CFLAGS: "-I/usr/local/Cellar/libyaml/0.2.2/include"
+            CFLAGS: "-I/usr/local/include"
 
       - run:
           name: Build Release
@@ -314,7 +314,7 @@ jobs:
           command: pipenv run pip3 install -U --global-option="--with-libyaml" pyyaml
           environment:
             LDFLAGS: "-L/usr/local/lib/"
-            CFLAGS: "-I/usr/local/Cellar/libyaml/0.2.2/include"
+            CFLAGS: "-I/usr/local/include"
 
       - run:
           name: Build Package
