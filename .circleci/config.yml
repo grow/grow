@@ -22,12 +22,12 @@ commands:
       - run:
           name: Pipenv Install
           command: |
-            pip install -U pip==18.0
-            pip install -U pipenv
-            pip install pyyaml -U --force
-            pipenv run pip install pip==18.0
+            pip3 install -U pip==18.0
+            pip3 install -U pipenv
+            pip3 install pyyaml -U --force
+            pipenv run pip3 install pip==18.0
             pipenv install --dev
-            pipenv run pip install pyyaml -U --force
+            pipenv run pip3 install pyyaml -U --force
             . $(pipenv --venv)/bin/activate
           environment:
             PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
@@ -162,6 +162,13 @@ jobs:
           key: osx
 
       - run:
+          name: Reinstall pyyaml with libyaml
+          command: pipenv run pip3 install -U --global-option="--with-libyaml" pyyaml
+          environment:
+            LDFLAGS: "-L/usr/local/lib/"
+            CFLAGS: "-I/usr/local/Cellar/libyaml/0.2.2/include"
+
+      - run:
           name: Build Release
           command: pipenv run pyinstaller grow.spec
 
@@ -268,6 +275,10 @@ jobs:
       - pip_install
 
       - run:
+          name: Reinstall pyyaml with libyaml
+          command: pipenv run pip3 install -U --global-option="--with-libyaml" pyyaml
+
+      - run:
           name: Build Package
           command: pipenv run pyinstaller grow.spec
 
@@ -299,9 +310,15 @@ jobs:
           key: osx
 
       - run:
+          name: Reinstall pyyaml with libyaml
+          command: pipenv run pip3 install -U --global-option="--with-libyaml" pyyaml
+          environment:
+            LDFLAGS: "-L/usr/local/lib/"
+            CFLAGS: "-I/usr/local/Cellar/libyaml/0.2.2/include"
+
+      - run:
           name: Build Package
           command: pipenv run pyinstaller grow.spec
-
 
       - run:
           name: Test Packaged Grow
