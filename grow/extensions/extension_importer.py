@@ -2,6 +2,7 @@
 
 import importlib.util
 import os
+import sys
 
 
 class ExtensionImporter:
@@ -31,5 +32,14 @@ class ExtensionImporter:
         # Import the module from the spec and execute to get access.
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
+
+        # To prevent collisions of extensions between pod on the same process
+        # the module keys need to be cleared.
+        del sys.modules[module_name]
+        ext_prefix = '{}.'.format(module_name)
+        extension_keys = list(
+            filter(lambda x: x.startswith(ext_prefix), sys.modules.keys()))
+        for key in extension_keys:
+            del sys.modules[key]
 
         return getattr(module, extension_class_name)
