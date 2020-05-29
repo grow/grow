@@ -1,7 +1,7 @@
 """Extension controller for working with extensions in the pod."""
 
-from grow.common import extensions as common_extensions
 from grow.extensions import core
+from grow.extensions import extension_importer
 from grow.extensions import hooks
 from grow.extensions import hook_controller
 
@@ -43,7 +43,8 @@ class ExtensionController(object):
             else:
                 extension_path = list(config_item.keys())[0]
                 config = config_item[extension_path]
-            cls = common_extensions.import_extension(extension_path, [self.pod.root])
+            cls = extension_importer.ExtensionImporter.find_extension(
+                extension_path, self.pod.root)
             ext = cls(self.pod, config)
             new_extensions.append(ext)
             self._extensions[extension_path] = ext
