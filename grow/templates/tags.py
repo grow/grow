@@ -179,6 +179,10 @@ def make_gettext(pod, func):
     use_old_formatting = pod.podspec.get_config().get(
         'templates', {}).get('old_string_format', False)
 
+    if use_old_formatting:
+        pod.logger.warn(
+            'Old string formatting is deprecated and will be removed in the future.')
+
     @jinja2.contextfunction
     def gettext(__context, __string, **variables):
         """Gettext and do replacement."""
