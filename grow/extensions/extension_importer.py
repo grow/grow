@@ -3,6 +3,7 @@
 import importlib.util
 import os
 import sys
+import threading
 
 
 class ExtensionImporter:
@@ -37,24 +38,20 @@ class ExtensionImporter:
             raise ImportError(
                 'Unable to load extension from {!r}'.format(extension_ref))
 
-        # Import the module from the spec and execute to get access.
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        # Lock the module import to prevent concurrency issues between pods.
+        with threading.Lock():
+            # Import the module from the spec and execute to get access.
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
 
-        # To prevent collisions of extensions between pod on the same process
-        # the module keys need to be cleared.
-        try:
             del sys.modules[module_name]
-        except KeyError:
-            pass
-        ext_prefix = '{}.'.format(module_name)
-        extension_keys = list(
-            filter(lambda x: x.startswith(ext_prefix), sys.modules.keys()))
-        for key in extension_keys:
-            # Use a try in case there are concurrent loading.
-            try:
+
+            # Make a list of the keys since the modules may change when
+            # using the keys iterator.
+            module_keys = list(sys.modules.keys())
+            ext_prefix = '{}.'.format(module_name)
+
+            for key in filter(lambda x: x.startswith(ext_prefix), module_keys):
                 del sys.modules[key]
-            except KeyError:
-                pass
 
         return getattr(module, extension_class_name)
