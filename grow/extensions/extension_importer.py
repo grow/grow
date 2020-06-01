@@ -43,6 +43,10 @@ class ExtensionImporter:
         extension_keys = list(
             filter(lambda x: x.startswith(ext_prefix), sys.modules.keys()))
         for key in extension_keys:
-            del sys.modules[key]
+            # Use a try in case there are concurrent loading.
+            try:
+                del sys.modules[key]
+            except KeyError:
+                pass
 
         return getattr(module, extension_class_name)
