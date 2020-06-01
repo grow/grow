@@ -35,7 +35,10 @@ class ExtensionImporter:
 
         # To prevent collisions of extensions between pod on the same process
         # the module keys need to be cleared.
-        del sys.modules[module_name]
+        try:
+            del sys.modules[module_name]
+        except KeyError:
+            pass
         ext_prefix = '{}.'.format(module_name)
         extension_keys = list(
             filter(lambda x: x.startswith(ext_prefix), sys.modules.keys()))
