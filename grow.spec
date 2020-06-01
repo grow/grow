@@ -69,7 +69,7 @@ hiddenimports += [
 ]
 
 # Ensure the stdlib is included in its entirety for extensions.
-hiddenimports += stdlib_list.stdlib_list('2.7')
+hiddenimports += stdlib_list.stdlib_list('3.7')
 
 try:
   hiddenimports += collect_submodules('pkg_resources._vendor')

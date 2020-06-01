@@ -17,7 +17,7 @@ export PATH := $(HOME)/go/bin/:$(PATH)
 # Default test target for "make test". Allows "make target=grow.pods.pods_test test"
 target ?= 'grow/'
 
-# Default test target for "make test". Allows "make target=grow.pods.pods_test test"
+# Default test coverage for "make test".
 coverage ?= false
 
 develop:
