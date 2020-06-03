@@ -63,3 +63,17 @@ grow run --host=0.0.0.0 --port=8080
 The development server includes a basic web console that provides information about your site. Use the console to quickly audit your site's routes, collections, and translations.
 
 Access the console by visiting `http://host:port/_grow`.
+
+## pipenv
+
+Install Grow from source using `pipenv` – enabling you to run multiple versions of Grow simultaneously.
+
+```
+# Install pipenv (run this one time).
+brew install pipenv
+
+# Activate a shell, install and run Grow from within your project folder.
+pipenv shell
+pip install grow==1.0.0a4
+grow run
+```
