@@ -6,7 +6,7 @@ $category: Workflow
 
 ## Installation
 
-```
+```bash
 # Install using the installer.
 curl https://install.grow.io | bash
 
@@ -18,7 +18,7 @@ pip install grow
 
 Many Grow projects use Python and JavaScript extensions. On a fresh Mac OS, you may need `pip` and `yarn` (or `npm`) to successfully develop these projects on your machine in addition to Grow.
 
-```
+```bash
 # Install pip.
 sudo easy_install pip
 
@@ -54,7 +54,7 @@ The development server does not currently integrate with any other preprocessing
 
 By default, the development server binds to `localhost` to avoid accidentally providing anyone from accessing your development server. If you need to access the development server from other devices on your local network, use the `--host` and `--port` flags to explicitly set the host and port parameters, respectively.
 
-```txt
+```bash
 grow run --host=0.0.0.0 --port=8080
 ```
 
@@ -68,7 +68,7 @@ Access the console by visiting `http://host:port/_grow`.
 
 Install Grow from source using `pipenv` – enabling you to run multiple versions of Grow simultaneously.
 
-```
+```bash
 # Install pipenv (run this one time).
 brew install pipenv
 
