@@ -32,6 +32,12 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
             if write_cache_file and self.pod.podcache.is_dirty:
                 self.pod.logger.info('Object cache changed, updating with new data.')
                 self.pod.podcache.write()
+        else:
+            # Clear any documents that depend on the pod_path.
+            for dep_path in self.pod.podcache.dependency_graph.get_dependents(pod_path):
+                doc = self.pod.get_doc(dep_path)
+                self.pod.podcache.document_cache.remove(doc)
+                self.pod.podcache.collection_cache.remove_document_locales(doc)
 
         if previous_result:
             return previous_result

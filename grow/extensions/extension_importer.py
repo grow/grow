@@ -50,7 +50,6 @@ class ExtensionImporter:
             # using the keys iterator.
             module_keys = list(sys.modules.keys())
             ext_prefix = '{}.'.format(module_name)
-
             for key in filter(lambda x: x.startswith(ext_prefix), module_keys):
                 del sys.modules[key]
 
