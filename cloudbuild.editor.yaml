@@ -5,7 +5,7 @@ substitutions:
 steps:
 
 - name: gcr.io/cloud-builders/gsutil
-  id: download and extract cache
+  id: download_cache
   entrypoint: 'bash'
   args:
   - '-c'
@@ -15,15 +15,15 @@ steps:
     rm .nvmrc || echo 'No .nvmrc to remove.'
 
 - name: grow/base:py3
-  id: grow install
+  id: grow_install
   args: ['grow', 'install']
 
 - name: grow/base:py3
-  id: grow install
+  id: grow_preprocess
   args: ['grow', 'preprocess']
 
 - name: gcr.io/cloud-builders/gsutil
-  id: compress cache
+  id: compress_cache
   entrypoint: 'bash'
   args:
   - '-c'
