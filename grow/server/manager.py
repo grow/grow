@@ -63,11 +63,6 @@ def print_server_ready_message(pod, host, port):
 
     _display('Pod:', pod.root, colors.HIGHLIGHT)
     _display('Server:', url, colors.HIGHLIGHT)
-
-    # Trigger the dev manager message hook.
-    pod.extensions_controller.trigger(
-        'dev_manager_message', _display, url)
-
     _display('Ready.', 'Press ctrl-c to quit.', colors.SUCCESS)
 
     return url
