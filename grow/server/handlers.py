@@ -38,19 +38,19 @@ def serve_console(pod, _request, _matched, **_kwargs):
 def serve_exception(pod, request, exc, **_kwargs):
     """Serve the exception page."""
     debug = True
-    log = logging.exception
+    logging.exception
     if isinstance(exc, webob_exc.HTTPException):
         status = exc.status_int
-        log('{}: {}'.format(status, request.path))
+        logging.exception('{}: {}'.format(status, request.path))
     elif isinstance(exc, errors.RouteNotFoundError):
         status = 404
-        log('{}: {}'.format(status, request.path))
+        logging.error('{}: {}'.format(status, request.path))
     elif isinstance(exc, NotFound):
         status = 404
-        log('{}: {}'.format(status, request.path))
+        logging.error('{}: {}'.format(status, request.path))
     else:
         status = 500
-        log('{}: {} - {}'.format(status, request.path, exc))
+        logging.exception('{}: {} - {}'.format(status, request.path, exc))
     env = ui.create_jinja_env()
     template = env.get_template('/views/error.html')
     if (isinstance(exc, errors.BuildError)):
