@@ -34,6 +34,11 @@ class BaseInstaller(object):
         self.config = config
 
     @property
+    def pre_install_messages(self):
+        """List of messages to display before installing."""
+        return ['Installing: {}'.format(self.KIND)]
+
+    @property
     def post_install_messages(self):
         """List of messages to display after installing."""
         return ['Finished: {}'.format(self.KIND)]

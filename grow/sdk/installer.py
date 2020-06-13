@@ -1,7 +1,7 @@
 # coding: utf8
 """Base installer class."""
 
-import colored
+from grow.common import colors
 from grow.sdk.installers import base_installer
 
 
@@ -36,15 +36,19 @@ class Installer(object):
     def failure(cls, message, extras=None):
         """Generate a formatted failure message."""
         message = cls.format_message(message, extras)
-        styling = colored.fg('red') + colored.attr('bold')
-        return colored.stylize(MESSAGE_FORMAT.format('✘', message), styling)
+        return colors.stylize(MESSAGE_FORMAT.format('✘', message), colors.ERROR)
+
+    @classmethod
+    def pre_install(cls, message, extras=None):
+        """Generate a formatted pre install message."""
+        message = cls.format_message(message, extras)
+        return colors.stylize(MESSAGE_FORMAT.format(' ', message), colors.SUCCESS)
 
     @classmethod
     def success(cls, message, extras=None):
         """Generate a formatted success message."""
         message = cls.format_message(message, extras)
-        styling = colored.fg('green')
-        return colored.stylize(MESSAGE_FORMAT.format('✓', message), styling)
+        return colors.stylize(MESSAGE_FORMAT.format('✓', message), colors.SUCCESS)
 
     def run_installers(self):
         """Run each installer to install prerequisites."""
@@ -59,6 +63,11 @@ class Installer(object):
                     self.pod.logger.error(
                         self.failure(err.message, extras=err.install_commands))
                     return False
+
+                messages = installer.pre_install_messages
+                if messages:
+                    self.pod.logger.info(
+                        self.pre_install(messages[0], messages[1:] if len(messages) > 1 else []))
 
                 installer.install()
 
