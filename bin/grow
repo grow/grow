@@ -4,6 +4,13 @@ import logging
 import os
 import sys
 
+# Quickly show version when flag exists.
+if '--version' in sys.argv:
+    version_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'grow', 'VERSION'))
+    with open(version_file) as version_file:
+        print(version_file.read().strip())
+    sys.exit(0)
+
 # We want to inject the use of SecureTransport as early as possible so that any
 # references or sessions or what have you are ensured to have it, however we
 # only want to do this in the case that we're running on macOS and the linked
