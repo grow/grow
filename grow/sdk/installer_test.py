@@ -28,15 +28,28 @@ class InstallerTestCase(unittest.TestCase):
                     '\n   1\n   A\x1b[0m')
         self.assertEqual(expected, message)
 
+    def test_pre_install(self):
+        """Success message formatting."""
+        message = self.installer.pre_install('Holy Hand Grenade')
+        expected = '\x1b[38;5;2m\x1b[1m[ ] Holy Hand Grenade\x1b[0m'
+        self.assertEqual(expected, message)
+
+    def test_pre_install_with_extras(self):
+        """Success message formatting with extra messages."""
+        message = self.installer.pre_install('Holy Hand Grenade', extras=['1', 'A'])
+        expected = ('\x1b[38;5;2m\x1b[1m[ ] Holy Hand Grenade'
+                    '\n   1\n   A\x1b[0m')
+        self.assertEqual(expected, message)
+
     def test_success(self):
         """Success message formatting."""
         message = self.installer.success('Holy Hand Grenade')
-        expected = '\x1b[38;5;2m[✓] Holy Hand Grenade\x1b[0m'
+        expected = '\x1b[38;5;2m\x1b[1m[✓] Holy Hand Grenade\x1b[0m'
         self.assertEqual(expected, message)
 
     def test_success_with_extras(self):
         """Success message formatting with extra messages."""
         message = self.installer.success('Holy Hand Grenade', extras=['1', 'A'])
-        expected = ('\x1b[38;5;2m[✓] Holy Hand Grenade'
+        expected = ('\x1b[38;5;2m\x1b[1m[✓] Holy Hand Grenade'
                     '\n   1\n   A\x1b[0m')
         self.assertEqual(expected, message)
