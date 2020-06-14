@@ -133,56 +133,6 @@ upload-pypi:
 	# TODO: Using temporary crazy version numbers.
 	twine upload dist/grow-1.0.0a*
 
-upload-github:
-	@github-release > /dev/null || { \
-	  go get github.com/aktau/github-release; \
-	}
-	. $(PIP_ENV)/bin/activate
-	$(MAKE) ensure-master
-	git pull origin master
-	$(MAKE) prep-release
-	$(MAKE) release
-	@if github-release info -u $(GITHUB_USER) -r $(GITHUB_REPO) -t $(VERSION); then \
-	  echo "Using existing release."; \
-	else \
-	  echo "Creating new release."; \
-	  git tag $(VERSION) && git push --tags; \
-	  github-release \
-	    release \
-	    -u $(GITHUB_USER) \
-	    -r $(GITHUB_REPO) \
-	    -t $(VERSION) \
-	    -n "$(VERSION)" \
-	    --draft; \
-	fi
-	@echo "Uploading: $(FILENAME)"
-	github-release \
-	  upload \
-	  -u $(GITHUB_USER) \
-	  -r $(GITHUB_REPO) \
-	  -t $(VERSION) \
-	  -n "$(FILENAME)" \
-	  --file dist/$(FILENAME)
-
-release:
-	. $(PIP_ENV)/bin/activate
-	pyinstaller grow.spec
-	chmod +x dist/grow
-	cd dist && zip -r $(FILENAME) grow && cd ..
-	./dist/grow
-	./dist/grow build ./grow/testing/testdata/pod/
-	@echo "Built: dist/$(FILENAME)"
-
-release-ci:
-	. $(PIP_ENV)/bin/activate
-	pipenv install git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
-	pyinstaller grow.spec
-	chmod +x dist/grow
-	cd dist && zip -r $(FILENAME_CI) grow && cd ..
-	./dist/grow
-	./dist/grow build ./grow/testing/testdata/pod/
-	@echo "Built: dist/$(FILENAME_CI)"
-
 ensure-master:
 	@if [ `git rev-parse --abbrev-ref HEAD` != "master" ]; then \
 	  echo 'Releases must be uploaded from "master".'; \

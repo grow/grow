@@ -29,42 +29,7 @@ else:
         else:
             securetransport.inject_into_urllib3()
 
-
-def is_packaged_app():
-    """Determines if this is a packaged application."""
-    try:
-        # pylint: disable=pointless-statement, protected-access
-        sys._MEIPASS
-        return True
-    except AttributeError:
-        return False
-
-if not is_packaged_app():
-    sys.path.extend([
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-    ])
-
-# Fixes PyInstaller issue when sys.getsystemencoding is None.
-# https://github.com/mitsuhiko/click/issues/355
-if sys.getfilesystemencoding() is None:
-    sys.getfilesystemencoding = lambda: 'utf-8'
-
 logging.basicConfig(level=logging.INFO, format='%(message)s')
-
-# Fixes PyInstaller issues with below imports.
-# pylint: disable=wrong-import-position, unused-import
-import copy
-import json
-import weakref
-from email.mime.application import MIMEApplication
-import werkzeug
-
-# Fixes simplejson and PyInstaller.
-sys.modules['simplejson'] = json
-
-# Fixes sys.getfilesystemencoding() and PyInstaller.
-from watchdog.utils import unicode_paths
-unicode_paths.fs_encoding = unicode_paths.fs_fallback_encoding
 
 from grow import commands
 from grow.commands import group
