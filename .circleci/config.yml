@@ -43,7 +43,7 @@ executors:
       - image: grow/grow-internal-image:latest
   osx:
     macos:
-      xcode: "10.0.0"
+      xcode: "11.4.1"
 
 jobs:
   init:
