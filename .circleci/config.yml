@@ -95,6 +95,26 @@ jobs:
           name: Pylint
           command: make test-pylint
 
+  release-package-pypi:
+    executor: grow
+    working_directory: ~/grow
+    steps:
+      - attach_workspace:
+          at: ~/grow
+
+      - pip_install
+
+      - run:
+          name: Create Distribution
+          command: pipenv run python setup.py sdist bdist_wheel
+
+      - run:
+          name: Twine Upload
+          command: pipenv run twine upload dist/grow-$(<grow/VERSION)*
+
+      - store_artifacts:
+          path: dist/
+
   test:
     executor: grow
     working_directory: ~/grow
