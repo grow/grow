@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import git
 from protorpc import messages
 from grow.common import utils as common_utils
 from grow.deployments.destinations import base
@@ -39,7 +40,6 @@ class GitDestination(base.BaseDestination):
         self.adds = set()
         self.deletes = set()
         self._original_branch_name = None
-        self._git = common_utils.get_git()
 
     def __str__(self):
         if self.is_remote:
@@ -62,14 +62,14 @@ class GitDestination(base.BaseDestination):
     @common_utils.cached_property
     def repo(self):
         if self.is_remote:
-            return self._git.Repo.init(self.repo_path)
-        return self._git.Repo(self.repo_path)
+            return git.Repo.init(self.repo_path)
+        return git.Repo(self.repo_path)
 
     def _checkout(self, branch=None):
         branch = branch or self.config.branch
         try:
             self.repo.git.checkout(b=branch)
-        except self._git.GitCommandError as e:
+        except git.GitCommandError as e:
             if e.status == 128:
                 self.repo.git.checkout(branch)
 
@@ -77,11 +77,11 @@ class GitDestination(base.BaseDestination):
         self._original_branch_name = self.repo.active_branch.name
         self._checkout()
         if self.is_remote:
-            self.remote = self._git.remote.Remote.add(self.repo, 'origin', self.config.repo)
+            self.remote = git.remote.Remote.add(self.repo, 'origin', self.config.repo)
             try:
                 logging.info('Pulling from {}...'.format(self.config.branch))
                 self.repo.git.pull('origin', self.config.branch)
-            except self._git.GitCommandError as e:
+            except git.GitCommandError as e:
                 # Pass on this error, which will create a new branch upon pushing.
                 if "Couldn't find remote ref" not in e.stderr:
                     raise

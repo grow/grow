@@ -3,18 +3,13 @@
 import logging
 import os
 import urllib.parse
+import webreview
 from protorpc import messages
 from grow.deployments.destinations import base
 from grow.deployments import utils
 from grow.common import utils as common_utils
 from grow.pods import env
 from grow.routing import router
-
-
-if common_utils.is_appengine():
-    webreview = None
-else:
-    import webreview
 
 
 class Config(messages.Message):

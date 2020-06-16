@@ -1,5 +1,6 @@
-from . import messages
+import git
 from grow.common import utils
+from grow.deployments import messages
 
 
 class Error(Exception):
@@ -14,7 +15,6 @@ class NoGitHeadError(Error, ValueError):
 
 
 def create_commit_message(repo):
-    git = utils.get_git()
     message = messages.CommitMessage()
     try:
         commit = repo.head.commit

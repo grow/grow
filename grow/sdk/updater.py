@@ -98,7 +98,7 @@ class Updater(object):
             colors.stylize(str(sem_current), colors.EMPHASIS),
             colors.stylize(str(sem_latest), colors.EMPHASIS)))
 
-        if utils.is_packaged_app() and auto_update_prompt:
+        if auto_update_prompt:
             use_auto_update = grow_rc_config.get('update.always', False)
 
             if use_auto_update:

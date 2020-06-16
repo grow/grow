@@ -17,6 +17,7 @@ from urllib import parse as url_parse
 from collections import OrderedDict
 import yaml
 import bs4
+import git
 import html2text
 import translitcodec  # pylint: disable=unused-import
 from grow.common import structures
@@ -35,7 +36,6 @@ except ImportError:
     from yaml import Loader as yaml_Loader
 
 
-APPENGINE_SERVER_PREFIXES = ('Development/', 'Google App Engine/')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
 DRAFT_KEY = '$draft'
@@ -61,40 +61,11 @@ class DraftStringError(Error):
     pass
 
 
-def is_packaged_app():
-    """Returns whether the environment is a packaged app."""
-    try:
-        # pylint: disable=pointless-statement,protected-access
-        sys._MEIPASS
-        return True
-    except AttributeError:
-        return False
-
-
-def is_appengine():
-    """Returns whether the environment is Google App Engine."""
-    # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled
-    return os.getenv('SERVER_SOFTWARE', '').startswith(
-        APPENGINE_SERVER_PREFIXES)
-
-
-def get_git():
-    """Returns the git module if it is available."""
-    if not is_appengine():
-        import git
-        return git
-    raise UnavailableError('Git is not available in this environment.')
-
-
 def get_grow_dir():
-    if is_packaged_app():
-        # pylint: disable=no-member,protected-access
-        return os.path.join(sys._MEIPASS)
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def get_git_repo(root):
-    git = get_git()
     try:
         return git.Repo(root)
     except git.InvalidGitRepositoryError:

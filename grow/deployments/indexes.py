@@ -5,19 +5,15 @@ import logging
 import sys
 import traceback
 import configparser
+import git
 import progressbar
 import texttable
+from multiprocessing import pool
 from grow.common import progressbar_non
 from grow.common import utils as common_utils
 from protorpc import protojson
 from . import messages
 from . import utils
-
-if common_utils.is_appengine():
-    # pylint: disable=invalid-name
-    pool = None
-else:
-    from multiprocessing import pool
 
 
 class Error(Exception):
@@ -125,7 +121,6 @@ class Diff(object):
 
     @classmethod
     def create(cls, index, theirs, repo=None, is_partial=False):
-        git = common_utils.get_git()
         diff = messages.DiffMessage()
         diff.is_partial = is_partial
         diff.indexes = []
@@ -296,7 +291,6 @@ class Diff(object):
         if repo:
             Index.add_repo(index, repo)
         paths_to_rendered_doc = {}
-        git = common_utils.get_git()
         diff = messages.DiffMessage()
         diff.is_partial = is_partial
         diff.indexes = []

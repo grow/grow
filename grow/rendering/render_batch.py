@@ -1,14 +1,8 @@
 """Renderer for performing render operations for the pod."""
 
 import sys
-from grow.common import utils
+from multiprocessing.dummy import Pool as ThreadPool
 from grow.pods import errors
-
-if utils.is_appengine():
-    # pylint: disable=invalid-name
-    ThreadPool = None  # pragma: no cover
-else:
-    from multiprocessing.dummy import Pool as ThreadPool
 
 
 class Error(Exception):
