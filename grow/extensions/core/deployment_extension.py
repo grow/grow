@@ -4,7 +4,6 @@ from grow import extensions
 from grow.extensions import hooks
 from grow.deployments.destinations import git_destination
 from grow.deployments.destinations import local
-from grow.deployments.destinations import scp
 from grow.deployments.destinations import webreview_destination
 
 
@@ -20,7 +19,6 @@ class DeploymentDeploymentRegisterHook(hooks.DeploymentRegisterHook):
             webreview_destination.LegacyJetwayDestination)
         deployments.register_destination(git_destination.GitDestination)
         deployments.register_destination(local.LocalDestination)
-        deployments.register_destination(scp.ScpDestination)
 
 
 # pylint: disable=abstract-method

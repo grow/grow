@@ -66,10 +66,6 @@ deployments:
   local:
     destination: local
     out_dir: dist/
-  scp:
-    destination: scp
-    host: localhost
-    root_dir: dist/
 
 preprocessors:
 - name: custom

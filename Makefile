@@ -9,8 +9,6 @@ FILENAME_CI = Grow-SDK-$(subst osx,Mac,$(subst linux,Linux,$(TRAVIS_OS_NAME)))-$
 GITHUB_USER = grow
 GITHUB_REPO = grow
 
-PIP_ENV := $(shell pipenv --venv)
-
 export GOPATH := $(HOME)/go/
 export PATH := $(HOME)/go/bin/:$(PATH)
 
@@ -75,13 +73,11 @@ develop-linux:
 	$(MAKE) develop
 
 pylint:
-	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/pylint --errors-only $(target)
+	pipenv run pylint --errors-only $(target)
 
 test:
-	. $(PIP_ENV)/bin/activate
 	@if [ "$(coverage)" = true ]; then \
-		$(PIP_ENV)/bin/nosetests \
+		pipenv run nosetests \
 		  -v \
 		  --rednose \
 			--with-coverage \
@@ -90,15 +86,14 @@ test:
 			--cover-package=grow \
 		  $(target);\
 	else \
-		$(PIP_ENV)/bin/nosetests \
+		pipenv run nosetests \
 			-v \
 			--rednose \
 			$(target);\
 	fi
 
 test-nosetests:
-	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/nosetests \
+	pipenv run nosetests \
 	  -v \
 	  --rednose \
 	  --with-coverage \
@@ -108,8 +103,7 @@ test-nosetests:
 	  grow
 
 test-pylint:
-	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/pylint --errors-only $(target)
+	pipenv run pylint --errors-only $(target)
 
 test-circle:
 	$(MAKE) build-ui
@@ -121,7 +115,6 @@ prep-release:
 	$(MAKE) test
 
 upload-pypi:
-	. $(PIP_ENV)/bin/activate
 	# TODO: While on branch for python 3 this doesn't work.
 	# $(MAKE) ensure-master
 	# git pull origin master
