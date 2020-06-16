@@ -31,6 +31,10 @@ else:
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
+# TODO: Find a better way to allow importing grow packages.
+sys.path.extend(
+    [os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')])
+
 from grow import commands
 from grow.commands import group
 
