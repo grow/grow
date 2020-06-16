@@ -6,7 +6,6 @@ import os
 import re
 import textwrap
 import fnmatch
-import goslate
 from babel import util
 from babel.messages import catalog
 from babel.messages import mofile
@@ -218,58 +217,6 @@ class Catalog(catalog.Catalog):
             mofile.write_mo(mo_file, self, use_fuzzy=compile_fuzzy)
         finally:
             mo_file.close()
-
-    def machine_translate(self):
-        locale = str(self.locale)
-        domain = 'messages'
-        infile = self.pod.open_file(self.pod_path, 'U')
-        try:
-            babel_catalog = pofile.read_po(infile, locale=locale, domain=domain)
-        finally:
-            infile.close()
-
-        # Get strings to translate.
-        # TODO(jeremydw): Use actual string, not the msgid. Currently we assume
-        # the msgid is the source string.
-        messages_to_translate = [message for message in babel_catalog
-                                 if not message.string]
-        strings_to_translate = [message.id for message in messages_to_translate]
-        if not strings_to_translate:
-            logging.info('No untranslated strings for {}, skipping.'.format(locale))
-            return
-
-        # Convert Python-format named placeholders to numerical placeholders
-        # compatible with Google Translate. Ex: %(name)s => (O).
-        placeholders = []  # Lists (#) placeholders to %(name)s placeholders.
-        for n, string in enumerate(strings_to_translate):
-            match = re.search('(%\([^\)]*\)\w)', string)
-            if not match:
-                placeholders.append(None)
-                continue
-            for i, group in enumerate(match.groups()):
-                num_placeholder = '({})'.format(i)
-                nums_to_names = {}
-                nums_to_names[num_placeholder] = group
-                replaced_string = string.replace(group, num_placeholder)
-                placeholders.append(nums_to_names)
-                strings_to_translate[n] = replaced_string
-        machine_translator = goslate.Goslate()
-        results = machine_translator.translate(strings_to_translate, locale)
-        for i, string in enumerate(results):
-            message = messages_to_translate[i]
-            # Replace numerical placeholders with named placeholders.
-            if placeholders[i]:
-                for num_placeholder, name_placeholder in placeholders[i].items():
-                    string = string.replace(num_placeholder, name_placeholder)
-            message.string = string
-            source = message.id
-        outfile = self.pod.open_file(self.pod_path, mode='wb')
-        try:
-            pofile.write_po(outfile, babel_catalog, width=80)
-        finally:
-            outfile.close()
-        text = 'Machine translated {} strings: {}'
-        logging.info(text.format(len(strings_to_translate), self.pod_path))
 
     @classmethod
     def _message_in_paths(cls, message, paths):
