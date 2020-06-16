@@ -4,6 +4,8 @@ shortcuts:
   lang_env: &lang_env
     LC_ALL: C.UTF-8
     LANG: C.UTF-8
+  pipenv_env: &pipenv_env
+    PIPENV_IGNORE_VIRTUALENVS: 1
 
 commands:
   pip_install:
@@ -29,7 +31,7 @@ commands:
             pipenv install --dev
             pipenv run pip3 install pyyaml -U --force
           environment:
-            PIPENV_IGNORE_VIRTUALENVS: 1
+            <<: *pipenv_env
             PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
 
       - save_cache:
@@ -107,10 +109,14 @@ jobs:
       - run:
           name: Create Distribution
           command: pipenv run python setup.py sdist bdist_wheel
+          environment:
+            <<: *pipenv_env
 
       - run:
           name: Twine Upload
           command: pipenv run twine upload dist/grow-$(<grow/VERSION)*
+          environment:
+            <<: *pipenv_env
 
       - store_artifacts:
           path: dist/
@@ -131,7 +137,9 @@ jobs:
 
       - run:
           name: Code Coverage
-          command: $(pipenv --venv)/bin/codecov
+          command: pipenv run codecov
+          environment:
+            <<: *pipenv_env
 
       - run:
           name: Test build
@@ -155,7 +163,9 @@ jobs:
 
       - run:
           name: Code Coverage
-          command: $(pipenv --venv)/bin/codecov
+          command: pipenv run codecov
+          environment:
+            <<: *pipenv_env
 
       - run:
           name: Test build
