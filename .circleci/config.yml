@@ -28,8 +28,8 @@ commands:
             pipenv run pip3 install pip
             pipenv install --dev
             pipenv run pip3 install pyyaml -U --force
-            . $(pipenv --venv)/bin/activate
           environment:
+            PIPENV_IGNORE_VIRTUALENVS: 1
             PIP_SHIMS_BASE_MODULE: pipenv.patched.notpip
 
       - save_cache:
