@@ -36,9 +36,6 @@ def import_extension(name, paths):
         patched_site.main()
         try:
             module = _get_module(part1, paths)
-        except ImportError:
-            with FrozenImportFixer():
-                module = _get_module(part1, paths)
         finally:
             # If extension modifies sys.path, preserve the modification.
             sys.prefix = original_sys_prefix
