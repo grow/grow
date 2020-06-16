@@ -22,10 +22,10 @@ commands:
       - run:
           name: Pipenv Install
           command: |
-            pip3 install -U pip==18.0
+            pip3 install -U pip
             pip3 install -U pipenv
             pip3 install pyyaml -U --force
-            pipenv run pip3 install pip==18.0
+            pipenv run pip3 install pip
             pipenv install --dev
             pipenv run pip3 install pyyaml -U --force
             . $(pipenv --venv)/bin/activate
