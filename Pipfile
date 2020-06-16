@@ -37,6 +37,8 @@ webreview = "==0.3.1"
 werkzeug = "==1.0.1"
 
 [dev-packages]
+# Breaks install on CI OSX when we remove the astroid dep.
+astroid = "==2.4.2"
 codecov = "==2.1.7"
 configparser = "==5.0.0"
 coverage = "==5.1"
