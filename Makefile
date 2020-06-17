@@ -118,13 +118,13 @@ upload-pypi:
 	# TODO: While on branch for python 3 this doesn't work.
 	# $(MAKE) ensure-master
 	# git pull origin master
-	$(MAKE) prep-release
-	python setup.py sdist bdist_wheel
-	pip3 install urllib3[secure] --upgrade
-	pip3 install twine --upgrade
+	# $(MAKE) prep-release
+	pipenv run python setup.py sdist bdist_wheel
+	pipenv run pip3 install urllib3[secure] --upgrade
+	pipenv run pip3 install twine --upgrade
 	# twine upload dist/grow-$(VERSION)*
 	# TODO: Using temporary crazy version numbers.
-	twine upload dist/grow-1.0.0a*
+	pipenv run twine upload dist/grow-1.0.0a*
 
 ensure-master:
 	@if [ `git rev-parse --abbrev-ref HEAD` != "master" ]; then \
