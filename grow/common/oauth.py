@@ -16,11 +16,6 @@ KEYRING_LOG.setLevel(logging.WARNING)
 
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
-try:
-    from oauth2client.contrib import appengine
-except ImportError:
-    appengine = None
-
 
 # Google API details for a native/installed application for API project grow-prod.
 CLIENT_ID = '578372381550-jfl3hdlf1q5rgib94pqsctv1kgkflu1a.apps.googleusercontent.com'
@@ -37,9 +32,6 @@ DEFAULT_AUTH_KEY_FILE = 'auth-key.json'
 
 def get_storage(key, username):
     """Returns the Storage class compatible with the current environment."""
-    if appengine and utils.is_appengine():
-        return appengine.StorageByKeyName(
-            appengine.CredentialsModel, username, 'credentials')
     key = utils.slugify(key)
     file_name = os.path.expanduser('~/.config/grow/{}_{}'.format(key, username))
     dir_name = os.path.dirname(file_name)
@@ -68,8 +60,6 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         key_file = os.path.expanduser(key_file)
         return (service_account.
             ServiceAccountCredentials.from_json_keyfile_name(key_file, scope))
-    if appengine and utils.is_appengine():
-        return appengine.AppAssertionCredentials(scope)
     credentials, storage = get_credentials_and_storage(scope,
         storage_key=storage_key)
     if credentials is None:

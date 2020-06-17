@@ -1,7 +1,7 @@
 """Grow Setup."""
 
 import re
-from setuptools import find_packages
+from setuptools import find_namespace_packages
 from setuptools import setup
 
 
@@ -43,7 +43,8 @@ setup(
     author='Grow SDK Authors',
     author_email='code@grow.io',
     include_package_data=True,
-    packages=find_packages(exclude=[
+    package_dir={"": "grow"},
+    packages=find_namespace_packages(where="grow", exclude=[
         'lib*',
         'node_modules',
     ]),

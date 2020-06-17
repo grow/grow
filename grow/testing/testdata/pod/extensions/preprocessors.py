@@ -1,20 +1,6 @@
 import grow
 from protorpc import messages
 
-# NOTE: This is an unused import, specifically added to verify the ability to
-# load extensions that depend on modules in Python's standard library, which
-# Grow itself may not depend on.
-# TODO: Breaking in Python 3
-# from . import dependency
-# import importlib
-
-
-# Add extra verification for the FrozenImportFixer.
-# with grow.common.extensions.FrozenImportFixer():
-# TODO: Breaking in Python 3
-#     from . import dependency
-#     importlib.reload(dependency)
-
 
 class CustomPreprocessor(grow.Preprocessor):
     KIND = 'custom_preprocessor'

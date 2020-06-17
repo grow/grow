@@ -292,8 +292,6 @@ class Pod(object):
 
     @utils.cached_property
     def cache(self):
-        if utils.is_appengine():
-            return cachelib.MemcachedCache(default_timeout=0)
         return cachelib.SimpleCache(default_timeout=0)
 
     @property

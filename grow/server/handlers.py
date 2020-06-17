@@ -90,8 +90,6 @@ def serve_pod(pod, request, matched, **_kwargs):
         request.path, matched.value, params=matched.params)
     response = None
     headers = controller.get_http_headers()
-    if 'X-AppEngine-BlobKey' in headers:
-        return Response(headers=headers)
     jinja_env = pod.render_pool.get_jinja_env(
         controller.doc.locale) if controller.use_jinja else None
     rendered_document = controller.render(jinja_env=jinja_env, request=request)
