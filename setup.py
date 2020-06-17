@@ -31,7 +31,7 @@ setup(
     name='grow',
     # TODO Update after alpha is over.
     # version=open('grow/VERSION').read().strip(),
-    version='1.0.0a6',
+    version='1.0.0a7',
     description=(
         'Develop everywhere and deploy anywhere: a declarative '
         'site generator for rapid, high-quality web site production.'
