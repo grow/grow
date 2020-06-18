@@ -25,14 +25,14 @@ from grow.common import untag
 from grow.common import yaml_utils
 from grow.pods import errors
 
-# The CLoader implementation of the PyYaml loader is orders of magnitutde
-# faster than the default pure Python loader. CLoader is available when
-# libyaml is installed on the system.
+# The C (LibYAML) version is massively faster than the pure Python version.
+# Since YAML performance is critical, display a warning message with information
+# related to fixing it.
 try:
     # pylint: disable=ungrouped-imports
     from yaml import CLoader as yaml_Loader
 except ImportError:
-    logging.warning('Warning: libyaml missing, using slower yaml parser.')
+    logging.warning('Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml')
     from yaml import Loader as yaml_Loader
 
 
