@@ -697,6 +697,24 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(foo_doc, bar_doc.foo.bar.foo)
         self.assertEqual('en', bar_doc.foo.locale)
 
+    def test_hreflang(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/{base}.html',
+            '$localization': {
+                'default_locale': 'en',
+                'locales': ['de', 'en', 'fr_ca'],
+            }
+        })
+        pod.write_file('/content/pages/foo.yaml', '')
+        foo_doc = pod.get_doc('/content/pages/foo.yaml', locale='en')
+        bar_doc = pod.get_doc('/content/pages/foo.yaml', locale='de')
+        baz_doc = pod.get_doc('/content/pages/foo.yaml', locale='fr_ca')
+        self.assertEqual('x-default', foo_doc.hreflang)
+        self.assertEqual('fr-ca', baz_doc.hreflang)
+
     def test_locale_paths(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})

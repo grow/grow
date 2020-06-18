@@ -291,6 +291,18 @@ class Document(object):
             self._locale = self._init_locale(self._locale_kwarg, self.pod_path)
         return self._locale
 
+    @property
+    def hreflang(self):
+        # https://en.wikipedia.org/wiki/Hreflang
+        # hreflang values are used in sitemap.xml and in <meta> tags on a page.
+        locale = self.locale
+        if locale == self.default_locale:
+            return 'x-default'
+        value = str(locale)
+        value = value.lower()
+        value = value.replace('_', '-')
+        return value
+
     @utils.cached_property
     def locale_safe(self):
         # During the initialization of the document the locale is used,
