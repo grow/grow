@@ -6,9 +6,15 @@ import sys
 
 # Quickly show version when flag exists.
 if '--version' in sys.argv:
-    version_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'grow', 'VERSION'))
-    with open(version_file) as version_file:
-        print(version_file.read().strip())
+    try:
+        version_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'grow', 'VERSION'))
+        with open(version_file) as version_file:
+            print(version_file.read().strip())
+    except FileNotFoundError:
+        # Pip installed files are not in the same place.
+        version_file = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'grow', 'grow', 'VERSION'))
+        with open(version_file) as version_file:
+            print(version_file.read().strip())
     sys.exit(0)
 
 # We want to inject the use of SecureTransport as early as possible so that any

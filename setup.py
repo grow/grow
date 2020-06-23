@@ -43,7 +43,7 @@ setup(
     author='Grow SDK Authors',
     author_email='code@grow.io',
     include_package_data=True,
-    packages=find_packages(where="grow", exclude=[
+    packages=find_packages(exclude=[
         'lib*',
         'node_modules',
     ]),
