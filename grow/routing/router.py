@@ -449,10 +449,18 @@ class Router(object):
         unchanged_pod_paths = set()
         removed_paths = []
         for key, item in routes_data.items():
-            # For now ignore anything that doesn't have a hash.
             route_info = item['value']
+
+            # For now ignore anything that doesn't have a hash.
             if not route_info.hashed:
                 continue
+
+            # If the serving path is no longer in the static configs, ignore.
+            if route_info.kind == 'static':
+                try:
+                    self.get_static_config_for_serving_path(key)
+                except MissingStaticConfigError:
+                    continue
 
             # Ignore deleted files.
             if not self.pod.file_exists(route_info.pod_path):
@@ -523,6 +531,26 @@ class Router(object):
                         return config
 
         raise MissingStaticConfigError(text.format(pod_path))
+
+    def get_static_config_for_serving_path(self, serving_path):
+        """Return the static configuration for a pod path."""
+        text = '{} is not found in any static file configuration in the podspec.'
+        if serving_path is None:
+            raise MissingStaticConfigError(text.format(serving_path))
+
+        for config in self.pod.static_configs:
+            if config.get('dev') and not self.pod.env.dev:
+                continue
+            serve_at = config.get('serve_at')
+            if serving_path.startswith(serve_at):
+                return config
+            intl = config.get('localization', {})
+            if intl:
+                serve_at = intl.get('serve_at')
+                if serving_path.startswith(serve_at):
+                    return config
+
+        raise MissingStaticConfigError(text.format(serving_path))
 
     def reconcile_documents(self, remove_docs=None, add_docs=None):
         """Remove old docs and add new docs to the routes."""
