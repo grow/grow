@@ -50,6 +50,15 @@ class WebReviewDestination(base.BaseDestination):
     def __str__(self):
         return self.config.server
 
+    def _print_rpc_traceback(self, err):
+        """When there is a rpc error, try to output the traceback."""
+        if err.tb:
+            self.pod.logger.error('')
+            self.pod.logger.error('Original Exception Traceback:')
+            for line in err.tb:
+                self.pod.logger.error(line)
+            self.pod.logger.error('')
+
     def get_env(self):
         """Returns an environment object based on the config."""
         if self.config.env:
@@ -145,6 +154,7 @@ class WebReviewDestination(base.BaseDestination):
                 raise base.Error(errors)
             return paths_to_contents[path]
         except webreview.RpcError as e:
+            self._print_rpc_traceback(e)
             raise base.Error(e.message)
 
     def write_files(self, paths_to_rendered_doc):
@@ -154,6 +164,7 @@ class WebReviewDestination(base.BaseDestination):
                 raise base.Error(errors)
             return paths_to_rendered_doc
         except webreview.RpcError as e:
+            self._print_rpc_traceback(e)
             raise base.Error(e.message)
 
     def delete_file(self, paths):
@@ -163,6 +174,7 @@ class WebReviewDestination(base.BaseDestination):
                 raise base.Error(errors)
             return paths
         except webreview.RpcError as e:
+            self._print_rpc_traceback(e)
             raise base.Error(e.message)
 
 
