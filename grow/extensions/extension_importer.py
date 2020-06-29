@@ -44,13 +44,19 @@ class ExtensionImporter:
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
-            del sys.modules[module_name]
+            try:
+                del sys.modules[module_name]
+            except KeyError:
+                pass
 
             # Make a list of the keys since the modules may change when
             # using the keys iterator.
             module_keys = list(sys.modules.keys())
             ext_prefix = '{}.'.format(module_name)
             for key in filter(lambda x: x.startswith(ext_prefix), module_keys):
-                del sys.modules[key]
+                try:
+                    del sys.modules[key]
+                except KeyError:
+                    pass
 
         return getattr(module, extension_class_name)
