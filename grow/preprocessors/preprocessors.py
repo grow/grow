@@ -6,7 +6,7 @@ from grow.preprocessors import blogger
 from grow.preprocessors import google_drive
 from grow.preprocessors import gulp
 from grow.preprocessors import webpack
-from grow.common import extensions
+from grow.extensions import extension_importer
 
 _preprocessor_kinds_to_classes = {}
 
@@ -49,7 +49,8 @@ def register_builtins():
 
 def register_extensions(extension_paths, pod_root):
     for path in extension_paths:
-        cls = extensions.import_extension(path, [pod_root])
+        cls = extension_importer.ExtensionImporter.find_extension(
+            path, pod_root)
         register_preprocessor(cls)
 
 

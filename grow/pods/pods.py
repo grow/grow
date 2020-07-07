@@ -17,7 +17,6 @@ import cachelib
 from grow import storage as grow_storage
 from grow.cache import podcache
 from grow.collections import collection
-from grow.common import extensions
 from grow.common import features
 from grow.common import logger
 from grow.common import progressbar_non
@@ -27,6 +26,7 @@ from grow.documents import document
 from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
+from grow.extensions import extension_importer
 from grow.partials import partials
 from grow.performance import profile
 from grow.pods import errors
@@ -748,7 +748,8 @@ class Pod(object):
         loaded_extensions = []
         for name in self.yaml.get('extensions', {}).get('jinja2', []):
             try:
-                value = extensions.import_extension(name, [self.root])
+                value = extension_importer.ExtensionImporter.find_extension(
+                    name, self.root)
             except ImportError:
                 logging.error(
                     'Error importing %s. Module path must be relative to '
