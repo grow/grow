@@ -298,14 +298,17 @@ class Collection(object):
         return self._get_builtin_field('categories') or []
 
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
-                  include_hidden=False, recursive=True, inject=False):
+                  include_hidden=False, recursive=True, inject=False,
+                  order_by_default=None):
         reverse = False if reverse is None else reverse
         if order_by is None:
             order_by = ('order', 'pod_path')
+            order_by_default = order_by_default if order_by_default is not None else 0
         elif isinstance(order_by, str):
             order_by = (order_by, 'pod_path')
         key = operator.attrgetter(*order_by)
-        sorted_docs = structures.SortedCollection(key=key, default=0)
+        sorted_docs = structures.SortedCollection(
+            key=key, default=order_by_default)
         if inject:
             injected_docs = self.pod.inject_preprocessors(collection=self)
             if injected_docs is not None:
