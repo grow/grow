@@ -14,7 +14,10 @@ class ExtensionImporter:
         """Using the pod path as the base to find the extension module."""
         extension_parts = extension_ref.split('.')
         extension_class_name = extension_parts.pop()
-        module_name = extension_parts[-1]
+        try:
+            module_name = extension_parts[-1]
+        except IndexError:
+            raise ImportError('Unable to find extension: {}'.format(extension_ref))
 
         # Try first as the full module path.
         module_path = '{}{sep}{}.py'.format(
