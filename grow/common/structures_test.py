@@ -160,3 +160,21 @@ class SortedCollectionTestCase(unittest.TestCase):
                           ('angela', 'jones', 28),
                           ('roger', 'young', 30),
                           ('david', 'thomas', 32)], list(self.coll))
+
+    def test_sorting_default(self):
+        """Collection is sorted using a default for the value."""
+        self.key = itemgetter(2)
+        self.coll = structures.SortedCollection(key=self.key, default=100)
+        for record in [
+                ('roger', 'young', None),
+                ('angela', 'jones', 28),
+                ('bill', 'smith', 22),
+                ('david', 'thomas', 32)]:
+            self.coll.insert(record)
+        self.assertEqual(
+            [
+                ('bill', 'smith', 22),
+                ('angela', 'jones', 28),
+                ('david', 'thomas', 32),
+                ('roger', 'young', None),
+            ], list(self.coll))

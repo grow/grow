@@ -110,13 +110,14 @@ class SortedCollection(object):
 
     """
 
-    def __init__(self, iterable=(), key=None):
+    def __init__(self, iterable=(), key=None, default=None):
         self._given_key = key
         key = (lambda x: x) if key is None else key
         decorated = sorted((key(item), item) for item in iterable)
         self._keys = [k for k, item in decorated]
         self._items = [item for k, item in decorated]
         self._key = key
+        self._default = default
 
     def _getkey(self):
         return self._key
@@ -160,6 +161,7 @@ class SortedCollection(object):
 
     def __contains__(self, item):
         k = self._key(item)
+        k = k if k is not None else self._default
         i = bisect_left(self._keys, k)
         j = bisect_right(self._keys, k)
         return item in self._items[i:j]
@@ -167,6 +169,7 @@ class SortedCollection(object):
     def index(self, item):
         'Find the position of an item.  Raise ValueError if not found.'
         k = self._key(item)
+        k = k if k is not None else self._default
         i = bisect_left(self._keys, k)
         j = bisect_right(self._keys, k)
         return self._items[i:j].index(item) + i
@@ -174,6 +177,7 @@ class SortedCollection(object):
     def count(self, item):
         'Return number of occurrences of item'
         k = self._key(item)
+        k = k if k is not None else self._default
         i = bisect_left(self._keys, k)
         j = bisect_right(self._keys, k)
         return self._items[i:j].count(item)
@@ -181,6 +185,7 @@ class SortedCollection(object):
     def insert(self, item):
         'Insert a new item.  If equal keys are found, add to the left'
         k = self._key(item)
+        k = k if k is not None else self._default
         i = bisect_left(self._keys, k)
         self._keys.insert(i, k)
         self._items.insert(i, item)
@@ -188,6 +193,7 @@ class SortedCollection(object):
     def insert_right(self, item):
         'Insert a new item.  If equal keys are found, add to the right'
         k = self._key(item)
+        k = k if k is not None else self._default
         i = bisect_right(self._keys, k)
         self._keys.insert(i, k)
         self._items.insert(i, item)

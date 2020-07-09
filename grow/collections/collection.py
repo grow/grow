@@ -305,7 +305,7 @@ class Collection(object):
         elif isinstance(order_by, str):
             order_by = (order_by, 'pod_path')
         key = operator.attrgetter(*order_by)
-        sorted_docs = structures.SortedCollection(key=key)
+        sorted_docs = structures.SortedCollection(key=key, default=0)
         if inject:
             injected_docs = self.pod.inject_preprocessors(collection=self)
             if injected_docs is not None:
