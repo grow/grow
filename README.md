@@ -1,4 +1,4 @@
-# Grow
+# Grow - This is Amezing
 
 [![Circle CI](https://circleci.com/gh/grow/grow.png?style=shield)](https://circleci.com/gh/grow/grow)
 [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases)
