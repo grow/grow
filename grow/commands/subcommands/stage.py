@@ -27,16 +27,19 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.stage')
                    ' example.com/owner/project). A remote must be specified'
                    ' either using --remote or by configuring a deployment'
                    ' named "webreview" in podspec.yaml.')
+@click.option('--file', '--pod-path', 'pod_paths',
+              help='Build only pages affected by content files.', multiple=True)
 @click.option('--subdomain', help='Assign a subdomain to this build.')
 @click.option('--api-key',
               help='API key for authorizing staging to WebReview projects.')
+@shared.locale_option(help_text='Filter build routes to specific locale.')
 @shared.force_untranslated_option(CFG)
 @shared.preprocess_option(CFG)
 @shared.threaded_option(CFG)
 @shared.work_dir_option
 @shared.routes_file_option()
 @click.pass_context
-def stage(context, pod_path, remote, preprocess, subdomain, api_key,
+def stage(context, pod_path, remote, pod_paths, locale, preprocess, subdomain, api_key,
           force_untranslated, threaded, work_dir, routes_file):
     """Stages a build on a WebReview server."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
@@ -61,10 +64,17 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
                 pod.preprocess()
             repo = utils.get_git_repo(pod.root)
             pod.router.use_simple()
-            if routes_file:
+            is_partial = bool(pod_paths) or bool(locale)
+            if pod_paths:
+                pod_paths = [pod.clean_pod_path(path) for path in pod_paths]
+                pod.router.add_pod_paths(pod_paths)
+            elif routes_file:
                 pod.router.from_data(pod.read_json(routes_file))
             else:
                 pod.router.add_all()
+
+            if locale:
+                pod.router.filter('whitelist', locales=list(locale))
 
             if not work_dir:
                 # Preload the documents used by the paths after filtering.
@@ -77,7 +87,8 @@ def stage(context, pod_path, remote, preprocess, subdomain, api_key,
             content_generator = hooks.generator_wrapper(
                 pod, 'pre_deploy', content_generator, 'stage')
             deployment.deploy(content_generator, stats=stats_obj, repo=repo,
-                              confirm=False, test=False, require_translations=require_translations)
+                              confirm=False, test=False, require_translations=require_translations,
+                              is_partial=is_partial)
             pod.podcache.write()
     except bulk_errors.BulkErrors as err:
         # Write the podcache files even when there are rendering errors.
