@@ -883,7 +883,6 @@ class GoogleSheetsTranslator(base.Translator):
 
         spreadsheet_id_to_locales = {}
         for locale in stats_to_download:
-
             stat = stats_to_download[locale]
             if stat.ident not in spreadsheet_id_to_locales:
                 spreadsheet_id_to_locales[stat.ident] = set()
@@ -896,48 +895,26 @@ class GoogleSheetsTranslator(base.Translator):
         for spreadsheet_id in spreadsheet_id_to_locales:
             locales = spreadsheet_id_to_locales[spreadsheet_id]
             locale_to_values = self._download_sheets(spreadsheet_id, locales)
-
             for i, (lang, stat) in enumerate(stats_to_download.items()):
                 if lang not in locale_to_values:
                     continue
-
                 new_stat, content = self._download_content(stat, locale_to_values[lang])
                 bar.update(bar.value + 1)
                 new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
                 langs_to_translations[lang] = content
                 new_stats.append(new_stat)
-
         bar.finish()
 
-        text = 'Importing translations: %(value)d/{} (in %(time_elapsed).9s)'
-        widgets = [progressbar.FormatLabel(text.format(num_files))]
-        bar = progressbar_non.create_progressbar(
-            "Importing translations...", widgets=widgets, max_value=num_files)
-        bar.start()
-
         has_changed_content = False
-        unchanged_locales = []
-        changed_locales = {}
         for lang, translations in langs_to_translations.items():
-            has_changed_content, imported_translations, total_translations = self.pod.catalogs.import_translations(
+            has_changed_content, _, _ = self.pod.catalogs.import_translations(
                     locale=lang, content=translations,
                     include_obsolete=include_obsolete)
-            bar.update(bar.value + 1)
-            if imported_translations == 0:
-                unchanged_locales.append(lang)
-            else:
-                changed_locales[lang] = {
-                    'imported': imported_translations,
-                    'total': total_translations,
-                }
             if has_changed_content:
                 has_changed_content = True
 
-        bar.finish()
-
         if save_stats and has_changed_content:
             self.save_stats(new_stats)
-        self._log_catalog_changes(unchanged_locales, changed_locales)
         return new_stats
 
     def get_edit_url(self, doc):

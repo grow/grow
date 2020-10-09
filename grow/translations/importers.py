@@ -170,6 +170,8 @@ class Importer(object):
                         external_to_babel_locales[external_locale].append(
                             babel_locale)
 
+        unchanged_locales = []
+        changed_locales = {}
         babel_locales = external_to_babel_locales.get(locale, [locale])
         for babel_locale in babel_locales:
             pod_translations_dir = os.path.join(
@@ -229,4 +231,22 @@ class Importer(object):
                 imported_translations = len(existing_catalog)
                 total_translations = imported_translations
 
+            if imported_translations == 0:
+                unchanged_locales.append(babel_locale)
+            else:
+                changed_locales[babel_locale] = {
+                    'imported': imported_translations,
+                    'total': total_translations,
+            }
+
+        self.log_changes(unchanged_locales, changed_locales)
         return has_changed_content, imported_translations, total_translations
+
+    def log_changes(self, unchanged_locales, changed_locales):
+        if unchanged_locales:
+            self.pod.logger.info('No translations updated: {}'.format(
+                ', '.join(sorted(unchanged_locales))))
+        if changed_locales:
+            for locale, value in changed_locales.items():
+                self.pod.logger.info('Updated {} of {} translations: {}'.format(
+                    value['imported'], value['total'], locale))
