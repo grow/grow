@@ -12,7 +12,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends curl ca-certificates \
+  && apt-get install -y --no-install-recommends curl ca-certificates software-properties-common \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -22,9 +22,10 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
   && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
   && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
   && echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+  && add-apt-repository ppa:deadsnakes/ppa \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
-    python3 python3-pip python3-setuptools python3-all-dev python3-lxml python3-libxml2 \
+    python3.8 python3-pip python3-setuptools python3-all-dev python3-lxml python3-libxml2 \
     nodejs build-essential zip libc6 nano \
     libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev \
     git ssh google-cloud-sdk ruby ruby-dev yarn \
