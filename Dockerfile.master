@@ -1,6 +1,4 @@
-# Focal missing package for gcloud.
 FROM ubuntu:focal
-# FROM ubuntu:bionic
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
 RUN echo "Grow: Master"
@@ -11,7 +9,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends curl gpg-agent ca-certificates software-properties-common \
+  && apt-get install -y --no-install-recommends curl ca-certificates gpg-agent software-properties-common \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

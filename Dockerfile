@@ -1,6 +1,4 @@
-# Focal missing package for gcloud.
-# FROM ubuntu:focal
-FROM ubuntu:bionic
+FROM ubuntu:focal
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
 ARG grow_version
@@ -12,7 +10,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends curl ca-certificates software-properties-common \
+  && apt-get install -y --no-install-recommends curl ca-certificates gpg-agent software-properties-common \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -21,7 +19,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
   && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
   && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
   && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
-  && echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+  && echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
   && add-apt-repository ppa:deadsnakes/ppa \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
