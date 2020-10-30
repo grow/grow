@@ -26,6 +26,8 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
     nodejs build-essential zip libc6 nano \
     libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev \
     git ssh google-cloud-sdk ruby ruby-dev yarn \
+  && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 10 \
+  && update-alternatives --set python3 /usr/bin/python3.8 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
