@@ -1,6 +1,6 @@
 # Focal missing package for gcloud.
-FROM ubuntu:focal
-# FROM ubuntu:bionic
+# FROM ubuntu:focal
+FROM ubuntu:bionic
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
 RUN echo "Grow: Master"
