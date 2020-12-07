@@ -3,6 +3,7 @@
 
 import unittest
 from grow.pods import footnotes
+from grow.pods.footnotes import DuplicateSymbolError
 
 
 class SymbolGeneratorTestCase(unittest.TestCase):
@@ -57,6 +58,25 @@ class FootnotesTestCase(unittest.TestCase):
         self.assertEqual('*', symbol)
         self.assertEqual('See other side.', notes[symbol])
         self.assertDictEqual({'*': 'See other side.'}, notes.footnotes)
+
+    def test_add_custom_symbol(self):
+        notes = footnotes.Footnotes(None)
+        symbol = notes.add('See other side.', custom_symbol='^')
+        self.assertEqual(1, len(notes))
+        self.assertEqual('^', symbol)
+        self.assertEqual('See other side.', notes[symbol])
+        self.assertDictEqual({'^': 'See other side.'}, notes.footnotes)
+
+    def test_add_custom_symbol_duplicate(self):
+        notes = footnotes.Footnotes(None)
+        notes.add('See other side.', custom_symbol='^')
+
+        # Adding with the same note does not error.
+        notes.add('See other side.', custom_symbol='^')
+
+        # Adding with same symbol, but different note errors.
+        with self.assertRaises(DuplicateSymbolError):
+            notes.add('See this side.', custom_symbol='^')
 
     def test_add_duplicate(self):
         # Adding duplicate footnotes does not create new footnotes.

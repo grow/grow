@@ -40,6 +40,17 @@ NUMERICAL_SYMBOLS = {
 NUMERIC_LOCALES_REGEX = re.compile(r'_(DE)$', re.IGNORECASE)
 
 
+class Error(Exception):
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
+
+
+class DuplicateSymbolError(Error, KeyError):
+    pass
+
+
 def symbol_generator(symbols=SYMBOLS):
     loop_count = 1
     loop_index = 0
@@ -92,10 +103,18 @@ class Footnotes(object):
     def footnotes(self):
         return self.symbol_to_footnote
 
-    def add(self, value):
+    def add(self, value, custom_symbol=None):
         for symbol, note_value in self.symbol_to_footnote.items():
             if value == note_value:
                 return symbol
+
+        if custom_symbol:
+            # Check that the symbol is not in use.
+            if custom_symbol in self.symbol_to_footnote.keys():
+                raise DuplicateSymbolError(
+                    'Custom symbol already in use: {}'.format(custom_symbol))
+            self.symbol_to_footnote[custom_symbol] = value
+            return custom_symbol
 
         # Doesn't exist, add as new symbol.
         symbol = next(self.generator)
