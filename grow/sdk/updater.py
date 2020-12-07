@@ -87,6 +87,18 @@ class Updater(object):
         if sem_latest <= sem_current:
             return
 
+        if sem_latest.major > sem_current.major:
+            url = TAGS_URL_FORMAT.format(self.latest_version)
+            logging.info('')
+            logging.info('  A new major version of the Grow SDK is available.')
+            logging.info('  Major version changes can be backwards incompatible.')
+            logging.info('  Please check the release notes for upgrade instructions.')
+            logging.info('  Release notes: {}'.format(url))
+            logging.info('  Your version: {}, latest version: {}'.format(
+                colors.stylize(str(sem_current), colors.EMPHASIS),
+                colors.stylize(str(sem_latest), colors.EMPHASIS)))
+            return
+
         url = TAGS_URL_FORMAT.format(self.latest_version)
         logging.info('')
         logging.info('  Please update to the newest version of the Grow SDK.')
