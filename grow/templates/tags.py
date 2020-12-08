@@ -176,19 +176,10 @@ def make_doc_gettext(doc):
 
 def make_gettext(pod, func):
     """Create a gettext function that tracks translation stats."""
-    use_old_formatting = pod.podspec.get_config().get(
-        'templates', {}).get('old_string_format', False)
-
-    if use_old_formatting:
-        pod.logger.warn(
-            'Old string formatting is deprecated and will be removed in the future.')
-
     @jinja2.contextfunction
     def gettext(__context, __string, **variables):
         """Gettext and do replacement."""
         value = __context.call(func, __string)
-        if use_old_formatting:
-            value = value % variables
         value = utils.safe_format(value, **variables)
         if __context.eval_ctx.autoescape:
             value = jinja2.utils.Markup(value)
@@ -198,16 +189,11 @@ def make_gettext(pod, func):
 
 def make_ngettext(pod, func):
     """Create a gettext function that tracks translation stats."""
-    use_old_formatting = pod.podspec.get_config().get(
-        'templates', {}).get('old_string_format', False)
-
     @jinja2.contextfunction
     def ngettext(__context, __singular, __plural, __num, **variables):
         """Gettext and do replacement."""
         variables.setdefault('num', __num)
         value = __context.call(func, __singular, __plural, __num)
-        if use_old_formatting:
-            value = value % variables
         value = utils.safe_format(value, **variables)
         if __context.eval_ctx.autoescape:
             value = jinja2.utils.Markup(value)
