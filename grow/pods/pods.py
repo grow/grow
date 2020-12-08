@@ -17,6 +17,7 @@ import cachelib
 from grow import storage as grow_storage
 from grow.cache import podcache
 from grow.collections import collection
+from grow.common import deprecated
 from grow.common import features
 from grow.common import logger
 from grow.common import progressbar_non
@@ -91,6 +92,7 @@ class Pod(object):
                 and self.root == other.root)
 
     def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True):
+        self.deprecated = deprecated.DeprecationManager(self.logger.warn)
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
@@ -666,10 +668,20 @@ class Pod(object):
                 or not self.yaml['translators']['services']):
             return None
         translator_config = self.yaml['translators']
+        translator_extensions = self.yaml.get(
+            'extensions', {}).get('translators', [])
         translators.register_extensions(
-            self.yaml.get('extensions', {}).get('translators', []),
+            translator_extensions,
             self.root,
         )
+
+        if translator_extensions:
+            legacy_message = 'Legacy translators are deprecated and will be removed in the future: {}'
+            self.deprecated(
+                'legacy_translator',
+                legacy_message.format(', '.join(translator_extensions)),
+                url='https://grow.dev/migration/1.0.0')
+
         translator_services = copy.deepcopy(translator_config['services'])
         if service is not utils.SENTINEL:
             valid_service_kinds = [each['service']
@@ -746,7 +758,8 @@ class Pod(object):
 
     def list_jinja_extensions(self):
         loaded_extensions = []
-        for name in self.yaml.get('extensions', {}).get('jinja2', []):
+        jinja_extensions = self.yaml.get('extensions', {}).get('jinja2', [])
+        for name in jinja_extensions:
             try:
                 value = extension_importer.ExtensionImporter.find_extension(
                     name, self.root)
@@ -756,6 +769,14 @@ class Pod(object):
                     'the pod root.', repr(name))
                 raise
             loaded_extensions.append(value)
+
+        if jinja_extensions:
+            legacy_message = 'Legacy jinja2 extensions are deprecated and will be removed in the future: {}'
+            self.deprecated(
+                'legacy_jinja2',
+                legacy_message.format(', '.join(jinja_extensions)),
+                url='https://grow.dev/migration/1.0.0')
+
         loaded_extensions.extend(
             self.extensions_controller.trigger('jinja_extensions'))
         return loaded_extensions
@@ -772,8 +793,11 @@ class Pod(object):
             self.root,
         )
         preprocessor_config = copy.deepcopy(self.yaml.get('preprocessors', []))
+        legacy_preprocessors = []
         for params in preprocessor_config:
             kind = params.pop('kind')
+            legacy_preprocessors.append(kind)
+
             try:
                 preprocessor = preprocessors.make_preprocessor(
                     kind, params, self)
@@ -781,6 +805,14 @@ class Pod(object):
             except ValueError as err:
                 # New extensions don't exists and are considered a value error.
                 pass
+
+        if legacy_preprocessors:
+            legacy_message = 'Legacy preprocessors are deprecated and will be removed in the future: {}'
+            self.deprecated(
+                'legacy_preprocessors',
+                legacy_message.format(', '.join(legacy_preprocessors)),
+                url='https://grow.dev/migration/1.0.0')
+
         return results
 
     def list_statics(self, pod_path, locale=None, include_hidden=False):
