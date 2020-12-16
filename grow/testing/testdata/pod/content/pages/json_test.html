@@ -2,7 +2,7 @@
 $title@: JSON Test
 ---
 {% set data = g.json('/data/file.json') %}
-{% for key, value in data.iteritems() %}
+{% for key, value in data.items() %}
 <li>{{key}} - {{value}}
 {% endfor %}
 {% set jsonify_doc = g.doc('/content/pages/text.txt') %}

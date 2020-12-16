@@ -16,13 +16,15 @@ from grow.sdk import sdk_utils
 
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 TAGS_URL_FORMAT = 'https://github.com/grow/grow/releases/tag/{}'
-INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
-                     'https://raw.github.com/grow/grow/master/install.py)"')
+INSTALLER_COMMAND = 'pipenv install grow=={version}'
 
 
 class Error(Exception):
     """Base error for updaters."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class LatestVersionCheckError(Error):
@@ -107,7 +109,8 @@ class Updater(object):
             colors.stylize(str(sem_current), colors.EMPHASIS),
             colors.stylize(str(sem_latest), colors.EMPHASIS)))
 
-        if utils.is_packaged_app() and auto_update_prompt:
+        install_command = INSTALLER_COMMAND.format(version=sem_latest)
+        if auto_update_prompt:
             use_auto_update = grow_rc_config.get('update.always', False)
 
             if use_auto_update:
@@ -115,7 +118,7 @@ class Updater(object):
                     colors.stylize(str(sem_latest), colors.HIGHLIGHT)))
             else:  # pragma: no cover
                 try:
-                    choice = raw_input(
+                    choice = input(
                         'Auto update now? [Y]es / [n]o / [a]lways: ').strip().lower()
                 except KeyboardInterrupt:
                     choice = 'n'
@@ -125,7 +128,7 @@ class Updater(object):
                     grow_rc_config.set('update.always', True)
                     grow_rc_config.write()
 
-            if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
+            if subprocess.call((install_command), shell=True) == 0:
                 logging.info('Restarting...')
                 try:
                     # Restart on successful install.
@@ -135,13 +138,10 @@ class Updater(object):
                         'Unable to restart. Please manually restart grow.')
                     sys.exit(-1)
             else:
-                text = (
-                    'In-place update failed. Update manually or use:\n'
-                    '  curl https://install.grow.io | bash')
-                logging.error(text)
+                text = 'In-place update failed. Update manually or use:\n  {}'
+                logging.error(text.format(install_command))
                 sys.exit(-1)
         else:
-            install_command = colors.stylize('pip install --upgrade grow', colors.CAUTION)
             logging.info('  Update using: {}'.format(install_command))
         logging.info('')
         return True
@@ -151,7 +151,11 @@ class Updater(object):
         if self.pod.grow_version is None:
             return
         sem_current = semantic_version.Version(self.current_version)
-        spec_required = semantic_version.Spec(self.pod.grow_version)
+        grow_version_pattern = '{}'.format(self.pod.grow_version)
+        # Include pre-releases in the version check.
+        if '-' not in grow_version_pattern:
+            grow_version_pattern = '{}-'.format(grow_version_pattern)
+        spec_required = semantic_version.SimpleSpec(grow_version_pattern)
         if sem_current not in spec_required:
             text = 'ERROR! Pod requires Grow SDK version: {}'.format(
                 self.pod.grow_version)

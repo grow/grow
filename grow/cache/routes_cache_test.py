@@ -57,7 +57,7 @@ class RoutesCacheTestCase(unittest.TestCase):
         }, concrete=True, options={'dev': True})
         self.assertDictEqual({
             'dynamic': {
-                None: {
+                '__None__': {
                     'answer': {
                         'options': None,
                         'value': {
@@ -73,7 +73,7 @@ class RoutesCacheTestCase(unittest.TestCase):
                 },
             },
             'concrete': {
-                None: {
+                '__None__': {
                     'query': {
                         'options': {
                             'dev': True,

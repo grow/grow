@@ -1,6 +1,10 @@
 class Error(Exception):
     """Base Exception class for module."""
 
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
+
 
 class DocumentDoesNotExistError(Error, ValueError):
     """Document path does not exist as a document."""

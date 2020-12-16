@@ -13,11 +13,11 @@ import tempfile
 import yaml
 import jinja2
 import progressbar
-from werkzeug.contrib import cache as werkzeug_cache
+import cachelib
 from grow import storage as grow_storage
 from grow.cache import podcache
 from grow.collections import collection
-from grow.common import extensions
+from grow.common import deprecated
 from grow.common import features
 from grow.common import logger
 from grow.common import progressbar_non
@@ -27,6 +27,7 @@ from grow.documents import document
 from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
+from grow.extensions import extension_importer
 from grow.partials import partials
 from grow.performance import profile
 from grow.pods import errors
@@ -52,7 +53,10 @@ from . import podspec
 
 
 class Error(Exception):
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class PodDoesNotExistError(Error, IOError):
@@ -88,6 +92,7 @@ class Pod(object):
                 and self.root == other.root)
 
     def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True):
+        self.deprecated = deprecated.DeprecationManager(self.logger.warn)
         self._yaml = utils.SENTINEL
         self.storage = storage
         self.root = (root if self.storage.is_cloud_storage
@@ -148,7 +153,7 @@ class Pod(object):
 
     def _load_experiments(self):
         config = self.yaml.get('experiments', {})
-        for key, value in config.iteritems():
+        for key, value in config.items():
             # Expertiments can be turned on with a True value,
             # be turned off with a False value,
             # or turned on by a providing configuration value.
@@ -168,7 +173,7 @@ class Pod(object):
 
     def _load_features(self):
         config = self.yaml.get('features', {})
-        for key, value in config.iteritems():
+        for key, value in config.items():
             # Features can be turned on with a True value,
             # be turned off with a False value,
             # or turned on by a providing configuration value.
@@ -289,9 +294,7 @@ class Pod(object):
 
     @utils.cached_property
     def cache(self):
-        if utils.is_appengine():
-            return werkzeug_cache.MemcachedCache(default_timeout=0)
-        return werkzeug_cache.SimpleCache(default_timeout=0)
+        return cachelib.SimpleCache(default_timeout=0)
 
     @property
     def error_routes(self):
@@ -572,18 +575,21 @@ class Pod(object):
     def get_deployment(self, nickname):
         """Returns a pod-specific deployment."""
         # Lazy import avoids environment errors and speeds up importing.
-        from grow.deployments import deployments
+        from grow.deployments import deployments as grow_deployments
         if 'deployments' not in self.yaml:
             raise ValueError('No pod-specific deployments configured.')
         destination_configs = self.yaml['deployments']
         if nickname not in destination_configs:
             text = 'No deployment named {}. Valid deployments: {}.'
-            keys = ', '.join(destination_configs.keys())
+            keys = ', '.join(list(destination_configs.keys()))
             raise ValueError(text.format(nickname, keys))
         deployment_params = destination_configs[nickname]
         kind = deployment_params.pop('destination')
         try:
             config = destination_configs[nickname]
+            deployments = grow_deployments.Deployments()
+            self.extensions_controller.trigger(
+                'deployment_register', deployments)
             deployment = deployments.make_deployment(
                 kind, config, name=nickname)
         except TypeError:
@@ -662,10 +668,20 @@ class Pod(object):
                 or not self.yaml['translators']['services']):
             return None
         translator_config = self.yaml['translators']
+        translator_extensions = self.yaml.get(
+            'extensions', {}).get('translators', [])
         translators.register_extensions(
-            self.yaml.get('extensions', {}).get('translators', []),
+            translator_extensions,
             self.root,
         )
+
+        if translator_extensions:
+            legacy_message = 'Legacy translators are deprecated and will be removed in the future: {}'
+            self.deprecated(
+                'legacy_translator',
+                legacy_message.format(', '.join(translator_extensions)),
+                url='https://grow.dev/migration/1.0.0')
+
         translator_services = copy.deepcopy(translator_config['services'])
         if service is not utils.SENTINEL:
             valid_service_kinds = [each['service']
@@ -742,15 +758,25 @@ class Pod(object):
 
     def list_jinja_extensions(self):
         loaded_extensions = []
-        for name in self.yaml.get('extensions', {}).get('jinja2', []):
+        jinja_extensions = self.yaml.get('extensions', {}).get('jinja2', [])
+        for name in jinja_extensions:
             try:
-                value = extensions.import_extension(name, [self.root])
+                value = extension_importer.ExtensionImporter.find_extension(
+                    name, self.root)
             except ImportError:
                 logging.error(
                     'Error importing %s. Module path must be relative to '
                     'the pod root.', repr(name))
                 raise
             loaded_extensions.append(value)
+
+        if jinja_extensions:
+            legacy_message = 'Legacy jinja2 extensions are deprecated and will be removed in the future: {}'
+            self.deprecated(
+                'legacy_jinja2',
+                legacy_message.format(', '.join(jinja_extensions)),
+                url='https://grow.dev/migration/1.0.0')
+
         loaded_extensions.extend(
             self.extensions_controller.trigger('jinja_extensions'))
         return loaded_extensions
@@ -767,8 +793,11 @@ class Pod(object):
             self.root,
         )
         preprocessor_config = copy.deepcopy(self.yaml.get('preprocessors', []))
+        legacy_preprocessors = []
         for params in preprocessor_config:
             kind = params.pop('kind')
+            legacy_preprocessors.append(kind)
+
             try:
                 preprocessor = preprocessors.make_preprocessor(
                     kind, params, self)
@@ -776,6 +805,14 @@ class Pod(object):
             except ValueError as err:
                 # New extensions don't exists and are considered a value error.
                 pass
+
+        if legacy_preprocessors:
+            legacy_message = 'Legacy preprocessors are deprecated and will be removed in the future: {}'
+            self.deprecated(
+                'legacy_preprocessors',
+                legacy_message.format(', '.join(legacy_preprocessors)),
+                url='https://grow.dev/migration/1.0.0')
+
         return results
 
     def list_statics(self, pod_path, locale=None, include_hidden=False):
@@ -793,7 +830,7 @@ class Pod(object):
 
     def normalize_locale(self, locale, default=None):
         locale = locale or default or self.podspec.default_locale
-        if isinstance(locale, basestring):
+        if isinstance(locale, str):
             try:
                 locale = locales.Locale.parse(locale)
             except ValueError as err:

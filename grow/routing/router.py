@@ -21,10 +21,13 @@ class FilterConfig(messages.Message):
 
 class Error(Exception):
     """Base router error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
-class MissingStaticConfigError(Exception):
+class MissingStaticConfigError(Error):
     """Error for missing a configuration for a static file."""
     pass
 
@@ -120,7 +123,7 @@ class Router(object):
         with self.pod.profile.timer('Router.add_all_other'):
             podspec = self.pod.podspec.get_config()
             if 'error_routes' in podspec:
-                for key, error_route in podspec['error_routes'].iteritems():
+                for key, error_route in podspec['error_routes'].items():
                     if key == 'default':
                         key = 404
 
@@ -291,7 +294,7 @@ class Router(object):
                     localized_path = doc.get_serving_path_localized()
                     if not localized_path or ':locale' not in localized_path:
                         localized_paths = doc.get_serving_paths_localized()
-                        for locale, path in localized_paths.iteritems():
+                        for locale, path in localized_paths.items():
                             route_info = RouteInfo(
                                 'doc', pod_path=doc.pod_path,
                                 hashed=self.pod.hash_file(doc.pod_path),
@@ -445,11 +448,19 @@ class Router(object):
             concrete=concrete, env=self.pod.env.name)
         unchanged_pod_paths = set()
         removed_paths = []
-        for key, item in routes_data.iteritems():
-            # For now ignore anything that doesn't have a hash.
+        for key, item in routes_data.items():
             route_info = item['value']
+
+            # For now ignore anything that doesn't have a hash.
             if not route_info.hashed:
                 continue
+
+            # If the serving path is no longer in the static configs, ignore.
+            if route_info.kind == 'static':
+                try:
+                    self.get_static_config_for_serving_path(key)
+                except MissingStaticConfigError:
+                    continue
 
             # Ignore deleted files.
             if not self.pod.file_exists(route_info.pod_path):
@@ -480,7 +491,7 @@ class Router(object):
 
     def from_data(self, routes_data):
         """Import routes from data."""
-        for key, item in routes_data.iteritems():
+        for key, item in routes_data.items():
             self.routes.add(
                 key,
                 RouteInfo.from_data(**item['value']),
@@ -493,10 +504,9 @@ class Router(object):
 
     def get_static_config_for_pod_path(self, pod_path):
         """Return the static configuration for a pod path."""
-        missing_text = '{} is not found in any static file configuration in the podspec.'
-
-        if not pod_path:
-            raise MissingStaticConfigError(missing_text.format(pod_path))
+        text = '{} is not found in any static file configuration in the podspec.'
+        if pod_path is None:
+            raise MissingStaticConfigError(text.format(pod_path))
 
         for config in self.pod.static_configs:
             if config.get('dev') and not self.pod.env.dev:
@@ -504,7 +514,7 @@ class Router(object):
             static_dirs = config.get('static_dirs')
             if not static_dirs:
                 static_dirs = [config.get('static_dir')]
-            if isinstance(static_dirs, basestring):
+            if isinstance(static_dirs, str):
                 static_dirs = [static_dirs]
             for static_dir in static_dirs:
                 if pod_path.startswith(static_dir):
@@ -514,13 +524,33 @@ class Router(object):
                 static_dirs = intl.get('static_dirs')
                 if not static_dirs:
                     static_dirs = [intl.get('static_dir')]
-                if isinstance(static_dirs, basestring):
+                if isinstance(static_dirs, str):
                     static_dirs = [static_dirs]
                 for static_dir in static_dirs:
                     if pod_path.startswith(static_dir):
                         return config
 
-        raise MissingStaticConfigError(missing_text.format(pod_path))
+        raise MissingStaticConfigError(text.format(pod_path))
+
+    def get_static_config_for_serving_path(self, serving_path):
+        """Return the static configuration for a pod path."""
+        text = '{} is not found in any static file configuration in the podspec.'
+        if serving_path is None:
+            raise MissingStaticConfigError(text.format(serving_path))
+
+        for config in self.pod.static_configs:
+            if config.get('dev') and not self.pod.env.dev:
+                continue
+            serve_at = config.get('serve_at')
+            if serving_path.startswith(serve_at):
+                return config
+            intl = config.get('localization', {})
+            if intl:
+                serve_at = intl.get('serve_at')
+                if serving_path.startswith(serve_at):
+                    return config
+
+        raise MissingStaticConfigError(text.format(serving_path))
 
     def reconcile_documents(self, remove_docs=None, add_docs=None):
         """Remove old docs and add new docs to the routes."""

@@ -1,9 +1,9 @@
 """Grow local development server."""
 
 import os
-import urllib
+from urllib import parse as url_parse
 from werkzeug import serving
-from werkzeug import wsgi
+from werkzeug.middleware import shared_data
 from grow.common import config
 from grow.common import utils
 from grow.pods import errors
@@ -24,12 +24,7 @@ class RequestHandler(serving.WSGIRequestHandler):
 class PodServer(object):
 
     def __call__(self, environ, start_response):
-        try:
-            return self.wsgi_app(environ, start_response)
-        except Exception as e:
-            request = handlers.Request(environ)
-            response = handlers.serve_exception(self.pod, request, e)
-            return response(environ, start_response)
+        return self.wsgi_app(environ, start_response)
 
     def __init__(self, pod, host, port, debug=False):
         self.pod = pod
@@ -47,7 +42,7 @@ class PodServer(object):
         self.pod.podcache.dependency_graph.mark_clean()
 
     def dispatch_request(self, request):
-        path = urllib.unquote(request.path)  # Support escaped paths.
+        path = url_parse.unquote(request.path)  # Support escaped paths.
         matched = self.routes.match(path)
 
         if not matched:
@@ -66,16 +61,22 @@ class PodServer(object):
         return handlers.serve_pod(self.pod, request, matched)
 
     def wsgi_app(self, environ, start_response):
-        request = handlers.Request(environ)
-        response = self.dispatch_request(request)
-        return response(environ, start_response)
+        try:
+            request = handlers.Request(environ)
+            response = self.dispatch_request(request)
+            return response(environ, start_response)
+        except Exception as e:
+            request = handlers.Request(environ)
+            response = handlers.serve_exception(self.pod, request, e)
+            return response(environ, start_response)
 
 
 def create_wsgi_app(pod, host, port, debug=False):
     podserver_app = PodServer(pod, host, port, debug=debug)
     assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'admin', 'assets')
     ui_path = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
-    return wsgi.SharedDataMiddleware(podserver_app, {
+    # pylint: disable=no-member
+    return shared_data.SharedDataMiddleware(podserver_app, {
         '/_grow/ui': ui_path,
         '/_grow/assets': assets_path,
     })

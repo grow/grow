@@ -1,7 +1,7 @@
 """Google Sheets for translating pod content."""
 
-from __future__ import print_function
 import datetime
+import io
 import progressbar
 import random
 from babel.messages import catalog
@@ -11,10 +11,10 @@ from grow.common import progressbar_non
 from grow.preprocessors import google_drive
 from grow.translators import errors as translator_errors
 try:
-    import cStringIO as StringIO
+    import io as StringIO
 except ImportError:  # pragma: no cover
     try:
-        import StringIO
+        import io
     except ImportError:
         from io import StringIO
 from . import base
@@ -169,7 +169,7 @@ class GoogleSheetsTranslator(base.Translator):
             downloaded=datetime.datetime.now(),
             source_lang=stat.source_lang,
             ident=stat.ident)
-        fp = StringIO.StringIO()
+        fp = io.BytesIO()
         pofile.write_po(fp, babel_catalog)
         fp.seek(0)
         content = fp.read()
@@ -190,7 +190,7 @@ class GoogleSheetsTranslator(base.Translator):
         spreadsheet_id = None
         stats_to_download = self._get_stats_to_download([])
         if stats_to_download:
-            stat = stats_to_download.values()[0]
+            stat = list(stats_to_download.values())[0]
             spreadsheet_id = stat.ident if stat else None
 
         # NOTE: Manging locales across multiple spreadsheets is unsupported.
@@ -683,7 +683,7 @@ class GoogleSheetsTranslator(base.Translator):
     def _generate_update_sheets_requests(self, sheet_ids_to_catalogs,
                                          source_lang, spreadsheet_id, prune=False):
         requests = []
-        for sheet_id, catalog in sheet_ids_to_catalogs.iteritems():
+        for sheet_id, catalog in sheet_ids_to_catalogs.items():
             lang = str(catalog.locale)
             existing_values = self._download_sheet(spreadsheet_id, lang)
             for x in range(self.HEADER_ROW_COUNT):
@@ -897,7 +897,7 @@ class GoogleSheetsTranslator(base.Translator):
             locales = spreadsheet_id_to_locales[spreadsheet_id]
             locale_to_values = self._download_sheets(spreadsheet_id, locales)
 
-            for i, (lang, stat) in enumerate(stats_to_download.iteritems()):
+            for i, (lang, stat) in enumerate(stats_to_download.items()):
                 if lang not in locale_to_values:
                     continue
 
@@ -918,7 +918,7 @@ class GoogleSheetsTranslator(base.Translator):
         has_changed_content = False
         unchanged_locales = []
         changed_locales = {}
-        for lang, translations in langs_to_translations.iteritems():
+        for lang, translations in langs_to_translations.items():
             has_changed_content, imported_translations, total_translations = self.pod.catalogs.import_translations(
                     locale=lang, content=translations,
                     include_obsolete=include_obsolete)

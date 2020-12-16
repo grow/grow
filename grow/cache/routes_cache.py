@@ -13,6 +13,7 @@ class RoutesCache(object):
 
     KEY_CONCRETE = 'concrete'
     KEY_DYNAMIC = 'dynamic'
+    KEY_NONE = '__None__'
 
     def __init__(self):
         self._cache = {
@@ -28,9 +29,9 @@ class RoutesCache(object):
     @staticmethod
     def _export_cache(routes):
         routing_info = {}
-        for env, env_routes in routes.iteritems():
+        for env, env_routes in routes.items():
             routing_info[env] = {}
-            for path, item in env_routes.iteritems():
+            for path, item in env_routes.items():
                 if hasattr(item['value'], 'export'):
                     value = item['value'].export()
                 else:
@@ -43,6 +44,8 @@ class RoutesCache(object):
 
     def add(self, key, value, options=None, concrete=False, env=None):
         """Add a new item to the cache or overwrite an existing value."""
+        if env is None:
+            env = self.KEY_NONE
         cache_key = self._cache_key(concrete)
         if env not in self._cache[cache_key]:
             self._cache[cache_key][env] = {}
@@ -75,8 +78,8 @@ class RoutesCache(object):
         for super_key in [self.KEY_DYNAMIC, self.KEY_CONCRETE]:
             if super_key in data:
                 concrete = super_key == self.KEY_CONCRETE
-                for env, env_data in data[super_key].iteritems():
-                    for key, item in env_data.iteritems():
+                for env, env_data in data[super_key].items():
+                    for key, item in env_data.items():
                         self.add(
                             key,
                             router.RouteInfo.from_data(**item['value']),
@@ -85,6 +88,8 @@ class RoutesCache(object):
 
     def get(self, key, concrete=False, env=None):
         """Retrieve the value from the cache."""
+        if env is None:
+            env = self.KEY_NONE
         return self._cache[self._cache_key(concrete)].get(env, {}).get(key, None)
 
     @property
@@ -100,10 +105,14 @@ class RoutesCache(object):
         """Returns the raw cache data."""
         if concrete is None:
             return self._cache
+        if env is None:
+            env = self.KEY_NONE
         return self._cache[self._cache_key(concrete)].get(env, {})
 
     def remove(self, key, concrete=False, env=None):
         """Removes a single element from the cache."""
+        if env is None:
+            env = self.KEY_NONE
         self._is_dirty = True
         return self._cache[self._cache_key(concrete)].get(env, {}).pop(key, None)
 

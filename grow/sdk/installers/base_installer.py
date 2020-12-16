@@ -5,7 +5,10 @@ from grow.sdk import sdk_utils
 
 class Error(Exception):
     """Base error for installers."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class MissingPrerequisiteError(Error):
@@ -29,6 +32,11 @@ class BaseInstaller(object):
     def __init__(self, pod, config):
         self.pod = pod
         self.config = config
+
+    @property
+    def pre_install_messages(self):
+        """List of messages to display before installing."""
+        return ['Installing: {}'.format(self.KIND)]
 
     @property
     def post_install_messages(self):

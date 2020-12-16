@@ -15,7 +15,7 @@ class Locales(object):
     def list_groups(self):
         if 'locales' not in self.pod.yaml:
             return []
-        return self.pod.yaml['locales'].keys()
+        return list(self.pod.yaml['locales'].keys())
 
     def get_regions(self, group_name='default'):
         if 'regions' not in self.pod.yaml:
@@ -70,7 +70,7 @@ class Locale(babel.Locale):
         return hash(str(self))
 
     def __eq__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, str):
             return str(self).lower() == other.lower()
         return super(Locale, self).__eq__(other)
 
@@ -98,7 +98,7 @@ class Locale(babel.Locale):
         config = podspec.get_config()
         if 'localization' in config and 'aliases' in config['localization']:
             aliases = config['localization']['aliases']
-            for custom_locale, babel_locale in aliases.iteritems():
+            for custom_locale, babel_locale in aliases.items():
                 if custom_locale == alias:
                     return cls.parse(babel_locale)
         return cls.parse(alias)

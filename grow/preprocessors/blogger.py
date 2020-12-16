@@ -29,7 +29,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
 
     @staticmethod
     def create_service(authenticated=True):
-        http = httplib2.Http(ca_certs=utils.get_cacerts_path())
+        http = httplib2.Http()
         if authenticated:
             credentials = oauth.get_or_create_credentials(
                 scope=OAUTH_SCOPE, storage_key='Grow SDK')
@@ -56,7 +56,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
         item_id = item.pop('id')
         ext = 'md' if self.config.markdown else 'html'
         basename = '{}.{}'.format(item_id, ext)
-        body = item.pop('content').encode('utf-8')
+        body = item.pop('content')
         fields = item
         # Formatted like: 2011-05-20T11:45:23-07:00
         published = fields['published'][:-6]

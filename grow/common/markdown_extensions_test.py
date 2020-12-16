@@ -88,12 +88,12 @@ class TocExtensionTestCase(unittest.TestCase):
             """))
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
         pod.router.add_all(use_cache=False)
-        result = testing.render_path(pod, '/test/').decode('utf-8')
+        result = testing.render_path(pod, '/test/')
 
         header = '<h1 id="did-you-see-the-rocket-launch?">Did you see the rocket launch?</h1>'
         self.assertIn(header, result)
 
-        header = u'<h1 id="로켓-발사를-봤어?">로켓 발사를 봤어?</h1>'
+        header = '<h1 id="로켓-발사를-봤어?">로켓 발사를 봤어?</h1>'
         self.assertIn(header, result)
 
 

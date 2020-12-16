@@ -48,6 +48,7 @@ class TranslatorServiceError(Exception):
                 ident, message)
         else:
             new_message = message
+        self.message = new_message
         super(TranslatorServiceError, self).__init__(new_message)
 
 
@@ -144,9 +145,9 @@ class Translator(object):
         stats_to_download = stats[self.KIND]
         if locales:
             stats_to_download = dict([(lang, stat)
-                                      for (lang, stat) in stats_to_download.iteritems()
+                                      for (lang, stat) in stats_to_download.items()
                                       if lang in locales])
-        for lang, stat in stats_to_download.iteritems():
+        for lang, stat in stats_to_download.items():
             if isinstance(stat, TranslatorStat):
                 stat = json.loads(protojson.encode_message(stat))
             stat['lang'] = lang
@@ -184,8 +185,9 @@ class Translator(object):
             new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
             langs_to_translations[lang] = content
             new_stats.append(new_stat)
-        for i, (lang, stat) in enumerate(stats_to_download.iteritems()):
-            thread = utils.ProgressBarThread(bar, True, target=_do_download, args=(lang, stat))
+        for i, (lang, stat) in enumerate(stats_to_download.items()):
+            thread = utils.ProgressBarThread(
+                bar, True, target=_do_download, args=(lang, stat))
             threads.append(thread)
             thread.start()
             # Perform the first operation synchronously to avoid oauth2 refresh
@@ -200,7 +202,7 @@ class Translator(object):
         has_changed_content = False
         unchanged_locales = []
         changed_locales = {}
-        for lang, translations in langs_to_translations.iteritems():
+        for lang, translations in langs_to_translations.items():
             has_changed_content, imported_translations, total_translations = self.pod.catalogs.import_translations(
                     locale=lang, content=translations,
                     include_obsolete=include_obsolete)
@@ -231,11 +233,11 @@ class Translator(object):
             return
         if self.has_multiple_langs_in_one_resource:
             self._update_acls(stats_to_download, locales)
-            stat = stats_to_download.values()[0]
+            stat = list(stats_to_download.values())[0]
             self.pod.logger.info('ACL updated -> {}'.format(stat.ident))
             return
         threads = []
-        for i, (locale, stat) in enumerate(stats_to_download.iteritems()):
+        for i, (locale, stat) in enumerate(stats_to_download.items()):
             thread = threading.Thread(
                 target=self._update_acl, args=(stat, locale))
             threads.append(thread)
@@ -259,7 +261,7 @@ class Translator(object):
             self.pod.logger.info('No documents found to update.')
             return
         threads = []
-        for i, (locale, stat) in enumerate(stats_to_download.iteritems()):
+        for i, (locale, stat) in enumerate(stats_to_download.items()):
             catalog_for_meta = self.pod.catalogs.get(locale)
             thread = threading.Thread(
                 target=self._update_meta, args=(stat, locale, catalog_for_meta))

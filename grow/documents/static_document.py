@@ -11,11 +11,6 @@ FINGERPRINT_RE = re.compile(
     r'(.*)(-[a-f0-9]{64})((\.min|)[\.][a-z0-9]{1,5})$', re.IGNORECASE)
 
 
-class Error(Exception):
-    """Base static document error."""
-    pass
-
-
 class StaticDocument(object):
     """Static document."""
 

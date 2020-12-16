@@ -17,6 +17,7 @@ class DocumentsTestCase(unittest.TestCase):
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
     def test_eq(self):
+        """Test equal comparison."""
         doc1 = self.pod.get_doc('/content/pages/contact.yaml')
         doc2 = self.pod.get_doc('/content/pages/contact.yaml')
         self.assertEqual(doc1, doc2)
@@ -31,6 +32,62 @@ class DocumentsTestCase(unittest.TestCase):
         doc2 = self.pod.get_doc('/content/pages/about@de.yaml')
         self.assertEqual(doc1, doc2)
 
+    def test_ge(self):
+        """Test greater-than-equal comparison."""
+        doc1 = self.pod.get_doc('/content/pages/delta.yaml')
+        doc2 = self.pod.get_doc('/content/pages/charlie.yaml')
+        self.assertTrue(doc1 >= doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='de')
+        self.assertTrue(doc1 >= doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        self.assertTrue(doc1 >= doc2)
+
+    def test_gt(self):
+        """Test greater-than comparison."""
+        doc1 = self.pod.get_doc('/content/pages/delta.yaml')
+        doc2 = self.pod.get_doc('/content/pages/charlie.yaml')
+        self.assertTrue(doc1 > doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='de')
+        self.assertTrue(doc1 > doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/delta.yaml')
+        doc2 = self.pod.get_doc('/content/pages/delta.yaml')
+        self.assertFalse(doc1 > doc2)
+
+    def test_le(self):
+        """Test less-than-equal comparison."""
+        doc1 = self.pod.get_doc('/content/pages/charlie.yaml')
+        doc2 = self.pod.get_doc('/content/pages/delta.yaml')
+        self.assertTrue(doc1 <= doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='de')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='ru')
+        self.assertTrue(doc1 <= doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='fr')
+        self.assertTrue(doc1 <= doc2)
+
+    def test_lt(self):
+        """Test less-than comparison."""
+        doc1 = self.pod.get_doc('/content/pages/charlie.yaml')
+        doc2 = self.pod.get_doc('/content/pages/delta.yaml')
+        self.assertTrue(doc1 < doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/bravo.yaml', locale='de')
+        doc2 = self.pod.get_doc('/content/pages/bravo.yaml', locale='en')
+        self.assertTrue(doc1 < doc2)
+
+        doc1 = self.pod.get_doc('/content/pages/delta.yaml')
+        doc2 = self.pod.get_doc('/content/pages/delta.yaml')
+        self.assertFalse(doc1 < doc2)
+
     def test_doc_storage(self):
         # Because this test involves translation priority, ensure that we have
         # compiled the MO files before running the test.
@@ -39,11 +96,11 @@ class DocumentsTestCase(unittest.TestCase):
         doc = self.pod.get_doc('/content/pages/intro.md')
         self.assertEqual('About page.', doc.body)
         self.assertEqual('<p>About page.</p>', doc.html)
-        keys = ['$title', '$order', '$titles', 'key', 'root_key']
-        self.assertItemsEqual(keys, doc.fields.keys())
+        keys = sorted(['$title', '$order', '$titles', 'key', 'root_key'])
+        self.assertEqual(keys, sorted(list(doc.fields.keys())))
 
         doc = self.pod.get_doc('/content/pages/home.yaml')
-        keys = [
+        keys = sorted([
             '$localization',
             '$order',
             '$path',
@@ -60,8 +117,8 @@ class DocumentsTestCase(unittest.TestCase):
             'tagged_fields',
             'yaml_data',
             'yaml_data@',
-        ]
-        self.assertItemsEqual(keys, doc.fields.keys())
+        ])
+        self.assertEqual(keys, sorted(list(doc.fields.keys())))
         self.assertIsNone(doc.html)
 
         about = self.pod.get_doc('/content/pages/about.yaml')
@@ -82,61 +139,61 @@ class DocumentsTestCase(unittest.TestCase):
     def test_clean_localized_path(self):
         input = '/content/pages/about.yaml'
         expected = '/content/pages/about.yaml'
-        self.assertEquals(expected, document.Document.clean_localized_path(
+        self.assertEqual(expected, document.Document.clean_localized_path(
             input, None))
 
         input = '/content/pages/about@de.yaml'
         expected = '/content/pages/about@de.yaml'
-        self.assertEquals(expected, document.Document.clean_localized_path(
+        self.assertEqual(expected, document.Document.clean_localized_path(
             input, 'de'))
 
         input = '/content/pages/about@de.yaml'
         expected = '/content/pages/about.yaml'
-        self.assertEquals(expected, document.Document.clean_localized_path(
+        self.assertEqual(expected, document.Document.clean_localized_path(
             input, 'en'))
 
     def test_collection_base_path(self):
         about_doc = self.pod.get_doc('/content/pages/about.yaml')
-        self.assertEquals('/', about_doc.collection_base_path)
+        self.assertEqual('/', about_doc.collection_base_path)
 
         self.pod.write_file('/content/pages/sub/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/about.yaml')
-        self.assertEquals('/sub/', about_doc.collection_base_path)
+        self.assertEqual('/sub/', about_doc.collection_base_path)
 
         self.pod.write_file('/content/pages/sub/foo/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/foo/about.yaml')
-        self.assertEquals('/sub/foo/', about_doc.collection_base_path)
+        self.assertEqual('/sub/foo/', about_doc.collection_base_path)
 
     def test_collection_sub_path(self):
         about_doc = self.pod.get_doc('/content/pages/about.yaml')
-        self.assertEquals('/about.yaml', about_doc.collection_sub_path)
+        self.assertEqual('/about.yaml', about_doc.collection_sub_path)
 
         self.pod.write_file('/content/pages/sub/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/about.yaml')
-        self.assertEquals('/sub/about.yaml', about_doc.collection_sub_path)
+        self.assertEqual('/sub/about.yaml', about_doc.collection_sub_path)
 
         self.pod.write_file('/content/pages/sub/foo/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/foo/about.yaml')
-        self.assertEquals('/sub/foo/about.yaml', about_doc.collection_sub_path)
+        self.assertEqual('/sub/foo/about.yaml', about_doc.collection_sub_path)
 
     def test_collection_sub_path_clean(self):
         about_doc = self.pod.get_doc('/content/pages/about.yaml')
-        self.assertEquals('/about.yaml', about_doc.collection_sub_path_clean)
+        self.assertEqual('/about.yaml', about_doc.collection_sub_path_clean)
 
         self.pod.write_file('/content/pages/sub/about.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/about.yaml')
-        self.assertEquals('/sub/about.yaml', about_doc.collection_sub_path_clean)
+        self.assertEqual('/sub/about.yaml', about_doc.collection_sub_path_clean)
 
         self.pod.write_file('/content/pages/sub/about@es.yaml', '')
         about_doc = self.pod.get_doc('/content/pages/sub/about@es.yaml')
-        self.assertEquals('/sub/about.yaml', about_doc.collection_sub_path_clean)
+        self.assertEqual('/sub/about.yaml', about_doc.collection_sub_path_clean)
 
     def test_get_serving_path(self):
         about_doc = self.pod.get_doc('/content/pages/about.yaml')
-        self.assertEquals('/about/', about_doc.get_serving_path())
+        self.assertEqual('/about/', about_doc.get_serving_path())
 
         fi_doc = self.pod.get_doc('/content/pages/about.yaml', locale='fi')
-        self.assertEquals('/fi_ALL/about/', fi_doc.get_serving_path())
+        self.assertEqual('/fi_ALL/about/', fi_doc.get_serving_path())
 
     def test_locales(self):
         doc = self.pod.get_doc('/content/pages/contact.yaml')
@@ -272,8 +329,8 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('fr_value', fr_doc.key)
         self.assertEqual('root_key_value', de_doc.root_key)
         self.assertEqual('root_key_value', fr_doc.root_key)
-        keys = ['$title', '$order', '$titles', 'key', 'root_key']
-        self.assertItemsEqual(keys, fr_doc.fields.keys())
+        keys = sorted(['$title', '$order', '$titles', 'key', 'root_key'])
+        self.assertEqual(keys, sorted(list(fr_doc.fields.keys())))
 
     def test_default_locale_override(self):
         pod = testing.create_pod()
@@ -639,6 +696,24 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(foo_doc, bar_doc.foo)
         self.assertEqual(foo_doc, bar_doc.foo.bar.foo)
         self.assertEqual('en', bar_doc.foo.locale)
+
+    def test_hreflang(self):
+        pod = testing.create_pod()
+        pod.write_yaml('/podspec.yaml', {})
+        pod.write_yaml('/content/pages/_blueprint.yaml', {
+            '$path': '/{base}/',
+            '$view': '/views/{base}.html',
+            '$localization': {
+                'default_locale': 'en',
+                'locales': ['de', 'en', 'fr_ca'],
+            }
+        })
+        pod.write_file('/content/pages/foo.yaml', '')
+        foo_doc = pod.get_doc('/content/pages/foo.yaml', locale='en')
+        bar_doc = pod.get_doc('/content/pages/foo.yaml', locale='de')
+        baz_doc = pod.get_doc('/content/pages/foo.yaml', locale='fr_ca')
+        self.assertEqual('x-default', foo_doc.hreflang)
+        self.assertEqual('fr-ca', baz_doc.hreflang)
 
     def test_locale_paths(self):
         pod = testing.create_pod()

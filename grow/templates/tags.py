@@ -16,15 +16,15 @@ class Menu(object):
     """Helper class for creating navigation menus."""
 
     def __init__(self):
-        self.items = py_collections.OrderedDict()
+        self._items = py_collections.OrderedDict()
 
     def build(self, nodes):
         """Builds the menu from the set of nodes."""
-        self._recursive_build(self.items, None, nodes)
+        self._recursive_build(self._items, None, nodes)
 
-    def iteritems(self):
+    def items(self):
         """Iterate through items."""
-        return self.items.iteritems()
+        return self._items.items()
 
     def _recursive_build(self, tree, parent, nodes):
         children = [n for n in nodes if n.parent == parent]
@@ -76,7 +76,7 @@ def categories(collection=None, reverse=None, recursive=True,
     """Retrieve catagories from the pod."""
     if isinstance(collection, collection_lib.Collection):
         collection = collection
-    elif isinstance(collection, basestring):
+    elif isinstance(collection, str):
         collection = _pod.get_collection(collection)
     else:
         text = '{} must be a Collection instance or a collection path, found: {}.'
@@ -114,7 +114,7 @@ def date(datetime_obj=None, _pod=None, **kwargs):
     _from = kwargs.get('from', None)
     if datetime_obj is None:
         datetime_obj = datetime.now()
-    elif isinstance(datetime_obj, basestring) and _from is not None:
+    elif isinstance(datetime_obj, str) and _from is not None:
         datetime_obj = datetime.strptime(datetime_obj, _from)
     return datetime_obj
 
@@ -161,7 +161,7 @@ def make_doc_gettext(doc):
     @jinja2.contextfunction
     def gettext(__context, __string, *args, **kwargs):
         # Elegantly handle non-strings passed to gettext.
-        if not isinstance(__string, basestring):
+        if not isinstance(__string, str):
             return __string
         # Use the message from the catalog. If there is none (if `extract`
         # hasn't been run yet to create empty messages), create a stub message
@@ -176,15 +176,10 @@ def make_doc_gettext(doc):
 
 def make_gettext(pod, func):
     """Create a gettext function that tracks translation stats."""
-    use_old_formatting = pod.podspec.get_config().get(
-        'templates', {}).get('old_string_format', False)
-
     @jinja2.contextfunction
     def gettext(__context, __string, **variables):
         """Gettext and do replacement."""
         value = __context.call(func, __string)
-        if use_old_formatting:
-            value = value % variables
         value = utils.safe_format(value, **variables)
         if __context.eval_ctx.autoescape:
             value = jinja2.utils.Markup(value)
@@ -194,16 +189,11 @@ def make_gettext(pod, func):
 
 def make_ngettext(pod, func):
     """Create a gettext function that tracks translation stats."""
-    use_old_formatting = pod.podspec.get_config().get(
-        'templates', {}).get('old_string_format', False)
-
     @jinja2.contextfunction
     def ngettext(__context, __singular, __plural, __num, **variables):
         """Gettext and do replacement."""
         variables.setdefault('num', __num)
         value = __context.call(func, __singular, __plural, __num)
-        if use_old_formatting:
-            value = value % variables
         value = utils.safe_format(value, **variables)
         if __context.eval_ctx.autoescape:
             value = jinja2.utils.Markup(value)

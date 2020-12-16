@@ -16,7 +16,10 @@ FILE_ROUTES_CACHE = grow_routes_cache.FILE_ROUTES_CACHE
 
 class Error(Exception):
     """General podcache error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class PodCacheParseError(Error):
@@ -43,9 +46,9 @@ class PodCache(object):
         self.create_object_cache(
             self.KEY_GLOBAL, write_to_file=False, can_reset=True)
 
-        for key, item in obj_cache.iteritems():
+        for key, item in obj_cache.items():
             # If this is a string, it is written to a separate cache file.
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 cache_value = {}
                 if self._pod.file_exists(item):
                     cache_value = self._pod.read_json(item)
@@ -81,7 +84,7 @@ class PodCache(object):
         """Have the contents of the dependency graph or caches been modified?"""
         if self.dependency_graph.is_dirty:
             return True
-        for meta in self._object_caches.itervalues():
+        for meta in self._object_caches.values():
             if meta['write_to_file'] and meta['cache'].is_dirty:
                 return True
         if self.routes_cache.is_dirty:
@@ -140,7 +143,7 @@ class PodCache(object):
         self._file_cache.reset()
 
         # Only reset the object caches if permitted.
-        for meta in self._object_caches.itervalues():
+        for meta in self._object_caches.values():
             if meta['can_reset'] or force:
                 meta['cache'].reset()
 
@@ -150,12 +153,12 @@ class PodCache(object):
             self._dependency_graph.add_all(dep_cache)
 
         if obj_cache:
-            for key, meta in obj_cache.iteritems():
+            for key, meta in obj_cache.items():
                 if not key in self._object_caches:
                     self.create_object_cache(key, **meta)
                 else:
                     # Ignore if the object cache is referenced to a different file.
-                    if isinstance(meta, basestring):
+                    if isinstance(meta, str):
                         continue
 
                     self._object_caches[key]['cache'].add_all(meta['values'])
@@ -182,7 +185,7 @@ class PodCache(object):
 
             # Write out any of the object caches configured for write_to_file.
             output = {}
-            for key, meta in self._object_caches.iteritems():
+            for key, meta in self._object_caches.items():
                 if meta['write_to_file']:
                     cache_info = {
                         'can_reset': meta['can_reset'],

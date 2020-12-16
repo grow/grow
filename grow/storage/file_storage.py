@@ -18,9 +18,12 @@ class FileStorage(base_storage.BaseStorage):
 
     @staticmethod
     def read(filename):
-        fp = open(filename)
-        content = fp.read()
-        fp.close()
+        try:
+            with open(filename) as fp:
+                content = fp.read()
+        except UnicodeDecodeError as e:
+            with open(filename, 'rb') as fp:
+                content = fp.read()
         return content
 
     @staticmethod
@@ -73,8 +76,12 @@ class FileStorage(base_storage.BaseStorage):
                 pass
             else:
                 raise
-        with cls.open(path, mode='w') as fp:
-            fp.write(content)
+        try:
+            with cls.open(path, mode='w') as fp:
+                fp.write(content)
+        except TypeError:
+            with cls.open(path, mode='wb') as fp:
+                fp.write(content)
 
     @staticmethod
     def exists(filename):

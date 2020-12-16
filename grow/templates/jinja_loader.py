@@ -1,5 +1,6 @@
 """Custom jinja loaders."""
 
+import os
 import jinja2
 
 
@@ -21,5 +22,6 @@ class FrontMatterLoader(jinja2.FileSystemLoader):
                     separator_index = index
                     break
             if separator_index:
-                source = u''.join(source_lines[separator_index+1:])
+                fill_lines = [os.linesep] * (separator_index + 1)
+                source = u''.join(fill_lines + source_lines[separator_index+1:])
         return source, filename, uptodate

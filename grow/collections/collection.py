@@ -18,7 +18,10 @@ from grow.pods import messages
 
 
 class Error(Exception):
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class BadCollectionNameError(Error, ValueError):
@@ -199,7 +202,7 @@ class Collection(object):
     @property
     def order(self):
         # Default to maxint so unordered collections go to the end.
-        return self.fields.get('$order', sys.maxint)
+        return self.fields.get('$order', sys.maxsize)
 
     @property
     def parent(self):
@@ -295,14 +298,17 @@ class Collection(object):
         return self._get_builtin_field('categories') or []
 
     def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
-                  include_hidden=False, recursive=True, inject=False):
+                  include_hidden=False, recursive=True, inject=False,
+                  order_by_default=None):
         reverse = False if reverse is None else reverse
         if order_by is None:
             order_by = ('order', 'pod_path')
-        elif isinstance(order_by, basestring):
+            order_by_default = order_by_default if order_by_default is not None else 0
+        elif isinstance(order_by, str):
             order_by = (order_by, 'pod_path')
         key = operator.attrgetter(*order_by)
-        sorted_docs = structures.SortedCollection(key=key)
+        sorted_docs = structures.SortedCollection(
+            key=key, default=order_by_default)
         if inject:
             injected_docs = self.pod.inject_preprocessors(collection=self)
             if injected_docs is not None:

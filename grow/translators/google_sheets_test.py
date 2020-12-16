@@ -181,9 +181,9 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         })
         new_stats = translator.download(locales=['de'])
         new_stat = new_stats[0]
-        self.assertEquals('en', new_stat.source_lang)
-        self.assertEquals('de', new_stat.lang)
-        self.assertEquals('A1B2C3D4E5F6', new_stat.ident)
+        self.assertEqual('en', new_stat.source_lang)
+        self.assertEqual('de', new_stat.lang)
+        self.assertEqual('A1B2C3D4E5F6', new_stat.ident)
 
     @mock.patch.object(google_sheets.GoogleSheetsTranslator, '_create_service')
     @mock.patch.object(google_drive.BaseGooglePreprocessor, 'create_service')
@@ -201,7 +201,7 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         mock_service_sheets.return_value = mock_sheets_service['service']
 
         mock_sheets_service['spreadsheets.values.batchGet'].execute.side_effect = errors.HttpError(
-            {'status': '400'}, '')
+            {'status': '400'}, bytes('', 'utf-8'))
 
         translator = self.pod.get_translator('google_sheets')
         self.pod.write_yaml(translator.TRANSLATOR_STATS_PATH, {

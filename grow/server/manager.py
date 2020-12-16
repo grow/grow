@@ -34,9 +34,11 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
         self.pod.logger.info('{} routes built in {:.3f} s'.format(
             len(self.pod.router.routes), router_time.secs))
 
-        url = print_server_ready_message(self.pod, self.pod.env.host, port)
+        url, extra_urls = print_server_ready_message(self.pod, self.pod.env.host, port)
         if self.open_browser:
             start_browser_in_thread(url)
+            for extra_url in extra_urls:
+                start_browser_in_thread(extra_url)
         if self.update_check:
             update_checker = updater.Updater(self.pod)
             check_func = update_checker.check_for_updates
@@ -44,28 +46,48 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
             thread.start()
 
 
+class ServerMessages:
+    """Simple server messages."""
+
+    def __init__(self):
+        self.messages = []
+
+    def add_message(self, label, message, label_color=None, message_color=None):
+        self.messages.append((label, message, label_color, message_color))
+
+    def print(self, log_function):
+        label_max_width = 0
+        for label, _, _, _ in self.messages:
+            label_max_width = max(len(label), label_max_width)
+
+        for label, message, label_color, message_color in self.messages:
+            if label_color:
+                label = colors.stylize(label.rjust(label_max_width), label_color)
+            if message_color:
+                message = colors.stylize(message, message_color)
+            log_function('{} {}'.format(label, message))
+
+
 def print_server_ready_message(pod, host, port):
     home_doc = pod.get_home_doc()
     root_path = home_doc.url.path if home_doc and home_doc.exists else '/'
-    url = 'http://{}:{}{}'.format(host, port, root_path)
+    url_base = 'http://{}:{}/'.format(host, port)
+    url_root = 'http://{}:{}{}'.format(host, port, root_path)
 
-    first_column_width = 20
-    def _display(title, message, color=None):
-        message_format = '{} {}'
-        if color:
-            pod.logger.info(message_format.format(
-                colors.stylize(title.rjust(first_column_width), color),
-                message))
-            return
-        pod.logger.info(message_format.format(
-            title.rjust(first_column_width),
-            message))
+    messages = ServerMessages()
+    messages.add_message('Pod:', pod.root, colors.HIGHLIGHT)
+    messages.add_message('Server:', url_root, colors.HIGHLIGHT)
 
-    _display('Pod:', pod.root, colors.HIGHLIGHT)
-    _display('Server:', url, colors.HIGHLIGHT)
-    _display('Ready.', 'Press ctrl-c to quit.', colors.SUCCESS)
+    # Trigger the dev manager message hook.
+    extra_urls = pod.extensions_controller.trigger(
+        'dev_manager_message', messages.add_message, url_base, url_root) or []
 
-    return url
+    messages.add_message(
+        'Ready.', 'Press ctrl-c to quit.', colors.SUCCESS, colors.SUCCESS)
+
+    messages.print(pod.logger.info)
+
+    return (url_root, extra_urls)
 
 
 def start(pod, host=None, port=None, open_browser=False, debug=False,
@@ -130,7 +152,7 @@ def start_browser_in_thread(url):
 
 
 def patch_broken_pipe_error():
-    from SocketServer import BaseServer
+    from socketserver import BaseServer
     from wsgiref import handlers
 
     handle_error = BaseServer.handle_error

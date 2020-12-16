@@ -38,19 +38,19 @@ def serve_console(pod, _request, _matched, **_kwargs):
 def serve_exception(pod, request, exc, **_kwargs):
     """Serve the exception page."""
     debug = True
-    log = logging.exception
+    logging.exception
     if isinstance(exc, webob_exc.HTTPException):
         status = exc.status_int
-        log('{}: {}'.format(status, request.path))
+        logging.exception('{}: {}'.format(status, request.path))
     elif isinstance(exc, errors.RouteNotFoundError):
         status = 404
-        log('{}: {}'.format(status, request.path))
+        logging.error('{}: {}'.format(status, request.path))
     elif isinstance(exc, NotFound):
         status = 404
-        log('{}: {}'.format(status, request.path))
+        logging.error('{}: {}'.format(status, request.path))
     else:
         status = 500
-        log('{}: {} - {}'.format(status, request.path, exc))
+        logging.exception('{}: {} - {}'.format(status, request.path, exc))
     env = ui.create_jinja_env()
     template = env.get_template('/views/error.html')
     if (isinstance(exc, errors.BuildError)):
@@ -90,8 +90,6 @@ def serve_pod(pod, request, matched, **_kwargs):
         request.path, matched.value, params=matched.params)
     response = None
     headers = controller.get_http_headers()
-    if 'X-AppEngine-BlobKey' in headers:
-        return Response(headers=headers)
     jinja_env = pod.render_pool.get_jinja_env(
         controller.doc.locale) if controller.use_jinja else None
     rendered_document = controller.render(jinja_env=jinja_env, request=request)

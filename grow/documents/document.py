@@ -38,7 +38,10 @@ BUILT_IN_FIELDS = [
 
 
 class Error(Exception):
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class DocumentExistsError(Error, ValueError):
@@ -50,9 +53,7 @@ class PathFormatError(Error, ValueError):
 
 
 class Document(object):
-
-    def __cmp__(self, other):
-        return self.pod_path == other.pod_path and self.pod == other.pod
+    """Grow content document."""
 
     def __eq__(self, other):
         return (isinstance(self, Document)
@@ -67,6 +68,16 @@ class Document(object):
         except KeyError:
             return object.__getattribute__(self, name)
 
+    def __ge__(self, other):
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id >= other_id
+
+    def __gt__(self, other):
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id > other_id
+
     def __init__(self, pod_path, _pod, locale=None, _collection=None):
         self._locale_kwarg = locale
         utils.validate_name(pod_path)
@@ -78,6 +89,16 @@ class Document(object):
         self.pod = _pod
         self.collection = self._collection_exists(_collection)
         self._locale = utils.SENTINEL
+
+    def __le__(self, other):
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id <= other_id
+
+    def __lt__(self, other):
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id < other_id
 
     def __ne__(self, other):
         return self.pod_path != other.pod_path or self.pod != other.pod
@@ -117,7 +138,7 @@ class Document(object):
         """Removed the localized part of the path."""
         if '@' in pod_path and locale is not None:
             base, _ = os.path.splitext(pod_path)
-            if isinstance(locale, basestring):
+            if isinstance(locale, str):
                 locale_str = locale
             else:
                 locale_str = locale.alias or str(locale)
@@ -170,7 +191,7 @@ class Document(object):
 
     @property
     def body(self):
-        return self.format.content.decode('utf-8') if self.format.content else None
+        return self.format.content if self.format.content else None
 
     @property
     def category(self):
@@ -194,7 +215,7 @@ class Document(object):
 
     @property
     def content(self):
-        return self.format.raw_content.decode('utf-8')
+        return self.format.raw_content
 
     @property
     def date(self):
@@ -270,6 +291,18 @@ class Document(object):
             self._locale = self._init_locale(self._locale_kwarg, self.pod_path)
         return self._locale
 
+    @property
+    def hreflang(self):
+        # https://en.wikipedia.org/wiki/Hreflang
+        # hreflang values are used in sitemap.xml and in <meta> tags on a page.
+        locale = self.locale
+        if locale == self.default_locale:
+            return 'x-default'
+        value = str(locale)
+        value = value.lower()
+        value = value.replace('_', '-')
+        return value
+
     @utils.cached_property
     def locale_safe(self):
         # During the initialization of the document the locale is used,
@@ -302,7 +335,7 @@ class Document(object):
 
     @property
     def order(self):
-        return self.fields.get('$order')
+        return self.fields.get('$order', 0)
 
     @property
     @utils.memoize
@@ -587,7 +620,7 @@ class Document(object):
 
 # Allow the yaml dump to write out a representation of the document.
 def doc_representer(dumper, data):
-    return dumper.represent_scalar(u'!g.doc', data.pod_path)
+    return dumper.represent_scalar('!g.doc', data.pod_path)
 
 
 yaml.SafeDumper.add_representer(Document, doc_representer)

@@ -28,9 +28,9 @@ class TranslationStats(object):
     @property
     def missing(self):
         """Messages that are untagged and untranslated during rendering."""
-        untagged_messages = set([msg for _, msg in self.untagged.iteritems()])
+        untagged_messages = set([msg for _, msg in self.untagged.items()])
         tracking = {}
-        for locale, messages in self._untranslated.iteritems():
+        for locale, messages in self._untranslated.items():
             if locale not in tracking:
                 tracking[locale] = {}
             for message in messages:
@@ -55,7 +55,7 @@ class TranslationStats(object):
     def untranslated(self):
         """Untranslated messages by locale."""
         tracking = {}
-        for locale, messages in self._untranslated.iteritems():
+        for locale, messages in self._untranslated.items():
             if locale not in tracking:
                 tracking[locale] = {}
             for message in messages:
@@ -67,7 +67,7 @@ class TranslationStats(object):
     def count_untranslated(self):
         """Max number of untranslated strings for any locale."""
         untranslated_ids = set()
-        for _, messages in self._untranslated.iteritems():
+        for _, messages in self._untranslated.items():
             for message in messages:
                 untranslated_ids.add(message)
         return len(untranslated_ids)
@@ -114,7 +114,7 @@ class TranslationStats(object):
     def export_untranslated_catalogs(self, pod, dir_path=None):
         """Export the untranslated messages into catalogs based on locale."""
         locale_to_catalog = {}
-        for locale, messages in self.untranslated.iteritems():
+        for locale, messages in self.untranslated.items():
             if locale not in locale_to_catalog:
                 locale_to_catalog[locale] = pod.catalogs.get(
                     locale, basename='untranslated.po', dir_path=dir_path)
@@ -131,23 +131,23 @@ class TranslationStats(object):
         border_char = '='
 
         def _blank_line():
-            return u'\n'
+            return '\n'
 
         def _solid_line():
-            return u'{}\n'.format(border_char * width)
+            return '{}\n'.format(border_char * width)
 
         def _text_line(text):
             text_width = width - (border_width + 1) * 2
-            return u'{} {} {}\n'.format(
+            return '{} {} {}\n'.format(
                 border_char * border_width, text.center(text_width),
                 border_char * border_width)
 
         with io.StringIO() as output:
             output.write(_solid_line())
-            output.write(_text_line(u'Untranslated Strings'))
+            output.write(_text_line('Untranslated Strings'))
             output.write(_solid_line())
             output.write(_text_line(
-                u'{} occurrences of {} untranslated strings'.format(
+                '{} occurrences of {} untranslated strings'.format(
                     len(self.stacktraces), self.count_untranslated)))
             output.write(_text_line(str(self.datetime.now())))
             output.write(_solid_line())
@@ -155,16 +155,16 @@ class TranslationStats(object):
 
             if not self.stacktraces:
                 output.write(
-                    _text_line(u'No untranslated strings found.'))
-                return output.getvalue().encode('utf-8')
+                    _text_line('No untranslated strings found.'))
+                return output.getvalue()
 
             for item in self.stacktraces:
-                output.write(u'{} :: {}\n'.format(item['locale'], item['id']))
+                output.write('{} :: {}\n'.format(item['locale'], item['id']))
                 for line in item['tb']:
-                    output.write(u'{}'.format(line))
+                    output.write('{}'.format(line))
                 output.write(_blank_line())
 
-            return output.getvalue().encode('utf-8')
+            return output.getvalue()
 
     def tick(self, message, locale, default_locale, location=None):
         """Count a translation."""

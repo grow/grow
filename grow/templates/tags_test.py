@@ -146,38 +146,38 @@ class BuiltinsTestCase(unittest.TestCase):
         doc = pod.get_doc('/content/pages/doc3.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages')
-        self.assertItemsEqual([
+        self.assertEqual(sorted([
             '/content/pages/doc2.yaml',
             '/content/pages/doc3.yaml',
-        ], [doc.pod_path for doc in docs])
+        ]), sorted([doc.pod_path for doc in docs]))
 
         # Verify a calling ja_JP doc only gets ja_JP docs.
         doc = pod.get_doc('/content/pages/doc1.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages')
-        self.assertItemsEqual([
+        self.assertEqual(sorted([
             '/content/pages/doc1.yaml',
             '/content/pages/doc3.yaml',
-        ], [doc.pod_path for doc in docs])
+        ]), sorted([doc.pod_path for doc in docs]))
 
         # Verify an explicit `locale=None` returns all docs regardless of the
         # calling document's locale.
         doc = pod.get_doc('/content/pages/doc1.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages', locale=None)
-        self.assertItemsEqual([
+        self.assertEqual(sorted([
             '/content/pages/doc1.yaml',
             '/content/pages/doc2.yaml',
             '/content/pages/doc3.yaml',
-        ], [doc.pod_path for doc in docs])
+        ]), sorted([doc.pod_path for doc in docs]))
         doc = pod.get_doc('/content/pages/doc2.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages', locale=None)
-        self.assertItemsEqual([
+        self.assertEqual(sorted([
             '/content/pages/doc1.yaml',
             '/content/pages/doc2.yaml',
             '/content/pages/doc3.yaml',
-        ], [doc.pod_path for doc in docs])
+        ]), sorted([doc.pod_path for doc in docs]))
 
     def test_gettext_format(self):
         """Verify that the gettext formatting works."""
@@ -233,31 +233,6 @@ class BuiltinsTestCase(unittest.TestCase):
         self.assertIn(
             'Hello <strong class="awesome">Alice</strong>',
             self._render_path(pod, '/format-new/'))
-
-    def test_gettext_format_entities_old(self):
-        """Verify that the gettext formatting works with entities."""
-        pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'templates': {
-                'old_string_format': True,
-            },
-        })
-        pod.write_file(
-            '/views/format-old.html',
-            '{{_(\'Hello %(name)s\', name=\'<strong class="awesome">Alice</strong>\')}}')
-        pod.write_yaml('/content/testing/_blueprint.yaml', {
-            'path': '/{base}/',
-        })
-        pod.write_yaml('/content/testing/format-old.yaml', {
-            '$view': '/views/format-old.html',
-        })
-
-        pod.router.add_doc(
-            pod.get_doc('/content/testing/format-old.yaml'))
-
-        self.assertIn(
-            'Hello <strong class="awesome">Alice</strong>',
-            self._render_path(pod, '/format-old/'))
 
 
 if __name__ == '__main__':

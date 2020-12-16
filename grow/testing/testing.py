@@ -5,7 +5,6 @@ import shutil
 import tempfile
 import unittest
 from grow.pods import pods
-from grow.common import utils
 
 
 TESTDATA_DIR = os.path.abspath(
@@ -35,20 +34,7 @@ def get_testdata_dir():
 
 
 class TestCase(unittest.TestCase):
-
-    def setUp(self, *args, **kwargs):
-        self.is_appengine = utils.is_appengine()
-        if self.is_appengine:
-            # pylint: disable=import-error
-            from google.appengine.ext import testbed
-            self.testbed = testbed.Testbed()
-            self.testbed.activate()
-            self.testbed.init_datastore_v3_stub()
-            self.testbed.init_memcache_stub()
-
-    def tearDown(self, *args, **kwargs):
-        if self.is_appengine:
-            self.testbed.deactivate()
+    pass
 
 def render_path(pod, path):
     """Given a pod and a path render the path."""

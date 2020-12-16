@@ -26,6 +26,30 @@ class DeprecationHelper(object):
         self._warn()
         return getattr(self.new_target, attr)
 
+# pylint: disable=too-few-public-methods
+class DeprecationManager(object):
+    """Deprecation manager class for deprecation messages without repeating."""
+
+    def __init__(self, warn=logging.warn):
+        self._warning = warn
+        self._displayed = set()
+        self.extra_url_message = '   Visit {} for more information.'
+
+    def __call__(self, *args, **kwargs):
+        self.warn(*args, **kwargs)
+
+    def warn(self, key, message, url=None):
+        # Only warn once to prevent spamming logs.
+        if key in self._displayed:
+            return
+
+        if url:
+            url_message = self.extra_url_message.format(url)
+            message = '{}\n{}'.format(message, url_message)
+
+        self._displayed.add(key)
+        self._warning(message)
+
 
 # pylint: disable=too-few-public-methods
 class MovedHelper(DeprecationHelper):

@@ -33,11 +33,11 @@ class Url(object):
             and self.port == other.port
             and self.scheme == other.scheme)
 
+    def __lt__(self, other):
+        return str(self) < str(other)
+
     def __repr__(self):
         return '<Url: {}>'.format(str(self))
-
-    def __cmp__(self, other):
-        return cmp(self.path, other.path)
 
     @staticmethod
     def create_relative_path(path, relative_to):

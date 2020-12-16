@@ -1,5 +1,6 @@
 """Extension hooks."""
 
+from . import deployment_register_hook
 from . import dev_file_change_hook
 from . import dev_handler_hook
 from . import dev_manager_message_hook
@@ -14,6 +15,7 @@ from . import router_add_hook
 from . import stub_hook
 
 # pylint: disable=invalid-name
+DeploymentRegisterHook = deployment_register_hook.DeploymentRegisterHook
 DevFileChangeHook = dev_file_change_hook.DevFileChangeHook
 DevHandlerHook = dev_handler_hook.DevHandlerHook
 DevManagerMessageHook = dev_manager_message_hook.DevManagerMessageHook
@@ -29,6 +31,7 @@ RouterAddHook = router_add_hook.RouterAddHook
 StubHook = stub_hook.StubHook
 
 HOOKS = (
+    DeploymentRegisterHook,
     DevFileChangeHook,
     DevHandlerHook,
     DevManagerMessageHook,

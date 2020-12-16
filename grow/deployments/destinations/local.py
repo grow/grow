@@ -39,7 +39,13 @@ class LocalDestination(base.BaseDestination):
 
     def delete_file(self, path):
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
-        self.storage.delete(out_path)
+        try:
+            self.storage.delete(out_path)
+        except IOError as e:
+            if e.errno == errno.ENOENT:
+                pass
+            else:
+                raise
 
     def write_file(self, rendered_doc):
         path = rendered_doc.path

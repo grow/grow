@@ -6,7 +6,6 @@ import os
 import re
 import textwrap
 import fnmatch
-import goslate
 from babel import util
 from babel.messages import catalog
 from babel.messages import mofile
@@ -32,8 +31,6 @@ class Catalog(catalog.Catalog):
         super(Catalog, self).__init__(locale=self.locale)
         if not is_template and self.exists:
             self.load()
-        self._use_old_formatting = self.pod.podspec.get_config().get(
-            'templates', {}).get('old_string_format', False)
 
     def __repr__(self):
         return '<Catalog: {}>'.format(self.pod_path)
@@ -98,12 +95,11 @@ class Catalog(catalog.Catalog):
         return catalog_message
 
     def save(self, include_header=False):
-        if not self._use_old_formatting:
-            for message in self:
-                message.flags.discard('python-format')
+        for message in self:
+            message.flags.discard('python-format')
         if not self.pod.file_exists(self.pod_path):
             self.pod.write_file(self.pod_path, '')
-        outfile = self.pod.open_file(self.pod_path, mode='w')
+        outfile = self.pod.open_file(self.pod_path, mode='wb')
         Catalog.set_header_comment(self.pod, self)
         pofile.write_po(
             outfile,
@@ -152,7 +148,7 @@ class Catalog(catalog.Catalog):
 
     def merge_obsolete(self):
         """Copy obsolete terms into the main catalog."""
-        for msgid, message in self.obsolete.iteritems():
+        for msgid, message in self.obsolete.items():
             self[msgid] = message
 
     @property
@@ -176,13 +172,14 @@ class Catalog(catalog.Catalog):
 
     @property
     def needs_compilation(self):
+        if self.mo_modified is None or self.modified is None:
+            return True
         return self.modified > self.mo_modified
 
     def _skip_compile_error(self, error):
         # Reduces logspam by hiding errors related to placeholders.
-        if (not self._use_old_formatting
-            and ('incompatible format for placeholder' in error
-                 or 'placeholders are incompatible' in error)):
+        if ('incompatible format for placeholder' in str(error)
+                 or 'placeholders are incompatible' in str(error)):
             return True
         return False
 
@@ -211,67 +208,11 @@ class Catalog(catalog.Catalog):
             self.pod.logger.info('Skipped catalog check for: {}'.format(self))
         text = 'Compiled: {} ({}/{})'
         self.pod.logger.info(text.format(self.locale, num_translated, num_total))
-        mo_file = self.pod.open_file(mo_filename, 'w')
+        mo_file = self.pod.open_file(mo_filename, 'wb')
         try:
             mofile.write_mo(mo_file, self, use_fuzzy=compile_fuzzy)
         finally:
             mo_file.close()
-
-    def machine_translate(self):
-        locale = str(self.locale)
-        domain = 'messages'
-        infile = self.pod.open_file(self.pod_path, 'U')
-        try:
-            babel_catalog = pofile.read_po(infile, locale=locale, domain=domain)
-        finally:
-            infile.close()
-
-        # Get strings to translate.
-        # TODO(jeremydw): Use actual string, not the msgid. Currently we assume
-        # the msgid is the source string.
-        messages_to_translate = [message for message in babel_catalog
-                                 if not message.string]
-        strings_to_translate = [message.id for message in messages_to_translate]
-        if not strings_to_translate:
-            logging.info('No untranslated strings for {}, skipping.'.format(locale))
-            return
-
-        # Convert Python-format named placeholders to numerical placeholders
-        # compatible with Google Translate. Ex: %(name)s => (O).
-        placeholders = []  # Lists (#) placeholders to %(name)s placeholders.
-        for n, string in enumerate(strings_to_translate):
-            match = re.search('(%\([^\)]*\)\w)', string)
-            if not match:
-                placeholders.append(None)
-                continue
-            for i, group in enumerate(match.groups()):
-                num_placeholder = '({})'.format(i)
-                nums_to_names = {}
-                nums_to_names[num_placeholder] = group
-                replaced_string = string.replace(group, num_placeholder)
-                placeholders.append(nums_to_names)
-                strings_to_translate[n] = replaced_string
-        machine_translator = goslate.Goslate()
-        results = machine_translator.translate(strings_to_translate, locale)
-        for i, string in enumerate(results):
-            message = messages_to_translate[i]
-            # Replace numerical placeholders with named placeholders.
-            if placeholders[i]:
-                for num_placeholder, name_placeholder in placeholders[i].iteritems():
-                    string = string.replace(num_placeholder, name_placeholder)
-            message.string = string
-            if isinstance(string, unicode):
-                string = string.encode('utf-8')
-            source = message.id
-            source = (source.encode('utf-8')
-                      if isinstance(source, unicode) else source)
-        outfile = self.pod.open_file(self.pod_path, mode='w')
-        try:
-            pofile.write_po(outfile, babel_catalog, width=80)
-        finally:
-            outfile.close()
-        text = 'Machine translated {} strings: {}'
-        logging.info(text.format(len(strings_to_translate), self.pod_path))
 
     @classmethod
     def _message_in_paths(cls, message, paths):

@@ -19,8 +19,7 @@ fi
 # Ubuntu Base.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/base:$GROW_VERSION -t grow/base:latest \
-  -t gcr.io/grow-prod/base:$GROW_VERSION -t gcr.io/grow-prod/base:latest \
-  -t grow/baseimage:$GROW_VERSION -t grow/baseimage:latest .
+  -t gcr.io/grow-prod/base:$GROW_VERSION -t gcr.io/grow-prod/base:latest
 
 docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION  \
   bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
@@ -35,10 +34,6 @@ if [ "$1" == "" ] || [ "$1" == "all" ]; then
   # Docker Hub.
   docker push grow/base:$GROW_VERSION
   docker push grow/base:latest
-
-  # Legacy docker image support.
-  docker push grow/baseimage:$GROW_VERSION
-  docker push grow/baseimage:latest
 fi
 
 # Alpine Base.

@@ -1,11 +1,14 @@
-from grow.common import utils
-from grow.deployments import stats
-from grow.testing import testing
-from nose.plugins import skip
+"""Test for the git destination."""
+
 import os
 import random
 import tempfile
+import git
 import unittest
+from nose.plugins import skip
+from grow.common import utils
+from grow.deployments import stats
+from grow.testing import testing
 
 
 class GitDestinationTestCase(unittest.TestCase):
@@ -37,10 +40,6 @@ class GitDestinationTestCase(unittest.TestCase):
                           confirm=False, test=False)
 
     def test_deploy_local(self):
-        if utils.is_appengine():
-            text = 'Skipping Git destination test on GAE.'
-            raise skip.SkipTest(text)
-        import git
         path = tempfile.mkdtemp()
         git.Repo.init(path)
         self._test_deploy(path)

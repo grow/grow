@@ -4,11 +4,6 @@ import os
 from grow.partials import partial as grow_partial
 
 
-class Error(Exception):
-    """Generic error base."""
-    pass
-
-
 class Partials(object):
     """Manage partials within the pod."""
 

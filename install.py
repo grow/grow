@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 """Standalone Grow SDK installer. Downloads Grow SDK and sets up command aliases."""
@@ -11,9 +11,8 @@ import platform
 import re
 import sys
 import tempfile
-import urllib
-import urllib2
 import zipfile
+from urllib import request as url_request
 
 DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
@@ -36,7 +35,7 @@ else:
 
 
 def hai(text, *args):
-    print text.format(*args, **{
+    print(text.format(*args, **{
         'red': '\033[0;31m',
         '/red': '\033[0;m',
         'green': '\033[0;32m',
@@ -45,11 +44,11 @@ def hai(text, *args):
         '/yellow': '\033[0;m',
         'white': '\033[0;37m',
         '/white': '\033[0;m',
-    })
+    }))
 
 
 def orly(text, default=False):
-    resp = raw_input(text).strip().lower()
+    resp = input(text).strip().lower()
     if resp == 'y':
         return True
     elif resp == 'n':
@@ -97,7 +96,7 @@ def has_bin_in_path(bin_path):
 
 def install(rc_path=None, bin_path=None, force=False):
     """Download and install the binary."""
-    resp = json.loads(urllib.urlopen(RELEASES_API).read())
+    resp = json.loads(url_request.urlopen(RELEASES_API).read())
     try:
         release = get_release_for_platform(resp, PLATFORM)
     except KeyError:
@@ -107,7 +106,7 @@ def install(rc_path=None, bin_path=None, force=False):
         sys.exit(-1)
 
     if release is None:
-        print 'Not available for platform: {}.'.format(platform.system())
+        print(('Not available for platform: {}.'.format(platform.system())))
         sys.exit(-1)
 
     version = release['tag_name']
@@ -157,7 +156,7 @@ def install(rc_path=None, bin_path=None, force=False):
         # If the directory already exists, let it go.
         pass
 
-    remote = urllib2.urlopen(download_url)
+    remote = url_request.urlopen(download_url)
     try:
         hai('Downloading from {}'.format(download_url))
         local, temp_path = tempfile.mkstemp()
@@ -185,7 +184,7 @@ def install(rc_path=None, bin_path=None, force=False):
                 raise
         hai('{green}[✓] Installed Grow SDK to:{/green} {}', bin_path)
         stat = os.stat(bin_path)
-        os.chmod(bin_path, stat.st_mode | 0111)
+        os.chmod(bin_path, stat.st_mode | 0o111)
     finally:
         os.remove(temp_path)
 
@@ -205,7 +204,7 @@ def install(rc_path=None, bin_path=None, force=False):
     # TODO: Remove when no longer checking for alias.
     aliases = get_existing_aliases()
     if aliases:
-        hai('{red}Aliases for grow detected in: {}{/red}', ', '.join(aliases.keys()))
+        hai('{red}Aliases for grow detected in: {}{/red}', ', '.join(list(aliases.keys())))
         hai('   {red}please remove the old aliases to prevent version conflicts.{/red}')
 
 

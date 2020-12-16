@@ -15,15 +15,18 @@ from grow.templates import tags
 
 class Error(Exception):
     """Base rendering pool error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
-class UnknownKindError(Exception):
+class UnknownKindError(Error):
     """Unknown kind of information."""
     pass
 
 
-class IgnoredPathError(Exception):
+class IgnoredPathError(Error):
     """Document is being served at an ignored path."""
     pass
 
@@ -223,7 +226,7 @@ class RenderDocumentController(RenderController):
 
             content = self.pod.extensions_controller.trigger('pre_render', doc, doc.body)
             if content:
-                doc.format.update(content=content.encode('utf-8'))
+                doc.format.update(content=content)
 
             rendered_content = template.render({
                 'doc': doc,
@@ -489,8 +492,7 @@ class RenderStaticDocumentController(RenderController):
     def get_http_headers(self):
         """Determine headers to serve for http requests."""
         headers = super(RenderStaticDocumentController, self).get_http_headers()
-        # Request path doesn't match any route, just return.
-        if not self.pod_path:
+        if self.pod_path is None:
             return headers
         path = self.pod.abs_path(self.static_doc.pod_path)
         self.pod.storage.update_headers(headers, path)

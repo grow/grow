@@ -2,20 +2,17 @@
 
 import sys
 import traceback
+from multiprocessing.dummy import Pool as ThreadPool
 from grow.common import bulk_errors
-from grow.common import utils as common_utils
 from grow.documents import document_front_matter
-
-if common_utils.is_appengine():
-    # pylint: disable=invalid-name
-    ThreadPool = None
-else:
-    from multiprocessing.dummy import Pool as ThreadPool
 
 
 class Error(Exception):
     """Base loading error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class LoadError(Error):

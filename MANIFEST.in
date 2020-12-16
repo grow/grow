@@ -8,4 +8,4 @@ prune grow/ui/js
 exclude grow/ui/package.json
 exclude grow/ui/gulpfile.js
 include description.txt
-include requirements.txt
+include Pipfile

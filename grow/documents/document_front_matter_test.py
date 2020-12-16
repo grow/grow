@@ -62,7 +62,7 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             """)
         expected = ('name: Jane Doe', 'Jane was adventuring.')
 
-        self.assertEquals(
+        self.assertEqual(
             expected,
             document_front_matter.DocumentFrontMatter.split_front_matter(content))
 
@@ -72,7 +72,7 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             """)
         expected = (None, 'Jane was adventuring.')
 
-        self.assertEquals(
+        self.assertEqual(
             expected,
             document_front_matter.DocumentFrontMatter.split_front_matter(content))
 
@@ -84,7 +84,7 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             """)
         expected = (None, 'Jane was adventuring.')
 
-        self.assertEquals(
+        self.assertEqual(
             expected,
             document_front_matter.DocumentFrontMatter.split_front_matter(content))
 
@@ -108,7 +108,7 @@ class DocumentFrontmatterTestCase(unittest.TestCase):
             """).strip()
         doc = self.pod.get_doc('/content/pages/html.html')
 
-        self.assertEquals(
+        self.assertEqual(
             expected,
             document_front_matter.DocumentFrontMatter(doc).export())
 

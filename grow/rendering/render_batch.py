@@ -1,19 +1,16 @@
 """Renderer for performing render operations for the pod."""
 
 import sys
-from grow.common import utils
+from multiprocessing.dummy import Pool as ThreadPool
 from grow.pods import errors
-
-if utils.is_appengine():
-    # pylint: disable=invalid-name
-    ThreadPool = None  # pragma: no cover
-else:
-    from multiprocessing.dummy import Pool as ThreadPool
 
 
 class Error(Exception):
     """Base renderer error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class RenderError(Error):
@@ -87,7 +84,7 @@ class RenderBatches(object):
 
     def __len__(self):
         count = 0
-        for _, batch in self._batches.iteritems():
+        for _, batch in self._batches.items():
             count = count + len(batch)
         return count
 
@@ -112,14 +109,14 @@ class RenderBatches(object):
         use_threading = False
 
         if not ThreadPool or not use_threading:
-            for _, batch in self._batches.iteritems():
+            for _, batch in self._batches.items():
                 batch_docs, batch_errors = batch.load_sync(source_dir)
                 load_errors = load_errors + batch_errors
                 load_docs = load_docs + batch_docs
         else:
-            for _, batch in self._batches.iteritems():
+            for _, batch in self._batches.items():
                 batch.load_start(source_dir)
-            for _, batch in self._batches.iteritems():
+            for _, batch in self._batches.items():
                 batch_docs, batch_errors = batch.load_finish()
                 load_errors = load_errors + batch_errors
                 load_docs = load_docs + batch_docs
@@ -135,14 +132,14 @@ class RenderBatches(object):
         use_threading = False
 
         if not ThreadPool or not use_threading:
-            for _, batch in self._batches.iteritems():
+            for _, batch in self._batches.items():
                 batch_docs, batch_errors = batch.render_sync()
                 render_errors = render_errors + batch_errors
                 rendered_docs = rendered_docs + batch_docs
         else:
-            for _, batch in self._batches.iteritems():
+            for _, batch in self._batches.items():
                 batch.render_start()
-            for _, batch in self._batches.iteritems():
+            for _, batch in self._batches.items():
                 batch_docs, batch_errors = batch.render_finish()
                 render_errors = render_errors + batch_errors
                 rendered_docs = rendered_docs + batch_docs

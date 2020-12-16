@@ -19,10 +19,10 @@ from grow.templates.tags import _gettext_alias
 def _deep_gettext(ctx, fields):
     if isinstance(fields, dict):
         new_dct = {}
-        for key, val in fields.iteritems():
+        for key, val in fields.items():
             if isinstance(val, (dict, list, set)):
                 new_dct[key] = _deep_gettext(ctx, val)
-            elif isinstance(val, basestring):
+            elif isinstance(val, str):
                 new_dct[key] = _gettext_alias(ctx, val)
             else:
                 new_dct[key] = val
@@ -31,7 +31,7 @@ def _deep_gettext(ctx, fields):
         for i, val in enumerate(fields):
             if isinstance(val, (dict, list, set)):
                 fields[i] = _deep_gettext(ctx, val)
-            elif isinstance(val, basestring):
+            elif isinstance(val, str):
                 fields[i] = _gettext_alias(ctx, val)
             else:
                 fields[i] = val
@@ -57,6 +57,8 @@ def expand_partial(_ctx, partial_name):
 @jinja2.contextfilter
 def hash_value(_ctx, value, algorithm='sha'):
     """Hash the value using the algorithm."""
+    value = value.encode('utf-8')
+
     if algorithm in ('md5',):
         return hashlib.md5(value).hexdigest()
     if algorithm in ('sha1',):
@@ -82,8 +84,8 @@ def markdown_filter(ctx, value):
     doc = ctx['doc']
     m_down = doc.pod.markdown
     try:
-        if isinstance(value, unicode):
-            value = value.decode('utf-8')
+        if isinstance(value, str):
+            value = value
         value = value or ''
         return m_down.convert(value)
     except UnicodeEncodeError:
@@ -107,7 +109,7 @@ def relative_filter(ctx, path):
 @jinja2.contextfilter
 def render_filter(ctx, template):
     """Creates jinja template from string and renders."""
-    if isinstance(template, basestring):
+    if isinstance(template, str):
         template = ctx.environment.from_string(template)
     return template.render(ctx)
 
@@ -138,7 +140,7 @@ def regex_replace():
 def slug_filter(pod=None):
     """Filters string to remove url unfriendly characters."""
     use_legacy_slugify = pod and pod.is_enabled(pod.FEATURE_OLD_SLUGIFY)
-    def _slug_filter(value, delimiter=u'-'):
+    def _slug_filter(value, delimiter='-'):
         if not value:
             return value
         if use_legacy_slugify:

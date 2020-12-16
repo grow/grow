@@ -53,12 +53,12 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""
-        status_command = 'pip --version > /dev/null 2>&1'
+        status_command = 'pip3 --version > /dev/null 2>&1'
         not_found = subprocess.call(
             status_command, **self.subprocess_args(shell=True)) == 127
         if not_found:
             raise base_installer.MissingPrerequisiteError(
-                'The `pip` command was not found.')
+                'The `pip3` command was not found.')
 
     def install(self):
         """Install dependencies."""
@@ -66,7 +66,7 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
         init_file_name = '/{}/__init__.py'.format(extensions_dir)
         if not self.pod.file_exists(init_file_name):
             self.pod.write_file(init_file_name, '')
-        install_command = 'pip install -U -t {} -r {}'.format(
+        install_command = 'pip3 install -U -q -t {} -r {}'.format(
             extensions_dir, self.pod.FILE_EXTENSIONS)
         process = subprocess.Popen(
             install_command, **self.subprocess_args(shell=True))

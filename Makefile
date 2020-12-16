@@ -9,15 +9,13 @@ FILENAME_CI = Grow-SDK-$(subst osx,Mac,$(subst linux,Linux,$(TRAVIS_OS_NAME)))-$
 GITHUB_USER = grow
 GITHUB_REPO = grow
 
-PIP_ENV := $(shell pipenv --venv)
-
 export GOPATH := $(HOME)/go/
 export PATH := $(HOME)/go/bin/:$(PATH)
 
 # Default test target for "make test". Allows "make target=grow.pods.pods_test test"
 target ?= 'grow/'
 
-# Default test target for "make test". Allows "make target=grow.pods.pods_test test"
+# Default test coverage for "make test".
 coverage ?= false
 
 develop:
@@ -42,7 +40,6 @@ develop:
 	fi
 	pipenv update
 	pipenv install --dev
-	pipenv lock -r > requirements.txt
 	$(MAKE) build-ui
 
 build-ui:
@@ -76,13 +73,11 @@ develop-linux:
 	$(MAKE) develop
 
 pylint:
-	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/pylint --errors-only $(target)
+	pipenv run pylint --errors-only $(target)
 
 test:
-	. $(PIP_ENV)/bin/activate
 	@if [ "$(coverage)" = true ]; then \
-		$(PIP_ENV)/bin/nosetests \
+		pipenv run nosetests \
 		  -v \
 		  --rednose \
 			--with-coverage \
@@ -91,15 +86,14 @@ test:
 			--cover-package=grow \
 		  $(target);\
 	else \
-		$(PIP_ENV)/bin/nosetests \
+		pipenv run nosetests \
 			-v \
 			--rednose \
 			$(target);\
 	fi
 
 test-nosetests:
-	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/nosetests \
+	pipenv run nosetests \
 	  -v \
 	  --rednose \
 	  --with-coverage \
@@ -109,8 +103,7 @@ test-nosetests:
 	  grow
 
 test-pylint:
-	. $(PIP_ENV)/bin/activate
-	$(PIP_ENV)/bin/pylint --errors-only $(target)
+	pipenv run pylint --errors-only $(target)
 
 test-circle:
 	$(MAKE) build-ui
@@ -122,64 +115,16 @@ prep-release:
 	$(MAKE) test
 
 upload-pypi:
-	. $(PIP_ENV)/bin/activate
-	$(MAKE) ensure-master
-	git pull origin master
-	$(MAKE) prep-release
-	python setup.py sdist bdist_wheel
-	pip2 install urllib3[secure] --upgrade
-	pip2 install twine --upgrade
-	twine upload dist/grow-$(VERSION)*
-
-upload-github:
-	@github-release > /dev/null || { \
-	  go get github.com/aktau/github-release; \
-	}
-	. $(PIP_ENV)/bin/activate
-	$(MAKE) ensure-master
-	git pull origin master
-	$(MAKE) prep-release
-	$(MAKE) release
-	@if github-release info -u $(GITHUB_USER) -r $(GITHUB_REPO) -t $(VERSION); then \
-	  echo "Using existing release."; \
-	else \
-	  echo "Creating new release."; \
-	  git tag $(VERSION) && git push --tags; \
-	  github-release \
-	    release \
-	    -u $(GITHUB_USER) \
-	    -r $(GITHUB_REPO) \
-	    -t $(VERSION) \
-	    -n "$(VERSION)" \
-	    --draft; \
-	fi
-	@echo "Uploading: $(FILENAME)"
-	github-release \
-	  upload \
-	  -u $(GITHUB_USER) \
-	  -r $(GITHUB_REPO) \
-	  -t $(VERSION) \
-	  -n "$(FILENAME)" \
-	  --file dist/$(FILENAME)
-
-release:
-	. $(PIP_ENV)/bin/activate
-	pyinstaller grow.spec
-	chmod +x dist/grow
-	cd dist && zip -r $(FILENAME) grow && cd ..
-	./dist/grow
-	./dist/grow build ./grow/testing/testdata/pod/
-	@echo "Built: dist/$(FILENAME)"
-
-release-ci:
-	. $(PIP_ENV)/bin/activate
-	pipenv install git+https://github.com/pyinstaller/pyinstaller.git@b78bfe530cdc2904f65ce098bdf2de08c9037abb#egg=PyInstaller
-	pyinstaller grow.spec
-	chmod +x dist/grow
-	cd dist && zip -r $(FILENAME_CI) grow && cd ..
-	./dist/grow
-	./dist/grow build ./grow/testing/testdata/pod/
-	@echo "Built: dist/$(FILENAME_CI)"
+	# TODO: While on branch for python 3 this doesn't work.
+	# $(MAKE) ensure-master
+	# git pull origin master
+	# $(MAKE) prep-release
+	pipenv run python setup.py sdist bdist_wheel
+	pipenv run pip3 install urllib3[secure] --upgrade
+	pipenv run pip3 install twine --upgrade
+	# twine upload dist/grow-$(VERSION)*
+	# TODO: Using temporary crazy version numbers.
+	pipenv run twine upload dist/grow-1.0.0a*
 
 ensure-master:
 	@if [ `git rev-parse --abbrev-ref HEAD` != "master" ]; then \

@@ -1,6 +1,7 @@
 """Common grow utility functions."""
 
 import csv as csv_lib
+import codecs
 import fnmatch
 import functools
 import gettext
@@ -12,10 +13,11 @@ import string
 import sys
 import threading
 import time
-import urllib
+from urllib import parse as url_parse
 from collections import OrderedDict
 import yaml
 import bs4
+import git
 import html2text
 import translitcodec  # pylint: disable=unused-import
 from grow.common import structures
@@ -23,18 +25,17 @@ from grow.common import untag
 from grow.common import yaml_utils
 from grow.pods import errors
 
-# The CLoader implementation of the PyYaml loader is orders of magnitutde
-# faster than the default pure Python loader. CLoader is available when
-# libyaml is installed on the system.
+# The C (LibYAML) version is massively faster than the pure Python version.
+# Since YAML performance is critical, display a warning message with information
+# related to fixing it.
 try:
     # pylint: disable=ungrouped-imports
     from yaml import CLoader as yaml_Loader
 except ImportError:
-    logging.warning('Warning: libyaml missing, using slower yaml parser.')
+    logging.warning('Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml')
     from yaml import Loader as yaml_Loader
 
 
-APPENGINE_SERVER_PREFIXES = ('Development/', 'Google App Engine/')
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
 SENTINEL = object()
 DRAFT_KEY = '$draft'
@@ -45,53 +46,26 @@ SLUG_SUBSTITUTE = ((':{}', ':'),)
 class Error(Exception):
     """Base error class."""
 
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
+
 
 class UnavailableError(Error):
     """Raised when a feature is not available."""
+    pass
 
 
 class DraftStringError(Error):
     """Raised when a draft string is used yet not allowed."""
-
-
-def is_packaged_app():
-    """Returns whether the environment is a packaged app."""
-    try:
-        # pylint: disable=pointless-statement,protected-access
-        sys._MEIPASS
-        return True
-    except AttributeError:
-        return False
-
-
-def is_appengine():
-    """Returns whether the environment is Google App Engine."""
-    # https://cloud.google.com/appengine/docs/standard/python/how-requests-are-handled
-    return os.getenv('SERVER_SOFTWARE', '').startswith(
-        APPENGINE_SERVER_PREFIXES)
-
-
-def get_git():
-    """Returns the git module if it is available."""
-    if not is_appengine():
-        import git
-        return git
-    raise UnavailableError('Git is not available in this environment.')
+    pass
 
 
 def get_grow_dir():
-    if is_packaged_app():
-        # pylint: disable=no-member,protected-access
-        return os.path.join(sys._MEIPASS)
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
-def get_cacerts_path():
-    return os.path.join(get_grow_dir(), 'data', 'cacerts.txt')
-
-
 def get_git_repo(root):
-    git = get_git()
     try:
         return git.Repo(root)
     except git.InvalidGitRepositoryError:
@@ -100,7 +74,7 @@ def get_git_repo(root):
 
 def interactive_confirm(message, default=False, input_func=None):
     if input_func is None:
-        input_func = lambda m: raw_input(m).lower()
+        input_func = lambda m: input(m).lower()
 
     choices = 'Y/n' if default is True else 'y/N'
     message = '{} [{}]: '.format(message, choices)
@@ -116,7 +90,10 @@ FORMATTER = string.Formatter()
 def safe_format(base_string, *args, **kwargs):
     """Safely format a string using the modern string formatting with fallback."""
     safe_kwargs = structures.SafeDict(**kwargs)
-    return FORMATTER.vformat(base_string, args, safe_kwargs)
+    try:
+        return FORMATTER.vformat(base_string, args, safe_kwargs)
+    except TypeError as e:
+        return FORMATTER.vformat(str(base_string), args, safe_kwargs)
 
 
 def walk(node, callback, parent_key=None, parent_node=None):
@@ -156,7 +133,7 @@ class memoize(object):
         self.cache = {}
 
     def __call__(self, *args, **kwargs):
-        key = (args, frozenset(kwargs.items()))
+        key = (args, frozenset(list(kwargs.items())))
         try:
             return self.cache[key]
         except KeyError:
@@ -225,7 +202,7 @@ class memoize_tag(memoize):
 
 
 def every_two(l):
-    return zip(l[::2], l[1::2])
+    return list(zip(l[::2], l[1::2]))
 
 
 def make_base_yaml_loader(pod, locale=None, untag_params=None,
@@ -398,12 +375,12 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                 return self.read_yaml(path, locale=self.loader_locale())
             return self._construct_func(node, func)
 
-    BaseYamlLoader.add_constructor(u'!_', BaseYamlLoader.construct_gettext)
-    BaseYamlLoader.add_constructor(u'!g.csv', BaseYamlLoader.construct_csv)
-    BaseYamlLoader.add_constructor(u'!g.file', BaseYamlLoader.construct_file)
-    BaseYamlLoader.add_constructor(u'!g.json', BaseYamlLoader.construct_json)
-    BaseYamlLoader.add_constructor(u'!g.string', BaseYamlLoader.construct_string)
-    BaseYamlLoader.add_constructor(u'!g.yaml', BaseYamlLoader.construct_yaml)
+    BaseYamlLoader.add_constructor('!_', BaseYamlLoader.construct_gettext)
+    BaseYamlLoader.add_constructor('!g.csv', BaseYamlLoader.construct_csv)
+    BaseYamlLoader.add_constructor('!g.file', BaseYamlLoader.construct_file)
+    BaseYamlLoader.add_constructor('!g.json', BaseYamlLoader.construct_json)
+    BaseYamlLoader.add_constructor('!g.string', BaseYamlLoader.construct_string)
+    BaseYamlLoader.add_constructor('!g.yaml', BaseYamlLoader.construct_yaml)
 
     return BaseYamlLoader
 
@@ -462,9 +439,9 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
                 return pod.get_url(path, locale=self.loader_locale())
             return self._construct_func(node, func)
 
-    YamlLoader.add_constructor(u'!g.doc', YamlLoader.construct_doc)
-    YamlLoader.add_constructor(u'!g.static', YamlLoader.construct_static)
-    YamlLoader.add_constructor(u'!g.url', YamlLoader.construct_url)
+    YamlLoader.add_constructor('!g.doc', YamlLoader.construct_doc)
+    YamlLoader.add_constructor('!g.static', YamlLoader.construct_static)
+    YamlLoader.add_constructor('!g.url', YamlLoader.construct_url)
 
     return YamlLoader
 
@@ -517,23 +494,23 @@ def dump_plain_yaml(obj):
 
 
 def ordered_dict_representer(dumper, data):
-    return dumper.represent_mapping('tag:yaml.org,2002:map', data.items())
+    return dumper.represent_mapping('tag:yaml.org,2002:map', list(data.items()))
 
 
 yaml.SafeDumper.add_representer(OrderedDict, ordered_dict_representer)
 
 
-def slugify(text, delim=u'-'):
-    if not isinstance(text, basestring):
+def slugify(text, delim='-'):
+    if not isinstance(text, str):
         text = str(text)
     result = []
     for word in SLUG_REGEX.split(text.lower()):
-        if not isinstance(word, unicode):
-            word = word.decode('utf-8')
-        word = word.encode('translit/long')
+        if not isinstance(word, str):
+            word = word
+        word = codecs.encode(word, 'translit/long')
         if word:
             result.append(word)
-    slug = unicode(delim.join(result))
+    slug = str(delim.join(result))
     for seq, sub in SLUG_SUBSTITUTE:
         slug = slug.replace(seq.format(delim), sub.format(delim))
     return slug
@@ -568,10 +545,10 @@ def get_rows_from_csv(pod, path, locale=SENTINEL):
     rows = []
     for row in csv_lib.DictReader(fp):
         data = {}
-        for header, cell in row.iteritems():
+        for header, cell in row.items():
             if cell is None:
                 cell = ''
-            data[header] = cell.decode('utf-8')
+            data[header] = cell
         rows.append(data)
     return rows
 
@@ -594,7 +571,7 @@ def clean_html(content, convert_to_markdown=False):
     _process_google_hrefs(soup)
     _process_google_comments(soup)
     # Support HTML fragments without body tags.
-    content = unicode(soup.body or soup)
+    content = str(soup.body or soup)
     if convert_to_markdown:
         h2t = html2text.HTML2Text()
         h2t.body_width = 0  # https://github.com/grow/grow/issues/887
@@ -603,7 +580,7 @@ def clean_html(content, convert_to_markdown=False):
         h2t.bypass_tables = True
         h2t.single_line_break = False
         content = h2t.handle(content).strip()
-    return content.encode('utf-8')
+    return content
 
 
 def _process_google_hrefs(soup):
@@ -631,14 +608,14 @@ def _clean_google_href(href):
     match = re.match(regex, href)
     if match:
         encoded_url = match.group(2)
-        return urllib.unquote(encoded_url)
+        return url_parse.unquote(encoded_url)
     return href
 
 
 def format_existing_data(old_data, new_data, preserve=None, key_to_update=None):
     if old_data:
         if preserve == 'builtins':
-            for key in old_data.keys():
+            for key in list(old_data.keys()):
                 if not key.startswith('$'):
                     del old_data[key]
         if key_to_update:

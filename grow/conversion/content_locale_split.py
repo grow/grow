@@ -25,7 +25,10 @@ except ImportError:
 
 
 class Error(Exception):
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class LocaleExistsError(Error):
@@ -49,7 +52,7 @@ SINGLE_TEMPLATE = '{}\n'
 
 
 def _update_deep(orig_dict, new_dict):
-    for k, v in new_dict.iteritems():
+    for k, v in new_dict.items():
         if (k in orig_dict and isinstance(orig_dict[k], dict)
                 and isinstance(new_dict[k], collections.Mapping)):
             _update_deep(orig_dict[k], new_dict[k])
@@ -79,7 +82,7 @@ def dict_constructor(loader, node):
 
 
 def dict_representer(dumper, data):
-    return dumper.represent_dict(data.iteritems())
+    return dumper.represent_dict(data.items())
 
 
 def plain_text_representer(dumper, data):
@@ -92,19 +95,19 @@ PlainTextYamlDumper.add_representer(OrderedDict, dict_representer)
 PlainTextYamlDumper.add_representer(PlainText, plain_text_representer)
 PlainTextYamlLoader.add_constructor(_mapping_tag, dict_constructor)
 PlainTextYamlLoader.add_constructor(
-    u'!_', PlainTextYamlLoader.construct_plaintext)
+    '!_', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.csv', PlainTextYamlLoader.construct_plaintext)
+    '!g.csv', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.doc', PlainTextYamlLoader.construct_plaintext)
+    '!g.doc', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.json', PlainTextYamlLoader.construct_plaintext)
+    '!g.json', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.static', PlainTextYamlLoader.construct_plaintext)
+    '!g.static', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.url', PlainTextYamlLoader.construct_plaintext)
+    '!g.url', PlainTextYamlLoader.construct_plaintext)
 PlainTextYamlLoader.add_constructor(
-    u'!g.yaml', PlainTextYamlLoader.construct_plaintext)
+    '!g.yaml', PlainTextYamlLoader.construct_plaintext)
 
 
 class ConversionDocument(object):
@@ -164,7 +167,7 @@ class ConversionDocument(object):
             parsed = yaml.load(front_matter, Loader=PlainTextYamlLoader)
 
             def visit(path, key, value):
-                if not isinstance(key, basestring):
+                if not isinstance(key, str):
                     return key, value
                 if key.endswith('@#'):
                     return key, value
@@ -211,7 +214,7 @@ class ConversionDocument(object):
         locale_extra = OrderedDict()
 
         def visit(path, key, value):
-            if not isinstance(key, basestring):
+            if not isinstance(key, str):
                 return key, value
             if key.endswith('@#'):
                 return key, value
@@ -343,7 +346,7 @@ class ConversionDocument(object):
                 locale_to_front_matter[locale] = locale_front_matter
 
         # Write the final locale files.
-        for locale, locale_front_matter in locale_to_front_matter.iteritems():
+        for locale, locale_front_matter in locale_to_front_matter.items():
             content = locale_to_content.get(locale, None)
             locale_filename = self.file_name_for_locale(locale)
             logging.info('Writing: {}'.format(locale_filename))
@@ -422,6 +425,6 @@ class Converter(object):
                 try:
                     doc.convert()
                 except:
-                    print 'Error trying to convert: {}'.format(
-                        os.path.join(pod_dir, file_name))
+                    print('Error trying to convert: {}'.format(
+                        os.path.join(pod_dir, file_name)))
                     raise

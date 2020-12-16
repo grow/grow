@@ -10,7 +10,10 @@ from grow.templates import tests as jinja_tests
 
 class Error(Exception):
     """Base rendering pool error."""
-    pass
+
+    def __init__(self, message):
+        super(Error, self).__init__(message)
+        self.message = message
 
 
 class RenderPool(object):

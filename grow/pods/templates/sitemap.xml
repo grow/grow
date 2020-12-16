@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {% for doc in docs|sort(attribute='url') if not doc.sitemap.enabled is sameas false %}
-    {% if doc.hidden %}
-      {% continue %}
-    {% endif %}
+<urlset xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for doc in docs|sort(attribute='url') if
+      doc.path_format
+      and (not doc.sitemap.enabled is sameas false)
+      and (not doc.hidden) %}
     <url>
       <loc>{{doc.url}}</loc>
       {% if doc.modified %}
@@ -15,6 +15,13 @@
       {% if doc.sitemap.priority %}
       <priority>{{doc.sitemap.priority}}</priority>
       {% endif %}
+      {% if doc.locales|length > 1 %}
+      <xhtml:link rel="alternate" hreflang="x-default" href="{{doc.url}}"/>
+      {% endif %}
+      {% for locale in doc.locales %}
+        {% set localized_doc = doc.localize(locale) %}
+        <xhtml:link rel="alternate" hreflang="{{localized_doc.hreflang}}" href="{{localized_doc.url}}"/>
+      {% endfor %}
     </url>
   {% endfor %}
 </urlset>
