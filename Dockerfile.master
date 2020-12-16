@@ -43,7 +43,7 @@ ENV NVM_DIR=~/.nvm
 
 # Install Grow.
 RUN pip3 install --no-cache-dir --upgrade wheel \
-  && pip3 install --no-cache-dir git+git://github.com/grow/grow.git@feature/python3 \
+  && pip3 install --no-cache-dir git+git://github.com/grow/grow.git@master \
   && pip3 install --global-option="--with-libyaml" pyyaml --upgrade --force
 
 # Install ruby bundle.

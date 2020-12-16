@@ -29,9 +29,7 @@ with open('Pipfile') as pipfile:
 
 setup(
     name='grow',
-    # TODO Update after alpha is over.
-    # version=open('grow/VERSION').read().strip(),
-    version='1.0.0a11',
+    version=open('grow/VERSION').read().strip(),
     description=(
         'Develop everywhere and deploy anywhere: a declarative '
         'site generator for rapid, high-quality web site production.'
