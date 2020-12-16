@@ -19,7 +19,8 @@ fi
 # Ubuntu Base.
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/base:$GROW_VERSION -t grow/base:latest \
-  -t gcr.io/grow-prod/base:$GROW_VERSION -t gcr.io/grow-prod/base:latest
+  -t gcr.io/grow-prod/base:$GROW_VERSION -t gcr.io/grow-prod/base:latest \
+  - < Dockerfile
 
 docker run --rm=true --workdir=/tmp -i grow/base:$GROW_VERSION  \
   bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
@@ -40,7 +41,7 @@ fi
 docker build --no-cache --build-arg grow_version=$GROW_VERSION \
   -t grow/base:alpine-$GROW_VERSION -t grow/base:alpine-latest \
   -t gcr.io/grow-prod/base:alpine-$GROW_VERSION -t gcr.io/grow-prod/base:alpine-latest \
-  -f Dockerfile.alpine .
+  - < Dockerfile Dockerfile.alpine
 
 docker run --rm=true --workdir=/tmp -i grow/base:alpine-$GROW_VERSION  \
   bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
