@@ -16,8 +16,7 @@ from grow.sdk import sdk_utils
 
 RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
 TAGS_URL_FORMAT = 'https://github.com/grow/grow/releases/tag/{}'
-INSTALLER_COMMAND = ('/usr/bin/python -c "$(curl -fsSL '
-                     'https://raw.github.com/grow/grow/master/install.py)"')
+INSTALLER_COMMAND = 'pipenv install grow=={version}'
 
 
 class Error(Exception):
@@ -110,6 +109,7 @@ class Updater(object):
             colors.stylize(str(sem_current), colors.EMPHASIS),
             colors.stylize(str(sem_latest), colors.EMPHASIS)))
 
+        install_command = INSTALLER_COMMAND.format(version=sem_latest)
         if auto_update_prompt:
             use_auto_update = grow_rc_config.get('update.always', False)
 
@@ -128,7 +128,7 @@ class Updater(object):
                     grow_rc_config.set('update.always', True)
                     grow_rc_config.write()
 
-            if subprocess.call(INSTALLER_COMMAND, shell=True) == 0:
+            if subprocess.call((install_command), shell=True) == 0:
                 logging.info('Restarting...')
                 try:
                     # Restart on successful install.
@@ -138,13 +138,10 @@ class Updater(object):
                         'Unable to restart. Please manually restart grow.')
                     sys.exit(-1)
             else:
-                text = (
-                    'In-place update failed. Update manually or use:\n'
-                    '  curl https://install.grow.io | bash')
-                logging.error(text)
+                text = 'In-place update failed. Update manually or use:\n  {}'
+                logging.error(text.format(install_command))
                 sys.exit(-1)
         else:
-            install_command = colors.stylize('pip install --upgrade grow', colors.CAUTION)
             logging.info('  Update using: {}'.format(install_command))
         logging.info('')
         return True
