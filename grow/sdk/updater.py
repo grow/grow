@@ -127,8 +127,7 @@ class Updater(object):
                     sys.exit(-1)
             else:
                 text = 'In-place update failed. Update manually or use:\n  {}'
-                text = text.format(install_command)
-                logging.error(text)
+                logging.error(text.format(install_command))
                 sys.exit(-1)
         else:
             logging.info('  Update using: {}'.format(install_command))
