@@ -675,12 +675,13 @@ class Pod(object):
             self.root,
         )
 
-        if translator_extensions:
-            legacy_message = 'Legacy translators are deprecated and will be removed in the future: {}'
-            self.deprecated(
-                'legacy_translator',
-                legacy_message.format(', '.join(translator_extensions)),
-                url='https://grow.dev/migration/1.0.0')
+        # TODO: Show deprecation message in the future.
+        # if translator_extensions:
+        #     legacy_message = 'Legacy translators are deprecated and will be removed in the future: {}'
+        #     self.deprecated(
+        #         'legacy_translator',
+        #         legacy_message.format(', '.join(translator_extensions)),
+        #         url='https://grow.dev/migration/1.0.0')
 
         translator_services = copy.deepcopy(translator_config['services'])
         if service is not utils.SENTINEL:
@@ -770,12 +771,13 @@ class Pod(object):
                 raise
             loaded_extensions.append(value)
 
-        if jinja_extensions:
-            legacy_message = 'Legacy jinja2 extensions are deprecated and will be removed in the future: {}'
-            self.deprecated(
-                'legacy_jinja2',
-                legacy_message.format(', '.join(jinja_extensions)),
-                url='https://grow.dev/migration/1.0.0')
+        # TODO: Show deprecation message in the future.
+        # if jinja_extensions:
+        #     legacy_message = 'Legacy jinja2 extensions are deprecated and will be removed in the future: {}'
+        #     self.deprecated(
+        #         'legacy_jinja2',
+        #         legacy_message.format(', '.join(jinja_extensions)),
+        #         url='https://grow.dev/migration/1.0.0')
 
         loaded_extensions.extend(
             self.extensions_controller.trigger('jinja_extensions'))
@@ -806,12 +808,13 @@ class Pod(object):
                 # New extensions don't exists and are considered a value error.
                 pass
 
-        if legacy_preprocessors:
-            legacy_message = 'Legacy preprocessors are deprecated and will be removed in the future: {}'
-            self.deprecated(
-                'legacy_preprocessors',
-                legacy_message.format(', '.join(legacy_preprocessors)),
-                url='https://grow.dev/migration/1.0.0')
+        # TODO: Show deprecation message in the future.
+        # if legacy_preprocessors:
+        #     legacy_message = 'Legacy preprocessors are deprecated and will be removed in the future: {}'
+        #     self.deprecated(
+        #         'legacy_preprocessors',
+        #         legacy_message.format(', '.join(legacy_preprocessors)),
+        #         url='https://grow.dev/migration/1.0.0')
 
         return results
 
