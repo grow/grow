@@ -36,24 +36,3 @@ if [ "$1" == "" ] || [ "$1" == "all" ]; then
   docker push grow/base:$GROW_VERSION
   docker push grow/base:latest
 fi
-
-# Alpine Base.
-docker build --no-cache --build-arg grow_version=$GROW_VERSION \
-  -t grow/base:alpine-$GROW_VERSION -t grow/base:alpine-latest \
-  -t gcr.io/grow-prod/base:alpine-$GROW_VERSION -t gcr.io/grow-prod/base:alpine-latest \
-  - < Dockerfile.alpine
-
-docker run --rm=true --workdir=/tmp -i grow/base:alpine-$GROW_VERSION  \
-  bash -c "git clone https://github.com/grow/grow.io.git && cd grow.io/ && grow install && grow build"
-
-if [ "$1" == "gcr.io" ] || [ "$1" == "all" ]; then
-  # Google cloud registry.
-  docker push gcr.io/grow-prod/base:alpine-$GROW_VERSION
-  docker push gcr.io/grow-prod/base:alpine-latest
-fi
-
-if [ "$1" == "" ] || [ "$1" == "all" ]; then
-  # Docker Hub.
-  docker push grow/base:alpine-$GROW_VERSION
-  docker push grow/base:alpine-latest
-fi
