@@ -475,9 +475,15 @@ def load_plain_yaml(content, pod=None, locale=None):
 
 def parse_yaml(content, pod=None, locale=None, untag_params=None,
                simple_loader=False):
-    return load_yaml(
-        content, pod=pod, locale=locale, untag_params=untag_params,
-        simple_loader=simple_loader)
+    if not pod:
+        return load_yaml(
+            content, pod=pod, locale=locale, untag_params=untag_params,
+            simple_loader=simple_loader)
+        
+    with pod.profile.timer('parse_yaml'):
+        return load_yaml(
+            content, pod=pod, locale=locale, untag_params=untag_params,
+            simple_loader=simple_loader)
 
 
 def dump_yaml(obj):

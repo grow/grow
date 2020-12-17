@@ -44,7 +44,8 @@ def _read_csv(pod, pod_path, locale):
     contents = file_cache.get(pod_path, locale=locale)
     if contents is None:
         contents = pod.read_csv(pod_path, locale=locale)
-        contents = pod.untag(contents, locale=locale)
+        with pod.profile.timer('untag'):
+            contents = pod.untag(contents, locale=locale)
         file_cache.add(pod_path, contents, locale=locale)
     return contents
 
@@ -55,7 +56,8 @@ def _read_json(pod, pod_path, locale):
     contents = file_cache.get(pod_path)
     if contents is None:
         contents = pod.read_json(pod_path)
-        contents = pod.untag(contents, locale=locale)
+        with pod.profile.timer('untag'):
+            contents = pod.untag(contents, locale=locale)
         file_cache.add(pod_path, contents, locale=locale)
     return contents
 

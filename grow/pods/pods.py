@@ -279,9 +279,10 @@ class Pod(object):
         if not isinstance(env, environment.Env):
             env = environment.Env(env)
         if env and env.name:
-            content = untag.Untag.untag(self._parse_yaml(), params={
-                'env': untag.UntagParamRegex(env.name),
-            })
+            with self.profile.timer('untag'):
+                content = untag.Untag.untag(self._parse_yaml(), params={
+                    'env': untag.UntagParamRegex(env.name),
+                })
             self._yaml = content
             # Preprocessors may depend on env, reset cache.
             # pylint: disable=no-member
@@ -921,10 +922,11 @@ class Pod(object):
 
     def untag(self, contents, locale=None):
         """Untag data using the pod specific untagging params."""
-        return untag.Untag.untag(
-            contents, locale_identifier=locale, params={
-                'env': untag.UntagParamRegex(self.env.name),
-            })
+        with self.profile.timer('untag'):
+            return untag.Untag.untag(
+                contents, locale_identifier=locale, params={
+                    'env': untag.UntagParamRegex(self.env.name),
+                })
 
     def walk(self, pod_path):
         path = self._normalize_path(pod_path)

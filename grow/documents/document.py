@@ -253,7 +253,8 @@ class Document(object):
                 'env': untag.UntagParamRegex(self.pod.env.name),
                 'locale': untag.UntagParamLocaleRegex.from_pod(
                     self.pod, self.collection),
-            })
+            },
+            pod=self.pod)
 
     @utils.cached_property
     def footnotes(self):

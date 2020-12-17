@@ -175,10 +175,11 @@ class Collection(object):
 
     @utils.cached_property
     def fields(self):
-        fields = untag.Untag.untag(
-            self.tagged_fields, params={
-                'env': untag.UntagParamRegex(self.pod.env.name),
-            })
+        with self.pod.profile.timer('untag'):
+            fields = untag.Untag.untag(
+                self.tagged_fields, params={
+                    'env': untag.UntagParamRegex(self.pod.env.name),
+                })
         return {} if not fields else fields
 
     @utils.cached_property

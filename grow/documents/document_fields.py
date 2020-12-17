@@ -15,11 +15,18 @@ class DocumentFields(object):
     def __getitem__(self, key):
         return self._data[key]
 
-    def __init__(self, data, locale_identifier=None, params=None):
+    def __init__(self, data, locale_identifier=None, params=None, pod=None):
+        self._pod = pod
         self._locale_identifier = locale_identifier
         self._params = params
-        self._data = untag.Untag.untag(
-            data, locale_identifier, params=params)
+        if self._pod:
+            with self._pod.profile.timer('untag'):
+                self._data = untag.Untag.untag(
+                    data, locale_identifier, params=params)
+        else:
+            self._data = untag.Untag.untag(
+                data, locale_identifier, params=params)
+
 
     def __len__(self):
         return len(self._data)
@@ -34,6 +41,11 @@ class DocumentFields(object):
         return self._data.keys()
 
     def update(self, updated):
-        updated = untag.Untag.untag(
-            updated, self._locale_identifier, params=self._params)
+        if self._pod:
+            with self._pod.profile.timer('untag'):
+                updated = untag.Untag.untag(
+                    updated, self._locale_identifier, params=self._params)
+        else:
+            updated = untag.Untag.untag(
+                updated, self._locale_identifier, params=self._params)
         self._data.update(updated)
