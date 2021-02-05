@@ -102,7 +102,7 @@ class WebReviewDestination(base.BaseDestination):
     def _get_subdomain(self):
         if self.config.subdomain_prefix and not self.config.subdomain:
             token = self._get_branch_token()
-            if token == 'master':
+            if token in ['master', 'main']:
                 return self.config.subdomain_prefix
             else:
                 return self.config.subdomain_prefix + '-{}'.format(token)
