@@ -1,7 +1,7 @@
 FROM ubuntu:focal
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
-RUN echo "Grow: Master"
+RUN echo "Grow: Main"
 
 # Set environment variables.
 ENV TERM=xterm
@@ -43,7 +43,7 @@ ENV NVM_DIR=~/.nvm
 
 # Install Grow.
 RUN pip3 install --no-cache-dir --upgrade wheel \
-  && pip3 install --no-cache-dir git+git://github.com/grow/grow.git@master \
+  && pip3 install --no-cache-dir git+git://github.com/grow/grow.git@main \
   && pip3 install --global-option="--with-libyaml" pyyaml --upgrade --force
 
 # Install ruby bundle.
