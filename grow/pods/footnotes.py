@@ -105,9 +105,19 @@ class Footnotes(object):
         return self.symbol_to_footnote
 
     @property
+    def is_numeric(self):
+        return (self.use_numeric
+            or self.use_numeric_symbols
+            or self.is_numeric_territory)
+
+    @property
     def is_numeric_territory(self):
-        return (self.locale is not None
-            and self.numeric_locales_pattern.search(self.locale))
+        if self.locale is None:
+            return False
+        # When explicitly not using numbers, do not use numeric.
+        if self.use_numeric_symbols is False or self.use_numeric is False:
+            return False
+        return self.numeric_locales_pattern.search(self.locale) is not None
 
     def add(self, value, custom_symbol=None):
         for symbol, note_value in self.symbol_to_footnote.items():
@@ -135,9 +145,7 @@ class Footnotes(object):
 
     def reset(self):
         self.symbol_to_footnote = collections.OrderedDict()
-
-        is_numeric = self.use_numeric or self.use_numeric_symbols
-        if self.is_numeric_territory or is_numeric:
+        if self.is_numeric:
             if self.use_numeric:
                 self.generator = numberic_generator()
             else:
