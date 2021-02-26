@@ -69,12 +69,25 @@ def numberic_symbol_generator():
         index += 1
 
 
+def numberic_generator():
+    index = 1
+    while True:
+        yield index
+        index += 1
+
+
+def sup_generator(generator):
+    while True:
+        yield '<sup>{}</sup>'.format(next(generator))
+
+
 class Footnotes(object):
 
     def __init__(self, locale, symbols=None, use_numeric_symbols=None,
-            numeric_locales_pattern=None):
+            numeric_locales_pattern=None, use_sup=False):
         self.symbol_to_footnote = collections.OrderedDict()
         self.symbols = symbols or SYMBOLS
+        self.use_sup = use_sup
         numeric_locales_pattern = (
             numeric_locales_pattern or NUMERIC_LOCALES_REGEX)
         if type(NUMERIC_LOCALES_REGEX) != type(numeric_locales_pattern):
@@ -84,11 +97,18 @@ class Footnotes(object):
             and numeric_locales_pattern.search(locale))
         if use_numeric_symbols != False and (
                 use_numeric_symbols == True or is_numeric_territory):
-            self.generator = numberic_symbol_generator()
+            if self.use_sup:
+                self.generator = numberic_generator()
+            else:
+                self.generator = numberic_symbol_generator()
+
             self.is_numeric = True
         else:
             self.generator = symbol_generator(self.symbols)
             self.is_numeric = False
+
+        if self.use_sup:
+            self.generator = sup_generator(self.generator)
 
     def __getitem__(self, key):
         return self.symbol_to_footnote[key]
@@ -130,6 +150,12 @@ class Footnotes(object):
     def reset(self):
         self.symbol_to_footnote = collections.OrderedDict()
         if self.is_numeric:
-            self.generator = numberic_symbol_generator()
+            if self.use_sup:
+                self.generator = numberic_generator()
+            else:
+                self.generator = numberic_symbol_generator()
         else:
             self.generator = symbol_generator(self.symbols)
+
+        if self.use_sup:
+            self.generator = sup_generator(self.generator)

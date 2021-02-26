@@ -263,11 +263,12 @@ class Document(object):
         locale = str(self.locale) if self.locale else None
         symbols = footnote_config.get('symbols', None)
         use_numeric_symbols = footnote_config.get('use_numeric_symbols', None)
+        use_sup = footnote_config.get('use_sup', False)
         numeric_locales_pattern = footnote_config.get(
             'numeric_locales_pattern', None)
         return footnotes.Footnotes(
             locale, symbols=symbols, use_numeric_symbols=use_numeric_symbols,
-            numeric_locales_pattern=numeric_locales_pattern)
+            numeric_locales_pattern=numeric_locales_pattern, use_sup=use_sup)
 
     @utils.cached_property
     def format(self):
