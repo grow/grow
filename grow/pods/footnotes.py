@@ -69,26 +69,27 @@ def numberic_symbol_generator():
         index += 1
 
 
-class Footnotes(object):
+def numberic_generator():
+    index = 1
+    while True:
+        yield index
+        index += 1
 
-    def __init__(self, locale, symbols=None, use_numeric_symbols=None,
-            numeric_locales_pattern=None):
+
+class Footnotes(object):
+    def __init__(self, locale, symbols=None, use_numeric=None,
+            use_numeric_symbols=None, numeric_locales_pattern=None):
         self.symbol_to_footnote = collections.OrderedDict()
         self.symbols = symbols or SYMBOLS
-        numeric_locales_pattern = (
-            numeric_locales_pattern or NUMERIC_LOCALES_REGEX)
-        if type(NUMERIC_LOCALES_REGEX) != type(numeric_locales_pattern):
-            numeric_locales_pattern = re.compile(
+        self.locale = locale
+        self.use_numeric = use_numeric
+        self.use_numeric_symbols = use_numeric_symbols
+        if numeric_locales_pattern is not None:
+            self.numeric_locales_pattern = re.compile(
                 numeric_locales_pattern, re.IGNORECASE)
-        is_numeric_territory = (locale is not None
-            and numeric_locales_pattern.search(locale))
-        if use_numeric_symbols != False and (
-                use_numeric_symbols == True or is_numeric_territory):
-            self.generator = numberic_symbol_generator()
-            self.is_numeric = True
         else:
-            self.generator = symbol_generator(self.symbols)
-            self.is_numeric = False
+            self.numeric_locales_pattern = NUMERIC_LOCALES_REGEX
+        self.reset()
 
     def __getitem__(self, key):
         return self.symbol_to_footnote[key]
@@ -102,6 +103,21 @@ class Footnotes(object):
     @property
     def footnotes(self):
         return self.symbol_to_footnote
+
+    @property
+    def is_numeric(self):
+        return (self.use_numeric
+            or self.use_numeric_symbols
+            or self.is_numeric_territory)
+
+    @property
+    def is_numeric_territory(self):
+        if self.locale is None:
+            return False
+        # When explicitly not using numbers, do not use numeric.
+        if self.use_numeric_symbols is False or self.use_numeric is False:
+            return False
+        return self.numeric_locales_pattern.search(self.locale) is not None
 
     def add(self, value, custom_symbol=None):
         for symbol, note_value in self.symbol_to_footnote.items():
@@ -130,6 +146,9 @@ class Footnotes(object):
     def reset(self):
         self.symbol_to_footnote = collections.OrderedDict()
         if self.is_numeric:
-            self.generator = numberic_symbol_generator()
+            if self.use_numeric:
+                self.generator = numberic_generator()
+            else:
+                self.generator = numberic_symbol_generator()
         else:
             self.generator = symbol_generator(self.symbols)

@@ -17,6 +17,8 @@ gitpython = "==3.1.3"
 google-api-python-client = "==1.9.3"
 "html2text" = "==2020.1.16"
 "httplib2" = "==0.18.1"
+# Sub dependency of markdown breaking.
+importlib-metadata = "==2.1.1"
 "jinja2" = "==2.11.2"
 markdown = "==3.2.2"
 "oauth2client" = ">=4.1.3"
