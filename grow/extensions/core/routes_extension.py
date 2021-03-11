@@ -160,7 +160,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
 
             # Check for new docs.
             for trigger_doc in trigger_docs:
-                if trigger_doc.has_serving_path():
+                if trigger_doc.exists and trigger_doc.has_serving_path():
                     if not pod.router.routes.match(trigger_doc.get_serving_path()):
                         added_docs.append(trigger_doc)
             if added_docs or removed_docs:
