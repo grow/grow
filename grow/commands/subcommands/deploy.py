@@ -59,7 +59,8 @@ def deploy(context, deployment_name, pod_path, preprocess, confirm, test,
             # steps.
             if deployment.config.env:
                 pod.set_env(deployment.config.env)
-            require_translations = pod.podspec.localization.get(
+            localization = pod.podspec.localization
+            require_translations = localization and localization.get(
                 'require_translations', False)
             require_translations = require_translations and not force_untranslated
             if auth:
