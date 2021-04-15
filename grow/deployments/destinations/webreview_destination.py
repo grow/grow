@@ -175,7 +175,13 @@ class WebReviewDestination(base.BaseDestination):
             return paths
         except webreview.RpcError as e:
             self._print_rpc_traceback(e)
-            raise base.Error(e.message)
+            # NOTE: Sometimes, a file may fail to delete. This usually happens
+            # because the uploaded fileset is in an inconsistent state. The
+            # inconsistency may happen due to uploading the manifest, and then
+            # subsequently canceling the upload. Subsequent uploads will
+            # attempt to delete files that may no longer exist. It's acceptable
+            # to not fail outright when deletions fail during staging, so avoid
+            # raising the error.
 
 
 # Support legacy "jetway" destination. Remove this in a future release.
