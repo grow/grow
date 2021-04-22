@@ -105,9 +105,7 @@ class PodCache(object):
         output = json.dumps(
             obj, cls=json_encoder.GrowJSONEncoder,
             sort_keys=True, indent=2, separators=(',', ': '))
-        temp_path = '{}.tmp'.format(path)
-        self._pod.write_file(temp_path, output)
-        self._pod.move_file_to(temp_path, path)
+        self._pod.write_file(path, output)
 
     def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None,
                             separate_file=False):
