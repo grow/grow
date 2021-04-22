@@ -4,6 +4,7 @@ import errno
 import hashlib
 import os
 import shutil
+import tempfile
 from grow.storage import base_storage
 from grow.templates import jinja_loader
 
@@ -67,7 +68,7 @@ class FileStorage(base_storage.BaseStorage):
         return jinja_loader.FrontMatterLoader(path)
 
     @classmethod
-    def write(cls, path, content):
+    def write(cls, path, content, use_temp_file=False):
         dirname = os.path.dirname(path)
         try:
             os.makedirs(dirname)
@@ -76,12 +77,27 @@ class FileStorage(base_storage.BaseStorage):
                 pass
             else:
                 raise
-        try:
-            with cls.open(path, mode='w') as fp:
-                fp.write(content)
-        except TypeError:
-            with cls.open(path, mode='wb') as fp:
-                fp.write(content)
+
+        if use_temp_file:
+            with tempfile.NamedTemporaryFile() as temp:
+                try:
+                    with cls.open(path, mode='w') as fp:
+                        fp.write(content)
+                except TypeError:
+                    with cls.open(path, mode='wb') as fp:
+                        fp.write(content)
+                try:
+                    os.unlink(path)
+                except:
+                    pass
+                os.link(temp.name, path)
+        else:
+            try:
+                with cls.open(path, mode='w') as fp:
+                    fp.write(content)
+            except TypeError:
+                with cls.open(path, mode='wb') as fp:
+                    fp.write(content)
 
     @staticmethod
     def exists(filename):

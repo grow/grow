@@ -930,12 +930,12 @@ class Pod(object):
         path = self._normalize_path(pod_path)
         return self.storage.walk(path)
 
-    def write_file(self, pod_path, content):
+    def write_file(self, pod_path, content, use_temp_file=False):
         with self.profile.timer(
                 'Pod.write_file', label=pod_path, meta={'path': pod_path}):
             self.podcache.file_cache.remove(pod_path)
             path = self._normalize_path(pod_path)
-            self.storage.write(path, content)
+            self.storage.write(path, content, use_temp_file=use_temp_file)
 
     def write_yaml(self, path, content):
         with self.profile.timer(

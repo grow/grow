@@ -59,7 +59,7 @@ class BaseStorage(object):
         raise NotImplementedError
 
     @classmethod
-    def write(cls, path, content):
+    def write(cls, path, content, use_temp_file=False):
         file_obj = cls.open(path, mode='w')
         file_obj.write(content)
         return file_obj
