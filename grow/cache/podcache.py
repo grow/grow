@@ -1,6 +1,7 @@
 """Caching for pod meta information."""
 
 import json
+import os
 import tempfile
 from grow.cache import collection_cache
 from grow.cache import document_cache
@@ -107,8 +108,9 @@ class PodCache(object):
             obj, cls=json_encoder.GrowJSONEncoder,
             sort_keys=True, indent=2, separators=(',', ': '))
         _, temp_path = tempfile.mkstemp()
-        self._pod.write_file(temp_path, output)
-        self._pod.move_file_to(temp_path, path)
+        with open(temp_path, 'w') as fp:
+            fp.write(output)
+        os.rename(temp_path, self._pod.abs_path(path))
 
     def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None,
                             separate_file=False):
