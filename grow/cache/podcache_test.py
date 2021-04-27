@@ -1,14 +1,19 @@
 """Test the pod caching container."""
 
-import unittest
 from . import podcache
-
+from grow import storage
+from grow.pods import pods
+from grow.testing import testing
+import unittest
 
 class PodCacheTestCase(unittest.TestCase):
     """Tests the PodCache object."""
 
     def setUp(self):
+        dir_path = testing.create_test_pod_dir()
+        self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
         self.cache = podcache.PodCache({}, {}, {}, None)
+        self.cache._pod = self.pod
 
     def test_global_object_cache(self):
         """Using a global object cache."""
@@ -101,6 +106,11 @@ class PodCacheTestCase(unittest.TestCase):
         }, named_cache.export())
         self.cache.reset()
         self.assertEqual({}, named_cache.export())
+
+    def test_write_object_cache(self):
+        """Naive test for writing an object cache file."""
+        self.cache.object_cache.add('foo', 'bar')
+        self.cache.write()
 
 if __name__ == '__main__':
     unittest.main()
