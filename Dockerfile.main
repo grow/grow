@@ -1,7 +1,7 @@
 FROM ubuntu:focal
 MAINTAINER Grow SDK Authors <hello@grow.io>
 
-RUN echo "Grow: Main"
+RUN echo "Grow: main branch"
 
 # Set environment variables.
 ENV TERM=xterm

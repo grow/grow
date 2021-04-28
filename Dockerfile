@@ -40,6 +40,8 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/`curl -s https://api.g
   && yarn global add gulp \
   && yarn cache clean
 
+ENV NVM_DIR=~/.nvm
+
 # Install Grow.
 RUN pip3 install --no-cache-dir --upgrade wheel \
   && pip3 install --no-cache-dir grow==$grow_version
@@ -48,7 +50,9 @@ RUN pip3 install --no-cache-dir --upgrade wheel \
 RUN gem install bundler
 
 # Confirm versions that are installed.
-RUN echo "Grow: `grow --version`" \
+RUN . ~/.bashrc \
+  && echo "Grow: `grow --version`" \
+  && echo "Python: `python3 --version`" \
   && echo "Node: `node -v`" \
   && echo "NPM: `npm -v`" \
   && echo "NVM: `nvm --version`" \
