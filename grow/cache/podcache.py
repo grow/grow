@@ -107,7 +107,10 @@ class PodCache(object):
         output = json.dumps(
             obj, cls=json_encoder.GrowJSONEncoder,
             sort_keys=True, indent=2, separators=(',', ': '))
-        fd, temp_path = tempfile.mkstemp()
+        temp_dir = self._pod.abs_path('/.grow/tmp')
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+        fd, temp_path = tempfile.mkstemp(dir=temp_dir)
         with os.fdopen(fd, 'w') as fp:
             fp.write(output)
         real_path = self._pod.abs_path(path)
