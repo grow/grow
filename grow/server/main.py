@@ -4,9 +4,9 @@ import os
 from urllib import parse as url_parse
 from werkzeug import serving
 from werkzeug.middleware import shared_data
-from grow.common import config
 from grow.common import utils
 from grow.pods import errors
+from grow.sdk import sdk_utils
 from grow.server import handlers
 
 
@@ -15,7 +15,7 @@ class RequestHandler(serving.WSGIRequestHandler):
 
     @property
     def server_version(self):
-        return 'Grow/{}'.format(config.VERSION)
+        return 'Grow/{}'.format(sdk_utils.VERSION)
 
     def log(self, *args, **kwargs):
         pass

@@ -3,8 +3,8 @@
 import os
 import click
 from grow.commands import shared
-from grow.common import config
 from grow.pods import pods
+from grow.sdk import sdk_utils
 from grow.sdk import updater
 from grow import storage
 
@@ -21,7 +21,7 @@ def upgrade(pod_path):
             update_checker = updater.Updater(pod)
             if not update_checker.check_for_updates(force=True):
                 pod.logger.info(
-                    'No updates found. Running Grow v{}'.format(config.VERSION))
+                    'No updates found. Running Grow v{}'.format(sdk_utils.VERSION))
     except pods.Error as err:
         raise click.ClickException(str(err))
     return pod

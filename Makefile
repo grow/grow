@@ -115,19 +115,15 @@ prep-release:
 	$(MAKE) test
 
 upload-pypi:
-	# TODO: While on branch for python 3 this doesn't work.
-	# $(MAKE) ensure-master
-	# git pull origin master
-	# $(MAKE) prep-release
 	pipenv run python setup.py sdist bdist_wheel
 	pipenv run pip3 install urllib3[secure] --upgrade
 	pipenv run pip3 install twine --upgrade
 	pipenv run twine upload dist/grow-$(VERSION)*
 
-ensure-master:
-	@if [ `git rev-parse --abbrev-ref HEAD` != "master" ]; then \
-	  echo 'Releases must be uploaded from "master".'; \
+ensure-main:
+	@if [ `git rev-parse --abbrev-ref HEAD` != "main" ]; then \
+	  echo 'Releases must be uploaded from "main".'; \
 	  exit 1; \
 	fi
 
-.PHONY: develop develop-linux test test-ci test-nosetests upload-pypi upload-github ensure-master
+.PHONY: develop develop-linux test test-ci test-nosetests upload-pypi upload-github ensure-main
