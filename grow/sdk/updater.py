@@ -8,7 +8,6 @@ import sys
 import requests
 import semantic_version
 from grow.common import colors
-from grow.common import config
 from grow.common import rc_config
 from grow.common import utils
 from grow.sdk import sdk_utils
@@ -41,7 +40,7 @@ class Updater(object):
     @property
     def current_version(self):
         """Current version of grow."""
-        return config.VERSION
+        return sdk_utils.VERSION
 
     @utils.cached_property
     def latest_version(self):  # pylint: disable=no-self-use
