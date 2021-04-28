@@ -118,7 +118,7 @@ upload-pypi:
 	pipenv run python setup.py sdist bdist_wheel
 	pipenv run pip3 install urllib3[secure] --upgrade
 	pipenv run pip3 install twine --upgrade
-	# pipenv run twine upload dist/grow-$(VERSION)*
+	pipenv run twine upload dist/grow-$(VERSION)*
 
 ensure-main:
 	@if [ `git rev-parse --abbrev-ref HEAD` != "main" ]; then \
