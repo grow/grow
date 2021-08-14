@@ -21,7 +21,7 @@ logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 CLIENT_ID = '578372381550-jfl3hdlf1q5rgib94pqsctv1kgkflu1a.apps.googleusercontent.com'
 CLIENT_SECRET = 'XQKqbwTg88XVpaBNRcm_tYLf'  # Not so secret for installed apps.
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
-DEFAULT_STORAGE_KEY = 'Grow SDK'
+DEFAULT_STORAGE_KEY = 'Grow.dev'
 BROWSER_API_KEY = 'AIzaSyDCb_WtWJnlLPdL8IGLvcVhXAjaBHbRY5E'
 
 _LAST_LOGGED_EMAIL = None

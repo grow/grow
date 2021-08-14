@@ -28,7 +28,7 @@ from grow.preprocessors import base
 
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
-STORAGE_KEY = 'Grow SDK'
+STORAGE_KEY = 'Grow.dev'
 META_KEY = '$meta'
 DRAFT_KEY = '$draft'
 IGNORE_INITIAL = ('_', '#', '*')
@@ -43,7 +43,7 @@ class BaseGooglePreprocessor(base.BasePreprocessor):
     @staticmethod
     def create_service(api='drive', version='v2'):
         credentials = oauth.get_or_create_credentials(
-            scope=OAUTH_SCOPE, storage_key='Grow SDK')
+            scope=OAUTH_SCOPE, storage_key='Grow.dev')
         http = httplib2.Http()
         http = credentials.authorize(http)
         return discovery.build(api, version, http=http)

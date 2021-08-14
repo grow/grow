@@ -92,7 +92,7 @@ class Updater(object):
 
         if sem_latest.major > sem_current.major:
             logging.info('')
-            logging.info('  A new major version of the Grow SDK is available.')
+            logging.info('  A new major version of Grow.dev is available.')
             logging.info('  Major version changes can be backwards incompatible.')
             logging.info('  Please check the release notes for upgrade instructions.')
             logging.info('  Release notes: {}'.format(url))
@@ -102,7 +102,7 @@ class Updater(object):
             return
 
         logging.info('')
-        logging.info('  Please update to the newest version of the Grow SDK.')
+        logging.info('  Please update to the newest version of Grow.dev.')
         logging.info('  Release notes: {}'.format(url))
         logging.info('  Your version: {}, latest version: {}'.format(
             colors.stylize(str(sem_current), colors.EMPHASIS),
@@ -156,7 +156,7 @@ class Updater(object):
             grow_version_pattern = '{}-'.format(grow_version_pattern)
         spec_required = semantic_version.SimpleSpec(grow_version_pattern)
         if sem_current not in spec_required:
-            text = 'ERROR! Pod requires Grow SDK version: {}'.format(
+            text = 'ERROR! Pod requires Grow.dev version: {}'.format(
                 self.pod.grow_version)
             logging.error(colors.stylize(text, colors.ERROR))
             raise LatestVersionCheckError(text)

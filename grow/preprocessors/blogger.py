@@ -32,7 +32,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
         http = httplib2.Http()
         if authenticated:
             credentials = oauth.get_or_create_credentials(
-                scope=OAUTH_SCOPE, storage_key='Grow SDK')
+                scope=OAUTH_SCOPE, storage_key='Grow.dev')
             http = credentials.authorize(http)
         key = None if authenticated else oauth.BROWSER_API_KEY
         return discovery.build('blogger', 'v3', http=http, developerKey=key)

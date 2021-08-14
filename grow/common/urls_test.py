@@ -83,29 +83,29 @@ class UrlTest(unittest.TestCase):
 
     def test_scheme_and_port(self):
         """Scheme and port combinations."""
-        url = urls.Url('/', host='grow.io')
-        self.assertEqual('http://grow.io/', str(url))
+        url = urls.Url('/', host='grow.dev')
+        self.assertEqual('http://grow.dev/', str(url))
 
-        url = urls.Url('/', host='grow.io', scheme='https')
-        self.assertEqual('https://grow.io/', str(url))
+        url = urls.Url('/', host='grow.dev', scheme='https')
+        self.assertEqual('https://grow.dev/', str(url))
 
-        url = urls.Url('/', host='grow.io', port=8080)
-        self.assertEqual('http://grow.io:8080/', str(url))
+        url = urls.Url('/', host='grow.dev', port=8080)
+        self.assertEqual('http://grow.dev:8080/', str(url))
 
-        url = urls.Url('/', host='grow.io', port=8080, scheme='https')
-        self.assertEqual('https://grow.io:8080/', str(url))
+        url = urls.Url('/', host='grow.dev', port=8080, scheme='https')
+        self.assertEqual('https://grow.dev:8080/', str(url))
 
-        url = urls.Url('/', host='grow.io', port=443)
-        self.assertEqual('https://grow.io/', str(url))
+        url = urls.Url('/', host='grow.dev', port=443)
+        self.assertEqual('https://grow.dev/', str(url))
 
-        url = urls.Url('/', host='grow.io', port=80)
-        self.assertEqual('http://grow.io/', str(url))
+        url = urls.Url('/', host='grow.dev', port=80)
+        self.assertEqual('http://grow.dev/', str(url))
 
-        url = urls.Url('/', host='grow.io', scheme='http')
-        self.assertEqual('http://grow.io/', str(url))
+        url = urls.Url('/', host='grow.dev', scheme='http')
+        self.assertEqual('http://grow.dev/', str(url))
 
-        url = urls.Url('/', host='grow.io', scheme='http', port=443)
-        self.assertEqual('http://grow.io:443/', str(url))
+        url = urls.Url('/', host='grow.dev', scheme='http', port=443)
+        self.assertEqual('http://grow.dev:443/', str(url))
 
 
 if __name__ == '__main__':

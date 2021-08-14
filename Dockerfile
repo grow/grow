@@ -1,5 +1,5 @@
 FROM ubuntu:focal
-MAINTAINER Grow SDK Authors <hello@grow.io>
+MAINTAINER Grow.dev Authors <hello@grow.dev>
 
 ARG grow_version
 RUN echo "Grow: $grow_version"

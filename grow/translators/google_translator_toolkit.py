@@ -14,7 +14,7 @@ from . import base
 EDIT_URL_FORMAT = 'https://translate.google.com/toolkit/workbench?did={}'
 GTT_DOCUMENTS_BASE_URL = 'https://www.googleapis.com/gte/v1/documents'
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/gte'
-STORAGE_KEY = 'Grow SDK - Google Translator Toolkit'
+STORAGE_KEY = 'Grow.dev - Google Translator Toolkit'
 
 
 class AccessLevel(object):
