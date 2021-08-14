@@ -1,0 +1,30 @@
+name: Test
+on: push
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.7"
+    - run: |
+        pip3 install -U pip
+        pip3 install -U pipenv
+        pip3 install pyyaml -U --force
+        pipenv run pip3 install pip
+        pipenv install --dev
+        pipenv run pip3 install pyyaml -U --force
+    - uses: actions/cache@v1
+      with:
+        path: ~/.local/share/virtualenvs
+        key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+    - run: make build-ui
+    - run: make test-nosetests
+    - run: make test-pylint
+    - run: pipenv run codecov
+    - run: ./scripts/grow build ./grow/testing/testdata/pod
