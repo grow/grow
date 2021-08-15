@@ -6,7 +6,7 @@ from grow.sdk import sdk_utils
 from grow.deployments.destinations import local as local_destination
 
 HELP_TEXT = ('Grow is a declarative file-based website generator. Read docs at '
-             'https://grow.io. This is version {}.'.format(sdk_utils.VERSION))
+             'https://grow.dev. This is version {}.'.format(sdk_utils.VERSION))
 
 # pylint: disable=unused-argument
 @click.group(help=HELP_TEXT)

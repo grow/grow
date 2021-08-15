@@ -15,27 +15,27 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_clean_google_href(self):
         # Test without a match.
-        raw_input = '<a href="https://grow.io/">Link</a>'
-        expected = '<a href="https://grow.io/">Link</a>'
+        raw_input = '<a href="https://grow.dev/">Link</a>'
+        expected = '<a href="https://grow.dev/">Link</a>'
         actual = utils.clean_html(raw_input)
         self.assertEqual(expected, actual)
 
         # Test with ?q=
-        raw_input = '<a href="https://www.google.com/url?q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
-        expected = '<a href="https://grow.io/docs/">Google Search</a>'
+        raw_input = '<a href="https://www.google.com/url?q=https%3A%2F%2Fgrow.dev%2Fdocs%2F">Google Search</a>'
+        expected = '<a href="https://grow.dev/docs/">Google Search</a>'
         actual = utils.clean_html(raw_input)
         self.assertEqual(expected, actual)
 
         # Test with &q=
-        raw_input = '<a href="https://www.google.com/url?sa=t&q=https%3A%2F%2Fgrow.io%2Fdocs%2F">Google Search</a>'
-        expected = '<a href="https://grow.io/docs/">Google Search</a>'
+        raw_input = '<a href="https://www.google.com/url?sa=t&q=https%3A%2F%2Fgrow.dev%2Fdocs%2F">Google Search</a>'
+        expected = '<a href="https://grow.dev/docs/">Google Search</a>'
         actual = utils.clean_html(raw_input)
         self.assertEqual(expected, actual)
 
     def test_clean_html_markdown(self):
         # Test without a match.
-        raw_input = '<a href="https://grow.io/">Link</a>'
-        expected = '[Link](https://grow.io/)'
+        raw_input = '<a href="https://grow.dev/">Link</a>'
+        expected = '[Link](https://grow.dev/)'
         actual = utils.clean_html(raw_input, convert_to_markdown=True)
         self.assertEqual(expected, actual)
 
@@ -176,13 +176,13 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_process_google_comments(self):
         # Google comment link.
-        raw = '<div><a id="cmnt" href="https://grow.io/">Link</a></div>'
+        raw = '<div><a id="cmnt" href="https://grow.dev/">Link</a></div>'
         expected = ''
         actual = utils.clean_html(raw)
         self.assertEqual(expected, actual)
 
         # Google footnote link.
-        raw = '<sup><a id="ftnt" href="https://grow.io/">Link</a></sup>'
+        raw = '<sup><a id="ftnt" href="https://grow.dev/">Link</a></sup>'
         expected = ''
         actual = utils.clean_html(raw)
         self.assertEqual(expected, actual)

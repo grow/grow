@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-"""Standalone Grow SDK installer. Downloads Grow SDK and sets up command aliases."""
+"""Standalone Grow.dev installer. Downloads Grow.dev and sets up command aliases."""
 
 import argparse
 import datetime
@@ -121,12 +121,12 @@ def install(rc_path=None, bin_path=None, force=False):
 
     bin_path = os.path.expanduser(bin_path or BIN_PATH)
     bin_dir = os.path.dirname(bin_path)
-    rc_comment = '# Added by Grow SDK Installer ({})'.format(
+    rc_comment = '# Added by Grow.dev Installer ({})'.format(
         datetime.datetime.now())
     rc_path = os.path.expanduser(rc_path or get_rc_path())
     rc_path_append = 'export PATH={}:$PATH'.format(bin_dir)
 
-    hai('{yellow}Welcome to the installer for Grow SDK v{}{/yellow}', version)
+    hai('{yellow}Welcome to the installer for Grow.dev v{}{/yellow}', version)
     hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/{}', version)
     hai('{yellow}[ ]{/yellow} {green}This script will install:{/green} {}', bin_path)
 
@@ -179,10 +179,10 @@ def install(rc_path=None, bin_path=None, force=False):
                 if 'Text file busy' in str(e):
                     hai('Unable to overwrite {}. Try closing Grow and installing again.'.format(
                         bin_path))
-                    hai('You can use the installer by running: curl https://install.grow.io | bash')
+                    hai('You can use the installer by running: curl https://install.grow.dev | bash')
                     sys.exit(-1)
                 raise
-        hai('{green}[✓] Installed Grow SDK to:{/green} {}', bin_path)
+        hai('{green}[✓] Installed Grow.dev to:{/green} {}', bin_path)
         stat = os.stat(bin_path)
         os.chmod(bin_path, stat.st_mode | 0o111)
     finally:

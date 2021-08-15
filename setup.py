@@ -1,4 +1,4 @@
-"""Grow Setup."""
+"""Grow.dev setup."""
 
 import re
 from setuptools import find_packages
@@ -35,11 +35,11 @@ setup(
         'site generator for rapid, high-quality web site production.'
     ),
     long_description=open('description.txt').read().strip(),
-    url='https://grow.io',
+    url='https://grow.dev',
     zip_safe=False,
     license='MIT',
-    author='Grow SDK Authors',
-    author_email='code@grow.io',
+    author='Grow.dev Authors',
+    author_email='code@grow.dev',
     include_package_data=True,
     packages=find_packages(exclude=[
         'lib*',

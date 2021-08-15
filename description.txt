@@ -1,5 +1,5 @@
 Grow is a fresh, declarative, file-based static site generator for rapid
-microsite production. Learn more at https://grow.io.
+microsite production. Learn more at https://grow.dev.
 
 Key features:
 
