@@ -27,4 +27,6 @@ jobs:
     - run: make test-nosetests
     - run: make test-pylint
     - run: pipenv run codecov
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - run: ./scripts/grow build ./grow/testing/testdata/pod

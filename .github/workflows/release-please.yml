@@ -1,0 +1,38 @@
+name: 'Release Please'
+on:
+  push:
+    branches:
+      - main
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: GoogleCloudPlatform/release-please-action@v2
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: python
+          package-name: test-release-please
+      - if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v2
+      - if: ${{ steps.release.outputs.release_created }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.7"
+      - if: ${{ steps.release.outputs.release_created }}
+        run: |
+          pip3 install -U pip
+          pip3 install -U pipenv
+          pip3 install pyyaml -U --force
+          pipenv run pip3 install pip
+          pipenv install --dev
+          pipenv run pip3 install pyyaml -U --force
+      - if: ${{ steps.release.outputs.release_created }}
+        run: make build-ui
+      - if: ${{ steps.release.outputs.release_created }}
+        run: pipenv run python setup.py sdist bdist_wheel
+      - if: ${{ steps.release.outputs.release_created }}
+        run: pipenv run twine upload dist/grow-$(<grow/VERSION)*
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
