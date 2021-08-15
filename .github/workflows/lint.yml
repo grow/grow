@@ -1,11 +1,8 @@
-name: Test
+name: Lint
 on: push
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest]
+  lint:
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
     - uses: actions/checkout@v2
@@ -23,9 +20,4 @@ jobs:
       with:
         path: ~/.local/share/virtualenvs
         key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
-    - run: make build-ui
-    - run: make test-nosetests
-    - run: pipenv run codecov
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    - run: ./scripts/grow build ./grow/testing/testdata/pod
+    - run: make test-pylint
