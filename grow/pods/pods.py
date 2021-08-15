@@ -23,8 +23,6 @@ from grow.common import logger
 from grow.common import progressbar_non
 from grow.common import untag
 from grow.common import utils
-from grow.documents import document
-from grow.documents import document_fields
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
 from grow.extensions import extension_importer
@@ -39,7 +37,6 @@ from grow.rendering import render_pool as grow_render_pool
 from grow.routing import path_filter as grow_path_filter
 from grow.routing import path_format as grow_path_format
 from grow.routing import router as grow_router
-from grow.sdk import updater
 from grow.templates import filters
 from grow.templates import jinja_dependency
 from grow.templates import tags
@@ -48,7 +45,6 @@ from grow.translations import locales
 from grow.translations import translation_stats
 from grow.translators import translators
 from . import env as environment
-from . import messages
 from . import podspec
 
 
@@ -133,13 +129,6 @@ class Pod(object):
 
         # Load extensions, ignore local extensions during install.
         self._load_extensions(load_extensions)
-
-
-        try:
-            update_checker = updater.Updater(self)
-            update_checker.verify_required_version()
-        except PodDoesNotExistError:
-            pass  # Pod doesn't exist yet, simply pass.
 
     def __ne__(self, other):
         return not self.__eq__(other)

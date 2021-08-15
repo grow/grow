@@ -10,7 +10,6 @@ from grow.common import colors
 from grow.common import timer
 from grow.documents import document
 from grow.preprocessors import file_watchers
-from grow.sdk import updater
 from grow.server import main as main_lib
 from werkzeug import serving
 
@@ -39,12 +38,6 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
             start_browser_in_thread(url)
             for extra_url in extra_urls:
                 start_browser_in_thread(extra_url)
-        if self.update_check:
-            update_checker = updater.Updater(self.pod)
-            check_func = update_checker.check_for_updates
-            thread = threading.Thread(target=check_func, args=(True,))
-            thread.start()
-
 
 class ServerMessages:
     """Simple server messages."""
