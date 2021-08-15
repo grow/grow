@@ -6,7 +6,6 @@ import mock
 import semantic_version
 from grow.testing import testing
 from grow.sdk import sdk_utils
-from grow.sdk import updater
 from grow.pods import errors
 from . import utils
 
@@ -224,14 +223,6 @@ class UtilsTestCase(unittest.TestCase):
         utils.validate_name('you/shall/pass')
         utils.validate_name('./you/shall/pass')
         utils.validate_name('\xbe4/\xb05/\xb93')
-
-    def test_version_enforcement(self):
-        with mock.patch('grow.pods.pods.Pod.grow_version',
-                        new_callable=mock.PropertyMock) as mock_version:
-            gt_version = '>{0}'.format(semantic_version.Version(sdk_utils.VERSION))
-            mock_version.return_value = gt_version
-            with self.assertRaises(updater.LatestVersionCheckError):
-                _ = testing.create_test_pod()
 
     def test_walk(self):
         data = {
