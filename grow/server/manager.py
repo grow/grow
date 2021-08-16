@@ -27,9 +27,11 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
         with timer.Timer() as router_time:
             try:
                 self.pod.router.add_all(concrete=False)
-            except bulk_errors.BulkErrors as err:
-                bulk_errors.display_bulk_errors(err)
-                sys.exit(-1)
+            except Exception:
+                logging.exception('Error encountered starting server.')
+                # Do not exit the process here; the server should remain active
+                # so the developer can fix any issues related to the router,
+                # without needing to manually restart the server.
         self.pod.logger.info('{} routes built in {:.3f} s'.format(
             len(self.pod.router.routes), router_time.secs))
 
