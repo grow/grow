@@ -18,7 +18,6 @@ with open('Pipfile') as pipfile:
             if line.startswith('['):
                 in_dep_section = False
                 continue
-
             line_match = DEP_RE.match(line)
             if line_match:
                 INSTALL_REQ.append(
@@ -47,9 +46,10 @@ setup(
     ]),
     install_requires=INSTALL_REQ,
     python_requires='>=3.3',
-    scripts=[
-        'bin/grow',
-    ],
+    entry_points="""
+        [console_scripts]
+        grow=grow.cli:main
+    """,
     keywords=[
         'grow',
         'cms',

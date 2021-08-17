@@ -28,7 +28,7 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
             try:
                 self.pod.router.add_all(concrete=False)
             except Exception:
-                logging.exception('Error encountered starting server.')
+                self.pod.logger.exception('Error encountered starting server.')
                 # Do not exit the process here; the server should remain active
                 # so the developer can fix any issues related to the router,
                 # without needing to manually restart the server.
@@ -120,13 +120,11 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
                 # Clean up the file watchers.
                 main_observer.stop()
                 podspec_observer.stop()
-
                 raise e
         finally:
             if done:
                 if pod.podcache.is_dirty:
                     pod.podcache.write()
-
                 # Clean up the file watchers.
                 main_observer.stop()
                 podspec_observer.stop()
