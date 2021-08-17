@@ -1,16 +1,18 @@
 """Base command for grow."""
 
-import os
-import click
-from grow.sdk import sdk_utils
 from grow.deployments.destinations import local as local_destination
+import click
+import os
+import pkg_resources
+
+version = pkg_resources.get_distribution('grow').version
 
 HELP_TEXT = ('Grow is a declarative file-based website generator. Read docs at '
-             'https://grow.dev')
+             'https://grow.dev. This is version {}.'.format(version))
 
 # pylint: disable=unused-argument
 @click.group(help=HELP_TEXT)
-@click.version_option()
+@click.version_option(prog_name='grow', version=version)
 @click.option('--auth', help='Information used to sign in to services that'
               ' require authentication. --auth should be an email address.',
               envvar='GROW_AUTH')

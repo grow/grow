@@ -12,7 +12,9 @@ make develop
 Once your development environment is set up, run Grow:
 
 ```bash
-./scripts/grow
+pipenv shell
+pip install --editable .
+grow
 ```
 
 Then run tests:
