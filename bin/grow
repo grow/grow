@@ -30,14 +30,8 @@ sys.path.extend(
 
 # Quickly show version when flag exists.
 if '--version' in sys.argv:
-    try:
-        import importlib.resources as pkg_resources
-    except ImportError:
-        # Try backported to PY<37 `importlib_resources`.
-        import importlib_resources as pkg_resources
-
-    VERSION = pkg_resources.read_text('grow', 'VERSION')
-    print(VERSION.strip())
+    from importlib.metadata import version
+    print version('grow').strip()
     sys.exit(0)
 
 from grow import commands

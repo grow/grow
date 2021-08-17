@@ -29,7 +29,7 @@ with open('Pipfile') as pipfile:
 
 setup(
     name='grow',
-    version=open('grow/VERSION').read().strip(),
+    version='1.0.4',
     description=(
         'Develop everywhere and deploy anywhere: a declarative '
         'site generator for rapid, high-quality web site production.'

@@ -2,9 +2,6 @@ APT_GET := $(shell command -v apt-get 2> /dev/null)
 BREW := $(shell command -v brew 2> /dev/null)
 
 PLATFORM = $(shell uname -s | sed -e 's/Darwin/Mac/')
-VERSION = $(shell cat grow/VERSION)
-FILENAME = Grow-SDK-$(PLATFORM)-$(VERSION).zip
-FILENAME_CI = Grow-SDK-$(subst osx,Mac,$(subst linux,Linux,$(TRAVIS_OS_NAME)))-$(TRAVIS_TAG).zip
 
 GITHUB_USER = grow
 GITHUB_REPO = grow
@@ -118,7 +115,7 @@ upload-pypi:
 	pipenv run python setup.py sdist bdist_wheel
 	pipenv run pip3 install urllib3[secure] --upgrade
 	pipenv run pip3 install twine --upgrade
-	pipenv run twine upload dist/grow-$(VERSION)*
+	pipenv run twine upload dist/grow*
 
 ensure-main:
 	@if [ `git rev-parse --abbrev-ref HEAD` != "main" ]; then \

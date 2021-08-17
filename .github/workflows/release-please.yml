@@ -32,7 +32,7 @@ jobs:
       - if: ${{ steps.release.outputs.release_created }}
         run: pipenv run python setup.py sdist bdist_wheel
       - if: ${{ steps.release.outputs.release_created }}
-        run: pipenv run twine upload dist/grow-$(<grow/VERSION)*
+        run: pipenv run twine upload dist/grow*
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
