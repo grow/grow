@@ -2,6 +2,7 @@
 
 import os
 from urllib import parse as url_parse
+from importlib.metadata import version
 from werkzeug import serving
 from werkzeug.middleware import shared_data
 from grow.common import utils
@@ -15,7 +16,7 @@ class RequestHandler(serving.WSGIRequestHandler):
 
     @property
     def server_version(self):
-        return 'Grow/{}'.format(sdk_utils.VERSION)
+        return 'Grow/{}'.format(version('grow'))
 
     def log(self, *args, **kwargs):
         pass
