@@ -1,5 +1,18 @@
 # Changelog
 
+### [2.0.1](https://www.github.com/grow/grow/compare/v2.0.0...v2.0.1) (2021-08-18)
+
+
+### Bug Fixes
+
+* import path for extensions ([391b75e](https://www.github.com/grow/grow/commit/391b75e75621fb5dc76507fe113d263697de45fd))
+* markdown dependency ([01e3c5b](https://www.github.com/grow/grow/commit/01e3c5b7d979e2b923b42f48518d0240c3daab1f))
+
+
+### Documentation
+
+* update readme ([976da63](https://www.github.com/grow/grow/commit/976da63a1d6a2fe7041626412dc71da680e5a805))
+
 ## [2.0.0](https://www.github.com/grow/grow/compare/v1.0.4...v2.0.0) (2021-08-18)
 
 
