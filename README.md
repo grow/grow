@@ -1,8 +1,8 @@
-# Grow
+# Grow.dev
 
-[![Circle CI](https://circleci.com/gh/grow/grow.png?style=shield)](https://circleci.com/gh/grow/grow)
-[![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases)
 [![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
+[![GitHub Actions][github-image]][github-url]
+[![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases)
 [![Code Coverage](https://codecov.io/gh/grow/grow/branch/master/graph/badge.svg)](https://codecov.io/gh/grow/grow)
 
 Grow is a declarative tool for rapidly building, launching, and maintaining high-quality static HTML.
@@ -46,3 +46,6 @@ pipenv run grow run
 ## Documentation
 
 Visit https://grow.dev to read the documentation.
+
+[github-image]: https://github.com/grow/grow/workflows/Test/badge.svg
+[github-url]: https://github.com/grow/grow/actions
