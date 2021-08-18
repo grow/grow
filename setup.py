@@ -28,7 +28,7 @@ with open('Pipfile') as pipfile:
 
 setup(
     name='grow',
-    version='2.0.0',
+    version='2.0.1',
     description=(
         'Develop everywhere and deploy anywhere: a declarative '
         'site generator for rapid, high-quality web site production.'
