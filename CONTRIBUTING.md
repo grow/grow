@@ -32,9 +32,17 @@ make develop-linux
 make test
 ```
 
-## Releasing
+## Commit messages
 
-- Send all changes as PRs. PRs are used to generate release notes.
-- Increment `grow/VERSION` and `package.json` in one commit.
-- Create and push the tag.
-- Run `./docker_push.sh` to update docker images.
+[Release Please](https://github.com/googleapis/release-please) is used to
+automatically create changelogs, releases, and versions.
+
+- Commit messages must follow the [Conventional
+  Commit](https://www.conventionalcommits.org/en/v1.0.0/) specification
+- Follow the [Angular
+  convention](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#type)
+  to see all commit types
+
+## Docker
+
+- Run `pipenv run ./docker_push.sh` to update docker images.
