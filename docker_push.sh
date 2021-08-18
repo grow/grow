@@ -2,7 +2,7 @@
 set -e
 
 # Also needs to be updated in Dockerfile when changed.
-GROW_VERSION=`cat grow/VERSION`
+GROW_VERSION=`python -c "import pkg_resources;print(pkg_resources.get_distribution('grow').version)"`
 
 if [ "$1" == "gcr.io" ]; then
   echo "Building and Pushing Grow $GROW_VERSION to gcr.io"
