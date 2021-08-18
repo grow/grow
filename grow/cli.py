@@ -1,5 +1,9 @@
+# NOTE: This is needed so extensions can import `grow` packages.
 import logging
+import os
 import sys
+sys.path.extend(
+    [os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..')])
 
 from grow import commands
 from grow.commands import group
