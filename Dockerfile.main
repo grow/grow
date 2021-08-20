@@ -1,5 +1,4 @@
 FROM ubuntu:focal
-MAINTAINER Grow.dev Authors <hello@grow.dev>
 
 RUN echo "Grow: main branch"
 

@@ -20,6 +20,7 @@ jobs:
         with:
           python-version: "3.7"
       - if: ${{ steps.release.outputs.release_created }}
+        name: Install
         run: |
           pip3 install -U pip
           pip3 install -U pipenv
@@ -28,15 +29,31 @@ jobs:
           pipenv install --dev
           pipenv run pip3 install pyyaml -U --force
       - if: ${{ steps.release.outputs.release_created }}
+        name: Build UI assets
         run: |
           make build-ui
       - if: ${{ steps.release.outputs.release_created }}
+        name: Build package
         run: |
           rm -rf dist
           pipenv run python setup.py sdist bdist_wheel
       - if: ${{ steps.release.outputs.release_created }}
+        name: Upload to PyPi
         run: |
           pipenv run twine upload dist/grow*
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      - if: ${{ steps.release.outputs.release_created }}
+        name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - if: ${{ steps.release.outputs.release_created }}
+        name: Configure Docker
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      - if: ${{ steps.release.outputs.release_created }}
+        name: Push to Docker Hub
+        run: |
+          pipenv run ./docker_push.sh
