@@ -64,8 +64,12 @@ class ServerMessages:
 
 
 def print_server_ready_message(pod, host, port):
-    home_doc = pod.get_home_doc()
-    root_path = home_doc.url.path if home_doc and home_doc.exists else '/'
+    try:
+        home_doc = pod.get_home_doc()
+        root_path = home_doc.url.path if home_doc and home_doc.exists else '/'
+    except:
+        root_path = '/'
+        pod.logger.exception('Failed to determine root URL path.')
     url_base = 'http://{}:{}/'.format(host, port)
     url_root = 'http://{}:{}{}'.format(host, port, root_path)
 
