@@ -57,12 +57,20 @@ jobs:
         with:
           images: grow/base
       - if: ${{ steps.release.outputs.release_created }}
-        name: Configure Docker
+        name: Push grow/base:main
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            grow_version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          build-args: grow_version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+      - if: ${{ steps.release.outputs.release_created }}
+        name: Push grow/base:VERSION
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: grow/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: grow_version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
