@@ -68,9 +68,6 @@ def serve_exception(pod, request, exc, **_kwargs):
         'status': status,
         'traceback': formatted_traceback,
     }
-    home_doc = pod.get_home_doc()
-    if home_doc and home_doc.exists:
-        kwargs['home_url'] = home_doc.url.path
     if (isinstance(exc, errors.BuildError)):
         kwargs['build_error'] = exc.exception
     if (isinstance(exc, errors.BuildError)
