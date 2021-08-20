@@ -4,16 +4,17 @@
   "description": "Grow UI",
   "private": true,
   "dependencies": {
-    "babel-loader": "^8.0.6",
+    "babel-loader": "^8.2.2",
     "babili-webpack-plugin": "^0.1.2",
     "deep-extend": "^0.6.0",
     "fs-readdir-recursive": "^1.1.0",
     "gulp": "^4.0.2",
-    "gulp-autoprefixer": "^7.0.0",
-    "gulp-rename": "^1.4.0",
-    "gulp-sass": "^4.0.2",
-    "webpack": "^4.32.2",
-    "webpack-stream": "^5.2.1"
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-dart-sass": "^1.0.2",
+    "npm-check-updates": "^11.8.3",
+    "webpack": "^5.51.1",
+    "webpack-stream": "^6.1.2"
   },
   "browserslist": [
     "last 1 version",

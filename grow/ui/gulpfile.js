@@ -12,7 +12,7 @@ const gulpAutoprefixer = require('gulp-autoprefixer');
 const path = require('path');
 const readdirRecursive = require('fs-readdir-recursive');
 const rename = require('gulp-rename');
-const sass = require('gulp-sass');
+const sass = require('gulp-dart-sass');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 
