@@ -51,9 +51,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - if: ${{ steps.release.outputs.release_created }}
-        name: Configure Docker
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        name: Extract metadata (tags, labels) for Docker
+        uses: docker/metadata-action@v3
+        id: meta
+        with:
+          images: grow/base
       - if: ${{ steps.release.outputs.release_created }}
-        name: Push to Docker Hub
-        run: |
-          pipenv run ./docker_push.sh
+        name: Configure Docker
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            grow_version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
