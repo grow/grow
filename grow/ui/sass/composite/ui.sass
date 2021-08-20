@@ -1,3 +1,4 @@
+@use "sass:math"
 @import '../_config'
 @import url('https://fonts.googleapis.com/css?family=Roboto')
 
@@ -59,23 +60,23 @@ $transition_medium: 1000ms
 
       &:nth-child(0n+2)
         right: 0
-        top: $icon_size_large / 2 + $icon_size_tiny / 2 + $button_offset
+        top: math.div($icon_size_large, 2) + math.div($icon_size_tiny, 2) + $button_offset
 
       @for $i from 1 through $icon_count + 1
         &:nth-child(0n+#{$i+2})
-          top: $icon_size_small * $i + $button_offset * ($i + 1) + $icon_size_tiny + ($icon_size_large - $icon_size_small) / 2
+          top: $icon_size_small * $i + $button_offset * ($i + 1) + $icon_size_tiny + math.div(($icon_size_large - $icon_size_small), 2)
 
     .grow__icon
       background-color: $color-secondary
       background-position: center
       background-repeat: no-repeat
-      background-size: $icon_size_small/2
+      background-size: math.div($icon_size_small, 2)
       border-radius: 100%
       box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)
       color: $color-on-secondary
       display: block
       height: $icon_size_small
-      margin-right: ($icon_size_large - $icon_size_small) / 2
+      margin-right: math.div(($icon_size_large - $icon_size_small), 2)
       transition: box-shadow $transition_fast ease-in-out
       width: $icon_size_small
       z-index: 10000
@@ -100,7 +101,7 @@ $transition_medium: 1000ms
         background-size: $icon_size_tiny
         background-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTkgNi40MUwxNy41OSA1IDEyIDEwLjU5IDYuNDEgNSA1IDYuNDEgMTAuNTkgMTIgNSAxNy41OSA2LjQxIDE5IDEyIDEzLjQxIDE3LjU5IDE5IDE5IDE3LjU5IDEzLjQxIDEyeiIvPjwvc3ZnPg==)
         height: $icon_size_tiny
-        margin-right: ($icon_size_large - $icon_size_tiny) / 2
+        margin-right: math.div(($icon_size_large - $icon_size_tiny), 2)
         width: $icon_size_tiny
 
       &.grow__icon_edit
@@ -119,8 +120,8 @@ $transition_medium: 1000ms
         top: 0
 
       .grow__button:nth-child(0n+2)
-        top: $icon_size_large / 2 + $icon_size_tiny / 2 + $button_offset
-        right: $icon_size_large / 2 + $icon_size_tiny / 2 + $button_offset
+        top: math.div($icon_size_large, 2) + math.div($icon_size_tiny, 2) + $button_offset
+        right: math.div($icon_size_large, 2) + math.div($icon_size_tiny, 2) + $button_offset
 
     &.grow__expand
       .grow__label
