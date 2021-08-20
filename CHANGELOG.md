@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.0.4](https://www.github.com/grow/grow/compare/v2.0.3...v2.0.4) (2021-08-20)
+
+
+### Miscellaneous Chores
+
+* release 2.0.4 ([d539fe3](https://www.github.com/grow/grow/commit/d539fe3422189738c3e697166046039a8513f452))
+
 ### [2.0.3](https://www.github.com/grow/grow/compare/v2.0.2...v2.0.3) (2021-08-20)
 
 
