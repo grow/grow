@@ -12,7 +12,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: python
-          package-name: test-release-please
       - if: ${{ steps.release.outputs.release_created }}
         uses: actions/checkout@v2
       - if: ${{ steps.release.outputs.release_created }}
