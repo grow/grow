@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABhQTFRFdHR0UFBQwsLCnZ2dCQkJ7+/vhoaG////U3R9JgAAAAh0Uk5T/////////wDeg71ZAAABrElEQVR42tyXgZKEIAiGwdR7/zc+QDT1FK3m2pmlbdtKPn/AtIUfww5HG5nVBqyb6n8f8FkF0nsmGBCweqftPiB5F//bCq4BgKyOP5A514YRIcISkHsfAcg/bihICXhXAZKBWo4/AzIEEJAV1CoaQCbk3nsArgArBeQP6h9NBfMQLICvFaQQ+Lcnq3MAOyFQazcCkD9GKwRqj5YC3K1CzsEohDnA1yG4g485iQy5XIURwK4CbihYVUEIaCkAowqDcXD5WYDvexZGOYC9+WAawrVn4XIS8dGUpjlgDjv0gEi2VYUFYDkO0AIsH6ZE8DdD8Fh6nwHEzCoUQJgC7BAeKvAaf7AApgJX2VSBUh4BplXQ/Mn+voLeYQbI5wYgPAXYOdgDXFUQOpsBXGf/CAhvKqgbj8wZJoPqCwDyck2GtfHy1k8ksmydG18rVegB3PQPQPzOzwjgdZfZuwfgvgJZ48rceIbQSmgAsqDGeIhDWkSBDpGHZKjeTvjIF9J5+nOSvuiu3KReZRWGci5C9BrEpg1Cq+CkR1VwOJUwVoAjBaG8B2RFdY+dSvH9FWAAf6hAHY0fB5IAAAAASUVORK5CYII=">
-<title>Error!!1</title>
+<title>Something went wrong</title>
 <style>
   .hidden {
     display: none;
@@ -26,10 +26,8 @@
     background: linear-gradient(rgba(255,255,255,0.3),rgba(255,255,255,0));
     background-color: #e8ebef;
     background-repeat: no-repeat;
-    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: 15px;
-    -webkit-font-smoothing: antialiased;
-    font-weight: 200;
   }
   .aside {
     font-size: 12px;
@@ -42,7 +40,6 @@
     padding: 0;
   }
   h1 {
-    font-weight: 200;
     font-size: 30px;
     margin-bottom: 0;
   }
@@ -59,18 +56,22 @@
   pre {
     background: #fff;
     color: #333;
+    font-family: monospace;
     font-size: 14px;
-    margin: 0;
-    padding: 40px;
-    border-bottom: 1px solid #ddd;
+    line-height: 18px;
+    margin: 0 40px;
+    border-radius: 20px;
+    padding: 30px;
+    word-break: break-word;
+    display: inline-block;
   }
   .footnotes {
     padding: 20px 40px;
     max-width: 650px;
   }
   .traceback {
-    border-top: 1px solid #ddd;
     margin-top: 10px;
+    margin-bottom: 20px;
     font-size: 13px;
     overflow: auto;
     word-wrap: break-word;
@@ -91,17 +92,18 @@
   }
   header {
     padding: 40px;
-    border-bottom: 1px solid #ddd;
     position: relative;
   }
 </style>
 <body>
 <header>
-<a class="aside" href="/_grow">{{pod.root}}</a>
+<a class="aside" href="/_grow">Pod: {{pod.root}}</a>
 
-<img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCA2NS44IDc3IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA2NS44IDc3OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0KCS5zdDB7ZmlsbDojRkZGRkZGO30NCgkuc3Qxe2ZpbGw6I0M2QzZDNTt9DQoJLnN0MntmaWxsOiNDNEM0QzM7fQ0KCS5zdDN7ZmlsbDpub25lO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjEwO30NCjwvc3R5bGU+DQo8Zz4NCgk8Zz4NCgkJPGc+DQoJCQk8Zz4NCgkJCQk8cG9seWdvbiBjbGFzcz0ic3QwIiBwb2ludHM9IjEuOCw3My4xIDEuOCwxNC45IDE0LjksMS43IDYxLjgsMS43IDYxLjgsNzMuMSAJCQkJIi8+DQoJCQkJPHBhdGggY2xhc3M9InN0MSIgZD0iTTYxLjUsMnY3MC45SDJWMTVMMTUsMkg2MS41IE02MiwxLjVoLTAuNUgxNWgtMC4ybC0wLjEsMC4xbC0xMywxM2wtMC4xLDAuMVYxNXY1Ny44djAuNUgyaDU5LjVINjJ2LTAuNVYyDQoJCQkJCVYxLjVMNjIsMS41eiIvPg0KCQkJPC9nPg0KCQk8L2c+DQoJPC9nPg0KCTxwb2x5Z29uIGNsYXNzPSJzdDIiIHBvaW50cz0iMTUsMiAyLDE1IDE1LDE1IAkiLz4NCgk8Y2lyY2xlIGN4PSIxOS44IiBjeT0iMjguNCIgcj0iMy41Ii8+DQoJPGNpcmNsZSBjeD0iNDMuOCIgY3k9IjI4LjQiIHI9IjMuNSIvPg0KCTxwYXRoIGNsYXNzPSJzdDMiIGQ9Ik00Ny4zLDQ4Yy0xLjctNS44LTcuNi0xMC4xLTE0LjYtMTAuMVMxOS44LDQyLjIsMTguMSw0OCIvPg0KPC9nPg0KPC9zdmc+DQo=" class="sad">
+<div class="sad">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36.7 47.42"><polygon points="36.7 47.42 0 47.42 0 11.46 11.46 0 36.7 0 36.7 47.42" style="fill:#ffffff"/><polygon points="11.46 0 11.46 11.46 0 11.46 11.46 0" style="fill:#c4c4c3"/><circle cx="11.75" cy="18.3" r="1.92"/><circle cx="24.95" cy="18.3" r="1.92"/><path d="M26.87,29.08a8.2,8.2,0,0,0-8-5.55,8.21,8.21,0,0,0-8,5.55" style="fill:none;stroke:#000;stroke-linecap:round;stroke-miterlimit:10;stroke-width:2px"/></svg>
+</div>
 
-<h1>Something went wrong while building this page.</h1>
+<h1>Something went wrong</h1>
 </header>
 <div class="exception">
   {% if build_error %}
@@ -133,7 +135,7 @@
     <li>Check the view, document, blueprint, or podspec for syntax errors.
   </ul>
   {% if not is_web_exception %}
-  <a href="javascript:document.getElementById('traceback').classList.toggle('hidden')">Traceback<i></i></a>
+  <a href="javascript:document.getElementById('traceback').classList.toggle('hidden')">Show traceback<i></i></a>
   {% endif %}
 {% endif %}
 </div>
