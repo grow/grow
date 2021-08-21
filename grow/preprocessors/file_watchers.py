@@ -8,6 +8,7 @@ from . import translation
 
 
 IGNORED_PATTERNS = [
+    '*{sep}extensions{sep}*'.format(sep=os.sep),
     '*{sep}node_modules{sep}*'.format(sep=os.sep),
     '*{sep}build{sep}*'.format(sep=os.sep),
 ]
