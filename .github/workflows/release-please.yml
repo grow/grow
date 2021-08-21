@@ -76,8 +76,8 @@ jobs:
         run: gcloud auth configure-docker
       - if: ${{ steps.release.outputs.release_created }}
         run: |
-          docker build
-            --build-arg grow_version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          docker build \
+            --build-arg grow_version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }} \
             -t gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:main \
             -t gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:latest \
             -t gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }} \
@@ -85,7 +85,7 @@ jobs:
       - if: ${{ steps.release.outputs.release_created }}
         name: Push to GCR
         run: |
-          docker push
+          docker push \
             -t gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:main \
             -t gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:latest \
             -t gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }} \
