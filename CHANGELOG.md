@@ -1,5 +1,14 @@
 # Changelog
 
+### [2.0.5](https://www.github.com/grow/grow/compare/v2.0.4...v2.0.5) (2021-08-21)
+
+
+### Bug Fixes
+
+* ignore extensions in file watchers ([0ecc2f1](https://www.github.com/grow/grow/commit/0ecc2f116bd13685481baa7acb33ed9161556342))
+* release package name ([d225edd](https://www.github.com/grow/grow/commit/d225edd3ad7df96df6b05491f032c5caf9fc7e9c))
+* remove logic from error handler to increase fault tolerance ([eb3944f](https://www.github.com/grow/grow/commit/eb3944f204116d83861462229a0bc353487902e0))
+
 ### [2.0.4](https://www.github.com/grow/grow/compare/v2.0.3...v2.0.4) (2021-08-20)
 
 
