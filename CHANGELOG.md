@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.0.6](https://www.github.com/grow/grow/compare/v2.0.5...v2.0.6) (2021-09-06)
+
+
+### Bug Fixes
+
+* add /ext/ to sys.path for importing from local dirs [#1179](https://www.github.com/grow/grow/issues/1179) ([3e1ef7e](https://www.github.com/grow/grow/commit/3e1ef7e9227e2b4241c2a6886d4dc9ab016627dc))
+
 ### [2.0.5](https://www.github.com/grow/grow/compare/v2.0.4...v2.0.5) (2021-08-21)
 
 
