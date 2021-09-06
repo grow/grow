@@ -71,9 +71,8 @@ def goodbye_pods():
 
 class Pod(object):
     """Grow pod."""
-    # TODO(jeremydw): A handful of the properties of "pod" should be moved to the
-    # "podspec" class.
-    DEFAULT_EXTENSIONS_DIR_NAME = 'extensions'
+    INSTALLED_EXTENSIONS_DIR_PATH = 'extensions'
+    LOCAL_EXTENSIONS_DIR_PATH = 'ext'
     FEATURE_UI = 'ui'
     FEATURE_TRANSLATION_STATS = 'translation_stats'
     FEATURE_OLD_SLUGIFY = 'legacy_slugify'
@@ -109,9 +108,14 @@ class Pod(object):
 
         if self.exists:
             # Modify sys.path for built-in extension support.
-            _ext_dir = self.abs_path(self.extensions_dir)
-            if os.path.exists(_ext_dir):
-                sys.path.insert(0, _ext_dir)
+            _installed_ext_dir = self.abs_path(self.extensions_dir)
+            if os.path.exists(_installed_ext_dir):
+                sys.path.insert(0, _installed_ext_dir)
+
+            # Modify sys.path for local extension support.
+            _local_ext_dir = self.abs_path(Pod.LOCAL_EXTENSIONS_DIR_PATH)
+            if os.path.exists(_local_ext_dir):
+                sys.path.insert(0, _local_ext_dir)
 
             # Load the features from the podspec.
             self._load_features()
@@ -408,7 +412,7 @@ class Pod(object):
 
     @property
     def extensions_dir(self):
-        return self.yaml.get('extensions_dir', Pod.DEFAULT_EXTENSIONS_DIR_NAME)
+        return self.yaml.get('extensions_dir', Pod.INSTALLED_EXTENSIONS_DIR_PATH)
 
     @property
     def ui(self):
