@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://www.github.com/grow/grow/compare/v2.0.6...v2.1.0) (2021-09-16)
+
+
+### Features
+
+* add --ci flag to grow install ([f004a40](https://www.github.com/grow/grow/commit/f004a40967b57c36e06460367354e94aeb3edcce))
+
 ### [2.0.6](https://www.github.com/grow/grow/compare/v2.0.5...v2.0.6) (2021-09-06)
 
 
