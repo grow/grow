@@ -97,14 +97,16 @@ class NpmInstaller(base_installer.BaseInstaller):
 
     def _install_npm(self):
         """Install dependencies using npm."""
-        install_command = self._nvm_command('npm install')
+        command = 'npm install' if not self.config.get('ci') else 'npm ci'
+        install_command = self._nvm_command(command)
+        self.pod.logger.info('Running: {}'.format(install_command))
         process = subprocess.Popen(install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
             self.pod.write_file(INSTALL_HASH_FILE, self._generate_hashes())
             return
         raise base_installer.InstallError(
-            'There was an error running `npm install`.')
+            'There was an error running `{}`.'.format(command))
 
     def _install_yarn(self):
         """Install dependencies using npm."""

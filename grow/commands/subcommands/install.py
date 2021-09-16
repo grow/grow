@@ -22,7 +22,10 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.install')
                    'known Gerrit host amongst the remotes in your repository.')
 @click.option('--force', '-f', default=False, is_flag=True,
              help='Whether to force install even when no changes found.')
-def install(pod_path, gerrit, force):
+@click.option('--ci/--no-ci', default=False,
+              help='Whether to use the `npm ci` command instead of the '
+                   '`npm install` command.')
+def install(pod_path, gerrit, force, ci):
     """Checks whether the pod depends on npm, bower, and gulp and installs them
     if necessary. Then, runs install commands. Also optionally installs the
     Gerrit Code Review commit hook."""
@@ -33,6 +36,7 @@ def install(pod_path, gerrit, force):
         config = base_config.BaseConfig()
         config.set('gerrit', gerrit)
         config.set('force', force)
+        config.set('ci', ci)
         built_in_installers = []
         for installer_class in installers.BUILT_IN_INSTALLERS:
             built_in_installers.append(installer_class(pod, config))
