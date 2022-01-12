@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-babel = "==2.8.0"
+babel = "==2.9.1"
 "beautifulsoup4" = "==4.9.1"
 boltons = "==20.1.0"
 cachelib = "==0.1"
