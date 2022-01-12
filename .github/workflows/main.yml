@@ -136,6 +136,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }},grow/base:latest,grow/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }},ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }},gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:latest,gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: grow_version=grow==${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
