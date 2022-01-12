@@ -47,16 +47,25 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       - if: ${{ steps.release.outputs.release_created }}
         name: Log in to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - if: ${{ steps.release.outputs.release_created }}
+        name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - if: ${{ steps.release.outputs.release_created }}
         name: Extract metadata (tags, labels) for Docker
         uses: docker/metadata-action@v3
         id: meta
         with:
-          images: grow/base
+          images: |
+            grow/base
+            ghcr.io/${{ github.repository }}
       - if: ${{ steps.release.outputs.release_created }}
         name: Push grow/base
         uses: docker/build-push-action@v2
