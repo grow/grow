@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.1.2](https://www.github.com/grow/grow/compare/v2.1.1...v2.1.2) (2022-01-12)
+
+
+### Bug Fixes
+
+* Properly tag release containers on release please releases. ([3dc3fa8](https://www.github.com/grow/grow/commit/3dc3fa82d4208e70c63f54bbe73e8ac3a04c07e8))
+
 ### [2.1.1](https://www.github.com/grow/grow/compare/v2.1.0...v2.1.1) (2022-01-12)
 
 
