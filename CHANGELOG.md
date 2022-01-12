@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.1.1](https://www.github.com/grow/grow/compare/v2.1.0...v2.1.1) (2022-01-12)
+
+
+### Bug Fixes
+
+* Provide loader explicitly with yaml loading of configuration files. ([66a7e70](https://www.github.com/grow/grow/commit/66a7e7037a8d213705b2c4127648996ffa4b9372))
+
 ## [2.1.0](https://www.github.com/grow/grow/compare/v2.0.6...v2.1.0) (2021-09-16)
 
 
