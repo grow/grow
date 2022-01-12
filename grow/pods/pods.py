@@ -47,6 +47,15 @@ from grow.translators import translators
 from . import env as environment
 from . import podspec
 
+# The C (LibYAML) version is massively faster than the pure Python version.
+# Since YAML performance is critical, display a warning message with information
+# related to fixing it.
+try:
+    # pylint: disable=ungrouped-imports
+    from yaml import CLoader as yaml_Loader
+except ImportError:
+    logging.warning('Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml')
+    from yaml import Loader as yaml_Loader
 
 class Error(Exception):
 
@@ -215,7 +224,7 @@ class Pod(object):
                 # Do not use the utils.parse_yaml as that has extra constructors
                 # that should not be run when the cache file is being parsed.
                 temp_data = yaml.load(
-                    self.read_file(legacy_podcache_file_name)) or {}
+                    self.read_file(legacy_podcache_file_name), Loader=yaml_Loader) or {}
                 if 'objects' in temp_data and temp_data['objects']:
                     object_cache_file_name = '/{}'.format(
                         podcache.FILE_OBJECT_CACHE)
