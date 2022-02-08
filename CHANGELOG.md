@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.1.3](https://www.github.com/grow/grow/compare/v2.1.2...v2.1.3) (2022-02-08)
+
+
+### Bug Fixes
+
+* finding git repo root when project is in a subdirectory ([dfa971f](https://www.github.com/grow/grow/commit/dfa971fb0dab26c3a9259346663aa5f765e2f8d4))
+
 ### [2.1.2](https://www.github.com/grow/grow/compare/v2.1.1...v2.1.2) (2022-01-12)
 
 
