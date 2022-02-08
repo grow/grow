@@ -66,10 +66,13 @@ def get_grow_dir():
 
 
 def get_git_repo(root):
-    try:
-        return git.Repo(root)
-    except git.InvalidGitRepositoryError:
-        logging.info('WARNING: No Git repository found in {}'.format(root))
+    original_root = root
+    while root != '/':
+        try:
+            return git.Repo(root)
+        except git.InvalidGitRepositoryError:
+            root = os.path.abspath(os.path.join(root, '..'))
+    logging.info('WARNING: No Git repository found from: {}'.format(original_root))
 
 
 def interactive_confirm(message, default=False, input_func=None):
