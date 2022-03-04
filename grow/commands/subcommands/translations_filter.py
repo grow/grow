@@ -31,7 +31,8 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.translations.filter')
                     ' The path must be relative to the pod\'s root. This option'
                     ' is only applicable when using --localized.'))
 @shared.path_option
-def translations_filter(pod_path, locale, o, include_obsolete, localized, path,
+@shared.exclude_path_option
+def translations_filter(pod_path, locale, o, include_obsolete, localized, path, exclude_path,
                         include_header, out_dir, f):
     """Filters untranslated messages from catalogs into new catalogs."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
@@ -47,6 +48,6 @@ def translations_filter(pod_path, locale, o, include_obsolete, localized, path,
                 'specified directory.'.format(out_dir))
         catalogs.filter(out_path=o, out_dir=out_dir,
                         include_obsolete=include_obsolete,
-                        localized=localized, paths=path,
+                        localized=localized, paths=path, exclude_paths=exclude_path,
                         include_header=include_header, locales=locale)
     return pod

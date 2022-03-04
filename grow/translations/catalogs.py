@@ -227,11 +227,13 @@ class Catalog(catalog.Catalog):
                     return True
         return False
 
-    def list_untranslated(self, paths=None):
+    def list_untranslated(self, paths=None, exclude_paths=None):
         """Returns untranslated messages, including fuzzy translations."""
         untranslated = []
         for message in self:
             if paths and not Catalog._message_in_paths(message, paths):
+                continue
+            if exclude_paths and Catalog._message_in_paths(message, exclude_paths):
                 continue
             # Ensure fuzzy messages have a message.id otherwise we'd include
             # the header as part of the results, which we don't want.

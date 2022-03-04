@@ -24,6 +24,14 @@ def deployment_option(config):
     return _decorator
 
 
+def exclude_path_option(func):
+    """Option for excluding a path for extraction."""
+    return click.option(
+        '--exclude-path',
+        type=str, multiple=True,
+        help='Which paths to exclude from the generated messages file.')(func)
+
+
 def force_untranslated_option(config):
     """Option for forcing untranslated string deployment."""
     shared_default = CFG.get('force-untranslated', False)

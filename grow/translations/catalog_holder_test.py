@@ -219,6 +219,7 @@ class CatalogsTest(unittest.TestCase):
         de_catalog = catalogs[0]
         self.assertEqual(3, len(de_catalog))
 
+
         paths = [
             '/content/pages/yaml_test.html',
         ]
@@ -229,6 +230,14 @@ class CatalogsTest(unittest.TestCase):
             localized=False)
         de_catalog = catalogs[0]
         self.assertEqual(1, len(de_catalog))
+
+        catalogs = self.pod.catalogs.filter(
+            out_path='./untranslated.po',
+            locales=locales,
+            exclude_paths=paths,
+            localized=False)
+        de_catalog = catalogs[0]
+        self.assertEqual(2, len(de_catalog))
 
     def test_filter_localized(self):
         locales = ['de', 'fr']
