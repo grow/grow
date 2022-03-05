@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.2.1](https://www.github.com/grow/grow/compare/v2.2.0...v2.2.1) (2022-03-05)
+
+
+### Bug Fixes
+
+* pin markupsafe dep ([f3049dd](https://www.github.com/grow/grow/commit/f3049dd2e4dc18a174ddd6493fca9793ae60b5af))
+
 ## [2.2.0](https://www.github.com/grow/grow/compare/v2.1.3...v2.2.0) (2022-03-05)
 
 
