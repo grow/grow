@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://www.github.com/grow/grow/compare/v2.1.3...v2.2.0) (2022-03-05)
+
+
+### Features
+
+* add exclude_paths option to translations filter ([ce0ae69](https://www.github.com/grow/grow/commit/ce0ae694518ca5f6d2c2550390ca9cfd206d5796))
+
 ### [2.1.3](https://www.github.com/grow/grow/compare/v2.1.2...v2.1.3) (2022-02-08)
 
 
