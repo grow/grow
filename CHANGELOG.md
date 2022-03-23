@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.2.2](https://www.github.com/grow/grow/compare/v2.2.1...v2.2.2) (2022-03-23)
+
+
+### Bug Fixes
+
+* add supportsAllDrives and supportsTeamDrives to Google files API requests ([b959b1f](https://www.github.com/grow/grow/commit/b959b1fa89fbf71bc3607d7937f2c2c5d2c0ed16))
+
 ### [2.2.1](https://www.github.com/grow/grow/compare/v2.2.0...v2.2.1) (2022-03-05)
 
 
