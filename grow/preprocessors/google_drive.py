@@ -74,7 +74,7 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         logger = logger or logging
         service = BaseGooglePreprocessor.create_service()
         # pylint: disable=no-member
-        resp = service.files().get(fileId=doc_id).execute()
+        resp = service.files().get(fileId=doc_id, supportsAllDrives=True, supportsTeamDrives=True).execute()
         if 'exportLinks' not in resp:
             text = 'Unable to export Google Doc: {}'
             logger.error(text.format(path))
@@ -244,7 +244,8 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         # pylint: disable=no-member
         resp = drive_service.files().get(
             fileId=spreadsheet_id,
-            fields='name,modifiedTime,lastModifyingUser,webViewLink').execute()
+            fields='name,modifiedTime,lastModifyingUser,webViewLink',
+            supportsAllDrives=True, supportsTeamDrives=True).execute()
         title = resp['name']
         if 'lastModifyingUser' in resp:
             # Sometimes the email address isn't included.
