@@ -138,7 +138,7 @@ class PathFormat(object):
             params['base'] = doc.base
         params['collection'] = structures.AttributeDict(
             base_path=doc.collection_base_path,
-            sub_path=doc.collection_base_path,
+            sub_path=doc.collection_sub_path,
             basename=doc.collection.basename,
             root=doc.collection.root)
         if '{category}' in path:
