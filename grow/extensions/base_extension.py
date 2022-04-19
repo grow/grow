@@ -16,7 +16,7 @@ class MissingHookError(Error):
     pass
 
 
-class BaseExtension(object):
+class BaseExtension:
     """Base extension for custom extensions."""
 
     def __init__(self, pod, config):

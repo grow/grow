@@ -6,7 +6,7 @@ import datetime
 import progressbar
 
 
-class NonInteractiveProgressBar(object):
+class NonInteractiveProgressBar:
     """Non-interactive stub version of progress bar."""
 
     def __init__(self, message, max_value=None, poll_interval=5, widgets=None, *_args, **kwargs):

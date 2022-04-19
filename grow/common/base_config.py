@@ -1,7 +1,7 @@
 """Base Config control class."""
 
 
-class BaseConfig(object):
+class BaseConfig:
     """Base class for identifier based configuration management."""
 
     def __init__(self, config=None):
@@ -41,7 +41,7 @@ class BaseConfig(object):
         item[key] = value
 
 
-class BaseConfigPrefixed(object):
+class BaseConfigPrefixed:
     """Utility class for shortcutting common prefixes in identifiers."""
 
     def __init__(self, config, prefix):

@@ -3,7 +3,7 @@
 import time
 
 
-class Timer(object):
+class Timer:
     """Times code to see how long it takes using a context manager."""
 
     def __init__(self, key, label=None, meta=None):
@@ -51,7 +51,7 @@ class Timer(object):
         return self
 
 
-class Profile(object):
+class Profile:
     """Keeps track of all of the timer usage."""
 
     def __init__(self):

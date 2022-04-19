@@ -2,7 +2,7 @@
 
 
 # pylint: disable=too-few-public-methods
-class DocDependency(object):
+class DocDependency:
     """Used to easily track a dependencies for a document."""
 
     def __init__(self, doc):

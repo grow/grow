@@ -7,7 +7,7 @@ from boltons import iterutils
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
 
 
-class Untag(object):
+class Untag:
     """Untagging utility for locale and environment based untagging."""
 
     @staticmethod
@@ -115,14 +115,14 @@ class Untag(object):
         return iterutils.remap(data, visit=_visit, exit=_remap_exit)
 
 
-class UntagParam(object):
+class UntagParam:
     """Untagging param for complex untagging."""
 
     def __call__(self, data, untagged_key, param_key, param_value, value, locale_identifier=None):
         raise NotImplementedError()
 
 
-class UntagParamRegex(object):
+class UntagParamRegex:
     """Param using the value of the param value as a regex to match."""
 
     def __init__(self, value):
@@ -137,7 +137,7 @@ class UntagParamRegex(object):
         return untagged_key, value
 
 
-class UntagParamLocaleRegex(object):
+class UntagParamLocaleRegex:
     """Param using a document field as a regex group to match locale.
 
     Attempts to use the value of one of the other data fields as a locale regex.

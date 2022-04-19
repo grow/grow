@@ -8,7 +8,7 @@ import threading
 from grow.collections import collection
 
 
-class CollectionCache(object):
+class CollectionCache:
 
     def __init__(self):
         self.reset()

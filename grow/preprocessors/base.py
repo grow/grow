@@ -12,7 +12,7 @@ class PreprocessorError(Error):
     pass
 
 
-class BasePreprocessor(object):
+class BasePreprocessor:
 
     def __init__(self, pod, config, autorun=True, name=None, tags=[],
                  inject=False):

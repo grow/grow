@@ -52,7 +52,7 @@ class TranslatorServiceError(Exception):
         super(TranslatorServiceError, self).__init__(new_message)
 
 
-class Translator(object):
+class Translator:
     TRANSLATOR_STATS_PATH = '/translators.yaml'
     KIND = None
     has_immutable_translation_resources = False

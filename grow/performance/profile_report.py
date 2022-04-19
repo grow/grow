@@ -1,7 +1,7 @@
 """Profiling report for analyizing the performance of the app"""
 
 
-class ProfileReport(object):
+class ProfileReport:
     """Analyzes the timers to report on the app timing."""
 
     def __init__(self, profile):
@@ -34,7 +34,7 @@ class ProfileReport(object):
                     print(timer)
 
 
-class ReportItem(object):
+class ReportItem:
     """Report item used to store information about all timers with the same key."""
 
     def __init__(self, key):

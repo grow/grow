@@ -8,7 +8,7 @@ from grow.routing import router
 FILE_ROUTES_CACHE = 'routescache.json'
 
 
-class RoutesCache(object):
+class RoutesCache:
     """Routes cache for caching routing data in a pod."""
 
     KEY_CONCRETE = 'concrete'

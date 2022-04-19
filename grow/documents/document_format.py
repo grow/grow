@@ -28,7 +28,7 @@ class BadLocalesError(BadFormatError):
     pass
 
 
-class DocumentFormat(object):
+class DocumentFormat:
     """
     Document formatting specifics for parsing and working with documents.
 

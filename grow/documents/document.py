@@ -52,7 +52,7 @@ class PathFormatError(Error, ValueError):
     pass
 
 
-class Document(object):
+class Document:
     """Grow content document."""
 
     def __eq__(self, other):

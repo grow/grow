@@ -72,7 +72,7 @@ def render_func(batch, tick=None):
     return result
 
 
-class RenderBatches(object):
+class RenderBatches:
     """Handles the batching of rendering."""
 
     def __init__(self, render_pool, profile, tick=None, batch_size=None):
@@ -147,7 +147,7 @@ class RenderBatches(object):
         return rendered_docs, render_errors
 
 
-class RenderLocaleBatch(object):
+class RenderLocaleBatch:
     """Handles the rendering and threading of the controllers."""
 
     BATCH_DEFAULT_SIZE = 300  # Default number of documents in a batch.
@@ -277,7 +277,7 @@ class RenderLocaleBatch(object):
         return rendered_docs, render_errors
 
 
-class LoadBatchResult(object):
+class LoadBatchResult:
     """Results from a batched loading."""
 
     def __init__(self):
@@ -285,7 +285,7 @@ class LoadBatchResult(object):
         self.loaded_docs = []
 
 
-class RenderBatchResult(object):
+class RenderBatchResult:
     """Results from a batched rendering."""
 
     def __init__(self):

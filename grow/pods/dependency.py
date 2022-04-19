@@ -5,7 +5,7 @@ import os
 from collections import OrderedDict
 
 
-class DependencyGraph(object):
+class DependencyGraph:
     """Dependency graph for tracking relationships between the pod content."""
 
     def __init__(self):

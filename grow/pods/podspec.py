@@ -14,7 +14,7 @@ class PodSpecParseError(Error):
     pass
 
 
-class PodSpec(object):
+class PodSpec:
 
     def __init__(self, yaml, pod):
         yaml = yaml or {}

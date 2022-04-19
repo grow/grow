@@ -1,7 +1,7 @@
 """Hook controller for working with hooks from the extensions."""
 
 
-class HookController(object):
+class HookController:
     """Controller for working with pod extension hooks."""
 
     def __init__(self, pod, key, default_hook):

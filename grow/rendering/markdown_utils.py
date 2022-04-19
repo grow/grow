@@ -8,7 +8,7 @@ from grow.common import structures
 from grow.common import utils
 
 
-class MarkdownUtil(object):
+class MarkdownUtil:
     """Utility class for working with pod flavored markdown."""
 
     def __init__(self, pod):

@@ -17,7 +17,7 @@ class Error(Exception):
         self.message = message
 
 
-class Installer(object):
+class Installer:
     """Grow installer for dependencies."""
 
     def __init__(self, installers, pod):

@@ -60,7 +60,7 @@ def _update_deep(orig_dict, new_dict):
             orig_dict[k] = new_dict[k]
 
 
-class PlainText(object):
+class PlainText:
 
     def __init__(self, tag, value):
         self.tag = tag
@@ -110,7 +110,7 @@ PlainTextYamlLoader.add_constructor(
     '!g.yaml', PlainTextYamlLoader.construct_plaintext)
 
 
-class ConversionDocument(object):
+class ConversionDocument:
 
     def __init__(self, pod, file_name, default_locale):
         self.default_locale = default_locale
@@ -407,7 +407,7 @@ class ConversionDocument(object):
                 yield front_matter, content
 
 
-class Converter(object):
+class Converter:
 
     @staticmethod
     def convert(pod):

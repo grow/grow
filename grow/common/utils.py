@@ -129,7 +129,7 @@ def validate_name(name):
             'backslashes, and dashes. Found: "{}"'.format(name))
 
 
-class memoize(object):
+class memoize:
 
     def __init__(self, func):
         self.func = func
@@ -164,7 +164,7 @@ class cached_property(property):
     and then that calculated result is used the next time you access
     the value::
 
-        class Foo(object):
+        class Foo:
             @cached_property
             def foo(self):
                 # calculate something important here
@@ -519,7 +519,7 @@ def slugify(text, delim='-'):
     return slug
 
 
-class DummyDict(object):
+class DummyDict:
 
     def __getattr__(self, name):
         return ''
