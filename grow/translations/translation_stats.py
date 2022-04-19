@@ -7,7 +7,7 @@ import traceback
 import texttable
 
 
-class TranslationStats(object):
+class TranslationStats:
 
     ROW_COUNT = 7
 

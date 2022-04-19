@@ -7,7 +7,7 @@ import babel
 import re
 
 
-class Locales(object):
+class Locales:
 
     def __init__(self, pod):
         self.pod = pod

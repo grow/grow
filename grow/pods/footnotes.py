@@ -76,7 +76,7 @@ def numberic_generator():
         index += 1
 
 
-class Footnotes(object):
+class Footnotes:
     def __init__(self, locale, symbols=None, use_numeric=None,
             use_numeric_symbols=None, numeric_locales_pattern=None):
         self.symbol_to_footnote = collections.OrderedDict()

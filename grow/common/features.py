@@ -2,7 +2,7 @@
 
 from grow.common import base_config
 
-class Features(object):
+class Features:
     """Control features."""
 
     def __call__(self, feature):

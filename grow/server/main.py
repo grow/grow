@@ -23,7 +23,7 @@ class RequestHandler(serving.WSGIRequestHandler):
         pass
 
 
-class PodServer(object):
+class PodServer:
 
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)

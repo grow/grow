@@ -1,4 +1,4 @@
-class BaseStorage(object):
+class BaseStorage:
 
     is_cloud_storage = False
 

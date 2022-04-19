@@ -16,7 +16,7 @@ class Error(Exception):
         self.message = message
 
 
-class RenderPool(object):
+class RenderPool:
     """Rendering pool for rendering pods."""
 
     def __init__(self, pod, pool_size=1):

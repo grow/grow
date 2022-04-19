@@ -42,7 +42,7 @@ class UsageError(Error, click.UsageError):
     pass
 
 
-class Catalogs(object):
+class Catalogs:
     root = '/translations'
 
     def __init__(self, pod, template_path=None):

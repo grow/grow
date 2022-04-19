@@ -17,14 +17,14 @@ OAUTH_SCOPE = 'https://www.googleapis.com/auth/gte'
 STORAGE_KEY = 'Grow SDK - Google Translator Toolkit'
 
 
-class AccessLevel(object):
+class AccessLevel:
     ADMIN = 'ADMIN'
     READ_AND_COMMENT = 'READ_AND_COMMENT'
     READ_AND_WRITE = 'READ_AND_WRITE'
     READ_ONLY = 'READ_ONLY'
 
 
-class ChangeType(object):
+class ChangeType:
     MODIFY = 'MODIFY'
     ADD = 'ADD'
 
@@ -36,7 +36,7 @@ def raise_service_error(http_error, locale=None, ident=None):
     raise base.TranslatorServiceError(message=message, locale=locale, ident=ident)
 
 
-class Gtt(object):
+class Gtt:
 
     def __init__(self):
         self.service = discovery.build('gte', 'v1', http=self.http)

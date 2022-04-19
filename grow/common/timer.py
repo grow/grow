@@ -5,7 +5,7 @@ Based off https://www.huyng.com/posts/python-performance-analysis
 
 import time
 
-class Timer(object):
+class Timer:
     def __init__(self, verbose=False):
         self.verbose = verbose
 

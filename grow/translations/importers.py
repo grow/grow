@@ -47,7 +47,7 @@ class Error(Exception):
         self.message = message
 
 
-class Importer(object):
+class Importer:
 
     def __init__(self, pod, include_obsolete=True, untranslated=False):
         self.pod = pod

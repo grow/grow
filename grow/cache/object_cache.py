@@ -14,7 +14,7 @@ FILE_OBJECT_CACHE = 'objectcache.json'
 FILE_OBJECT_SUB_CACHE = 'objectcache.{}.json'
 
 
-class ObjectCache(object):
+class ObjectCache:
     """Object cache for caching arbitrary data in a pod."""
 
     def __contains__(self, key):

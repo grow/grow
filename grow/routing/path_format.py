@@ -12,7 +12,7 @@ VALID_DOC_EXTENSIONS = ('.html', '.htm', '.xml', '.svg')
 INDEX_BASE_ENDINGS = ('/{base}', '/{base}/')
 
 
-class PathFormat(object):
+class PathFormat:
     """Format url paths using the information from the pod."""
 
     PARAM_CURLY_REGEX_SECTION = re.compile(r'/{([^}]*)}/')

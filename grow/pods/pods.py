@@ -78,7 +78,7 @@ def goodbye_pods():
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
-class Pod(object):
+class Pod:
     """Grow pod."""
     INSTALLED_EXTENSIONS_DIR_PATH = 'extensions'
     LOCAL_EXTENSIONS_DIR_PATH = 'ext'

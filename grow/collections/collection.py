@@ -48,7 +48,7 @@ class NoLocalesError(Error):
     pass
 
 
-class Collection(object):
+class Collection:
     CONTENT_PATH = '/content'
     BLUEPRINT_PATH = '_blueprint.yaml'
     FEATURE_SEPARATE_ROUTING = 'separate_routing'

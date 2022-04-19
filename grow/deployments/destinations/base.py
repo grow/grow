@@ -98,7 +98,7 @@ class CommandError(Error):
     pass
 
 
-class DestinationTestCase(object):
+class DestinationTestCase:
 
     def __init__(self, deployment):
         self.deployment = deployment
@@ -120,7 +120,7 @@ class DestinationTestCase(object):
                 yield func
 
 
-class BaseDestination(object):
+class BaseDestination:
     """Base destination for building and deploying."""
 
     TestCase = DestinationTestCase
