@@ -43,7 +43,7 @@ ENV NVM_DIR=~/.nvm
 
 # Install Grow.
 RUN pip3 install --no-cache-dir --upgrade wheel \
-  && pip3 install --no-cache-dir $grow_version
+  && pip3 install --no-cache-dir grow==$grow_version
 
 # Install ruby bundle.
 RUN gem install bundler
