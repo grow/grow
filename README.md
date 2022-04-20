@@ -43,6 +43,20 @@ pipenv run grow install
 pipenv run grow run
 ```
 
+## Testing with pytest
+
+You can test Grow using [pytest](https://docs.pytest.org/en/latest/) which is compatible with the library `Unittest`. Install pytest and [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/) with
+
+```bash
+pip install pytest pytest-cov
+```
+
+then run
+
+``bash
+pytest -svv --cov=grow
+```
+
 ## Documentation
 
 Visit https://grow.dev to read the documentation.
