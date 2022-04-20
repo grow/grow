@@ -248,6 +248,32 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual(
             expected, document.Document.localize_path(path, locale=locale))
 
+    def test_next_document(self):
+        doc = self.pod.get_doc('/content/pages/contact.yaml', locale="it")
+        expected_next_doc = self.pod.get_doc('/content/pages/contact.yaml', locale="fr")
+        next_doc = doc.next()
+        
+        self.assertEqual(next_doc, expected_next_doc)
+        self.assertEqual(next_doc.locale, expected_next_doc.locale)
+        
+    def test_next_document_with_explicit_docs(self):
+        collection = self.pod.get_collection('pages')
+        docs = collection.list_docs()
+
+        doc = self.pod.get_doc('/content/pages/contact.yaml', locale="it")
+        expected_next_doc = self.pod.get_doc('/content/pages/contact.yaml', locale="fr")
+        next_doc = doc.next()
+
+        self.assertEqual(next_doc, expected_next_doc)
+        self.assertEqual(next_doc.locale, expected_next_doc.locale)
+
+    def test_next_document_last(self):
+        doc = self.pod.get_doc('/content/pages/contact.yaml', locale="de")
+        expected_next_doc = None
+        next_doc = doc.next()
+        
+        self.assertEqual(next_doc, expected_next_doc)
+
     def test_next_prev(self):
         collection = self.pod.get_collection('pages')
         docs = collection.list_docs()
