@@ -43,36 +43,26 @@ pipenv run grow install
 pipenv run grow run
 ```
 
-## Development without pipenv
+## Install without pipenv
 
-If you are using standard virtual environments or a different virtual environment manager (like pyenv) you can follwo this instructions.
+If you are using standard virtual environments or a different virtual environment manager (like pyenv) you can follow this instructions.
 
-### Install libyaml
+Install `libyaml`
 
 ```bash
 # On Mac with Homebrew (https://brew.sh/).
-brew install pipenv libyaml
+brew install libyaml
 
 # On Ubuntu.
-sudo apt install -y pipenv libyaml-dev
+sudo apt install libyaml-dev
 ```
 
-### Create the virtualenv and activate it
+Follow the instructions of your virtual environment manager to create and activate the virtual environment.
 
-Follow the instructions of your virtual environment manager.
-
-### Create requirements
-
-You can create the file `requirements.txt` with
+Install Grow
 
 ```bash
-cat Pipfile | grep '[=<>]=' | sed -e s," = ",, -e s,\",,g > requirements.txt
-```
-
-then install the requirements with
-
-```bash
-pip install -r requirements.txt
+pip install grow
 ```
 
 ## Documentation
