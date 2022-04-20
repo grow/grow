@@ -74,6 +74,7 @@ class Collection:
         self.pod = _pod
         self.pod_path = pod_path
         self.collection_path = Collection.clean_collection_path(pod_path)
+        self.dirname = os.path.dirname(self.collection_path)
         self.basename = os.path.basename(self.collection_path)
         self.blueprint_path = os.path.join(
             self.pod_path, Collection.BLUEPRINT_PATH)
