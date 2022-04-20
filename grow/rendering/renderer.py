@@ -6,7 +6,7 @@ from grow.common import bulk_errors
 from grow.rendering import render_batch
 
 
-class Renderer(object):
+class Renderer:
     """Handles the rendering and threading of the controllers."""
 
     @staticmethod

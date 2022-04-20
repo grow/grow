@@ -25,7 +25,7 @@ class LoadError(Error):
 
 
 # pylint: disable=too-few-public-methods
-class DocsLoader(object):
+class DocsLoader:
     """Loader that threads the docs' file system reads."""
 
     MAX_POOL_SIZE = 100
@@ -160,7 +160,7 @@ class DocsLoader(object):
         cls.load(pod, _doc_from_routes(routes), **kwargs)
 
 
-class LoadResult(object):
+class LoadResult:
     """Results from a doc loading."""
 
     def __init__(self):

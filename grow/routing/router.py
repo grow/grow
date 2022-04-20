@@ -32,7 +32,7 @@ class MissingStaticConfigError(Error):
     pass
 
 
-class Router(object):
+class Router:
     """Router for pods."""
 
     def __init__(self, pod, routes=None):
@@ -573,7 +573,7 @@ class Router(object):
 
 
 # pylint: disable=too-few-public-methods
-class RouteInfo(object):
+class RouteInfo:
     """Organize information stored in the routes."""
 
     def __eq__(self, other):

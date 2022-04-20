@@ -3,7 +3,7 @@
 import os
 
 
-class CollectionRoutes(object):
+class CollectionRoutes:
     """Collection level routing information."""
 
     ROUTES_PATH = '_routes.yaml'

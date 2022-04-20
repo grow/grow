@@ -29,7 +29,7 @@ class PodCacheParseError(Error):
     pass
 
 
-class PodCache(object):
+class PodCache:
     """Caching container for the pod."""
 
     KEY_GLOBAL = '__global__'

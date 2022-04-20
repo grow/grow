@@ -12,7 +12,7 @@ VALID_DOC_EXTENSIONS = ('.html', '.htm', '.xml', '.svg')
 INDEX_BASE_ENDINGS = ('/{base}', '/{base}/')
 
 
-class PathFormat(object):
+class PathFormat:
     """Format url paths using the information from the pod."""
 
     PARAM_CURLY_REGEX_SECTION = re.compile(r'/{([^}]*)}/')
@@ -138,7 +138,7 @@ class PathFormat(object):
             params['base'] = doc.base
         params['collection'] = structures.AttributeDict(
             base_path=doc.collection_base_path,
-            sub_path=doc.collection_base_path,
+            sub_path=doc.collection_sub_path,
             basename=doc.collection.basename,
             root=doc.collection.root)
         if '{category}' in path:

@@ -12,7 +12,7 @@ from grow.pods import errors
 from grow.translations import locales as locales_lib
 
 
-class Menu(object):
+class Menu:
     """Helper class for creating navigation menus."""
 
     def __init__(self):

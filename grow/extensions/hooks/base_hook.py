@@ -1,7 +1,7 @@
 """Base class for writing hooks."""
 
 
-class BaseHook(object):
+class BaseHook:
     """Base class for all hooks."""
 
     KEY = 'hook'

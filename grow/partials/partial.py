@@ -8,7 +8,7 @@ from grow.common import utils
 split_front_matter = document_front_matter.DocumentFrontMatter.split_front_matter
 
 
-class Partial(object):
+class Partial:
     """Partial from the partial directory."""
 
     def __init__(self, pod_path, pod):
@@ -44,7 +44,7 @@ class Partial(object):
         return os.path.join(self.pod_path, '{}.html'.format(self.key))
 
 
-class ViewPartial(object):
+class ViewPartial:
     """Partial from the views directory."""
 
     def __init__(self, pod_path, pod):

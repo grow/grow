@@ -44,7 +44,7 @@ class DeploymentErrors(Error):
         self.errors = errors
 
 
-class Diff(object):
+class Diff:
     POOL_SIZE = 10  # Thread pool size for applying a diff.
     GIT_LOG_MAX = 25
 
@@ -368,7 +368,7 @@ class Diff(object):
         return diff, index, paths_to_rendered_doc
 
 
-class Index(object):
+class Index:
 
     @classmethod
     def create(cls, paths_to_rendered_doc=None):

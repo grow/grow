@@ -36,7 +36,7 @@ class BadFormatError(Error, ValueError):
     pass
 
 
-class DocumentFrontMatter(object):
+class DocumentFrontMatter:
     """Document front matter."""
 
     def __init__(self, doc, raw_front_matter=None):

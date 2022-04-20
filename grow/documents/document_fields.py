@@ -7,7 +7,7 @@ from grow.common import untag
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
 
 
-class DocumentFields(object):
+class DocumentFields:
 
     def __contains__(self, item):
         return item in self._data

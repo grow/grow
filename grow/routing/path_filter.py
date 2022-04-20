@@ -9,7 +9,7 @@ DEFAULT_IGNORED = [
 DEFAULT_INCLUDED = []
 
 
-class PathFilter(object):
+class PathFilter:
     """Filter for testing paths against a set of filter criteria."""
 
     def __init__(self, ignored=None, included=None):

@@ -3,7 +3,7 @@
 import mock
 
 
-class GoogleServiceMock(object):
+class GoogleServiceMock:
     """Utility for creating mocks for Google APIs."""
 
     @classmethod

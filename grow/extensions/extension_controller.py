@@ -5,7 +5,7 @@ from grow.extensions import extension_importer
 from grow.extensions import hooks
 from grow.extensions import hook_controller
 
-class ExtensionController(object):
+class ExtensionController:
     """Controller for working with pod extensions."""
 
     def __init__(self, pod):

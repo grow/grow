@@ -64,7 +64,7 @@ class CatalogTest(unittest.TestCase):
         self.assertEqual(14, len(untranslated))
 
     def test__message_in_paths(self):
-        class DummyMessage(object):
+        class DummyMessage:
             def __init__(self, locations):
                 self.locations = [(location, 0) for location in locations]
         message = DummyMessage([

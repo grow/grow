@@ -31,7 +31,7 @@ class IgnoredPathError(Error):
     pass
 
 
-class RenderController(object):
+class RenderController:
     """Controls how the content is rendered and evaluated."""
 
     def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):

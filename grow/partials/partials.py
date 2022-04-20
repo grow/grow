@@ -4,7 +4,7 @@ import os
 from grow.partials import partial as grow_partial
 
 
-class Partials(object):
+class Partials:
     """Manage partials within the pod."""
 
     PARTIALS_PATH = '/partials'

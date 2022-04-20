@@ -3,7 +3,7 @@
 import logging
 
 # pylint: disable=too-few-public-methods
-class DeprecationHelper(object):
+class DeprecationHelper:
     """Deprecation helper class for deprecating a class."""
 
     def __init__(self, new_target, message, warn=logging.warn):
@@ -27,7 +27,7 @@ class DeprecationHelper(object):
         return getattr(self.new_target, attr)
 
 # pylint: disable=too-few-public-methods
-class DeprecationManager(object):
+class DeprecationManager:
     """Deprecation manager class for deprecation messages without repeating."""
 
     def __init__(self, warn=logging.warn):

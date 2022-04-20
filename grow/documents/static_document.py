@@ -11,7 +11,7 @@ FINGERPRINT_RE = re.compile(
     r'(.*)(-[a-f0-9]{64})((\.min|)[\.][a-z0-9]{1,5})$', re.IGNORECASE)
 
 
-class StaticDocument(object):
+class StaticDocument:
     """Static document."""
 
     def __eq__(self, other):

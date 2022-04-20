@@ -3,7 +3,7 @@
 import os
 
 
-class Url(object):
+class Url:
     """Url utility class."""
 
     def __init__(self, path, host=None, port=None, scheme=None):

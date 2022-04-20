@@ -348,7 +348,7 @@ def setquit():
     else:
         eof = 'Ctrl-D (i.e. EOF)'
 
-    class Quitter(object):
+    class Quitter:
         def __init__(self, name):
             self.name = name
         def __repr__(self):
@@ -365,7 +365,7 @@ def setquit():
     builtins.exit = Quitter('exit')
 
 
-class _Printer(object):
+class _Printer:
     """interactive prompt objects for printing the license text, a list of
     contributors and the copyright notice."""
 
@@ -444,7 +444,7 @@ def setcopyright():
         [os.path.join(here, os.pardir), here, os.curdir])
 
 
-class _Helper(object):
+class _Helper:
     """Define the builtin 'help'.
     This is a wrapper around pydoc.help (with a twist).
 

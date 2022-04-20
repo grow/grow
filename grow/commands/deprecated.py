@@ -6,7 +6,7 @@ from click.utils import make_str
 
 
 # pylint: disable=too-few-public-methods
-class DeprecatedItem(object):
+class DeprecatedItem:
     """Configuration for an alias item."""
 
     def __init__(self, old_name, new_name, cmd=None):

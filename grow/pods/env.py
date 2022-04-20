@@ -5,7 +5,7 @@ from protorpc import messages
 from grow.common import urls
 
 
-class Name(object):
+class Name:
     DEV = 'dev'
 
 
@@ -19,7 +19,7 @@ class EnvConfig(messages.Message):
     dev = messages.BooleanField(7, default=False)
 
 
-class Env(object):
+class Env:
 
     def __init__(self, config):
         self.name = config.name

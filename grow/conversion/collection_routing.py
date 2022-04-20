@@ -33,7 +33,7 @@ class Error(Exception):
         self.message = message
 
 
-class RoutesData(object):
+class RoutesData:
     """Store and format the routes information pulled from the documents."""
 
     def __init__(self, collection_path, blueprint):
@@ -109,7 +109,7 @@ class RoutesData(object):
             print('')
 
 
-class ConversionCollection(object):
+class ConversionCollection:
     """Temporary collection class for doing a conversion for a collection."""
 
     def __init__(self, pod, collection):
@@ -129,7 +129,7 @@ class ConversionCollection(object):
         self.routes_data.write_routes(self.pod, self.collection)
 
 
-class Converter(object):
+class Converter:
 
     @staticmethod
     def convert(pod):

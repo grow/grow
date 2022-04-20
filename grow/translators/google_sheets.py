@@ -20,7 +20,7 @@ except ImportError:  # pragma: no cover
 from . import base
 
 
-class AccessLevel(object):
+class AccessLevel:
     COMMENTER = 'commenter'
     OWNER = 'owner'
     READER = 'reader'

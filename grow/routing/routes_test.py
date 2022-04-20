@@ -816,7 +816,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
 
 
         # pylint: disable=too-few-public-methods
-        class _RouteInfo(object):
+        class _RouteInfo:
             """Organize information stored in the routes."""
 
             def __init__(self, kind):

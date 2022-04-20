@@ -7,7 +7,7 @@ from protorpc import protojson
 from . import messages
 
 
-class Stats(object):
+class Stats:
 
     def __init__(self, pod, paths=None, full=True):
         self.full = full

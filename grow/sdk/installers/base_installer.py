@@ -24,7 +24,7 @@ class InstallError(Error):
     pass
 
 
-class BaseInstaller(object):
+class BaseInstaller:
     """Base class for grow installers."""
 
     KIND = None

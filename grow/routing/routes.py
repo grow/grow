@@ -51,7 +51,7 @@ class PathParamNameConflictError(Error):
         self.existing_param = existing_param
 
 
-class Routes(object):
+class Routes:
     """Routes container for mapping paths to documents."""
 
     def __add__(self, other):
@@ -154,7 +154,7 @@ class RoutesSimple(Routes):
         self._root = RoutesDict()
 
 
-class RoutesDict(object):
+class RoutesDict:
     """Dictionary based routing tree for faster creation."""
 
     def __init__(self):
@@ -231,7 +231,7 @@ class RoutesDict(object):
             self._root.pop(path, None)
 
 
-class RouteTrie(object):
+class RouteTrie:
     """A trie for routes."""
 
     def __init__(self):
@@ -291,7 +291,7 @@ class RouteTrie(object):
         raise NotImplementedError('Sharding cannot be done on routing trie.')
 
 
-class RouteNode(object):
+class RouteNode:
     """Individual node in the routes trie."""
 
     def __init__(self, param_name=None):
@@ -556,7 +556,7 @@ class RouteWildcardNode(RouteNode):
 
 
 # pylint: disable=too-few-public-methods
-class MatchResult(object):
+class MatchResult:
     """Node information for a trie match."""
 
     def __init__(self, path, value, params=None):
