@@ -64,6 +64,20 @@ then install the requirements with
 pip install -r requirements.txt
 ```
 
+## Testing with pytest
+
+You can test Grow using [pytest](https://docs.pytest.org/en/latest/) which is compatible with the library `Unittest`. Install pytest and [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/) with
+
+```bash
+pip install pytest pytest-cov
+```
+
+then run
+
+```bash
+pytest -svv --cov=grow
+```
+
 ## Commit messages
 
 [Release Please](https://github.com/googleapis/release-please) is used to
