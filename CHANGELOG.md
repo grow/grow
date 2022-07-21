@@ -1,5 +1,13 @@
 # Changelog
 
+### [2.2.3](https://www.github.com/grow/grow/compare/v2.2.2...v2.2.3) (2022-04-21)
+
+
+### Bug Fixes
+
+* add instructions to test using pytest ([2f14710](https://www.github.com/grow/grow/commit/2f1471041dba9cf75ceef4a6e8f3f176028986d7))
+* correct wrong value of collection.sub_path ([8f84cf7](https://www.github.com/grow/grow/commit/8f84cf77a9ae222b565410310355860dbf6d874c))
+
 ### [2.2.2](https://www.github.com/grow/grow/compare/v2.2.1...v2.2.2) (2022-03-23)
 
 
