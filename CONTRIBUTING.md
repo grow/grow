@@ -32,6 +32,38 @@ make develop-linux
 make test
 ```
 
+## Development without pipenv
+
+If you are using standard virtual environments or a different virtual environment manager (like pyenv) you can follow this instructions.
+
+### Install libyaml
+
+```bash
+# On Mac with Homebrew (https://brew.sh/).
+brew install libyaml
+
+# On Ubuntu.
+sudo apt install libyaml-dev
+```
+
+### Create the virtualenv and activate it
+
+Follow the instructions of your virtual environment manager.
+
+### Create requirements
+
+You can create the file `requirements.txt` with
+
+```bash
+cat Pipfile | grep '[=<>]=' | sed -e s," = ",, -e s,\",,g > requirements.txt
+```
+
+then install the requirements with
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Testing with pytest
 
 You can test Grow using [pytest](https://docs.pytest.org/en/latest/) which is compatible with the library `Unittest`. Install pytest and [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/) with

@@ -43,3 +43,6 @@ nosetests.xml
 .project
 .pydevproject
 .vscode
+
+# Requirements file
+requirements.txt
