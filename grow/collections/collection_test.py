@@ -136,7 +136,7 @@ class CollectionsTestCase(unittest.TestCase):
         collection = self.pod.get_collection('empty-front-matter')
         docs = collection.docs()
         path = '/content/empty-front-matter/empty-front-matter.html'
-        expected_doc = self.pod.get_doc(path)
+        expected_doc = self.pod.get_doc(path, locale="it")
         self.assertEqual(expected_doc, docs[0])
 
     def test_fields(self):

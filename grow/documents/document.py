@@ -56,9 +56,9 @@ class Document:
     """Grow content document."""
 
     def __eq__(self, other):
-        return (isinstance(self, Document)
-                and isinstance(other, Document)
-                and self.root_pod_path == other.root_pod_path)
+        self_id = (self.pod_path, str(self.locale))
+        other_id = (other.pod_path, str(other.locale))
+        return self_id == other_id
 
     def __getattr__(self, name):
         if name == 'locale':
@@ -571,29 +571,35 @@ class Document:
 
     def next(self, docs=None):
         """Finds the next document relative to the current doc."""
-        if docs is None:
-            docs = self.collection.list_docs()
-        for i, doc in enumerate(docs):
-            if type(doc) != self.__class__:
-                raise ValueError('Usage: {{doc.next(<docs>)}}.')
-            if doc == self:
-                n = i + 1
-                if n == len(docs):
-                    return None
-                return docs[i + 1]
+        docs = docs or self.collection.list_docs()
+
+        # Check that all items are documents
+        if not all([isinstance(i, self.__class__) for i in docs]):
+            raise ValueError('Usage: {{doc.next(<docs>)}}.')
+
+        # Find the current index
+        current_index = docs.index(self)
+
+        if current_index == len(docs) - 1:
+            return None
+
+        return docs[current_index + 1]
 
     def prev(self, docs=None):
         """Finds the preceding document relative to the current doc."""
-        if docs is None:
-            docs = self.collection.list_docs()
-        prev_doc = None
-        for doc in docs:
-            if type(doc) != self.__class__:
-                raise ValueError('Usage: {{doc.prev(<docs>)}}.')
-            if doc == self:
-                return prev_doc
-            prev_doc = doc
-        return None
+        docs = docs or self.collection.list_docs()
+
+        # Check that all items are documents
+        if not all([isinstance(i, self.__class__) for i in docs]):
+            raise ValueError('Usage: {{doc.next(<docs>)}}.')
+
+        # Find the current index
+        current_index = docs.index(self)
+
+        if current_index == 0:
+            return None
+
+        return docs[current_index - 1]
 
     def titles(self, title_name=None):
         if title_name is None:
