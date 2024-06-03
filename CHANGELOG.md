@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0](https://www.github.com/grow/grow/compare/v2.2.3...v3.0.0) (2024-06-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to node v18 in base image
+
+### Features
+
+* update to node v18 in base image ([2ef22aa](https://www.github.com/grow/grow/commit/2ef22aa0be44bf6e3e76c8e1190bb67cd2aee828))
+
+
+### Bug Fixes
+
+* pin dependencies ([7294ccf](https://www.github.com/grow/grow/commit/7294ccf0b5e4e5807949cd43c76050a6bad48ed0))
+
 ### [2.2.3](https://www.github.com/grow/grow/compare/v2.2.2...v2.2.3) (2022-04-21)
 
 
