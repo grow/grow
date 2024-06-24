@@ -43,6 +43,28 @@ pipenv run grow install
 pipenv run grow run
 ```
 
+## Install without pipenv
+
+If you are using standard virtual environments or a different virtual environment manager (like pyenv) you can follow this instructions.
+
+Install `libyaml`
+
+```bash
+# On Mac with Homebrew (https://brew.sh/).
+brew install libyaml
+
+# On Ubuntu.
+sudo apt install libyaml-dev
+```
+
+Follow the instructions of your virtual environment manager to create and activate the virtual environment.
+
+Install Grow
+
+```bash
+pip install grow
+```
+
 ## Documentation
 
 Visit https://grow.dev to read the documentation.
