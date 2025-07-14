@@ -19,7 +19,6 @@ import yaml
 import bs4
 import git
 import html2text
-import translitcodec  # pylint: disable=unused-import
 from grow.common import structures
 from grow.common import untag
 from grow.common import yaml_utils

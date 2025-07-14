@@ -471,14 +471,6 @@
             "index": "pypi",
             "version": "==0.8.3"
         },
-        "translitcodec": {
-            "hashes": [
-                "sha256:dcc8425447c704d1c5dc46c39fbb4eaf42d4ff224c9f8e250a74b2011dae02f6"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3'",
-            "version": "==0.6.0"
-        },
         "typing-extensions": {
             "hashes": [
                 "sha256:6024b58b69089e5a89c347397254e35f1bf02a907728ec7fee9bf0fe837d203a",
