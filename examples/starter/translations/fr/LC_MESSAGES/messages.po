@@ -1,0 +1,19 @@
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Welcome to Grow"
+msgstr "Bienvenue sur Grow"
+
+msgid "A declarative, file-based static site generator."
+msgstr "Un générateur de sites statiques déclaratif basé sur des fichiers."
+
+msgid "Learn more"
+msgstr "En savoir plus"
+
+msgid "Home"
+msgstr "Accueil"
+
+msgid "About"
+msgstr "À propos"

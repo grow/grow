@@ -1,0 +1,14 @@
+$title@: Welcome to Grow
+$path: /
+$localization:
+  path: /{locale}/
+subtitle@: A declarative, file-based static site generator.
+cta@: Learn more
+cta_url: !g.doc /content/pages/about.md
+features:
+  - title@: Declarative Content
+    body@: Store content cleanly in YAML, JSON, and Markdown files.
+  - title@: Built-in Localization
+    body@: Translate strings and localize pages without extra plugins.
+  - title@: Zero Build Bloat
+    body@: Fast Python builds with fingerprinted static assets out of the box.
