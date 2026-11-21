@@ -2,7 +2,6 @@
 
 import re
 
-
 DEFAULT_IGNORED = [
     re.compile(r'^.*/\.[^/]*$'),  # Dot files.
 ]
@@ -25,8 +24,7 @@ class PathFilter:
                 self.add_included(item)
 
     def __repr__(self):
-        return '<PathFilter ignored={} included={}>'.format(
-            [i.pattern for i in self.ignored], [i.pattern for i in self.included])
+        return f'<PathFilter ignored={[i.pattern for i in self.ignored]} included={[i.pattern for i in self.included]}>'
 
     def _is_ignored(self, path):
         """Test for ignored pattern match."""
@@ -47,16 +45,14 @@ class PathFilter:
         """All ignored patterns."""
         if not self._ignored and DEFAULT_IGNORED:
             self._ignored = DEFAULT_IGNORED
-        for item in self._ignored:
-            yield item
+        yield from self._ignored
 
     @property
     def included(self):
         """All included patterns."""
         if not self._included and DEFAULT_INCLUDED:
             self._included = DEFAULT_INCLUDED
-        for item in self._included:
-            yield item
+        yield from self._included
 
     def add_ignored(self, raw_pattern):
         """Add a new ignored pattern."""

@@ -1,7 +1,10 @@
-from . import translations_extract
-from click import testing as click_testing
-from grow.testing import testing
 import unittest
+
+from click import testing as click_testing
+
+from grow.testing import testing
+
+from . import translations_extract
 
 
 class ExtractTestCase(unittest.TestCase):

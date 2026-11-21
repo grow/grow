@@ -1,7 +1,8 @@
 """Tests for the path formatter."""
 
 import unittest
-import mock
+from unittest import mock
+
 from grow.routing import path_format as grow_path_format
 
 

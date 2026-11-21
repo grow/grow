@@ -1,9 +1,9 @@
 """NPM installer class."""
 
 import subprocess
+
 from grow.sdk import sdk_utils
 from grow.sdk.installers import base_installer
-
 
 INSTALL_HASH_FILE = '/node_modules/install-hash.txt'
 NPM_LOCK_FILE = '/package-lock.json'
@@ -17,7 +17,7 @@ class NpmInstaller(base_installer.BaseInstaller):
     KIND = 'npm'
 
     def __init__(self, pod, config):
-        super(NpmInstaller, self).__init__(pod, config)
+        super().__init__(pod, config)
         self._using_yarn = None
 
     @property
@@ -65,8 +65,8 @@ class NpmInstaller(base_installer.BaseInstaller):
             elif sdk_utils.PLATFORM == 'mac':
                 install_commands.append(
                     'Using brew (https://brew.sh), you can install using: `brew install node`')
-                install_commands.append(('If you do not have brew, you can download '
-                                         'Node.js from https://nodejs.org'))
+                install_commands.append('If you do not have brew, you can download '
+                                         'Node.js from https://nodejs.org')
             else:
                 install_commands.append(
                     'Download Node.js from https://nodejs.org')
@@ -90,23 +90,23 @@ class NpmInstaller(base_installer.BaseInstaller):
         if self.pod.file_exists(PACKAGE_FILE):
             hash_string = self.pod.hash_file(PACKAGE_FILE)
         if self.pod.file_exists(YARN_LOCK_FILE):
-            hash_string = '{} {}'.format(hash_string, self.pod.hash_file(YARN_LOCK_FILE))
+            hash_string = f'{hash_string} {self.pod.hash_file(YARN_LOCK_FILE)}'
         if self.pod.file_exists(NPM_LOCK_FILE):
-            hash_string = '{} {}'.format(hash_string, self.pod.hash_file(NPM_LOCK_FILE))
+            hash_string = f'{hash_string} {self.pod.hash_file(NPM_LOCK_FILE)}'
         return hash_string
 
     def _install_npm(self):
         """Install dependencies using npm."""
         command = 'npm install' if not self.config.get('ci') else 'npm ci'
         install_command = self._nvm_command(command)
-        self.pod.logger.info('Running: {}'.format(install_command))
+        self.pod.logger.info(f'Running: {install_command}')
         process = subprocess.Popen(install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
             self.pod.write_file(INSTALL_HASH_FILE, self._generate_hashes())
             return
         raise base_installer.InstallError(
-            'There was an error running `{}`.'.format(command))
+            f'There was an error running `{command}`.')
 
     def _install_yarn(self):
         """Install dependencies using npm."""
@@ -122,7 +122,7 @@ class NpmInstaller(base_installer.BaseInstaller):
     def _nvm_command(self, command):
         if self.pod.file_exists('/.nvmrc'):
             # Need to source NVM first to get the nvm command to work.
-            return '. $NVM_DIR/nvm.sh && nvm exec {}'.format(command)
+            return f'. $NVM_DIR/nvm.sh && nvm exec {command}'
         return command
 
     def check_prerequisites(self):

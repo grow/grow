@@ -5,6 +5,8 @@ import os
 import sys
 import threading
 
+_IMPORT_LOCK = threading.Lock()
+
 
 class ExtensionImporter:
     """Custom find the extensions based on the pod path."""
@@ -17,7 +19,7 @@ class ExtensionImporter:
         try:
             module_name = extension_parts[-1]
         except IndexError:
-            raise ImportError('Unable to find extension: {}'.format(extension_ref))
+            raise ImportError(f'Unable to find extension: {extension_ref}')
 
         # Try first as the full module path.
         module_path = '{}{sep}{}.py'.format(
@@ -33,16 +35,16 @@ class ExtensionImporter:
 
         if not os.path.exists(module_path):
             raise ImportError(
-                'Unable to find extension module for {!r}'.format(extension_ref))
+                f'Unable to find extension module for {extension_ref!r}')
 
         spec = importlib.util.spec_from_file_location(module_name, module_path)
 
         if not spec:
             raise ImportError(
-                'Unable to load extension from {!r}'.format(extension_ref))
+                f'Unable to load extension from {extension_ref!r}')
 
         # Lock the module import to prevent concurrency issues between pods.
-        with threading.Lock():
+        with _IMPORT_LOCK:
             # Import the module from the spec and execute to get access.
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
@@ -55,7 +57,7 @@ class ExtensionImporter:
             # Make a list of the keys since the modules may change when
             # using the keys iterator.
             module_keys = list(sys.modules.keys())
-            ext_prefix = '{}.'.format(module_name)
+            ext_prefix = f'{module_name}.'
             for key in filter(lambda x: x.startswith(ext_prefix), module_keys):
                 try:
                     del sys.modules[key]

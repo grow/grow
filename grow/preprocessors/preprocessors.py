@@ -1,12 +1,11 @@
 """Grow preprocessors."""
 
 import json
+
 from protorpc import protojson
-from grow.preprocessors import blogger
-from grow.preprocessors import google_drive
-from grow.preprocessors import gulp
-from grow.preprocessors import webpack
+
 from grow.extensions import extension_importer
+from grow.preprocessors import blogger, google_drive, gulp, webpack
 
 _preprocessor_kinds_to_classes = {}
 
@@ -35,7 +34,7 @@ def make_preprocessor(kind, config, pod):
     inject = config.pop('inject', False)
     class_obj = _preprocessor_kinds_to_classes.get(kind)
     if class_obj is None:
-        raise ValueError('No legacy preprocessor for "{}".'.format(kind))
+        raise ValueError(f'No legacy preprocessor for "{kind}".')
     if isinstance(config, dict):
         config = json.dumps(config)
         config = config_from_json(class_obj, config)

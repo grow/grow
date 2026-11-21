@@ -1,23 +1,21 @@
 """Translation catalog container."""
 
-import io
 import collections
 import gettext
+import io
 import os
 import tokenize
+
+import click
 import texttable
 from babel import support
 from babel.messages import catalog as babel_catalog
-from babel.messages import extract
-from babel.messages import mofile
-from babel.messages import pofile
-import click
+from babel.messages import extract, pofile
+
 from grow.common import utils
 from grow.pods import messages
-from grow.translations import catalogs
-from grow.translations import importers
+from grow.translations import catalogs, importers
 from grow.translations import locales as grow_locales
-
 
 _IGNORED_PREFIXS = (
     '.',
@@ -34,7 +32,7 @@ _TRANSLATABLE_EXTENSIONS = (
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -55,7 +53,7 @@ class Catalogs:
         self.root = os.path.dirname(self.template_path)
 
     def __repr__(self):
-        return '<Catalogs: {}>'.format(self.template_path)
+        return f'<Catalogs: {self.template_path}>'
 
     def diff(self, other_catalogs, out_dir):
         """Produces a diff between this directory of catalogs, and another set
@@ -79,7 +77,7 @@ class Catalogs:
                 diffed_locales_to_catalogs[locale] += 1
             diffed_catalog.save()
         for locale, num_diff in diffed_locales_to_catalogs.items():
-            self.pod.logger.info('Found different messages for {} -> {}'.format(locale, num_diff))
+            self.pod.logger.info(f'Found different messages for {locale} -> {num_diff}')
 
     def get(self, locale, basename='messages.po', dir_path=None):
         return catalogs.Catalog(basename, locale, pod=self.pod, dir_path=dir_path)
@@ -110,7 +108,7 @@ class Catalogs:
             yield self.get(locale)
 
     def __len__(self):
-        return len([catalog for catalog in self])
+        return sum(1 for _ in self)
 
     def compile(self, force=False):
         self.clear_gettext_cache()
@@ -167,7 +165,7 @@ class Catalogs:
                     use_fuzzy_matching=use_fuzzy_matching)
         for locale in locales:
             catalog = self.get(locale)
-            self.pod.logger.info('Updating: {}'.format(locale))
+            self.pod.logger.info(f'Updating: {locale}')
             catalog.update(template_path=self.template_path,
                            use_fuzzy_matching=use_fuzzy_matching,
                            include_header=include_header,
@@ -270,11 +268,11 @@ class Catalogs:
             #   field@#: Extracted comment for field@.
             auto_comments = []
             if isinstance(node, dict):
-                auto_comment = node.get('{}#'.format(key))
+                auto_comment = node.get(f'{key}#')
                 if auto_comment:
                     auto_comments.append(auto_comment)
             elif isinstance(node, list) and parent_node:
-                auto_comment = parent_node.get('{}#'.format(key))
+                auto_comment = parent_node.get(f'{key}#')
                 if auto_comment:
                     auto_comments.append(auto_comment)
 
@@ -304,7 +302,7 @@ class Catalogs:
                     _add_to_catalog(message, locales)
             except tokenize.TokenError:
                 self.pod.logger.error(
-                    'Problem extracting body: {}'.format(path))
+                    f'Problem extracting body: {path}')
                 raise
 
         # Extract from collections in /content/:
@@ -316,13 +314,14 @@ class Catalogs:
             collection_paths.append(collection.pod_path)
 
             if utils.fnmatches_paths(collection.blueprint_path, paths):
-                text = 'Extracting: {}'.format(collection.blueprint_path)
+                text = f'Extracting: {collection.blueprint_path}'
                 self.pod.logger.info(text)
                 # Extract from blueprint.
-                utils.walk(collection.tagged_fields,
-                           lambda msgid, key, node, **kwargs: _handle_field(
-                               collection.blueprint_path, collection.locales, msgid, key, node,
-                               **kwargs))
+                utils.walk(
+                    collection.tagged_fields,
+                    lambda msgid, key, node, _bp=collection.blueprint_path,
+                    _locales=collection.locales, **kwargs: _handle_field(
+                        _bp, _locales, msgid, key, node, **kwargs))
 
             for doc in collection.list_docs(include_hidden=True):
                 if not utils.fnmatches_paths(doc.pod_path, paths):
@@ -353,9 +352,11 @@ class Catalogs:
                 # Extract yaml fields: `foo@: Extract me`
                 # ("tagged" = prior to stripping `@` suffix from field names)
                 tagged_fields = doc.format.front_matter.raw_data
-                utils.walk(tagged_fields,
-                           lambda msgid, key, node, **kwargs: _handle_field(
-                               doc.pod_path, doc_locales, msgid, key, node, **kwargs))
+                utils.walk(
+                    tagged_fields,
+                    lambda msgid, key, node, _path=doc.pod_path,
+                    _locales=doc_locales, **kwargs: _handle_field(
+                        _path, _locales, msgid, key, node, **kwargs))
 
                 # Extract body: {{_('Extract me')}}
                 if doc.body:
@@ -369,9 +370,9 @@ class Catalogs:
                 if filepath.endswith('.csv'):
                     pod_path = os.path.join(
                         collection.pod_path, filepath.lstrip('/'))
-                    self.pod.logger.info('Extracting: {}'.format(pod_path))
+                    self.pod.logger.info(f'Extracting: {pod_path}')
                     rows = self.pod.read_csv(pod_path)
-                    for i, row in enumerate(rows):
+                    for _i, row in enumerate(rows):
                         for key, msgid in row.items():
                             _handle_field(
                                 pod_path, collection.locales, msgid, key, row)
@@ -389,9 +390,9 @@ class Catalogs:
                         # Extract from non-collection csv files.
                         if path.endswith('.csv'):
                             pod_path = os.path.join(pod_dir, path.lstrip('/'))
-                            self.pod.logger.info('Extracting: {}'.format(pod_path))
+                            self.pod.logger.info(f'Extracting: {pod_path}')
                             rows = self.pod.read_csv(pod_path)
-                            for i, row in enumerate(rows):
+                            for _i, row in enumerate(rows):
                                 for key, msgid in row.items():
                                     _handle_field(
                                         pod_path, self.pod.list_locales(), msgid, key, row)
@@ -399,35 +400,35 @@ class Catalogs:
                         # Extract from non-collection yaml files.
                         if path.endswith(('.yaml', '.yml')):
                             pod_path = os.path.join(pod_dir, path.lstrip('/'))
-                            self.pod.logger.info('Extracting: {}'.format(pod_path))
+                            self.pod.logger.info(f'Extracting: {pod_path}')
                             utils.walk(
                                 self.pod.read_yaml(pod_path),
-                                lambda msgid, key, node, **kwargs: _handle_field(
-                                    pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
+                                lambda msgid, key, node, _path=pod_path, **kwargs: _handle_field(
+                                    _path, self.pod.list_locales(), msgid, key, node, **kwargs)
                             )
 
         # Extract from data directories of /data/:
         for path in self.pod.list_dir('/data/', recursive=True):
             if not utils.fnmatches_paths(path, paths):
                 continue
-            if path.endswith(('.csv')):
+            if path.endswith('.csv'):
                 pod_path = os.path.join('/data/', path.lstrip('/'))
-                self.pod.logger.info('Extracting: {}'.format(pod_path))
+                self.pod.logger.info(f'Extracting: {pod_path}')
                 rows = self.pod.read_csv(pod_path)
-                for i, row in enumerate(rows):
+                for _i, row in enumerate(rows):
                     for key, msgid in row.items():
                         _handle_field(
                             pod_path, self.pod.list_locales(), msgid, key, row)
 
             if path.endswith(('.yaml', '.yml')):
                 pod_path = os.path.join('/data/', path.lstrip('/'))
-                self.pod.logger.info('Extracting: {}'.format(pod_path))
+                self.pod.logger.info(f'Extracting: {pod_path}')
                 fields = utils.parse_yaml(
                     self.pod.read_file(pod_path), pod=self.pod)
                 utils.walk(
                     fields,
-                    lambda msgid, key, node, **kwargs: _handle_field(
-                        pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
+                    lambda msgid, key, node, _path=pod_path, **kwargs: _handle_field(
+                        _path, self.pod.list_locales(), msgid, key, node, **kwargs)
                 )
 
         # Extract from root of /content/:
@@ -436,11 +437,11 @@ class Catalogs:
                 continue
             if path.endswith(('.yaml', '.yml')):
                 pod_path = os.path.join('/content/', path)
-                self.pod.logger.info('Extracting: {}'.format(pod_path))
+                self.pod.logger.info(f'Extracting: {pod_path}')
                 utils.walk(
                     self.pod.get_doc(pod_path).format.front_matter.raw_data,
-                    lambda msgid, key, node, **kwargs: _handle_field(
-                        pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
+                    lambda msgid, key, node, _path=pod_path, **kwargs: _handle_field(
+                        _path, self.pod.list_locales(), msgid, key, node, **kwargs)
                 )
 
         # Extract from /views/:
@@ -454,7 +455,7 @@ class Catalogs:
                         or filename.startswith(_IGNORED_PREFIXS):
                     continue
                 pod_path = os.path.join('/views/', path)
-                self.pod.logger.info('Extracting: {}'.format(pod_path))
+                self.pod.logger.info(f'Extracting: {pod_path}')
                 with self.pod.open_file(pod_path, 'rb') as f:
                     _babel_extract(f, self.pod.list_locales(), pod_path)
 
@@ -468,14 +469,14 @@ class Catalogs:
                     continue
                 pod_path = os.path.join('/partials/', path)
                 if path.endswith(('.yaml', '.yml')):
-                    self.pod.logger.info('Extracting: {}'.format(pod_path))
+                    self.pod.logger.info(f'Extracting: {pod_path}')
                     utils.walk(
                         self.pod.get_doc(pod_path).format.front_matter.raw_data,
-                        lambda msgid, key, node, **kwargs: _handle_field(
-                            pod_path, self.pod.list_locales(), msgid, key, node, **kwargs)
+                        lambda msgid, key, node, _path=pod_path, **kwargs: _handle_field(
+                            _path, self.pod.list_locales(), msgid, key, node, **kwargs)
                     )
                 if path.endswith(('.html', '.htm')):
-                    self.pod.logger.info('Extracting: {}'.format(pod_path))
+                    self.pod.logger.info(f'Extracting: {pod_path}')
                     with self.pod.open_file(pod_path, 'rb') as f:
                         _babel_extract(f, self.pod.list_locales(), pod_path)
 
@@ -506,10 +507,7 @@ class Catalogs:
                 missing = existing_catalog.list_untranslated()
                 num_messages = len(existing_catalog)
                 self.pod.logger.info(
-                    'Saved: /{path} ({num_translated}/{num_messages})'.format(
-                        path=existing_catalog.pod_path,
-                        num_translated=num_messages - len(missing),
-                        num_messages=num_messages)
+                    f'Saved: /{existing_catalog.pod_path} ({num_messages - len(missing)}/{num_messages})'
                 )
             return untagged_strings, localized_catalogs.items()
         else:
@@ -548,7 +546,7 @@ class Catalogs:
                 'messages.mo')
             try:
                 return path, self.pod.open_file(path, 'rb')
-            except IOError:
+            except OSError:
                 pass
         return None, None
 
@@ -614,7 +612,7 @@ class Catalogs:
         # Generate a single catalog template.
         self.pod.write_file(out_path, '')
         babel_catalog = pofile.read_po(self.pod.open_file(out_path))
-        for message_id in messages_to_locales.keys():
+        for message_id in messages_to_locales:
             babel_catalog[message_id] = messages_to_locales[message_id]['message']
         self.write_template(out_path, babel_catalog,
                             include_header=include_header)

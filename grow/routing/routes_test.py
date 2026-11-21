@@ -1,6 +1,7 @@
 """Tests for the routes."""
 
 import unittest
+
 from grow.routing import routes as grow_routes
 
 
@@ -291,9 +292,7 @@ class RoutesTestCase(unittest.TestCase):
 
         # Filter specific nodes and test new paths.
         def _filter_func(_, value):
-            if value in (2, 5):
-                return False
-            return True
+            return value not in (2, 5)
 
         self.routes.filter(_filter_func)
 
@@ -751,9 +750,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
 
         # Filter specific nodes and test new paths.
         def _filter_func(_, value):
-            if value in (2, 5):
-                return False
-            return True
+            return value not in (2, 5)
 
         self.routes.filter(_filter_func)
 
@@ -789,7 +786,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
         expected = sorted([
             '/bax/bar', '/bax/pan',
         ])
-        actual = sorted(list(self.routes.paths))
+        actual = sorted(self.routes.paths)
         self.assertEqual(expected, actual)
 
         # Shard 2
@@ -798,7 +795,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
         expected = sorted([
             '/bax/coo/lib', '/foo',
         ])
-        actual = sorted(list(self.routes.paths))
+        actual = sorted(self.routes.paths)
         self.assertEqual(expected, actual)
 
         # Shard 3
@@ -808,7 +805,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
         expected = sorted([
             '/bax/coo/vin', '/tem/pon',
         ])
-        actual = sorted(list(self.routes.paths))
+        actual = sorted(self.routes.paths)
         self.assertEqual(expected, actual)
 
     def test_shard_attr(self):
@@ -843,21 +840,21 @@ class RoutesSimpleTestCase(unittest.TestCase):
                 '/foo', '/tem/pon', '/bax/pan/taw', '/bax/vew/vin', '/fes/pon',
                 '/tem/tan',
             ])
-            actual = sorted(list(self.routes.paths))
+            actual = sorted(self.routes.paths)
             self.assertEqual(expected, actual)
 
         # Shard 1
         _reset_routes()
         self.routes.shard(3, 1)
         expected = sorted(['/bax/bar', '/bax/coo/lib', '/fes/pon', '/foo', '/tem/pon'])
-        actual = sorted(list(self.routes.paths))
+        actual = sorted(self.routes.paths)
         self.assertEqual(expected, actual)
 
         # Shard 2
         _reset_routes()
         self.routes.shard(3, 2)
         expected = sorted(['/bax/coo/vin', '/bax/pan', '/tem/tan'])
-        actual = sorted(list(self.routes.paths))
+        actual = sorted(self.routes.paths)
         self.assertEqual(expected, actual)
 
         # Shard 3
@@ -865,7 +862,7 @@ class RoutesSimpleTestCase(unittest.TestCase):
         self.routes.shard(3, 3)
 
         expected = sorted(['/bax/pan/taw', '/bax/vew/vin'])
-        actual = sorted(list(self.routes.paths))
+        actual = sorted(self.routes.paths)
         self.assertEqual(expected, actual)
 
     def test_shard_errors(self):

@@ -1,5 +1,4 @@
-from protorpc import messages
-from protorpc import message_types
+from protorpc import message_types, messages
 
 
 class AuthorMessage(messages.Message):

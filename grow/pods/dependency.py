@@ -17,7 +17,7 @@ class DependencyGraph:
     def normalize_path(pod_path):
         """Normalize a pod path."""
         if pod_path and not pod_path.startswith('/'):
-            pod_path = '/{}'.format(pod_path)
+            pod_path = f'/{pod_path}'
         return pod_path
 
     @property
@@ -87,7 +87,7 @@ class DependencyGraph:
         """Formats the dependency graph for export."""
         result = OrderedDict()
         for key in sorted(self._dependencies.keys()):
-            result[key] = sorted(list(self._dependencies[key]))
+            result[key] = sorted(self._dependencies[key])
         return result
 
     def get_dependents(self, reference):
@@ -97,7 +97,7 @@ class DependencyGraph:
         """
         return (self._dependents.get(reference, set())
                 | self._dependents.get(os.path.dirname(reference), set())
-                | set([reference]))
+                | {reference})
 
     def get_dependencies(self, source):
         """Get the dependencies of a specific source."""
@@ -116,7 +116,7 @@ class DependencyGraph:
         for dependent in self._dependents:
             if fnmatch.fnmatch(dependent, reference):
                 matched_dependents = (
-                    matched_dependents | self._dependents.get(dependent) | set([dependent]))
+                    matched_dependents | self._dependents.get(dependent) | {dependent})
         return matched_dependents
 
     def reset(self):

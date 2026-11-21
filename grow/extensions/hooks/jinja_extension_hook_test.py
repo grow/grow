@@ -1,7 +1,6 @@
 """Tests for jinja extension hook."""
 
 import unittest
-from grow.extensions.hooks import pre_render_hook
 
 
 class JinjaExtensionHookTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class JinjaExtensionHookTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

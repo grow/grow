@@ -1,7 +1,6 @@
 """Tests for deployment destination registration hook."""
 
 import unittest
-from grow.extensions.hooks import deployment_register_hook
 
 
 class DeploymentRegisterHookTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class DeploymentRegisterHookTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

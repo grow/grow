@@ -1,7 +1,6 @@
 """Tests for post render hook."""
 
 import unittest
-from grow.extensions.hooks import dev_file_change_hook
 
 
 class DevFileChangeHookTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class DevFileChangeHookTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

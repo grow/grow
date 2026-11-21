@@ -9,25 +9,26 @@ Usage:
     grow convert --type=content_locale_split
 """
 
-from boltons import iterutils
-from collections import OrderedDict
-import collections
+import collections.abc
 import copy
 import logging
 import os
 import re
+from collections import OrderedDict
+
 import yaml
+from boltons import iterutils
 
 try:
-    from yaml import CLoader as yaml_Loader
+    from yaml import CSafeLoader as yaml_Loader
 except ImportError:
-    from yaml import Loader as yaml_Loader
+    from yaml import SafeLoader as yaml_Loader
 
 
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -52,9 +53,9 @@ SINGLE_TEMPLATE = '{}\n'
 
 
 def _update_deep(orig_dict, new_dict):
-    for k, v in new_dict.items():
+    for k in new_dict:
         if (k in orig_dict and isinstance(orig_dict[k], dict)
-                and isinstance(new_dict[k], collections.Mapping)):
+                and isinstance(new_dict[k], collections.abc.Mapping)):
             _update_deep(orig_dict[k], new_dict[k])
         else:
             orig_dict[k] = new_dict[k]
@@ -185,7 +186,7 @@ class ConversionDocument:
                         parent = parent[path_key]
                     if base_key in parent:
                         return base_key, value
-                    return '{}@'.format(base_key), value
+                    return f'{base_key}@', value
                 return False
 
             parsed = iterutils.remap(parsed, visit=visit)
@@ -247,7 +248,7 @@ class ConversionDocument:
                 if base_key in parent:
                     locale_parent[base_key] = value
                 else:
-                    locale_parent['{}@'.format(base_key)] = value
+                    locale_parent[f'{base_key}@'] = value
 
                 if key in locale_parent:
                     locale_parent.pop(key, None)
@@ -266,36 +267,36 @@ class ConversionDocument:
         # Files with @ in them should already be converted.
         if '@' in self.file_name:
             logging.info(
-                'Filename contains a @, skipping: {}'.format(self.file_name))
+                f'Filename contains a @, skipping: {self.file_name}')
             return
 
         # Ignore hidden files.
         if self.file_name.startswith('.'):
             logging.info(
-                'Filename starts with ., skipping: {}'.format(self.file_name))
+                f'Filename starts with ., skipping: {self.file_name}')
             return
 
         # Ignore files that don't have an extention
         _, file_extension = os.path.splitext(self.file_name)
         if not file_extension:
             logging.info(
-                'Filename does not have an extension, skipping: {}'.format(self.file_name))
+                f'Filename does not have an extension, skipping: {self.file_name}')
             return
 
         pairs = list(self.split())
 
         if len(pairs) <= 1:
             logging.info(
-                'Single locale detected, skipping: {}'.format(self.file_name))
+                f'Single locale detected, skipping: {self.file_name}')
             return
 
-        logging.info('Converting: {}'.format(self.file_name))
-        logging.info(' - Number of content pairs: {}'.format(len(pairs)))
+        logging.info(f'Converting: {self.file_name}')
+        logging.info(f' - Number of content pairs: {len(pairs)}')
 
         # Determine if there is a file specific default_locale in first pair.
         default_locale = ConversionDocument.determine_default_locale(
             pairs[0][0]) or self.default_locale
-        logging.info(' - Using default_locale: {}'.format(default_locale))
+        logging.info(f' - Using default_locale: {default_locale}')
 
         # Base content will be pruned of localized values that belong in files.
         base_front_matter = pairs[0][0]
@@ -307,7 +308,7 @@ class ConversionDocument:
 
             if not locales:
                 raise LocaleMissingError(
-                    'A section in {} is missing a locale and would be lost.'.format(self.file_name))
+                    f'A section in {self.file_name} is missing a locale and would be lost.')
 
             # Ensure that there are not existing files for the Locales.
             for locale in locales:
@@ -315,8 +316,7 @@ class ConversionDocument:
 
                 if self.pod.file_exists(locale_filename):
                     raise LocaleExistsError(
-                        '{} locale section (defined in {}) already has a localized file ({}).\nPlease resolve this confilict and re-run the conversion.'.format(
-                            locale, self.file_name, locale_filename))
+                        f'{locale} locale section (defined in {self.file_name}) already has a localized file ({locale_filename}).\nPlease resolve this confilict and re-run the conversion.')
 
         # Store each locale contents until the end so we can combine multiple
         # sections that may use the same locale.
@@ -349,7 +349,7 @@ class ConversionDocument:
         for locale, locale_front_matter in locale_to_front_matter.items():
             content = locale_to_content.get(locale, None)
             locale_filename = self.file_name_for_locale(locale)
-            logging.info('Writing: {}'.format(locale_filename))
+            logging.info(f'Writing: {locale_filename}')
             locale_front_matter_dump = yaml.dump(
                 locale_front_matter, Dumper=PlainTextYamlDumper, allow_unicode=True,
                 default_flow_style=False).strip() if locale_front_matter else ''
@@ -363,7 +363,7 @@ class ConversionDocument:
         _, base_front_matter = ConversionDocument.determine_locales(
             base_front_matter, default_locale, remove_locales=False,
             remove_default_locale=True)
-        logging.info('Writing: {}'.format(self.file_name))
+        logging.info(f'Writing: {self.file_name}')
         output = ConversionDocument.format_file(base_front_matter, content)
         self.pod.write_file(self.file_name, output)
 
@@ -377,7 +377,7 @@ class ConversionDocument:
     def normalize_raw_content(self):
         # Clean and rewrite the yaml files that start with an empty section.
         if self.file_name.endswith('.yaml') and self.raw_content.lstrip().startswith('---'):
-            logging.info('Normalizing: {}'.format(self.file_name))
+            logging.info(f'Normalizing: {self.file_name}')
             self.raw_content = self.raw_content.lstrip()[3:].lstrip()
             self.pod.write_file(self.file_name, self.raw_content)
 
@@ -413,10 +413,10 @@ class Converter:
     def convert(pod):
         default_locale = pod.podspec.default_locale
 
-        logging.info('Using default locale: {}'.format(default_locale))
+        logging.info(f'Using default locale: {default_locale}')
 
         # Go through each document and convert to the updated format.
-        for root, dirs, files in pod.walk('/content'):
+        for root, _dirs, files in pod.walk('/content'):
             pod_dir = root.replace(pod.root, '')
 
             for file_name in files:
@@ -425,6 +425,5 @@ class Converter:
                 try:
                     doc.convert()
                 except:
-                    print('Error trying to convert: {}'.format(
-                        os.path.join(pod_dir, file_name)))
+                    print(f'Error trying to convert: {os.path.join(pod_dir, file_name)}')
                     raise

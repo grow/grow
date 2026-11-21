@@ -2,9 +2,8 @@
 
 import random
 import threading
-from grow.templates import filters
-from grow.templates import jinja_dependency
-from grow.templates import tags
+
+from grow.templates import filters, jinja_dependency, tags
 from grow.templates import tests as jinja_tests
 
 
@@ -12,7 +11,7 @@ class Error(Exception):
     """Base rendering pool error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 

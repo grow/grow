@@ -1,12 +1,12 @@
 """Tests for Extensions Installer."""
 
 import unittest
-import mock
+from unittest import mock
+
+from grow import storage
 from grow.common import base_config
 from grow.pods import pods
-from grow import storage
-from grow.sdk.installers import base_installer
-from grow.sdk.installers import extensions_installer
+from grow.sdk.installers import base_installer, extensions_installer
 from grow.testing import testing
 
 
@@ -42,13 +42,12 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         mock_process.wait.return_value = 0
         mock_popen.return_value = mock_process
         extensions_dir = self.pod.extensions_dir
-        extensions_init_file = '/{}/__init__.py'.format(extensions_dir)
+        extensions_init_file = f'/{extensions_dir}/__init__.py'
         self.pod.delete_file(extensions_init_file)
         self.assertFalse(self.pod.file_exists(extensions_init_file))
         self.installer.install()
         self.assertTrue(self.pod.file_exists(extensions_init_file))
-        expected = 'pip3 install -U -q -t {} -r extensions.txt'.format(
-            extensions_dir)
+        expected = f'pip3 install -U -q -t {extensions_dir} -r extensions.txt'
         mock_popen.assert_called_once_with(
             expected, **self.installer.subprocess_args(shell=True))
 

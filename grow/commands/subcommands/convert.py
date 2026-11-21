@@ -1,14 +1,14 @@
 """Subcommand for converting pod files from earlier grow versions."""
 
 import os
+
 import click
+
+from grow import storage
 from grow.commands import shared
 from grow.common import rc_config
+from grow.conversion import collection_routing, content_locale_split
 from grow.pods import pods
-from grow import storage
-from grow.conversion import collection_routing
-from grow.conversion import content_locale_split
-
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.convert')
 CONVERT_CHOICES = [

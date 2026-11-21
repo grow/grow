@@ -1,7 +1,9 @@
 """Routes core extension."""
 
 import os
+
 from werkzeug import wrappers
+
 from grow import extensions
 from grow.collections import collection
 from grow.common import timer
@@ -86,8 +88,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
             # Trigger the dev handler hook.
             pod.extensions_controller.trigger(
                 'dev_handler', pod.router.routes)
-        pod.logger.info('{} routes rebuilt in {:.3f} s'.format(
-            len(pod.router.routes), router_time.secs))
+        pod.logger.info(f'{len(pod.router.routes)} routes rebuilt in {router_time.secs:.3f} s')
 
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
@@ -95,9 +96,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
         basename = os.path.basename(pod_path)
         ignore_doc = basename.startswith(collection.Collection.IGNORE_INITIAL)
 
-        if pod_path == '/{}'.format(pod.FILE_PODSPEC):
-            self._reset_routes(pod)
-        elif (pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
+        if pod_path == f'/{pod.FILE_PODSPEC}' or (pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
               and pod_path.startswith(collection.Collection.CONTENT_PATH)):
             self._reset_routes(pod)
         elif pod_path.startswith(collection.Collection.CONTENT_PATH) and not ignore_doc:
@@ -142,8 +141,8 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                     removed_docs.append(original_doc)
 
                 # If the locales change then we need to adjust the routes.
-                original_locales = set([str(l) for l in original_doc.locales])
-                updated_locales = set([str(l) for l in updated_doc.locales])
+                original_locales = {str(loc) for loc in original_doc.locales}
+                updated_locales = {str(loc) for loc in updated_doc.locales}
 
                 new_locales = updated_locales - original_locales
                 for locale in new_locales:
@@ -154,15 +153,17 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                 removed_locales = original_locales - updated_locales
                 for locale in removed_locales:
                     removed_doc = pod.get_doc(original_doc.pod_path, locale)
-                    if removed_doc.has_serving_path():
-                        if removed_doc not in removed_docs:
-                            removed_docs.append(removed_doc)
+                    if removed_doc.has_serving_path() and removed_doc not in removed_docs:
+                        removed_docs.append(removed_doc)
 
             # Check for new docs.
             for trigger_doc in trigger_docs:
-                if trigger_doc.exists and trigger_doc.has_serving_path():
-                    if not pod.router.routes.match(trigger_doc.get_serving_path()):
-                        added_docs.append(trigger_doc)
+                if (
+                    trigger_doc.exists
+                    and trigger_doc.has_serving_path()
+                    and not pod.router.routes.match(trigger_doc.get_serving_path())
+                ):
+                    added_docs.append(trigger_doc)
             if added_docs or removed_docs:
                 pod.router.reconcile_documents(
                     remove_docs=removed_docs, add_docs=added_docs)

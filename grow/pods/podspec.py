@@ -6,7 +6,7 @@ from grow.translations import locales
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -31,7 +31,7 @@ class PodSpec:
     def __getattr__(self, name):
         if name in self.fields:
             return self.fields[name]
-        tagged_name = '{}@'.format(name)
+        tagged_name = f'{name}@'
         if tagged_name in self.fields:
             return self.fields[tagged_name]
         return object.__getattribute__(self, name)

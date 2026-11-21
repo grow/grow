@@ -1,18 +1,13 @@
 """Local development server manager."""
 
-import logging
-import os
-import socket
 import sys
 import threading
-from grow.common import bulk_errors
-from grow.common import colors
-from grow.common import timer
-from grow.documents import document
-from grow.preprocessors import file_watchers
-from grow.server import main as main_lib
+
 from werkzeug import serving
 
+from grow.common import colors, timer
+from grow.preprocessors import file_watchers
+from grow.server import main as main_lib
 
 # Number of tries to find a free port.
 NUM_TRIES = 10
@@ -21,7 +16,7 @@ NUM_TRIES = 10
 class CallbackHTTPServer(serving.ThreadedWSGIServer):
 
     def server_activate(self):
-        super(CallbackHTTPServer, self).server_activate()
+        super().server_activate()
         _, port = self.server_address
         self.pod.env.port = port
         with timer.Timer() as router_time:
@@ -32,8 +27,7 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
                 # Do not exit the process here; the server should remain active
                 # so the developer can fix any issues related to the router,
                 # without needing to manually restart the server.
-        self.pod.logger.info('{} routes built in {:.3f} s'.format(
-            len(self.pod.router.routes), router_time.secs))
+        self.pod.logger.info(f'{len(self.pod.router.routes)} routes built in {router_time.secs:.3f} s')
 
         url, extra_urls = print_server_ready_message(self.pod, self.pod.env.host, port)
         if self.open_browser:
@@ -60,19 +54,19 @@ class ServerMessages:
                 label = colors.stylize(label.rjust(label_max_width), label_color)
             if message_color:
                 message = colors.stylize(message, message_color)
-            log_function('{} {}'.format(label, message))
+            log_function(f'{label} {message}')
 
 
 def print_server_ready_message(pod, host, port):
     try:
         home_doc = pod.get_home_doc()
         root_path = home_doc.url.path if home_doc and home_doc.exists else '/'
-    except:
+    except Exception:
         # Allow the user to fix the problem without restarting the server manually.
         root_path = '/'
         pod.logger.exception('Failed to determine root URL path.')
-    url_base = 'http://{}:{}/'.format(host, port)
-    url_root = 'http://{}:{}{}'.format(host, port, root_path)
+    url_base = f'http://{host}:{port}/'
+    url_root = f'http://{host}:{port}{root_path}'
 
     messages = ServerMessages()
     messages.add_message('Pod:', pod.root, colors.HIGHLIGHT)
@@ -116,7 +110,7 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
             app.app.port = port
             serving.run_simple(host, port, app, request_handler=handler, threaded=True)
             done = True
-        except socket.error as e:
+        except OSError as e:
             # if any(x in str(e) for x in ('Errno 48', 'Errno 98')):
             if 'Errno 48' in str(e):
                 num_tries += 1
@@ -133,7 +127,8 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
                 # Clean up the file watchers.
                 main_observer.stop()
                 podspec_observer.stop()
-                return
+        if done:
+            return
 
     text = 'Unable to find a port for the server (tried {}).'
     pod.logger.error(text.format(port))

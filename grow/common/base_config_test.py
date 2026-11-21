@@ -1,6 +1,7 @@
 """Tests for Base Config."""
 
 import unittest
+
 from grow.common import base_config
 
 

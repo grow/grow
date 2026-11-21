@@ -1,7 +1,8 @@
 """Tests for the deployment utils."""
 
 import unittest
-import mock
+from unittest import mock
+
 from grow.deployments import utils
 
 
@@ -10,19 +11,19 @@ class UtilsTest(unittest.TestCase):
 
     def _mock_author(self, **kwargs):
         author = mock.Mock()
-        name = kwargs['name'] if 'name' in kwargs else 'name'
+        name = kwargs.get('name', 'name')
         type(author).name = mock.PropertyMock(return_value=name)
-        email = kwargs['email'] if 'email' in kwargs else 'email'
+        email = kwargs.get('email', 'email')
         type(author).email = mock.PropertyMock(return_value=email)
         return author
 
     def _mock_commit(self, **kwargs):
         commit = mock.Mock()
-        sha = kwargs['sha'] if 'sha' in kwargs else 'sha'
+        sha = kwargs.get('sha', 'sha')
         type(commit).hexsha = mock.PropertyMock(return_value=sha)
-        message = kwargs['message'] if 'message' in kwargs else 'message'
+        message = kwargs.get('message', 'message')
         type(commit).message = mock.PropertyMock(return_value=message)
-        branch = kwargs['branch'] if 'branch' in kwargs else 'branch'
+        branch = kwargs.get('branch', 'branch')
         type(commit).branch = mock.PropertyMock(return_value=branch)
         author = kwargs['author'] if 'author' in kwargs else self._mock_author(**kwargs)
         type(commit).author = mock.PropertyMock(return_value=author)
@@ -44,7 +45,7 @@ class UtilsTest(unittest.TestCase):
         if 'name_side_effect' in kwargs:
             type(ref).name = mock.PropertyMock(side_effect=kwargs['name_side_effect'])
         else:
-            name = kwargs['name'] if 'name' in kwargs else 'name'
+            name = kwargs.get('name', 'name')
             type(ref).name = mock.PropertyMock(return_value=name)
         return ref
 

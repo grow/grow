@@ -1,7 +1,8 @@
 """Grow deployment management."""
 
-from protorpc import protojson
 import json
+
+from protorpc import protojson
 
 
 class Deployments:
@@ -24,7 +25,7 @@ class Deployments:
         """Create an instance of the deployment destination."""
         destination_cls = self._deployments.get(kind)
         if destination_cls is None:
-            raise ValueError('No deployment destination exists for "{}".'.format(kind))
+            raise ValueError(f'No deployment destination exists for "{kind}".')
 
         if isinstance(config, dict):
             config = json.dumps(config)

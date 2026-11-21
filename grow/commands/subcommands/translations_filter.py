@@ -1,12 +1,13 @@
 """Subcommand for filtering untranslated messages."""
 
 import os
+
 import click
+
+from grow import storage
 from grow.commands import shared
 from grow.common import rc_config
 from grow.pods import pods
-from grow import storage
-
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.filter')
 
@@ -43,9 +44,9 @@ def translations_filter(pod_path, locale, o, include_obsolete, localized, path, 
             locale = catalogs.list_locales()
         if out_dir and pod.file_exists(out_dir) and not f:
             raise click.UsageError(
-                '{} exists. You must specify a directory that does not exist, or '
+                f'{out_dir} exists. You must specify a directory that does not exist, or '
                 'use the "-f" flag, which will force update catalogs within the '
-                'specified directory.'.format(out_dir))
+                'specified directory.')
         catalogs.filter(out_path=o, out_dir=out_dir,
                         include_obsolete=include_obsolete,
                         localized=localized, paths=path, exclude_paths=exclude_path,

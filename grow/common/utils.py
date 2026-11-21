@@ -1,7 +1,7 @@
 """Common grow utility functions."""
 
-import csv as csv_lib
 import codecs
+import csv as csv_lib
 import fnmatch
 import functools
 import gettext
@@ -10,19 +10,18 @@ import logging
 import os
 import re
 import string
-import sys
 import threading
 import time
-from urllib import parse as url_parse
 from collections import OrderedDict
-import yaml
+from urllib import parse as url_parse
+
 import bs4
 import git
 import html2text
-import translitcodec  # pylint: disable=unused-import
-from grow.common import structures
-from grow.common import untag
-from grow.common import yaml_utils
+import translitcodec  # noqa: F401  # Registers 'translit/long' codec.
+import yaml
+
+from grow.common import structures, untag, yaml_utils
 from grow.pods import errors
 
 # The C (LibYAML) version is massively faster than the pure Python version.
@@ -30,10 +29,10 @@ from grow.pods import errors
 # related to fixing it.
 try:
     # pylint: disable=ungrouped-imports
-    from yaml import CLoader as yaml_Loader
+    from yaml import CSafeLoader as yaml_Loader
 except ImportError:
     logging.warning('Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml')
-    from yaml import Loader as yaml_Loader
+    from yaml import SafeLoader as yaml_Loader
 
 
 LOCALIZED_KEY_REGEX = re.compile('(.*)@([^@]+)$')
@@ -47,18 +46,16 @@ class Error(Exception):
     """Base error class."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
 class UnavailableError(Error):
     """Raised when a feature is not available."""
-    pass
 
 
 class DraftStringError(Error):
     """Raised when a draft string is used yet not allowed."""
-    pass
 
 
 def get_grow_dir():
@@ -72,7 +69,7 @@ def get_git_repo(root):
             return git.Repo(root)
         except git.InvalidGitRepositoryError:
             root = os.path.abspath(os.path.join(root, '..'))
-    logging.info('WARNING: No Git repository found from: {}'.format(original_root))
+    logging.info(f'WARNING: No Git repository found from: {original_root}')
 
 
 def interactive_confirm(message, default=False, input_func=None):
@@ -80,7 +77,7 @@ def interactive_confirm(message, default=False, input_func=None):
         input_func = lambda m: input(m).lower()
 
     choices = 'Y/n' if default is True else 'y/N'
-    message = '{} [{}]: '.format(message, choices)
+    message = f'{message} [{choices}]: '
     choice = input_func(message)
     if choice == 'y':
         return True
@@ -95,7 +92,7 @@ def safe_format(base_string, *args, **kwargs):
     safe_kwargs = structures.SafeDict(**kwargs)
     try:
         return FORMATTER.vformat(base_string, args, safe_kwargs)
-    except TypeError as e:
+    except TypeError:
         return FORMATTER.vformat(str(base_string), args, safe_kwargs)
 
 
@@ -126,7 +123,7 @@ def validate_name(name):
             or ' ' in name):
         raise errors.BadNameError(
             'Names must be lowercase and only contain letters, numbers, '
-            'backslashes, and dashes. Found: "{}"'.format(name))
+            f'backslashes, and dashes. Found: "{name}"')
 
 
 class memoize:
@@ -200,12 +197,12 @@ class memoize_tag(memoize):
     def __call__(self, *args, **kwargs):
         use_cache = kwargs.pop('use_cache', False)
         if use_cache is True:
-            return super(memoize_tag, self).__call__(*args, **kwargs)
+            return super().__call__(*args, **kwargs)
         return self.func(*args, **kwargs)
 
 
-def every_two(l):
-    return list(zip(l[::2], l[1::2]))
+def every_two(items):
+    return list(zip(items[::2], items[1::2]))
 
 
 def make_base_yaml_loader(pod, locale=None, untag_params=None,
@@ -277,7 +274,7 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             if '.' not in path:
                 return None
             main, reference = path.split('.', 1)
-            path = '/content/strings/{}.yaml'.format(main)
+            path = f'/content/strings/{main}.yaml'
             tracking_func(path)
             if reference:
                 data = structures.DeepReferenceDict(
@@ -285,16 +282,15 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                 try:
                     allow_draft = pod.podspec.fields.get('strings', {}).get('allow_draft')
                     if allow_draft is False and data.get(DRAFT_KEY):
-                        raise DraftStringError('Encountered string in draft -> {}?{}'.format(path, reference))
+                        raise DraftStringError(f'Encountered string in draft -> {path}?{reference}')
                     value = data[reference]
                     if value is None:
                         if cls.pod_path():
                             pod.logger.warning(
-                                'Missing {}.{} in {}'.format(
-                                    main, reference, cls.pod_path()))
+                                f'Missing {main}.{reference} in {cls.pod_path()}')
                         else:
                             pod.logger.warning(
-                                'Missing {}.{}'.format(main, reference))
+                                f'Missing {main}.{reference}')
                     return value
                 except KeyError:
                     return None
@@ -319,7 +315,7 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
         def _construct_func(self, node, func):
             if isinstance(node, yaml.SequenceNode):
                 items = []
-                for i, each in enumerate(node.value):
+                for i, _each in enumerate(node.value):
                     items.append(func(node.value[i].value))
                 return items
             return func(node.value)
@@ -425,7 +421,7 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
                 constructed_doc = pod.get_doc(path, locale=self.loader_locale())
                 if not constructed_doc.exists:
                     raise errors.DocumentDoesNotExistError(
-                        'Referenced document does not exist: {}'.format(path))
+                        f'Referenced document does not exist: {path}')
                 tracking_func(constructed_doc.pod_path)
                 return constructed_doc
             return self._construct_func(node, func)
@@ -561,10 +557,10 @@ class ProgressBarThread(threading.Thread):
     def __init__(self, bar, enabled, *args, **kwargs):
         self.bar = bar
         self.enabled = enabled
-        super(ProgressBarThread, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def run(self):
-        super(ProgressBarThread, self).run()
+        super().run()
         if self.enabled:
             self.bar.update(self.bar.value + 1)
 
@@ -607,7 +603,7 @@ def _process_google_comments(soup):
 def _clean_google_href(href):
     regex = ('^'
              + re.escape('https://www.google.com/url')
-             + '(\?|.*\&)q=([^\&]*)')
+             + r'(\?|.*\&)q=([^\&]*)')
     match = re.match(regex, href)
     if match:
         encoded_url = match.group(2)

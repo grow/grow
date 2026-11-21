@@ -1,10 +1,10 @@
 """Tests for the render batch."""
 
 import unittest
-from grow.pods import pods
+
 from grow import storage
-from grow.rendering import render_batch
-from grow.rendering import renderer
+from grow.pods import pods
+from grow.rendering import render_batch, renderer
 from grow.testing import testing
 
 

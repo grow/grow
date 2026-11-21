@@ -2,6 +2,7 @@
 
 import subprocess
 import urllib.parse
+
 from grow.common import utils
 from grow.sdk.installers import base_installer
 
@@ -49,6 +50,6 @@ class GerritInstaller(base_installer.BaseInstaller):
             if not code:
                 return
             raise base_installer.InstallError(
-                'There was an error running `{}`.'.format(chmod_command))
+                f'There was an error running `{chmod_command}`.')
         raise base_installer.InstallError(
-            'There was an error running `{}`.'.format(curl_command))
+            f'There was an error running `{curl_command}`.')

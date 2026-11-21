@@ -1,5 +1,6 @@
-from . import local
 import unittest
+
+from . import local
 
 
 class LocalDestinationTestCase(unittest.TestCase):

@@ -1,14 +1,16 @@
 """Base command for grow."""
 
-from grow.deployments.destinations import local as local_destination
-import click
 import os
+
+import click
 import pkg_resources
+
+from grow.deployments.destinations import local as local_destination
 
 version = pkg_resources.get_distribution('grow').version
 
 HELP_TEXT = ('Grow is a declarative file-based website generator. Read docs at '
-             'https://grow.dev. This is version {}.'.format(version))
+             f'https://grow.dev. This is version {version}.')
 
 # pylint: disable=unused-argument
 @click.group(help=HELP_TEXT)

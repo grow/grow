@@ -1,7 +1,6 @@
 """Tests for base hook."""
 
 import unittest
-from grow.extensions.hooks import base_hook
 
 
 class BaseHookTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class BaseHookTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

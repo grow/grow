@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Utility for converting Grow sites to enable collection level routing. Instead
 of storing things that affect routing directly in the document it is stored
@@ -15,9 +14,10 @@ Usage:
 import collections
 import logging
 import os
-import yaml
-from grow.common import yaml_utils
 
+import yaml
+
+from grow.common import yaml_utils
 
 ROUTES_FILENAME = '_blueprint.yaml'
 COLLECTION_META_KEYS = ('$path', '$localization', '$view')
@@ -29,7 +29,7 @@ COLLECTION_BLUEPRINT_KEYS = (
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -51,7 +51,7 @@ class RoutesData:
             data['path'] = self.blueprint.get(
                 '$path', self.blueprint.get('path'))
 
-        tagged_keys = tuple(['{}@'.format(key)
+        tagged_keys = tuple([f'{key}@'
                              for key in COLLECTION_BLUEPRINT_KEYS])
 
         for key in sorted(self.blueprint.keys()):
@@ -70,12 +70,12 @@ class RoutesData:
             raw_data = doc.format.front_matter.raw_data
 
         if not raw_data:
-            print('No raw data found for document: {}'.format(doc.pod_path))
+            print(f'No raw data found for document: {doc.pod_path}')
             return
 
         data = collections.OrderedDict()
 
-        tagged_keys = tuple(['{}@'.format(key)
+        tagged_keys = tuple([f'{key}@'
                              for key in COLLECTION_META_KEYS])
 
         for key, value in raw_data.items():
@@ -98,14 +98,14 @@ class RoutesData:
         routes_file = os.path.join(collection.pod_path, ROUTES_FILENAME)
 
         if self.data['routes']:
-            print(' └─ Writing: {}'.format(routes_file))
+            print(f' └─ Writing: {routes_file}')
             print('')
             output = yaml.dump(
                 self.data, Dumper=yaml_utils.PlainTextYamlDumper,
                 default_flow_style=False, allow_unicode=True, width=800)
             pod.write_file(routes_file, output)
         else:
-            print(' └─ Skipping: {}'.format(routes_file))
+            print(f' └─ Skipping: {routes_file}')
             print('')
 
 
@@ -119,7 +119,7 @@ class ConversionCollection:
 
     def convert(self):
         """Perform the conversion to use collection based routing."""
-        print('Converting: {}'.format(self.collection.pod_path))
+        print(f'Converting: {self.collection.pod_path}')
 
         # Pull out the meta information from all the docs.
         sorted_docs = sorted(self.collection.list_docs_unread(), key=lambda doc: doc.pod_path)
@@ -133,8 +133,7 @@ class Converter:
 
     @staticmethod
     def convert(pod):
-        logging.info('Converting pod for collection level routing: {}'.format(
-            pod.root))
+        logging.info(f'Converting pod for collection level routing: {pod.root}')
 
         for collection in pod.list_collections():
             conv_collection = ConversionCollection(pod, collection)

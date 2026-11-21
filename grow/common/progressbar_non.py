@@ -1,8 +1,8 @@
 """Non-interactive progressbar fallback for non-interactive shells."""
 
-import os
-import sys
 import datetime
+import os
+
 import progressbar
 
 
@@ -37,33 +37,33 @@ class NonInteractiveProgressBar:
     def data(self):
         """Try to mimic the data available to the progressbar."""
         elapsed = self._last_update - self._started_on
-        return dict(
+        return {
             # The maximum value (can be None with iterators)
-            max_value=self._max_value,
+            'max_value': self._max_value,
             # Start time of the widget
-            start_time=self._started_on,
+            'start_time': self._started_on,
             # Last update time of the widget
-            last_update_time=self._last_update,
+            'last_update_time': self._last_update,
             # End time of the widget
-            end_time=self._finished_on,
+            'end_time': self._finished_on,
             # The current value
-            value=self._value,
+            'value': self._value,
             # The seconds since the bar started
-            total_seconds_elapsed=elapsed.total_seconds,
+            'total_seconds_elapsed': elapsed.total_seconds,
             # The seconds since the bar started modulo 60
-            seconds_elapsed=(elapsed.seconds % 60) +
+            'seconds_elapsed': (elapsed.seconds % 60) +
             (elapsed.microseconds / 1000000.),
             # The minutes since the bar started modulo 60
-            minutes_elapsed=(elapsed.seconds / 60) % 60,
+            'minutes_elapsed': (elapsed.seconds / 60) % 60,
             # The hours since the bar started modulo 24
-            hours_elapsed=(elapsed.seconds / (60 * 60)) % 24,
+            'hours_elapsed': (elapsed.seconds / (60 * 60)) % 24,
             # The hours since the bar started
-            days_elapsed=(elapsed.seconds / (60 * 60 * 24)),
+            'days_elapsed': (elapsed.seconds / (60 * 60 * 24)),
             # The raw elapsed `datetime.timedelta` object
-            time_elapsed=elapsed,
+            'time_elapsed': elapsed,
             # Percentage as a float or `None` if no max_value is available
-            percentage=self.percentage,
-        )
+            'percentage': self.percentage,
+        }
 
     def finish(self):
         """Finished with the progressbar."""

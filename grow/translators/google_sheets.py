@@ -2,21 +2,17 @@
 
 import datetime
 import io
-import progressbar
 import random
-from babel.messages import catalog
+
+import progressbar
+from babel.messages import catalog as babel_catalog_lib
 from babel.messages import pofile
 from googleapiclient import errors
+
 from grow.common import progressbar_non
 from grow.preprocessors import google_drive
 from grow.translators import errors as translator_errors
-try:
-    import io as StringIO
-except ImportError:  # pragma: no cover
-    try:
-        import io
-    except ImportError:
-        from io import StringIO
+
 from . import base
 
 
@@ -56,7 +52,7 @@ class GoogleSheetsTranslator(base.Translator):
     has_multiple_langs_in_one_resource = True
 
     def __init__(self, pod, config=None, project_title=None, instructions=None):
-        super(GoogleSheetsTranslator, self).__init__(
+        super().__init__(
             pod, config=config, project_title=project_title,
             instructions=instructions)
         self.update_meta_after_upload = False
@@ -83,7 +79,7 @@ class GoogleSheetsTranslator(base.Translator):
 
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
-        rangeName = "'{}'!A:D".format(locale)
+        rangeName = f"'{locale}'!A:D"
         try:
             # pylint: disable=no-member
             resp = service.spreadsheets().values().get(
@@ -91,7 +87,7 @@ class GoogleSheetsTranslator(base.Translator):
         except errors.HttpError as e:
             if e.resp['status'] == '400':
                 raise translator_errors.NotFoundError(
-                    'Translation for {} not found.'.format(locale))
+                    f'Translation for {locale} not found.')
             raise
 
         # Check for spreadsheets that are missing columns.
@@ -122,7 +118,7 @@ class GoogleSheetsTranslator(base.Translator):
                 continue
 
             rangeLocales.append(locale)
-            rangeNames.append("'{}'!A:D".format(locale))
+            rangeNames.append(f"'{locale}'!A:D")
 
         if skipped_locales:
             self.pod.logger.info(
@@ -148,13 +144,13 @@ class GoogleSheetsTranslator(base.Translator):
         except errors.HttpError as e:
             if e.resp['status'] == '400':
                 raise translator_errors.NotFoundError(
-                    'Translation for {} not found.'.format(locales))
+                    f'Translation for {locales} not found.')
             raise
 
     def _download_content(self, stat, values):
         # Ignore the header row.
         values.pop(0)
-        babel_catalog = catalog.Catalog(stat.lang)
+        babel_catalog = babel_catalog_lib.Catalog(stat.lang)
         for row in values:
             # Skip empty rows.
             if not row or self._is_empty_row(row):
@@ -176,7 +172,7 @@ class GoogleSheetsTranslator(base.Translator):
         return updated_stat, content
 
     def _is_empty_row(self, row):
-        return bool(set(row) - set((None, ''))) is False
+        return bool(set(row) - {None, ''}) is False
 
     def _upload_catalogs(self, catalogs, source_lang, prune=False):
         if not catalogs:
@@ -190,7 +186,7 @@ class GoogleSheetsTranslator(base.Translator):
         spreadsheet_id = None
         stats_to_download = self._get_stats_to_download([])
         if stats_to_download:
-            stat = list(stats_to_download.values())[0]
+            stat = next(iter(stats_to_download.values()))
             spreadsheet_id = stat.ident if stat else None
 
         # NOTE: Manging locales across multiple spreadsheets is unsupported.
@@ -248,10 +244,10 @@ class GoogleSheetsTranslator(base.Translator):
         for catalog in catalogs:
             if str(catalog.locale) == source_lang:
                 continue
-            url = '{}{}'.format(self.SHEETS_BASE_URL, spreadsheet_id)
+            url = f'{self.SHEETS_BASE_URL}{spreadsheet_id}'
             lang = str(catalog.locale)
             if lang in locales_to_sheet_ids:
-                url += '#gid={}'.format(locales_to_sheet_ids[lang])
+                url += f'#gid={locales_to_sheet_ids[lang]}'
             stat = base.TranslatorStat(
                 url=url,
                 lang=lang,
@@ -332,7 +328,7 @@ class GoogleSheetsTranslator(base.Translator):
                     found = True
                     break
 
-            if found == True:
+            if found:
                 continue
 
             new_rows.append({
@@ -686,7 +682,7 @@ class GoogleSheetsTranslator(base.Translator):
         for sheet_id, catalog in sheet_ids_to_catalogs.items():
             lang = str(catalog.locale)
             existing_values = self._download_sheet(spreadsheet_id, lang)
-            for x in range(self.HEADER_ROW_COUNT):
+            for _x in range(self.HEADER_ROW_COUNT):
                 existing_values.pop(0)  # Remove header rows.
             for value in existing_values:
                 if not value or self._is_empty_row(value):  # Skip empty rows.
@@ -700,7 +696,7 @@ class GoogleSheetsTranslator(base.Translator):
             # Check for missing columns.
             num_missing_columns = 0
             for column in existing_values[0]:
-                if column == None:
+                if column is None:
                     num_missing_columns += 1
 
             if num_missing_columns:
@@ -829,7 +825,7 @@ class GoogleSheetsTranslator(base.Translator):
                 permission['type'] = 'group'
                 permission['emailAddress'] = item['group']
             # pylint: disable=no-member
-            resp = service.permissions().create(
+            service.permissions().create(
                 fileId=spreadsheet_id,
                 body=permission).execute()
 
@@ -897,7 +893,7 @@ class GoogleSheetsTranslator(base.Translator):
             locales = spreadsheet_id_to_locales[spreadsheet_id]
             locale_to_values = self._download_sheets(spreadsheet_id, locales)
 
-            for i, (lang, stat) in enumerate(stats_to_download.items()):
+            for _i, (lang, stat) in enumerate(stats_to_download.items()):
                 if lang not in locale_to_values:
                     continue
 
@@ -947,4 +943,4 @@ class GoogleSheetsTranslator(base.Translator):
         if doc.locale not in stats:
             return
         stat = stats[doc.locale]
-        return '{}&fvid={}'.format(stat.url, self._content_hash(doc.pod_path, doc.locale))
+        return f'{stat.url}&fvid={self._content_hash(doc.pod_path, doc.locale)}'

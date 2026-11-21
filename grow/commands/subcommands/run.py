@@ -1,13 +1,13 @@
 """Command to run the local development server."""
 import os
+
 import click
+
+from grow import storage
 from grow.commands import shared
 from grow.common import rc_config
-from grow.pods import env
-from grow.pods import pods
-from grow import storage
+from grow.pods import env, pods
 from grow.server import manager
-
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.run')
 

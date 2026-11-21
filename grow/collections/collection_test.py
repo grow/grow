@@ -1,11 +1,12 @@
 """Test the pod collections."""
 
 import unittest
-from grow.collections import collection
-from grow.translations import locales
-from grow.pods import pods
+
 from grow import storage
+from grow.collections import collection
+from grow.pods import pods
 from grow.testing import testing
+from grow.translations import locales
 
 
 class CollectionsTestCase(unittest.TestCase):
@@ -175,15 +176,15 @@ class CollectionsTestCase(unittest.TestCase):
     def test_collections(self):
         collection = self.pod.create_collection('new', {})
         self.assertEqual([],
-              [col for col in collection.collections()])
+              list(collection.collections()))
         sub_collection = self.pod.create_collection('new/sub', {})
         self.assertEqual([sub_collection],
-              [col for col in collection.collections()])
+              list(collection.collections()))
         sub_sub_collection = self.pod.create_collection('new/sub/sub', {})
         self.assertEqual([sub_collection],
-              [col for col in collection.collections()])
+              list(collection.collections()))
         self.assertEqual([sub_sub_collection],
-              [col for col in sub_collection.collections()])
+              list(sub_collection.collections()))
 
     def test_nested_collections(self):
         # While it was undefined behavior before, projects relied on the
@@ -212,7 +213,7 @@ class CollectionsTestCase(unittest.TestCase):
             '/subfolder2/',
         ]
         self.assertEqual(
-            sorted(expected), sorted(list(pod.router.routes.paths)))
+            sorted(expected), sorted(pod.router.routes.paths))
 
         # Blueprints one level deep.
         fields = {

@@ -1,8 +1,9 @@
 """Base class for the preprocess hook."""
 
 import json
-from protorpc import messages
-from protorpc import protojson
+
+from protorpc import messages, protojson
+
 from grow.extensions.hooks import base_hook
 
 
@@ -15,7 +16,6 @@ class PreProcessHook(base_hook.BaseHook):
 
     class Config(messages.Message):
         """Config for preprocessing."""
-        pass
 
     @classmethod
     def parse_config(cls, config):
@@ -34,13 +34,7 @@ class PreProcessHook(base_hook.BaseHook):
         if kind != self.KIND:
             return False
 
-        if names and name in names:
-            return True
-        elif tags and set(config_tags).intersection(tags):
-            return True
-        elif autorun or run_all:
-            return True
-        return False
+        return bool(names and name in names or tags and set(config_tags).intersection(tags) or autorun or run_all)
 
     # pylint: disable=arguments-differ,unused-argument
     def trigger(self, previous_result, config, names, tags, run_all, rate_limit, *_args, **_kwargs):

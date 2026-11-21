@@ -2,8 +2,10 @@
 
 import collections
 import os
+
 import texttable
 from protorpc import protojson
+
 from . import messages
 
 
@@ -83,12 +85,12 @@ class Stats:
         table.set_deco(texttable.Texttable.HEADER)
         catalogs = sorted(self.pod.catalogs, key=str)
         rows = []
-        rows.append(['Translations ({})'.format(len(catalogs)), 'Messages'])
+        rows.append([f'Translations ({len(catalogs)})', 'Messages'])
         for catalog in catalogs:
             num_messages = len(catalog)
             untranslated_messages = catalog.list_untranslated()
             translated_messages = num_messages - len(untranslated_messages)
-            label = '{} / {}'.format(translated_messages, num_messages)
+            label = f'{translated_messages} / {num_messages}'
             rows.append([str(catalog.locale), label])
 
         table.add_rows(rows)

@@ -1,12 +1,14 @@
 """Tests for the translation stats."""
 
+import io
 import textwrap
 import unittest
-import io
-import mock
+from unittest import mock
+
 from babel.messages import catalog
-from grow.pods import pods
+
 from grow import storage
+from grow.pods import pods
 from grow.testing import testing
 from grow.translations import translation_stats
 

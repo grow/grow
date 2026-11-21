@@ -1,6 +1,7 @@
 """Nvm installer class."""
 
 import subprocess
+
 from grow.sdk.installers import base_installer
 
 
@@ -34,4 +35,4 @@ class NvmInstaller(base_installer.BaseInstaller):
         if not code:
             return
         raise base_installer.InstallError(
-            'There was an error running `{}`.'.format(install_command))
+            f'There was an error running `{install_command}`.')

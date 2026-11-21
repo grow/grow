@@ -1,11 +1,11 @@
 """Markdown utility methods for pods."""
 
 import copy
+
 import markdown
 from markdown.extensions import tables
-from grow.common import markdown_extensions
-from grow.common import structures
-from grow.common import utils
+
+from grow.common import markdown_extensions, structures, utils
 
 
 class MarkdownUtil:

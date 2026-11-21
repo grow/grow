@@ -1,7 +1,6 @@
 """Tests for podcache extensions."""
 
 import unittest
-from grow.extensions.core import podcache_extension
 
 
 class PodcacheExtensionTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class PodcacheExtensionTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

@@ -1,10 +1,11 @@
-from babel import localedata
-from grow.pods import errors
-from grow.pods import messages
-import pickle
 import os
-import babel
+import pickle
 import re
+
+import babel
+from babel import localedata
+
+from grow.pods import errors, messages
 
 
 class Locales:
@@ -46,24 +47,24 @@ class Locales:
 
 
 class Locale(babel.Locale):
-    RTL_REGEX = re.compile('^(he|ar|fa|ur)(\W|$)')
+    RTL_REGEX = re.compile(r'^(he|ar|fa|ur)(\W|$)')
     _alias = None
 
     def __init__(self, language, *args, **kwargs):
         # Normalize from "de_de" to "de_DE" for case-sensitive filesystems.
         parts = language.rsplit('_', 1)
         if len(parts) > 1:
-            language = '{}_{}'.format(parts[0], parts[1].upper())
-        super(Locale, self).__init__(language, *args, **kwargs)
+            language = f'{parts[0]}_{parts[1].upper()}'
+        super().__init__(language, *args, **kwargs)
 
     @classmethod
     def parse(cls, *args, **kwargs):
-        locale = super(Locale, cls).parse(*args, **kwargs)
+        locale = super().parse(*args, **kwargs)
         # Weak attempt to permit fuzzy locales (locales for which we still have
         # language and country information, but not a full localedata file for),
         # but disallow completely invalid locales. See note at end of file.
         if locale and locale.get_display_name() is None:
-            raise ValueError('{} is not a valid locale identifier'.format(args[0]))
+            raise ValueError(f'{args[0]} is not a valid locale identifier')
         return locale
 
     def __hash__(self):
@@ -72,13 +73,13 @@ class Locale(babel.Locale):
     def __eq__(self, other):
         if isinstance(other, str):
             return str(self).lower() == other.lower()
-        return super(Locale, self).__eq__(other)
+        return super().__eq__(other)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return '<Locale: "{}">'.format(str(self))
+        return f'<Locale: "{str(self)}">'
 
     @classmethod
     def parse_codes(cls, codes):
@@ -156,18 +157,15 @@ def fuzzy_load(name, merge_inherited=True):
                 else:
                     parent = '_'.join(parts[:-1])
                 data = fuzzy_load(parent).copy()
-            filename = os.path.join(localedata._dirname, '%s.dat' % name)
+            filename = os.path.join(localedata._dirname, f'{name}.dat')
             try:
-                fileobj = open(filename, 'rb')
-                try:
+                with open(filename, 'rb') as fileobj:
                     if name != 'root' and merge_inherited:
                         localedata.merge(data, pickle.load(fileobj))
                     else:
                         data = pickle.load(fileobj)
                     localedata._cache[name] = data
-                finally:
-                    fileobj.close()
-            except IOError:
+            except OSError:
                 pass
         return data
     finally:

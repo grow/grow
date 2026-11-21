@@ -1,19 +1,18 @@
 """Command for building pods into static deployments."""
 
 import os
+
 import click
+
+from grow import storage
 from grow.commands import shared
-from grow.common import bulk_errors
-from grow.common import rc_config
-from grow.common import utils
+from grow.common import bulk_errors, rc_config, utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
 from grow.extensions import hooks
 from grow.performance import docs_loader
 from grow.pods import pods
 from grow.rendering import renderer
-from grow import storage
-
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 

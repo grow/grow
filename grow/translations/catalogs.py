@@ -1,16 +1,14 @@
 """Translation catalogs."""
 
-from datetime import datetime
-import logging
-import os
-import re
-import textwrap
 import fnmatch
+import os
+import textwrap
+from datetime import datetime
+
 from babel import util
-from babel.messages import catalog
-from babel.messages import mofile
-from babel.messages import pofile
+from babel.messages import catalog, mofile, pofile
 from babel.util import odict
+
 from grow.pods import messages
 
 
@@ -28,12 +26,12 @@ class Catalog(catalog.Catalog):
             self.pod_path = os.path.join(dir_path, str(locale), 'LC_MESSAGES',
                                          basename)
             is_template = False
-        super(Catalog, self).__init__(locale=self.locale)
+        super().__init__(locale=self.locale)
         if not is_template and self.exists:
             self.load()
 
     def __repr__(self):
-        return '<Catalog: {}>'.format(self.pod_path)
+        return f'<Catalog: {self.pod_path}>'
 
     @property
     def mimetype(self):
@@ -51,7 +49,7 @@ class Catalog(catalog.Catalog):
             try:
                 babel_catalog = pofile.read_po(po_file, self.locale)
             except:
-                self.pod.logger.error('Error parsing catalog for: {}'.format(self.locale))
+                self.pod.logger.error(f'Error parsing catalog for: {self.locale}')
                 raise
         finally:
             po_file.close()
@@ -119,7 +117,7 @@ class Catalog(catalog.Catalog):
 
     def update_using_catalog(self, catalog_to_merge, use_fuzzy_matching=False,
                              include_obsolete=False):
-        super(Catalog, self).update(
+        super().update(
             catalog_to_merge, no_fuzzy_matching=(not use_fuzzy_matching))
         # Don't use gettext's obsolete functionality as it polutes files: merge
         # into main translations if anything
@@ -137,7 +135,7 @@ class Catalog(catalog.Catalog):
             return
         template_file = self.pod.open_file(template_path)
         template = pofile.read_po(template_file)
-        super(Catalog, self).update(
+        super().update(
             template, no_fuzzy_matching=(not use_fuzzy_matching))
         # Don't use gettext's obsolete functionality as it polutes files: merge
         # into main translations if anything
@@ -178,10 +176,7 @@ class Catalog(catalog.Catalog):
 
     def _skip_compile_error(self, error):
         # Reduces logspam by hiding errors related to placeholders.
-        if ('incompatible format for placeholder' in str(error)
-                 or 'placeholders are incompatible' in str(error)):
-            return True
-        return False
+        return bool('incompatible format for placeholder' in str(error) or 'placeholders are incompatible' in str(error))
 
     def compile(self):
         self.pod.catalogs.clear_gettext_cache()
@@ -204,8 +199,8 @@ class Catalog(catalog.Catalog):
                     text = 'Error compiling ({}:{}): {}'
                     message = text.format(self.locale, message.lineno, error)
                     self.pod.logger.error(message)
-        except IOError:
-            self.pod.logger.info('Skipped catalog check for: {}'.format(self))
+        except OSError:
+            self.pod.logger.info(f'Skipped catalog check for: {self}')
         text = 'Compiled: {} ({}/{})'
         self.pod.logger.info(text.format(self.locale, num_translated, num_total))
         mo_file = self.pod.open_file(mo_filename, 'wb')
@@ -216,7 +211,7 @@ class Catalog(catalog.Catalog):
 
     @classmethod
     def _message_in_paths(cls, message, paths):
-        location_paths = set([path for path, unused_lineno in message.locations])
+        location_paths = {path for path, unused_lineno in message.locations}
         for path in paths:
             for location_path in location_paths:
                 # Support pod paths and filesystem paths for tab completion.
@@ -251,23 +246,23 @@ class Catalog(catalog.Catalog):
         comment = ''
         if catalog.locale:
             lang_display_name = catalog.locale.language
-            comment += """
+            comment += f"""
             PROJECT TITLE:
-            {} ({})
-            """.format(project_title, lang_display_name)
+            {project_title} ({lang_display_name})
+            """
         else:
-            comment += """
+            comment += f"""
             PROJECT TITLE:
-            {}
-            """.format(project_title)
+            {project_title}
+            """
         comment = textwrap.dedent(comment)
         if instructions:
             instructions = textwrap.dedent(instructions)
-            comment += """
+            comment += f"""
             PROJECT INSTRUCTIONS:
-            {}
-            """.format(instructions)
+            {instructions}
+            """
         comment += ''
-        comment = ['# {}'.format(line.lstrip()) for line in comment.split('\n')]
+        comment = [f'# {line.lstrip()}' for line in comment.split('\n')]
         comment = comment[1:]  # Strip the first blank line.
         catalog.header_comment = '\n'.join(comment)

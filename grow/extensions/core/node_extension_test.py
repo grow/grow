@@ -1,7 +1,6 @@
 """Tests for node extension."""
 
 import unittest
-from grow.extensions.core import node_extension
 
 
 class NodeExtensionTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class NodeExtensionTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

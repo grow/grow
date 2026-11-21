@@ -1,25 +1,27 @@
 """Indexes for tracking the changes to pods across deployments and builds."""
 
+import configparser
 import datetime
 import logging
 import sys
 import traceback
-import configparser
+from multiprocessing import pool
+
 import git
 import progressbar
 import texttable
-from multiprocessing import pool
+from protorpc import protojson
+
 from grow.common import progressbar_non
 from grow.common import utils as common_utils
-from protorpc import protojson
-from . import messages
-from . import utils
+
+from . import messages, utils
 
 
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -31,7 +33,7 @@ class DeploymentError(Error):
     """Errors that occured during the rendering."""
 
     def __init__(self, message, err, err_tb):
-        super(DeploymentError, self).__init__(message)
+        super().__init__(message)
         self.err = err
         self.err_tb = err_tb
 
@@ -40,7 +42,7 @@ class DeploymentErrors(Error):
     """Errors that occured during the deployment."""
 
     def __init__(self, message, errors):
-        super(DeploymentErrors, self).__init__(message)
+        super().__init__(message)
         self.errors = errors
 
 
@@ -59,7 +61,7 @@ class Diff:
         author_name = author.name
         author_email = author.email
         if include_email:
-            return '{} <{}>'.format(author_name, author_email)
+            return f'{author_name} <{author_email}>'
         return author_name
 
     @classmethod
@@ -98,21 +100,17 @@ class Diff:
         table.add_rows(rows)
         logging.info('\n' + table.draw() + '\n')
         if last_index.deployed and last_index.deployed_by:
-            logging.info('Last deployed: {} by {}'.format(
-                last_index.deployed, cls._format_author(last_index.deployed_by)))
+            logging.info(f'Last deployed: {last_index.deployed} by {cls._format_author(last_index.deployed_by)}')
         last_commit_sha = last_commit.sha if last_commit else ''
         new_commit_sha = new_commit.sha if new_commit else ''
         if new_index.deployed_by:
-            between_commits = '{}..{}'.format(
-                last_commit_sha[:7],
-                new_commit_sha[:7])
+            between_commits = f'{last_commit_sha[:7]}..{new_commit_sha[:7]}'
             if new_commit:
                 if new_commit.has_unstaged_changes:
                     between_commits += ' (with unstaged changes)'
             else:
                 between_commits += ' (initial commit)'
-            logging.info('Diff: {} as {}'.format(
-                between_commits, new_index.deployed_by.email))
+            logging.info(f'Diff: {between_commits} as {new_index.deployed_by.email}')
         if diff.what_changed:
             logging.info(diff.what_changed + '\n')
         if diff.is_partial:
@@ -135,7 +133,7 @@ class Diff:
         for file_message in theirs.files:
             their_paths_to_shas[file_message.path] = file_message.sha
 
-        for path, sha in index_paths_to_shas.items():
+        for path in index_paths_to_shas:
             if path in their_paths_to_shas:
                 if index_paths_to_shas[path] == their_paths_to_shas[path]:
                     file_message = messages.FileMessage()
@@ -158,7 +156,7 @@ class Diff:
         # When doing partial diffs we do not have enough information to know
         # which files have been deleted.
         if not is_partial:
-            for path, sha in their_paths_to_shas.items():
+            for path in their_paths_to_shas:
                 file_message = messages.FileMessage()
                 file_message.path = path
                 file_message.deployed = theirs.deployed
@@ -172,7 +170,7 @@ class Diff:
                 what_changed = repo.git.log(
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
-                    '{}..{}'.format(theirs.commit.sha, index.commit.sha))
+                    f'{theirs.commit.sha}..{index.commit.sha}')
                 diff.what_changed = what_changed
             except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
@@ -331,7 +329,7 @@ class Diff:
         # When doing partial diffs we do not have enough information to know
         # which files have been deleted.
         if not is_partial:
-            for path, _ in their_paths_to_shas.items():
+            for path in their_paths_to_shas:
                 file_message = messages.FileMessage()
                 file_message.path = path
                 file_message.deployed = theirs.deployed
@@ -345,7 +343,7 @@ class Diff:
                 what_changed = repo.git.log(
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
-                    '{}..{}'.format(theirs.commit.sha, index.commit.sha))
+                    f'{theirs.commit.sha}..{index.commit.sha}')
                 diff.what_changed = what_changed
             except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
@@ -361,7 +359,7 @@ class Diff:
             if num_lines > cls.GIT_LOG_MAX:
                 changed_lines = changed_lines[:cls.GIT_LOG_MAX]
                 changed_lines.append(
-                    ' ... +{} more commits.'.format(num_lines-cls.GIT_LOG_MAX))
+                    f' ... +{num_lines-cls.GIT_LOG_MAX} more commits.')
                 what_changed = '\n'.join(changed_lines)
             diff.what_changed = what_changed
 
@@ -377,7 +375,7 @@ class Index:
         message.files = []
         if paths_to_rendered_doc is None:
             return message
-        for _, rendered_doc in paths_to_rendered_doc.items():
+        for rendered_doc in paths_to_rendered_doc.values():
             cls.add_file(message, rendered_doc)
         return message
 

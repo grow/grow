@@ -1,16 +1,17 @@
 """File watchers for grow."""
 
 import os
+
+from watchdog import events, observers
+
 from grow.common import colors
-from watchdog import events
-from watchdog import observers
+
 from . import translation
 
-
 IGNORED_PATTERNS = [
-    '*{sep}extensions{sep}*'.format(sep=os.sep),
-    '*{sep}node_modules{sep}*'.format(sep=os.sep),
-    '*{sep}build{sep}*'.format(sep=os.sep),
+    f'*{os.sep}extensions{os.sep}*',
+    f'*{os.sep}node_modules{os.sep}*',
+    f'*{os.sep}build{os.sep}*',
 ]
 
 
@@ -29,7 +30,7 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
 
         if 'ignore_patterns' not in kwargs:
             kwargs['ignore_patterns'] = IGNORED_PATTERNS
-        super(PodFileEventHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def trigger_file_changed(self, pod_path):
         try:
@@ -40,7 +41,7 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
             # if it encounters an exception. https://github.com/grow/grow/issues/528
             colored_pod_path = colors.stylize(pod_path, colors.ERROR)
             self.pod.logger.exception(
-                'Found an error -> {}'.format(colored_pod_path))
+                f'Found an error -> {colored_pod_path}')
 
     def handle(self, event=None):
         if hasattr(event, 'src_path'):
@@ -61,7 +62,7 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
         self.preprocessor = preprocessor
         if 'ignore_patterns' not in kwargs:
             kwargs['ignore_patterns'] = IGNORED_PATTERNS
-        super(PreprocessorEventHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def handle(self, event=None):
         if event is not None and event.is_directory:
@@ -92,7 +93,7 @@ class ManagedObserver(observers.Observer):
         self.pod = pod
         self._preprocessor_watches = []
         self._child_observers = []
-        super(ManagedObserver, self).__init__()
+        super().__init__()
 
     def schedule_podfile(self, write_cache_file=True):
         podfile_handler = PodFileEventHandler(
@@ -138,17 +139,17 @@ class ManagedObserver(observers.Observer):
     def start(self):
         for observer in self._child_observers:
             observer.start()
-        super(ManagedObserver, self).start()
+        super().start()
 
     def stop(self):
         for observer in self._child_observers:
             observer.stop()
-        super(ManagedObserver, self).stop()
+        super().stop()
 
     def join(self):
         for observer in self._child_observers:
             observer.join()
-        super(ManagedObserver, self).join()
+        super().join()
 
     def run_handlers(self):
         for handlers in self._handlers.values():

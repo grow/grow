@@ -1,12 +1,13 @@
-from . import google_translator_toolkit
-from grow.preprocessors import google_drive
-from grow.common import oauth
-from grow.pods import pods
-from grow import storage
-from nose.plugins import skip
-from grow.testing import testing
 import time
 import unittest
+
+from grow import storage
+from grow.common import oauth
+from grow.pods import pods
+from grow.preprocessors import google_drive
+from grow.testing import testing
+
+from . import google_translator_toolkit
 
 
 class TranslatorTestCase(testing.TestCase):
@@ -14,7 +15,7 @@ class TranslatorTestCase(testing.TestCase):
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
-        super(TranslatorTestCase, self).setUp()
+        super().setUp()
 
     def test_upload_and_download_sheets_translations(self):
         translator = self.pod.get_translator('google_translator_toolkit')
@@ -26,7 +27,7 @@ class TranslatorTestCase(testing.TestCase):
                     ' because we don\'t have auth keys. Run'
                     ' `grow upload_translations` or `grow download_translations`'
                     ' to acquire auth keys and re-run the test.')
-            raise skip.SkipTest(text)
+            raise unittest.SkipTest(text)
         translator.upload(locales=['de'])
         translator.download(locales=['de'])
 
@@ -42,7 +43,7 @@ class TranslatorTestCase(testing.TestCase):
                     ' because we don\'t have auth keys. Run'
                     ' `grow upload_translations` or `grow download_translations`'
                     ' to acquire auth keys and re-run the test.')
-            raise skip.SkipTest(text)
+            raise unittest.SkipTest(text)
         translator.upload(locales=['de'])
         time.sleep(2)  # Wait for the document to be ready in GTT.
         translator.download(locales=['de'])

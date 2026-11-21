@@ -21,13 +21,13 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
         # Remove any raw file in the cache.
         self.pod.podcache.file_cache.remove(pod_path)
 
-        if pod_path == '/{}'.format(self.pod.FILE_PODSPEC):
+        if pod_path == f'/{self.pod.FILE_PODSPEC}':
             self.pod.podcache.reset()
         elif (pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
               and pod_path.startswith(collection.Collection.CONTENT_PATH)):
             doc = self.pod.get_doc(pod_path)
             self.pod.podcache.collection_cache.remove_collection(doc.collection)
-        elif pod_path == '/{}'.format(podcache.FILE_OBJECT_CACHE):
+        elif pod_path == f'/{podcache.FILE_OBJECT_CACHE}':
             self.pod.podcache.update(obj_cache=self.pod._parse_object_cache_file())
             if write_cache_file and self.pod.podcache.is_dirty:
                 self.pod.logger.info('Object cache changed, updating with new data.')

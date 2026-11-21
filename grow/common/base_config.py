@@ -55,12 +55,12 @@ class BaseConfigPrefixed:
         if not prefix:
             return ''
         if not prefix.endswith('.'):
-            prefix = '{}.'.format(prefix)
+            prefix = f'{prefix}.'
         return prefix
 
     def prefix_identifier(self, identifier):
         """Adds the prefix to the identifier"""
-        return '{}{}'.format(self.prefix, identifier)
+        return f'{self.prefix}{identifier}'
 
     def get(self, identifier, default_value=None):
         """Retrieve the identifier value in the config with prefix."""

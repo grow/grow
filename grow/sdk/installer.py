@@ -1,9 +1,7 @@
-# coding: utf8
 """Base installer class."""
 
 from grow.common import colors
 from grow.sdk.installers import base_installer
-
 
 EXTRA_FORMAT = '{}\n   {}'
 MESSAGE_FORMAT = '[{}] {}'
@@ -13,7 +11,7 @@ class Error(Exception):
     """Base error for installers."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -56,7 +54,7 @@ class Installer:
             if not installer.should_run:
                 continue
 
-            with self.pod.profile.timer('Installer.run_installers.{}'.format(installer.KIND)):
+            with self.pod.profile.timer(f'Installer.run_installers.{installer.KIND}'):
                 try:
                     installer.check_prerequisites()
                 except base_installer.MissingPrerequisiteError as err:

@@ -1,9 +1,9 @@
 """Tests for translation catalogs."""
 
-import os
 import unittest
-from grow.pods import pods
+
 from grow import storage
+from grow.pods import pods
 from grow.testing import testing
 from grow.translations import catalogs
 

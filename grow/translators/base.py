@@ -5,14 +5,13 @@ import json
 import logging
 import os
 import threading
+
 import progressbar
 import texttable
 import yaml
-from protorpc import message_types
-from protorpc import messages
-from protorpc import protojson
-from grow.common import progressbar_non
-from grow.common import utils
+from protorpc import message_types, messages, protojson
+
+from grow.common import progressbar_non, utils
 from grow.translators import errors as translator_errors
 
 
@@ -42,14 +41,13 @@ class TranslatorServiceError(Exception):
 
     def __init__(self, message, ident=None, locale=None):
         if locale:
-            new_message = 'Error for locale "{}" -> {}'.format(locale, message)
+            new_message = f'Error for locale "{locale}" -> {message}'
         elif ident:
-            new_message = 'Error for resource "{}" -> {}'.format(
-                ident, message)
+            new_message = f'Error for resource "{ident}" -> {message}'
         else:
             new_message = message
         self.message = new_message
-        super(TranslatorServiceError, self).__init__(new_message)
+        super().__init__(new_message)
 
 
 class Translator:
@@ -140,13 +138,13 @@ class Translator:
         stats = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
         if self.KIND not in stats:
             self.pod.logger.info(
-                'Nothing found to download from {}'.format(self.KIND))
+                f'Nothing found to download from {self.KIND}')
             return {}
         stats_to_download = stats[self.KIND]
         if locales:
-            stats_to_download = dict([(lang, stat)
+            stats_to_download = {lang: stat
                                       for (lang, stat) in stats_to_download.items()
-                                      if lang in locales])
+                                      if lang in locales}
         for lang, stat in stats_to_download.items():
             if isinstance(stat, TranslatorStat):
                 stat = json.loads(protojson.encode_message(stat))
@@ -233,8 +231,8 @@ class Translator:
             return
         if self.has_multiple_langs_in_one_resource:
             self._update_acls(stats_to_download, locales)
-            stat = list(stats_to_download.values())[0]
-            self.pod.logger.info('ACL updated -> {}'.format(stat.ident))
+            stat = next(iter(stats_to_download.values()))
+            self.pod.logger.info(f'ACL updated -> {stat.ident}')
             return
         threads = []
         for i, (locale, stat) in enumerate(stats_to_download.items()):
@@ -245,7 +243,7 @@ class Translator:
             if i == 0:
                 thread.join()
             self.pod.logger.info(
-                'ACL updated ({}): {}'.format(stat.lang, stat.url))
+                f'ACL updated ({stat.lang}): {stat.url}')
         for i, thread in enumerate(threads):
             if i > 0:
                 thread.join()
@@ -269,8 +267,7 @@ class Translator:
             thread.start()
             if i == 0:
                 thread.join()
-            self.pod.logger.info('Meta information updated ({}): {}'.format(
-                stat.lang, stat.url))
+            self.pod.logger.info(f'Meta information updated ({stat.lang}): {stat.url}')
         for i, thread in enumerate(threads):
             if i > 0:
                 thread.join()
@@ -353,11 +350,9 @@ class Translator:
         yaml_content = yaml.safe_dump(content, default_flow_style=False)
         self.pod.write_file(Translator.TRANSLATOR_STATS_PATH, yaml_content)
         if create:
-            self.pod.logger.info('Saved: {}'.format(
-                Translator.TRANSLATOR_STATS_PATH))
+            self.pod.logger.info(f'Saved: {Translator.TRANSLATOR_STATS_PATH}')
         else:
-            self.pod.logger.info('Updated: {}'.format(
-                Translator.TRANSLATOR_STATS_PATH))
+            self.pod.logger.info(f'Updated: {Translator.TRANSLATOR_STATS_PATH}')
 
     @classmethod
     def pretty_print_stats(cls, stats):

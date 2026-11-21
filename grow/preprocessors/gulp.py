@@ -1,13 +1,14 @@
 """Preprocessor for running gulp tasks."""
 
-import os
 import atexit
+import os
 import subprocess
+
 from protorpc import messages
+
 from grow.common import subprocesses
 from grow.preprocessors import base
 from grow.sdk import sdk_utils
-
 
 # Keep track of any child processes to terminate on exit.
 # pylint: disable=invalid-name
@@ -49,7 +50,7 @@ class GulpPreprocessor(base.BasePreprocessor):
             return
         code = process.wait()
         if code != 0:
-            text = 'Failed to run: {}'.format(command)
+            text = f'Failed to run: {command}'
             raise base.PreprocessorError(text)
 
 

@@ -5,6 +5,7 @@ Based off https://www.huyng.com/posts/python-performance-analysis
 
 import time
 
+
 class Timer:
     def __init__(self, verbose=False):
         self.verbose = verbose
@@ -18,4 +19,4 @@ class Timer:
         self.secs = self.end - self.start
         self.msecs = self.secs * 1000  # millisecs
         if self.verbose:
-            print('Elapsed time: {:.3f} ms'.format(self.msecs))
+            print(f'Elapsed time: {self.msecs:.3f} ms')

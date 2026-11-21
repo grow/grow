@@ -18,10 +18,10 @@ class Url:
             self.scheme = 'https'
 
     def __str__(self):
-        url = '{}://{}'.format(self.scheme, self.host)
+        url = f'{self.scheme}://{self.host}'
         if ((self.scheme == 'http' and self.port != 80)
                 or (self.scheme == 'https' and self.port != 443)):
-            url += ':{}'.format(self.port)
+            url += f':{self.port}'
         url += self.path
         return url
 
@@ -37,7 +37,7 @@ class Url:
         return str(self) < str(other)
 
     def __repr__(self):
-        return '<Url: {}>'.format(str(self))
+        return f'<Url: {str(self)}>'
 
     @staticmethod
     def create_relative_path(path, relative_to):
@@ -62,7 +62,7 @@ class Url:
 
             result = os.path.relpath(path_head, relative_head)
             if path_tail:
-                result = '{}/{}'.format(result, path_tail)
+                result = f'{result}/{path_tail}'
         else:
             result = os.path.relpath(path, relative_to)
         if path.endswith('/'):

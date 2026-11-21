@@ -1,9 +1,7 @@
 """Extension controller for working with extensions in the pod."""
 
-from grow.extensions import core
-from grow.extensions import extension_importer
-from grow.extensions import hooks
-from grow.extensions import hook_controller
+from grow.extensions import core, extension_importer, hook_controller, hooks
+
 
 class ExtensionController:
     """Controller for working with pod extensions."""
@@ -30,7 +28,7 @@ class ExtensionController:
             new_extensions.append(ext)
 
         # Register the hooks with the hook controllers.
-        for _, hook in self._hooks.items():
+        for hook in self._hooks.values():
             hook.register_extensions(new_extensions)
 
     def register_extensions(self, extension_configs):
@@ -41,7 +39,7 @@ class ExtensionController:
                 extension_path = config_item
                 config = {}
             else:
-                extension_path = list(config_item.keys())[0]
+                extension_path = next(iter(config_item.keys()))
                 config = config_item[extension_path]
             cls = extension_importer.ExtensionImporter.find_extension(
                 extension_path, self.pod.root)
@@ -50,7 +48,7 @@ class ExtensionController:
             self._extensions[extension_path] = ext
 
         # Register the hooks with the hook controllers.
-        for _, hook in self._hooks.items():
+        for hook in self._hooks.values():
             hook.register_extensions(new_extensions)
 
     def trigger(self, hook_key, *args, **kwargs):
@@ -64,7 +62,7 @@ class ExtensionController:
                 extension_path = config_item
                 config = {}
             else:
-                extension_path = list(config_item.keys())[0]
+                extension_path = next(iter(config_item.keys()))
                 config = config_item[extension_path]
             ext = self._extensions[extension_path]
             ext.config = config

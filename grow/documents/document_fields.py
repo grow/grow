@@ -1,8 +1,8 @@
 """Document fields for accessing the meta fields parsed from the document."""
 
 import re
-from grow.common import untag
 
+from grow.common import untag
 
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
 
@@ -25,7 +25,7 @@ class DocumentFields:
         return len(self._data)
 
     def __repr__(self):
-        return "<DocumentFields(locale='{}')>".format(self._locale_identifier)
+        return f"<DocumentFields(locale='{self._locale_identifier}')>"
 
     def get(self, key, default=None):
         return self._data.get(key, default)

@@ -1,8 +1,8 @@
 """Grow extensions installer class."""
 
 import subprocess
-from grow.sdk.installers import base_installer
 
+from grow.sdk.installers import base_installer
 
 INSTALL_HASH_FILE_NAME = 'install-hash.txt'
 
@@ -21,17 +21,17 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
     @property
     def post_install_messages(self):
         """List of messages to display after installing."""
-        return ['Finished: Extensions -> {}/'.format(self.pod.extensions_dir)]
+        return [f'Finished: Extensions -> {self.pod.extensions_dir}/']
 
     @property
     def extensions_filename(self):
         """Filename for the install hash."""
-        return '/{}'.format(self.pod.FILE_EXTENSIONS)
+        return f'/{self.pod.FILE_EXTENSIONS}'
 
     @property
     def install_hash_filename(self):
         """Filename for the install hash."""
-        return '/{}/{}'.format(self.pod.extensions_dir, INSTALL_HASH_FILE_NAME)
+        return f'/{self.pod.extensions_dir}/{INSTALL_HASH_FILE_NAME}'
 
     @property
     def should_run(self):
@@ -63,11 +63,10 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
     def install(self):
         """Install dependencies."""
         extensions_dir = self.pod.extensions_dir
-        init_file_name = '/{}/__init__.py'.format(extensions_dir)
+        init_file_name = f'/{extensions_dir}/__init__.py'
         if not self.pod.file_exists(init_file_name):
             self.pod.write_file(init_file_name, '')
-        install_command = 'pip3 install -U -q -t {} -r {}'.format(
-            extensions_dir, self.pod.FILE_EXTENSIONS)
+        install_command = f'pip3 install -U -q -t {extensions_dir} -r {self.pod.FILE_EXTENSIONS}'
         process = subprocess.Popen(
             install_command, **self.subprocess_args(shell=True))
         code = process.wait()
@@ -75,4 +74,4 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
             self.pod.write_file(self.install_hash_filename, self._generate_hashes())
             return
         raise base_installer.InstallError(
-            'There was an error running `{}`.'.format(install_command))
+            f'There was an error running `{install_command}`.')

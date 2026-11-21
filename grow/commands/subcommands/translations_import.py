@@ -1,13 +1,14 @@
 """Subcommand for importing translations."""
 
-import os
-import click
 import glob
+import os
+
+import click
+
+from grow import storage
 from grow.commands import shared
 from grow.common import rc_config
 from grow.pods import pods
-from grow import storage
-
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.import')
 
@@ -34,7 +35,7 @@ def translations_import(pod_path, source, locale, include_obsolete, untranslated
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
     if not pod.exists:
-        raise click.ClickException('Pod does not exist: {}'.format(pod.root))
+        raise click.ClickException(f'Pod does not exist: {pod.root}')
     source = glob.glob(source)
     with pod.profile.timer('translations_grow_i'):
         for path in source:

@@ -1,7 +1,10 @@
-from . import translations_filter
-from click import testing as click_testing
-from grow.testing import testing
 import unittest
+
+from click import testing as click_testing
+
+from grow.testing import testing
+
+from . import translations_filter
 
 
 class FilterTestCase(unittest.TestCase):

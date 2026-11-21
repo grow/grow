@@ -4,6 +4,7 @@ import datetime
 import io
 import logging
 import traceback
+
 import texttable
 
 
@@ -28,7 +29,7 @@ class TranslationStats:
     @property
     def missing(self):
         """Messages that are untagged and untranslated during rendering."""
-        untagged_messages = set([msg for _, msg in self.untagged.items()])
+        untagged_messages = {msg for _, msg in self.untagged.items()}
         tracking = {}
         for locale, messages in self._untranslated.items():
             if locale not in tracking:
@@ -67,7 +68,7 @@ class TranslationStats:
     def count_untranslated(self):
         """Max number of untranslated strings for any locale."""
         untranslated_ids = set()
-        for _, messages in self._untranslated.items():
+        for messages in self._untranslated.values():
             for message in messages:
                 untranslated_ids.add(message)
         return len(untranslated_ids)
@@ -134,21 +135,18 @@ class TranslationStats:
             return '\n'
 
         def _solid_line():
-            return '{}\n'.format(border_char * width)
+            return f'{border_char * width}\n'
 
         def _text_line(text):
             text_width = width - (border_width + 1) * 2
-            return '{} {} {}\n'.format(
-                border_char * border_width, text.center(text_width),
-                border_char * border_width)
+            return f'{border_char * border_width} {text.center(text_width)} {border_char * border_width}\n'
 
         with io.StringIO() as output:
             output.write(_solid_line())
             output.write(_text_line('Untranslated Strings'))
             output.write(_solid_line())
             output.write(_text_line(
-                '{} occurrences of {} untranslated strings'.format(
-                    len(self.stacktraces), self.count_untranslated)))
+                f'{len(self.stacktraces)} occurrences of {self.count_untranslated} untranslated strings'))
             output.write(_text_line(str(self.datetime.now())))
             output.write(_solid_line())
             output.write(_blank_line())
@@ -161,7 +159,7 @@ class TranslationStats:
             for item in self.stacktraces:
                 output.write('{} :: {}\n'.format(item['locale'], item['id']))
                 for line in item['tb']:
-                    output.write('{}'.format(line))
+                    output.write(f'{line}')
                 output.write(_blank_line())
 
             return output.getvalue()

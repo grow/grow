@@ -15,7 +15,6 @@ class ProfileReport:
 
     def analyze(self):
         """Performs an analysis of the timers."""
-        pass
 
     def export(self):
         """Export the timer data for each timer."""
@@ -26,9 +25,8 @@ class ProfileReport:
 
     def pretty_print(self):
         """Prints out the report in a nice format."""
-        for _, item in self.items.items():
-            print('{} ({}): Avg {} Min {} Max {} '.format(
-                item.key, len(item), item.average_duration, item.min_duration, item.max_duration))
+        for item in self.items.values():
+            print(f'{item.key} ({len(item)}): Avg {item.average_duration} Min {item.min_duration} Max {item.max_duration} ')
             if len(item) > 1:
                 for timer in item.top():
                     print(timer)

@@ -1,8 +1,8 @@
 """Test the profiling report"""
 
 import unittest
-from . import profile
-from . import profile_report
+
+from . import profile, profile_report
 
 
 class TimerReportTestCase(unittest.TestCase):

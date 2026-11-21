@@ -4,19 +4,14 @@ import json
 import logging
 import os
 import re
+
 import slugify
 import yaml
-from grow.common import structures
-from grow.common import untag
-from grow.common import urls
-from grow.common import utils
-from grow.documents import document_fields
-from grow.documents import document_format
-from grow.pods import footnotes
-from grow.translations import locales
-from grow.pods import messages
-from grow.translations import translation_stats
 
+from grow.common import structures, untag, urls, utils
+from grow.documents import document_fields, document_format
+from grow.pods import footnotes, messages
+from grow.translations import locales, translation_stats
 
 PATH_LOCALE_REGEX = re.compile(r'@([^-_]+)([-_]?)([^\.]*)(\.[^\.]+)$')
 BUILT_IN_FIELDS = [
@@ -40,7 +35,7 @@ BUILT_IN_FIELDS = [
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -105,8 +100,8 @@ class Document:
 
     def __repr__(self):
         if self.locale:
-            return "<Document({}, locale='{}')>".format(self.pod_path, self.locale)
-        return "<Document({})>".format(self.pod_path)
+            return f"<Document({self.pod_path}, locale='{self.locale}')>"
+        return f"<Document({self.pod_path})>"
 
     @classmethod
     def _clean_basename(cls, pod_path):
@@ -129,8 +124,8 @@ class Document:
         parts = PATH_LOCALE_REGEX.split(pod_path)
         if len(parts) > 1:
             if parts[3]:  # [3] -> Country Code
-                paths.append('{}@{}{}'.format(parts[0], parts[1], parts[4]))
-            paths.append('{}{}'.format(parts[0], parts[4]))
+                paths.append(f'{parts[0]}@{parts[1]}{parts[4]}')
+            paths.append(f'{parts[0]}{parts[4]}')
         return paths
 
     @classmethod
@@ -142,7 +137,7 @@ class Document:
                 locale_str = locale
             else:
                 locale_str = locale.alias or str(locale)
-            if not base.endswith('@{}'.format(locale_str)):
+            if not base.endswith(f'@{locale_str}'):
                 pod_path = cls._locale_paths(pod_path)[-1]
         return pod_path
 
@@ -158,7 +153,7 @@ class Document:
         if locale is None:
             return pod_path
         base, ext = os.path.splitext(pod_path)
-        return '{}@{}{}'.format(base, locale, ext)
+        return f'{base}@{locale}{ext}'
 
     @classmethod
     def parse_localized_path(cls, pod_path):
@@ -169,10 +164,10 @@ class Document:
         groups = PATH_LOCALE_REGEX.split(pod_path)
         if len(groups) > 1:
             if groups[3]:
-                locale = '{}{}{}'.format(groups[1], groups[2], groups[3])
+                locale = f'{groups[1]}{groups[2]}{groups[3]}'
             else:
                 locale = groups[1]
-            root_pod_path = '{}{}'.format(groups[0], groups[4])
+            root_pod_path = f'{groups[0]}{groups[4]}'
             return root_pod_path, locale
         return pod_path, None
 
@@ -183,7 +178,7 @@ class Document:
                 locale = locale_from_path
             return self.pod.normalize_locale(
                 locale, default=self.default_locale)
-        except IOError as exc:  # Document does not exist.
+        except OSError as exc:  # Document does not exist.
             if '[Errno 2] No such file or directory' in str(exc):
                 return None
             else:
@@ -492,7 +487,7 @@ class Document:
             self.fields.update(fields)
         if body != utils.SENTINEL:
             self.format.body = body
-        self.pod.logger.info('Injected -> {}'.format(self.pod_path))
+        self.pod.logger.info(f'Injected -> {self.pod_path}')
 
     @utils.memoize
     def get_serving_path(self):
@@ -500,8 +495,8 @@ class Document:
         path_format = self.path_format
         if path_format is None:
             raise PathFormatError(
-                'No path format found for {}. You must specify a path '
-                'format in either the blueprint or the document.'.format(self))
+                f'No path format found for {self}. You must specify a path '
+                'format in either the blueprint or the document.')
         path_format = (path_format
                        .replace('<grow:locale>', '{locale}')
                        .replace('<grow:slug>', '{slug}'))
@@ -540,7 +535,7 @@ class Document:
             return self.pod.path_format.format_doc(
                 self, path_format, locale=self.locale)
         except KeyError:
-            logging.error('Error with path format: {}'.format(path_format))
+            logging.error(f'Error with path format: {path_format}')
             raise
 
     @utils.memoize
@@ -574,7 +569,7 @@ class Document:
         if docs is None:
             docs = self.collection.list_docs()
         for i, doc in enumerate(docs):
-            if type(doc) != self.__class__:
+            if type(doc) is not self.__class__:
                 raise ValueError('Usage: {{doc.next(<docs>)}}.')
             if doc == self:
                 n = i + 1
@@ -588,7 +583,7 @@ class Document:
             docs = self.collection.list_docs()
         prev_doc = None
         for doc in docs:
-            if type(doc) != self.__class__:
+            if type(doc) is not self.__class__:
                 raise ValueError('Usage: {{doc.prev(<docs>)}}.')
             if doc == self:
                 return prev_doc

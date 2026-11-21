@@ -3,14 +3,11 @@
 import json
 import os
 import tempfile
-from grow.cache import collection_cache
-from grow.cache import document_cache
-from grow.cache import file_cache
-from grow.cache import object_cache
+
+from grow.cache import collection_cache, document_cache, file_cache, object_cache
 from grow.cache import routes_cache as grow_routes_cache
 from grow.common import json_encoder
 from grow.pods import dependency
-
 
 FILE_OBJECT_CACHE = object_cache.FILE_OBJECT_CACHE
 FILE_ROUTES_CACHE = grow_routes_cache.FILE_ROUTES_CACHE
@@ -20,13 +17,12 @@ class Error(Exception):
     """General podcache error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
 class PodCacheParseError(Error):
     """Error parsing the podcache file."""
-    pass
 
 
 class PodCache:
@@ -89,9 +85,7 @@ class PodCache:
         for meta in self._object_caches.values():
             if meta['write_to_file'] and meta['cache'].is_dirty:
                 return True
-        if self.routes_cache.is_dirty:
-            return True
-        return False
+        return bool(self.routes_cache.is_dirty)
 
     @property
     def object_cache(self):
@@ -138,9 +132,11 @@ class PodCache:
         if key not in self._object_caches:
             return self.create_object_cache(key, **kwargs)
         existing_meta = self._object_caches[key]
-        if 'separate_file' in kwargs:
-            if existing_meta['separate_file'] != kwargs['separate_file']:
-                existing_meta['separate_file'] = kwargs['separate_file']
+        if (
+            'separate_file' in kwargs
+            and existing_meta['separate_file'] != kwargs['separate_file']
+        ):
+            existing_meta['separate_file'] = kwargs['separate_file']
         return existing_meta['cache']
 
     def has_object_cache(self, key):
@@ -166,7 +162,7 @@ class PodCache:
 
         if obj_cache:
             for key, meta in obj_cache.items():
-                if not key in self._object_caches:
+                if key not in self._object_caches:
                     self.create_object_cache(key, **meta)
                 else:
                     # Ignore if the object cache is referenced to a different file.
@@ -186,14 +182,12 @@ class PodCache:
             if self._dependency_graph.is_dirty:
                 output = self._dependency_graph.export()
                 self._dependency_graph.mark_clean()
-                self._write_json('{}{}'.format(
-                    self._pod.PATH_CONTROL, self._pod.FILE_DEP_CACHE), output)
+                self._write_json(f'{self._pod.PATH_CONTROL}{self._pod.FILE_DEP_CACHE}', output)
 
             if self._routes_cache.is_dirty:
                 output = self._routes_cache.export()
                 self._routes_cache.mark_clean()
-                self._write_json('{}{}'.format(
-                    self._pod.PATH_CONTROL, FILE_ROUTES_CACHE), output)
+                self._write_json(f'{self._pod.PATH_CONTROL}{FILE_ROUTES_CACHE}', output)
 
             # Write out any of the object caches configured for write_to_file.
             output = {}
@@ -206,12 +200,11 @@ class PodCache:
                         'separate_file': meta['separate_file'],
                     }
                     if meta['separate_file']:
-                        filename = '/{}'.format(
-                            object_cache.FILE_OBJECT_SUB_CACHE.format(key))
+                        filename = f'/{object_cache.FILE_OBJECT_SUB_CACHE.format(key)}'
                         self._write_json(filename, cache_info)
                         output[key] = filename
                     else:
                         output[key] = cache_info
                     meta['cache'].mark_clean()
             if output:
-                self._write_json('/{}'.format(FILE_OBJECT_CACHE), output)
+                self._write_json(f'/{FILE_OBJECT_CACHE}', output)

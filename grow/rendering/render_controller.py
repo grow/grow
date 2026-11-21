@@ -5,30 +5,28 @@ import mimetypes
 import os
 import sys
 import time
+
 from grow.common import utils
 from grow.documents import static_document
 from grow.pods import errors
 from grow.rendering import rendered_document
-from grow.templates import doc_dependency
-from grow.templates import tags
+from grow.templates import doc_dependency, tags
 
 
 class Error(Exception):
     """Base rendering pool error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
 class UnknownKindError(Error):
     """Unknown kind of information."""
-    pass
 
 
 class IgnoredPathError(Error):
     """Document is being served at an ignored path."""
-    pass
 
 
 class RenderController:
@@ -68,7 +66,7 @@ class RenderController:
             return RenderErrorController(
                 pod, serving_path, route_info, params=params)
         raise UnknownKindError(
-            'Do not have a controller for: {}'.format(route_info.kind))
+            f'Do not have a controller for: {route_info.kind}')
 
     @property
     def locale(self):
@@ -110,7 +108,7 @@ class RenderDocumentController(RenderController):
     """Controller for handling rendering for documents."""
 
     def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
-        super(RenderDocumentController, self).__init__(
+        super().__init__(
             pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self._doc = None
         self.use_jinja = True
@@ -159,7 +157,7 @@ class RenderDocumentController(RenderController):
         """Load the pod content from file system."""
         timer = self.pod.profile.timer(
             'RenderDocumentController.load',
-            label='{} ({})'.format(self.pod_path, self.locale),
+            label=f'{self.pod_path} ({self.locale})',
             meta={
                 'path': self.pod_path,
                 'locale': str(self.locale)}
@@ -171,12 +169,11 @@ class RenderDocumentController(RenderController):
         self.validate_path()
 
         try:
-            doc = self.doc
             serving_path = self.serving_path
             if serving_path.endswith('/'):
-                serving_path = '{}{}'.format(serving_path, self.suffix)
+                serving_path = f'{serving_path}{self.suffix}'
 
-            rendered_path = '{}{}'.format(source_dir, serving_path)
+            rendered_path = f'{source_dir}{serving_path}'
             rendered_content = self.pod.storage.read(rendered_path)
 
             rendered_doc = rendered_document.RenderedDocument(
@@ -194,7 +191,7 @@ class RenderDocumentController(RenderController):
         """Render the document using the render pool."""
         timer = self.pod.profile.timer(
             'RenderDocumentController.render',
-            label='{} ({})'.format(self.doc.pod_path, self.doc.locale),
+            label=f'{self.doc.pod_path} ({self.doc.locale})',
             meta={
                 'path': self.doc.pod_path,
                 'locale': str(self.doc.locale)}
@@ -222,7 +219,7 @@ class RenderDocumentController(RenderController):
             doc.footnotes.reset()
             serving_path = doc.get_serving_path()
             if serving_path.endswith('/'):
-                serving_path = '{}{}'.format(serving_path, self.suffix)
+                serving_path = f'{serving_path}{self.suffix}'
 
             content = self.pod.extensions_controller.trigger('pre_render', doc, doc.body)
             if content:
@@ -253,7 +250,7 @@ class RenderErrorController(RenderController):
     """Controller for handling rendering for errors."""
 
     def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
-        super(RenderErrorController, self).__init__(
+        super().__init__(
             pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self.use_jinja = True
 
@@ -279,7 +276,7 @@ class RenderErrorController(RenderController):
 
         try:
             serving_path = '/{}.html'.format(self.route_info.meta['key'])
-            rendered_path = '{}{}'.format(source_dir, serving_path)
+            rendered_path = f'{source_dir}{serving_path}'
             rendered_content = self.pod.storage.read(rendered_path)
             rendered_doc = rendered_document.RenderedDocument(
                 serving_path, rendered_content)
@@ -353,7 +350,7 @@ class RenderSitemapController(RenderController):
         """Load the pod content from file system."""
         timer = self.pod.profile.timer(
             'RenderSitemapController.load',
-            label='{}'.format(self.serving_path),
+            label=f'{self.serving_path}',
             meta=self.route_info.meta,
         ).start_timer()
 
@@ -363,7 +360,7 @@ class RenderSitemapController(RenderController):
         self.validate_path()
 
         try:
-            rendered_path = '{}{}'.format(source_dir, self.serving_path)
+            rendered_path = f'{source_dir}{self.serving_path}'
             rendered_content = self.pod.storage.read(rendered_path)
             rendered_doc = rendered_document.RenderedDocument(
                 self.serving_path, rendered_content)
@@ -383,7 +380,7 @@ class RenderSitemapController(RenderController):
         """Render the document using the render pool."""
         timer = self.pod.profile.timer(
             'RenderSitemapController.render',
-            label='{}'.format(self.serving_path),
+            label=f'{self.serving_path}',
             meta=self.route_info.meta,
         ).start_timer()
 
@@ -441,7 +438,7 @@ class RenderStaticDocumentController(RenderController):
     """Controller for handling rendering for static documents."""
 
     def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
-        super(RenderStaticDocumentController, self).__init__(
+        super().__init__(
             pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self._static_doc = None
         self._pod_path = None
@@ -491,7 +488,7 @@ class RenderStaticDocumentController(RenderController):
 
     def get_http_headers(self):
         """Determine headers to serve for http requests."""
-        headers = super(RenderStaticDocumentController, self).get_http_headers()
+        headers = super().get_http_headers()
         if self.pod_path is None:
             return headers
         path = self.pod.abs_path(self.static_doc.pod_path)
@@ -517,7 +514,7 @@ class RenderStaticDocumentController(RenderController):
         # Validate the path with the static config specific filter.
         self.validate_path(self.route_info.meta['path_filter'])
 
-        rendered_path = '{}{}'.format(source_dir, self.serving_path)
+        rendered_path = f'{source_dir}{self.serving_path}'
         rendered_content = self.pod.storage.read(rendered_path)
         rendered_doc = rendered_document.RenderedDocument(
             self.serving_path, rendered_content)

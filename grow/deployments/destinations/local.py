@@ -3,7 +3,9 @@
 import errno
 import os
 import shutil
+
 from protorpc import messages
+
 from grow.deployments.destinations import base
 from grow.pods import env
 from grow.routing import router
@@ -41,7 +43,7 @@ class LocalDestination(base.BaseDestination):
         out_path = os.path.join(self.out_dir, path.lstrip('/'))
         try:
             self.storage.delete(out_path)
-        except IOError as e:
+        except OSError as e:
             if e.errno == errno.ENOENT:
                 pass
             else:
@@ -66,10 +68,10 @@ class LocalDestination(base.BaseDestination):
     def prelaunch(self, dry_run=False):
         for command in self.config.before_deploy:
             self.command(command)
-        super(LocalDestination, self).prelaunch(dry_run)
+        super().prelaunch(dry_run)
 
     def postlaunch(self, dry_run=False):
         if self.success:
             for command in self.config.after_deploy:
                 self.command(command)
-        super(LocalDestination, self).postlaunch(dry_run)
+        super().postlaunch(dry_run)

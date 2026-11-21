@@ -1,13 +1,14 @@
 """Grow local development server."""
 
 import os
-import pkg_resources
 from urllib import parse as url_parse
+
+import pkg_resources
 from werkzeug import serving
 from werkzeug.middleware import shared_data
+
 from grow.common import utils
 from grow.pods import errors
-from grow.sdk import sdk_utils
 from grow.server import handlers
 
 
@@ -17,7 +18,7 @@ class RequestHandler(serving.WSGIRequestHandler):
     @property
     def server_version(self):
         version = pkg_resources.get_distribution('grow').version
-        return 'Grow/{}'.format(version)
+        return f'Grow/{version}'
 
     def log(self, *args, **kwargs):
         pass

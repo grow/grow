@@ -1,14 +1,16 @@
 """Grow CLI commands."""
 
-from grow.commands.subcommands import build
-from grow.commands.subcommands import convert
-from grow.commands.subcommands import deploy
-from grow.commands.subcommands import inspect
-from grow.commands.subcommands import install
-from grow.commands.subcommands import preprocess
-from grow.commands.subcommands import run
-from grow.commands.subcommands import stage
-from grow.commands.subcommands import translations
+from grow.commands.subcommands import (
+    build,
+    convert,
+    deploy,
+    inspect,
+    install,
+    preprocess,
+    run,
+    stage,
+    translations,
+)
 
 
 def add_subcommands(group):

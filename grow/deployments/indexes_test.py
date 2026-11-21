@@ -1,10 +1,11 @@
-from . import indexes
-from . import messages
+import unittest
+
+from grow import storage
 from grow.pods import pods
 from grow.rendering import rendered_document
-from grow import storage
 from grow.testing import testing
-import unittest
+
+from . import indexes, messages
 
 
 class IndexTest(unittest.TestCase):
