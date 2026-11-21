@@ -59,6 +59,8 @@ class Locale(babel.Locale):
 
     @classmethod
     def parse(cls, *args, **kwargs):
+        if (args and args[0] is None) or (not args and kwargs.get('identifier') is None):
+            return None
         locale = super().parse(*args, **kwargs)
         # Weak attempt to permit fuzzy locales (locales for which we still have
         # language and country information, but not a full localedata file for),
