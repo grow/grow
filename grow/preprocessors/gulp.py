@@ -11,7 +11,6 @@ from grow.preprocessors import base
 from grow.sdk import sdk_utils
 
 # Keep track of any child processes to terminate on exit.
-# pylint: disable=invalid-name
 _child_processes = []
 
 

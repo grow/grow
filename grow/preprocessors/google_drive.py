@@ -72,7 +72,6 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
     def download(cls, path, doc_id, logger=None, raise_errors=False):
         logger = logger or logging
         service = BaseGooglePreprocessor.create_service()
-        # pylint: disable=no-member
         resp = (
             service.files()
             .get(fileId=doc_id, supportsAllDrives=True, supportsTeamDrives=True)
@@ -128,7 +127,6 @@ class GoogleDocsPreprocessor(BaseGooglePreprocessor):
         if config.folder:
             service = BaseGooglePreprocessor.create_service()
             query = f"'{config.folder}' in parents"
-            # pylint: disable=no-member
             resp = service.files().list(q=query).execute()
             docs_to_add = []
             existing_docs = self.pod.list_dir(config.collection)
@@ -251,7 +249,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         # they are downloading. Also include a link in the output to permit the
         # user to quickly open the file.
         drive_service = BaseGooglePreprocessor.create_service('drive', 'v3')
-        # pylint: disable=no-member
         resp = (
             drive_service.files()
             .get(
@@ -282,7 +279,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
         service = BaseGooglePreprocessor.create_service('sheets', 'v4')
         format_as_grid = format_as in cls.GRID_TYPES
         format_as_map = format_as in cls.MAP_TYPES
-        # pylint: disable=no-member
         spreadsheet = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
 
         gid_to_sheet = {}
@@ -318,7 +314,6 @@ class GoogleSheetsPreprocessor(BaseGooglePreprocessor):
             range_name = "'{}'!A:{}".format(gid_to_sheet[gid]['title'], max_column)
             range_names.append(range_name)
 
-        # pylint: disable=no-member
         batch_resp = (
             service.spreadsheets()
             .values()

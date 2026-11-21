@@ -179,7 +179,6 @@ class UntagTestCase(unittest.TestCase):
             untag.Untag.untag(fields, locale_identifier='fr'),
         )
 
-    # pylint: disable=invalid-name
     def test_untag_backwards_compatibility(self):
         """Test backwards compatibility with untagging."""
         fields_to_test = {

@@ -79,7 +79,6 @@ class GoogleSheetsTranslator(base.Translator):
         service = self._create_service()
         rangeName = f"'{locale}'!A:D"
         try:
-            # pylint: disable=no-member
             resp = (
                 service.spreadsheets()
                 .values()
@@ -104,7 +103,6 @@ class GoogleSheetsTranslator(base.Translator):
         service = self._create_service()
 
         # Find out which locales have sheets.
-        # pylint: disable=no-member
         resp = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
         existing_locales = []
         for sheet in resp['sheets']:
@@ -128,7 +126,6 @@ class GoogleSheetsTranslator(base.Translator):
             )
 
         try:
-            # pylint: disable=no-member
             batch_resp = (
                 service.spreadsheets()
                 .values()
@@ -198,7 +195,6 @@ class GoogleSheetsTranslator(base.Translator):
         # NOTE: Manging locales across multiple spreadsheets is unsupported.
         service = self._create_service()
         if spreadsheet_id:
-            # pylint: disable=no-member
             resp = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
             for sheet in resp['sheets']:
                 locales_to_sheet_ids[sheet['properties']['title']] = sheet['properties']['sheetId']
@@ -226,7 +222,6 @@ class GoogleSheetsTranslator(base.Translator):
         else:
             # Create a new spreadsheet and use the id.
             service = self._create_service()
-            # pylint: disable=no-member
             resp = (
                 service.spreadsheets()
                 .create(
@@ -896,13 +891,11 @@ class GoogleSheetsTranslator(base.Translator):
             elif 'group' in item:
                 permission['type'] = 'group'
                 permission['emailAddress'] = item['group']
-            # pylint: disable=no-member
             service.permissions().create(fileId=spreadsheet_id, body=permission).execute()
 
     def _perform_batch_update(self, spreadsheet_id, requests):
         service = self._create_service()
         body = {'requests': requests}
-        # pylint: disable=no-member
         return service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id, body=body).execute()
 
     def _update_acls(self, stats, locales):
@@ -918,7 +911,6 @@ class GoogleSheetsTranslator(base.Translator):
     def _update_meta(self, stat, locale, catalog):
         spreadsheet_id = stat.ident
         service = self._create_service()
-        # pylint: disable=no-member
         resp = service.spreadsheets().get(spreadsheetId=stat.ident).execute()
         requests = []
         for sheet in resp['sheets']:

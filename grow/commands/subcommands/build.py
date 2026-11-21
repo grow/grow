@@ -19,7 +19,6 @@ from grow.rendering import renderer
 CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 
 
-# pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
 @click.option(

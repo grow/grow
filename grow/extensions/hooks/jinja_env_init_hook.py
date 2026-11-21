@@ -9,7 +9,6 @@ class JinjaEnvInitHook(base_hook.BaseHook):
     KEY = 'jinja_env_init'
     NAME = 'Jinja Environment Init'
 
-    # pylint: disable=arguments-differ,unused-argument
     def trigger(self, previous_result, env, *_args, **_kwargs):
         """Trigger the hook."""
         if previous_result:

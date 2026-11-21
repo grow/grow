@@ -103,8 +103,7 @@ def start(
 ):
     main_observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
     if preprocess:
-        thread = threading.Thread(target=pod.preprocess, kwargs={'build': False})
-        thread.setDaemon(True)
+        thread = threading.Thread(target=pod.preprocess, kwargs={'build': False}, daemon=True)
         thread.start()
     port = 8080 if port is None else int(port)
     host = 'localhost' if host is None else host
@@ -156,8 +155,7 @@ def start_browser_in_thread(url):
 
         webbrowser.open(url)
 
-    thread = threading.Thread(target=_start_browser)
-    thread.setDaemon(True)
+    thread = threading.Thread(target=_start_browser, daemon=True)
     thread.start()
 
 

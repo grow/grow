@@ -73,7 +73,6 @@ class BloggerPreprocessor(base.BasePreprocessor):
         logger = logger or logging
         service = cls.create_service(authenticated=authenticated)
         items = []
-        # pylint: disable=no-member
         posts = service.posts()
         request = posts.list(blogId=blog_id)
         while request is not None:
@@ -90,7 +89,6 @@ class BloggerPreprocessor(base.BasePreprocessor):
     @classmethod
     def download_item(cls, blog_id, post_id, authenticated=True):
         service = cls.create_service(authenticated=authenticated)
-        # pylint: disable=no-member
         resp = service.posts().get(blogId=blog_id, postId=post_id).execute()
         return resp
 

@@ -52,7 +52,6 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
         routes = router.routes
         return RoutesDevHandlerHook._create_response(pod, routes, 'Pod Routes')
 
-    # pylint: disable=arguments-differ
     def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
         routes.add(
@@ -199,7 +198,6 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
         return None
 
 
-# pylint: disable=abstract-method
 class RoutesExtension(extensions.BaseExtension):
     """Extension for handling core routes functionality."""
 

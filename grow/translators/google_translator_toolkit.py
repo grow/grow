@@ -47,13 +47,11 @@ class Gtt:
         return http
 
     def get_document(self, document_id):
-        # pylint: disable=no-member
         return self.service.documents().get(documentId=document_id).execute()
 
     def update_acl(self, document_id, acl_change):
         body = {}
         body['gttAclChange'] = acl_change
-        # pylint: disable=no-member
         return self.service.documents().update(documentId=document_id, body=body).execute()
 
     def insert_document(
@@ -77,7 +75,6 @@ class Gtt:
         from googleapiclient import errors
 
         try:
-            # pylint: disable=no-member
             return self.service.documents().insert(body=doc).execute()
         except errors.HttpError as resp:
             raise_service_error(locale=lang, http_error=resp)

@@ -9,7 +9,6 @@ class RouterAddHook(base_hook.BaseHook):
     KEY = 'router_add'
     NAME = 'Router Add'
 
-    # pylint: disable=arguments-differ,unused-argument
     def trigger(self, previous_result, router, *_args, **_kwargs):
         """Trigger the router add hook."""
         if previous_result:

@@ -37,7 +37,7 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
             self.pod.extensions_controller.trigger(
                 'dev_file_change', pod_path, write_cache_file=self.write_cache_file
             )
-        except Exception:  # pylint: disable=broad-except
+        except Exception:
             # Avoid an inconsistent state where preprocessor doesn't run again
             # if it encounters an exception. https://github.com/grow/grow/issues/528
             colored_pod_path = colors.stylize(pod_path, colors.ERROR)
@@ -72,7 +72,7 @@ class PreprocessorEventHandler(events.PatternMatchingEventHandler):
                 self.preprocessor.first_run()
             else:
                 self.preprocessor.run()
-        except Exception:  # pylint: disable=broad-except
+        except Exception:
             # Avoid an inconsistent state where preprocessor doesn't run again
             # if it encounters an exception. https://github.com/grow/grow/issues/81
             text = colors.stylize('Preprocessor error.', colors.ERROR)

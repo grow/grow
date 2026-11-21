@@ -9,7 +9,6 @@ from grow.common import deprecated, urls
 class MovedHelperTestCase(unittest.TestCase):
     """Test the terminal colors."""
 
-    # pylint: disable=no-self-use
     def test_moved(self):
         """Warning message when the class has moved."""
         mock_warn = mock.Mock()
@@ -20,7 +19,6 @@ class MovedHelperTestCase(unittest.TestCase):
             'will be removed in a future version.'
         )
 
-    # pylint: disable=no-self-use
     def test_static_method(self):
         """Moved warning also works with static methods."""
         mock_warn = mock.Mock()

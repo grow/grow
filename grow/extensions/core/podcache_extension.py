@@ -9,7 +9,6 @@ from grow.extensions import hooks
 class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
     """Handle the dev file change hook."""
 
-    # pylint: disable=arguments-differ
     def trigger(self, previous_result, pod_path, *_args, **kwargs):
         """Trigger the file change hook."""
 
@@ -45,7 +44,6 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
         return None
 
 
-# pylint: disable=abstract-method
 class PodcacheExtension(extensions.BaseExtension):
     """Extension for handling core podcache functionality."""
 

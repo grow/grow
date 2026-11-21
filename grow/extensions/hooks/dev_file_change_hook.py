@@ -9,7 +9,6 @@ class DevFileChangeHook(base_hook.BaseHook):
     KEY = 'dev_file_change'
     NAME = 'Dev File Change'
 
-    # pylint: disable=arguments-differ,unused-argument
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the pre render hook."""
         return previous_result

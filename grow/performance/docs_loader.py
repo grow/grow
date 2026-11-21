@@ -24,7 +24,6 @@ class LoadError(Error):
         self.err_tb = err_tb
 
 
-# pylint: disable=too-few-public-methods
 class DocsLoader:
     """Loader that threads the docs' file system reads."""
 
@@ -104,7 +103,7 @@ class DocsLoader:
             except document_front_matter.BadFormatError:
                 if not ignore_errors:
                     raise
-            except Exception as err:  # pylint: disable=broad-except
+            except Exception as err:
                 _, _, err_tb = sys.exc_info()
                 result.errors.append(LoadError(f'Error loading {doc.pod_path}', err, err_tb))
             finally:

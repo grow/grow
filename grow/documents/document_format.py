@@ -207,7 +207,6 @@ class MarkdownDocumentFormat(DocumentFormat):
         """Markdown TOC extension."""
         # Make sure that the document conversion has happened.
         _ = self.formatted
-        # pylint: disable=no-member
         return self.markdown.toc
 
     @utils.cached_property

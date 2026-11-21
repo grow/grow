@@ -166,7 +166,6 @@ class RoutesDict:
         for path in sorted(self._root):
             yield path, self._root[path], None
 
-    # pylint: disable=unused-argument
     def add(self, path, value, options=None):
         """Add a new doc to the route trie."""
         if path in self._root and self._root[path] != value:
@@ -279,7 +278,6 @@ class RouteTrie:
         segments = self.segments(path)
         return self._root.remove(segments)
 
-    # pylint: disable=unused-argument
     def shard(self, shard_count, current_shard, attr='kind'):
         """Removes paths from the routes based on sharding rules."""
         # Sharding doesn't work on the routing trie since it uses patterns
@@ -441,7 +439,6 @@ class RouteNode:
 
         return count
 
-    # pylint: disable=too-many-return-statements
     def match(self, segments, last_segment=None):
         """Performs the trie matching to find a doc in the trie."""
 
@@ -546,7 +543,6 @@ class RouteWildcardNode(RouteNode):
         return removed
 
 
-# pylint: disable=too-few-public-methods
 class MatchResult:
     """Node information for a trie match."""
 

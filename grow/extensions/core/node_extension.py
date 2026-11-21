@@ -7,7 +7,6 @@ from grow.extensions import hooks
 class NodeDevFileChangeHook(hooks.DevFileChangeHook):
     """Handle the dev file change hook."""
 
-    # pylint: disable=arguments-differ
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
         if pod_path == '/package.json':
@@ -18,7 +17,6 @@ class NodeDevFileChangeHook(hooks.DevFileChangeHook):
         return None
 
 
-# pylint: disable=abstract-method
 class NodeExtension(extensions.BaseExtension):
     """Extension for handling core node functionality."""
 

@@ -176,7 +176,6 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
                 try:
                     lexer = lexers.get_lexer_by_name(language)
                 except ValueError:
-                    # pylint: disable=no-member
                     lexer = lexers.TextLexer()
                 return f'\n{highlight(content, lexer, formatter)}\n'
             elif self.config.highlighter == 'plain':

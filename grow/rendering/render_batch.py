@@ -38,7 +38,7 @@ def load_func(batch, source_dir, tick=None):
             result.load_errors.append(
                 RenderError(f'Error loading {controller.serving_path}', err, err.traceback)
             )
-        except Exception as err:  # pylint: disable=broad-except
+        except Exception as err:
             _, _, err_tb = sys.exc_info()
             result.load_errors.append(
                 RenderError(f'Error loading {controller.serving_path}', err, err_tb)
@@ -60,7 +60,7 @@ def render_func(batch, tick=None):
             result.render_errors.append(
                 RenderError(f'Error rendering {controller.serving_path}', err, err.traceback)
             )
-        except Exception as err:  # pylint: disable=broad-except
+        except Exception as err:
             _, _, err_tb = sys.exc_info()
             result.render_errors.append(
                 RenderError(f'Error rendering {controller.serving_path}', err, err_tb)

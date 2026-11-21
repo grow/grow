@@ -16,7 +16,6 @@ from grow.pods import pods
 CFG = rc_config.RC_CONFIG.prefixed('grow.stage')
 
 
-# pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
 @click.option(

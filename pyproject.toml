@@ -80,6 +80,15 @@ exclude = ["lib*", "node_modules*"]
 [tool.pytest.ini_options]
 testpaths = ["grow"]
 python_files = ["*_test.py"]
+filterwarnings = [
+    # Third-party deprecation/user warnings from pinned v2.x dependencies.
+    "ignore:'soft_unicode' has been renamed to 'soft_str':DeprecationWarning",
+    "ignore:Cannot access .*grow-sdk:UserWarning:oauth2client",
+    "ignore:pkg_resources is deprecated:UserWarning:googleapiclient",
+    "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning:pkg_resources",
+    "ignore:'cgi' is deprecated:DeprecationWarning:protorpc",
+    "ignore:datetime.datetime.utcfromtimestamp\\(\\) is deprecated:DeprecationWarning:protorpc",
+]
 
 [tool.coverage.run]
 source = ["grow"]

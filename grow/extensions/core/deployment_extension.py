@@ -8,7 +8,6 @@ from grow.extensions import hooks
 class DeploymentDeploymentRegisterHook(hooks.DeploymentRegisterHook):
     """Handle the deployment registration hook."""
 
-    # pylint: disable=arguments-differ
     def trigger(self, previous_result, deployments, *_args, **_kwargs):
         """Trigger the deployment destination registration hook."""
         deployments.register_destination(webreview_destination.WebReviewDestination)
@@ -17,7 +16,6 @@ class DeploymentDeploymentRegisterHook(hooks.DeploymentRegisterHook):
         deployments.register_destination(local.LocalDestination)
 
 
-# pylint: disable=abstract-method
 class DeploymentExtension(extensions.BaseExtension):
     """Extension for handling core deployment functionality."""
 
