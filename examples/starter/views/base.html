@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="{{doc.locale}}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{_(doc.title)}} — {{_(podspec.title)}}</title>
+    <link rel="stylesheet" href="{{g.static('/static/css/main.css').url.path}}">
+  </head>
+  <body>
+    <header class="header">
+      <div class="container header__inner">
+        <a class="brand" href="{{g.doc('/content/pages/home.yaml', locale=doc.locale).url.path}}">
+          {{_(podspec.title)}}
+        </a>
+        <nav class="nav">
+          <a href="{{g.doc('/content/pages/home.yaml', locale=doc.locale).url.path}}">{{_('Home')}}</a>
+          <a href="{{g.doc('/content/pages/about.md', locale=doc.locale).url.path}}">{{_('About')}}</a>
+          <span class="locales">
+            {% for locale in doc.locales %}
+              <a
+                href="{{doc.localize(locale).url.path}}"
+                class="locale-link{% if locale == doc.locale %} is-active{% endif %}"
+              >{{locale}}</a>
+            {% endfor %}
+          </span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      {% block main %}
+        <section class="hero">
+          <h1>{{_(doc.title)}}</h1>
+          {% if doc.subtitle %}
+            <p class="lead">{{_(doc.subtitle)}}</p>
+          {% endif %}
+          {% if doc.cta and doc.cta_url %}
+            <a class="button" href="{{doc.cta_url.url.path}}">{{_(doc.cta)}} &rarr;</a>
+          {% endif %}
+        </section>
+
+        {% if doc.features %}
+          <section class="grid">
+            {% for feature in doc.features %}
+              <div class="card">
+                <h2>{{_(feature.title)}}</h2>
+                <p>{{_(feature.body)}}</p>
+              </div>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endblock %}
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        Built with <a href="https://grow.dev">Grow</a>.
+      </div>
+    </footer>
+  </body>
+</html>
