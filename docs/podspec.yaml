@@ -29,6 +29,13 @@ static_dirs:
 sitemap:
   enabled: true
 
+markdown:
+  extensions:
+    - kind: markdown.extensions.codehilite
+      theme: github-dark
+    - kind: sourcecode
+      theme: github-dark
+
 deployments:
   prod:
     destination: local
@@ -37,9 +44,3 @@ deployments:
       name: prod
       host: grow.dev
       scheme: https
-  grow.dev:
-    destination: gcs
-    bucket: grow.dev
-    env:
-      name: grow.dev
-      port: 443
