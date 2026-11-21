@@ -1,8 +1,7 @@
 """Renderer for performing render operations for the pod."""
 
-import progressbar
-
 from grow.common import bulk_errors, progressbar_non
+from grow.common import progressbar_non as progressbar
 from grow.rendering import render_batch
 
 

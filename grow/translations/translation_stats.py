@@ -5,7 +5,7 @@ import io
 import logging
 import traceback
 
-import texttable
+from grow.common import tables as texttable
 
 
 class TranslationStats:

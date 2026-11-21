@@ -37,15 +37,6 @@ wheels = [
 ]
 
 [[package]]
-name = "boltons"
-version = "20.1.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/42/38/ce1ab39b04e1c9946a9dc1076f01d138fb0bbbda1aae48709193b30629e1/boltons-20.1.0.tar.gz", hash = "sha256:6e890b173c5f2dcb4ec62320b3799342ecb1a6a0b2253014455387665d62c213", size = 170455, upload-time = "2020-03-30T03:02:55.576Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9c/5d/224fe7065523f544f5de373eb95f06c760a559cec9ee6223093113b33217/boltons-20.1.0-py2.py3-none-any.whl", hash = "sha256:b3fc2b711f50cd975e726324d98e0bd5a324dd7e3b81d5e6a1b03c542d0c66c4", size = 169463, upload-time = "2020-03-30T03:02:57.667Z" },
-]
-
-[[package]]
 name = "certifi"
 version = "2026.11.20"
 source = { registry = "https://pypi.org/simple" }
@@ -1158,7 +1149,6 @@ source = { editable = "." }
 dependencies = [
     { name = "babel" },
     { name = "beautifulsoup4" },
-    { name = "boltons" },
     { name = "click" },
     { name = "gitpython" },
     { name = "google-api-python-client" },
@@ -1168,14 +1158,12 @@ dependencies = [
     { name = "markdown" },
     { name = "markupsafe" },
     { name = "oauth2client" },
-    { name = "progressbar2" },
     { name = "protorpc" },
     { name = "pygments" },
     { name = "python-slugify" },
     { name = "pyyaml", version = "6.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "pyyaml", version = "6.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "setuptools" },
-    { name = "texttable-fixed" },
     { name = "translitcodec" },
     { name = "watchdog" },
     { name = "webob" },
@@ -1195,7 +1183,6 @@ dev = [
 requires-dist = [
     { name = "babel", specifier = "==2.9.1" },
     { name = "beautifulsoup4", specifier = "==4.9.1" },
-    { name = "boltons", specifier = "==20.1.0" },
     { name = "click", specifier = "==7.1.2" },
     { name = "gitpython", specifier = "==3.1.3" },
     { name = "google-api-python-client", specifier = "==1.9.3" },
@@ -1205,13 +1192,11 @@ requires-dist = [
     { name = "markdown", specifier = "==3.3.4" },
     { name = "markupsafe", specifier = "==2.0.1" },
     { name = "oauth2client", specifier = "==4.1.3" },
-    { name = "progressbar2", specifier = "==3.51.3" },
     { name = "protorpc", specifier = "==0.12.0" },
     { name = "pygments", specifier = "==2.7.4" },
     { name = "python-slugify", specifier = "==4.0.0" },
     { name = "pyyaml", specifier = ">=6.0.1,<7" },
     { name = "setuptools", specifier = "<81" },
-    { name = "texttable-fixed", specifier = "==0.8.3" },
     { name = "translitcodec", specifier = "==0.6.0" },
     { name = "watchdog", specifier = "==0.10.2" },
     { name = "webob", specifier = "==1.8.6" },
@@ -1948,12 +1933,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/ab/e2/e9a00f0ccb7171841
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/a5/c0b6468d3824fe3fde30dbb5e1f687b291608f9473681bbf7dabbf5a87d7/text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8", size = 78154, upload-time = "2019-08-30T21:37:03.543Z" },
 ]
-
-[[package]]
-name = "texttable-fixed"
-version = "0.8.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fb/c2/654b12b38cb3ded68d9387cac2eb70db1f5140b12d0cb4955789297e79f5/texttable-fixed-0.8.3.tar.gz", hash = "sha256:6319436625b59527a203690fecaff0e3d6a55bfd1844cf1266b65d9f633c0f6f", size = 7021, upload-time = "2015-10-16T00:32:31.275Z" }
 
 [[package]]
 name = "tomli"

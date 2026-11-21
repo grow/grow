@@ -3,7 +3,7 @@
 import functools
 import re
 
-from boltons import iterutils
+from grow.common import remap as iterutils
 
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
 

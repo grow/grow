@@ -3,8 +3,9 @@
 import collections
 import os
 
-import texttable
 from protorpc import protojson
+
+from grow.common import tables as texttable
 
 from . import messages
 

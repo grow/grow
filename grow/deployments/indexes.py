@@ -8,11 +8,11 @@ import traceback
 from multiprocessing import pool
 
 import git
-import progressbar
-import texttable
 from protorpc import protojson
 
 from grow.common import progressbar_non
+from grow.common import progressbar_non as progressbar
+from grow.common import tables as texttable
 from grow.common import utils as common_utils
 
 from . import messages, utils
