@@ -81,6 +81,13 @@ exclude = ["lib*", "node_modules*"]
 testpaths = ["grow"]
 python_files = ["*_test.py"]
 
+[tool.coverage.run]
+source = ["grow"]
+omit = [
+    "grow/common/ca_certs_locater.py",
+    "grow/templates/jinja_dependency.py",
+]
+
 [tool.ruff]
 target-version = "py39"
 line-length = 100

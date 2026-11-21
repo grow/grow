@@ -55,7 +55,7 @@ jobs:
     env:
       GOOGLE_CLOUD_PROJECT: 'grow-prod'
     steps:
-      - uses: GoogleCloudPlatform/release-please-action@v2
+      - uses: googleapis/release-please-action@v3
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

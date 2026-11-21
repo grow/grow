@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """Standalone Grow.dev installer. Downloads Grow.dev and sets up command aliases."""
 
@@ -29,8 +28,10 @@ if 'Linux' in platform.system():
 elif 'Darwin' in platform.system():
     PLATFORM = 'mac'
 else:
-    print('{} is not a supported platform. Please file an issue at '
-          'https://github.com/grow/grow/issues'.format(sys.platform))
+    print(
+        f'{sys.platform} is not a supported platform. Please file an issue at '
+        'https://github.com/grow/grow/issues'
+    )
     sys.exit(-1)
 
 
@@ -51,7 +52,7 @@ def orly(text, default=False):
     resp = input(text).strip().lower()
     if resp == 'y':
         return True
-    elif resp == 'n':
+    if resp == 'n':
         return False
     return default
 
@@ -61,9 +62,10 @@ def get_existing_aliases():
     """Find all existing aliases using the regex."""
     files_to_alias = {}
     for basename in ALIAS_FILES:
-        basepath = os.path.expanduser('~/{}'.format(basename))
+        basepath = os.path.expanduser(f'~/{basename}')
         if os.path.exists(basepath):
-            profile = open(basepath).read()
+            with open(basepath) as fp:
+                profile = fp.read()
             matches = re.findall(ALIAS_RE, profile)
             if matches:
                 files_to_alias[basepath] = [x[1] for x in matches]
@@ -72,31 +74,32 @@ def get_existing_aliases():
 
 def get_rc_path():
     for basename in RC_FILES:
-        basepath = os.path.expanduser('~/{}'.format(basename))
+        basepath = os.path.expanduser(f'~/{basename}')
         if os.path.exists(basepath):
             return basepath
-    return os.path.expanduser('~/{}'.format(RC_FILE_DEFAULT))
+    return os.path.expanduser(f'~/{RC_FILE_DEFAULT}')
 
 
-def get_release_for_platform(releases, platform):
+def get_release_for_platform(releases, target_platform):
     """Find the latest release available for the platform."""
     for release in releases:
         if release['prerelease']:
             continue
         for each_asset in release['assets']:
-            if platform in each_asset.get('name', '').lower():
+            if target_platform in each_asset.get('name', '').lower():
                 return release
     return None
 
 
 def has_bin_in_path(bin_path):
     """Determine if the binary path is part of the system paths."""
-    return bin_path in os.environ['PATH'].split(':')
+    return bin_path in os.environ.get('PATH', '').split(':')
 
 
 def install(rc_path=None, bin_path=None, force=False):
     """Download and install the binary."""
-    resp = json.loads(url_request.urlopen(RELEASES_API).read())
+    with url_request.urlopen(RELEASES_API) as response:
+        resp = json.loads(response.read())
     try:
         release = get_release_for_platform(resp, PLATFORM)
     except KeyError:
@@ -106,7 +109,7 @@ def install(rc_path=None, bin_path=None, force=False):
         sys.exit(-1)
 
     if release is None:
-        print(('Not available for platform: {}.'.format(platform.system())))
+        print(f'Not available for platform: {platform.system()}.')
         sys.exit(-1)
 
     version = release['tag_name']
@@ -121,10 +124,9 @@ def install(rc_path=None, bin_path=None, force=False):
 
     bin_path = os.path.expanduser(bin_path or BIN_PATH)
     bin_dir = os.path.dirname(bin_path)
-    rc_comment = '# Added by Grow.dev Installer ({})'.format(
-        datetime.datetime.now())
+    rc_comment = f'# Added by Grow.dev Installer ({datetime.datetime.now()})'
     rc_path = os.path.expanduser(rc_path or get_rc_path())
-    rc_path_append = 'export PATH={}:$PATH'.format(bin_dir)
+    rc_path_append = f'export PATH={bin_dir}:$PATH'
 
     hai('{yellow}Welcome to the installer for Grow.dev v{}{/yellow}', version)
     hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/{}', version)
@@ -150,17 +152,12 @@ def install(rc_path=None, bin_path=None, force=False):
             hai('\n\r{red}Aborted installation.{/red}')
             sys.exit(-1)
 
-    try:
-        os.makedirs(bin_dir)
-    except OSError:
-        # If the directory already exists, let it go.
-        pass
+    os.makedirs(bin_dir, exist_ok=True)
 
-    remote = url_request.urlopen(download_url)
+    local, temp_path = tempfile.mkstemp()
     try:
-        hai('Downloading from {}'.format(download_url))
-        local, temp_path = tempfile.mkstemp()
-        with os.fdopen(local, 'w') as local_file:
+        hai(f'Downloading from {download_url}')
+        with url_request.urlopen(download_url) as remote, os.fdopen(local, 'wb') as local_file:
             while True:
                 content = remote.read(1048576)  # 1MB.
                 if not content:
@@ -170,15 +167,12 @@ def install(rc_path=None, bin_path=None, force=False):
                 local_file.write(content)
                 sys.stdout.write('.')
                 sys.stdout.flush()
-        remote.close()
-        with open(temp_path, 'rb') as fp:
-            zp = zipfile.ZipFile(fp)
+        with zipfile.ZipFile(temp_path) as zp:
             try:
                 zp.extract('grow', os.path.dirname(bin_path))
-            except IOError as e:
+            except OSError as e:
                 if 'Text file busy' in str(e):
-                    hai('Unable to overwrite {}. Try closing Grow and installing again.'.format(
-                        bin_path))
+                    hai(f'Unable to overwrite {bin_path}. Try closing Grow and installing again.')
                     hai('You can use the installer by running: curl https://install.grow.dev | bash')
                     sys.exit(-1)
                 raise
@@ -186,12 +180,13 @@ def install(rc_path=None, bin_path=None, force=False):
         stat = os.stat(bin_path)
         os.chmod(bin_path, stat.st_mode | 0o111)
     finally:
-        os.remove(temp_path)
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
     if not bin_in_path:
         with open(rc_path, 'a') as fp:
             fp.write('\n' + rc_comment + '\n')
-            fp.write(rc_path_append)
+            fp.write(rc_path_append + '\n')
         hai('{green}[✓] Added {} to path in:{/green} {}',
             bin_path, rc_path)
 
@@ -204,7 +199,7 @@ def install(rc_path=None, bin_path=None, force=False):
     # TODO: Remove when no longer checking for alias.
     aliases = get_existing_aliases()
     if aliases:
-        hai('{red}Aliases for grow detected in: {}{/red}', ', '.join(list(aliases.keys())))
+        hai('{red}Aliases for grow detected in: {}{/red}', ', '.join(aliases))
         hai('   {red}please remove the old aliases to prevent version conflicts.{/red}')
 
 
