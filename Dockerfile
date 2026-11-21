@@ -1,6 +1,7 @@
 FROM ubuntu:jammy
 
 ARG grow_version=grow
+ARG NVM_VERSION=v0.41.0
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TERM=xterm \
@@ -52,8 +53,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install nvm, global Node tools, and Ruby bundler.
-RUN NVM_VERSION="$(curl -fsSL https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep -oP '"tag_name": "\K[^"]+')" \
-  && curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash \
+RUN curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash \
   && yarn global add gulp \
   && yarn cache clean \
   && gem install --no-document bundler
