@@ -2,7 +2,7 @@
   <div class="section-header">
     <div>
       <h2>Routes</h2>
-      <p class="section-subtitle">Inspect, filter, and open every route registered in this pod.</p>
+      <p class="section-subtitle" id="routes-subtitle">All generated pages and static assets in this project.</p>
     </div>
     <div class="stats-row" id="route-stats">
       <div class="stat-card">
@@ -11,11 +11,11 @@
       </div>
       <div class="stat-card">
         <span class="stat-card__value stat-card__value--doc" id="stat-doc">0</span>
-        <span class="stat-card__label">Docs</span>
+        <span class="stat-card__label">Pages</span>
       </div>
       <div class="stat-card">
         <span class="stat-card__value stat-card__value--static" id="stat-static">0</span>
-        <span class="stat-card__label">Static</span>
+        <span class="stat-card__label">Assets</span>
       </div>
       <div class="stat-card">
         <span class="stat-card__value stat-card__value--locale" id="stat-locales">0</span>
@@ -30,14 +30,14 @@
         id="route-search"
         class="search-input"
         type="search"
-        placeholder="Filter routes by URL, source path, or locale… (press /)"
+        placeholder="Search URLs, source files, or locales… (press /)"
         autocomplete="off"
       >
     </div>
-    <div class="filter-group" role="group" aria-label="Filter by route kind">
+    <div class="filter-group" role="group" aria-label="Filter by route type">
       <button type="button" class="pill is-active" data-kind="all">All</button>
-      <button type="button" class="pill" data-kind="doc">Docs</button>
-      <button type="button" class="pill" data-kind="static">Static</button>
+      <button type="button" class="pill" data-kind="doc">Pages</button>
+      <button type="button" class="pill" data-kind="static">Assets</button>
       <button type="button" class="pill" data-kind="other">Other</button>
     </div>
     <select id="locale-filter" class="select-input" aria-label="Filter by locale">
@@ -46,16 +46,16 @@
   </div>
 
   <div class="results-meta">
-    <span id="results-count">Showing all routes</span>
+    <span id="results-count">All routes</span>
   </div>
 
   <div class="table-card">
     <table class="routes-table">
       <thead>
         <tr>
-          <th class="col-kind">Kind</th>
-          <th class="col-path">Serving Path</th>
-          <th class="col-source">Source / Details</th>
+          <th class="col-kind">Type</th>
+          <th class="col-path">URL</th>
+          <th class="col-source">Source</th>
           <th class="col-locale">Locale</th>
           <th class="col-actions">Actions</th>
         </tr>
@@ -63,15 +63,16 @@
       <tbody id="routes-tbody">
         {% for path, info, options in partial.routes.nodes %}
           {% set kind = info.kind if info.kind in ['doc', 'static'] else 'other' %}
+          {% set kind_label = 'page' if info.kind == 'doc' else ('asset' if info.kind == 'static' else (info.kind or 'route')) %}
           {% set locale = info.meta.locale if (info.meta and info.meta.locale) else '' %}
           <tr
             class="route-row"
             data-kind="{{kind}}"
             data-locale="{{locale}}"
-            data-search="{{path|lower}} {{(info.meta.pod_path if info.meta and info.meta.pod_path else '')|lower}} {{locale|lower}} {{(info.kind or '')|lower}}"
+            data-search="{{path|lower}} {{(info.meta.pod_path if info.meta and info.meta.pod_path else '')|lower}} {{locale|lower}} {{kind_label|lower}}"
           >
             <td class="col-kind">
-              <span class="badge badge--{{kind}}">{{info.kind or 'route'}}</span>
+              <span class="badge badge--{{kind}}">{{kind_label}}</span>
             </td>
             <td class="col-path">
               <a class="route-link mono" href="{{path}}" title="{{path}}" data-path="{{path}}" target="_blank" rel="noopener">{{path}}</a>
@@ -201,6 +202,11 @@
       localeEl.appendChild(opt);
     });
 
+    var subtitleEl = document.getElementById('routes-subtitle');
+    if (subtitleEl && window.location.pathname.indexOf('/abstract') !== -1) {
+      subtitleEl.textContent = 'Dynamic URL patterns and parameter rules for this project.';
+    }
+
     var activeKind = 'all';
 
     function applyFilters() {
@@ -217,7 +223,7 @@
         if (show) visible += 1;
       });
 
-      countEl.textContent = 'Showing ' + visible + ' of ' + counts.total + ' routes';
+      countEl.textContent = visible + ' of ' + counts.total + ' routes';
       emptyEl.hidden = visible !== 0;
     }
 
