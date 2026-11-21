@@ -44,18 +44,18 @@ a:hover {
   background: #faf5f8;
   border-bottom: 1px solid #ead8e3;
   color: #3f2837;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 13.5px;
+  line-height: 1.45;
 }
 
 .notice-bar__inner {
   max-width: 1360px;
   margin: 0 auto;
-  padding: 7px 24px;
+  padding: 11px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
 }
 
 .notice-bar__icon {
@@ -73,10 +73,12 @@ a:hover {
 .notice-bar a {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+  margin-left: 3px;
   color: #6b2f55;
   font-weight: 600;
   white-space: nowrap;
+  vertical-align: middle;
 }
 
 .notice-bar a:hover {
@@ -667,8 +669,8 @@ a:hover {
 
 @media (max-width: 760px) {
   .notice-bar__inner {
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 10px 14px;
+    font-size: 12.5px;
     justify-content: center;
   }
 
