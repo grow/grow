@@ -1,10 +1,16 @@
 """Untag an object using convention based keys."""
 
+import functools
 import re
+
 from boltons import iterutils
 
-
 LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
+
+
+@functools.lru_cache(maxsize=512)
+def _compile_anchored_regex(pattern):
+    return re.compile(rf'^{pattern}$', re.IGNORECASE)
 
 
 class Untag:
@@ -15,6 +21,14 @@ class Untag:
         """Untags fields, handling translation priority."""
         paths_to_keep_tagged = set()
         locale_identifier = str(locale_identifier)
+        param_regex = (
+            re.compile(
+                rf'(.*)@({"|".join(params.keys())})\.([^@]+)$',
+                re.IGNORECASE,
+            )
+            if params
+            else None
+        )
 
         # When untagging the order of the keys isn't consistent. Sometimes the
         # tagged value is found but then is overwritten by the original value
@@ -28,6 +42,11 @@ class Untag:
             if not isinstance(key, str):
                 return key, value
 
+            if '@' not in key:
+                if (path, key) in untagged_key_paths:
+                    return False
+                return key, value
+
             if key.endswith('@#'):
                 # Translation Comment.
                 return False
@@ -39,10 +58,7 @@ class Untag:
                 key = key[:-1]
 
             # Support <key>@<param key>.<param value>: <value>.
-            if params:
-                param_regex = re.compile(
-                    r'(.*)@({})\.([^@]+)$'.format('|'.join(params.keys())),
-                    re.IGNORECASE)
+            if param_regex is not None:
                 param_match = param_regex.match(key)
                 if param_match:
                     untagged_key, param_key, param_value = param_match.groups()
@@ -77,16 +93,7 @@ class Untag:
             if (path, untagged_key) in untagged_key_paths:
                 return False
 
-            # TODO: Once the translation process is able to correctly extract
-            # the locale tagged extractions we need to prevent replacing.
-            # # When marked for extraction when tagged it should be used as the
-            # # translation value in the message catalog, not replace the value.
-            # if marked_for_extraction:
-            #     return False
-
-            locale_regex = re.compile(
-                r'^{}$'.format(locale_from_key), re.IGNORECASE)
-            if not locale_regex.match(locale_identifier):
+            if not _compile_anchored_regex(locale_from_key).match(locale_identifier):
                 return False
 
             # Don't let the original key overwrite the new value.
@@ -103,7 +110,7 @@ class Untag:
                 for sub_key, value in resp.items():
                     if not isinstance(value, list):
                         continue
-                    new_key = '{}@'.format(sub_key)
+                    new_key = f'{sub_key}@'
                     updated_values[new_key] = value
                 resp.update(updated_values)
                 try:
@@ -131,8 +138,7 @@ class UntagParamRegex:
     def __call__(self, data, untagged_key, param_key, param_value, value, locale_identifier=None):
         if not self.value:
             return False
-        value_regex = r'^{}$'.format(param_value)
-        if not re.match(value_regex, self.value, re.IGNORECASE):
+        if not _compile_anchored_regex(param_value).match(self.value):
             return False
         return untagged_key, value
 
@@ -160,8 +166,7 @@ class UntagParamLocaleRegex:
         if not isinstance(regex_value, str):
             regex_value = '|'.join(regex_value)
 
-        value_regex = r'^{}$'.format(regex_value)
-        if not re.match(value_regex, locale_identifier, re.IGNORECASE):
+        if not _compile_anchored_regex(regex_value).match(locale_identifier):
             return False
         return untagged_key, value
 

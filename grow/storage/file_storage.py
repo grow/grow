@@ -1,9 +1,9 @@
 """Local file storage."""
 
-import errno
 import hashlib
 import os
 import shutil
+
 from grow.storage import base_storage
 from grow.templates import jinja_loader
 
@@ -21,7 +21,7 @@ class FileStorage(base_storage.BaseStorage):
         try:
             with open(filename) as fp:
                 content = fp.read()
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             with open(filename, 'rb') as fp:
                 content = fp.read()
         return content
@@ -41,8 +41,8 @@ class FileStorage(base_storage.BaseStorage):
     @staticmethod
     def hash(filename):
         hash_digest = hashlib.sha256()
-        with open(filename, "rb") as source_file:
-            for chunk in iter(lambda: source_file.read(4096), b""):
+        with open(filename, 'rb') as source_file:
+            for chunk in iter(lambda: source_file.read(65536), b''):
                 hash_digest.update(chunk)
         return hash_digest.hexdigest()
 
@@ -69,19 +69,11 @@ class FileStorage(base_storage.BaseStorage):
     @classmethod
     def write(cls, path, content):
         dirname = os.path.dirname(path)
-        try:
-            os.makedirs(dirname)
-        except OSError as e:
-            if e.errno == errno.EEXIST and os.path.isdir(dirname):
-                pass
-            else:
-                raise
-        try:
-            with cls.open(path, mode='w') as fp:
-                fp.write(content)
-        except TypeError:
-            with cls.open(path, mode='wb') as fp:
-                fp.write(content)
+        if dirname:
+            os.makedirs(dirname, exist_ok=True)
+        mode = 'wb' if isinstance(content, (bytes, bytearray)) else 'w'
+        with cls.open(path, mode=mode) as fp:
+            fp.write(content)
 
     @staticmethod
     def exists(filename):
@@ -109,8 +101,7 @@ class FileStorage(base_storage.BaseStorage):
     @staticmethod
     def copy_to(paths, target_paths):
         # TODO(jeremydw): Rename to bulk_copy_to.
-        for i, path in enumerate(paths):
-            target_path = target_paths[i]
+        for path, target_path in zip(paths, target_paths):
             shutil.copyfile(path, target_path)
             shutil.copystat(path, target_path)
 
