@@ -6,8 +6,6 @@ import re
 from markdown import extensions, preprocessors
 from markdown.extensions import toc
 from protorpc import messages, protojson
-from pygments import highlight, lexers
-from pygments.formatters import html
 
 from . import utils
 
@@ -152,6 +150,8 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
         return get_config(CodeBlockPreprocessor.KIND, CodeBlockPreprocessor.Config, self.pod)
 
     def get_formatter(self, hl_lines=''):
+        from pygments.formatters import html
+
         return html.HtmlFormatter(
             noclasses=(not self.config.classes),
             cssclass=self.config.class_name,
@@ -168,6 +168,8 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
             hl_lines = m.group('lines')
             content = m.group('content')
             if self.config.highlighter == 'pygments':
+                from pygments import highlight, lexers
+
                 formatter = self.formatter
                 if hl_lines:
                     formatter = self.get_formatter(hl_lines=hl_lines)

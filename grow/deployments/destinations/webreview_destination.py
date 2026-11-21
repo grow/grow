@@ -4,7 +4,6 @@ import logging
 import os
 import urllib.parse
 
-import webreview
 from protorpc import messages
 
 from grow.common import utils as common_utils
@@ -12,6 +11,12 @@ from grow.deployments import utils
 from grow.deployments.destinations import base
 from grow.pods import env
 from grow.routing import router
+
+
+def _get_webreview():
+    import webreview
+
+    return webreview
 
 
 class Config(messages.Message):
@@ -36,7 +41,9 @@ class WebReviewDestination(base.BaseDestination):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if webreview is None:
+        try:
+            _get_webreview()
+        except ImportError:
             raise common_utils.UnavailableError(
                 'WebReview deployments are not available in this environment.'
             )
@@ -77,6 +84,7 @@ class WebReviewDestination(base.BaseDestination):
     @property
     def webreview(self):
         if self._webreview is None:
+            webreview = _get_webreview()
             api_key = os.getenv('WEBREVIEW_API_KEY')
             subdomain = self._get_subdomain()
             self._webreview = webreview.WebReview(
@@ -154,6 +162,7 @@ class WebReviewDestination(base.BaseDestination):
         pass
 
     def read_file(self, path):
+        webreview = _get_webreview()
         try:
             paths_to_contents, errors = self.webreview.read([path])
             if path not in paths_to_contents:
@@ -166,6 +175,7 @@ class WebReviewDestination(base.BaseDestination):
             raise base.Error(e.message)
 
     def write_files(self, paths_to_rendered_doc):
+        webreview = _get_webreview()
         try:
             paths_to_rendered_doc, errors = self.webreview.write(paths_to_rendered_doc)
             if errors:
@@ -176,6 +186,7 @@ class WebReviewDestination(base.BaseDestination):
             raise base.Error(e.message)
 
     def delete_file(self, paths):
+        webreview = _get_webreview()
         try:
             paths, errors = self.webreview.delete(paths)
             if errors:

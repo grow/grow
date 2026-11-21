@@ -90,6 +90,7 @@ class Pod:
     def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True):
         self.deprecated = deprecated.DeprecationManager(self.logger.warn)
         self._yaml = utils.SENTINEL
+        self._podspec = None
         self.storage = storage
         self.root = root if self.storage.is_cloud_storage else os.path.abspath(root)
         self.env = env if env else environment.Env(environment.EnvConfig(host='localhost'))
@@ -273,6 +274,7 @@ class Pod:
                 },
             )
             self._yaml = content
+            self._podspec = None
             # Preprocessors may depend on env, reset cache.
             # pylint: disable=no-member
             self.list_preprocessors.reset()
@@ -360,7 +362,9 @@ class Pod:
 
     @property
     def podspec(self):
-        return podspec.PodSpec(yaml=self.yaml, pod=self)
+        if self._podspec is None:
+            self._podspec = podspec.PodSpec(yaml=self.yaml, pod=self)
+        return self._podspec
 
     @utils.cached_property
     def profile(self):
@@ -900,6 +904,7 @@ class Pod:
     def reset_yaml(self):
         # Mark that the yaml needs to be reparsed.
         self._yaml = utils.SENTINEL
+        self._podspec = None
         # Tell the cached property to reset.
         # pylint: disable=no-member
         self._parse_yaml.reset()
