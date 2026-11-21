@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "grow"
 version = "2.2.3"
 description = "Develop everywhere and deploy anywhere: a declarative site generator for rapid, high-quality web site production."
-readme = "description.txt"
+readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
 authors = [
