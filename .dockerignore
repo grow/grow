@@ -1,0 +1,12 @@
+.git
+.venv
+.pytest_cache
+.ruff_cache
+__pycache__
+*.py[cod]
+dist
+build
+*.egg-info
+grow/ui/node_modules
+coverage.xml
+.coverage
