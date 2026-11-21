@@ -128,7 +128,8 @@ a:hover {
   background: var(--bg-subtle);
 }
 
-.sidebar__mobile-header {
+.sidebar__mobile-header,
+.sidebar__mobile-tabs {
   display: none;
 }
 
@@ -666,19 +667,13 @@ a:hover {
 
 @media (max-width: 760px) {
   .notice-bar__inner {
-    padding: 7px 16px;
-    font-size: 12.5px;
-    justify-content: flex-start;
+    padding: 6px 12px;
+    font-size: 12px;
+    justify-content: center;
   }
 
   .topbar__nav {
-    margin-left: 4px;
-    gap: 2px;
-  }
-
-  .topbar__link {
-    padding: 4px 8px;
-    font-size: 13px;
+    display: none;
   }
 
   .code-copy {
@@ -686,17 +681,23 @@ a:hover {
   }
 
   .topbar__inner {
-    flex-wrap: wrap;
-    padding: 10px 16px;
-    gap: 10px;
+    flex-wrap: nowrap;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .topbar__left {
+    gap: 8px;
   }
 
   .nav-toggle {
     display: inline-flex;
+    width: 34px;
+    height: 34px;
   }
 
   .brand__logo {
-    height: 24px;
+    height: 22px;
   }
 
   .topbar__actions {
@@ -704,20 +705,40 @@ a:hover {
   }
 
   .btn {
-    padding: 6px 11px;
-    font-size: 12.5px;
-    white-space: nowrap;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .btn__label {
+    display: none;
   }
 
   .search-box {
-    order: 3;
-    flex: 1 0 100%;
+    flex: 1 1 0;
+    min-width: 0;
     max-width: none;
   }
 
   .search-input {
     font-size: 16px;
-    height: 38px;
+    height: 34px;
+    padding: 0 10px;
+  }
+
+  .sidebar__mobile-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 0 0 12px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar__mobile-tabs .topbar__link {
+    flex: 1;
+    text-align: center;
+    padding: 6px 10px;
   }
 
   .docs-shell {
