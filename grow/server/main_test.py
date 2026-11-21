@@ -84,8 +84,6 @@ class PodHandlerTestCase(unittest.TestCase):
 
         request = webob.Request.blank('/_grow/ui/css/admin.min.css')
         response = request.get_response(app)
-        if response.status_int == 404:
-            self.skipTest('UI assets not built; run `yarn --cwd grow/ui build`.')
         self.assertEqual(200, response.status_int)
 
     def test_ui(self):
@@ -97,8 +95,6 @@ class PodHandlerTestCase(unittest.TestCase):
         # Verify JS and CSS are served.
         request = webob.Request.blank('/_grow/ui/js/ui.min.js')
         response = request.get_response(app)
-        if response.status_int == 404:
-            self.skipTest('UI assets not built; run `yarn --cwd grow/ui build`.')
         self.assertEqual(200, response.status_int)
         js_sentinel = b'setAttribute("target","_blank")'
         self.assertIn(js_sentinel, response.body)

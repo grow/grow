@@ -6,7 +6,6 @@ Thanks for contributing to Grow!
 
 - [uv](https://docs.astral.sh/uv/) (manages the Python virtual environment and lockfile)
 - Python **3.10 – 3.12**
-- Node.js & Yarn (only needed if working on `grow/ui` assets)
 
 ## Local Setup
 
@@ -59,15 +58,6 @@ To auto-fix lint issues and format your changes:
 ```bash
 uv run ruff check --fix grow/ install.py
 uv run ruff format grow/ install.py
-```
-
-## Building UI Assets
-
-To build the admin and UI static bundles (used by `test_admin`/`test_ui` and package releases):
-
-```bash
-yarn --cwd grow/ui install
-yarn --cwd grow/ui build
 ```
 
 ## Building Packages & Docker Images
