@@ -7,16 +7,18 @@ from grow.common import urls
 from grow.routing import path_filter as grow_path_filter
 
 # SHA 256 hash length: 64 characters.
-FINGERPRINT_RE = re.compile(
-    r'(.*)(-[a-f0-9]{64})((\.min|)[\.][a-z0-9]{1,5})$', re.IGNORECASE)
+FINGERPRINT_RE = re.compile(r'(.*)(-[a-f0-9]{64})((\.min|)[\.][a-z0-9]{1,5})$', re.IGNORECASE)
 
 
 class StaticDocument:
     """Static document."""
 
     def __eq__(self, other):
-        return (self.pod == other.pod and self.pod_path == other.pod_path
-                and other.locale == self.locale)
+        return (
+            self.pod == other.pod
+            and self.pod_path == other.pod_path
+            and other.locale == self.locale
+        )
 
     def __init__(self, pod, pod_path, locale=None):
         self.pod = pod
@@ -27,8 +29,7 @@ class StaticDocument:
         # When localized the base string is changed.
         self._base_path_format = self.config['serve_at']
         self._base_source_path = self.source_path
-        self._base_source_path_index = self.source_paths.index(
-            self._base_source_path)
+        self._base_source_path_index = self.source_paths.index(self._base_source_path)
 
         self.use_locale = locale is not None and locale != pod.podspec.default_locale
         if self.use_locale and 'localization' in self.config:
@@ -46,7 +47,7 @@ class StaticDocument:
     def __repr__(self):
         if self.locale:
             return f"<StaticDocument({self.pod_path}, locale='{self.locale}')>"
-        return f"<StaticDocument({self.pod_path})>"
+        return f'<StaticDocument({self.pod_path})>'
 
     @staticmethod
     def strip_fingerprint(serving_path):
@@ -94,15 +95,14 @@ class StaticDocument:
         static_filter = self.filter
         if static_filter:
             return grow_path_filter.PathFilter(
-                static_filter.get('ignore_paths'), static_filter.get('include_paths'))
+                static_filter.get('ignore_paths'), static_filter.get('include_paths')
+            )
         return self.pod.path_filter
 
     @property
     def path_format(self):
         """Path format for the static document."""
-        return '{}{}'.format(
-            self.config['serve_at'],
-            self.sub_base_pod_path)
+        return '{}{}'.format(self.config['serve_at'], self.sub_base_pod_path)
 
     @property
     def source_format(self):
@@ -122,13 +122,15 @@ class StaticDocument:
         """Serving path for the static document."""
         if self.source_pod_path != self.pod_path or not self.use_fallback:
             path = self.pod.path_format.format_static(
-                self.path_format, locale=self.locale,
-                fingerprint=self.fingerprint)
+                self.path_format, locale=self.locale, fingerprint=self.fingerprint
+            )
         else:
             # Fall back to use the default locale for the formatted path.
             path = self.pod.path_format.format_static(
-                self.base_path_format, locale=self.pod.podspec.default_locale,
-                fingerprint=self.fingerprint)
+                self.base_path_format,
+                locale=self.pod.podspec.default_locale,
+                fingerprint=self.fingerprint,
+            )
 
         if not self.fingerprinted:
             return path
@@ -144,7 +146,8 @@ class StaticDocument:
     def serving_path_parameterized(self):
         """Parameterized serving path for the static document."""
         return self.pod.path_format.format_static(
-            self.path_format, locale=self.locale, parameterize=True)
+            self.path_format, locale=self.locale, parameterize=True
+        )
 
     @property
     def source_path(self):
@@ -169,8 +172,7 @@ class StaticDocument:
     @property
     def source_pod_path(self):
         """Source path for the static document with missing file fallback."""
-        source_path = self.pod.path_format.format_static(
-            self.source_format, locale=self.locale)
+        source_path = self.pod.path_format.format_static(self.source_format, locale=self.locale)
         # Fall back to the pod path if using locale and the localized
         # version does not exist.
         if self.use_locale and self.use_fallback and not self.pod.file_exists(source_path):
@@ -180,12 +182,12 @@ class StaticDocument:
     @property
     def sub_base_pod_path(self):
         """Unique portion of the base static file."""
-        return self.pod_path[len(self._base_source_path):]
+        return self.pod_path[len(self._base_source_path) :]
 
     @property
     def sub_pod_path(self):
         """Unique portion of the full static file."""
-        return self.pod_path[len(self.source_path):]
+        return self.pod_path[len(self.source_path) :]
 
     @property
     def url(self):
@@ -194,4 +196,5 @@ class StaticDocument:
             path=self.serving_path,
             host=self.pod.env.host,
             port=self.pod.env.port,
-            scheme=self.pod.env.scheme)
+            scheme=self.pod.env.scheme,
+        )

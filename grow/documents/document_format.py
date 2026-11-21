@@ -14,7 +14,6 @@ BOUNDARY_SEPARATOR = '---'
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -44,8 +43,7 @@ class DocumentFormat:
     def from_doc(*args, **kwargs):
         doc = kwargs.get('doc', None)
         if not doc:
-            raise BadFormatError(
-                'Missing `doc` keyword argument for creating format')
+            raise BadFormatError('Missing `doc` keyword argument for creating format')
         if doc.ext in ('.html', '.htm'):
             return HtmlDocumentFormat(*args, **kwargs)
         if doc.ext in ('.markdown', '.mdown', '.mkdn', '.mkd', '.md'):
@@ -64,14 +62,14 @@ class DocumentFormat:
 
     def _parse_content(self):
         """Parse the content from the raw content."""
-        _, parsed_content = doc_front_matter.DocumentFrontMatter\
-            .split_front_matter(self.raw_content)
+        _, parsed_content = doc_front_matter.DocumentFrontMatter.split_front_matter(
+            self.raw_content
+        )
         return parsed_content
 
     def _parse_front_matter(self):
         """Parse the front matter from the raw content."""
-        return doc_front_matter.DocumentFrontMatter(
-            self._doc)
+        return doc_front_matter.DocumentFrontMatter(self._doc)
 
     @property
     def content(self):
@@ -83,15 +81,18 @@ class DocumentFormat:
 
     @utils.cached_property
     def front_matter(self):
-        cached_front_matter = self._doc.pod.podcache.document_cache\
-            .get_property(self._doc, 'front_matter')
+        cached_front_matter = self._doc.pod.podcache.document_cache.get_property(
+            self._doc, 'front_matter'
+        )
         if cached_front_matter:
             return doc_front_matter.DocumentFrontMatter(
-                self._doc, raw_front_matter=cached_front_matter)
+                self._doc, raw_front_matter=cached_front_matter
+            )
 
         front_matter = self._parse_front_matter()
         self._doc.pod.podcache.document_cache.add_property(
-            self._doc, 'front_matter', front_matter.export())
+            self._doc, 'front_matter', front_matter.export()
+        )
         return front_matter
 
     @property
@@ -120,6 +121,7 @@ class DocumentFormat:
                 node[key] = new_value
             except (AttributeError, TypeError, KeyError):
                 pass
+
         utils.walk(fields, _walk_field)
 
         # Organization rules:
@@ -178,7 +180,8 @@ class DocumentFormat:
             raw_front_matter = utils.dump_yaml(fields)
             self.front_matter.update_raw_front_matter(raw_front_matter)
             self._doc.pod.podcache.document_cache.add_property(
-                self._doc, 'front_matter', self.front_matter.export())
+                self._doc, 'front_matter', self.front_matter.export()
+            )
 
         if content is not utils.SENTINEL:
             self._content = content
@@ -187,7 +190,6 @@ class DocumentFormat:
 
 
 class HtmlDocumentFormat(DocumentFormat):
-
     @utils.cached_property
     def formatted(self):
         val = self.content
@@ -195,7 +197,6 @@ class HtmlDocumentFormat(DocumentFormat):
 
 
 class MarkdownDocumentFormat(DocumentFormat):
-
     @utils.cached_property
     def markdown(self):
         """Instance of pod flavored markdown."""
@@ -212,8 +213,7 @@ class MarkdownDocumentFormat(DocumentFormat):
     @utils.cached_property
     def formatted(self):
         """Markdown formatted content."""
-        return self.markdown.convert(
-            self.content) if self.content else None
+        return self.markdown.convert(self.content) if self.content else None
 
 
 class TextDocumentFormat(DocumentFormat):
@@ -221,10 +221,8 @@ class TextDocumentFormat(DocumentFormat):
 
 
 class YamlDocumentFormat(DocumentFormat):
-
     def _parse_content(self):
         return None
 
     def _parse_front_matter(self):
-        return doc_front_matter.DocumentFrontMatter(
-            self._doc, raw_front_matter=self.raw_content)
+        return doc_front_matter.DocumentFrontMatter(self._doc, raw_front_matter=self.raw_content)

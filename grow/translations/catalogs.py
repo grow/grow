@@ -13,9 +13,7 @@ from grow.pods import messages
 
 
 class Catalog(catalog.Catalog):
-
-    def __init__(self, basename='messages.po', locale=None, pod=None,
-                 dir_path=None):
+    def __init__(self, basename='messages.po', locale=None, pod=None, dir_path=None):
         dir_path = 'translations' if dir_path is None else dir_path
         self.locale = locale
         self.pod = pod
@@ -23,8 +21,7 @@ class Catalog(catalog.Catalog):
             self.pod_path = os.path.join(dir_path, basename)
             is_template = True
         else:
-            self.pod_path = os.path.join(dir_path, str(locale), 'LC_MESSAGES',
-                                         basename)
+            self.pod_path = os.path.join(dir_path, str(locale), 'LC_MESSAGES', basename)
             is_template = False
         super().__init__(locale=self.locale)
         if not is_template and self.exists:
@@ -106,7 +103,8 @@ class Catalog(catalog.Catalog):
             sort_output=True,
             sort_by_file=True,
             include_previous=True,
-            width=80)
+            width=80,
+        )
         outfile.close()
 
     def init(self, template_path, include_header=False):
@@ -115,18 +113,23 @@ class Catalog(catalog.Catalog):
         self.fuzzy = False
         self.save(include_header=include_header)
 
-    def update_using_catalog(self, catalog_to_merge, use_fuzzy_matching=False,
-                             include_obsolete=False):
-        super().update(
-            catalog_to_merge, no_fuzzy_matching=(not use_fuzzy_matching))
+    def update_using_catalog(
+        self, catalog_to_merge, use_fuzzy_matching=False, include_obsolete=False
+    ):
+        super().update(catalog_to_merge, no_fuzzy_matching=(not use_fuzzy_matching))
         # Don't use gettext's obsolete functionality as it polutes files: merge
         # into main translations if anything
         if include_obsolete:
             self.merge_obsolete()
         self.obsolete = odict()
 
-    def update(self, template_path=None, use_fuzzy_matching=False,
-               include_obsolete=False, include_header=False):
+    def update(
+        self,
+        template_path=None,
+        use_fuzzy_matching=False,
+        include_obsolete=False,
+        include_header=False,
+    ):
         """Updates catalog with messages from a template."""
         if template_path is None:
             template_path = os.path.join('translations', 'messages.pot')
@@ -135,8 +138,7 @@ class Catalog(catalog.Catalog):
             return
         template_file = self.pod.open_file(template_path)
         template = pofile.read_po(template_file)
-        super().update(
-            template, no_fuzzy_matching=(not use_fuzzy_matching))
+        super().update(template, no_fuzzy_matching=(not use_fuzzy_matching))
         # Don't use gettext's obsolete functionality as it polutes files: merge
         # into main translations if anything
         if include_obsolete:
@@ -176,7 +178,10 @@ class Catalog(catalog.Catalog):
 
     def _skip_compile_error(self, error):
         # Reduces logspam by hiding errors related to placeholders.
-        return bool('incompatible format for placeholder' in str(error) or 'placeholders are incompatible' in str(error))
+        return bool(
+            'incompatible format for placeholder' in str(error)
+            or 'placeholders are incompatible' in str(error)
+        )
 
     def compile(self):
         self.pod.catalogs.clear_gettext_cache()
@@ -238,11 +243,10 @@ class Catalog(catalog.Catalog):
 
     @staticmethod
     def set_header_comment(pod, catalog):
-        project_title = (
-            pod.yaml.get('translators', {})
-            .get('project_title', 'Untitled Grow Website'))
-        instructions = (
-            pod.yaml.get('translators', {}).get('instructions'))
+        project_title = pod.yaml.get('translators', {}).get(
+            'project_title', 'Untitled Grow Website'
+        )
+        instructions = pod.yaml.get('translators', {}).get('instructions')
         comment = ''
         if catalog.locale:
             lang_display_name = catalog.locale.language

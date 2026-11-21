@@ -22,7 +22,6 @@ class EnvConfig(messages.Message):
 
 
 class Env:
-
     def __init__(self, config):
         self.name = config.name
         self.config = config
@@ -62,11 +61,7 @@ class Env:
 
     @property
     def url(self):
-        return urls.Url(
-            path='/',
-            host=self.host,
-            port=self.port,
-            scheme=self.scheme)
+        return urls.Url(path='/', host=self.host, port=self.port, scheme=self.scheme)
 
     def to_wsgi_env(self):
         return {

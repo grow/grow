@@ -17,8 +17,7 @@ class BowerInstallerTestCase(unittest.TestCase):
         self.config = base_config.BaseConfig()
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
-        self.installer = bower_installer.BowerInstaller(
-            self.pod, self.config)
+        self.installer = bower_installer.BowerInstaller(self.pod, self.config)
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites(self, mock_call):
@@ -26,7 +25,8 @@ class BowerInstallerTestCase(unittest.TestCase):
         mock_call.return_value = 0
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'bower --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            'bower --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True)
+        )
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_fail(self, mock_call):
@@ -43,7 +43,8 @@ class BowerInstallerTestCase(unittest.TestCase):
         mock_popen.return_value = mock_process
         self.installer.install()
         mock_popen.assert_called_once_with(
-            'bower install', **self.installer.subprocess_args(shell=True))
+            'bower install', **self.installer.subprocess_args(shell=True)
+        )
 
     @mock.patch('subprocess.Popen')
     def test_install_failed(self, mock_popen):

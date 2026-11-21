@@ -4,6 +4,7 @@ Cache for storing and retrieving file content at a pod_path.
 The contents of the cache can be parsed and are stored based on locale.
 """
 
+
 class FileCache:
     """Simple cache for file contents."""
 

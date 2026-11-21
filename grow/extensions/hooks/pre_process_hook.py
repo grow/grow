@@ -20,8 +20,7 @@ class PreProcessHook(base_hook.BaseHook):
     @classmethod
     def parse_config(cls, config):
         """Parse the config into the protobuf."""
-        return protojson.decode_message(
-            cls.Config, json.dumps(config))
+        return protojson.decode_message(cls.Config, json.dumps(config))
 
     # pylint: disable=arguments-differ, unused-argument
     def should_trigger(self, previous_result, config, names, tags, run_all, *_args, **_kwargs):
@@ -34,7 +33,14 @@ class PreProcessHook(base_hook.BaseHook):
         if kind != self.KIND:
             return False
 
-        return bool(names and name in names or tags and set(config_tags).intersection(tags) or autorun or run_all)
+        return bool(
+            names
+            and name in names
+            or tags
+            and set(config_tags).intersection(tags)
+            or autorun
+            or run_all
+        )
 
     # pylint: disable=arguments-differ,unused-argument
     def trigger(self, previous_result, config, names, tags, run_all, rate_limit, *_args, **_kwargs):

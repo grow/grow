@@ -35,14 +35,14 @@ def load_func(batch, source_dir, tick=None):
         try:
             result.loaded_docs.append(controller.load(source_dir))
         except errors.BuildError as err:
-            result.load_errors.append(RenderError(
-                f"Error loading {controller.serving_path}",
-                err, err.traceback))
+            result.load_errors.append(
+                RenderError(f'Error loading {controller.serving_path}', err, err.traceback)
+            )
         except Exception as err:  # pylint: disable=broad-except
             _, _, err_tb = sys.exc_info()
-            result.load_errors.append(RenderError(
-                f"Error loading {controller.serving_path}",
-                err, err_tb))
+            result.load_errors.append(
+                RenderError(f'Error loading {controller.serving_path}', err, err_tb)
+            )
         finally:
             if tick:
                 tick()
@@ -55,17 +55,16 @@ def render_func(batch, tick=None):
     for item in batch:
         controller = item['controller']
         try:
-            result.rendered_docs.append(controller.render(
-                jinja_env=item['jinja_env']))
+            result.rendered_docs.append(controller.render(jinja_env=item['jinja_env']))
         except errors.BuildError as err:
-            result.render_errors.append(RenderError(
-                f"Error rendering {controller.serving_path}",
-                err, err.traceback))
+            result.render_errors.append(
+                RenderError(f'Error rendering {controller.serving_path}', err, err.traceback)
+            )
         except Exception as err:  # pylint: disable=broad-except
             _, _, err_tb = sys.exc_info()
-            result.render_errors.append(RenderError(
-                f"Error rendering {controller.serving_path}",
-                err, err_tb))
+            result.render_errors.append(
+                RenderError(f'Error rendering {controller.serving_path}', err, err_tb)
+            )
         finally:
             if tick:
                 tick()
@@ -91,8 +90,11 @@ class RenderBatches:
     def _get_batch(self, locale):
         if locale not in self._batches:
             self._batches[locale] = RenderLocaleBatch(
-                self.render_pool.get_jinja_env(locale), self.profile, tick=self.tick,
-                batch_size=self.batch_size)
+                self.render_pool.get_jinja_env(locale),
+                self.profile,
+                tick=self.tick,
+                batch_size=self.batch_size,
+            )
         return self._batches[locale]
 
     def add(self, controller, *args, **kwargs):
@@ -181,18 +183,19 @@ class RenderLocaleBatch:
         """Add an item to be rendered to the batch."""
         batch = self._get_batch()
 
-        batch.append({
-            'controller': controller,
-            'jinja_env': self.jinja_env,
-            'args': args,
-            'kwargs': kwargs,
-        })
+        batch.append(
+            {
+                'controller': controller,
+                'jinja_env': self.jinja_env,
+                'args': args,
+                'kwargs': kwargs,
+            }
+        )
 
     def load_start(self, source_dir):
         """Start the batches loading."""
         self._thread_pool = ThreadPool(len(self.batches))
-        self._results = self._thread_pool.imap_unordered(
-            load_func, self.batches, source_dir)
+        self._results = self._thread_pool.imap_unordered(load_func, self.batches, source_dir)
         self._is_loading = True
 
     def load_finish(self):
@@ -235,8 +238,7 @@ class RenderLocaleBatch:
     def render_start(self):
         """Start the batches rendering."""
         self._thread_pool = ThreadPool(len(self.batches))
-        self._results = self._thread_pool.imap_unordered(
-            render_func, self.batches)
+        self._results = self._thread_pool.imap_unordered(render_func, self.batches)
         self._is_rendering = True
 
     def render_finish(self):

@@ -11,9 +11,11 @@ class AttributeDictTestCase(unittest.TestCase):
 
     def test_attributes(self):
         """Keys are accessible as attributes."""
-        obj = structures.AttributeDict({
-            'key': 'value',
-        })
+        obj = structures.AttributeDict(
+            {
+                'key': 'value',
+            }
+        )
         self.assertEqual('value', obj['key'])
         self.assertEqual('value', obj.key)
 
@@ -23,23 +25,28 @@ class DeepReferenceDictTestCase(unittest.TestCase):
 
     def test_deep_reference(self):
         """Delimited keys are accessible."""
-        obj = structures.DeepReferenceDict({
-            'key': {
-                'sub_key': {
-                    'value': 'foo',
-                }
-            },
-        })
+        obj = structures.DeepReferenceDict(
+            {
+                'key': {
+                    'sub_key': {
+                        'value': 'foo',
+                    }
+                },
+            }
+        )
         self.assertEqual('foo', obj['key']['sub_key']['value'])
         self.assertEqual('foo', obj['key.sub_key.value'])
 
     def test_deep_reference_error(self):
         """Missing keys raise error."""
-        obj = structures.DeepReferenceDict({
-            'key': {},
-        })
+        obj = structures.DeepReferenceDict(
+            {
+                'key': {},
+            }
+        )
         with self.assertRaises(KeyError):
             _ = obj['key.sub_key.value']
+
 
 class SortedCollectionTestCase(unittest.TestCase):
     """Test the sorted collection structure."""
@@ -48,10 +55,11 @@ class SortedCollectionTestCase(unittest.TestCase):
         self.key = itemgetter(2)
         self.coll = structures.SortedCollection(key=self.key)
         for record in [
-                ('roger', 'young', 30),
-                ('angela', 'jones', 28),
-                ('bill', 'smith', 22),
-                ('david', 'thomas', 32)]:
+            ('roger', 'young', 30),
+            ('angela', 'jones', 28),
+            ('bill', 'smith', 22),
+            ('david', 'thomas', 32),
+        ]:
             self.coll.insert(record)
 
     def test_clear(self):
@@ -120,10 +128,15 @@ class SortedCollectionTestCase(unittest.TestCase):
         """Index from item."""
         self.assertEqual(self.key, self.coll.key)
         self.coll.key = itemgetter(0)  # now sort by first name
-        self.assertEqual([('angela', 'jones', 28),
-                          ('bill', 'smith', 22),
-                          ('david', 'thomas', 32),
-                          ('roger', 'young', 30)], list(self.coll))
+        self.assertEqual(
+            [
+                ('angela', 'jones', 28),
+                ('bill', 'smith', 22),
+                ('david', 'thomas', 32),
+                ('roger', 'young', 30),
+            ],
+            list(self.coll),
+        )
 
     def test_le(self):
         """Less than equal."""
@@ -157,20 +170,26 @@ class SortedCollectionTestCase(unittest.TestCase):
 
     def test_sorting(self):
         """Collection is sorted."""
-        self.assertEqual([('bill', 'smith', 22),
-                          ('angela', 'jones', 28),
-                          ('roger', 'young', 30),
-                          ('david', 'thomas', 32)], list(self.coll))
+        self.assertEqual(
+            [
+                ('bill', 'smith', 22),
+                ('angela', 'jones', 28),
+                ('roger', 'young', 30),
+                ('david', 'thomas', 32),
+            ],
+            list(self.coll),
+        )
 
     def test_sorting_default(self):
         """Collection is sorted using a default for the value."""
         self.key = itemgetter(2)
         self.coll = structures.SortedCollection(key=self.key, default=100)
         for record in [
-                ('roger', 'young', None),
-                ('angela', 'jones', 28),
-                ('bill', 'smith', 22),
-                ('david', 'thomas', 32)]:
+            ('roger', 'young', None),
+            ('angela', 'jones', 28),
+            ('bill', 'smith', 22),
+            ('david', 'thomas', 32),
+        ]:
             self.coll.insert(record)
         self.assertEqual(
             [
@@ -178,4 +197,6 @@ class SortedCollectionTestCase(unittest.TestCase):
                 ('angela', 'jones', 28),
                 ('david', 'thomas', 32),
                 ('roger', 'young', None),
-            ], list(self.coll))
+            ],
+            list(self.coll),
+        )

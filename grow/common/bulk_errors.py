@@ -12,6 +12,7 @@ class BulkErrors(Exception):
         self.message = message
         self.errors = errors
 
+
 def display_bulk_errors(bulk_errors):
     """Nicely log and show the bulk errors."""
     for error in bulk_errors.errors:

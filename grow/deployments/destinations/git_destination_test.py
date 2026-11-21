@@ -13,23 +13,28 @@ from grow.testing import testing
 
 
 class GitDestinationTestCase(unittest.TestCase):
-
     def _test_deploy(self, repo_url):
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'deployments': {
-                'git': {
-                    'destination': 'git',
-                    'repo': repo_url,
-                    'branch': 'gh-pages',
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'deployments': {
+                    'git': {
+                        'destination': 'git',
+                        'repo': repo_url,
+                        'branch': 'gh-pages',
+                    },
                 },
             },
-        })
+        )
         pod.write_yaml('/content/pages/_blueprint.yaml', {})
-        pod.write_yaml('/content/pages/page.yaml', {
-            '$path': '/{base}/',
-            '$view': '/views/base.html',
-        })
+        pod.write_yaml(
+            '/content/pages/page.yaml',
+            {
+                '$path': '/{base}/',
+                '$view': '/views/base.html',
+            },
+        )
         pod.write_file('/views/base.html', str(random.randint(0, 999)))
         deployment = pod.get_deployment('git')
         paths = []
@@ -37,8 +42,9 @@ class GitDestinationTestCase(unittest.TestCase):
             paths.append(rendered_doc.path)
         repo = utils.get_git_repo(pod.root)
         stats_obj = stats.Stats(pod, paths=paths)
-        deployment.deploy(deployment.dump(pod), stats=stats_obj, repo=repo,
-                          confirm=False, test=False)
+        deployment.deploy(
+            deployment.dump(pod), stats=stats_obj, repo=repo, confirm=False, test=False
+        )
 
     def test_deploy_local(self):
         path = tempfile.mkdtemp()

@@ -23,8 +23,7 @@ class MissingOptionError(Error):
     """Error when there is a missing option when using templated path."""
 
     def __init__(self, path):
-        super().__init__(
-            f'Missing a templated option in path: {path}')
+        super().__init__(f'Missing a templated option in path: {path}')
         self.path = path
 
 
@@ -32,8 +31,7 @@ class PathConflictError(Error):
     """Error when there is a conflict of paths in the routes trie."""
 
     def __init__(self, path, value, existing):
-        super().__init__(
-            f'Path already exists: {path} ({existing} != {value})')
+        super().__init__(f'Path already exists: {path} ({existing} != {value})')
         self.path = path
         self.value = value
         self.existing = existing
@@ -44,7 +42,8 @@ class PathParamNameConflictError(Error):
 
     def __init__(self, path, new_param, existing_param):
         super().__init__(
-            f'Path param differs from existing param: {path} ({new_param} vs {existing_param})')
+            f'Path param differs from existing param: {path} ({new_param} vs {existing_param})'
+        )
         self.path = path
         self.new_param = new_param
         self.existing_param = existing_param
@@ -303,7 +302,7 @@ class RouteNode:
         self._static_children = {}
 
     def __repr__(self):
-        return f"<RouteNode({self.path}, {self.param_name})>"
+        return f'<RouteNode({self.path}, {self.param_name})>'
 
     @property
     def nodes(self):
@@ -388,28 +387,28 @@ class RouteNode:
                 # param_name or it causes issues with params on match.
                 if self._dynamic_children[PREFIX_PARAMETER].param_name != segment:
                     raise PathParamNameConflictError(
-                        path, segment, self._dynamic_children[PREFIX_PARAMETER].param_name)
+                        path, segment, self._dynamic_children[PREFIX_PARAMETER].param_name
+                    )
 
                 # If there are options that match the parameter, add them in.
                 if options and segment in options:
-                    self._dynamic_children[PREFIX_PARAMETER].add_param_options(
-                        options[segment])
+                    self._dynamic_children[PREFIX_PARAMETER].add_param_options(options[segment])
             if PREFIX_PARAMETER not in self._dynamic_children:
                 new_node = RouteNode(param_name=segment)
                 if options and segment in options:
                     new_node.add_param_options(options[segment])
                 self._dynamic_children[PREFIX_PARAMETER] = new_node
-            self._dynamic_children[PREFIX_PARAMETER].add(
-                segments, path, value, options=options)
+            self._dynamic_children[PREFIX_PARAMETER].add(segments, path, value, options=options)
             return
 
         # Insert as a wildcard node.
         if segment and segment.startswith(PREFIX_WILDCARD):
             segment = segment[1:]  # Don't need the prefix character.
-            if (PREFIX_WILDCARD in self._dynamic_children
-                    and self._dynamic_children[PREFIX_WILDCARD].value != value):
-                raise PathConflictError(
-                    path, value, self._dynamic_children[PREFIX_WILDCARD].value)
+            if (
+                PREFIX_WILDCARD in self._dynamic_children
+                and self._dynamic_children[PREFIX_WILDCARD].value != value
+            ):
+                raise PathConflictError(path, value, self._dynamic_children[PREFIX_WILDCARD].value)
             new_node = RouteWildcardNode(param_name=segment or PREFIX_WILDCARD)
             new_node.add([], path, value, options=options)
             self._dynamic_children[PREFIX_WILDCARD] = new_node
@@ -418,8 +417,7 @@ class RouteNode:
         # Add a static node.
         if segment not in self._static_children:
             self._static_children[segment] = RouteNode()
-        self._static_children[segment].add(
-            segments, path, value, options=options)
+        self._static_children[segment].add(segments, path, value, options=options)
 
     def add_param_options(self, options):
         """Add options for parameter."""
@@ -467,8 +465,7 @@ class RouteNode:
 
         # Match static children first, then fallback to dynamic.
         if segment in self._static_children:
-            matched = self._static_children[segment].match(
-                segments, last_segment=segment)
+            matched = self._static_children[segment].match(segments, last_segment=segment)
             if matched is not None:
                 return self._dynamic_params(matched, last_segment)
         else:
@@ -482,15 +479,13 @@ class RouteNode:
 
         # Check if this is a parameterized segement.
         if PREFIX_PARAMETER in self._dynamic_children:
-            matched = self._dynamic_children[PREFIX_PARAMETER].match(
-                segments, last_segment=segment)
+            matched = self._dynamic_children[PREFIX_PARAMETER].match(segments, last_segment=segment)
             if matched is not None:
                 return self._dynamic_params(matched, last_segment)
 
         # Check for the wildcard catch all.
         if PREFIX_WILDCARD in self._dynamic_children:
-            matched = self._dynamic_children[PREFIX_WILDCARD].match(
-                segments, last_segment=segment)
+            matched = self._dynamic_children[PREFIX_WILDCARD].match(segments, last_segment=segment)
             return self._dynamic_params(matched, last_segment)
 
         # Add the current segment back since this is not a match.
@@ -520,11 +515,7 @@ class RouteNode:
             return self._dynamic_children[PREFIX_PARAMETER].remove(segments)
 
         # Wildcard nodes.
-        if (
-            segment
-            and segment[0] == PREFIX_WILDCARD
-            and PREFIX_WILDCARD in self._dynamic_children
-        ):
+        if segment and segment[0] == PREFIX_WILDCARD and PREFIX_WILDCARD in self._dynamic_children:
             return self._dynamic_children[PREFIX_WILDCARD].remove(segments)
 
         return None
@@ -545,8 +536,7 @@ class RouteWildcardNode(RouteNode):
             segments.appendleft(last_segment)
         segment = URL_SEPARATOR.join(segments)
 
-        return self._dynamic_params(
-            MatchResult(self.path, self.value), segment)
+        return self._dynamic_params(MatchResult(self.path, self.value), segment)
 
     def remove(self, segments):
         """Finds and removes a path in the trie."""

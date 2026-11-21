@@ -27,6 +27,7 @@ class DeprecationHelper:
         self._warn()
         return getattr(self.new_target, attr)
 
+
 # pylint: disable=too-few-public-methods
 class DeprecationManager:
     """Deprecation manager class for deprecation messages without repeating."""
@@ -57,6 +58,6 @@ class MovedHelper(DeprecationHelper):
     """Specialized deprecation helper for warning of moved classes."""
 
     def __init__(self, new_target, orig_class_name, *args, **kwargs):
-        new_class_name = new_target.__module__ + "." + new_target.__name__
+        new_class_name = new_target.__module__ + '.' + new_target.__name__
         message = f'The {orig_class_name} class has moved to {new_class_name} and will be removed in a future version.'
         super().__init__(new_target, message, *args, **kwargs)

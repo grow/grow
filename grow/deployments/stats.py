@@ -11,7 +11,6 @@ from . import messages
 
 
 class Stats:
-
     def __init__(self, pod, paths=None, full=True):
         self.full = full
         self.pod = pod
@@ -73,8 +72,7 @@ class Stats:
             rows = []
             rows.append(['File type', 'Count'])
             exts_and_counts = self.get_num_files_per_type()
-            exts_and_counts = sorted(exts_and_counts,
-                                     key=lambda message: -message.count)
+            exts_and_counts = sorted(exts_and_counts, key=lambda message: -message.count)
             for message in exts_and_counts:
                 ext = message.ext or '.html'
                 rows.append([ext, message.count])

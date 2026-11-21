@@ -21,30 +21,25 @@ class RenderControllerTestCase(unittest.TestCase):
 
         # Document
         route_info = router.RouteInfo('doc')
-        controller = render_controller.RenderController.from_route_info(
-            self.pod, '/', route_info)
-        self.assertIsInstance(
-            controller, render_controller.RenderDocumentController)
+        controller = render_controller.RenderController.from_route_info(self.pod, '/', route_info)
+        self.assertIsInstance(controller, render_controller.RenderDocumentController)
 
         # Static Document
         route_info = router.RouteInfo('static')
-        controller = render_controller.RenderController.from_route_info(
-            self.pod, '/', route_info)
-        self.assertIsInstance(
-            controller, render_controller.RenderStaticDocumentController)
+        controller = render_controller.RenderController.from_route_info(self.pod, '/', route_info)
+        self.assertIsInstance(controller, render_controller.RenderStaticDocumentController)
 
         # Sitemap
         route_info = router.RouteInfo('sitemap')
-        controller = render_controller.RenderController.from_route_info(
-            self.pod, '/', route_info)
-        self.assertIsInstance(
-            controller, render_controller.RenderSitemapController)
+        controller = render_controller.RenderController.from_route_info(self.pod, '/', route_info)
+        self.assertIsInstance(controller, render_controller.RenderSitemapController)
 
         # Random Unknown Kind
         route_info = router.RouteInfo('random')
         with self.assertRaises(render_controller.UnknownKindError):
             controller = render_controller.RenderController.from_route_info(
-                self.pod, '/', route_info)
+                self.pod, '/', route_info
+            )
 
 
 if __name__ == '__main__':

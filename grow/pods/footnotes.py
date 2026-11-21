@@ -40,7 +40,6 @@ NUMERIC_LOCALES_REGEX = re.compile(r'_(DE)$', re.IGNORECASE)
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -76,16 +75,21 @@ def numberic_generator():
 
 
 class Footnotes:
-    def __init__(self, locale, symbols=None, use_numeric=None,
-            use_numeric_symbols=None, numeric_locales_pattern=None):
+    def __init__(
+        self,
+        locale,
+        symbols=None,
+        use_numeric=None,
+        use_numeric_symbols=None,
+        numeric_locales_pattern=None,
+    ):
         self.symbol_to_footnote = collections.OrderedDict()
         self.symbols = symbols or SYMBOLS
         self.locale = locale
         self.use_numeric = use_numeric
         self.use_numeric_symbols = use_numeric_symbols
         if numeric_locales_pattern is not None:
-            self.numeric_locales_pattern = re.compile(
-                numeric_locales_pattern, re.IGNORECASE)
+            self.numeric_locales_pattern = re.compile(numeric_locales_pattern, re.IGNORECASE)
         else:
             self.numeric_locales_pattern = NUMERIC_LOCALES_REGEX
         self.reset()
@@ -105,9 +109,7 @@ class Footnotes:
 
     @property
     def is_numeric(self):
-        return (self.use_numeric
-            or self.use_numeric_symbols
-            or self.is_numeric_territory)
+        return self.use_numeric or self.use_numeric_symbols or self.is_numeric_territory
 
     @property
     def is_numeric_territory(self):
@@ -126,8 +128,7 @@ class Footnotes:
         if custom_symbol:
             # Check that the symbol is not in use.
             if custom_symbol in self.symbol_to_footnote:
-                raise DuplicateSymbolError(
-                    f'Custom symbol already in use: {custom_symbol}')
+                raise DuplicateSymbolError(f'Custom symbol already in use: {custom_symbol}')
             self.symbol_to_footnote[custom_symbol] = value
             return custom_symbol
 

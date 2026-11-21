@@ -10,7 +10,6 @@ from grow.testing import testing
 
 
 class PodHandlerTestCase(unittest.TestCase):
-
     def test_request(self):
         dir_path = testing.create_test_pod_dir()
         pod = pods.Pod(dir_path)
@@ -50,7 +49,8 @@ class PodHandlerTestCase(unittest.TestCase):
         url_path = '/public/file.txt'
         matched = pod.router.routes.match(url_path)
         controller = pod.router.get_render_controller(
-            url_path, matched.value, params=matched.params)
+            url_path, matched.value, params=matched.params
+        )
         response_headers = controller.get_http_headers()
         headers = {'If-None-Match': response_headers['Last-Modified']}
         request = webob.Request.blank(url_path, headers=headers)

@@ -16,7 +16,8 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.inspect.untranslated')
 @click.command(name='untranslated')
 @shared.pod_path_argument
 @shared.locale_option(
-    help_text='Which locale(s) to analyze when searching for untranslated strings.')
+    help_text='Which locale(s) to analyze when searching for untranslated strings.'
+)
 @shared.localized_option(CFG)
 @shared.threaded_option(CFG)
 def inspect_untranslated(pod_path, locale, localized, threaded):
@@ -27,7 +28,8 @@ def inspect_untranslated(pod_path, locale, localized, threaded):
         # Find all of the untagged strings.
         catalogs = pod.get_catalogs(template_path=None)
         untagged_strings, _ = catalogs.extract(
-            localized=localized, locales=locale, audit=True, out_path=None)
+            localized=localized, locales=locale, audit=True, out_path=None
+        )
 
         # Find all the untranslated strings in use.
         pod.enable(pod.FEATURE_TRANSLATION_STATS)
@@ -37,7 +39,8 @@ def inspect_untranslated(pod_path, locale, localized, threaded):
         if locale:
             pod.router.filter('whitelist', locales=list(locale))
         content_generator = renderer.Renderer.rendered_docs(
-            pod, pod.router.routes, use_threading=threaded)
+            pod, pod.router.routes, use_threading=threaded
+        )
 
         # Render each document to get the untranslated strings.
         for _ in content_generator:

@@ -7,8 +7,10 @@ from grow.common import rc_config
 
 def mock_time(value):
     """Mock out the time value."""
+
     def _mock():
         return value
+
     return _mock
 
 

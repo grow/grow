@@ -82,8 +82,10 @@ class RoutesCache:
                         self.add(
                             key,
                             router.RouteInfo.from_data(**item['value']),
-                            options=item['options'], concrete=concrete,
-                            env=env)
+                            options=item['options'],
+                            concrete=concrete,
+                            env=env,
+                        )
 
     def get(self, key, concrete=False, env=None):
         """Retrieve the value from the cache."""

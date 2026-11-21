@@ -20,14 +20,25 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
-@click.option('--clear-cache',
-              default=CFG.get('clear-cache', False), is_flag=True,
-              help='Clear the pod cache before building.')
-@click.option('--file', '--pod-path', 'pod_paths',
-              help='Build only pages affected by content files.', multiple=True)
-@click.option('--locate-untranslated',
-              default=CFG.get('locate-untranslated', False), is_flag=True,
-              help='Shows untranslated message information.')
+@click.option(
+    '--clear-cache',
+    default=CFG.get('clear-cache', False),
+    is_flag=True,
+    help='Clear the pod cache before building.',
+)
+@click.option(
+    '--file',
+    '--pod-path',
+    'pod_paths',
+    help='Build only pages affected by content files.',
+    multiple=True,
+)
+@click.option(
+    '--locate-untranslated',
+    default=CFG.get('locate-untranslated', False),
+    is_flag=True,
+    help='Shows untranslated message information.',
+)
 @shared.locale_option(help_text='Filter build routes to specific locale.')
 @shared.deployment_option(CFG)
 @shared.out_dir_option(CFG)
@@ -37,9 +48,21 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.build')
 @shared.shard_option
 @shared.work_dir_option
 @shared.routes_file_option()
-def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
-          locate_untranslated, deployment, threaded, locale, shards, shard,
-          work_dir, routes_file):
+def build(
+    pod_path,
+    out_dir,
+    preprocess,
+    clear_cache,
+    pod_paths,
+    locate_untranslated,
+    deployment,
+    threaded,
+    locale,
+    shards,
+    shard,
+    work_dir,
+    routes_file,
+):
     """Generates static files and dumps them to a local destination."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     out_dir = out_dir or os.path.join(root, 'build')
@@ -89,14 +112,20 @@ def build(pod_path, out_dir, preprocess, clear_cache, pod_paths,
 
             paths = pod.router.routes.paths
             content_generator = renderer.Renderer.rendered_docs(
-                pod, pod.router.routes, source_dir=work_dir,
-                use_threading=threaded)
+                pod, pod.router.routes, source_dir=work_dir, use_threading=threaded
+            )
             content_generator = hooks.generator_wrapper(
-                pod, 'pre_deploy', content_generator, 'build')
+                pod, 'pre_deploy', content_generator, 'build'
+            )
             stats_obj = stats.Stats(pod, paths=paths)
             destination.deploy(
-                content_generator, stats=stats_obj, repo=repo, confirm=False,
-                test=False, is_partial=is_partial)
+                content_generator,
+                stats=stats_obj,
+                repo=repo,
+                confirm=False,
+                test=False,
+                is_partial=is_partial,
+            )
             pod.podcache.write()
     except bulk_errors.BulkErrors as err:
         # Write the podcache files even when there are rendering errors.

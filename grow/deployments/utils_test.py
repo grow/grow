@@ -74,5 +74,6 @@ class UtilsTest(unittest.TestCase):
         mock_repo = self._mock_repo(ref=ref)
         utils.create_commit_message(mock_repo)
 
+
 if __name__ == '__main__':
     unittest.main()

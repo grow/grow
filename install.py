@@ -36,16 +36,21 @@ else:
 
 
 def hai(text, *args):
-    print(text.format(*args, **{
-        'red': '\033[0;31m',
-        '/red': '\033[0;m',
-        'green': '\033[0;32m',
-        '/green': '\033[0;m',
-        'yellow': '\033[0;33m',
-        '/yellow': '\033[0;m',
-        'white': '\033[0;37m',
-        '/white': '\033[0;m',
-    }))
+    print(
+        text.format(
+            *args,
+            **{
+                'red': '\033[0;31m',
+                '/red': '\033[0;m',
+                'green': '\033[0;32m',
+                '/green': '\033[0;m',
+                'yellow': '\033[0;33m',
+                '/yellow': '\033[0;m',
+                'white': '\033[0;37m',
+                '/white': '\033[0;m',
+            },
+        )
+    )
 
 
 def orly(text, default=False):
@@ -119,8 +124,7 @@ def install(rc_path=None, bin_path=None, force=False):
             asset = each_asset
             break
 
-    download_url = DOWNLOAD_URL_FORMAT.format(
-        version=version, name=asset['name'])
+    download_url = DOWNLOAD_URL_FORMAT.format(version=version, name=asset['name'])
 
     bin_path = os.path.expanduser(bin_path or BIN_PATH)
     bin_dir = os.path.dirname(bin_path)
@@ -135,13 +139,13 @@ def install(rc_path=None, bin_path=None, force=False):
     bin_in_path = has_bin_in_path(bin_dir)
 
     if bin_in_path:
-        hai(
-            '{green}[✓] You already have the binary directory in PATH:{/green} {}',
-            bin_dir)
+        hai('{green}[✓] You already have the binary directory in PATH:{/green} {}', bin_dir)
     else:
         hai(
             '{yellow}[ ]{/yellow} {green}{} will be added to the PATH in:{/green} {}',
-            bin_dir, rc_path)
+            bin_dir,
+            rc_path,
+        )
 
     if not force:
         try:
@@ -173,7 +177,9 @@ def install(rc_path=None, bin_path=None, force=False):
             except OSError as e:
                 if 'Text file busy' in str(e):
                     hai(f'Unable to overwrite {bin_path}. Try closing Grow and installing again.')
-                    hai('You can use the installer by running: curl https://install.grow.dev | bash')
+                    hai(
+                        'You can use the installer by running: curl https://install.grow.dev | bash'
+                    )
                     sys.exit(-1)
                 raise
         hai('{green}[✓] Installed Grow.dev to:{/green} {}', bin_path)
@@ -187,8 +193,7 @@ def install(rc_path=None, bin_path=None, force=False):
         with open(rc_path, 'a') as fp:
             fp.write('\n' + rc_comment + '\n')
             fp.write(rc_path_append + '\n')
-        hai('{green}[✓] Added {} to path in:{/green} {}',
-            bin_path, rc_path)
+        hai('{green}[✓] Added {} to path in:{/green} {}', bin_path, rc_path)
 
     hai('{green}[✓] All done. Grow v{} successfully installed.{/green}', version)
 
@@ -205,12 +210,18 @@ def install(rc_path=None, bin_path=None, force=False):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--bin-path', default=None,
-                        help='Where to install `grow` executable. Ex: ~/bin/grow')
-    parser.add_argument('--force', dest='force', action='store_true',
-                        help='Whether to force install and bypass prompts.')
-    parser.add_argument('--rc-path', default=None,
-                        help='Profile to update with PATH. Ex: ~/.bashrc')
+    parser.add_argument(
+        '--bin-path', default=None, help='Where to install `grow` executable. Ex: ~/bin/grow'
+    )
+    parser.add_argument(
+        '--force',
+        dest='force',
+        action='store_true',
+        help='Whether to force install and bypass prompts.',
+    )
+    parser.add_argument(
+        '--rc-path', default=None, help='Profile to update with PATH. Ex: ~/.bashrc'
+    )
     parser.set_defaults(force=False)
     return parser.parse_args()
 

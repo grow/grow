@@ -7,8 +7,8 @@ The contents of the cache should be raw and not internationalized as it will
 be shared between locales with the same pod_path.
 """
 
-class DocumentCache:
 
+class DocumentCache:
     def __init__(self):
         self.reset()
 

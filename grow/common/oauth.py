@@ -57,10 +57,8 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         key_file = DEFAULT_AUTH_KEY_FILE
     if key_file:
         key_file = os.path.expanduser(key_file)
-        return (service_account.
-            ServiceAccountCredentials.from_json_keyfile_name(key_file, scope))
-    credentials, storage = get_credentials_and_storage(scope,
-        storage_key=storage_key)
+        return service_account.ServiceAccountCredentials.from_json_keyfile_name(key_file, scope)
+    credentials, storage = get_credentials_and_storage(scope, storage_key=storage_key)
     if credentials is None:
         parser = tools.argparser
         if os.getenv('INTERACTIVE_AUTH'):
@@ -68,8 +66,9 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         else:
             args = ['--noauth_local_webserver']
         flags, _ = parser.parse_known_args(args)
-        flow = client.OAuth2WebServerFlow(CLIENT_ID, CLIENT_SECRET, scope,
-                                          redirect_uri=REDIRECT_URI)
+        flow = client.OAuth2WebServerFlow(
+            CLIENT_ID, CLIENT_SECRET, scope, redirect_uri=REDIRECT_URI
+        )
         credentials = tools.run_flow(flow, storage, flags)
         # run_flow changes the logging level, so change it back.
         logging.getLogger().setLevel(logging.INFO)

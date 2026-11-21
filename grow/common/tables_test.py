@@ -6,7 +6,6 @@ from grow.common import tables
 
 
 class TablesTestCase(unittest.TestCase):
-
     def test_header_table_and_alignment(self):
         table = tables.Texttable(max_width=0)
         table.set_deco(tables.Texttable.HEADER)

@@ -22,12 +22,17 @@ from grow.common import yaml_utils
 ROUTES_FILENAME = '_blueprint.yaml'
 COLLECTION_META_KEYS = ('$path', '$localization', '$view')
 COLLECTION_BLUEPRINT_KEYS = (
-    '$path', '$localization', '$view', 'path', 'localization', 'view',
-    'composite_files')
+    '$path',
+    '$localization',
+    '$view',
+    'path',
+    'localization',
+    'view',
+    'composite_files',
+)
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -48,11 +53,9 @@ class RoutesData:
 
         # Pull over the existing blueprint data.
         if '$path' in self.blueprint or 'path' in self.blueprint:
-            data['path'] = self.blueprint.get(
-                '$path', self.blueprint.get('path'))
+            data['path'] = self.blueprint.get('$path', self.blueprint.get('path'))
 
-        tagged_keys = tuple([f'{key}@'
-                             for key in COLLECTION_BLUEPRINT_KEYS])
+        tagged_keys = tuple([f'{key}@' for key in COLLECTION_BLUEPRINT_KEYS])
 
         for key in sorted(self.blueprint.keys()):
             if key in COLLECTION_BLUEPRINT_KEYS or key.startswith(tagged_keys):
@@ -65,7 +68,8 @@ class RoutesData:
         """Extract the meta information from the doc to use for the routes."""
         if doc.pod_path.endswith('.yaml'):
             raw_data = yaml.load(
-                doc.pod.read_file(doc.pod_path), Loader=yaml_utils.PlainTextYamlLoader)
+                doc.pod.read_file(doc.pod_path), Loader=yaml_utils.PlainTextYamlLoader
+            )
         else:
             raw_data = doc.format.front_matter.raw_data
 
@@ -75,8 +79,7 @@ class RoutesData:
 
         data = collections.OrderedDict()
 
-        tagged_keys = tuple([f'{key}@'
-                             for key in COLLECTION_META_KEYS])
+        tagged_keys = tuple([f'{key}@' for key in COLLECTION_META_KEYS])
 
         for key, value in raw_data.items():
             if key in COLLECTION_META_KEYS or key.startswith(tagged_keys):
@@ -84,7 +87,8 @@ class RoutesData:
                 if 'path' in key:
                     # Use `__NONE` as sentinel to support equating a `value` of None.
                     collection_path = self.blueprint.get(
-                            key, self.blueprint.get(normal_key, '__NONE'))
+                        key, self.blueprint.get(normal_key, '__NONE')
+                    )
                     # Skip the paths that are the same as the collection.
                     if collection_path == value:
                         continue
@@ -101,8 +105,12 @@ class RoutesData:
             print(f' └─ Writing: {routes_file}')
             print('')
             output = yaml.dump(
-                self.data, Dumper=yaml_utils.PlainTextYamlDumper,
-                default_flow_style=False, allow_unicode=True, width=800)
+                self.data,
+                Dumper=yaml_utils.PlainTextYamlDumper,
+                default_flow_style=False,
+                allow_unicode=True,
+                width=800,
+            )
             pod.write_file(routes_file, output)
         else:
             print(f' └─ Skipping: {routes_file}')
@@ -130,7 +138,6 @@ class ConversionCollection:
 
 
 class Converter:
-
     @staticmethod
     def convert(pod):
         logging.info(f'Converting pod for collection level routing: {pod.root}')

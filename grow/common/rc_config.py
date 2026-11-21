@@ -69,8 +69,7 @@ class RCConfig(base_config.BaseConfig):
         wd_filename = os.path.join(os.getcwd(), RC_FILE_NAME)
         if os.path.isfile(wd_filename):
             with open(wd_filename) as conf:
-                self._wd_config = base_config.BaseConfig(
-                    yaml.safe_load(conf.read()))
+                self._wd_config = base_config.BaseConfig(yaml.safe_load(conf.read()))
 
     def reset_update_check(self):
         """Reset the timestamp of the last_checked."""

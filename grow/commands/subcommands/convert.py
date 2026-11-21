@@ -36,5 +36,6 @@ def convert(pod_path, convert_type, deployment):
     else:
         raise click.UsageError(
             'Unable to convert files without a --type option.\n'
-            'Run `grow convert --help` to see valid --type values.')
+            'Run `grow convert --help` to see valid --type values.'
+        )
     return pod

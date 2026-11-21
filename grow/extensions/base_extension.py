@@ -50,5 +50,4 @@ class BaseExtension:
         for hook in self.available_hooks:
             if hook.KEY == key:
                 return hook(self)
-        raise MissingHookError(
-            f'Hook was not found in extension: {key}')
+        raise MissingHookError(f'Hook was not found in extension: {key}')

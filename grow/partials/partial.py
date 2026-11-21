@@ -29,8 +29,7 @@ class Partial:
         if not self.exists:
             return {}
 
-        front_matter, _ = split_front_matter(
-            self.pod.read_file(self.template_pod_path))
+        front_matter, _ = split_front_matter(self.pod.read_file(self.template_pod_path))
         if not front_matter:
             return {}
         return utils.parse_yaml(front_matter, pod=self.pod)
@@ -66,8 +65,7 @@ class ViewPartial:
         if not self.exists:
             return {}
 
-        front_matter, _ = split_front_matter(self.pod.read_file(
-            self.template_pod_path))
+        front_matter, _ = split_front_matter(self.pod.read_file(self.template_pod_path))
         if not front_matter:
             return {}
         return utils.parse_yaml(front_matter, pod=self.pod)

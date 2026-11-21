@@ -47,46 +47,41 @@ class RoutesCacheTestCase(unittest.TestCase):
 
     def test_export(self):
         """Raw cache export."""
-        self.routes_cache.add('question', {
-            'answer': 42
-        }, concrete=False)
-        self.routes_cache.add('answer', {
-            'question': '???'
-        }, concrete=False)
-        self.routes_cache.add('query', {
-            'query': 'What is blue?'
-        }, concrete=True, options={'dev': True})
-        self.assertDictEqual({
-            'dynamic': {
-                '__None__': {
-                    'answer': {
-                        'options': None,
-                        'value': {
-                            'question': '???'
+        self.routes_cache.add('question', {'answer': 42}, concrete=False)
+        self.routes_cache.add('answer', {'question': '???'}, concrete=False)
+        self.routes_cache.add(
+            'query', {'query': 'What is blue?'}, concrete=True, options={'dev': True}
+        )
+        self.assertDictEqual(
+            {
+                'dynamic': {
+                    '__None__': {
+                        'answer': {
+                            'options': None,
+                            'value': {'question': '???'},
                         },
-                    },
-                    'question': {
-                        'options': None,
-                        'value': {
-                            'answer': 42
+                        'question': {
+                            'options': None,
+                            'value': {'answer': 42},
                         },
                     },
                 },
-            },
-            'concrete': {
-                '__None__': {
-                    'query': {
-                        'options': {
-                            'dev': True,
-                        },
-                        'value': {
-                            'query': 'What is blue?',
+                'concrete': {
+                    '__None__': {
+                        'query': {
+                            'options': {
+                                'dev': True,
+                            },
+                            'value': {
+                                'query': 'What is blue?',
+                            },
                         },
                     },
                 },
+                'version': 1,
             },
-            'version': 1,
-        }, self.routes_cache.export())
+            self.routes_cache.export(),
+        )
 
     def test_mark_clean(self):
         """Can mark as clean?"""
@@ -98,9 +93,7 @@ class RoutesCacheTestCase(unittest.TestCase):
 
     def test_remove(self):
         """Test removing a key from the cache."""
-        value = {
-            'answer': 42
-        }
+        value = {'answer': 42}
         self.routes_cache.add('question', value)
         self.assertEqual(42, self.routes_cache.get('question')['value']['answer'])
         self.routes_cache.mark_clean()
@@ -109,7 +102,9 @@ class RoutesCacheTestCase(unittest.TestCase):
             {
                 'options': None,
                 'value': value,
-            }, self.routes_cache.remove('question'))
+            },
+            self.routes_cache.remove('question'),
+        )
         self.assertEqual(None, self.routes_cache.get('question'))
         self.assertTrue(self.routes_cache.is_dirty)
 

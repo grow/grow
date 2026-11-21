@@ -2,7 +2,6 @@ import os
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -13,9 +12,7 @@ class PreprocessorError(Error):
 
 
 class BasePreprocessor:
-
-    def __init__(self, pod, config, autorun=True, name=None, tags=None,
-                 inject=False):
+    def __init__(self, pod, config, autorun=True, name=None, tags=None, inject=False):
         self.pod = pod
         self.root = pod.root
         self.config = config

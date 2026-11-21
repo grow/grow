@@ -71,8 +71,7 @@ def _read_yaml(pod, pod_path, locale):
 
 
 # pylint: disable=redefined-outer-name
-def categories(collection=None, reverse=None, recursive=True,
-               locale=utils.SENTINEL, _pod=None):
+def categories(collection=None, reverse=None, recursive=True, locale=utils.SENTINEL, _pod=None):
     """Retrieve catagories from the pod."""
     if isinstance(collection, collection_lib.Collection):
         collection = collection
@@ -82,8 +81,7 @@ def categories(collection=None, reverse=None, recursive=True,
         text = '{} must be a Collection instance or a collection path, found: {}.'
         raise ValueError(text.format(collection, type(collection)))
     # Collection's categories are only used for sort order.
-    docs = collection.docs(reverse=reverse, locale=locale, order_by='category',
-                           recursive=recursive)
+    docs = collection.docs(reverse=reverse, locale=locale, order_by='category', recursive=recursive)
     result = []
     for category, unsorted_docs in itertools.groupby(docs, key=lambda doc: doc.category):
         sorted_docs = sorted(unsorted_docs, key=lambda doc: doc.order)
@@ -166,16 +164,18 @@ def make_doc_gettext(doc):
         # Use the message from the catalog. If there is none (if `extract`
         # hasn't been run yet to create empty messages), create a stub message
         # used for tracking untranslated strings.
-        message = catalog[__string] \
-            or babel_catalog.Message(__string, locations=[(doc.pod_path, 0)])
-        translation_stats.tick(
-            message, doc.locale, doc.default_locale, location=doc.pod_path)
+        message = catalog[__string] or babel_catalog.Message(
+            __string, locations=[(doc.pod_path, 0)]
+        )
+        translation_stats.tick(message, doc.locale, doc.default_locale, location=doc.pod_path)
         return __context.call(__context.resolve('gettext'), __string, *args, **kwargs)
+
     return gettext
 
 
 def make_gettext(pod, func):
     """Create a gettext function that tracks translation stats."""
+
     @jinja2.contextfunction
     def gettext(__context, __string, **variables):
         """Gettext and do replacement."""
@@ -184,11 +184,13 @@ def make_gettext(pod, func):
         if __context.eval_ctx.autoescape:
             value = jinja2.utils.Markup(value)
         return value
+
     return gettext
 
 
 def make_ngettext(pod, func):
     """Create a gettext function that tracks translation stats."""
+
     @jinja2.contextfunction
     def ngettext(__context, __singular, __plural, __num, **variables):
         """Gettext and do replacement."""
@@ -198,6 +200,7 @@ def make_ngettext(pod, func):
         if __context.eval_ctx.autoescape:
             value = jinja2.utils.Markup(value)
         return value
+
     return ngettext
 
 
@@ -238,6 +241,7 @@ def wrap_locale_context(func):
         if not kwargs.get('locale', None):
             kwargs['locale'] = str(doc.locale)
         return func(value, *args, **kwargs)
+
     return _locale_filter
 
 
@@ -277,6 +281,7 @@ def create_builtin_tags(pod, doc, track_dependency=None):
                     # Not an interable, try it as a doc.
                     track_dependency(included_docs.pod_path)
             return included_docs
+
         return _wrapper
 
     def _wrap_dependency_path(func):
@@ -284,6 +289,7 @@ def create_builtin_tags(pod, doc, track_dependency=None):
             if track_dependency:
                 track_dependency(args[0])
             return func(*args, _pod=pod, **kwargs)
+
         return _wrapper
 
     def _wrap_doc(func):
@@ -291,6 +297,7 @@ def create_builtin_tags(pod, doc, track_dependency=None):
             if doc:
                 kwargs['_doc'] = doc
             return func(*args, **kwargs)
+
         return _wrapper
 
     return {
@@ -317,10 +324,8 @@ def create_builtin_globals(env, pod, locale=None):
     # Mark that we are using the newstyle gettext to avoid issues with escaping.
     env.newstyle_gettext = True
     get_gettext_func = pod.catalogs.get_gettext_translations
-    gettext = make_gettext(
-        pod, lambda x: get_gettext_func(locale).ugettext(x))
-    ngettext = make_ngettext(
-        pod, lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n))
+    gettext = make_gettext(pod, lambda x: get_gettext_func(locale).ugettext(x))
+    ngettext = make_ngettext(pod, lambda s, p, n: get_gettext_func(locale).ungettext(s, p, n))
     return {
         'gettext': gettext,
         'ngettext': ngettext,

@@ -7,7 +7,6 @@ TESTDATA_DIR = os.path.join(os.path.dirname(__file__), 'testdata', 'pod')
 
 
 class EnvTest(unittest.TestCase):
-
     def test_constructor_basic(self):
         config = env.EnvConfig(host='localhost')
         environment = env.Env(config)

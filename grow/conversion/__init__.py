@@ -1,1 +1,1 @@
-__all__ = ["content_locale_split", "collection_routing"]
+__all__ = ['content_locale_split', 'collection_routing']

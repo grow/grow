@@ -27,7 +27,6 @@ except ImportError:
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -55,22 +54,23 @@ SINGLE_TEMPLATE = '{}\n'
 
 def _update_deep(orig_dict, new_dict):
     for k in new_dict:
-        if (k in orig_dict and isinstance(orig_dict[k], dict)
-                and isinstance(new_dict[k], collections.abc.Mapping)):
+        if (
+            k in orig_dict
+            and isinstance(orig_dict[k], dict)
+            and isinstance(new_dict[k], collections.abc.Mapping)
+        ):
             _update_deep(orig_dict[k], new_dict[k])
         else:
             orig_dict[k] = new_dict[k]
 
 
 class PlainText:
-
     def __init__(self, tag, value):
         self.tag = tag
         self.value = value
 
 
 class PlainTextYamlLoader(yaml_Loader):
-
     def construct_plaintext(self, node):
         return PlainText(node.tag, node.value)
 
@@ -96,24 +96,16 @@ _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 PlainTextYamlDumper.add_representer(OrderedDict, dict_representer)
 PlainTextYamlDumper.add_representer(PlainText, plain_text_representer)
 PlainTextYamlLoader.add_constructor(_mapping_tag, dict_constructor)
-PlainTextYamlLoader.add_constructor(
-    '!_', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.csv', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.doc', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.json', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.static', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.url', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.yaml', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!_', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.csv', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.doc', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.json', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.static', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.url', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.yaml', PlainTextYamlLoader.construct_plaintext)
 
 
 class ConversionDocument:
-
     def __init__(self, pod, file_name, default_locale):
         self.default_locale = default_locale
         self.pod = pod
@@ -129,8 +121,9 @@ class ConversionDocument:
         return None
 
     @staticmethod
-    def determine_locales(front_matter, default_locale=None,
-                          remove_default_locale=True, remove_locales=True):
+    def determine_locales(
+        front_matter, default_locale=None, remove_default_locale=True, remove_locales=True
+    ):
         if not front_matter:
             return [], None
 
@@ -146,8 +139,7 @@ class ConversionDocument:
             if default_locale in locales:
                 locales.pop(locales.index(default_locale))
             if '$locales' in parsed and default_locale in parsed['$locales']:
-                parsed['$locales'].pop(
-                    parsed['$locales'].index(default_locale))
+                parsed['$locales'].pop(parsed['$locales'].index(default_locale))
             if '$locale' in parsed and parsed['$locale'] == default_locale:
                 del parsed['$locale']
 
@@ -158,8 +150,8 @@ class ConversionDocument:
                 del parsed['$locale']
 
         return locales, yaml.dump(
-            parsed, Dumper=PlainTextYamlDumper,
-            allow_unicode=True, default_flow_style=False).strip() if parsed else ''
+            parsed, Dumper=PlainTextYamlDumper, allow_unicode=True, default_flow_style=False
+        ).strip() if parsed else ''
 
     @staticmethod
     def convert_for_locale(front_matter, locale, base=None):
@@ -259,44 +251,45 @@ class ConversionDocument:
 
         parsed = iterutils.remap(parsed, visit=visit)
 
-        return (yaml.dump(
-            parsed, Dumper=PlainTextYamlDumper,
-            allow_unicode=True, default_flow_style=False).strip() if parsed else '',
-            locale_extra)
+        return (
+            yaml.dump(
+                parsed, Dumper=PlainTextYamlDumper, allow_unicode=True, default_flow_style=False
+            ).strip()
+            if parsed
+            else '',
+            locale_extra,
+        )
 
     def convert(self):
         # Files with @ in them should already be converted.
         if '@' in self.file_name:
-            logging.info(
-                f'Filename contains a @, skipping: {self.file_name}')
+            logging.info(f'Filename contains a @, skipping: {self.file_name}')
             return
 
         # Ignore hidden files.
         if self.file_name.startswith('.'):
-            logging.info(
-                f'Filename starts with ., skipping: {self.file_name}')
+            logging.info(f'Filename starts with ., skipping: {self.file_name}')
             return
 
         # Ignore files that don't have an extention
         _, file_extension = os.path.splitext(self.file_name)
         if not file_extension:
-            logging.info(
-                f'Filename does not have an extension, skipping: {self.file_name}')
+            logging.info(f'Filename does not have an extension, skipping: {self.file_name}')
             return
 
         pairs = list(self.split())
 
         if len(pairs) <= 1:
-            logging.info(
-                f'Single locale detected, skipping: {self.file_name}')
+            logging.info(f'Single locale detected, skipping: {self.file_name}')
             return
 
         logging.info(f'Converting: {self.file_name}')
         logging.info(f' - Number of content pairs: {len(pairs)}')
 
         # Determine if there is a file specific default_locale in first pair.
-        default_locale = ConversionDocument.determine_default_locale(
-            pairs[0][0]) or self.default_locale
+        default_locale = (
+            ConversionDocument.determine_default_locale(pairs[0][0]) or self.default_locale
+        )
         logging.info(f' - Using default_locale: {default_locale}')
 
         # Base content will be pruned of localized values that belong in files.
@@ -304,12 +297,13 @@ class ConversionDocument:
 
         for pair in pairs[1:]:
             locales, _ = ConversionDocument.determine_locales(
-                pair[0], default_locale, remove_locales=False,
-                remove_default_locale=False)
+                pair[0], default_locale, remove_locales=False, remove_default_locale=False
+            )
 
             if not locales:
                 raise LocaleMissingError(
-                    f'A section in {self.file_name} is missing a locale and would be lost.')
+                    f'A section in {self.file_name} is missing a locale and would be lost.'
+                )
 
             # Ensure that there are not existing files for the Locales.
             for locale in locales:
@@ -317,7 +311,8 @@ class ConversionDocument:
 
                 if self.pod.file_exists(locale_filename):
                     raise LocaleExistsError(
-                        f'{locale} locale section (defined in {self.file_name}) already has a localized file ({locale_filename}).\nPlease resolve this confilict and re-run the conversion.')
+                        f'{locale} locale section (defined in {self.file_name}) already has a localized file ({locale_filename}).\nPlease resolve this confilict and re-run the conversion.'
+                    )
 
         # Store each locale contents until the end so we can combine multiple
         # sections that may use the same locale.
@@ -326,8 +321,8 @@ class ConversionDocument:
 
         for pair in pairs[1:]:
             locales, front_matter = ConversionDocument.determine_locales(
-                pair[0], default_locale, remove_locales=True,
-                remove_default_locale=False)
+                pair[0], default_locale, remove_locales=True, remove_default_locale=False
+            )
 
             for locale in locales:
                 locale_to_content[locale] = pair[1]
@@ -336,12 +331,14 @@ class ConversionDocument:
                     locale_extra = locale_to_front_matter[locale]
                 else:
                     base_front_matter, locale_extra = ConversionDocument.gather_for_locale(
-                        base_front_matter, locale)
+                        base_front_matter, locale
+                    )
 
                 # Combine the extra front_matter from the base document with
                 # the pair specific front_matter.
                 locale_front_matter = ConversionDocument.convert_for_locale(
-                    front_matter, locale, base=locale_extra)
+                    front_matter, locale, base=locale_extra
+                )
 
                 # Store the front matter in case another section adds to it.
                 locale_to_front_matter[locale] = locale_front_matter
@@ -351,19 +348,25 @@ class ConversionDocument:
             content = locale_to_content.get(locale, None)
             locale_filename = self.file_name_for_locale(locale)
             logging.info(f'Writing: {locale_filename}')
-            locale_front_matter_dump = yaml.dump(
-                locale_front_matter, Dumper=PlainTextYamlDumper, allow_unicode=True,
-                default_flow_style=False).strip() if locale_front_matter else ''
-            output = ConversionDocument.format_file(
-                locale_front_matter_dump, content)
+            locale_front_matter_dump = (
+                yaml.dump(
+                    locale_front_matter,
+                    Dumper=PlainTextYamlDumper,
+                    allow_unicode=True,
+                    default_flow_style=False,
+                ).strip()
+                if locale_front_matter
+                else ''
+            )
+            output = ConversionDocument.format_file(locale_front_matter_dump, content)
             self.pod.write_file(locale_filename, output)
 
         # Do the base file after specific tagged fields are removed.
         pair = pairs[0]
         content = pair[1]
         _, base_front_matter = ConversionDocument.determine_locales(
-            base_front_matter, default_locale, remove_locales=False,
-            remove_default_locale=True)
+            base_front_matter, default_locale, remove_locales=False, remove_default_locale=True
+        )
         logging.info(f'Writing: {self.file_name}')
         output = ConversionDocument.format_file(base_front_matter, content)
         self.pod.write_file(self.file_name, output)
@@ -372,8 +375,7 @@ class ConversionDocument:
         if locale_identifier is None:
             return self.file_name
         file_parts = self.file_name.split('.')
-        return '{}@{}.{}'.format(
-            '.'.join(file_parts[:-1]), locale_identifier, file_parts[-1])
+        return '{}@{}.{}'.format('.'.join(file_parts[:-1]), locale_identifier, file_parts[-1])
 
     def normalize_raw_content(self):
         # Clean and rewrite the yaml files that start with an empty section.
@@ -409,7 +411,6 @@ class ConversionDocument:
 
 
 class Converter:
-
     @staticmethod
     def convert(pod):
         default_locale = pod.podspec.default_locale
@@ -421,8 +422,7 @@ class Converter:
             pod_dir = root.replace(pod.root, '')
 
             for file_name in files:
-                doc = ConversionDocument(
-                    pod, os.path.join(pod_dir, file_name), default_locale)
+                doc = ConversionDocument(pod, os.path.join(pod_dir, file_name), default_locale)
                 try:
                     doc.convert()
                 except:

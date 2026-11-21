@@ -48,8 +48,7 @@ def register_builtins():
 
 def register_extensions(extension_paths, pod_root):
     for path in extension_paths:
-        cls = extension_importer.ExtensionImporter.find_extension(
-            path, pod_root)
+        cls = extension_importer.ExtensionImporter.find_extension(path, pod_root)
         register_preprocessor(cls)
 
 

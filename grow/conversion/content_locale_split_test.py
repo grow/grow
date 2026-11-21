@@ -9,7 +9,6 @@ from . import content_locale_split
 
 
 class ConversionDocumentTestCase(unittest.TestCase):
-
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
@@ -24,39 +23,39 @@ class ConversionDocumentTestCase(unittest.TestCase):
 
         # Converting for no locale removes all tagged fields.
         self.assertEqual(
-            {'foo@': 'bar'},
-            content_locale_split.ConversionDocument.convert_for_locale(input, None))
+            {'foo@': 'bar'}, content_locale_split.ConversionDocument.convert_for_locale(input, None)
+        )
 
         # Converting for not specified locale removes all tagged fields.
         self.assertEqual(
-            {'foo@': 'bar'},
-            content_locale_split.ConversionDocument.convert_for_locale(input, 'en'))
+            {'foo@': 'bar'}, content_locale_split.ConversionDocument.convert_for_locale(input, 'en')
+        )
 
         # Converting for specified locale updates and removes other tagged.
         self.assertEqual(
-            {'foo@': 'baz'},
-            content_locale_split.ConversionDocument.convert_for_locale(input, 'fr'))
+            {'foo@': 'baz'}, content_locale_split.ConversionDocument.convert_for_locale(input, 'fr')
+        )
 
         # Converting for specified locale updates and removes other tagged.
         self.assertEqual(
-            {'foo@': 'bam'},
-            content_locale_split.ConversionDocument.convert_for_locale(input, 'ja'))
+            {'foo@': 'bam'}, content_locale_split.ConversionDocument.convert_for_locale(input, 'ja')
+        )
 
     def test_determine_default_locale(self):
         input = textwrap.dedent("""
             name: Julie Yang
             """)
         self.assertEqual(
-            None,
-            content_locale_split.ConversionDocument.determine_default_locale(input))
+            None, content_locale_split.ConversionDocument.determine_default_locale(input)
+        )
 
         input = textwrap.dedent("""
             $localization:
               default_locale: de
             """)
         self.assertEqual(
-            'de',
-            content_locale_split.ConversionDocument.determine_default_locale(input))
+            'de', content_locale_split.ConversionDocument.determine_default_locale(input)
+        )
 
         input = textwrap.dedent("""
             $localization:
@@ -64,8 +63,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
               - de
             """)
         self.assertEqual(
-            None,
-            content_locale_split.ConversionDocument.determine_default_locale(input))
+            None, content_locale_split.ConversionDocument.determine_default_locale(input)
+        )
 
     def test_determine_locales(self):
         # No locales returns empty.
@@ -75,8 +74,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
         expected = ([], 'name: Julie Yang')
         self.assertEqual(
             expected,
-            content_locale_split.ConversionDocument.determine_locales(
-                input, default_locale='en'))
+            content_locale_split.ConversionDocument.determine_locales(input, default_locale='en'),
+        )
 
         # Non-default locale is preserved.
         input = textwrap.dedent("""
@@ -87,7 +86,9 @@ class ConversionDocumentTestCase(unittest.TestCase):
         self.assertEqual(
             expected,
             content_locale_split.ConversionDocument.determine_locales(
-                input, default_locale='en', remove_locales=False))
+                input, default_locale='en', remove_locales=False
+            ),
+        )
 
         # Default locale is removed.
         input = textwrap.dedent("""
@@ -97,8 +98,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
         expected = ([], 'name: Julie Yang')
         self.assertEqual(
             expected,
-            content_locale_split.ConversionDocument.determine_locales(
-                input, default_locale='de'))
+            content_locale_split.ConversionDocument.determine_locales(input, default_locale='de'),
+        )
 
         # Default locale is removed.
         input = textwrap.dedent("""
@@ -111,8 +112,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
         expected = (['de', 'fr', 'es'], 'name: Julie Yang')
         self.assertEqual(
             expected,
-            content_locale_split.ConversionDocument.determine_locales(
-                input, default_locale='en'))
+            content_locale_split.ConversionDocument.determine_locales(input, default_locale='en'),
+        )
 
         # Locales are preserved.
         input = textwrap.dedent("""
@@ -125,14 +126,13 @@ class ConversionDocumentTestCase(unittest.TestCase):
         expected = (['de', 'fr', 'es'], input.strip())
         self.assertEqual(
             expected,
-            content_locale_split.ConversionDocument.determine_locales(input, remove_locales=False))
+            content_locale_split.ConversionDocument.determine_locales(input, remove_locales=False),
+        )
 
         # Nothing to see here.
         input = None
         expected = ([], None)
-        self.assertEqual(
-            expected,
-            content_locale_split.ConversionDocument.determine_locales(input))
+        self.assertEqual(expected, content_locale_split.ConversionDocument.determine_locales(input))
 
     def test_format_file(self):
         front_matter = textwrap.dedent("""
@@ -148,16 +148,16 @@ class ConversionDocumentTestCase(unittest.TestCase):
             foo: bar
             """).lstrip()
         self.assertEqual(
-            expected,
-            content_locale_split.ConversionDocument.format_file(front_matter=front_matter))
+            expected, content_locale_split.ConversionDocument.format_file(front_matter=front_matter)
+        )
 
         expected = textwrap.dedent("""
             Content reigns supreme.
             """).lstrip()
 
         self.assertEqual(
-            expected,
-            content_locale_split.ConversionDocument.format_file(content=content))
+            expected, content_locale_split.ConversionDocument.format_file(content=content)
+        )
 
         expected = textwrap.dedent("""
             ---
@@ -170,7 +170,9 @@ class ConversionDocumentTestCase(unittest.TestCase):
         self.assertEqual(
             expected,
             content_locale_split.ConversionDocument.format_file(
-                front_matter=front_matter, content=content))
+                front_matter=front_matter, content=content
+            ),
+        )
 
     def test_gather_for_locale(self):
         input = textwrap.dedent("""
@@ -181,26 +183,30 @@ class ConversionDocumentTestCase(unittest.TestCase):
 
         # Gathering for no locale keeps all tagged fields.
         self.assertEqual(
-            (input, {}),
-            content_locale_split.ConversionDocument.gather_for_locale(input, None))
+            (input, {}), content_locale_split.ConversionDocument.gather_for_locale(input, None)
+        )
 
         # Gathering for not specified locale keeps all tagged fields.
         self.assertEqual(
-            (input, {}),
-            content_locale_split.ConversionDocument.gather_for_locale(input, 'en'))
+            (input, {}), content_locale_split.ConversionDocument.gather_for_locale(input, 'en')
+        )
 
         # Gathering for specified locale removes locale specific and keeps rest.
         self.assertEqual(
             ('foo@: bar\nfoo@ja: bam', {'foo@': 'baz'}),
-            content_locale_split.ConversionDocument.gather_for_locale(input, 'fr'))
+            content_locale_split.ConversionDocument.gather_for_locale(input, 'fr'),
+        )
 
         # Gathering for specified locale removes locale specific and keeps rest.
         self.assertEqual(
             ('foo@: bar\nfoo@fr: baz', {'foo@': 'bam'}),
-            content_locale_split.ConversionDocument.gather_for_locale(input, 'ja'))
+            content_locale_split.ConversionDocument.gather_for_locale(input, 'ja'),
+        )
 
     def test_default_locale_in_doc(self):
-        self.pod.write_file('/content/test.md', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/test.md',
+            textwrap.dedent("""
             ---
             name: Julie Yang
             foo@: bar
@@ -223,7 +229,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
             foo@ch: zam
             ---
             Reigning content.
-            """).lstrip())
+            """).lstrip(),
+        )
 
         expected = {
             '/content/test.md': textwrap.dedent("""
@@ -255,18 +262,19 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 Reigning content.
                 """).lstrip(),
         }
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/test.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.md', 'en_us')
         doc.convert()
         for key, value in expected.items():
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_empty_front_section(self):
-        self.pod.write_file('/content/test.yaml', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/test.yaml',
+            textwrap.dedent("""
                 ---
                 name: Julie Yang
-                """).lstrip())
-
+                """).lstrip(),
+        )
 
         expected = {
             '/content/test.yaml': textwrap.dedent("""
@@ -274,14 +282,15 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 """).lstrip(),
         }
 
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/test.yaml', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.yaml', 'en_us')
         doc.convert()
         for key, value in expected.items():
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_existing(self):
-        self.pod.write_file('/content/test.md', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/test.md',
+            textwrap.dedent("""
                 ---
                 name: Julie Yang
                 ---
@@ -290,19 +299,24 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 $locale: ja
                 ---
                 Supreme the content reigns.
-                """).lstrip())
-        self.pod.write_file('/content/test@ja.md', textwrap.dedent("""
+                """).lstrip(),
+        )
+        self.pod.write_file(
+            '/content/test@ja.md',
+            textwrap.dedent("""
                 Supreme the content reigns.
-                """).lstrip())
+                """).lstrip(),
+        )
 
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/test.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.md', 'en_us')
 
         with self.assertRaises(content_locale_split.LocaleExistsError):
             doc.convert()
 
     def test_convert_with_extended(self):
-        self.pod.write_file('/content/test.yaml', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/test.yaml',
+            textwrap.dedent("""
                 name: Julie Yang
                 ---
                 $locales:
@@ -312,7 +326,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 ---
                 $locale: fr
                 bar: faz
-                """).lstrip())
+                """).lstrip(),
+        )
 
         expected = {
             '/content/test.yaml': textwrap.dedent("""
@@ -326,28 +341,31 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 foo: bar
                 """).lstrip(),
         }
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/test.yaml', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.yaml', 'en_us')
         doc.convert()
 
         for key, value in expected.items():
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_missing_locale(self):
-        self.pod.write_file('/content/test.yaml', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/test.yaml',
+            textwrap.dedent("""
                 name: Julie Yang
                 ---
                 foo:bar
-                """).lstrip())
+                """).lstrip(),
+        )
 
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/test.yaml', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.yaml', 'en_us')
 
         with self.assertRaises(content_locale_split.LocaleMissingError):
             doc.convert()
 
     def test_convert_with_gather(self):
-        self.pod.write_file('/content/test.md', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/test.md',
+            textwrap.dedent("""
                 ---
                 name: Julie Yang
                 bar@: tri
@@ -364,7 +382,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 $locale: fr
                 ---
                 Reigning content.
-                """).lstrip())
+                """).lstrip(),
+        )
 
         expected = {
             '/content/test.md': textwrap.dedent("""
@@ -388,15 +407,16 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 Reigning content.
                 """).lstrip(),
         }
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/test.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.md', 'en_us')
         doc.convert()
 
         for key, value in expected.items():
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_gather_array(self):
-        self.pod.write_file('/content/test.md', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/test.md',
+            textwrap.dedent("""
                 ---
                 name: Julie Yang
                 bar:
@@ -418,7 +438,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 $locale: fr
                 ---
                 Reigning content.
-                """).lstrip())
+                """).lstrip(),
+        )
 
         expected = {
             '/content/test.md': textwrap.dedent("""
@@ -450,15 +471,16 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 Reigning content.
                 """).lstrip(),
         }
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/test.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.md', 'en_us')
         doc.convert()
 
         for key, value in expected.items():
             self.assertEqual(value, self.pod.read_file(key))
 
     def test_convert_with_gather_trailing(self):
-        self.pod.write_file('/content/test.md', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/test.md',
+            textwrap.dedent("""
                 ---
                 name: Julie Yang
                 grr:
@@ -476,7 +498,8 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 $locale: fr
                 ---
                 Reigning content.
-                """).lstrip())
+                """).lstrip(),
+        )
 
         expected = {
             '/content/test.md': textwrap.dedent("""
@@ -503,8 +526,7 @@ class ConversionDocumentTestCase(unittest.TestCase):
                 Reigning content.
                 """).lstrip(),
         }
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/test.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/test.md', 'en_us')
         doc.convert()
 
         for key, value in expected.items():
@@ -512,7 +534,9 @@ class ConversionDocumentTestCase(unittest.TestCase):
 
     def test_split(self):
         # Two part document.
-        self.pod.write_file('/content/something.md', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/something.md',
+            textwrap.dedent("""
             ---
             name: Julie Yang
             foo@: bar
@@ -523,69 +547,87 @@ class ConversionDocumentTestCase(unittest.TestCase):
             foo@: baz
             ---
             Supreme the content reigns.
-            """).lstrip())
+            """).lstrip(),
+        )
 
         expected = [
-            (textwrap.dedent("""
+            (
+                textwrap.dedent("""
                     name: Julie Yang
                     foo@: bar
-                    """).strip(), 'Content reigns supreme.'),
-            (textwrap.dedent("""
+                    """).strip(),
+                'Content reigns supreme.',
+            ),
+            (
+                textwrap.dedent("""
                     $locale: ja
                     foo@: baz
-                    """).strip(), 'Supreme the content reigns.'),
+                    """).strip(),
+                'Supreme the content reigns.',
+            ),
         ]
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/something.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/something.md', 'en_us')
         self.assertEqual(expected, list(doc.split()))
 
         # Empty front matter document.
-        self.pod.write_file('/content/something.md', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/something.md',
+            textwrap.dedent("""
             ---
             ---
             Content reigns supreme.
-            """).lstrip())
+            """).lstrip(),
+        )
 
         expected = [
             (None, 'Content reigns supreme.'),
         ]
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/something.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/something.md', 'en_us')
         self.assertEqual(expected, list(doc.split()))
 
         # Missing front matter document.
-        self.pod.write_file('/content/something.md', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/something.md',
+            textwrap.dedent("""
             Content reigns supreme.
-            """).lstrip())
+            """).lstrip(),
+        )
 
         expected = [
             (None, 'Content reigns supreme.'),
         ]
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/something.md', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/something.md', 'en_us')
         self.assertEqual(expected, list(doc.split()))
 
         # Yaml document.
-        self.pod.write_file('/content/something.yaml', textwrap.dedent("""
+        self.pod.write_file(
+            '/content/something.yaml',
+            textwrap.dedent("""
             name: Julie Yang
             foo: bar
             ---
             $locale: ja
             foo: baz
-            """).lstrip())
+            """).lstrip(),
+        )
 
         expected = [
-            (textwrap.dedent("""
+            (
+                textwrap.dedent("""
                     name: Julie Yang
                     foo: bar
-                    """).strip(), None),
-            (textwrap.dedent("""
+                    """).strip(),
+                None,
+            ),
+            (
+                textwrap.dedent("""
                     $locale: ja
                     foo: baz
-                    """).strip(), None),
+                    """).strip(),
+                None,
+            ),
         ]
-        doc = content_locale_split.ConversionDocument(
-            self.pod, '/content/something.yaml', 'en_us')
+        doc = content_locale_split.ConversionDocument(self.pod, '/content/something.yaml', 'en_us')
         self.assertEqual(expected, list(doc.split()))
 
 

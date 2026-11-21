@@ -33,12 +33,10 @@ def translator_stat_representer(dumper, stat):
     return dumper.represent_mapping('tag:yaml.org,2002:map', content)
 
 
-yaml.SafeDumper.add_representer(TranslatorStat,
-                                translator_stat_representer)
+yaml.SafeDumper.add_representer(TranslatorStat, translator_stat_representer)
 
 
 class TranslatorServiceError(Exception):
-
     def __init__(self, message, ident=None, locale=None):
         if locale:
             new_message = f'Error for locale "{locale}" -> {message}'
@@ -92,11 +90,13 @@ class Translator:
 
         # Summary of skipped files.
         if skipped['symlink']:
-            self.pod.logger.info('Skipping: {} (symlinked)'.format(
-                ', '.join(sorted(skipped['symlink']))))
+            self.pod.logger.info(
+                'Skipping: {} (symlinked)'.format(', '.join(sorted(skipped['symlink'])))
+            )
         if skipped['po']:
-            self.pod.logger.info('Skipping: {} (no `.po` file)'.format(
-                ', '.join(sorted(skipped['po']))))
+            self.pod.logger.info(
+                'Skipping: {} (no `.po` file)'.format(', '.join(sorted(skipped['po'])))
+            )
 
         return clean_locales
 
@@ -105,12 +105,16 @@ class Translator:
 
     def _log_catalog_changes(self, unchanged_locales, changed_locales):
         if unchanged_locales:
-            self.pod.logger.info('No translations updated: {}'.format(
-                ', '.join(sorted(unchanged_locales))))
+            self.pod.logger.info(
+                'No translations updated: {}'.format(', '.join(sorted(unchanged_locales)))
+            )
         if changed_locales:
             for locale, value in changed_locales.items():
-                self.pod.logger.info('Updated {} of {} translations: {}'.format(
-                    value['imported'], value['total'], locale))
+                self.pod.logger.info(
+                    'Updated {} of {} translations: {}'.format(
+                        value['imported'], value['total'], locale
+                    )
+                )
 
     def _upload_catalog(self, catalog, source_lang, prune):
         raise NotImplementedError
@@ -137,14 +141,13 @@ class Translator:
             return {}
         stats = self.pod.read_yaml(Translator.TRANSLATOR_STATS_PATH)
         if self.KIND not in stats:
-            self.pod.logger.info(
-                f'Nothing found to download from {self.KIND}')
+            self.pod.logger.info(f'Nothing found to download from {self.KIND}')
             return {}
         stats_to_download = stats[self.KIND]
         if locales:
-            stats_to_download = {lang: stat
-                                      for (lang, stat) in stats_to_download.items()
-                                      if lang in locales}
+            stats_to_download = {
+                lang: stat for (lang, stat) in stats_to_download.items() if lang in locales
+            }
         for lang, stat in stats_to_download.items():
             if isinstance(stat, TranslatorStat):
                 stat = json.loads(protojson.encode_message(stat))
@@ -166,7 +169,8 @@ class Translator:
         text = 'Downloading translations: %(value)d/{} (in %(time_elapsed).9s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
         bar = progressbar_non.create_progressbar(
-            "Downloading translations...", widgets=widgets, max_value=num_files)
+            'Downloading translations...', widgets=widgets, max_value=num_files
+        )
         bar.start()
         threads = []
         langs_to_translations = {}
@@ -183,9 +187,9 @@ class Translator:
             new_stat.uploaded = stat.uploaded  # Preserve uploaded field.
             langs_to_translations[lang] = content
             new_stats.append(new_stat)
+
         for i, (lang, stat) in enumerate(stats_to_download.items()):
-            thread = utils.ProgressBarThread(
-                bar, True, target=_do_download, args=(lang, stat))
+            thread = utils.ProgressBarThread(bar, True, target=_do_download, args=(lang, stat))
             threads.append(thread)
             thread.start()
             # Perform the first operation synchronously to avoid oauth2 refresh
@@ -201,9 +205,11 @@ class Translator:
         unchanged_locales = []
         changed_locales = {}
         for lang, translations in langs_to_translations.items():
-            has_changed_content, imported_translations, total_translations = self.pod.catalogs.import_translations(
-                    locale=lang, content=translations,
-                    include_obsolete=include_obsolete)
+            has_changed_content, imported_translations, total_translations = (
+                self.pod.catalogs.import_translations(
+                    locale=lang, content=translations, include_obsolete=include_obsolete
+                )
+            )
             if imported_translations == 0:
                 unchanged_locales.append(lang)
             else:
@@ -236,14 +242,12 @@ class Translator:
             return
         threads = []
         for i, (locale, stat) in enumerate(stats_to_download.items()):
-            thread = threading.Thread(
-                target=self._update_acl, args=(stat, locale))
+            thread = threading.Thread(target=self._update_acl, args=(stat, locale))
             threads.append(thread)
             thread.start()
             if i == 0:
                 thread.join()
-            self.pod.logger.info(
-                f'ACL updated ({stat.lang}): {stat.url}')
+            self.pod.logger.info(f'ACL updated ({stat.lang}): {stat.url}')
         for i, thread in enumerate(threads):
             if i > 0:
                 thread.join()
@@ -262,7 +266,8 @@ class Translator:
         for i, (locale, stat) in enumerate(stats_to_download.items()):
             catalog_for_meta = self.pod.catalogs.get(locale)
             thread = threading.Thread(
-                target=self._update_meta, args=(stat, locale, catalog_for_meta))
+                target=self._update_meta, args=(stat, locale, catalog_for_meta)
+            )
             threads.append(thread)
             thread.start()
             if i == 0:
@@ -272,8 +277,7 @@ class Translator:
             if i > 0:
                 thread.join()
 
-    def upload(self, locales=None, force=True, verbose=False, save_stats=True,
-               prune=False):
+    def upload(self, locales=None, force=True, verbose=False, save_stats=True, prune=False):
         source_lang = self.pod.podspec.default_locale
         locales = locales or self.pod.catalogs.list_locales()
         locales = self._cleanup_locales(locales)
@@ -283,11 +287,11 @@ class Translator:
             self.pod.logger.info('No locales to upload.')
             return
         if not force:
-            if (self.has_immutable_translation_resources
-                    and self.pod.file_exists(Translator.TRANSLATOR_STATS_PATH)):
+            if self.has_immutable_translation_resources and self.pod.file_exists(
+                Translator.TRANSLATOR_STATS_PATH
+            ):
                 text = 'Found existing translator data in: {}'
-                self.pod.logger.info(text.format(
-                    Translator.TRANSLATOR_STATS_PATH))
+                self.pod.logger.info(text.format(Translator.TRANSLATOR_STATS_PATH))
                 text = 'This will be updated with new data after the upload is complete.'
                 self.pod.logger.info(text)
             text = 'Proceed to upload {} translation catalogs?'
@@ -301,13 +305,13 @@ class Translator:
                 catalog_to_upload = self.pod.catalogs.get(locale)
                 if catalog_to_upload:
                     catalogs_to_upload.append(catalog_to_upload)
-            stats = self._upload_catalogs(catalogs_to_upload, source_lang,
-                                          prune=prune)
+            stats = self._upload_catalogs(catalogs_to_upload, source_lang, prune=prune)
         else:
             text = 'Uploading translations: %(value)d/{} (in %(time_elapsed).9s)'
             widgets = [progressbar.FormatLabel(text.format(num_files))]
             bar = progressbar_non.create_progressbar(
-                "Uploading translations...", widgets=widgets, max_value=num_files)
+                'Uploading translations...', widgets=widgets, max_value=num_files
+            )
             bar.start()
             threads = []
 
@@ -315,9 +319,9 @@ class Translator:
                 catalog = self.pod.catalogs.get(locale)
                 stat = self._upload_catalog(catalog, source_lang, prune=prune)
                 stats.append(stat)
+
             for i, locale in enumerate(locales):
-                thread = utils.ProgressBarThread(
-                    bar, True, target=_do_upload, args=(locale,))
+                thread = utils.ProgressBarThread(bar, True, target=_do_upload, args=(locale,))
                 threads.append(thread)
                 thread.start()
                 # Perform the first operation synchronously to avoid oauth2 refresh

@@ -41,8 +41,7 @@ class PodCache:
         self._dependency_graph.add_all(dep_cache)
 
         self._object_caches = {}
-        self.create_object_cache(
-            self.KEY_GLOBAL, write_to_file=False, can_reset=True)
+        self.create_object_cache(self.KEY_GLOBAL, write_to_file=False, can_reset=True)
 
         for key, item in obj_cache.items():
             # If this is a string, it is written to a separate cache file.
@@ -99,8 +98,8 @@ class PodCache:
 
     def _write_json(self, path, obj):
         output = json.dumps(
-            obj, cls=json_encoder.GrowJSONEncoder,
-            sort_keys=True, indent=2, separators=(',', ': '))
+            obj, cls=json_encoder.GrowJSONEncoder, sort_keys=True, indent=2, separators=(',', ': ')
+        )
         temp_dir = self._pod.abs_path('/.grow/tmp')
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
@@ -113,8 +112,9 @@ class PodCache:
             os.makedirs(dir_name)
         os.rename(temp_path, real_path)
 
-    def create_object_cache(self, key, write_to_file=False, can_reset=False, values=None,
-                            separate_file=False):
+    def create_object_cache(
+        self, key, write_to_file=False, can_reset=False, values=None, separate_file=False
+    ):
         """Create a named object cache."""
         self._object_caches[key] = {
             'cache': object_cache.ObjectCache(),
@@ -132,10 +132,7 @@ class PodCache:
         if key not in self._object_caches:
             return self.create_object_cache(key, **kwargs)
         existing_meta = self._object_caches[key]
-        if (
-            'separate_file' in kwargs
-            and existing_meta['separate_file'] != kwargs['separate_file']
-        ):
+        if 'separate_file' in kwargs and existing_meta['separate_file'] != kwargs['separate_file']:
             existing_meta['separate_file'] = kwargs['separate_file']
         return existing_meta['cache']
 
@@ -170,10 +167,8 @@ class PodCache:
                         continue
 
                     self._object_caches[key]['cache'].add_all(meta['values'])
-                    self._object_caches[key][
-                        'write_to_file'] = meta['write_to_file']
-                    self._object_caches[key][
-                        'separate_file'] = meta['separate_file']
+                    self._object_caches[key]['write_to_file'] = meta['write_to_file']
+                    self._object_caches[key]['separate_file'] = meta['separate_file']
                     self._object_caches[key]['can_reset'] = meta['can_reset']
 
     def write(self):

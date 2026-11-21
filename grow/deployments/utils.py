@@ -4,7 +4,6 @@ from grow.deployments import messages
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -33,6 +32,5 @@ def create_commit_message(repo):
     except TypeError:
         # Allow operating in an environment with a detached HEAD.
         pass
-    message.author = messages.AuthorMessage(
-        name=commit.author.name, email=commit.author.email)
+    message.author = messages.AuthorMessage(name=commit.author.name, email=commit.author.email)
     return message

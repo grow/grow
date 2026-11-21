@@ -61,6 +61,8 @@ class CollectionMessage(messages.Message):
     num_documents = messages.IntegerField(2)
     title = messages.StringField(3)
     fields = messages.StringField(4)  # JSON fields
+
+
 #  fields = messages.MessageField(FieldMessage, 2, repeated=True)
 
 

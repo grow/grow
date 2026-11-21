@@ -7,14 +7,31 @@ from grow.pods.footnotes import DuplicateSymbolError
 
 
 class SymbolGeneratorTestCase(unittest.TestCase):
-
     def test_symbol_generator(self):
         generator = footnotes.symbol_generator()
 
         expected = [
-            '*', '†', '‡', '§', '||', '¶', '#',
-            '**', '††', '‡‡', '§§', '||||', '¶¶', '##',
-            '***', '†††', '‡‡‡', '§§§', '||||||', '¶¶¶', '###',
+            '*',
+            '†',
+            '‡',
+            '§',
+            '||',
+            '¶',
+            '#',
+            '**',
+            '††',
+            '‡‡',
+            '§§',
+            '||||',
+            '¶¶',
+            '##',
+            '***',
+            '†††',
+            '‡‡‡',
+            '§§§',
+            '||||||',
+            '¶¶¶',
+            '###',
         ]
         actual = []
         for _ in range(21):
@@ -22,26 +39,58 @@ class SymbolGeneratorTestCase(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_symbol_generator_symbols(self):
-        symbols = ['*', '†', '‡', '§',]
+        symbols = [
+            '*',
+            '†',
+            '‡',
+            '§',
+        ]
         generator = footnotes.symbol_generator(symbols=symbols)
 
         expected = [
-            '*', '†', '‡', '§', '**', '††', '‡‡', '§§', '***', '†††',
+            '*',
+            '†',
+            '‡',
+            '§',
+            '**',
+            '††',
+            '‡‡',
+            '§§',
+            '***',
+            '†††',
         ]
         actual = []
         for _ in range(10):
             actual.append(next(generator))
         self.assertEqual(expected, actual)
 
-class NumberSymbolGeneratorTestCase(unittest.TestCase):
 
+class NumberSymbolGeneratorTestCase(unittest.TestCase):
     def test_numberic_symbol_generator(self):
         generator = footnotes.numberic_symbol_generator()
 
         expected = [
-            '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '¹⁰',
-            '¹¹', '¹²', '¹³', '¹⁴', '¹⁵', '¹⁶', '¹⁷', '¹⁸', '¹⁹',
-            '²⁰', '²¹',
+            '¹',
+            '²',
+            '³',
+            '⁴',
+            '⁵',
+            '⁶',
+            '⁷',
+            '⁸',
+            '⁹',
+            '¹⁰',
+            '¹¹',
+            '¹²',
+            '¹³',
+            '¹⁴',
+            '¹⁵',
+            '¹⁶',
+            '¹⁷',
+            '¹⁸',
+            '¹⁹',
+            '²⁰',
+            '²¹',
         ]
         actual = []
         for _ in range(21):
@@ -50,7 +99,6 @@ class NumberSymbolGeneratorTestCase(unittest.TestCase):
 
 
 class FootnotesTestCase(unittest.TestCase):
-
     def test_add(self):
         notes = footnotes.Footnotes(None)
         symbol = notes.add('See other side.')
@@ -106,8 +154,7 @@ class FootnotesTestCase(unittest.TestCase):
         self.assertEqual(False, notes.is_numeric)
 
     def test_locale_pattern_custom(self):
-        notes = footnotes.Footnotes(
-            'en_US', numeric_locales_pattern='_US$')
+        notes = footnotes.Footnotes('en_US', numeric_locales_pattern='_US$')
         self.assertEqual(True, notes.is_numeric)
 
     def test_reset(self):
@@ -135,21 +182,17 @@ class FootnotesTestCase(unittest.TestCase):
         self.assertEqual(False, notes.is_numeric)
 
         # Ignores the pattern when false.
-        notes = footnotes.Footnotes(
-            'de_DE', use_numeric_symbols=False)
+        notes = footnotes.Footnotes('de_DE', use_numeric_symbols=False)
         self.assertEqual(False, notes.is_numeric)
 
-        notes = footnotes.Footnotes(
-            'en_US', use_numeric_symbols=False)
+        notes = footnotes.Footnotes('en_US', use_numeric_symbols=False)
         self.assertEqual(False, notes.is_numeric)
 
         # Ignores the pattern when true.
-        notes = footnotes.Footnotes(
-            'de_DE', use_numeric_symbols=True)
+        notes = footnotes.Footnotes('de_DE', use_numeric_symbols=True)
         self.assertEqual(True, notes.is_numeric)
 
-        notes = footnotes.Footnotes(
-            'en_US', use_numeric_symbols=True)
+        notes = footnotes.Footnotes('en_US', use_numeric_symbols=True)
         self.assertEqual(True, notes.is_numeric)
 
 

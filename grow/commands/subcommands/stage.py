@@ -19,16 +19,22 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.stage')
 # pylint: disable=too-many-locals
 @click.command()
 @shared.pod_path_argument
-@click.option('--remote',
-              help='WebReview remote address (example: '
-                   ' example.com/owner/project). A remote must be specified'
-                   ' either using --remote or by configuring a deployment'
-                   ' named "webreview" in podspec.yaml.')
-@click.option('--file', '--pod-path', 'pod_paths',
-              help='Build only pages affected by content files.', multiple=True)
+@click.option(
+    '--remote',
+    help='WebReview remote address (example: '
+    ' example.com/owner/project). A remote must be specified'
+    ' either using --remote or by configuring a deployment'
+    ' named "webreview" in podspec.yaml.',
+)
+@click.option(
+    '--file',
+    '--pod-path',
+    'pod_paths',
+    help='Build only pages affected by content files.',
+    multiple=True,
+)
 @click.option('--subdomain', help='Assign a subdomain to this build.')
-@click.option('--api-key',
-              help='API key for authorizing staging to WebReview projects.')
+@click.option('--api-key', help='API key for authorizing staging to WebReview projects.')
 @shared.locale_option(help_text='Filter build routes to specific locale.')
 @shared.force_untranslated_option(CFG)
 @shared.preprocess_option(CFG)
@@ -36,8 +42,20 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.stage')
 @shared.work_dir_option
 @shared.routes_file_option()
 @click.pass_context
-def stage(context, pod_path, remote, pod_paths, locale, preprocess, subdomain, api_key,
-          force_untranslated, threaded, work_dir, routes_file):
+def stage(
+    context,
+    pod_path,
+    remote,
+    pod_paths,
+    locale,
+    preprocess,
+    subdomain,
+    api_key,
+    force_untranslated,
+    threaded,
+    work_dir,
+    routes_file,
+):
     """Stages a build on a WebReview server."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     auth = context.parent.params.get('auth')
@@ -50,11 +68,10 @@ def stage(context, pod_path, remote, pod_paths, locale, preprocess, subdomain, a
             pod.set_env(deployment.get_env())
             # Always clear the cache when building.
             pod.podcache.reset()
-            require_translations = \
-                pod.podspec.localization \
-                and pod.podspec.localization.get('require_translations', False)
-            require_translations = require_translations \
-                and not force_untranslated
+            require_translations = pod.podspec.localization and pod.podspec.localization.get(
+                'require_translations', False
+            )
+            require_translations = require_translations and not force_untranslated
             if auth:
                 deployment.login(auth)
             if preprocess:
@@ -79,13 +96,19 @@ def stage(context, pod_path, remote, pod_paths, locale, preprocess, subdomain, a
 
             paths = pod.router.routes.paths
             stats_obj = stats.Stats(pod, paths=paths)
-            content_generator = deployment.dump(
-                pod, source_dir=work_dir, use_threading=threaded)
+            content_generator = deployment.dump(pod, source_dir=work_dir, use_threading=threaded)
             content_generator = hooks.generator_wrapper(
-                pod, 'pre_deploy', content_generator, 'stage')
-            deployment.deploy(content_generator, stats=stats_obj, repo=repo,
-                              confirm=False, test=False, require_translations=require_translations,
-                              is_partial=is_partial)
+                pod, 'pre_deploy', content_generator, 'stage'
+            )
+            deployment.deploy(
+                content_generator,
+                stats=stats_obj,
+                repo=repo,
+                confirm=False,
+                test=False,
+                require_translations=require_translations,
+                is_partial=is_partial,
+            )
             pod.podcache.write()
     except bulk_errors.BulkErrors as err:
         # Write the podcache files even when there are rendering errors.
@@ -112,6 +135,7 @@ def _get_deployment(pod, remote, subdomain, api_key):
                 deployment.webreview.api_key = api_key
             return deployment
         except ValueError:
-            text = ('Must provide --remote or specify a deployment named '
-                    '"webreview" in podspec.yaml.')
+            text = (
+                'Must provide --remote or specify a deployment named "webreview" in podspec.yaml.'
+            )
             raise click.ClickException(text)

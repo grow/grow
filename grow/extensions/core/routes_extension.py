@@ -23,11 +23,13 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
         template = env.get_template('views/base.html')
         kwargs = {
             'pod': pod,
-            'partials': [{
-                'partial': 'routes',
-                'concrete': concrete,
-                'routes': routes,
-            }],
+            'partials': [
+                {
+                    'partial': 'routes',
+                    'concrete': concrete,
+                    'routes': routes,
+                }
+            ],
             'title': title,
         }
         content = template.render(kwargs)
@@ -39,8 +41,7 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
     def serve_routes_abstract(pod, _request, _matched, **_kwargs):
         """Handle the request for abstract routes."""
         routes = pod.router.routes
-        return RoutesDevHandlerHook._create_response(
-            pod, routes, 'Pod Abstract Routes')
+        return RoutesDevHandlerHook._create_response(pod, routes, 'Pod Abstract Routes')
 
     @staticmethod
     def serve_routes_concrete(pod, _request, _matched, **_kwargs):
@@ -49,32 +50,57 @@ class RoutesDevHandlerHook(hooks.DevHandlerHook):
         router.use_simple()
         router.add_all(concrete=True, use_cache=False)
         routes = router.routes
-        return RoutesDevHandlerHook._create_response(
-            pod, routes, 'Pod Routes')
+        return RoutesDevHandlerHook._create_response(pod, routes, 'Pod Routes')
 
     # pylint: disable=arguments-differ
     def trigger(self, previous_result, routes, *_args, **_kwargs):
         """Execute dev handler modification."""
-        routes.add('/_grow/ui/tools/:tool', grow_router.RouteInfo(
-            'console', meta={
-                'handler': handlers.serve_ui_tool,
-            }))
-        routes.add('/_grow', grow_router.RouteInfo('console', meta={
-            'handler': handlers.serve_console,
-        }))
+        routes.add(
+            '/_grow/ui/tools/:tool',
+            grow_router.RouteInfo(
+                'console',
+                meta={
+                    'handler': handlers.serve_ui_tool,
+                },
+            ),
+        )
+        routes.add(
+            '/_grow',
+            grow_router.RouteInfo(
+                'console',
+                meta={
+                    'handler': handlers.serve_console,
+                },
+            ),
+        )
 
-        routes.add('/_grow/routes', grow_router.RouteInfo(
-            'console', meta={
-                'handler': RoutesDevHandlerHook.serve_routes_concrete,
-            }))
-        routes.add('/_grow/routes/concrete', grow_router.RouteInfo(
-            'console', meta={
-                'handler': RoutesDevHandlerHook.serve_routes_concrete,
-            }))
-        routes.add('/_grow/routes/abstract', grow_router.RouteInfo(
-            'console', meta={
-                'handler': RoutesDevHandlerHook.serve_routes_abstract,
-            }))
+        routes.add(
+            '/_grow/routes',
+            grow_router.RouteInfo(
+                'console',
+                meta={
+                    'handler': RoutesDevHandlerHook.serve_routes_concrete,
+                },
+            ),
+        )
+        routes.add(
+            '/_grow/routes/concrete',
+            grow_router.RouteInfo(
+                'console',
+                meta={
+                    'handler': RoutesDevHandlerHook.serve_routes_concrete,
+                },
+            ),
+        )
+        routes.add(
+            '/_grow/routes/abstract',
+            grow_router.RouteInfo(
+                'console',
+                meta={
+                    'handler': RoutesDevHandlerHook.serve_routes_abstract,
+                },
+            ),
+        )
 
 
 class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
@@ -86,8 +112,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
             pod.router.routes.reset()
             pod.router.add_all(concrete=False, use_cache=False)
             # Trigger the dev handler hook.
-            pod.extensions_controller.trigger(
-                'dev_handler', pod.router.routes)
+            pod.extensions_controller.trigger('dev_handler', pod.router.routes)
         pod.logger.info(f'{len(pod.router.routes)} routes rebuilt in {router_time.secs:.3f} s')
 
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
@@ -96,8 +121,10 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
         basename = os.path.basename(pod_path)
         ignore_doc = basename.startswith(collection.Collection.IGNORE_INITIAL)
 
-        if pod_path == f'/{pod.FILE_PODSPEC}' or (pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
-              and pod_path.startswith(collection.Collection.CONTENT_PATH)):
+        if pod_path == f'/{pod.FILE_PODSPEC}' or (
+            pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
+            and pod_path.startswith(collection.Collection.CONTENT_PATH)
+        ):
             self._reset_routes(pod)
         elif pod_path.startswith(collection.Collection.CONTENT_PATH) and not ignore_doc:
             trigger_doc = pod.get_doc(pod_path)
@@ -119,8 +146,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
 
             # Force load the docs and fix locales.
             docs_loader.DocsLoader.load(pod, base_docs, ignore_errors=True)
-            docs_loader.DocsLoader.fix_default_locale(
-                pod, base_docs, ignore_errors=True)
+            docs_loader.DocsLoader.fix_default_locale(pod, base_docs, ignore_errors=True)
 
             # The routing map should remain unchanged most of the time.
             added_docs = []
@@ -131,12 +157,13 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                     removed_docs.append(original_doc)
                     continue
 
-                updated_doc = pod.get_doc(
-                    original_doc.pod_path, original_doc._locale_kwarg)
+                updated_doc = pod.get_doc(original_doc.pod_path, original_doc._locale_kwarg)
 
                 # When the serving path has changed, updated in routes.
-                if (updated_doc.has_serving_path()
-                        and original_doc.get_serving_path() != updated_doc.get_serving_path()):
+                if (
+                    updated_doc.has_serving_path()
+                    and original_doc.get_serving_path() != updated_doc.get_serving_path()
+                ):
                     added_docs.append(updated_doc)
                     removed_docs.append(original_doc)
 
@@ -165,8 +192,7 @@ class RoutesDevFileChangeHook(hooks.DevFileChangeHook):
                 ):
                     added_docs.append(trigger_doc)
             if added_docs or removed_docs:
-                pod.router.reconcile_documents(
-                    remove_docs=removed_docs, add_docs=added_docs)
+                pod.router.reconcile_documents(remove_docs=removed_docs, add_docs=added_docs)
 
         if previous_result:
             return previous_result

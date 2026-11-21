@@ -10,20 +10,17 @@ from grow.translations import locales
 
 
 class CollectionsTestCase(unittest.TestCase):
-
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
 
     def test_clean_collection_path(self):
-        self.assertEqual('pages', collection.Collection.clean_collection_path(
-            '/content/pages/'))
-        self.assertEqual('pages', collection.Collection.clean_collection_path(
-            '/content/pages'))
-        self.assertEqual('pages', collection.Collection.clean_collection_path(
-            'pages'))
-        self.assertEqual('pages/other', collection.Collection.clean_collection_path(
-            '/content/pages/other/'))
+        self.assertEqual('pages', collection.Collection.clean_collection_path('/content/pages/'))
+        self.assertEqual('pages', collection.Collection.clean_collection_path('/content/pages'))
+        self.assertEqual('pages', collection.Collection.clean_collection_path('pages'))
+        self.assertEqual(
+            'pages/other', collection.Collection.clean_collection_path('/content/pages/other/')
+        )
 
     def test_get(self):
         col = self.pod.get_collection('/content/pages/')
@@ -47,8 +44,7 @@ class CollectionsTestCase(unittest.TestCase):
         pod.write_yaml('/content/col2/_blueprint.yaml', {})
         collection_objs = collection.Collection.list(pod)
         collection_objs.sort(key=lambda col: col.basename)
-        self.assertEqual(['col1', 'col2'],
-            [col.basename for col in collection_objs])
+        self.assertEqual(['col1', 'col2'], [col.basename for col in collection_objs])
 
     def test_order(self):
         pod = testing.create_pod()
@@ -59,18 +55,20 @@ class CollectionsTestCase(unittest.TestCase):
         collection_objs = pod.list_collections()
         expected_sorted = ['col-b', 'col-a', 'col-c']
         collection_objs.sort(key=lambda col: col.order)
-        self.assertEqual(
-            expected_sorted, [col.basename for col in collection_objs])
+        self.assertEqual(expected_sorted, [col.basename for col in collection_objs])
 
     def test_title(self):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})
-        pod.write_yaml('/content/pages/_blueprint.yaml', {
-            '$title@': 'Base Title',
-            '$titles': {
-                'nav@': 'Nav Title',
+        pod.write_yaml(
+            '/content/pages/_blueprint.yaml',
+            {
+                '$title@': 'Base Title',
+                '$titles': {
+                    'nav@': 'Nav Title',
+                },
             },
-        })
+        )
         col = pod.get_collection('pages')
         self.assertEqual('Base Title', col.title)
         self.assertEqual('Base Title', col.titles('none'))
@@ -113,14 +111,16 @@ class CollectionsTestCase(unittest.TestCase):
     def test_list_locales(self):
         collection = self.pod.get_collection('pages')
         found_locales = collection.locales
-        expected = locales.Locale.parse_codes([
-            'de',
-            'en',
-            'fi',
-            'fil',
-            'fr',
-            'it',
-        ])
+        expected = locales.Locale.parse_codes(
+            [
+                'de',
+                'en',
+                'fi',
+                'fil',
+                'fr',
+                'it',
+            ]
+        )
         self.assertListEqual(expected, found_locales)
 
     def test_list_servable_documents(self):
@@ -172,19 +172,14 @@ class CollectionsTestCase(unittest.TestCase):
         doc = pod.get_doc('/content/old/file.yaml')
         self.assertEqual('/old/file/', doc.get_serving_path())
 
-
     def test_collections(self):
         collection = self.pod.create_collection('new', {})
-        self.assertEqual([],
-              list(collection.collections()))
+        self.assertEqual([], list(collection.collections()))
         sub_collection = self.pod.create_collection('new/sub', {})
-        self.assertEqual([sub_collection],
-              list(collection.collections()))
+        self.assertEqual([sub_collection], list(collection.collections()))
         sub_sub_collection = self.pod.create_collection('new/sub/sub', {})
-        self.assertEqual([sub_collection],
-              list(collection.collections()))
-        self.assertEqual([sub_sub_collection],
-              list(sub_collection.collections()))
+        self.assertEqual([sub_collection], list(collection.collections()))
+        self.assertEqual([sub_sub_collection], list(sub_collection.collections()))
 
     def test_nested_collections(self):
         # While it was undefined behavior before, projects relied on the
@@ -201,10 +196,8 @@ class CollectionsTestCase(unittest.TestCase):
         pod.write_yaml('/content/collection/_blueprint.yaml', fields)
         pod.write_yaml('/content/collection/root.yaml', {})
         pod.write_yaml('/content/collection/folder/folder.yaml', {})
-        pod.write_yaml(
-            '/content/collection/folder/subfolder/subfolder.yaml', {})
-        pod.write_yaml(
-            '/content/collection/folder2/subfolder2/subfolder2.yaml', {})
+        pod.write_yaml('/content/collection/folder/subfolder/subfolder.yaml', {})
+        pod.write_yaml('/content/collection/folder2/subfolder2/subfolder2.yaml', {})
         pod.router.add_all(use_cache=False)
         expected = [
             '/root/',
@@ -212,8 +205,7 @@ class CollectionsTestCase(unittest.TestCase):
             '/subfolder/',
             '/subfolder2/',
         ]
-        self.assertEqual(
-            sorted(expected), sorted(pod.router.routes.paths))
+        self.assertEqual(sorted(expected), sorted(pod.router.routes.paths))
 
         # Blueprints one level deep.
         fields = {
@@ -229,12 +221,9 @@ class CollectionsTestCase(unittest.TestCase):
             '$path': '/subfolder-two-levels/{base}/',
             '$view': '/views/base.html',
         }
-        pod.write_yaml(
-            '/content/collection/folder/subfolder/_blueprint.yaml', fields)
-        doc = pod.get_doc(
-            '/content/collection/folder/subfolder/subfolder.yaml')
-        self.assertEqual(
-            '/subfolder-two-levels/subfolder/', doc.get_serving_path())
+        pod.write_yaml('/content/collection/folder/subfolder/_blueprint.yaml', fields)
+        doc = pod.get_doc('/content/collection/folder/subfolder/subfolder.yaml')
+        self.assertEqual('/subfolder-two-levels/subfolder/', doc.get_serving_path())
 
     def test_docs_with_localization(self):
         pod = testing.create_pod()
@@ -245,7 +234,7 @@ class CollectionsTestCase(unittest.TestCase):
                     'de',
                     'fr',
                     'it',
-                ]
+                ],
             }
         }
         pod.write_yaml('/podspec.yaml', fields)
@@ -254,7 +243,7 @@ class CollectionsTestCase(unittest.TestCase):
             '$path': '/{base}/',
             'localization': {
                 'path': '/{locale}/{base}/',
-            }
+            },
         }
         pod.write_yaml('/content/pages/_blueprint.yaml', fields)
         pod.write_yaml('/content/pages/foo.yaml', {})
@@ -273,7 +262,7 @@ class CollectionsTestCase(unittest.TestCase):
                 'default_locale': 'en',
                 'locales': [
                     'de',
-                ]
+                ],
             }
         }
         pod.write_yaml('/podspec.yaml', fields)
@@ -282,13 +271,16 @@ class CollectionsTestCase(unittest.TestCase):
             '$path': '/{base}/',
             'localization': {
                 'path': '/{locale}/{base}/',
-            }
+            },
         }
         pod.write_yaml('/content/pages/_blueprint.yaml', fields)
         pod_collection = pod.get_collection('pages')
-        pod_collection.create_doc('/content/pages/foo.yaml', {
-            'testing': 'bananas',
-        })
+        pod_collection.create_doc(
+            '/content/pages/foo.yaml',
+            {
+                'testing': 'bananas',
+            },
+        )
         doc = pod.get_doc('/content/pages/foo.yaml')
         self.assertEqual('bananas', doc.testing)
 

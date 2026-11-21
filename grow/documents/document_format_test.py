@@ -10,7 +10,6 @@ from grow.testing import testing
 
 
 class DocumentFormatTestCase(unittest.TestCase):
-
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
@@ -28,18 +27,15 @@ class DocumentFormatTestCase(unittest.TestCase):
 
         doc = self.pod.get_doc('/content/pages/intro.md')
         doc_format = document_format.DocumentFormat.from_doc(doc=doc)
-        self.assertIsInstance(
-            doc_format, document_format.MarkdownDocumentFormat)
+        self.assertIsInstance(doc_format, document_format.MarkdownDocumentFormat)
 
         doc = self.pod.get_doc('/content/pages/home.yaml')
         doc_format = document_format.DocumentFormat.from_doc(doc=doc)
-        self.assertIsInstance(
-            doc_format, document_format.YamlDocumentFormat)
+        self.assertIsInstance(doc_format, document_format.YamlDocumentFormat)
 
         doc = self.pod.get_doc('/content/pages/text.txt')
         doc_format = document_format.DocumentFormat.from_doc(doc=doc)
-        self.assertIsInstance(
-            doc_format, document_format.TextDocumentFormat)
+        self.assertIsInstance(doc_format, document_format.TextDocumentFormat)
 
         with self.assertRaises(document_format.BadFormatError):
             document_format.DocumentFormat.from_doc()

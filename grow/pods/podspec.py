@@ -4,7 +4,6 @@ from grow.translations import locales
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -15,7 +14,6 @@ class PodSpecParseError(Error):
 
 
 class PodSpec:
-
     def __init__(self, yaml, pod):
         yaml = yaml or {}
         self.yaml = yaml

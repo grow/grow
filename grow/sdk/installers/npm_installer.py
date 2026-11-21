@@ -55,34 +55,35 @@ class NpmInstaller(base_installer.BaseInstaller):
     def _check_prerequisites_npm(self):
         """Check if required prerequisites are installed or available."""
         status_command = self._nvm_command('npm --version > /dev/null 2>&1')
-        not_found = subprocess.call(
-            status_command, **self.subprocess_args(shell=True)) == 127
+        not_found = subprocess.call(status_command, **self.subprocess_args(shell=True)) == 127
         if not_found:
             install_commands = []
             if sdk_utils.PLATFORM == 'linux':
                 install_commands.append(
-                    'On Linux, you can install npm using: `apt-get install nodejs`')
+                    'On Linux, you can install npm using: `apt-get install nodejs`'
+                )
             elif sdk_utils.PLATFORM == 'mac':
                 install_commands.append(
-                    'Using brew (https://brew.sh), you can install using: `brew install node`')
-                install_commands.append('If you do not have brew, you can download '
-                                         'Node.js from https://nodejs.org')
-            else:
+                    'Using brew (https://brew.sh), you can install using: `brew install node`'
+                )
                 install_commands.append(
-                    'Download Node.js from https://nodejs.org')
+                    'If you do not have brew, you can download Node.js from https://nodejs.org'
+                )
+            else:
+                install_commands.append('Download Node.js from https://nodejs.org')
             raise base_installer.MissingPrerequisiteError(
-                'The `npm` command was not found.', install_commands=install_commands)
+                'The `npm` command was not found.', install_commands=install_commands
+            )
 
     def _check_prerequisites_yarn(self):
         """Check if required prerequisites are installed or available."""
         status_command = 'yarn --version > /dev/null 2>&1'
-        not_found = subprocess.call(
-            status_command, **self.subprocess_args(shell=True)) == 127
+        not_found = subprocess.call(status_command, **self.subprocess_args(shell=True)) == 127
         if not_found:
-            install_commands = [
-                'Install yarn from https://yarnpkg.com/en/docs/install']
+            install_commands = ['Install yarn from https://yarnpkg.com/en/docs/install']
             raise base_installer.MissingPrerequisiteError(
-                'The `yarn` command was not found.', install_commands=install_commands)
+                'The `yarn` command was not found.', install_commands=install_commands
+            )
 
     def _generate_hashes(self):
         """Create hash string based on the package and lock files."""
@@ -105,8 +106,7 @@ class NpmInstaller(base_installer.BaseInstaller):
         if not code:
             self.pod.write_file(INSTALL_HASH_FILE, self._generate_hashes())
             return
-        raise base_installer.InstallError(
-            f'There was an error running `{command}`.')
+        raise base_installer.InstallError(f'There was an error running `{command}`.')
 
     def _install_yarn(self):
         """Install dependencies using npm."""
@@ -116,8 +116,7 @@ class NpmInstaller(base_installer.BaseInstaller):
         if not code:
             self.pod.write_file(INSTALL_HASH_FILE, self._generate_hashes())
             return
-        raise base_installer.InstallError(
-            'There was an error running `yarn install`.')
+        raise base_installer.InstallError('There was an error running `yarn install`.')
 
     def _nvm_command(self, command):
         if self.pod.file_exists('/.nvmrc'):

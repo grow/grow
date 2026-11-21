@@ -6,9 +6,7 @@ import urllib.parse
 from grow.common import utils
 from grow.sdk.installers import base_installer
 
-KNOWN_GERRIT_HOSTS = (
-    'googlesource.com',
-)
+KNOWN_GERRIT_HOSTS = ('googlesource.com',)
 
 
 class GerritInstaller(base_installer.BaseInstaller):
@@ -38,18 +36,15 @@ class GerritInstaller(base_installer.BaseInstaller):
         curl_command = (
             'curl -sLo '
             '`git rev-parse --git-dir`/hooks/commit-msg '
-            'https://gerrit-review.googlesource.com/tools/hooks/commit-msg')
-        process = subprocess.Popen(
-            curl_command, **self.subprocess_args(shell=True))
+            'https://gerrit-review.googlesource.com/tools/hooks/commit-msg'
+        )
+        process = subprocess.Popen(curl_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
             chmod_command = 'chmod +x `git rev-parse --git-dir`/hooks/commit-msg'
-            process = subprocess.Popen(
-                chmod_command, **self.subprocess_args(shell=True))
+            process = subprocess.Popen(chmod_command, **self.subprocess_args(shell=True))
             code = process.wait()
             if not code:
                 return
-            raise base_installer.InstallError(
-                f'There was an error running `{chmod_command}`.')
-        raise base_installer.InstallError(
-            f'There was an error running `{curl_command}`.')
+            raise base_installer.InstallError(f'There was an error running `{chmod_command}`.')
+        raise base_installer.InstallError(f'There was an error running `{curl_command}`.')

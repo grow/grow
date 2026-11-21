@@ -70,8 +70,8 @@ class MarkdownUtil:
     def markdown(self):
         """Markdown object using the pod configuration."""
         return markdown.Markdown(
-            extensions=self.extensions,
-            extension_configs=self.extension_configs)
+            extensions=self.extensions, extension_configs=self.extension_configs
+        )
 
     @utils.cached_property
     def markdown_config(self):

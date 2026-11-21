@@ -7,7 +7,6 @@ from grow.common import progressbar_non
 
 
 class ProgressBarTestCase(unittest.TestCase):
-
     def test_progress_bar_lifecycle(self):
         stream = io.StringIO()
         widgets = [progressbar_non.FormatLabel('Building: %(value)d/3 (in %(elapsed)s)')]

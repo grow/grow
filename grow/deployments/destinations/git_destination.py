@@ -16,8 +16,7 @@ from grow.pods import env
 from grow.routing import router
 from grow.storage import file_storage
 
-ONLINE_REPO_REGEX = \
-    r'((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)(/)?'
+ONLINE_REPO_REGEX = r'((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)(/)?'
 
 
 class Config(messages.Message):
@@ -32,6 +31,7 @@ class Config(messages.Message):
 
 class GitDestination(base.BaseDestination):
     """Git deploy destination."""
+
     KIND = 'git'
     Config = Config
     storage = file_storage.FileStorage
@@ -123,8 +123,7 @@ class GitDestination(base.BaseDestination):
             self._checkout(self._original_branch_name)
 
     def read_file(self, path):
-        path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),
-                            path.lstrip('/'))
+        path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'), path.lstrip('/'))
         return self.storage.read(path)
 
     def delete_control_file(self, path):
@@ -134,8 +133,7 @@ class GitDestination(base.BaseDestination):
         self.deletes.remove(out_path)
 
     def delete_file(self, path):
-        out_path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),
-                                path.lstrip('/'))
+        out_path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'), path.lstrip('/'))
         self.storage.delete(out_path)
         self.deletes.add(out_path)
         if out_path in self.adds:
@@ -145,8 +143,7 @@ class GitDestination(base.BaseDestination):
     def write_file(self, rendered_doc):
         path = rendered_doc.path
         content = rendered_doc.read()
-        out_path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'),
-                                path.lstrip('/'))
+        out_path = os.path.join(self.repo_path, self.config.root_dir.lstrip('/'), path.lstrip('/'))
         self.storage.write(out_path, content)
         self.adds.add(out_path)
         if out_path in self.deletes:

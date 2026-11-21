@@ -11,10 +11,8 @@ class DeploymentDeploymentRegisterHook(hooks.DeploymentRegisterHook):
     # pylint: disable=arguments-differ
     def trigger(self, previous_result, deployments, *_args, **_kwargs):
         """Trigger the deployment destination registration hook."""
-        deployments.register_destination(
-            webreview_destination.WebReviewDestination)
-        deployments.register_destination(
-            webreview_destination.LegacyJetwayDestination)
+        deployments.register_destination(webreview_destination.WebReviewDestination)
+        deployments.register_destination(webreview_destination.LegacyJetwayDestination)
         deployments.register_destination(git_destination.GitDestination)
         deployments.register_destination(local.LocalDestination)
 

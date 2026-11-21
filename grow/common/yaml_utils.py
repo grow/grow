@@ -13,7 +13,6 @@ except ImportError:
 
 
 class PlainText(dict):
-
     def __init__(self, tag, value):
         super().__init__()
         self['tag'] = tag
@@ -55,27 +54,17 @@ PlainTextYamlDumper.add_representer(list, SafeRepresenter.represent_list)
 PlainTextYamlDumper.add_representer(tuple, SafeRepresenter.represent_list)
 PlainTextYamlDumper.add_representer(dict, SafeRepresenter.represent_dict)
 PlainTextYamlDumper.add_representer(set, SafeRepresenter.represent_set)
-PlainTextYamlDumper.add_representer(
-    datetime.date, SafeRepresenter.represent_date)
-PlainTextYamlDumper.add_representer(
-    datetime.datetime, SafeRepresenter.represent_datetime)
+PlainTextYamlDumper.add_representer(datetime.date, SafeRepresenter.represent_date)
+PlainTextYamlDumper.add_representer(datetime.datetime, SafeRepresenter.represent_datetime)
 PlainTextYamlDumper.add_representer(None, SafeRepresenter.represent_undefined)
 PlainTextYamlDumper.add_multi_representer(object, Representer.represent_object)
 
 
-PlainTextYamlLoader.add_constructor(
-    '!_', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.csv', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.doc', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.json', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.static', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.string', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.url', PlainTextYamlLoader.construct_plaintext)
-PlainTextYamlLoader.add_constructor(
-    '!g.yaml', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!_', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.csv', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.doc', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.json', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.static', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.string', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.url', PlainTextYamlLoader.construct_plaintext)
+PlainTextYamlLoader.add_constructor('!g.yaml', PlainTextYamlLoader.construct_plaintext)

@@ -54,19 +54,14 @@ class RenderController:
         if params is None:
             params = {}
         if route_info.kind == 'doc':
-            return RenderDocumentController(
-                pod, serving_path, route_info, params=params)
+            return RenderDocumentController(pod, serving_path, route_info, params=params)
         elif route_info.kind == 'static':
-            return RenderStaticDocumentController(
-                pod, serving_path, route_info, params=params)
+            return RenderStaticDocumentController(pod, serving_path, route_info, params=params)
         elif route_info.kind == 'sitemap':
-            return RenderSitemapController(
-                pod, serving_path, route_info, params=params)
+            return RenderSitemapController(pod, serving_path, route_info, params=params)
         elif route_info.kind == 'error':
-            return RenderErrorController(
-                pod, serving_path, route_info, params=params)
-        raise UnknownKindError(
-            f'Do not have a controller for: {route_info.kind}')
+            return RenderErrorController(pod, serving_path, route_info, params=params)
+        raise UnknownKindError(f'Do not have a controller for: {route_info.kind}')
 
     @property
     def locale(self):
@@ -108,8 +103,7 @@ class RenderDocumentController(RenderController):
     """Controller for handling rendering for documents."""
 
     def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
-        super().__init__(
-            pod, serving_path, route_info, params=params, is_threaded=is_threaded)
+        super().__init__(pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self._doc = None
         self.use_jinja = True
 
@@ -121,8 +115,7 @@ class RenderDocumentController(RenderController):
         """Doc for the controller."""
         if not self._doc:
             pod_path = self.route_info.meta['pod_path']
-            locale = self.route_info.meta.get(
-                'locale', self.params.get('locale'))
+            locale = self.route_info.meta.get('locale', self.params.get('locale'))
             self._doc = self.pod.get_doc(pod_path, locale=locale)
         return self._doc
 
@@ -158,9 +151,7 @@ class RenderDocumentController(RenderController):
         timer = self.pod.profile.timer(
             'RenderDocumentController.load',
             label=f'{self.pod_path} ({self.locale})',
-            meta={
-                'path': self.pod_path,
-                'locale': str(self.locale)}
+            meta={'path': self.pod_path, 'locale': str(self.locale)},
         ).start_timer()
 
         source_dir = self.clean_source_dir(source_dir)
@@ -176,8 +167,7 @@ class RenderDocumentController(RenderController):
             rendered_path = f'{source_dir}{serving_path}'
             rendered_content = self.pod.storage.read(rendered_path)
 
-            rendered_doc = rendered_document.RenderedDocument(
-                serving_path, rendered_content)
+            rendered_doc = rendered_document.RenderedDocument(serving_path, rendered_content)
             timer.stop_timer()
             return rendered_doc
         except Exception as err:
@@ -192,9 +182,7 @@ class RenderDocumentController(RenderController):
         timer = self.pod.profile.timer(
             'RenderDocumentController.render',
             label=f'{self.doc.pod_path} ({self.doc.locale})',
-            meta={
-                'path': self.doc.pod_path,
-                'locale': str(self.doc.locale)}
+            meta={'path': self.doc.pod_path, 'locale': str(self.doc.locale)},
         ).start_timer()
 
         # Validate the path with the config filters.
@@ -203,8 +191,7 @@ class RenderDocumentController(RenderController):
         doc = self.doc
         template = jinja_env['env'].get_template(doc.view.lstrip('/'))
         track_dependency = doc_dependency.DocDependency(doc)
-        local_tags = tags.create_builtin_tags(
-            self.pod, doc, track_dependency=track_dependency)
+        local_tags = tags.create_builtin_tags(self.pod, doc, track_dependency=track_dependency)
         # NOTE: This should be done using get_template(... globals=...)
         # or passed as an argument into render but
         # it is not available included inside macros???
@@ -225,17 +212,19 @@ class RenderDocumentController(RenderController):
             if content:
                 doc.format.update(content=content)
 
-            rendered_content = template.render({
-                'doc': doc,
-                'request': request,
-                'env': self.pod.env,
-                'podspec': self.pod.podspec,
-                '_track_dependency': track_dependency,
-            }).lstrip()
+            rendered_content = template.render(
+                {
+                    'doc': doc,
+                    'request': request,
+                    'env': self.pod.env,
+                    'podspec': self.pod.podspec,
+                    '_track_dependency': track_dependency,
+                }
+            ).lstrip()
             rendered_content = self.pod.extensions_controller.trigger(
-                'post_render', doc, rendered_content)
-            rendered_doc = rendered_document.RenderedDocument(
-                serving_path, rendered_content)
+                'post_render', doc, rendered_content
+            )
+            rendered_doc = rendered_document.RenderedDocument(serving_path, rendered_content)
             timer.stop_timer()
             return rendered_doc
         except Exception as err:
@@ -250,8 +239,7 @@ class RenderErrorController(RenderController):
     """Controller for handling rendering for errors."""
 
     def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
-        super().__init__(
-            pod, serving_path, route_info, params=params, is_threaded=is_threaded)
+        super().__init__(pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self.use_jinja = True
 
     def __repr__(self):
@@ -261,12 +249,11 @@ class RenderErrorController(RenderController):
         """Load the pod content from file system."""
         timer = self.pod.profile.timer(
             'RenderErrorController.load',
-            label='{} ({})'.format(
-                self.route_info.meta['key'], self.route_info.meta['view']),
+            label='{} ({})'.format(self.route_info.meta['key'], self.route_info.meta['view']),
             meta={
                 'key': self.route_info.meta['key'],
                 'view': self.route_info.meta['view'],
-            }
+            },
         ).start_timer()
 
         source_dir = self.clean_source_dir(source_dir)
@@ -278,8 +265,7 @@ class RenderErrorController(RenderController):
             serving_path = '/{}.html'.format(self.route_info.meta['key'])
             rendered_path = f'{source_dir}{serving_path}'
             rendered_content = self.pod.storage.read(rendered_path)
-            rendered_doc = rendered_document.RenderedDocument(
-                serving_path, rendered_content)
+            rendered_doc = rendered_document.RenderedDocument(serving_path, rendered_content)
             timer.stop_timer()
             return rendered_doc
         except Exception as err:
@@ -296,20 +282,18 @@ class RenderErrorController(RenderController):
         """Render the document using the render pool."""
         timer = self.pod.profile.timer(
             'RenderErrorController.render',
-            label='{} ({})'.format(
-                self.route_info.meta['key'], self.route_info.meta['view']),
+            label='{} ({})'.format(self.route_info.meta['key'], self.route_info.meta['view']),
             meta={
                 'key': self.route_info.meta['key'],
                 'view': self.route_info.meta['view'],
-            }
+            },
         ).start_timer()
 
         # Validate the path with the config filters.
         self.validate_path()
 
         with jinja_env['lock']:
-            template = jinja_env['env'].get_template(
-                self.route_info.meta['view'].lstrip('/'))
+            template = jinja_env['env'].get_template(self.route_info.meta['view'].lstrip('/'))
             local_tags = tags.create_builtin_tags(self.pod, doc=None)
             # NOTE: This should be done using get_template(... globals=...)
             # or passed as an argument into render but
@@ -320,11 +304,15 @@ class RenderErrorController(RenderController):
             try:
                 serving_path = '/{}.html'.format(self.route_info.meta['key'])
                 rendered_doc = rendered_document.RenderedDocument(
-                    serving_path, template.render({
-                        'doc': None,
-                        'env': self.pod.env,
-                        'podspec': self.pod.podspec,
-                    }).lstrip())
+                    serving_path,
+                    template.render(
+                        {
+                            'doc': None,
+                            'env': self.pod.env,
+                            'podspec': self.pod.podspec,
+                        }
+                    ).lstrip(),
+                )
                 timer.stop_timer()
                 return rendered_doc
             except Exception as err:
@@ -362,8 +350,7 @@ class RenderSitemapController(RenderController):
         try:
             rendered_path = f'{source_dir}{self.serving_path}'
             rendered_content = self.pod.storage.read(rendered_path)
-            rendered_doc = rendered_document.RenderedDocument(
-                self.serving_path, rendered_content)
+            rendered_doc = rendered_document.RenderedDocument(self.serving_path, rendered_content)
             timer.stop_timer()
             return rendered_doc
         except Exception as err:
@@ -396,8 +383,11 @@ class RenderSitemapController(RenderController):
 
         for sitemap_filter in self.route_info.meta.get('filters') or []:
             temp_router.filter(
-                sitemap_filter['type'], collection_paths=sitemap_filter.get('collections'),
-                paths=sitemap_filter.get('paths'), locales=sitemap_filter.get('locales'))
+                sitemap_filter['type'],
+                collection_paths=sitemap_filter.get('collections'),
+                paths=sitemap_filter.get('paths'),
+                locales=sitemap_filter.get('locales'),
+            )
 
         # Need a custom root for rendering sitemap.
         root = os.path.join(utils.get_grow_dir(), 'pods', 'templates')
@@ -413,14 +403,20 @@ class RenderSitemapController(RenderController):
             try:
                 docs = []
                 for _, value, _ in temp_router.routes.nodes:
-                    docs.append(self.pod.get_doc(value.meta['pod_path'], locale=value.meta['locale']))
+                    docs.append(
+                        self.pod.get_doc(value.meta['pod_path'], locale=value.meta['locale'])
+                    )
                 rendered_doc = rendered_document.RenderedDocument(
-                    self.serving_path, template.render({
-                        'pod': self.pod,
-                        'env': self.pod.env,
-                        'docs': docs,
-                        'podspec': self.pod.podspec,
-                    }).lstrip())
+                    self.serving_path,
+                    template.render(
+                        {
+                            'pod': self.pod,
+                            'env': self.pod.env,
+                            'docs': docs,
+                            'podspec': self.pod.podspec,
+                        }
+                    ).lstrip(),
+                )
                 timer.stop_timer()
                 return rendered_doc
             except Exception as err:
@@ -438,8 +434,7 @@ class RenderStaticDocumentController(RenderController):
     """Controller for handling rendering for static documents."""
 
     def __init__(self, pod, serving_path, route_info, params=None, is_threaded=False):
-        super().__init__(
-            pod, serving_path, route_info, params=params, is_threaded=is_threaded)
+        super().__init__(pod, serving_path, route_info, params=params, is_threaded=is_threaded)
         self._static_doc = None
         self._pod_path = None
 
@@ -452,18 +447,15 @@ class RenderStaticDocumentController(RenderController):
         if self._pod_path:
             return self._pod_path
 
-        locale = self.route_info.meta.get(
-            'locale', self.params.get('locale'))
+        locale = self.route_info.meta.get('locale', self.params.get('locale'))
         if 'pod_path' in self.route_info.meta:
             self._pod_path = self.route_info.meta['pod_path']
         else:
             for source_format in self.route_info.meta['source_formats']:
                 path_format = '{}{}'.format(source_format, self.params['*'])
-                self._pod_path = self.pod.path_format.format_static(
-                    path_format, locale=locale)
+                self._pod_path = self.pod.path_format.format_static(path_format, locale=locale)
                 # Strip the fingerprint to get to the raw static file.
-                self._pod_path = static_document.StaticDocument.strip_fingerprint(
-                    self._pod_path)
+                self._pod_path = static_document.StaticDocument.strip_fingerprint(self._pod_path)
                 try:
                     # Throws an error when the document doesn't exist.
                     _ = self.pod.get_static(self._pod_path, locale=locale)
@@ -476,8 +468,7 @@ class RenderStaticDocumentController(RenderController):
     def static_doc(self):
         """Static doc for the controller."""
         if not self._static_doc:
-            locale = self.route_info.meta.get(
-                'locale', self.params.get('locale'))
+            locale = self.route_info.meta.get('locale', self.params.get('locale'))
             self._static_doc = self.pod.get_static(self.pod_path, locale=locale)
         return self._static_doc
 
@@ -506,8 +497,10 @@ class RenderStaticDocumentController(RenderController):
     def load(self, source_dir):
         """Load the pod content from file system."""
         timer = self.pod.profile.timer(
-            'RenderStaticDocumentController.load', label=self.serving_path,
-            meta={'path': self.serving_path}).start_timer()
+            'RenderStaticDocumentController.load',
+            label=self.serving_path,
+            meta={'path': self.serving_path},
+        ).start_timer()
 
         source_dir = self.clean_source_dir(source_dir)
 
@@ -516,16 +509,17 @@ class RenderStaticDocumentController(RenderController):
 
         rendered_path = f'{source_dir}{self.serving_path}'
         rendered_content = self.pod.storage.read(rendered_path)
-        rendered_doc = rendered_document.RenderedDocument(
-            self.serving_path, rendered_content)
+        rendered_doc = rendered_document.RenderedDocument(self.serving_path, rendered_content)
         timer.stop_timer()
         return rendered_doc
 
     def render(self, jinja_env=None, request=None):
         """Read the static file."""
         timer = self.pod.profile.timer(
-            'RenderStaticDocumentController.render', label=self.serving_path,
-            meta={'path': self.serving_path}).start_timer()
+            'RenderStaticDocumentController.render',
+            label=self.serving_path,
+            meta={'path': self.serving_path},
+        ).start_timer()
 
         if not self.pod_path or not self.pod.file_exists(self.pod_path):
             text = '{} was not found in static files.'
@@ -536,8 +530,8 @@ class RenderStaticDocumentController(RenderController):
 
         rendered_content = self.pod.read_file(self.pod_path)
         rendered_content = self.pod.extensions_controller.trigger(
-            'post_render', self.static_doc, rendered_content)
-        rendered_doc = rendered_document.RenderedDocument(
-            self.serving_path, rendered_content)
+            'post_render', self.static_doc, rendered_content
+        )
+        rendered_doc = rendered_document.RenderedDocument(self.serving_path, rendered_content)
         timer.stop_timer()
         return rendered_doc

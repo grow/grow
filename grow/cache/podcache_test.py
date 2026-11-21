@@ -21,9 +21,12 @@ class PodCacheTestCase(unittest.TestCase):
     def test_global_object_cache(self):
         """Using a global object cache."""
         self.cache.object_cache.add('question', '???')
-        self.assertEqual({
-            'question': '???',
-        }, self.cache.object_cache.export())
+        self.assertEqual(
+            {
+                'question': '???',
+            },
+            self.cache.object_cache.export(),
+        )
 
     def test_has_object_cache(self):
         """Check if an object cache already exists."""
@@ -62,51 +65,61 @@ class PodCacheTestCase(unittest.TestCase):
                         },
                     }
                 }
-            }
+            },
         }
         cache = podcache.PodCache(
-            dep_cache=dep_cache, obj_cache=obj_cache, routes_cache=routes_cache,
-            pod=None)
+            dep_cache=dep_cache, obj_cache=obj_cache, routes_cache=routes_cache, pod=None
+        )
 
         self.assertEqual(
             {
                 '/content/test': ['/content/test1', '/content/test2'],
             },
-            cache.dependency_graph.export())
+            cache.dependency_graph.export(),
+        )
 
         self.assertEqual(
             {
                 'answer': 42,
             },
-            cache.get_object_cache('named').export())
+            cache.get_object_cache('named').export(),
+        )
 
         self.assertEqual(
             {
                 'question': '30+12',
             },
-            cache.routes_cache.get('/', concrete=True)['options'])
+            cache.routes_cache.get('/', concrete=True)['options'],
+        )
 
     def test_reset_object_cache_false(self):
         """Check if an object cache will reset."""
-        named_cache = self.cache.create_object_cache(
-            'named', can_reset=False)
+        named_cache = self.cache.create_object_cache('named', can_reset=False)
         named_cache.add('question', '???')
-        self.assertEqual({
-            'question': '???',
-        }, named_cache.export())
+        self.assertEqual(
+            {
+                'question': '???',
+            },
+            named_cache.export(),
+        )
         self.cache.reset()
-        self.assertEqual({
-            'question': '???',
-        }, named_cache.export())
+        self.assertEqual(
+            {
+                'question': '???',
+            },
+            named_cache.export(),
+        )
 
     def test_reset_object_cache_true(self):
         """Check if an object cache will reset."""
-        named_cache = self.cache.create_object_cache(
-            'named', can_reset=True)
+        named_cache = self.cache.create_object_cache('named', can_reset=True)
         named_cache.add('question', '???')
-        self.assertEqual({
-            'question': '???',
-        }, named_cache.export())
+        self.assertEqual(
+            {
+                'question': '???',
+            },
+            named_cache.export(),
+        )
         self.cache.reset()
         self.assertEqual({}, named_cache.export())
 
@@ -114,6 +127,7 @@ class PodCacheTestCase(unittest.TestCase):
         """Naive test for writing an object cache file."""
         self.cache.object_cache.add('foo', 'bar')
         self.cache.write()
+
 
 if __name__ == '__main__':
     unittest.main()

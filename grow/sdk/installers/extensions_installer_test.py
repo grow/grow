@@ -17,8 +17,7 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         self.config = base_config.BaseConfig()
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
-        self.installer = extensions_installer.ExtensionsInstaller(
-            self.pod, self.config)
+        self.installer = extensions_installer.ExtensionsInstaller(self.pod, self.config)
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites(self, mock_call):
@@ -26,7 +25,8 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         mock_call.return_value = 0
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'pip3 --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            'pip3 --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True)
+        )
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_fail(self, mock_call):
@@ -48,8 +48,7 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         self.installer.install()
         self.assertTrue(self.pod.file_exists(extensions_init_file))
         expected = f'pip3 install -U -q -t {extensions_dir} -r extensions.txt'
-        mock_popen.assert_called_once_with(
-            expected, **self.installer.subprocess_args(shell=True))
+        mock_popen.assert_called_once_with(expected, **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.Popen')
     def test_install_failed(self, mock_popen):

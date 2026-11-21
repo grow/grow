@@ -19,8 +19,9 @@ class Url:
 
     def __str__(self):
         url = f'{self.scheme}://{self.host}'
-        if ((self.scheme == 'http' and self.port != 80)
-                or (self.scheme == 'https' and self.port != 443)):
+        if (self.scheme == 'http' and self.port != 80) or (
+            self.scheme == 'https' and self.port != 443
+        ):
             url += f':{self.port}'
         url += self.path
         return url
@@ -31,7 +32,8 @@ class Url:
             and self.path == other.path
             and self.host == other.host
             and self.port == other.port
-            and self.scheme == other.scheme)
+            and self.scheme == other.scheme
+        )
 
     def __lt__(self, other):
         return str(self) < str(other)

@@ -89,8 +89,7 @@ class PathFormat:
 
         return self.strip_double_slash(path)
 
-    def format_static(self, path, locale=None, parameterize=False,
-                      fingerprint=None):
+    def format_static(self, path, locale=None, parameterize=False, fingerprint=None):
         """Format a static document url."""
 
         params = self.params_pod()
@@ -141,7 +140,8 @@ class PathFormat:
             path=doc.collection.collection_path,
             dirname=doc.collection.dirname,
             basename=doc.collection.basename,
-            root=doc.collection.root)
+            root=doc.collection.root,
+        )
         if '{category}' in path:
             params['category'] = doc.category
         if '{parent}' in path:

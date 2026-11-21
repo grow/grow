@@ -17,8 +17,11 @@ CONVERT_MESSAGE = """Document contains too many parts: {}
 
 def _update_deep(orig_dict, new_dict):
     for k in new_dict:
-        if (k in orig_dict and isinstance(orig_dict[k], dict)
-                and isinstance(new_dict[k], collections.abc.Mapping)):
+        if (
+            k in orig_dict
+            and isinstance(orig_dict[k], dict)
+            and isinstance(new_dict[k], collections.abc.Mapping)
+        ):
             _update_deep(orig_dict[k], new_dict[k])
         else:
             orig_dict[k] = new_dict[k]
@@ -68,40 +71,46 @@ class DocumentFrontMatter:
                 locale_doc = self._doc.pod.get_doc(locale_path)
                 raw_locale_front_matter = locale_doc.format.front_matter.export()
                 if raw_locale_front_matter:
-                    _update_deep(self.data, self._load_yaml(
-                        raw_locale_front_matter))
+                    _update_deep(self.data, self._load_yaml(raw_locale_front_matter))
 
         if raw_front_matter:
             # There should be no boundary separators in the front-matter.
             if BOUNDARY_REGEX.search(raw_front_matter):
-                message = CONVERT_MESSAGE.format(
-                    self._doc.pod_path)
+                message = CONVERT_MESSAGE.format(self._doc.pod_path)
                 raise BadFormatError(message)
             self._raw_front_matter = raw_front_matter
         elif self._doc.exists:
             self._raw_front_matter, _ = DocumentFrontMatter.split_front_matter(
-                self._doc.raw_content, pod_path=self._doc.pod_path)
+                self._doc.raw_content, pod_path=self._doc.pod_path
+            )
 
         if self._raw_front_matter:
             new_data = self._load_yaml(self._raw_front_matter)
             if not isinstance(new_data, dict):
                 raise BadFormatError(
-                    f'Front matter needs to be a dictionary: {self._doc.pod_path} <{type(new_data).__name__}>')
+                    f'Front matter needs to be a dictionary: {self._doc.pod_path} <{type(new_data).__name__}>'
+                )
             _update_deep(self.data, new_data)
 
     def _load_yaml(self, raw_yaml):
         try:
             return utils.load_yaml(
-                raw_yaml, doc=self._doc, pod=self._doc.pod,
+                raw_yaml,
+                doc=self._doc,
+                pod=self._doc.pod,
                 untag_params={
                     'env': untag.UntagParamRegex(self._doc.pod.env.name),
                     'locale': untag.UntagParamLocaleRegex.from_pod(
-                        self._doc.pod, self._doc.collection),
-                })
-        except (yaml.composer.ComposerError,
-                yaml.parser.ParserError,
-                yaml.reader.ReaderError,
-                yaml.scanner.ScannerError) as error:
+                        self._doc.pod, self._doc.collection
+                    ),
+                },
+            )
+        except (
+            yaml.composer.ComposerError,
+            yaml.parser.ParserError,
+            yaml.reader.ReaderError,
+            yaml.scanner.ScannerError,
+        ) as error:
             message = f'Error parsing {self._doc.pod_path}: {error}'
             raise BadFormatError(message)
 
@@ -109,8 +118,7 @@ class DocumentFrontMatter:
     def raw_data(self):
         if not self._raw_front_matter:
             return {}
-        return utils.load_yaml(
-            self._raw_front_matter, doc=self._doc, pod=self._doc.pod)
+        return utils.load_yaml(self._raw_front_matter, doc=self._doc, pod=self._doc.pod)
 
     def export(self):
         """

@@ -70,8 +70,13 @@ class Untag:
                     if not params[param_key]:
                         return False
                     result = params[param_key](
-                        data, untagged_key, param_key, param_value, value,
-                        locale_identifier=locale_identifier)
+                        data,
+                        untagged_key,
+                        param_key,
+                        param_value,
+                        value,
+                        locale_identifier=locale_identifier,
+                    )
                     if result is not False:
                         # Don't let the original key overwrite the new value.
                         untagged_key_paths.add((path, untagged_key))
@@ -103,8 +108,7 @@ class Untag:
 
         # Backwards compatibility for https://github.com/grow/grow/issues/95
         def _remap_exit(path, key, old_parent, new_parent, new_items):
-            resp = iterutils.default_exit(path, key, old_parent,
-                                          new_parent, new_items)
+            resp = iterutils.default_exit(path, key, old_parent, new_parent, new_items)
             if paths_to_keep_tagged and isinstance(resp, dict):
                 updated_values = {}
                 for sub_key, value in resp.items():

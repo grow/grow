@@ -5,6 +5,7 @@ from bisect import bisect_left, bisect_right
 
 class AttributeDict(dict):
     """Allows using a dictionary to reference keys as attributes."""
+
     def __getattr__(self, attr):
         try:
             return self.__getitem__(attr)
@@ -12,6 +13,7 @@ class AttributeDict(dict):
             raise AttributeError(f'Object does not have attribute: {attr}')
 
     __setattr__ = dict.__setitem__
+
 
 class DeepReferenceDict(dict):
     """Deep reference dictionary using a delimited key."""
@@ -150,9 +152,9 @@ class SortedCollection:
 
     def __repr__(self):
         return '{}({!r}, key={})'.format(
-          self.__class__.__name__,
-          self._items,
-          getattr(self._given_key, '__name__', repr(self._given_key))
+            self.__class__.__name__,
+            self._items,
+            getattr(self._given_key, '__name__', repr(self._given_key)),
         )
 
     def __reduce__(self):
@@ -166,7 +168,7 @@ class SortedCollection:
         return item in self._items[i:j]
 
     def index(self, item):
-        'Find the position of an item.  Raise ValueError if not found.'
+        "Find the position of an item.  Raise ValueError if not found."
         k = self._key(item)
         k = k if k is not None else self._default
         i = bisect_left(self._keys, k)
@@ -174,7 +176,7 @@ class SortedCollection:
         return self._items[i:j].index(item) + i
 
     def count(self, item):
-        'Return number of occurrences of item'
+        "Return number of occurrences of item"
         k = self._key(item)
         k = k if k is not None else self._default
         i = bisect_left(self._keys, k)
@@ -182,7 +184,7 @@ class SortedCollection:
         return self._items[i:j].count(item)
 
     def insert(self, item):
-        'Insert a new item.  If equal keys are found, add to the left'
+        "Insert a new item.  If equal keys are found, add to the left"
         k = self._key(item)
         k = k if k is not None else self._default
         i = bisect_left(self._keys, k)
@@ -190,7 +192,7 @@ class SortedCollection:
         self._items.insert(i, item)
 
     def insert_right(self, item):
-        'Insert a new item.  If equal keys are found, add to the right'
+        "Insert a new item.  If equal keys are found, add to the right"
         k = self._key(item)
         k = k if k is not None else self._default
         i = bisect_right(self._keys, k)
@@ -198,41 +200,41 @@ class SortedCollection:
         self._items.insert(i, item)
 
     def remove(self, item):
-        'Remove first occurence of item.  Raise ValueError if not found'
+        "Remove first occurence of item.  Raise ValueError if not found"
         i = self.index(item)
         del self._keys[i]
         del self._items[i]
 
     def find(self, k):
-        'Return first item with a key == k.  Raise ValueError if not found.'
+        "Return first item with a key == k.  Raise ValueError if not found."
         i = bisect_left(self._keys, k)
         if i != len(self) and self._keys[i] == k:
             return self._items[i]
         raise ValueError(f'No item found with key equal to: {k!r}')
 
     def find_le(self, k):
-        'Return last item with a key <= k.  Raise ValueError if not found.'
+        "Return last item with a key <= k.  Raise ValueError if not found."
         i = bisect_right(self._keys, k)
         if i:
-            return self._items[i-1]
+            return self._items[i - 1]
         raise ValueError(f'No item found with key at or below: {k!r}')
 
     def find_lt(self, k):
-        'Return last item with a key < k.  Raise ValueError if not found.'
+        "Return last item with a key < k.  Raise ValueError if not found."
         i = bisect_left(self._keys, k)
         if i:
-            return self._items[i-1]
+            return self._items[i - 1]
         raise ValueError(f'No item found with key below: {k!r}')
 
     def find_ge(self, k):
-        'Return first item with a key >= equal to k.  Raise ValueError if not found'
+        "Return first item with a key >= equal to k.  Raise ValueError if not found"
         i = bisect_left(self._keys, k)
         if i != len(self):
             return self._items[i]
         raise ValueError(f'No item found with key at or above: {k!r}')
 
     def find_gt(self, k):
-        'Return first item with a key > k.  Raise ValueError if not found'
+        "Return first item with a key > k.  Raise ValueError if not found"
         i = bisect_right(self._keys, k)
         if i != len(self):
             return self._items[i]

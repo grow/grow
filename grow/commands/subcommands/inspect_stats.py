@@ -15,10 +15,15 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.inspect.stats')
 
 @click.command(name='stats')
 @shared.pod_path_argument
-@click.option('--full/--no-full', '-f', is_flag=CFG.get('full', True), default=False,
-              help='Whether to show full stats. By default, only '
-                   'short stats are displayed. Short stats do not '
-                   'require a build and may be faster to generate.')
+@click.option(
+    '--full/--no-full',
+    '-f',
+    is_flag=CFG.get('full', True),
+    default=False,
+    help='Whether to show full stats. By default, only '
+    'short stats are displayed. Short stats do not '
+    'require a build and may be faster to generate.',
+)
 def inspect_stats(pod_path, full):
     """Displays statistics about the pod."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))

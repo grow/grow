@@ -9,7 +9,6 @@ from grow.pods import errors, messages
 
 
 class Locales:
-
     def __init__(self, pod):
         self.pod = pod
 

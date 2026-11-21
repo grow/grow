@@ -4,7 +4,6 @@ from . import local
 
 
 class LocalDestinationTestCase(unittest.TestCase):
-
     def test_out_dir(self):
         config = local.Config(out_dir='~/test/')
         destination = local.LocalDestination(config)

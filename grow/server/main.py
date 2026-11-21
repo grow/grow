@@ -14,7 +14,6 @@ from grow.server import handlers
 
 # Use grow's logger instead of werkzeug's default.
 class RequestHandler(serving.WSGIRequestHandler):
-
     @property
     def server_version(self):
         version = pkg_resources.get_distribution('grow').version
@@ -25,7 +24,6 @@ class RequestHandler(serving.WSGIRequestHandler):
 
 
 class PodServer:
-
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
 
@@ -39,7 +37,8 @@ class PodServer:
 
         # Trigger the dev handler hook.
         self.pod.extensions_controller.trigger(
-            'dev_handler', self.routes, host=host, port=port, debug=debug)
+            'dev_handler', self.routes, host=host, port=port, debug=debug
+        )
 
         # Start off the server with a clean dependency graph.
         self.pod.podcache.dependency_graph.mark_clean()
@@ -58,8 +57,7 @@ class PodServer:
                 handler_meta = None
                 if 'meta' in matched.value.meta:
                     handler_meta = matched.value.meta['meta']
-                return matched.value.meta['handler'](
-                    self.pod, request, matched, meta=handler_meta)
+                return matched.value.meta['handler'](self.pod, request, matched, meta=handler_meta)
             return handlers.serve_console(self.pod, request, matched)
         return handlers.serve_pod(self.pod, request, matched)
 
@@ -79,7 +77,10 @@ def create_wsgi_app(pod, host, port, debug=False):
     assets_path = os.path.join(utils.get_grow_dir(), 'ui', 'admin', 'assets')
     ui_path = os.path.join(utils.get_grow_dir(), 'ui', 'dist')
     # pylint: disable=no-member
-    return shared_data.SharedDataMiddleware(podserver_app, {
-        '/_grow/ui': ui_path,
-        '/_grow/assets': assets_path,
-    })
+    return shared_data.SharedDataMiddleware(
+        podserver_app,
+        {
+            '/_grow/ui': ui_path,
+            '/_grow/assets': assets_path,
+        },
+    )

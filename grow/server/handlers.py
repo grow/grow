@@ -50,13 +50,11 @@ def serve_exception(pod, request, exc, **_kwargs):
         logging.exception(f'{status}: {request.path} - {exc}')
     env = ui.create_jinja_env()
     template = env.get_template('/views/error.html')
-    if (isinstance(exc, errors.BuildError)):
+    if isinstance(exc, errors.BuildError):
         t_back = exc.traceback
     else:
         unused_error_type, unused_value, t_back = sys.exc_info()
-    formatted_traceback = [
-        re.sub('^  ', '', line)
-        for line in traceback.format_tb(t_back)]
+    formatted_traceback = [re.sub('^  ', '', line) for line in traceback.format_tb(t_back)]
     formatted_traceback = '\n'.join(formatted_traceback)
     kwargs = {
         'exception': exc,
@@ -65,10 +63,9 @@ def serve_exception(pod, request, exc, **_kwargs):
         'status': status,
         'traceback': formatted_traceback,
     }
-    if (isinstance(exc, errors.BuildError)):
+    if isinstance(exc, errors.BuildError):
         kwargs['build_error'] = exc.exception
-    if (isinstance(exc, errors.BuildError)
-            and isinstance(exc.exception, jinja2.TemplateSyntaxError)):
+    if isinstance(exc, errors.BuildError) and isinstance(exc.exception, jinja2.TemplateSyntaxError):
         kwargs['template_exception'] = exc.exception
     elif isinstance(exc, jinja2.TemplateSyntaxError):
         kwargs['template_exception'] = exc
@@ -81,11 +78,13 @@ def serve_exception(pod, request, exc, **_kwargs):
 def serve_pod(pod, request, matched, **_kwargs):
     """Serve pod contents using the routing."""
     controller = pod.router.get_render_controller(
-        request.path, matched.value, params=matched.params)
+        request.path, matched.value, params=matched.params
+    )
     response = None
     headers = controller.get_http_headers()
-    jinja_env = pod.render_pool.get_jinja_env(
-        controller.doc.locale) if controller.use_jinja else None
+    jinja_env = (
+        pod.render_pool.get_jinja_env(controller.doc.locale) if controller.use_jinja else None
+    )
     rendered_document = controller.render(jinja_env=jinja_env, request=request)
     content = rendered_document.read()
     response = Response(body=content)

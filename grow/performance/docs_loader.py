@@ -66,23 +66,19 @@ class DocsLoader:
                     root_path = doc.root_pod_path
                     current_locale = str(doc.locale)
                     safe_locale = str(doc.locale_safe)
-                    if (root_path in root_to_locale
-                            and current_locale in root_to_locale[root_path]):
+                    if root_path in root_to_locale and current_locale in root_to_locale[root_path]:
                         continue
                     if safe_locale != current_locale:
                         # The None and safe locale is now invalid in the cache
                         # since the front-matter differs.
-                        pod.podcache.collection_cache.remove_document_locale(
-                            doc, None)
-                        pod.podcache.collection_cache.remove_document_locale(
-                            doc, doc.locale_safe)
+                        pod.podcache.collection_cache.remove_document_locale(doc, None)
+                        pod.podcache.collection_cache.remove_document_locale(doc, doc.locale_safe)
 
                         # Get the doc for the correct default locale.
                         clean_doc = doc.localize(current_locale)
 
                         # Cache default locale (based off front-matter).
-                        pod.podcache.collection_cache.add_document_locale(
-                            clean_doc, None)
+                        pod.podcache.collection_cache.add_document_locale(clean_doc, None)
 
                         # If we have already fixed it, ignore any other locales.
                         if root_path not in root_to_locale:
@@ -110,9 +106,7 @@ class DocsLoader:
                     raise
             except Exception as err:  # pylint: disable=broad-except
                 _, _, err_tb = sys.exc_info()
-                result.errors.append(LoadError(
-                    f"Error loading {doc.pod_path}",
-                    err, err_tb))
+                result.errors.append(LoadError(f'Error loading {doc.pod_path}', err, err_tb))
             finally:
                 if tick:
                     tick()
