@@ -2,48 +2,47 @@
 
 ## Development
 
-Set up a development environment:
+Grow uses [uv](https://docs.astral.sh/uv/) for Python environment and dependency management, `pytest` for testing, and `ruff` for linting.
 
-```
+```bash
 git clone git@github.com:grow/grow.git
-make develop
+cd grow
+uv sync
 ```
 
-Once your development environment is set up, run Grow:
+Run Grow from the workspace:
 
 ```bash
-pipenv shell
-pip install --editable .
-grow
+uv run grow --help
 ```
 
-Then run tests:
+## Testing & Linting
+
+Run the test suite:
 
 ```bash
-make test
+uv run pytest
 ```
 
-We try to set everything up for you automatically (including a `virtualenv`) in
-the `make` commands, but if you are using Linux and something is not working,
-you might try:
+Run with coverage:
 
 ```bash
-make develop-linux
-make test
+uv run pytest --cov=grow
 ```
 
-## Testing with pytest
-
-You can test Grow using [pytest](https://docs.pytest.org/en/latest/) which is compatible with the library `Unittest`. Install pytest and [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/) with
+Run the linter:
 
 ```bash
-pip install pytest pytest-cov
+uv run ruff check grow/
 ```
 
-then run
+## Building UI Assets
+
+To build the admin/UI static assets (required for UI server tests and releases):
 
 ```bash
-pytest -svv --cov=grow
+yarn --cwd grow/ui install
+yarn --cwd grow/ui build
 ```
 
 ## Commit messages
@@ -59,4 +58,4 @@ automatically create changelogs, releases, and versions.
 
 ## Docker
 
-- Run `pipenv run ./docker_push.sh` to update docker images.
+- Run `./docker_push.sh` to update docker images.

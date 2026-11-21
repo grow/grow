@@ -1,23 +1,18 @@
 name: Lint
-on: push
+on:
+  push:
+  pull_request:
 jobs:
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-    - run: |
-        pip3 install -U pip
-        pip3 install -U pipenv
-        pip3 install pyyaml -U --force
-        pipenv run pip3 install pip
-        pipenv install --dev
-        pipenv run pip3 install pyyaml -U --force
-    - uses: actions/cache@v1
-      with:
-        path: ~/.local/share/virtualenvs
-        key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
-    - run: make test-pylint
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: "3.10"
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run ruff
+        run: uv run ruff check grow/

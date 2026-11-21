@@ -1,21 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-function realdirname() {
-  # a cross platform version of $(dirname $(realpath $1))
-  # OS X does not have /usr/bin/realpath
-  python3 -c 'import sys, os.path; print(os.path.dirname(os.path.realpath(sys.argv[1])))' "$1"
-}
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-HERE="$(realdirname "$0")"
-
-# Find the virtual env for grow.
-PIP_ENV=$(
-  cd "$HERE/../" && pipenv --venv;
-)
-
-# Activate the virtual environment and run the command.
-(
-  source "${PIP_ENV}/bin/activate";
-  "${HERE}/../bin/grow" ${@};
-  deactivate;
-)
+if command -v uv >/dev/null 2>&1; then
+  exec uv run --project "$REPO_ROOT" grow "$@"
+elif [ -x "$REPO_ROOT/.venv/bin/grow" ]; then
+  exec "$REPO_ROOT/.venv/bin/grow" "$@"
+else
+  echo "Error: neither 'uv' nor '$REPO_ROOT/.venv/bin/grow' was found." >&2
+  exit 1
+fi

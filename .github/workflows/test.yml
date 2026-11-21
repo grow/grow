@@ -1,5 +1,7 @@
 name: Test
-on: push
+on:
+  push:
+  pull_request:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -8,24 +10,18 @@ jobs:
         os: [macos-latest, ubuntu-latest]
     timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-    - run: |
-        pip3 install -U pip
-        pip3 install -U pipenv
-        pip3 install pyyaml -U --force
-        pipenv run pip3 install pip
-        pipenv install --dev
-        pipenv run pip3 install pyyaml -U --force
-    - uses: actions/cache@v1
-      with:
-        path: ~/.local/share/virtualenvs
-        key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
-    - run: make build-ui
-    - run: make test-nosetests
-    - run: pipenv run codecov
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    - run: ./scripts/grow build ./grow/testing/testdata/pod
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: "3.10"
+      - name: Install Python dependencies
+        run: uv sync --locked
+      - name: Build UI assets
+        run: |
+          yarn --cwd grow/ui install
+          yarn --cwd grow/ui build
+      - name: Run tests
+        run: uv run pytest --cov=grow --cov-report=xml
+      - name: Smoke test build
+        run: uv run grow build ./grow/testing/testdata/pod
