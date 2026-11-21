@@ -1,7 +1,9 @@
 """An Env holds the environment context that a pod is running in."""
 
 import time
+
 from protorpc import messages
+
 from grow.common import urls
 
 
@@ -28,7 +30,7 @@ class Env:
         self.fingerprint = config.fingerprint or str(int(time.time()))
 
     def __repr__(self):
-        return '<Env: {}>'.format(self.url)
+        return f'<Env: {self.url}>'
 
     @property
     def host(self):

@@ -22,8 +22,8 @@ class Timer:
 
     def __repr__(self):
         if self.label != self.key:
-            return '<Timer:{} {} : {}>'.format(self.key, self.label, self.duration)
-        return '<Timer:{} : {}>'.format(self.key, self.duration)
+            return f'<Timer:{self.key} {self.label} : {self.duration}>'
+        return f'<Timer:{self.key} : {self.duration}>'
 
     @property
     def duration(self):
@@ -58,8 +58,7 @@ class Profile:
         self.timers = []
 
     def __iter__(self):
-        for timer in self.timers:
-            yield timer
+        yield from self.timers
 
     def __len__(self):
         return len(self.timers)

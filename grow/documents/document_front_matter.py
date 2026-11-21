@@ -2,11 +2,12 @@
 Parsing and manipulation of front matter elements of a document.
 """
 
-import collections
+import collections.abc
 import re
+
 import yaml
-from grow.common import untag
-from grow.common import utils
+
+from grow.common import untag, utils
 
 BOUNDARY_REGEX = re.compile(r'^-{3,}\s*$', re.MULTILINE)
 CONVERT_MESSAGE = """Document contains too many parts: {}
@@ -17,7 +18,7 @@ CONVERT_MESSAGE = """Document contains too many parts: {}
 def _update_deep(orig_dict, new_dict):
     for k in new_dict:
         if (k in orig_dict and isinstance(orig_dict[k], dict)
-                and isinstance(new_dict[k], collections.Mapping)):
+                and isinstance(new_dict[k], collections.abc.Mapping)):
             _update_deep(orig_dict[k], new_dict[k])
         else:
             orig_dict[k] = new_dict[k]
@@ -27,13 +28,12 @@ class Error(Exception):
     """General document front matter error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
 class BadFormatError(Error, ValueError):
     """Error for bad document front matter formatting."""
-    pass
 
 
 class DocumentFrontMatter:
@@ -86,8 +86,7 @@ class DocumentFrontMatter:
             new_data = self._load_yaml(self._raw_front_matter)
             if not isinstance(new_data, dict):
                 raise BadFormatError(
-                    'Front matter needs to be a dictionary: {} <{}>'.format(
-                        self._doc.pod_path, type(new_data).__name__))
+                    f'Front matter needs to be a dictionary: {self._doc.pod_path} <{type(new_data).__name__}>')
             _update_deep(self.data, new_data)
 
     def _load_yaml(self, raw_yaml):
@@ -103,7 +102,7 @@ class DocumentFrontMatter:
                 yaml.parser.ParserError,
                 yaml.reader.ReaderError,
                 yaml.scanner.ScannerError) as error:
-            message = 'Error parsing {}: {}'.format(self._doc.pod_path, error)
+            message = f'Error parsing {self._doc.pod_path}: {error}'
             raise BadFormatError(message)
 
     @property

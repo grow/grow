@@ -3,11 +3,12 @@
 import logging
 import traceback
 
+
 class BulkErrors(Exception):
     """Base bulk errors."""
 
     def __init__(self, message, errors):
-        super(BulkErrors, self).__init__(message)
+        super().__init__(message)
         self.message = message
         self.errors = errors
 

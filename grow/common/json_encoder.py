@@ -2,8 +2,8 @@
 
 import datetime
 import json
-from grow.documents import document
-from grow.documents import document_fields
+
+from grow.documents import document, document_fields
 
 
 class GrowJSONEncoder(json.JSONEncoder):

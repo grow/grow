@@ -3,9 +3,10 @@
 import os
 import random
 import tempfile
-import git
 import unittest
-from nose.plugins import skip
+
+import git
+
 from grow.common import utils
 from grow.deployments import stats
 from grow.testing import testing
@@ -48,7 +49,7 @@ class GitDestinationTestCase(unittest.TestCase):
         online_url = os.getenv('GROW_TEST_REPO_URL')
         if not online_url:
             text = 'Set $GROW_TEST_REPO_URL to test online Git deployment.'
-            raise skip.SkipTest(text)
+            raise unittest.SkipTest(text)
         self._test_deploy(online_url)
 
 

@@ -2,6 +2,7 @@
 
 import sys
 from multiprocessing.dummy import Pool as ThreadPool
+
 from grow.pods import errors
 
 
@@ -9,7 +10,7 @@ class Error(Exception):
     """Base renderer error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -17,14 +18,13 @@ class RenderError(Error):
     """Errors that occured during the rendering."""
 
     def __init__(self, message, err, err_tb):
-        super(RenderError, self).__init__(message)
+        super().__init__(message)
         self.err = err
         self.err_tb = err_tb
 
 
 class RenderNotStartedError(Error):
     """Rendering was not started."""
-    pass
 
 
 def load_func(batch, source_dir, tick=None):
@@ -36,12 +36,12 @@ def load_func(batch, source_dir, tick=None):
             result.loaded_docs.append(controller.load(source_dir))
         except errors.BuildError as err:
             result.load_errors.append(RenderError(
-                "Error loading {}".format(controller.serving_path),
+                f"Error loading {controller.serving_path}",
                 err, err.traceback))
         except Exception as err:  # pylint: disable=broad-except
             _, _, err_tb = sys.exc_info()
             result.load_errors.append(RenderError(
-                "Error loading {}".format(controller.serving_path),
+                f"Error loading {controller.serving_path}",
                 err, err_tb))
         finally:
             if tick:
@@ -59,12 +59,12 @@ def render_func(batch, tick=None):
                 jinja_env=item['jinja_env']))
         except errors.BuildError as err:
             result.render_errors.append(RenderError(
-                "Error rendering {}".format(controller.serving_path),
+                f"Error rendering {controller.serving_path}",
                 err, err.traceback))
         except Exception as err:  # pylint: disable=broad-except
             _, _, err_tb = sys.exc_info()
             result.render_errors.append(RenderError(
-                "Error rendering {}".format(controller.serving_path),
+                f"Error rendering {controller.serving_path}",
                 err, err_tb))
         finally:
             if tick:
@@ -84,7 +84,7 @@ class RenderBatches:
 
     def __len__(self):
         count = 0
-        for _, batch in self._batches.items():
+        for batch in self._batches.values():
             count = count + len(batch)
         return count
 
@@ -109,14 +109,14 @@ class RenderBatches:
         use_threading = False
 
         if not ThreadPool or not use_threading:
-            for _, batch in self._batches.items():
+            for batch in self._batches.values():
                 batch_docs, batch_errors = batch.load_sync(source_dir)
                 load_errors = load_errors + batch_errors
                 load_docs = load_docs + batch_docs
         else:
-            for _, batch in self._batches.items():
+            for batch in self._batches.values():
                 batch.load_start(source_dir)
-            for _, batch in self._batches.items():
+            for batch in self._batches.values():
                 batch_docs, batch_errors = batch.load_finish()
                 load_errors = load_errors + batch_errors
                 load_docs = load_docs + batch_docs
@@ -132,14 +132,14 @@ class RenderBatches:
         use_threading = False
 
         if not ThreadPool or not use_threading:
-            for _, batch in self._batches.items():
+            for batch in self._batches.values():
                 batch_docs, batch_errors = batch.render_sync()
                 render_errors = render_errors + batch_errors
                 rendered_docs = rendered_docs + batch_docs
         else:
-            for _, batch in self._batches.items():
+            for batch in self._batches.values():
                 batch.render_start()
-            for _, batch in self._batches.items():
+            for batch in self._batches.values():
                 batch_docs, batch_errors = batch.render_finish()
                 render_errors = render_errors + batch_errors
                 rendered_docs = rendered_docs + batch_docs

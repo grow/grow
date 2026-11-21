@@ -1,18 +1,20 @@
 """Extension hooks."""
 
-from . import deployment_register_hook
-from . import dev_file_change_hook
-from . import dev_handler_hook
-from . import dev_manager_message_hook
-from . import jinja_env_init_hook
-from . import jinja_extension_hook
-from . import post_render_hook
-from . import pre_deploy_hook
-from . import pre_render_hook
-from . import pre_process_hook
-from . import podspec_static_dir_hook
-from . import router_add_hook
-from . import stub_hook
+from . import (
+    deployment_register_hook,
+    dev_file_change_hook,
+    dev_handler_hook,
+    dev_manager_message_hook,
+    jinja_env_init_hook,
+    jinja_extension_hook,
+    podspec_static_dir_hook,
+    post_render_hook,
+    pre_deploy_hook,
+    pre_process_hook,
+    pre_render_hook,
+    router_add_hook,
+    stub_hook,
+)
 
 # pylint: disable=invalid-name
 DeploymentRegisterHook = deployment_register_hook.DeploymentRegisterHook

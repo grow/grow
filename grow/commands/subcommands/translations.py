@@ -1,18 +1,20 @@
 """Subcommand for working with translations."""
 
 import click
-from grow.commands.subcommands import translations_diff
-from grow.commands.subcommands import translations_download
-from grow.commands.subcommands import translations_extract
-from grow.commands.subcommands import translations_filter
-from grow.commands.subcommands import translations_import
-from grow.commands.subcommands import translations_upload
+
+from grow.commands.subcommands import (
+    translations_diff,
+    translations_download,
+    translations_extract,
+    translations_filter,
+    translations_import,
+    translations_upload,
+)
 
 
 @click.group()
 def translations():
     """Translation operations for the pod."""
-    pass
 
 
 # Add the sub commands.

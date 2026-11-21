@@ -3,9 +3,8 @@
 import datetime
 import re
 import string
-from grow.common import structures
-from grow.common import utils
 
+from grow.common import structures, utils
 
 HTML_EXTENSIONS = ('.html', '.htm')
 VALID_DOC_EXTENSIONS = ('.html', '.htm', '.xml', '.svg')
@@ -43,7 +42,7 @@ class PathFormat:
         if path.endswith(VALID_DOC_EXTENSIONS):
             return path
         if path and not path.endswith('/'):
-            return '{}/'.format(path)
+            return f'{path}/'
         return path
 
     @staticmethod
@@ -161,7 +160,7 @@ class PathFormat:
         if '|lower' in path:
             for key, value in params.items():
                 if isinstance(value, str):
-                    params['{}|lower'.format(key)] = value.lower()
+                    params[f'{key}|lower'] = value.lower()
         return params
 
     def params_pod(self):

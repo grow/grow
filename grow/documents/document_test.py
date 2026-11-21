@@ -2,12 +2,13 @@
 
 import textwrap
 import unittest
-from grow.common import utils
-from grow.testing import testing
-from grow.documents import document
-from grow.translations import locales
-from grow.pods import pods
+
 from grow import storage
+from grow.common import utils
+from grow.documents import document
+from grow.pods import pods
+from grow.testing import testing
+from grow.translations import locales
 
 
 class DocumentsTestCase(unittest.TestCase):
@@ -97,7 +98,7 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('About page.', doc.body)
         self.assertEqual('<p>About page.</p>', doc.html)
         keys = sorted(['$title', '$order', '$titles', 'key', 'root_key'])
-        self.assertEqual(keys, sorted(list(doc.fields.keys())))
+        self.assertEqual(keys, sorted(doc.fields.keys()))
 
         doc = self.pod.get_doc('/content/pages/home.yaml')
         keys = sorted([
@@ -118,7 +119,7 @@ class DocumentsTestCase(unittest.TestCase):
             'yaml_data',
             'yaml_data@',
         ])
-        self.assertEqual(keys, sorted(list(doc.fields.keys())))
+        self.assertEqual(keys, sorted(doc.fields.keys()))
         self.assertIsNone(doc.html)
 
         about = self.pod.get_doc('/content/pages/about.yaml')
@@ -330,7 +331,7 @@ class DocumentsTestCase(unittest.TestCase):
         self.assertEqual('root_key_value', de_doc.root_key)
         self.assertEqual('root_key_value', fr_doc.root_key)
         keys = sorted(['$title', '$order', '$titles', 'key', 'root_key'])
-        self.assertEqual(keys, sorted(list(fr_doc.fields.keys())))
+        self.assertEqual(keys, sorted(fr_doc.fields.keys()))
 
     def test_default_locale_override(self):
         pod = testing.create_pod()
@@ -403,7 +404,6 @@ class DocumentsTestCase(unittest.TestCase):
             'qaz': 'qux',
             'qaz@fr': 'qux-fr',
             'qaz@de': 'qux-de',
-            'qaz@fr': 'qux-fr',
             'foo': 'bar-base',
             'foo@en': 'bar-en',
             'foo@de': 'bar-de',
@@ -710,7 +710,7 @@ class DocumentsTestCase(unittest.TestCase):
         })
         pod.write_file('/content/pages/foo.yaml', '')
         foo_doc = pod.get_doc('/content/pages/foo.yaml', locale='en')
-        bar_doc = pod.get_doc('/content/pages/foo.yaml', locale='de')
+        pod.get_doc('/content/pages/foo.yaml', locale='de')
         baz_doc = pod.get_doc('/content/pages/foo.yaml', locale='fr_ca')
         self.assertEqual('x-default', foo_doc.hreflang)
         self.assertEqual('fr-ca', baz_doc.hreflang)
@@ -780,20 +780,20 @@ class DocumentsTestCase(unittest.TestCase):
 
         dependents = pod.podcache.dependency_graph.get_dependents(
             '/content/partials/partial.yaml')
-        self.assertEqual(set([
+        self.assertEqual({
             '/content/partials/partial.yaml',
             '/content/pages/page.yaml',
-        ]), dependents)
+        }, dependents)
 
         content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de de de', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(
             '/content/partials/partial@de.yaml')
-        self.assertEqual(set([
+        self.assertEqual({
             '/content/partials/partial@de.yaml',
             '/content/pages/page.yaml',
-        ]), dependents)
+        }, dependents)
 
     def test_dependency_nesting_yaml(self):
         # Verify that dependencies work for nested documents.
@@ -828,20 +828,20 @@ class DocumentsTestCase(unittest.TestCase):
 
         dependents = pod.podcache.dependency_graph.get_dependents(
             '/content/partials/partial.yaml')
-        self.assertEqual(set([
+        self.assertEqual({
             '/content/partials/partial.yaml',
             '/content/pages/page.yaml',
-        ]), dependents)
+        }, dependents)
 
         content = testing.render_path(pod, '/de/page/')
         self.assertEqual('de de', content)
 
         dependents = pod.podcache.dependency_graph.get_dependents(
             '/content/partials/partial@de.yaml')
-        self.assertEqual(set([
+        self.assertEqual({
             '/content/partials/partial@de.yaml',
             '/content/pages/page.yaml',
-        ]), dependents)
+        }, dependents)
 
     def test_yaml_dump(self):
         """Test if the yaml representer is working correctly."""

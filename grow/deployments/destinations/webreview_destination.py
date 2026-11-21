@@ -3,11 +3,13 @@
 import logging
 import os
 import urllib.parse
+
 import webreview
 from protorpc import messages
-from grow.deployments.destinations import base
-from grow.deployments import utils
+
 from grow.common import utils as common_utils
+from grow.deployments import utils
+from grow.deployments.destinations import base
 from grow.pods import env
 from grow.routing import router
 
@@ -33,7 +35,7 @@ class WebReviewDestination(base.BaseDestination):
     batch_writes = True
 
     def __init__(self, *args, **kwargs):
-        super(WebReviewDestination, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if webreview is None:
             raise common_utils.UnavailableError('WebReview deployments are not available in this environment.')
         if self.config.name:
@@ -64,7 +66,7 @@ class WebReviewDestination(base.BaseDestination):
         if self.config.env:
             return env.Env(self.config.env)
         subdomain = self._get_subdomain()
-        host = '{}-dot-{}'.format(subdomain, self.config.server)
+        host = f'{subdomain}-dot-{self.config.server}'
         config = env.EnvConfig(name='webreview', host=host, scheme='https')
         return env.Env(config)
 
@@ -97,7 +99,7 @@ class WebReviewDestination(base.BaseDestination):
                 raise
             # Extract the sha from the error message.
             sha = str(e).split(' ')[-1].replace("'", '')
-            return '{}-d'.format(sha[:10])
+            return f'{sha[:10]}-d'
 
     def _get_subdomain(self):
         if self.config.subdomain_prefix and not self.config.subdomain:
@@ -105,7 +107,7 @@ class WebReviewDestination(base.BaseDestination):
             if token in ['master', 'main']:
                 return self.config.subdomain_prefix
             else:
-                return self.config.subdomain_prefix + '-{}'.format(token)
+                return self.config.subdomain_prefix + f'-{token}'
         return self.config.subdomain
 
     def deploy(self, *args, **kwargs):
@@ -119,7 +121,7 @@ class WebReviewDestination(base.BaseDestination):
                 raise ValueError(
                     'Cannot deploy to WebReview from a Git repository without a HEAD.'
                     ' Commit first then deploy to WebReview.')
-        result = super(WebReviewDestination, self).deploy(*args, **kwargs)
+        result = super().deploy(*args, **kwargs)
         if self.success:
             finalize_response = self.webreview.finalize()
             if 'fileset' in finalize_response:
@@ -136,10 +138,10 @@ class WebReviewDestination(base.BaseDestination):
         self.webreview.login(account, reauth=reauth)
 
     def prelaunch(self, dry_run=False):
-        super(WebReviewDestination, self).prelaunch(dry_run=dry_run)
+        super().prelaunch(dry_run=dry_run)
 
     def postlaunch(self, dry_run=False):
-        super(WebReviewDestination, self).postlaunch(dry_run=dry_run)
+        super().postlaunch(dry_run=dry_run)
 
     def test(self):
         # Skip the default "can write files at destination" test.
@@ -149,7 +151,7 @@ class WebReviewDestination(base.BaseDestination):
         try:
             paths_to_contents, errors = self.webreview.read([path])
             if path not in paths_to_contents:
-                raise IOError('{} not found.'.format(path))
+                raise OSError(f'{path} not found.')
             if errors:
                 raise base.Error(errors)
             return paths_to_contents[path]

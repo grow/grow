@@ -1,13 +1,13 @@
-from . import base
-from googleapiclient import discovery
-from googleapiclient import errors
-from grow.common import oauth
-from grow.common import utils
-from protorpc import messages
 import datetime
-import httplib2
 import logging
 
+import httplib2
+from googleapiclient import discovery, errors
+from protorpc import messages
+
+from grow.common import oauth, utils
+
+from . import base
 
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/blogger'
 
@@ -55,7 +55,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
     def _parse_item(self, item):
         item_id = item.pop('id')
         ext = 'md' if self.config.markdown else 'html'
-        basename = '{}.{}'.format(item_id, ext)
+        basename = f'{item_id}.{ext}'
         body = item.pop('content')
         fields = item
         # Formatted like: 2011-05-20T11:45:23-07:00
@@ -76,12 +76,12 @@ class BloggerPreprocessor(base.BasePreprocessor):
         # pylint: disable=no-member
         posts = service.posts()
         request = posts.list(blogId=blog_id)
-        while request != None:
+        while request is not None:
             posts_doc = request.execute()
-            if 'items' in posts_doc and not (posts_doc['items'] is None):
+            if 'items' in posts_doc and posts_doc['items'] is not None:
                 items.extend(posts_doc['items'])
             elif not items:
-                logger.error('Received: {}'.format(posts_doc))
+                logger.error(f'Received: {posts_doc}')
                 text = 'Unable to download Blogger blog: {}'
                 raise base.PreprocessorError(text.format(blog_id))
             request = posts.list_next(request, posts_doc)
@@ -103,11 +103,11 @@ class BloggerPreprocessor(base.BasePreprocessor):
             fields, body, basename = self._parse_item(item)
             doc = collection.create_doc(basename, fields=fields, body=body)
             new_pod_paths.append(doc.pod_path)
-            self.pod.logger.info('Saved -> {}'.format(doc.pod_path))
+            self.pod.logger.info(f'Saved -> {doc.pod_path}')
         pod_paths_to_delete = set(existing_pod_paths) - set(new_pod_paths)
         for pod_path in pod_paths_to_delete:
             self.pod.delete_file(pod_path)
-            self.pod.logger.info('Deleted -> {}'.format(pod_path))
+            self.pod.logger.info(f'Deleted -> {pod_path}')
 
     def _normalize_path(self, path):
         """Normalizes a collection path."""
@@ -118,11 +118,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
             return False
         if doc and doc.pod_path.startswith(self.config.collection):
             return True
-        if (collection and
-                self._normalize_path(collection.pod_path)
-                == self._normalize_path(self.config.collection)):
-            return True
-        return False
+        return bool(collection and self._normalize_path(collection.pod_path) == self._normalize_path(self.config.collection))
 
     def inject(self, doc):
         path = doc.pod_path
@@ -133,7 +129,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
                 post_id=post_id,
                 authenticated=self.config.authenticated)
         except (errors.HttpError, base.PreprocessorError):
-            text = 'Error downloading Blogger post -> {}'.format(path)
+            text = f'Error downloading Blogger post -> {path}'
             raise base.PreprocessorError(text)
         if not item:
             return

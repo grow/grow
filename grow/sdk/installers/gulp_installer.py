@@ -1,6 +1,7 @@
 """Gulp installer class."""
 
 import subprocess
+
 from grow.sdk.installers import base_installer
 
 
@@ -28,4 +29,3 @@ class GulpInstaller(base_installer.BaseInstaller):
 
     def install(self):
         """Install dependencies."""
-        pass

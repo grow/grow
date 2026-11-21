@@ -2,6 +2,7 @@
 
 import time
 
+
 def kill_child_processes(child_processes, timeout=2):
     """Kill all subprocesses if they timeout."""
     start_time = time.time()

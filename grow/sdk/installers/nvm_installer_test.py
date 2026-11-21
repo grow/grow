@@ -1,12 +1,12 @@
 """Tests for NVM Installer."""
 
 import unittest
-import mock
+from unittest import mock
+
+from grow import storage
 from grow.common import base_config
 from grow.pods import pods
-from grow import storage
-from grow.sdk.installers import base_installer
-from grow.sdk.installers import nvm_installer
+from grow.sdk.installers import base_installer, nvm_installer
 from grow.testing import testing
 
 

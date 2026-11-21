@@ -1,9 +1,10 @@
 """Tests for Base Installer."""
 
 import unittest
+
+from grow import storage
 from grow.common import base_config
 from grow.pods import pods
-from grow import storage
 from grow.sdk.installers import base_installer
 from grow.testing import testing
 

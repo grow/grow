@@ -1,7 +1,6 @@
 """Tests for pre deploy hook."""
 
 import unittest
-from grow.extensions.hooks import pre_deploy_hook
 
 
 class PreRenderHookTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class PreRenderHookTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

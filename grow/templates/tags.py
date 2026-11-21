@@ -3,12 +3,12 @@
 import collections as py_collections
 import itertools
 from datetime import datetime
+
 import jinja2
 from babel.messages import catalog as babel_catalog
+
 from grow.collections import collection as collection_lib
-from grow.common import structures
-from grow.common import utils
-from grow.pods import errors
+from grow.common import structures, utils
 from grow.translations import locales as locales_lib
 
 
@@ -261,14 +261,13 @@ def create_builtin_tags(pod, doc, track_dependency=None):
 
     def _wrap_dependency(func):
         def _wrapper(*args, **kwargs):
-            if doc and not kwargs.get('locale', None):
-                # Only override the locale kwarg if it is absent. Avoid
-                # replacing an explicit `locale=None` with the document's
-                # current locale. The presence of a `locale=None` indicates
-                # caller specifies "no locale" rather than "the current
-                # document's default locale".
-                if 'locale' not in kwargs:
-                    kwargs['locale'] = str(doc.locale)
+            # Only override the locale kwarg if it is absent. Avoid
+            # replacing an explicit `locale=None` with the document's
+            # current locale. The presence of a `locale=None` indicates
+            # caller specifies "no locale" rather than "the current
+            # document's default locale".
+            if doc and 'locale' not in kwargs:
+                kwargs['locale'] = str(doc.locale)
             included_docs = func(*args, _pod=pod, **kwargs)
             if track_dependency:
                 try:

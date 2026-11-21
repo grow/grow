@@ -1,10 +1,12 @@
 """Core extensions."""
 
-from . import deployment_extension
-from . import node_extension
-from . import pod_extension
-from . import podcache_extension
-from . import routes_extension
+from . import (
+    deployment_extension,
+    node_extension,
+    pod_extension,
+    podcache_extension,
+    routes_extension,
+)
 
 EXTENSIONS = (
     deployment_extension.DeploymentExtension,

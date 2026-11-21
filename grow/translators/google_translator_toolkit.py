@@ -1,15 +1,15 @@
 """Google Translator toolkit for translating documents."""
 
-import datetime
 import base64
-import httplib2
+import datetime
 from urllib import parse as url_parse
-from googleapiclient import discovery
-from googleapiclient import errors
-from grow.common import oauth
-from grow.common import utils
-from . import base
 
+import httplib2
+from googleapiclient import discovery, errors
+
+from grow.common import oauth
+
+from . import base
 
 EDIT_URL_FORMAT = 'https://translate.google.com/toolkit/workbench?did={}'
 GTT_DOCUMENTS_BASE_URL = 'https://www.googleapis.com/gte/v1/documents'
@@ -30,9 +30,7 @@ class ChangeType:
 
 
 def raise_service_error(http_error, locale=None, ident=None):
-    message = 'HttpError {} for {} returned "{}"'.format(
-        http_error.resp.status, http_error.uri,
-        http_error._get_reason().strip())
+    message = f'HttpError {http_error.resp.status} for {http_error.uri} returned "{http_error._get_reason().strip()}"'
     raise base.TranslatorServiceError(message=message, locale=locale, ident=ident)
 
 
@@ -88,9 +86,7 @@ class Gtt:
             'alt': 'media',
             'downloadContent': True,
         }
-        url = '{}/{}?{}'.format(
-            GTT_DOCUMENTS_BASE_URL,
-            url_parse.quote(document_id), url_parse.urlencode(params))
+        url = f'{GTT_DOCUMENTS_BASE_URL}/{url_parse.quote(document_id)}?{url_parse.urlencode(params)}'
         response, content = self.http.request(url)
         try:
             if response.status >= 400:
@@ -179,7 +175,7 @@ class GoogleTranslatorToolkitTranslator(base.Translator):
     def _upload_catalog(self, catalog, source_lang, prune=False):
         gtt = Gtt()
         project_title = self.project_title
-        name = '{} ({})'.format(project_title, str(catalog.locale))
+        name = f'{project_title} ({str(catalog.locale)})'
         source_lang = self._normalize_source_lang(source_lang)
         lang = str(catalog.locale)
         glossary_ids = None

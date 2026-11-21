@@ -1,5 +1,6 @@
-from . import dependency
 import unittest
+
+from . import dependency
 
 
 class DependencyGraphTestCase(unittest.TestCase):
@@ -60,7 +61,7 @@ class DependencyGraphTestCase(unittest.TestCase):
         graph = dependency.DependencyGraph()
         graph.add_references(
             '/content/test.yaml',
-            set(['/content/test1.yaml']))
+            {'/content/test1.yaml'})
         self.assertEqual(
             {
                 '/content/test.yaml': ['/content/test1.yaml'],
@@ -73,7 +74,7 @@ class DependencyGraphTestCase(unittest.TestCase):
             '/content/test.yaml',
             ['/content/test1.yaml'])
         self.assertEqual(
-            set(['/content/test.yaml', '/content/test1.yaml']),
+            {'/content/test.yaml', '/content/test1.yaml'},
             graph.get_dependents('/content/test1.yaml'))
 
     def test_get_dependents_collection(self):
@@ -85,17 +86,17 @@ class DependencyGraphTestCase(unittest.TestCase):
             '/content/test1.yaml',
             ['/content/collection/coll1.yaml'])
         self.assertEqual(
-            set([
+            {
                 '/content/test.yaml',
                 '/content/test1.yaml',
                 '/content/collection/coll1.yaml',
-            ]),
+            },
             graph.get_dependents('/content/collection/coll1.yaml'))
 
     def test_get_dependents_self(self):
         graph = dependency.DependencyGraph()
         self.assertEqual(
-            set(['/content/test.yaml']),
+            {'/content/test.yaml'},
             graph.get_dependents('/content/test.yaml'))
 
     def test_get_dependencies(self):
@@ -104,12 +105,12 @@ class DependencyGraphTestCase(unittest.TestCase):
             '/content/test.yaml',
             ['/content/test1.yaml', '/content/test2.yaml'])
         self.assertEqual(
-            set(['/content/test1.yaml', '/content/test2.yaml']),
+            {'/content/test1.yaml', '/content/test2.yaml'},
             graph.get_dependencies('/content/test.yaml'))
 
     def test_empty_dependents(self):
         graph = dependency.DependencyGraph()
-        self.assertEqual(set(['/content/test1.yaml']),
+        self.assertEqual({'/content/test1.yaml'},
                          graph.get_dependents('/content/test1.yaml'))
 
     def test_empty_dependencies(self):
@@ -128,20 +129,20 @@ class DependencyGraphTestCase(unittest.TestCase):
             '/content/ref2.yaml',
             ['/content/test2.yaml'])
         self.assertEqual(
-            set(['/content/ref.yaml']),
+            {'/content/ref.yaml'},
             graph.match_dependents('/content/ref.yaml'))
         self.assertEqual(
-            set(['/content/ref1.yaml']),
+            {'/content/ref1.yaml'},
             graph.match_dependents('/content/ref1.yaml'))
         self.assertEqual(
-            set(['/content/ref2.yaml']),
+            {'/content/ref2.yaml'},
             graph.match_dependents('/content/ref2.yaml'))
         self.assertEqual(
-            set(['/content/test1.yaml', '/content/ref.yaml', '/content/ref1.yaml']),
+            {'/content/test1.yaml', '/content/ref.yaml', '/content/ref1.yaml'},
             graph.match_dependents('/content/test1.yaml'))
         self.assertEqual(
-            set(['/content/test1.yaml', '/content/test2.yaml',
-                 '/content/ref.yaml', '/content/ref1.yaml', '/content/ref2.yaml']),
+            {'/content/test1.yaml', '/content/test2.yaml',
+                 '/content/ref.yaml', '/content/ref1.yaml', '/content/ref2.yaml'},
             graph.match_dependents('/content/test*.yaml'))
 
     def test_reset(self):
@@ -150,7 +151,7 @@ class DependencyGraphTestCase(unittest.TestCase):
             '/content/test.yaml',
             ['/content/test1.yaml', '/content/test2.yaml'])
         self.assertEqual(
-            set(['/content/test1.yaml', '/content/test2.yaml']),
+            {'/content/test1.yaml', '/content/test2.yaml'},
             graph.get_dependencies('/content/test.yaml'))
         graph.reset()
         self.assertEqual(set(), graph.get_dependencies('/content/test.yaml'))

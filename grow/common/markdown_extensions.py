@@ -2,14 +2,13 @@
 
 import json
 import re
-from markdown import extensions
-from markdown import preprocessors
+
+from markdown import extensions, preprocessors
 from markdown.extensions import toc
-from protorpc import messages
-from protorpc import protojson
-from pygments import highlight
-from pygments import lexers
+from protorpc import messages, protojson
+from pygments import highlight, lexers
 from pygments.formatters import html
+
 from . import utils
 
 
@@ -51,7 +50,7 @@ class TocExtension(toc.TocExtension):
                 config_kwargs[item.name] = val
         # HTML5 allows all non-space characters for a valid id.
         config_kwargs['slugify'] = lambda value, separator: separator.join(value.split()).lower()
-        super(TocExtension, self).__init__(**config_kwargs)
+        super().__init__(**config_kwargs)
 
 
 class IncludePreprocessor(preprocessors.Preprocessor):
@@ -59,7 +58,7 @@ class IncludePreprocessor(preprocessors.Preprocessor):
     REGEX = re.compile(r"^\[include\('([^')]*)'\)\]")
 
     def __init__(self, pod):
-        super(IncludePreprocessor, self).__init__()
+        super().__init__()
         self.pod = pod
 
     def run(self, lines):
@@ -80,20 +79,18 @@ class IncludeExtension(extensions.Extension):
     def __init__(self, pod):
         self.pod = pod
 
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md):
         md.registerExtension(self)
         self.processor = IncludePreprocessor(self.pod)
-        # Adds the preprocessor to the beginning of the list of preprocessors.
-        # https://github.com/waylan/Python-Markdown/blob/master/markdown/odict.py#L7
-        md.preprocessors.add('include', self.processor, '_begin')
+        md.preprocessors.register(self.processor, 'include', 175)
 
 
 class UrlPreprocessor(preprocessors.Preprocessor):
 
-    REGEX = re.compile("\[url\('([^']*)'\)\]")
+    REGEX = re.compile(r"\[url\('([^']*)'\)\]")
 
     def __init__(self, pod):
-        super(UrlPreprocessor, self).__init__()
+        super().__init__()
         self.pod = pod
 
     def run(self, lines):
@@ -120,10 +117,10 @@ class UrlExtension(extensions.Extension):
     def __init__(self, pod):
         self.pod = pod
 
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md):
         md.registerExtension(self)
         self.processor = UrlPreprocessor(self.pod)
-        md.preprocessors.add('url', self.processor, '_begin')
+        md.preprocessors.register(self.processor, 'url', 175)
 
 
 class CodeBlockPreprocessor(preprocessors.Preprocessor):
@@ -144,7 +141,7 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
         theme = messages.StringField(4, default='default')
 
     def __init__(self, pod):
-        super(CodeBlockPreprocessor, self).__init__()
+        super().__init__()
         self.pod = pod
 
     @property
@@ -165,7 +162,6 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
             style=self.config.theme, hl_lines=hl_lines)
 
     def run(self, lines):
-        class_name = self.config.class_name
 
         def repl(m):
             language = m.group('lang')
@@ -182,7 +178,7 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
                 except ValueError:
                     # pylint: disable=no-member
                     lexer = lexers.TextLexer()
-                return '\n{}\n'.format(highlight(content, lexer, formatter))
+                return f'\n{highlight(content, lexer, formatter)}\n'
             elif self.config.highlighter == 'plain':
                 text = '\n\n<div class="{}"><pre><code class="{}">{}</code></pre></div>\n\n'
                 return text.format(self.config.class_name, language, content)
@@ -198,7 +194,7 @@ class CodeBlockExtension(extensions.Extension):
     def __init__(self, pod):
         self.pod = pod
 
-    def extendMarkdown(self, md, md_globals):
+    def extendMarkdown(self, md):
         md.registerExtension(self)
         self.processor = CodeBlockPreprocessor(self.pod)
-        md.preprocessors.add('sourcecode', self.processor, '_begin')
+        md.preprocessors.register(self.processor, 'sourcecode', 175)

@@ -1,6 +1,7 @@
 """Tests for base extension."""
 
 import unittest
+
 from grow.extensions import base_extension
 
 

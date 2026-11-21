@@ -1,6 +1,7 @@
 """Click deprecated groups."""
 
 import logging
+
 import click
 from click.utils import make_str
 

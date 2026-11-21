@@ -7,13 +7,12 @@ class Error(Exception):
     """Base error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
 class MissingHookError(Error):
     """Missing hook error."""
-    pass
 
 
 class BaseExtension:
@@ -44,7 +43,7 @@ class BaseExtension:
         """Search for the hook in the available hooks and create."""
 
         # Allow for defining a *_hook method in the extension.
-        hook_method = '{}_hook'.format(key)
+        hook_method = f'{key}_hook'
         if hasattr(self, hook_method):
             return getattr(self, hook_method)()
 
@@ -52,4 +51,4 @@ class BaseExtension:
             if hook.KEY == key:
                 return hook(self)
         raise MissingHookError(
-            'Hook was not found in extension: {}'.format(key))
+            f'Hook was not found in extension: {key}')

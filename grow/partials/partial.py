@@ -1,9 +1,9 @@
 """Partials contain organized units for templating."""
 
 import os
-from grow.documents import document_front_matter
-from grow.common import utils
 
+from grow.common import utils
+from grow.documents import document_front_matter
 
 split_front_matter = document_front_matter.DocumentFrontMatter.split_front_matter
 
@@ -17,7 +17,7 @@ class Partial:
         self.pod = pod
 
     def __repr__(self):
-        return '<Partial "{}">'.format(self.key)
+        return f'<Partial "{self.key}">'
 
     @classmethod
     def clean_path(cls, pod_path):
@@ -41,7 +41,7 @@ class Partial:
 
     @property
     def template_pod_path(self):
-        return os.path.join(self.pod_path, '{}.html'.format(self.key))
+        return os.path.join(self.pod_path, f'{self.key}.html')
 
 
 class ViewPartial:
@@ -54,7 +54,7 @@ class ViewPartial:
         self.pod = pod
 
     def __repr__(self):
-        return '<ViewPartial "{}">'.format(self.key)
+        return f'<ViewPartial "{self.key}">'
 
     @classmethod
     def clean_path(cls, pod_path):

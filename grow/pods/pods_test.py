@@ -2,13 +2,15 @@
 
 import os
 import unittest
-import mock
+from unittest import mock
+
 import jinja2
-from grow import preprocessors
-from grow import storage
-from grow.testing import testing
-from . import pods
+
+from grow import preprocessors, storage
 from grow.routing import router
+from grow.testing import testing
+
+from . import pods
 
 
 class PodTest(unittest.TestCase):
@@ -45,8 +47,8 @@ class PodTest(unittest.TestCase):
     def test_list_dir(self):
         dirpath = os.path.join(self.dir_path, 'content')
         num_files = 0
-        for root, dirs, files in os.walk(dirpath):
-            for filename in files:
+        for _root, _dirs, files in os.walk(dirpath):
+            for _filename in files:
                 num_files += 1
         actual = self.pod.list_dir('/content')
         self.assertEqual(len(actual), num_files)
@@ -54,7 +56,8 @@ class PodTest(unittest.TestCase):
     def test_read_file(self):
         content = self.pod.read_file('/README.md')
         path = os.path.join(self.dir_path, 'README.md')
-        expected_content = open(path).read()
+        with open(path) as fp:
+            expected_content = fp.read()
         self.assertEqual(expected_content, content)
 
     def test_write_file(self):
@@ -211,9 +214,11 @@ class PodTest(unittest.TestCase):
 
     def test_invalid_jinja_extension(self):
         # Make sure an invalid jinja2 exensions config throws an error
-        with mock.patch.dict(self.pod.yaml, {'extensions': {'jinja2': ['invalid/path']}}):
-            with self.assertRaises(ImportError):
-                self.pod.list_jinja_extensions()
+        with (
+            mock.patch.dict(self.pod.yaml, {'extensions': {'jinja2': ['invalid/path']}}),
+            self.assertRaises(ImportError),
+        ):
+            self.pod.list_jinja_extensions()
 
     def test_list_preprocessors(self):
         items = self.pod.list_preprocessors()

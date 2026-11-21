@@ -4,8 +4,8 @@ import os
 import shutil
 import tempfile
 import unittest
-from grow.pods import pods
 
+from grow.pods import pods
 
 TESTDATA_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'testdata'))

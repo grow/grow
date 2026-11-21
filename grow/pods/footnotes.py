@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Footnotes for documents using chicago manual style.
 
 By default specific languages forgo the symbol based footnotes.
@@ -43,7 +42,7 @@ NUMERIC_LOCALES_REGEX = re.compile(r'_(DE)$', re.IGNORECASE)
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -126,9 +125,9 @@ class Footnotes:
 
         if custom_symbol:
             # Check that the symbol is not in use.
-            if custom_symbol in self.symbol_to_footnote.keys():
+            if custom_symbol in self.symbol_to_footnote:
                 raise DuplicateSymbolError(
-                    'Custom symbol already in use: {}'.format(custom_symbol))
+                    f'Custom symbol already in use: {custom_symbol}')
             self.symbol_to_footnote[custom_symbol] = value
             return custom_symbol
 

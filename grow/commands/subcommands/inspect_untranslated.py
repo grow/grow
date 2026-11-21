@@ -1,13 +1,14 @@
 """Subcommand for displaying untranslated strings in the pod."""
 
 import os
+
 import click
+
+from grow import storage
 from grow.commands import shared
 from grow.common import rc_config
 from grow.pods import pods
-from grow import storage
 from grow.rendering import renderer
-
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.inspect.untranslated')
 

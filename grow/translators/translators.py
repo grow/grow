@@ -1,8 +1,6 @@
-from . import google_translator_toolkit
-from . import google_sheets
-from grow.common import utils
 from grow.extensions import extension_importer
 
+from . import google_sheets, google_translator_toolkit
 
 _kinds_to_classes = {}
 _builtins = (
@@ -16,7 +14,6 @@ def install_translator(translator):
 
 
 def install_builtins():
-    global _destination_kinds_to_classes
     for builtin in _builtins:
         install_translator(builtin)
 
@@ -24,7 +21,7 @@ def install_builtins():
 def create_translator(pod, kind, config, project_title=None, instructions=None):
     install_builtins()
     if kind not in _kinds_to_classes:
-        raise ValueError('No translator exists: "{}"'.format(kind))
+        raise ValueError(f'No translator exists: "{kind}"')
     translator = _kinds_to_classes[kind]
     return translator(pod=pod, config=config,
                       project_title=project_title, instructions=instructions)

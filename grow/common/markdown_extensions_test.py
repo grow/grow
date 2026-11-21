@@ -1,8 +1,8 @@
-# coding: utf8
-from grow.testing import testing
-from grow.pods import pods
-import unittest
 import textwrap
+import unittest
+
+from grow.pods import pods
+from grow.testing import testing
 
 
 class TocExtensionTestCase(unittest.TestCase):

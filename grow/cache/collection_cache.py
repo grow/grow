@@ -5,6 +5,7 @@ Supports caching the collection and caching documents within those collections.
 
 import os
 import threading
+
 from grow.collections import collection
 
 
@@ -16,7 +17,7 @@ class CollectionCache:
 
     @staticmethod
     def generate_cache_key(pod_path, locale):
-        return '{}::{}'.format(pod_path, locale)
+        return f'{pod_path}::{locale}'
 
     def add_collection(self, col):
         self._cache[col.collection_path] = {
@@ -51,7 +52,7 @@ class CollectionCache:
         """Removes the collection or document based on the path."""
         if path.startswith(collection.Collection.CONTENT_PATH):
             if path.endswith(
-                    '/{}'.format(collection.Collection.BLUEPRINT_PATH)):
+                    f'/{collection.Collection.BLUEPRINT_PATH}'):
                 # If this is a blueprint then remove the entire collection.
                 col_path = path[len(collection.Collection.CONTENT_PATH):]
                 # Get just the directory.
@@ -72,7 +73,7 @@ class CollectionCache:
                             # locales.
                             generic_key = CollectionCache.generate_cache_key(
                                 path, '')
-                            for key in self._cache[collection_path]['docs'].keys():
+                            for key in self._cache[collection_path]['docs']:
                                 if key.startswith(generic_key):
                                     del self._cache[
                                         collection_path]['docs'][key]
@@ -109,7 +110,7 @@ class CollectionCache:
                 doc_cache_key = CollectionCache.generate_cache_key(
                     doc.pod_path, '')
                 invalid_keys = []
-                for cache_key in self._cache[col.collection_path]['docs'].keys():
+                for cache_key in self._cache[col.collection_path]['docs']:
                     if cache_key.startswith(doc_cache_key):
                         invalid_keys.append(cache_key)
                 for cache_key in invalid_keys:

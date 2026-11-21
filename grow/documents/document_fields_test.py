@@ -1,7 +1,7 @@
 """Tests for the document fields."""
 
-import copy
 import unittest
+
 from grow.documents import document_fields
 
 

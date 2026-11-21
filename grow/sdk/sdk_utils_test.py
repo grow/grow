@@ -2,10 +2,11 @@
 
 import os
 import unittest
+
+from grow import storage
 from grow.common import base_config
 from grow.pods import env as environment
 from grow.pods import pods
-from grow import storage
 from grow.sdk import sdk_utils
 from grow.testing import testing
 

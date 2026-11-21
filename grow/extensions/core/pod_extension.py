@@ -10,12 +10,11 @@ class PodDevFileChangeHook(hooks.DevFileChangeHook):
     # pylint: disable=arguments-differ
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
-        if pod_path == '/{}'.format(self.pod.FILE_PODSPEC):
+        if pod_path == f'/{self.pod.FILE_PODSPEC}':
             self.pod.reset_yaml()
-        if pod_path == '/{}'.format(self.pod.FILE_EXTENSIONS):
+        if pod_path == f'/{self.pod.FILE_EXTENSIONS}':
             self.pod.logger.info(
-                '{} has changed. Run `grow install` to install updates.'.format(
-                    self.pod.FILE_EXTENSIONS))
+                f'{self.pod.FILE_EXTENSIONS} has changed. Run `grow install` to install updates.')
 
         if previous_result:
             return previous_result

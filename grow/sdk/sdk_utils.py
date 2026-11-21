@@ -3,7 +3,6 @@
 import os
 import platform
 
-
 PLATFORM = None
 if 'Linux' in platform.system():
     PLATFORM = 'linux'

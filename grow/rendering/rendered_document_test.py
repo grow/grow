@@ -1,6 +1,7 @@
 """Tests for the rendered document."""
 
 import unittest
+
 from grow.rendering import rendered_document
 
 

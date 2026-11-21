@@ -7,7 +7,7 @@ class Error(Exception):
     """Base error for installers."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -15,13 +15,12 @@ class MissingPrerequisiteError(Error):
     """Installer is missing a prerequisite."""
 
     def __init__(self, message, install_commands=None):
-        super(MissingPrerequisiteError, self).__init__(message)
+        super().__init__(message)
         self.install_commands = install_commands
 
 
 class InstallError(Error):
     """Installer had a error during install."""
-    pass
 
 
 class BaseInstaller:
@@ -36,12 +35,12 @@ class BaseInstaller:
     @property
     def pre_install_messages(self):
         """List of messages to display before installing."""
-        return ['Installing: {}'.format(self.KIND)]
+        return [f'Installing: {self.KIND}']
 
     @property
     def post_install_messages(self):
         """List of messages to display after installing."""
-        return ['Finished: {}'.format(self.KIND)]
+        return [f'Finished: {self.KIND}']
 
     @property
     def should_run(self):
@@ -50,7 +49,6 @@ class BaseInstaller:
 
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""
-        pass
 
     def install(self):
         """Run the installer."""

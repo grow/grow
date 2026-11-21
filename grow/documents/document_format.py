@@ -2,9 +2,9 @@
 
 import collections
 import logging
+
 from grow.common import utils
 from grow.documents import document_front_matter as doc_front_matter
-
 
 # Set markdown logging level to info.
 logging.getLogger('MARKDOWN').setLevel(logging.INFO)
@@ -16,7 +16,7 @@ BOUNDARY_SEPARATOR = '---'
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -57,11 +57,10 @@ class DocumentFormat:
     @staticmethod
     def format_doc(front_matter, content):
         if front_matter and content:
-            return '{0}\n{1}\n{0}\n{2}\n'.format(
-                BOUNDARY_SEPARATOR, front_matter.strip(), content.strip())
+            return f'{BOUNDARY_SEPARATOR}\n{front_matter.strip()}\n{BOUNDARY_SEPARATOR}\n{content.strip()}\n'
         elif front_matter:
-            return '{}\n'.format(front_matter.strip())
-        return '{}\n'.format(content.strip())
+            return f'{front_matter.strip()}\n'
+        return f'{content.strip()}\n'
 
     def _parse_content(self):
         """Parse the content from the raw content."""
@@ -119,7 +118,7 @@ class DocumentFormat:
                 for sub_key in sorted(value.keys()):
                     new_value[sub_key] = value[sub_key]
                 node[key] = new_value
-            except:
+            except (AttributeError, TypeError, KeyError):
                 pass
         utils.walk(fields, _walk_field)
 

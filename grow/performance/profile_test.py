@@ -1,8 +1,10 @@
 """Test the profiling timer"""
 
 import unittest
-import mock
+from unittest import mock
+
 from . import profile
+
 
 class TimerTestCase(unittest.TestCase):
     """Tests for the Timer"""

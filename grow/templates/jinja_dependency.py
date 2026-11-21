@@ -17,9 +17,9 @@ When updating jinja to a new version:
 """
 
 from jinja2 import nodes
-from jinja2.compiler import supports_yield_from, CodeGenerator
-from jinja2.environment import Environment, Template, TemplateNotFound, TemplatesNotFound
 from jinja2._compat import string_types
+from jinja2.compiler import CodeGenerator, supports_yield_from
+from jinja2.environment import Environment, Template, TemplateNotFound, TemplatesNotFound
 
 
 class DepCodeGenerator(CodeGenerator):
@@ -41,10 +41,10 @@ class DepCodeGenerator(CodeGenerator):
             func_name = 'select_template'
 
         # print 'Visit Include'
-        self.writeline('template = environment.%s(' % func_name, node)
+        self.writeline(f'template = environment.{func_name}(', node)
         self.visit(node.template, frame)
         # Changed from upstream.
-        self.write(', %r, context=context)' % self.name)
+        self.write(f', {self.name!r}, context=context)')
         if node.ignore_missing:
             self.outdent()
             self.writeline('except TemplateNotFound:')
@@ -57,9 +57,9 @@ class DepCodeGenerator(CodeGenerator):
         skip_event_yield = False
         if node.with_context:
             loop = self.environment.is_async and 'async for' or 'for'
-            self.writeline('%s event in template.root_render_func('
+            self.writeline(f'{loop} event in template.root_render_func('
                            'template.new_context(context.get_all(), True, '
-                           '%s)):' % (loop, self.dump_local_context(frame)))
+                           f'{self.dump_local_context(frame)})):')
         elif self.environment.is_async:
             self.writeline('for event in (await '
                            'template._get_default_module_async())'
@@ -126,4 +126,4 @@ class DepEnvironment(Environment):
         """Custom template loading that tracks template as a dependency."""
         if context and '_track_dependency' in context:
             context['_track_dependency'](name)
-        return super(DepEnvironment, self)._load_template(name, globals)
+        return super()._load_template(name, globals)

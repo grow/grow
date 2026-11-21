@@ -1,6 +1,6 @@
 """Testing utility for working with google service APIs."""
 
-import mock
+from unittest import mock
 
 
 class GoogleServiceMock:

@@ -1,6 +1,7 @@
 """Tests for Grow locales."""
 
 import unittest
+
 from grow.testing import testing
 from grow.translations import locales
 

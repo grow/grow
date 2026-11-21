@@ -1,8 +1,8 @@
 """Shared options or arguments for cli commands."""
 
 import click
-from grow.common import rc_config
 
+from grow.common import rc_config
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.shared')
 

@@ -2,6 +2,7 @@
 
 from grow.common import base_config
 
+
 class Features:
     """Control features."""
 

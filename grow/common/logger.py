@@ -2,6 +2,7 @@
 
 import logging
 
+
 def get_logger(name='pod'):
     """Creates a logger with formatting and a stream handler."""
     handler = logging.StreamHandler()

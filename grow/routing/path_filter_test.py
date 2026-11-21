@@ -1,7 +1,8 @@
 """Tests for the path filter."""
 
 import unittest
-import mock
+from unittest import mock
+
 from grow.routing import path_filter
 
 

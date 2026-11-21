@@ -1,7 +1,6 @@
 """Custom structures for Grow."""
 
-from bisect import bisect_left
-from bisect import bisect_right
+from bisect import bisect_left, bisect_right
 
 
 class AttributeDict(dict):
@@ -10,7 +9,7 @@ class AttributeDict(dict):
         try:
             return self.__getitem__(attr)
         except KeyError:
-            raise AttributeError('Object does not have attribute: {}'.format(attr))
+            raise AttributeError(f'Object does not have attribute: {attr}')
 
     __setattr__ = dict.__setitem__
 
@@ -20,7 +19,7 @@ class DeepReferenceDict(dict):
     def __getitem__(self, key):
         """Handle the ability to do a delimited key."""
         try:
-            return super(DeepReferenceDict, self).__getitem__(key)
+            return super().__getitem__(key)
         except KeyError:
             data = None
             for sub_key in key.split('.'):
@@ -150,7 +149,7 @@ class SortedCollection:
         return reversed(self._items)
 
     def __repr__(self):
-        return '%s(%r, key=%s)' % (
+        return '{}({!r}, key={})'.format(
           self.__class__.__name__,
           self._items,
           getattr(self._given_key, '__name__', repr(self._given_key))
@@ -209,32 +208,32 @@ class SortedCollection:
         i = bisect_left(self._keys, k)
         if i != len(self) and self._keys[i] == k:
             return self._items[i]
-        raise ValueError('No item found with key equal to: %r' % (k,))
+        raise ValueError(f'No item found with key equal to: {k!r}')
 
     def find_le(self, k):
         'Return last item with a key <= k.  Raise ValueError if not found.'
         i = bisect_right(self._keys, k)
         if i:
             return self._items[i-1]
-        raise ValueError('No item found with key at or below: %r' % (k,))
+        raise ValueError(f'No item found with key at or below: {k!r}')
 
     def find_lt(self, k):
         'Return last item with a key < k.  Raise ValueError if not found.'
         i = bisect_left(self._keys, k)
         if i:
             return self._items[i-1]
-        raise ValueError('No item found with key below: %r' % (k,))
+        raise ValueError(f'No item found with key below: {k!r}')
 
     def find_ge(self, k):
         'Return first item with a key >= equal to k.  Raise ValueError if not found'
         i = bisect_left(self._keys, k)
         if i != len(self):
             return self._items[i]
-        raise ValueError('No item found with key at or above: %r' % (k,))
+        raise ValueError(f'No item found with key at or above: {k!r}')
 
     def find_gt(self, k):
         'Return first item with a key > k.  Raise ValueError if not found'
         i = bisect_right(self._keys, k)
         if i != len(self):
             return self._items[i]
-        raise ValueError('No item found with key above: %r' % (k,))
+        raise ValueError(f'No item found with key above: {k!r}')

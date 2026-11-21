@@ -1,13 +1,14 @@
 """Subcommand for extracting messages for translation."""
 
 import os
+
 import click
+
+from grow import storage
 from grow.commands import shared
 from grow.common import rc_config
-from grow.translations import catalog_holder
 from grow.pods import pods
-from grow import storage
-
+from grow.translations import catalog_holder
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.translations.extract')
 

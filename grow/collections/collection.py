@@ -6,21 +6,18 @@ import operator
 import os
 import re
 import sys
+
 from grow.collections import collection_routes
-from grow.common import features
-from grow.common import structures
-from grow.common import untag
-from grow.common import utils
-from grow.documents import document
-from grow.documents import document_front_matter
-from grow.translations import locales
+from grow.common import features, structures, untag, utils
+from grow.documents import document, document_front_matter
 from grow.pods import messages
+from grow.translations import locales
 
 
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -80,11 +77,10 @@ class Collection:
             self.pod_path, Collection.BLUEPRINT_PATH)
 
     def __iter__(self):
-        for doc in self.list_docs():
-            yield doc
+        yield from self.list_docs()
 
     def __repr__(self):
-        return '<Collection "{}">'.format(self.collection_path)
+        return f'<Collection "{self.collection_path}">'
 
     @classmethod
     def clean_collection_path(cls, pod_path):
@@ -95,7 +91,7 @@ class Collection:
             if each_locale == doc.default_locale and locale != each_locale:
                 continue
             base, ext = os.path.splitext(pod_path)
-            localized_file_path = '{}@{}{}'.format(base, each_locale, ext)
+            localized_file_path = f'{base}@{each_locale}{ext}'
             if (locale in [utils.SENTINEL, each_locale]
                     and not self.pod.file_exists(localized_file_path)):
                 new_doc = doc.localize(each_locale)
@@ -105,7 +101,7 @@ class Collection:
         """Returns a builtin field, which is a field prefixed with a `$`. To be
         backwards compatible with the legacy recommendation, we return the
         field unprefixed with `$` if a prefixed field cannot be found."""
-        return self.fields.get('${}'.format(name), self.fields.get(name))
+        return self.fields.get(f'${name}', self.fields.get(name))
 
     def _owns_doc_at_path(self, pod_path):
         dir_name = os.path.dirname(pod_path)
@@ -113,7 +109,7 @@ class Collection:
         if doc_blueprint_path == self.blueprint_path:
             return True
         parts = pod_path.split(os.sep)
-        for i, part in enumerate(parts):
+        for i, _part in enumerate(parts):
             path = os.sep.join(parts[:-i])
             doc_blueprint_path = os.path.join(path, self.BLUEPRINT_PATH)
             if self.pod.file_exists(doc_blueprint_path):
@@ -126,7 +122,7 @@ class Collection:
         collection = cls.get(collection_path, pod)
         if collection.exists:
             raise CollectionExistsError(
-                '{} already exists.'.format(collection))
+                f'{collection} already exists.')
         fields = utils.dump_yaml(fields)
         pod.write_file(collection.blueprint_path, fields)
         return collection
@@ -315,7 +311,7 @@ class Collection:
             if injected_docs is not None:
                 sorted_docs = injected_docs
                 self.pod.logger.info(
-                    'Injected collection -> {}'.format(self.pod_path))
+                    f'Injected collection -> {self.pod_path}')
             return reversed(sorted_docs) if reverse else sorted_docs
         for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
@@ -351,8 +347,8 @@ class Collection:
                 else:
                     self._add_localized_docs(
                         sorted_docs, pod_path, locale, doc)
-            except Exception as e:
-                logging.error('Error loading doc: {}'.format(pod_path))
+            except Exception:
+                logging.error(f'Error loading doc: {pod_path}')
                 raise
         return reversed(sorted_docs) if reverse else sorted_docs
 
@@ -369,7 +365,7 @@ class Collection:
             if injected_docs is not None:
                 docs = injected_docs
                 self.pod.logger.info(
-                    'Injected collection -> {}'.format(self.pod_path))
+                    f'Injected collection -> {self.pod_path}')
             return docs
         for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
@@ -392,7 +388,7 @@ class Collection:
                     continue
                 docs.append(self.get_doc(pod_path))
             except Exception:
-                logging.error('Error loading doc: {}'.format(pod_path))
+                logging.error(f'Error loading doc: {pod_path}')
                 raise
         return docs
 

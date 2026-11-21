@@ -1,8 +1,8 @@
 """Routes trie for mapping grow documents to paths."""
 
 import collections
-from grow.common import utils
 
+from grow.common import utils
 
 PREFIX_PARAMETER = ':'
 PREFIX_WILDCARD = '*'
@@ -15,7 +15,7 @@ class Error(Exception):
     """Base routes error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -23,8 +23,8 @@ class MissingOptionError(Error):
     """Error when there is a missing option when using templated path."""
 
     def __init__(self, path):
-        super(MissingOptionError, self).__init__(
-            'Missing a templated option in path: {}'.format(path))
+        super().__init__(
+            f'Missing a templated option in path: {path}')
         self.path = path
 
 
@@ -32,8 +32,8 @@ class PathConflictError(Error):
     """Error when there is a conflict of paths in the routes trie."""
 
     def __init__(self, path, value, existing):
-        super(PathConflictError, self).__init__(
-            'Path already exists: {} ({} != {})'.format(path, existing, value))
+        super().__init__(
+            f'Path already exists: {path} ({existing} != {value})')
         self.path = path
         self.value = value
         self.existing = existing
@@ -43,9 +43,8 @@ class PathParamNameConflictError(Error):
     """Error when there is a conflict of path param names in the routes trie."""
 
     def __init__(self, path, new_param, existing_param):
-        super(PathParamNameConflictError, self).__init__(
-            'Path param differs from existing param: {} ({} vs {})'.format(
-                path, new_param, existing_param))
+        super().__init__(
+            f'Path param differs from existing param: {path} ({new_param} vs {existing_param})')
         self.path = path
         self.new_param = new_param
         self.existing_param = existing_param
@@ -74,8 +73,7 @@ class Routes:
     @property
     def nodes(self):
         """Generator for returning all the nodes in the routes."""
-        for item in self._root.nodes:
-            yield item
+        yield from self._root.nodes
 
     @property
     def paths(self):
@@ -146,7 +144,7 @@ class RoutesSimple(Routes):
     """Routes container for mapping simple paths to values."""
 
     def __init__(self):
-        super(RoutesSimple, self).__init__()
+        super().__init__()
         self._root = RoutesDict()
 
     def reset(self):
@@ -261,8 +259,7 @@ class RouteTrie:
     @property
     def nodes(self):
         """Generator for returning all nodes in the trie."""
-        for item in self._root.nodes:
-            yield item
+        yield from self._root.nodes
 
     def add(self, path, value, options=None):
         """Add a new doc to the route trie."""
@@ -295,7 +292,7 @@ class RouteNode:
     """Individual node in the routes trie."""
 
     def __init__(self, param_name=None):
-        super(RouteNode, self).__init__()
+        super().__init__()
         self.path = None
         self.paths = set()
         self.value = None
@@ -306,7 +303,7 @@ class RouteNode:
         self._static_children = {}
 
     def __repr__(self):
-        return "<RouteNode({}, {})>".format(self.path, self.param_name)
+        return f"<RouteNode({self.path}, {self.param_name})>"
 
     @property
     def nodes(self):
@@ -342,7 +339,7 @@ class RouteNode:
     def _dynamic_paths(path, options):
         """Use the path to format using the options to determine all paths."""
         path = RouteTrie.clean_path(path)
-        possible_paths = set([path])
+        possible_paths = {path}
 
         # Check for string formatting.
         if not options or '{' not in path:
@@ -433,11 +430,10 @@ class RouteNode:
     def filter(self, func):
         """Filters out the nodes that do not match the filter."""
         count = 0
-        if self.path is not None:
-            if not func(self.path, self.value):
-                count = count + 1
-                self.path = None
-                self.value = None
+        if self.path is not None and not func(self.path, self.value):
+            count = count + 1
+            self.path = None
+            self.value = None
 
         for key in self._static_children:
             count = count + self._static_children[key].filter(func)
@@ -452,9 +448,8 @@ class RouteNode:
         """Performs the trie matching to find a doc in the trie."""
 
         # If this is a parameterized node and it needs to match the options.
-        if last_segment and self.param_options:
-            if last_segment not in self.param_options:
-                return None
+        if last_segment and self.param_options and last_segment not in self.param_options:
+            return None
 
         if not segments:
             # Check for removed nodes.
@@ -517,14 +512,20 @@ class RouteNode:
             return self._static_children[segment].remove(segments)
 
         # Parameter nodes.
-        if segment and segment[0] == PREFIX_PARAMETER:
-            if PREFIX_PARAMETER in self._dynamic_children:
-                return self._dynamic_children[PREFIX_PARAMETER].remove(segments)
+        if (
+            segment
+            and segment[0] == PREFIX_PARAMETER
+            and PREFIX_PARAMETER in self._dynamic_children
+        ):
+            return self._dynamic_children[PREFIX_PARAMETER].remove(segments)
 
         # Wildcard nodes.
-        if segment and segment[0] == PREFIX_WILDCARD:
-            if PREFIX_WILDCARD in self._dynamic_children:
-                return self._dynamic_children[PREFIX_WILDCARD].remove(segments)
+        if (
+            segment
+            and segment[0] == PREFIX_WILDCARD
+            and PREFIX_WILDCARD in self._dynamic_children
+        ):
+            return self._dynamic_children[PREFIX_WILDCARD].remove(segments)
 
         return None
 

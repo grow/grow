@@ -1,9 +1,9 @@
 """Tests for deprecation helpers."""
 
 import unittest
-import mock
-from grow.common import deprecated
-from grow.common import urls
+from unittest import mock
+
+from grow.common import deprecated, urls
 
 
 class MovedHelperTestCase(unittest.TestCase):

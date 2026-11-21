@@ -1,6 +1,7 @@
 """Preprocessor for translations."""
 
 import re
+
 from . import base
 
 SUFFIXES = frozenset(['po'])

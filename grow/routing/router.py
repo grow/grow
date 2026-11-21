@@ -3,7 +3,9 @@
 import fnmatch
 import os
 import re
+
 from protorpc import messages
+
 from grow.performance import docs_loader
 from grow.rendering import render_controller
 from grow.routing import path_filter as grow_path_filter
@@ -23,13 +25,12 @@ class Error(Exception):
     """Base router error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
 class MissingStaticConfigError(Error):
     """Error for missing a configuration for a static file."""
-    pass
 
 
 class Router:
@@ -127,7 +128,7 @@ class Router:
                     if key == 'default':
                         key = 404
 
-                    path = '/{}.html'.format(key)
+                    path = f'/{key}.html'
                     route_info = RouteInfo('error', meta={
                         'key': key,
                         'view': error_route,
@@ -232,7 +233,7 @@ class Router:
                             fingerprinted=fingerprinted)
             if skipped_paths:
                 self.pod.logger.info(
-                    'Ignored {} static files.'.format(len(skipped_paths)))
+                    f'Ignored {len(skipped_paths)} static files.')
 
     def add_doc(self, doc, concrete=True):
         """Add doc to the router."""
@@ -319,7 +320,7 @@ class Router:
                             concrete=concrete, options=doc.path_params_localized)
             if skipped_paths:
                 self.pod.logger.info(
-                    'Ignored {} documents.'.format(len(skipped_paths)))
+                    f'Ignored {len(skipped_paths)} documents.')
 
     def add_pod_paths(self, pod_paths, concrete=True):
         """Add pod paths to the router."""
@@ -384,9 +385,12 @@ class Router:
         if filter_type == 'whitelist':
             def _filter_whitelist(serving_path, route_info):
                 # Check for whitelisted collection path.
-                if collection_paths and 'collection_path' in route_info.meta:
-                    if route_info.meta['collection_path'] in collection_paths:
-                        return True
+                if (
+                    collection_paths
+                    and 'collection_path' in route_info.meta
+                    and route_info.meta['collection_path'] in collection_paths
+                ):
+                    return True
 
                 # Check for whitelisted serving path.
                 for regex_path in regex_paths:
@@ -394,26 +398,24 @@ class Router:
                         return True
 
                 # Check for whitelisted locale.
-                if 'locale' in route_info.meta:
-                    if route_info.meta['locale'] in locales:
-                        return True
-
-                # Check for whitelisted kind of routes.
-                if kinds and route_info.kind in kinds:
+                if 'locale' in route_info.meta and route_info.meta['locale'] in locales:
                     return True
 
-                # Not whitelist.
-                return False
+                # Check for whitelisted kind of routes.
+                return bool(kinds and route_info.kind in kinds)
 
             count = self.routes.filter(_filter_whitelist)
             if count > 0:
-                self.pod.logger.info('Whitelist filtered out {} routes.'.format(count))
+                self.pod.logger.info(f'Whitelist filtered out {count} routes.')
         else:
             def _filter_blacklist(serving_path, route_info):
                 # Check for blacklisted collection path.
-                if collection_paths and 'collection_path' in route_info.meta:
-                    if route_info.meta['collection_path'] in collection_paths:
-                        return False
+                if (
+                    collection_paths
+                    and 'collection_path' in route_info.meta
+                    and route_info.meta['collection_path'] in collection_paths
+                ):
+                    return False
 
                 # Check for blacklisted serving path.
                 for regex_path in regex_paths:
@@ -421,20 +423,15 @@ class Router:
                         return False
 
                 # Check for blacklisted locale.
-                if 'locale' in route_info.meta:
-                    if route_info.meta['locale'] in locales:
-                        return False
-
-                # Check for blacklisted kinds of routes.
-                if kinds and route_info.kind in kinds:
+                if 'locale' in route_info.meta and route_info.meta['locale'] in locales:
                     return False
 
-                # Not blacklisted.
-                return True
+                # Check for blacklisted kinds of routes.
+                return not (kinds and route_info.kind in kinds)
 
             count = self.routes.filter(_filter_blacklist)
             if count > 0:
-                self.pod.logger.info('Blacklist filtered out {} routes.'.format(count))
+                self.pod.logger.info(f'Blacklist filtered out {count} routes.')
 
     def from_cache(self, concrete=True):
         """Import routes from routes cache."""
@@ -589,7 +586,7 @@ class RouteInfo:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return '<RouteInfo kind={} meta={}>'.format(self.kind, self.meta)
+        return f'<RouteInfo kind={self.kind} meta={self.meta}>'
 
     @classmethod
     def from_data(cls, kind, pod_path, hashed, meta):

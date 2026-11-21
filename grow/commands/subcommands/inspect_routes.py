@@ -2,12 +2,13 @@
 
 import json
 import os
+
 import click
+
+from grow import storage
 from grow.commands import shared
 from grow.common import rc_config
 from grow.pods import pods
-from grow import storage
-
 
 CFG = rc_config.RC_CONFIG.prefixed('grow.routes')
 
@@ -35,10 +36,10 @@ def inspect_routes(pod_path, routes_file, deployment):
                 json.dumps(
                     pod.router.routes.export(), sort_keys=True, indent=2,
                     separators=(',', ': ')))
-            print('Exported routes to file: {}'.format(routes_file))
+            print(f'Exported routes to file: {routes_file}')
             return pod
 
         for path, node, _ in pod.router.routes.nodes:
-            out.append('{} [{}]\n    {}\n'.format(path, node.kind, node.meta))
+            out.append(f'{path} [{node.kind}]\n    {node.meta}\n')
         click.echo_via_pager('\n'.join(out))
     return pod

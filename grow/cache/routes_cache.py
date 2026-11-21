@@ -4,7 +4,6 @@ Cache for storing and retrieving routing information in a pod.
 
 from grow.routing import router
 
-
 FILE_ROUTES_CACHE = 'routescache.json'
 
 

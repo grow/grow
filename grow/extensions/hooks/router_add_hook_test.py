@@ -1,7 +1,6 @@
 """Tests for router add hook."""
 
 import unittest
-from grow.extensions.hooks import router_add_hook
 
 
 class RouterAddHookTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class RouterAddHookTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

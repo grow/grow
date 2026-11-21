@@ -1,8 +1,10 @@
-from . import stats
-from grow.pods import pods
-from grow import storage
-from grow.testing import testing
 import unittest
+
+from grow import storage
+from grow.pods import pods
+from grow.testing import testing
+
+from . import stats
 
 
 class StatsTest(unittest.TestCase):

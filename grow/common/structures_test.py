@@ -1,8 +1,9 @@
 """Tests for structures."""
 
 import unittest
-from grow.common import structures
 from operator import itemgetter
+
+from grow.common import structures
 
 
 class AttributeDictTestCase(unittest.TestCase):

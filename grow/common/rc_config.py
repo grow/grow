@@ -3,9 +3,10 @@
 import datetime
 import os
 import time
-import yaml
-from grow.common import base_config
 
+import yaml
+
+from grow.common import base_config
 
 RC_FILE_NAME = '.growrc.yaml'
 RC_LAST_CHECKED_DELTA = datetime.timedelta(hours=1)
@@ -15,7 +16,7 @@ class RCConfig(base_config.BaseConfig):
     """Config for Grow RC file."""
 
     def __init__(self, config=None, internal_time=time.time):
-        super(RCConfig, self).__init__(config=config)
+        super().__init__(config=config)
         self._time = internal_time
         # Working directory default config.
         self._wd_config = base_config.BaseConfig()
@@ -24,14 +25,12 @@ class RCConfig(base_config.BaseConfig):
 
     @staticmethod
     def _is_ci_env():
-        if 'CI' in os.environ:
-            return True
-        return False
+        return 'CI' in os.environ
 
     @property
     def filename(self):
         """Filename of the RC File."""
-        return os.path.expanduser('~/{}'.format(RC_FILE_NAME))
+        return os.path.expanduser(f'~/{RC_FILE_NAME}')
 
     @property
     def last_checked(self):
@@ -53,7 +52,7 @@ class RCConfig(base_config.BaseConfig):
 
     def get(self, identifier, default_value=None):
         """Retrieve the identifier value in the config after checking local config."""
-        base_default = super(RCConfig, self).get(identifier, default_value)
+        base_default = super().get(identifier, default_value)
         return self._wd_config.get(identifier, default_value=base_default)
 
     def read(self):
@@ -63,13 +62,13 @@ class RCConfig(base_config.BaseConfig):
         if not os.path.isfile(filename):
             self._config = {}
         else:
-            with open(filename, 'r') as conf:
+            with open(filename) as conf:
                 self._config = yaml.safe_load(conf.read()) or {}
 
         # Allow for an read only override from the working directory rc file.
         wd_filename = os.path.join(os.getcwd(), RC_FILE_NAME)
         if os.path.isfile(wd_filename):
-            with open(wd_filename, 'r') as conf:
+            with open(wd_filename) as conf:
                 self._wd_config = base_config.BaseConfig(
                     yaml.safe_load(conf.read()))
 

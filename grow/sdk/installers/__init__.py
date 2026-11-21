@@ -1,11 +1,13 @@
 """Grow prerequisite installers."""
 
-from grow.sdk.installers import bower_installer
-from grow.sdk.installers import extensions_installer
-from grow.sdk.installers import gerrit_installer
-from grow.sdk.installers import gulp_installer
-from grow.sdk.installers import npm_installer
-from grow.sdk.installers import nvm_installer
+from grow.sdk.installers import (
+    bower_installer,
+    extensions_installer,
+    gerrit_installer,
+    gulp_installer,
+    npm_installer,
+    nvm_installer,
+)
 
 # The order here determines the order the installers are run.
 BUILT_IN_INSTALLERS = [

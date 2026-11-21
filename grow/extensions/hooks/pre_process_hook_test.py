@@ -1,7 +1,6 @@
 """Tests for preprocess hook."""
 
 import unittest
-from grow.extensions.hooks import pre_process_hook
 
 
 class PreProcessHookTestCase(unittest.TestCase):
@@ -9,4 +8,3 @@ class PreProcessHookTestCase(unittest.TestCase):
 
     def test_something(self):
         """?"""
-        pass

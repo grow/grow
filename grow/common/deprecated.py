@@ -2,6 +2,7 @@
 
 import logging
 
+
 # pylint: disable=too-few-public-methods
 class DeprecationHelper:
     """Deprecation helper class for deprecating a class."""
@@ -45,7 +46,7 @@ class DeprecationManager:
 
         if url:
             url_message = self.extra_url_message.format(url)
-            message = '{}\n{}'.format(message, url_message)
+            message = f'{message}\n{url_message}'
 
         self._displayed.add(key)
         self._warning(message)
@@ -57,6 +58,5 @@ class MovedHelper(DeprecationHelper):
 
     def __init__(self, new_target, orig_class_name, *args, **kwargs):
         new_class_name = new_target.__module__ + "." + new_target.__name__
-        message = 'The {} class has moved to {} and will be removed in a future version.'.format(
-            orig_class_name, new_class_name)
-        super(MovedHelper, self).__init__(new_target, message, *args, **kwargs)
+        message = f'The {orig_class_name} class has moved to {new_class_name} and will be removed in a future version.'
+        super().__init__(new_target, message, *args, **kwargs)

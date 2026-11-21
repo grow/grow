@@ -1,15 +1,13 @@
 """Subcommand for inspecting pods."""
 
 import click
-from grow.commands.subcommands import inspect_routes
-from grow.commands.subcommands import inspect_stats
-from grow.commands.subcommands import inspect_untranslated
+
+from grow.commands.subcommands import inspect_routes, inspect_stats, inspect_untranslated
 
 
 @click.group()
 def inspect():
     """Inspect pod files and stats."""
-    pass
 
 
 # Add the sub commands.

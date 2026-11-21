@@ -1,12 +1,12 @@
 """Tests for the renderer."""
 
 import unittest
-import mock
-from grow.pods import pods
+from unittest import mock
+
 from grow import storage
 from grow.common import bulk_errors
-from grow.rendering import render_controller
-from grow.rendering import renderer
+from grow.pods import pods
+from grow.rendering import render_controller, renderer
 from grow.testing import testing
 
 

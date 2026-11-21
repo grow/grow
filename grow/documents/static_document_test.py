@@ -1,9 +1,10 @@
 """Tests for the static document."""
 
 import unittest
+
+from grow import storage
 from grow.documents import static_document
 from grow.pods import pods
-from grow import storage
 from grow.testing import testing
 
 

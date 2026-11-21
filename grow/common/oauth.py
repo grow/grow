@@ -3,11 +3,10 @@
 import logging
 import os
 
-from grow.common import utils
-from oauth2client import client
+from oauth2client import client, service_account, tools
 from oauth2client import file as oauth_file
-from oauth2client import service_account
-from oauth2client import tools
+
+from grow.common import utils
 
 # Silence "Loading" messages from keyring.
 # Even though we are not using keyring it is part of the oauth library.
@@ -33,7 +32,7 @@ DEFAULT_AUTH_KEY_FILE = 'auth-key.json'
 def get_storage(key, username):
     """Returns the Storage class compatible with the current environment."""
     key = utils.slugify(key)
-    file_name = os.path.expanduser('~/.config/grow/{}_{}'.format(key, username))
+    file_name = os.path.expanduser(f'~/.config/grow/{key}_{username}')
     dir_name = os.path.dirname(file_name)
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
@@ -73,13 +72,13 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
                                           redirect_uri=REDIRECT_URI)
         credentials = tools.run_flow(flow, storage, flags)
         # run_flow changes the logging level, so change it back.
-        logging.getLogger().setLevel(getattr(logging, 'INFO'))
+        logging.getLogger().setLevel(logging.INFO)
     # Avoid logspam by logging the email address only once.
     if hasattr(credentials, 'id_token') and credentials.id_token:
         email = credentials.id_token.get('email')
         global _LAST_LOGGED_EMAIL
         if email and _LAST_LOGGED_EMAIL != email:
-            logging.info('Authorizing using -> {}'.format(email))
+            logging.info(f'Authorizing using -> {email}')
             _LAST_LOGGED_EMAIL = email
     return credentials
 

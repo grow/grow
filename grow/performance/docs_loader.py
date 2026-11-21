@@ -1,8 +1,8 @@
 """Threaded loader that forces a list of docs to be loaded from filesystem."""
 
 import sys
-import traceback
 from multiprocessing.dummy import Pool as ThreadPool
+
 from grow.common import bulk_errors
 from grow.documents import document_front_matter
 
@@ -11,7 +11,7 @@ class Error(Exception):
     """Base loading error."""
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -19,7 +19,7 @@ class LoadError(Error):
     """Error that occured during the loading."""
 
     def __init__(self, message, err, err_tb):
-        super(LoadError, self).__init__(message)
+        super().__init__(message)
         self.err = err
         self.err_tb = err_tb
 
@@ -111,7 +111,7 @@ class DocsLoader:
             except Exception as err:  # pylint: disable=broad-except
                 _, _, err_tb = sys.exc_info()
                 result.errors.append(LoadError(
-                    "Error loading {}".format(doc.pod_path),
+                    f"Error loading {doc.pod_path}",
                     err, err_tb))
             finally:
                 if tick:

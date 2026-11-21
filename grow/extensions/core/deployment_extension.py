@@ -1,10 +1,8 @@
 """Deployment core extension."""
 
 from grow import extensions
+from grow.deployments.destinations import git_destination, local, webreview_destination
 from grow.extensions import hooks
-from grow.deployments.destinations import git_destination
-from grow.deployments.destinations import local
-from grow.deployments.destinations import webreview_destination
 
 
 class DeploymentDeploymentRegisterHook(hooks.DeploymentRegisterHook):

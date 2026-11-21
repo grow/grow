@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 """Tests for footnotes."""
 
 import unittest
+
 from grow.pods import footnotes
 from grow.pods.footnotes import DuplicateSymbolError
 

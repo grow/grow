@@ -2,9 +2,9 @@
 
 import os
 import re
+
 from grow.common import urls
 from grow.routing import path_filter as grow_path_filter
-
 
 # SHA 256 hash length: 64 characters.
 FINGERPRINT_RE = re.compile(
@@ -45,9 +45,8 @@ class StaticDocument:
 
     def __repr__(self):
         if self.locale:
-            return "<StaticDocument({}, locale='{}')>".format(
-                self.pod_path, self.locale)
-        return "<StaticDocument({})>".format(self.pod_path)
+            return f"<StaticDocument({self.pod_path}, locale='{self.locale}')>"
+        return f"<StaticDocument({self.pod_path})>"
 
     @staticmethod
     def strip_fingerprint(serving_path):
@@ -57,9 +56,7 @@ class StaticDocument:
     @property
     def base_path_format(self):
         """Base (non-localized) path format for the static document."""
-        return '{}{}'.format(
-            self._base_path_format,
-            self.sub_base_pod_path)
+        return f'{self._base_path_format}{self.sub_base_pod_path}'
 
     @property
     def exists(self):
@@ -110,18 +107,14 @@ class StaticDocument:
     @property
     def source_format(self):
         """Path format for the source of the document."""
-        return '{}{}'.format(
-            self.source_path,
-            self.sub_base_pod_path)
+        return f'{self.source_path}{self.sub_base_pod_path}'
 
     @property
     def source_formats(self):
         """Path formats for the source of the document."""
         formats = []
         for source_path in self.source_paths:
-            formats.append('{}{}'.format(
-                source_path,
-                self.sub_base_pod_path))
+            formats.append(f'{source_path}{self.sub_base_pod_path}')
         return formats
 
     @property
@@ -144,8 +137,8 @@ class StaticDocument:
         # Special case to preserve ".min.<ext>" extensions.
         if base.endswith('.min'):
             base = base[:-4]
-            return '{}-{}.min{}'.format(base, self.fingerprint, ext)
-        return '{}-{}{}'.format(base, self.fingerprint, ext)
+            return f'{base}-{self.fingerprint}.min{ext}'
+        return f'{base}-{self.fingerprint}{ext}'
 
     @property
     def serving_path_parameterized(self):

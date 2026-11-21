@@ -1,16 +1,17 @@
 """Tests for Google Sheets translations."""
 
 import unittest
-import mock
-from nose.plugins import skip
+from unittest import mock
+
 from googleapiclient import errors
-from grow.preprocessors import google_drive
+
+from grow import storage
 from grow.common import oauth
 from grow.pods import pods
-from grow import storage
-from grow.testing import google_service
-from grow.testing import testing
+from grow.preprocessors import google_drive
+from grow.testing import google_service, testing
 from grow.translators import errors as translator_errors
+
 from . import google_sheets
 
 
@@ -29,7 +30,7 @@ class GoogleSheetsTranslatorTestCase(unittest.TestCase):
                     ' because we don\'t have auth keys. Run'
                     ' `grow upload_translations` or `grow download_translations`'
                     ' to acquire auth keys and re-run the test.')
-            raise skip.SkipTest(text)
+            raise unittest.SkipTest(text)
         translator = self.pod.get_translator('google_sheets')
         translator.upload(locales=['de'])
 
