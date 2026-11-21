@@ -1,22 +1,21 @@
 """Custom yaml loaders for Grow."""
 
 import datetime
-import types
 from collections import OrderedDict
+
 import yaml
-from yaml.representer import Representer
-from yaml.representer import SafeRepresenter
+from yaml.representer import Representer, SafeRepresenter
 
 try:
-    from yaml import CLoader as yaml_Loader
+    from yaml import CSafeLoader as yaml_Loader
 except ImportError:
-    from yaml import Loader as yaml_Loader
+    from yaml import SafeLoader as yaml_Loader
 
 
 class PlainText(dict):
 
     def __init__(self, tag, value):
-        super(PlainText, self)
+        super().__init__()
         self['tag'] = tag
         self['value'] = value
 
@@ -30,7 +29,6 @@ class PlainTextYamlLoader(yaml_Loader):
 
 class PlainTextYamlDumper(yaml.Dumper):
     """Dumper for working with plain text yaml."""
-    pass
 
 
 def plain_text_dict_constructor(loader, node):

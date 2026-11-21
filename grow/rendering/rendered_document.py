@@ -38,7 +38,7 @@ class RenderedDocument:
         if not self._has_tmp_file_path():
             return self._content
 
-        with open(self._get_tmp_file_path(), "r") as tmp_file:
+        with open(self._get_tmp_file_path()) as tmp_file:
             file_contents = tmp_file.read()
             return file_contents
 
@@ -48,9 +48,13 @@ class RenderedDocument:
             self.hash = None
         else:
             try:
-                self.hash = hashlib.sha1(content.encode('utf-8')).hexdigest()
+                self.hash = hashlib.sha1(
+                    content.encode('utf-8'), usedforsecurity=False
+                ).hexdigest()
             except AttributeError:
-                self.hash = hashlib.sha1(content).hexdigest()
+                self.hash = hashlib.sha1(
+                    content, usedforsecurity=False
+                ).hexdigest()
 
         if self._has_tmp_file_path():
             with open(self._get_tmp_file_path(), "w") as tmp_file:

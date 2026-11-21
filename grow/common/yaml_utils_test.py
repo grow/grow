@@ -1,9 +1,11 @@
 """Tests for the common utility methods."""
 
 import unittest
+
 import yaml
+
+from grow.common import utils, yaml_utils
 from grow.testing import testing
-from grow.common import yaml_utils
 
 
 class YamlUtilsTestCase(unittest.TestCase):
@@ -20,6 +22,14 @@ class YamlUtilsTestCase(unittest.TestCase):
             'tag': '!g.yaml',
             'value': '/data/deep.yaml?not.really.there'
         })
+
+    def test_unsafe_yaml_tags_rejected(self):
+        """Safe YAML loaders must reject arbitrary Python object tags."""
+        malicious = '!!python/object/apply:os.system ["echo pwned"]'
+        with self.assertRaises(yaml.constructor.ConstructorError):
+            yaml.load(malicious, Loader=yaml_utils.PlainTextYamlLoader)
+        with self.assertRaises(yaml.constructor.ConstructorError):
+            utils.parse_yaml(malicious)
 
 
 if __name__ == '__main__':

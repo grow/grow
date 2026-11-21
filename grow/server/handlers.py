@@ -2,18 +2,20 @@
 
 import logging
 import mimetypes
+import os
 import re
 import sys
 import traceback
+
 import jinja2
 import webob
+
 # NOTE: exc imported directly, webob.exc doesn't work when frozen.
 from webob import exc as webob_exc
 from werkzeug import wrappers
 from werkzeug.exceptions import NotFound
-from grow.documents import document
-from grow.pods import errors
-from grow.pods import ui
+
+from grow.pods import errors, ui
 
 
 class Request(webob.Request):
@@ -37,20 +39,15 @@ def serve_console(pod, _request, _matched, **_kwargs):
 
 def serve_exception(pod, request, exc, **_kwargs):
     """Serve the exception page."""
-    debug = True
-    logging.exception
     if isinstance(exc, webob_exc.HTTPException):
         status = exc.status_int
-        logging.exception('{}: {}'.format(status, request.path))
-    elif isinstance(exc, errors.RouteNotFoundError):
+        logging.exception(f'{status}: {request.path}')
+    elif isinstance(exc, errors.RouteNotFoundError) or isinstance(exc, NotFound):
         status = 404
-        logging.error('{}: {}'.format(status, request.path))
-    elif isinstance(exc, NotFound):
-        status = 404
-        logging.error('{}: {}'.format(status, request.path))
+        logging.error(f'{status}: {request.path}')
     else:
         status = 500
-        logging.exception('{}: {} - {}'.format(status, request.path, exc))
+        logging.exception(f'{status}: {request.path} - {exc}')
     env = ui.create_jinja_env()
     template = env.get_template('/views/error.html')
     if (isinstance(exc, errors.BuildError)):
@@ -101,7 +98,12 @@ def serve_pod(pod, request, matched, **_kwargs):
 
 
 def serve_ui_tool(pod, _request, values, **_kwargs):
-    tool_path = 'node_modules/{}'.format(values.get('tool'))
+    tool = values.get('tool') or ''
+    node_modules_root = os.path.realpath(os.path.join(pod.root, 'node_modules'))
+    resolved_path = os.path.realpath(os.path.join(node_modules_root, tool))
+    if os.path.commonpath([node_modules_root, resolved_path]) != node_modules_root:
+        raise NotFound()
+    tool_path = f'node_modules/{tool}'
     response = wrappers.Response(pod.read_file(tool_path))
     guessed_type = mimetypes.guess_type(tool_path)
     mime_type = guessed_type[0] or 'text/plain'
@@ -113,7 +115,7 @@ def serve_run_preprocessor(pod, _request, values):
     name = values.get('name')
     if name:
         pod.preprocess([name])
-        out = 'Finished preprocessor run -> {}'.format(name)
+        out = f'Finished preprocessor run -> {name}'
     else:
         out = 'No preprocessor found.'
     response = wrappers.Response(out)
