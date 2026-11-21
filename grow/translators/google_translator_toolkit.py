@@ -4,9 +4,6 @@ import base64
 import datetime
 from urllib import parse as url_parse
 
-import httplib2
-from googleapiclient import discovery, errors
-
 from grow.common import oauth
 
 from . import base
@@ -36,10 +33,14 @@ def raise_service_error(http_error, locale=None, ident=None):
 
 class Gtt:
     def __init__(self):
+        from googleapiclient import discovery
+
         self.service = discovery.build('gte', 'v1', http=self.http)
 
     @property
     def http(self):
+        import httplib2
+
         credentials = oauth.get_or_create_credentials(scope=OAUTH_SCOPE, storage_key=STORAGE_KEY)
         http = httplib2.Http()
         http = credentials.authorize(http)
@@ -73,6 +74,8 @@ class Gtt:
             doc['tmIds'] = tm_ids
         if glossary_ids:
             doc['glossaryIds'] = glossary_ids
+        from googleapiclient import errors
+
         try:
             # pylint: disable=no-member
             return self.service.documents().insert(body=doc).execute()
@@ -80,6 +83,8 @@ class Gtt:
             raise_service_error(locale=lang, http_error=resp)
 
     def download_document(self, document_id):
+        from googleapiclient import errors
+
         params = {
             'alt': 'media',
             'downloadContent': True,

@@ -15,9 +15,7 @@ import json
 import logging
 import os
 
-import httplib2
 import slugify
-from googleapiclient import discovery, errors
 from protorpc import messages
 
 from grow.common import oauth, untag, utils
@@ -33,18 +31,23 @@ IGNORE_INITIAL = ('_', '#', '*')
 
 
 # Silence extra logging from googleapiclient.
-discovery.logger.setLevel(logging.WARNING)
+logging.getLogger('googleapiclient.discovery').setLevel(logging.WARNING)
 
 
 class BaseGooglePreprocessor(base.BasePreprocessor):
     @staticmethod
     def create_service(api='drive', version='v2'):
+        import httplib2
+        from googleapiclient import discovery
+
         credentials = oauth.get_or_create_credentials(scope=OAUTH_SCOPE, storage_key='Grow SDK')
         http = httplib2.Http()
         http = credentials.authorize(http)
         return discovery.build(api, version, http=http)
 
     def run(self, build=True):
+        from googleapiclient import errors
+
         try:
             self.execute(self.config)
         except errors.HttpError as e:

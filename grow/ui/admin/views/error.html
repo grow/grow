@@ -1,145 +1,220 @@
-<!doctype html>
-<meta charset="utf-8">
-<link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABhQTFRFdHR0UFBQwsLCnZ2dCQkJ7+/vhoaG////U3R9JgAAAAh0Uk5T/////////wDeg71ZAAABrElEQVR42tyXgZKEIAiGwdR7/zc+QDT1FK3m2pmlbdtKPn/AtIUfww5HG5nVBqyb6n8f8FkF0nsmGBCweqftPiB5F//bCq4BgKyOP5A514YRIcISkHsfAcg/bihICXhXAZKBWo4/AzIEEJAV1CoaQCbk3nsArgArBeQP6h9NBfMQLICvFaQQ+Lcnq3MAOyFQazcCkD9GKwRqj5YC3K1CzsEohDnA1yG4g485iQy5XIURwK4CbihYVUEIaCkAowqDcXD5WYDvexZGOYC9+WAawrVn4XIS8dGUpjlgDjv0gEi2VYUFYDkO0AIsH6ZE8DdD8Fh6nwHEzCoUQJgC7BAeKvAaf7AApgJX2VSBUh4BplXQ/Mn+voLeYQbI5wYgPAXYOdgDXFUQOpsBXGf/CAhvKqgbj8wZJoPqCwDyck2GtfHy1k8ksmydG18rVegB3PQPQPzOzwjgdZfZuwfgvgJZ48rceIbQSmgAsqDGeIhDWkSBDpGHZKjeTvjIF9J5+nOSvuiu3KReZRWGci5C9BrEpg1Cq+CkR1VwOJUwVoAjBaG8B2RFdY+dSvH9FWAAf6hAHY0fB5IAAAAASUVORK5CYII=">
-<title>Something went wrong</title>
-<style>
-  .hidden {
-    display: none;
-  }
-  a {
-    text-decoration: none;
-    font-weight: bold;
-    color: inherit;
-  }
-  .smaller {
-    font-size: 12px;
-  }
-  .sad {
-    width: 70px;
-  }
-  code {
-    font-family: 'Monaco', monospace;
-    font-size: .8em;
-    font-weight: bold;
-  }
-  html {
-    background: linear-gradient(rgba(255,255,255,0.3),rgba(255,255,255,0));
-    background-color: #e8ebef;
-    background-repeat: no-repeat;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    font-size: 15px;
-  }
-  .aside {
-    font-size: 12px;
-    float: right;
-    color: #666;
-    font-weight: bold;
-  }
-  body {
-    margin: 0 auto;
-    padding: 0;
-  }
-  h1 {
-    font-size: 30px;
-    margin-bottom: 0;
-  }
-  p, li {
-    line-height: 1.4em;
-  }
-  li {
-    margin-bottom: 10px;
-  }
-  .build-error {
-    margin-top: 20px;
-  }
-  .exception,
-  pre {
-    background: #fff;
-    color: #333;
-    font-family: monospace;
-    font-size: 14px;
-    line-height: 18px;
-    margin: 0 40px;
-    border-radius: 20px;
-    padding: 30px;
-    word-break: break-word;
-    display: inline-block;
-  }
-  .footnotes {
-    padding: 20px 40px;
-    max-width: 650px;
-  }
-  .traceback {
-    margin-top: 10px;
-    margin-bottom: 20px;
-    font-size: 13px;
-    overflow: auto;
-    word-wrap: break-word;
-  }
-  a i {
-    display: inline-block;
-    height: 8px;
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    margin-left: 5px;
-    width: 10px;
-    background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjE4cHgiIGhlaWdodD0iMTJweCIgdmlld0JveD0iMCAwIDE4IDEyIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCAzLjYuMSAoMjYzMTMpIC0gaHR0cDovL3d3dy5ib2hlbWlhbmNvZGluZy5jb20vc2tldGNoIC0tPgogICAgPHRpdGxlPlNoYXBlPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+PC9kZWZzPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CiAgICAgICAgPGcgaWQ9Ik91ci1UZWNobm9sb2d5LShEYXduKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU5MS4wMDAwMDAsIC0xNDA2LjAwMDAwMCkiIGZpbGw9IiMwMDAwMDAiPgogICAgICAgICAgICA8ZyBpZD0iQnVpbGRpbmctb3VyLXBsYW5lIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMzAuMDAwMDAwLCAxMDMwLjAwMDAwMCkiPgogICAgICAgICAgICAgICAgPGcgaWQ9Im1vcmUtKG5hdmlnYXRpb24pIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0NzAuMDAwMDAwLCAzODIuMDAwMDAwKSByb3RhdGUoLTI3MC4wMDAwMDApIHRyYW5zbGF0ZSgtNDcwLjAwMDAwMCwgLTM4Mi4wMDAwMDApIHRyYW5zbGF0ZSg0NTIuMDAwMDAwLCAzNjQuMDAwMDAwKSI+CiAgICAgICAgICAgICAgICAgICAgPGcgaWQ9Ikdyb3VwIj4KICAgICAgICAgICAgICAgICAgICAgICAgPHBhdGggZD0iTTE1LDkgTDEyLjg4NSwxMS4xMTUgTDE5Ljc1NSwxOCBMMTIuODg1LDI0Ljg4NSBMMTUsMjcgTDI0LDE4IEwxNSw5IFoiIGlkPSJTaGFwZSI+PC9wYXRoPgogICAgICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+);
-  }
-  hr {
-    border: 1px solid #ddd;
-    margin: 30px 0;
-  }
-  header {
-    padding: 40px;
-    position: relative;
-  }
-</style>
-<body>
-<header>
-<a class="aside" href="/_grow">Pod: {{pod.root}}</a>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{status}} — Grow Dev Server</title>
+    <link rel="shortcut icon" href="/_grow/assets/favicon.png">
+    <link rel="stylesheet" href="/_grow/ui/css/admin.min.css">
+    <style>
+      .error-wrap {
+        max-width: 860px;
+        margin: 36px auto;
+        padding: 0 24px;
+      }
+      .error-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .status-pill {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 700;
+        background: var(--grow-pink-soft);
+        color: var(--grow-pink-dark);
+      }
+      .error-header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--grow-navy);
+      }
+      .error-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px 24px;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 20px;
+      }
+      .error-message {
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: var(--text);
+        word-break: break-word;
+      }
+      .error-location {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+      .error-location b {
+        color: var(--grow-navy);
+        font-family: var(--font-mono);
+      }
+      .error-hints {
+        color: var(--text-muted);
+        font-size: 13.5px;
+        margin-bottom: 20px;
+      }
+      .error-hints ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+      }
+      .error-hints li {
+        margin-bottom: 6px;
+      }
+      .error-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid var(--border-strong);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .btn:hover {
+        background: var(--surface-subtle);
+        text-decoration: none;
+      }
+      .btn--primary {
+        background: var(--grow-pink);
+        border-color: var(--grow-pink);
+        color: #fff;
+      }
+      .btn--primary:hover {
+        background: var(--grow-pink-dark);
+        border-color: var(--grow-pink-dark);
+      }
+      .traceback-box {
+        background: #1e243b;
+        color: #e2e8f0;
+        font-family: var(--font-mono);
+        font-size: 12.5px;
+        line-height: 1.55;
+        padding: 18px 20px;
+        border-radius: var(--radius);
+        overflow-x: auto;
+        margin: 0;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="topbar__brand">
+          <a class="brand" href="/_grow">
+            <span class="brand__name">Grow</span>
+          </a>
+          <span class="pod-path" title="{{pod.root}}">{{pod.root}}</span>
+        </div>
+        <nav class="topbar__nav">
+          <a class="nav-link" href="/_grow/routes/concrete/">Routes</a>
+          <a class="nav-link" href="/_grow/routes/abstract/">Patterns</a>
+          <a class="nav-link nav-link--home" href="/">Preview &#8599;</a>
+        </nav>
+      </div>
+    </header>
 
-<div class="sad">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36.7 47.42"><polygon points="36.7 47.42 0 47.42 0 11.46 11.46 0 36.7 0 36.7 47.42" style="fill:#ffffff"/><polygon points="11.46 0 11.46 11.46 0 11.46 11.46 0" style="fill:#c4c4c3"/><circle cx="11.75" cy="18.3" r="1.92"/><circle cx="24.95" cy="18.3" r="1.92"/><path d="M26.87,29.08a8.2,8.2,0,0,0-8-5.55,8.21,8.21,0,0,0-8,5.55" style="fill:none;stroke:#000;stroke-linecap:round;stroke-miterlimit:10;stroke-width:2px"/></svg>
-</div>
+    <main class="error-wrap">
+      <div class="error-header">
+        <span class="status-pill">{{status}}</span>
+        <h1>{% if status == 404 %}Page not found{% else %}Something went wrong{% endif %}</h1>
+      </div>
 
-<h1>Something went wrong</h1>
-</header>
-<div class="exception">
-  {% if build_error %}
-    <div>An error occurred building <b>{{exception.controller}}</b></div>
-    <div class="build-error">{{build_error}}</div>
-  {% else %}
-    <span>{{exception}}</span>
-  {% endif %}
-  {% if template_exception %}
-    <hr>
-    <div>We think the problem is with <b>line {{template_exception.lineno}}</b> of <b>{{template_exception.filename}}</b>.</div>
-  {% endif %}
-</div>
-<div class="footnotes">
-{% if status == 404 %}
-  <p>No resource matches the requested path. Here's what you can do:</p>
-  <ul>
-    <li>If requesting a rendered page, ensure all path configurations in content documents, blueprints, and the podspec are correct.
-    <li>If requesting an asset, the file corresponding to this route could not be found. Ensure the file exists or check the directory configuration in the podspec.
-  </ul>
-  {% if home_url %}
-    <p>You can also go to the <a href="{{home_url}}">homepage</a> or <a href="/_grow">see all routes</a>.</p>
-  {% else %}
-    <p>You can also <a href="/_grow">see all routes</a>.</p>
-  {% endif %}
-{% else %}
-  <p>This page failed to render. Here's what you can do:
-  <ul>
-    <li>Check the view, document, blueprint, or podspec for syntax errors.
-  </ul>
-  {% if not is_web_exception %}
-  <a href="javascript:document.getElementById('traceback').classList.toggle('hidden')">Show traceback<i></i></a>
-  {% endif %}
-{% endif %}
-</div>
+      <div class="error-card">
+        <div class="error-message">
+          {% if build_error %}
+            <div>An error occurred building <b>{{exception.controller}}</b></div>
+            <div style="margin-top: 8px;">{{build_error}}</div>
+          {% else %}
+            {{exception}}
+          {% endif %}
+        </div>
+        {% if template_exception %}
+          <div class="error-location">
+            Template error at <b>{{template_exception.filename}}</b>, line <b>{{template_exception.lineno}}</b>.
+          </div>
+        {% endif %}
+      </div>
 
-{% if not is_web_exception %}
-<pre id="traceback" class="smaller traceback hidden">{{traceback}}</pre>
-{% endif %}
+      <div class="error-hints">
+        {% if status == 404 %}
+          <p>No route matches this URL. Check that:</p>
+          <ul>
+            <li>The URL path in your content document, blueprint, or <code>podspec.yaml</code> is configured as expected.</li>
+            <li>For static assets, the file exists and its directory is listed under <code>static_dirs</code>.</li>
+          </ul>
+        {% else %}
+          <p>This page failed to render. Check the template, document front matter, blueprint, or <code>podspec.yaml</code> for syntax or data errors.</p>
+        {% endif %}
+      </div>
+
+      <div class="error-actions">
+        <a class="btn btn--primary" href="/_grow">Inspect Routes</a>
+        {% if home_url %}
+          <a class="btn" href="{{home_url}}">Go to Homepage</a>
+        {% else %}
+          <a class="btn" href="/">Go to Homepage</a>
+        {% endif %}
+        {% if not is_web_exception and traceback %}
+          <button type="button" class="btn" id="toggle-tb">Show Traceback</button>
+          <button type="button" class="btn" id="copy-tb">Copy Traceback</button>
+        {% endif %}
+      </div>
+
+      {% if not is_web_exception and traceback %}
+        <pre id="traceback" class="traceback-box hidden">{{traceback}}</pre>
+      {% endif %}
+    </main>
+
+    {% if not is_web_exception and traceback %}
+      <script>
+        (function () {
+          var tb = document.getElementById('traceback');
+          var toggleBtn = document.getElementById('toggle-tb');
+          var copyBtn = document.getElementById('copy-tb');
+          if (toggleBtn && tb) {
+            toggleBtn.addEventListener('click', function () {
+              var hidden = tb.classList.toggle('hidden');
+              toggleBtn.textContent = hidden ? 'Show Traceback' : 'Hide Traceback';
+            });
+          }
+          if (copyBtn && tb) {
+            copyBtn.addEventListener('click', function () {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(tb.textContent);
+              }
+              copyBtn.textContent = 'Copied';
+              setTimeout(function () { copyBtn.textContent = 'Copy Traceback'; }, 1200);
+            });
+          }
+        })();
+      </script>
+    {% endif %}
+  </body>
+</html>
