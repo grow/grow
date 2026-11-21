@@ -9,7 +9,6 @@ class DeploymentRegisterHook(base_hook.BaseHook):
     KEY = 'deployment_register'
     NAME = 'Deployment Destination Registration'
 
-    # pylint: disable=arguments-differ,unused-argument
     def trigger(self, previous_result, deployments, *_args, **_kwargs):
         """Trigger the deployment destination registration hook."""
         if previous_result:

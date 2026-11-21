@@ -232,7 +232,6 @@ class PodTest(unittest.TestCase):
 
     def test_custom_preprocessor(self):
         self.pod.preprocess(['custom'])
-        # pylint: disable=no-member
         self.assertEqual(self.pod._custom_preprocessor_value, 'testing123')
 
     def test_dump_static_files_without_extension(self):

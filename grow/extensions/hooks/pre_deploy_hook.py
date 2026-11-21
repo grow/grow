@@ -9,7 +9,6 @@ class PreDeployHook(base_hook.BaseHook):
     KEY = 'pre_deploy'
     NAME = 'Pre Deploy'
 
-    # pylint: disable=arguments-differ,unused-argument
     def trigger(self, previous_result, rendered_doc, command, *_args, **_kwargs):
         """Trigger the pre deploy hook."""
         if previous_result:

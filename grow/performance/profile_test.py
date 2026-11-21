@@ -19,7 +19,6 @@ class TimerTestCase(unittest.TestCase):
 
         timer = profile.Timer('test')
 
-        # pylint: disable=protected-access
         timer._time = self.mock_time
 
         with timer:
@@ -37,7 +36,6 @@ class TimerTestCase(unittest.TestCase):
 
         timer = self.profile.timer('test')
 
-        # pylint: disable=protected-access
         timer._time = self.mock_time
 
         with timer:
@@ -60,7 +58,6 @@ class TimerTestCase(unittest.TestCase):
         """Repr of timer"""
         timer = self.profile.timer('test')
 
-        # pylint: disable=protected-access
         timer._time = self.mock_time
 
         with timer:

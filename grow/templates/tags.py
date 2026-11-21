@@ -70,7 +70,6 @@ def _read_yaml(pod, pod_path, locale):
     return contents
 
 
-# pylint: disable=redefined-outer-name
 def categories(collection=None, reverse=None, recursive=True, locale=utils.SENTINEL, _pod=None):
     """Retrieve catagories from the pod."""
     if isinstance(collection, collection_lib.Collection):
@@ -260,7 +259,6 @@ def create_builtin_tags(pod, doc, track_dependency=None):
     """Creates standard set of tags for rendering based on the doc."""
 
     def _wrap(func):
-        # pylint: disable=unnecessary-lambda
         return lambda *args, **kwargs: func(*args, _pod=pod, **kwargs)
 
     def _wrap_dependency(func):

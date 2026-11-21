@@ -25,7 +25,6 @@ from grow.pods import errors
 # Since YAML performance is critical, display a warning message with information
 # related to fixing it.
 try:
-    # pylint: disable=ungrouped-imports
     from yaml import CSafeLoader as yaml_Loader
 except ImportError:
     logging.warning(
@@ -496,7 +495,6 @@ class DummyDict:
 
 
 class JsonEncoder(json.JSONEncoder):
-    # pylint: disable=method-hidden
     def default(self, o):
         if hasattr(o, 'timetuple'):
             return time.mktime(o.timetuple())

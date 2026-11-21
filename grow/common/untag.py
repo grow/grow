@@ -36,7 +36,6 @@ class Untag:
         # untagged keys to make sure that they are not overwritten by the original.
         untagged_key_paths = set()
 
-        # pylint: disable=too-many-return-statements
         def _visit(path, key, value):
             """Function for each key and value in the data."""
             if not isinstance(key, str):

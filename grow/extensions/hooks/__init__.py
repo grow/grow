@@ -16,7 +16,6 @@ from . import (
     stub_hook,
 )
 
-# pylint: disable=invalid-name
 DeploymentRegisterHook = deployment_register_hook.DeploymentRegisterHook
 DevFileChangeHook = dev_file_change_hook.DevFileChangeHook
 DevHandlerHook = dev_handler_hook.DevHandlerHook

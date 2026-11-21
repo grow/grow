@@ -15,7 +15,6 @@ HELP_TEXT = (
 )
 
 
-# pylint: disable=unused-argument
 @click.group(help=HELP_TEXT)
 @click.version_option(prog_name='grow', version=version)
 @click.option(

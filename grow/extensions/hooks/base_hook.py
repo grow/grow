@@ -15,7 +15,6 @@ class BaseHook:
         """Reference to the pod."""
         return self.extension.pod
 
-    # pylint:disable=no-self-use, unused-argument
     def should_trigger(self, previous_result, *_args, **_kwargs):
         """Determine if the hook should trigger."""
         return True

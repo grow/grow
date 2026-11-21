@@ -42,7 +42,6 @@ from . import podspec
 # Since YAML performance is critical, display a warning message with information
 # related to fixing it.
 try:
-    # pylint: disable=ungrouped-imports
     from yaml import CSafeLoader as yaml_Loader
 except ImportError:
     logging.warning(
@@ -276,7 +275,6 @@ class Pod:
             self._yaml = content
             self._podspec = None
             # Preprocessors may depend on env, reset cache.
-            # pylint: disable=no-member
             self.list_preprocessors.reset()
             self.podcache.reset()
             # Need to reload the extension configs for changes based on env.
@@ -906,7 +904,6 @@ class Pod:
         self._yaml = utils.SENTINEL
         self._podspec = None
         # Tell the cached property to reset.
-        # pylint: disable=no-member
         self._parse_yaml.reset()
 
     def untag(self, contents, locale=None):

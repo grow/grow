@@ -815,7 +815,6 @@ class RoutesSimpleTestCase(unittest.TestCase):
     def test_shard_attr(self):
         """Tests that routes' can be sharded equally by attribute."""
 
-        # pylint: disable=too-few-public-methods
         class _RouteInfo:
             """Organize information stored in the routes."""
 

@@ -1,7 +1,6 @@
 """Utility class for tracking a doc dependency."""
 
 
-# pylint: disable=too-few-public-methods
 class DocDependency:
     """Used to easily track a dependencies for a document."""
 

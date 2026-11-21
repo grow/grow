@@ -13,7 +13,6 @@ from grow.server import manager
 CFG = rc_config.RC_CONFIG.prefixed('grow.run')
 
 
-# pylint: disable=too-many-locals, invalid-name, too-many-arguments
 @click.command()
 @shared.pod_path_argument
 @click.option('--host', default=CFG.get('host', 'localhost'))

@@ -9,7 +9,6 @@ from grow.documents import document, document_fields
 class GrowJSONEncoder(json.JSONEncoder):
     """Encoder for serializing Grow objects."""
 
-    # pylint: disable=method-hidden
     def default(self, o):
         """Attempt to encode known objects."""
         if isinstance(o, datetime.date):
@@ -19,11 +18,9 @@ class GrowJSONEncoder(json.JSONEncoder):
             return o.isoformat()
 
         if isinstance(o, document.Document):
-            # pylint: disable=protected-access
             return o.fields._data
 
         if isinstance(o, document_fields.DocumentFields):
-            # pylint: disable=protected-access
             return o._data
 
         if isinstance(o, set):

@@ -597,7 +597,6 @@ class Router:
                 self._routes.add(path, value)
 
 
-# pylint: disable=too-few-public-methods
 class RouteInfo:
     """Organize information stored in the routes."""
 

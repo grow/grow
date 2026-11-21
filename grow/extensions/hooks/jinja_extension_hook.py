@@ -9,7 +9,6 @@ class JinjaExtensionHook(base_hook.BaseHook):
     KEY = 'jinja_extensions'
     NAME = 'Jinja Extensions'
 
-    # pylint: disable=arguments-differ,unused-argument
     def trigger(self, previous_result, *_args, **_kwargs):
         """Trigger the jinja extension hook."""
         if previous_result:

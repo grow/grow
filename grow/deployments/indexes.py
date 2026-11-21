@@ -218,7 +218,6 @@ class Diff:
             try:
                 kwargs['func'](*kwargs['args'])
                 return True
-            # pylint: disable=broad-except
             except Exception as err:
                 _, _, err_tb = sys.exc_info()
                 return DeploymentError('Error deploying {}'.format(kwargs['args']), err, err_tb)

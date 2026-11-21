@@ -121,7 +121,6 @@ class DepEnvironment(Environment):
             return template_name_or_list
         return self.select_template(template_name_or_list, parent, globals, context=context)
 
-    # pylint: disable=redefined-builtin
     def _load_template(self, name, globals, context=None):
         """Custom template loading that tracks template as a dependency."""
         if context and '_track_dependency' in context:

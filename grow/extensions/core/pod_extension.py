@@ -7,7 +7,6 @@ from grow.extensions import hooks
 class PodDevFileChangeHook(hooks.DevFileChangeHook):
     """Handle the dev file change hook."""
 
-    # pylint: disable=arguments-differ
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
         if pod_path == f'/{self.pod.FILE_PODSPEC}':
@@ -22,7 +21,6 @@ class PodDevFileChangeHook(hooks.DevFileChangeHook):
         return None
 
 
-# pylint: disable=abstract-method
 class PodExtension(extensions.BaseExtension):
     """Extension for handling core pod functionality."""
 
