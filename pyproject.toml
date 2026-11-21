@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77,<81"]
+requires = ["setuptools>=77,<85"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -47,7 +47,7 @@ dependencies = [
     "python-slugify==4.0.0",
     "pyyaml>=6.0.1,<7",
     # google-api-python-client==1.9.3 imports pkg_resources (removed in setuptools 81).
-    "setuptools<81",
+    "setuptools<85",
     "translitcodec==0.6.0",
     "watchdog>=3,<5",
     "webob>=1.8.8,<2",
