@@ -27,8 +27,6 @@ Run the CLI directly from your workspace:
 
 ```bash
 uv run grow --help
-# Or via the wrapper script:
-./scripts/grow --help
 ```
 
 ## Testing
@@ -76,13 +74,13 @@ Build sdist and wheel distributions:
 uv build
 ```
 
-Build and push Docker images (see `docker_push.sh`):
+Build the Docker image locally:
 
 ```bash
-./docker_push.sh        # Push to Docker Hub
-./docker_push.sh gcr.io # Push to GCR
-./docker_push.sh all    # Push to both
+docker build -t grow/base .
 ```
+
+Docker images are automatically built and pushed to Docker Hub (`grow/base`) and GitHub Container Registry (`ghcr.io/grow/grow`) by GitHub Actions on every push to `main`.
 
 ## Commit Messages & Releases
 
