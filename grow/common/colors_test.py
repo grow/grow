@@ -1,6 +1,7 @@
 """Tests for colors."""
 
 import unittest
+
 from grow.common import colors
 
 
@@ -26,3 +27,14 @@ class ColorsTestCase(unittest.TestCase):
     def test_success(self):
         """Consistent color for success."""
         self.assertEqual('\x1b[38;5;2m\x1b[1m', colors.SUCCESS)
+
+    def test_stylize(self):
+        """Stylize applies ANSI codes and reset."""
+        self.assertEqual(
+            '\x1b[38;5;1m\x1b[1mboom\x1b[0m',
+            colors.stylize('boom', colors.ERROR),
+        )
+        self.assertEqual(
+            '\x1b[38;5;10mok',
+            colors.stylize('ok', [colors.HIGHLIGHT], reset=False),
+        )

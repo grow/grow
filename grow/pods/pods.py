@@ -1,28 +1,24 @@
 """A pod encapsulates all files used to build a site."""
 
-import copy
 import atexit
+import copy
 import json
 import logging
 import os
+import shutil
 import sys
+import tempfile
 import threading
 import time
-import shutil
-import tempfile
-import yaml
+
 import jinja2
 import progressbar
-import cachelib
+import yaml
+
 from grow import storage as grow_storage
-from grow.cache import podcache
+from grow.cache import podcache, simple_cache
 from grow.collections import collection
-from grow.common import deprecated
-from grow.common import features
-from grow.common import logger
-from grow.common import progressbar_non
-from grow.common import untag
-from grow.common import utils
+from grow.common import deprecated, features, logger, progressbar_non, untag, utils
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
 from grow.extensions import extension_importer
@@ -30,20 +26,15 @@ from grow.partials import partials
 from grow.performance import profile
 from grow.pods import errors
 from grow.preprocessors import preprocessors
-from grow.rendering import markdown_utils
-from grow.rendering import rendered_document
-from grow.rendering import renderer
+from grow.rendering import markdown_utils, rendered_document, renderer
 from grow.rendering import render_pool as grow_render_pool
 from grow.routing import path_filter as grow_path_filter
 from grow.routing import path_format as grow_path_format
 from grow.routing import router as grow_router
-from grow.templates import filters
-from grow.templates import jinja_dependency
-from grow.templates import tags
-from grow.translations import catalog_holder
-from grow.translations import locales
-from grow.translations import translation_stats
+from grow.templates import filters, jinja_dependency, tags
+from grow.translations import catalog_holder, locales, translation_stats
 from grow.translators import translators
+
 from . import env as environment
 from . import podspec
 
@@ -52,15 +43,15 @@ from . import podspec
 # related to fixing it.
 try:
     # pylint: disable=ungrouped-imports
-    from yaml import CLoader as yaml_Loader
+    from yaml import CSafeLoader as yaml_Loader
 except ImportError:
     logging.warning('Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml')
-    from yaml import Loader as yaml_Loader
+    from yaml import SafeLoader as yaml_Loader
 
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -147,7 +138,7 @@ class Pod:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return '<Pod: {}>'.format(self.root)
+        return f'<Pod: {self.root}>'
 
     # DEPRECATED: Remove when no longer needed after re-route stable release.
     def _get_bytecode_cache(self):
@@ -195,39 +186,38 @@ class Pod:
         if '..' in pod_path:
             raise ValueError('.. not allowed in pod paths.')
         if not pod_path.startswith('/'):
-            pod_path = '/{}'.format(pod_path)
+            pod_path = f'/{pod_path}'
         return pod_path
 
     def _parse_object_cache_file(self):
         with self.profile.timer('Pod._parse_object_cache_file'):
-            object_cache_file_name = '/{}'.format(podcache.FILE_OBJECT_CACHE)
+            object_cache_file_name = f'/{podcache.FILE_OBJECT_CACHE}'
 
             if not self.file_exists(object_cache_file_name):
                 return {}
             try:
                 return self.read_json(object_cache_file_name) or {}
-            except IOError:
+            except OSError:
                 path = self.abs_path(object_cache_file_name)
                 raise podcache.PodCacheParseError(
-                    'Error parsing: {}'.format(path))
+                    f'Error parsing: {path}')
 
     def _parse_dep_cache_file(self):
         with self.profile.timer('Pod._parse_dep_cache_file'):
-            podcache_file_name = '/{}'.format(self.FILE_DEP_CACHE)
+            podcache_file_name = f'/{self.FILE_DEP_CACHE}'
 
             # TODO Remove deprecated cachefile support.
             # Convert legacy yaml cache files.
             legacy_podcache_file_name = '/.podcache.yaml'
             if self.file_exists(legacy_podcache_file_name):
                 logging.info(
-                    'Converting {} to {}.'.format(legacy_podcache_file_name, podcache_file_name))
+                    f'Converting {legacy_podcache_file_name} to {podcache_file_name}.')
                 # Do not use the utils.parse_yaml as that has extra constructors
                 # that should not be run when the cache file is being parsed.
                 temp_data = yaml.load(
                     self.read_file(legacy_podcache_file_name), Loader=yaml_Loader) or {}
                 if 'objects' in temp_data and temp_data['objects']:
-                    object_cache_file_name = '/{}'.format(
-                        podcache.FILE_OBJECT_CACHE)
+                    object_cache_file_name = f'/{podcache.FILE_OBJECT_CACHE}'
                     self.write_file(object_cache_file_name,
                                     json.dumps(temp_data['objects']))
                 self.delete_file(legacy_podcache_file_name)
@@ -236,15 +226,14 @@ class Pod:
                 return {}
             try:
                 return self.read_json(podcache_file_name) or {}
-            except IOError:
+            except OSError:
                 path = self.abs_path(podcache_file_name)
                 raise podcache.PodCacheParseError(
-                    'Error parsing: {}'.format(path))
+                    f'Error parsing: {path}')
 
     def _parse_routes_cache_file(self):
         with self.profile.timer('Pod._parse_routes_cache_file'):
-            routes_cache_file_name = '{}{}'.format(
-                self.PATH_CONTROL, podcache.FILE_ROUTES_CACHE)
+            routes_cache_file_name = f'{self.PATH_CONTROL}{podcache.FILE_ROUTES_CACHE}'
             if not self.file_exists(routes_cache_file_name):
                 return {}
             try:
@@ -254,27 +243,27 @@ class Pod:
                 # https://github.com/grow/grow/issues/1050#issuecomment-596346032
                 self.delete_file(routes_cache_file_name)
                 return {}
-            except IOError:
+            except OSError:
                 path = self.abs_path(routes_cache_file_name)
                 raise podcache.PodCacheParseError(
-                    'Error parsing: {}'.format(path))
+                    f'Error parsing: {path}')
 
     @utils.memoize
     def _parse_yaml(self):
-        podspec_file_name = '/{}'.format(self.FILE_PODSPEC)
+        podspec_file_name = f'/{self.FILE_PODSPEC}'
         try:
             return utils.parse_yaml(self.read_file(podspec_file_name))
-        except IOError as e:
+        except OSError as e:
             path = self.abs_path(podspec_file_name)
             if e.args[0] == 2 and e.filename:
-                raise PodDoesNotExistError('Pod not found in: {}'.format(path))
-            raise podspec.PodSpecParseError('Error parsing: {}'.format(path))
+                raise PodDoesNotExistError(f'Pod not found in: {path}')
+            raise podspec.PodSpecParseError(f'Error parsing: {path}')
 
     @staticmethod
     def clean_pod_path(pod_path):
         """Cleanup the pod path."""
         if not pod_path.startswith('/'):
-            pod_path = '/{}'.format(pod_path)
+            pod_path = f'/{pod_path}'
         return pod_path
 
     def set_env(self, env):
@@ -296,7 +285,7 @@ class Pod:
 
     @utils.cached_property
     def cache(self):
-        return cachelib.SimpleCache(default_timeout=0)
+        return simple_cache.SimpleCache(default_timeout=0)
 
     @property
     def error_routes(self):
@@ -304,7 +293,7 @@ class Pod:
 
     @property
     def exists(self):
-        return self.file_exists('/{}'.format(self.FILE_PODSPEC))
+        return self.file_exists(f'/{self.FILE_PODSPEC}')
 
     @property
     def experiments(self):
@@ -442,8 +431,7 @@ class Pod:
         return self._yaml
 
     def abs_path(self, pod_path):
-        path = os.path.join(self.root, pod_path.lstrip('/'))
-        return os.path.join(self.root, path)
+        return os.path.join(self.root, pod_path.lstrip('/'))
 
     def copy_file_to(self, source_pod_path, destination_pod_path):
         source_path = self._normalize_path(source_pod_path)
@@ -495,10 +483,9 @@ class Pod:
     def export(self, suffix=None, append_slashes=False, pod_paths=None,
                use_threading=True, source_dir=None):
         """Builds the pod, yielding rendered_doc based on pod routes."""
-        for rendered_doc in renderer.Renderer.rendered_docs(
+        yield from renderer.Renderer.rendered_docs(
                 self, self.router.routes, use_threading=use_threading,
-                source_dir=source_dir):
-            yield rendered_doc
+                source_dir=source_dir)
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
@@ -535,7 +522,7 @@ class Pod:
         progress.start()
         for path in paths:
             output_path = path.replace(
-                source_prefix, '{}{}'.format(destination_root, tools_dir))
+                source_prefix, f'{destination_root}{tools_dir}')
             yield rendered_document.RenderedDocument(
                 output_path, self.read_file(path))
             progress.update(progress.value + 1)
@@ -604,7 +591,7 @@ class Pod:
         """Returns a document, given the document's pod path."""
         collection_path, unused_path = os.path.split(pod_path)
         if not collection_path or not unused_path:
-            text = '"{}" is not a path to a document.'.format(pod_path)
+            text = f'"{pod_path}" is not a path to a document.'
             raise collection.BadCollectionNameError(text)
         original_collection_path = collection_path
         col = self.get_collection(collection_path)
@@ -654,9 +641,8 @@ class Pod:
         if document.exists:
             return document
 
-        text = ('Either no file exists at "{}" or the "static_dirs" setting was '
-                'not configured for this path in {}.'.format(
-                    pod_path, self.FILE_PODSPEC))
+        text = (f'Either no file exists at "{pod_path}" or the "static_dirs" setting was '
+                f'not configured for this path in {self.FILE_PODSPEC}.')
         raise errors.DocumentDoesNotExistError(text)
 
     def get_podspec(self):
@@ -706,7 +692,7 @@ class Pod:
                     self, translator_kind, service_config,
                     project_title=translator_config.get('project_title'),
                     instructions=translator_config.get('instructions'))
-        raise ValueError('No translator service found: {}'.format(service))
+        raise ValueError(f'No translator service found: {service}')
 
     def get_url(self, pod_path, locale=None):
         if pod_path.startswith('/content'):
@@ -716,7 +702,7 @@ class Pod:
 
         if not doc.exists:
             raise errors.DocumentDoesNotExistError(
-                'Referenced document does not exist: {}'.format(pod_path))
+                f'Referenced document does not exist: {pod_path}')
         return doc.url
 
     def hash_file(self, pod_path):
@@ -730,14 +716,12 @@ class Pod:
         is provided, preprocessors inject data to doc fields. If a collection
         is provided, the first matching preprocessor returns a list of docs."""
         for preprocessor in self.list_preprocessors():
-            if doc is not None:
-                if preprocessor.can_inject(doc=doc):
-                    preprocessor.inject(doc=doc)
-                    return preprocessor
-            if collection is not None:
-                if preprocessor.can_inject(collection=collection):
-                    preprocessor.inject(collection=collection)
-                    return preprocessor
+            if doc is not None and preprocessor.can_inject(doc=doc):
+                preprocessor.inject(doc=doc)
+                return preprocessor
+            if collection is not None and preprocessor.can_inject(collection=collection):
+                preprocessor.inject(collection=collection)
+                return preprocessor
 
     def is_enabled(self, feature):
         return self._features.is_enabled(feature)
@@ -751,7 +735,7 @@ class Pod:
     def list_deployments(self):
         destination_configs = self.yaml['deployments']
         results = []
-        for name in destination_configs.keys():
+        for name in destination_configs:
             results.append(self.get_deployment(name))
         return results
 
@@ -806,7 +790,7 @@ class Pod:
                 preprocessor = preprocessors.make_preprocessor(
                     kind, params, self)
                 results.append(preprocessor)
-            except ValueError as err:
+            except ValueError:
                 # New extensions don't exists and are considered a value error.
                 pass
 
@@ -838,7 +822,7 @@ class Pod:
         if isinstance(locale, str):
             try:
                 locale = locales.Locale.parse(locale)
-            except ValueError as err:
+            except ValueError:
                 # Locale could be an alias.
                 locale = locales.Locale.from_alias(self, locale)
         if locale is not None:
@@ -897,7 +881,7 @@ class Pod:
         """Read, parse, and untag a yaml file."""
         contents = self.podcache.file_cache.get(path, locale=locale)
         if contents is None:
-            label = '{} ({})'.format(path, locale)
+            label = f'{path} ({locale})'
             meta = {'path': path, 'locale': locale}
             with self.profile.timer('Pod.read_yaml', label=label, meta=meta):
                 fields = self.podcache.file_cache.get(path, locale='__raw__')
@@ -910,7 +894,7 @@ class Pod:
                     contents = self.untag(fields, locale=locale)
                     self.podcache.file_cache.add(path, contents, locale=locale)
                 except Exception:
-                    logging.error('Error parsing -> {}'.format(path))
+                    logging.error(f'Error parsing -> {path}')
                     raise
         return contents
 

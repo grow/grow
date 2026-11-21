@@ -1,12 +1,10 @@
-# coding: utf8
 """Tests for the common utility methods."""
 
 import unittest
-import mock
-import semantic_version
-from grow.testing import testing
-from grow.sdk import sdk_utils
+
 from grow.pods import errors
+from grow.testing import testing
+
 from . import utils
 
 
@@ -49,7 +47,6 @@ class UtilsTestCase(unittest.TestCase):
         confirm = 'Sure?'
         confirm_no = 'Sure? [y/N]: '
         confirm_yes = 'Sure? [Y/n]: '
-        confirm_none = confirm_no
         def input_no(m):
             message['m'] = m
             return 'n'
@@ -218,7 +215,7 @@ class UtilsTestCase(unittest.TestCase):
         with self.assertRaises(errors.BadNameError):
             utils.validate_name('/you/shall not/pass')
 
-        utils.validate_name('c:\you\shall\pass')
+        utils.validate_name(r'c:\you\shall\pass')
         utils.validate_name('/you/shall/pass')
         utils.validate_name('you/shall/pass')
         utils.validate_name('./you/shall/pass')
