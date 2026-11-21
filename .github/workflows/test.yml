@@ -24,5 +24,8 @@ jobs:
         run: uv sync --locked
       - name: Run tests
         run: uv run pytest --cov=grow --cov-report=xml
-      - name: Smoke test build
-        run: uv run grow build ./grow/testing/testdata/pod
+      - name: Smoke test builds
+        run: |
+          uv run grow build ./grow/testing/testdata/pod
+          uv run grow build ./docs
+          uv run grow build ./examples/starter

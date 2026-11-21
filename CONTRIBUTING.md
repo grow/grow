@@ -7,6 +7,14 @@ Thanks for contributing to Grow!
 - [uv](https://docs.astral.sh/uv/) (manages the Python virtual environment and lockfile)
 - Python **3.10 – 3.12**
 
+## Repository Layout
+
+This repository is a Python monorepo managed with `uv`:
+
+- `grow/` — Core Grow Python package (published to PyPI)
+- `docs/` — The `grow.dev` documentation site (`uv run grow run docs`)
+- `examples/starter/` — Minimal zero-Node starter project (`uv run grow run examples/starter`)
+
 ## Local Setup
 
 ```bash

@@ -35,13 +35,19 @@ pip install grow
 
 ## Quick Start
 
-Clone a Grow project (such as [grow.dev](https://github.com/grow/grow.dev)), install its dependencies, and start the local development server:
+Try the built-in zero-Node starter project in [`examples/starter/`](examples/starter/):
 
 ```bash
-git clone https://github.com/grow/grow.dev
-cd grow.dev
-grow install
-grow run
+git clone https://github.com/grow/grow.git
+cd grow
+uv sync
+uv run grow run examples/starter
+```
+
+Or run the `grow.dev` documentation site locally:
+
+```bash
+uv run grow run docs
 ```
 
 ### Common Commands

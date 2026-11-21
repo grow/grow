@@ -10,6 +10,9 @@ growsdk
 
 grow/**/podcache.json
 grow/**/.depcache.json
+**/.grow/
+docs/build/
+examples/**/build/
 
 # C extensions
 *.so
