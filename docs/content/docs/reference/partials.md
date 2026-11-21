@@ -72,9 +72,9 @@ partials:
   image: !gstatic /static/images/about_me.jpg
 - partial: about-me
   title@: About me
-  description@: I am a grow.io user!
+  description@: I am a Grow user!
 - partial: footer
-  copyright@: 2017 Mysite.com
+  copyright@: Example Corp
 ```
 
 Now your “about” page will render a hero, about-me and footer partial. Easily
@@ -82,14 +82,12 @@ reuse partials across your site pages.
 
 ## Naming partials
 
-Name partials in a generic way. The name of the partial should not be coupled to
-a specific page if possible, but rather the partials’ design. [See our full
-style guide on naming partials]([url('/content/style/partials.md')]).
+Name partials after their layout or component role (such as `hero`, `feature-grid`,
+or `cta-banner`) rather than a specific page. Keeping partials self-contained and
+lowercase hyphen-delimited makes them easy to reuse across pages — and you can
+selectively render different partials per locale.
 
-Taking advantage partial system, partials can be easily reused across different
-pages.  You can even selectively render different partials per locale.
-
-The following example would should show a different “about” page for Canada.
+The following example renders a different partial for `en_US` vs `en_CA`:
 
 ```yaml
 # /content/pages/about.yaml
@@ -99,10 +97,10 @@ $path: /about/
 partials:
 - partial: hero
   title@: My hero
-  image: !gstatic /static/images/about_me.jpg
+  image: !g.static /static/images/about_me.jpg
 - partial@en_US: about-me
   title@: About me
-  Description: I am a grow.io user!
+  description@: I am a Grow user!
 - partial@en_CA: trip
   title@: My trip to Canada
 - partial: footer

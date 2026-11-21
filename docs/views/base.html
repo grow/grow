@@ -11,6 +11,22 @@
     <link href="{{g.static('/static/css/main.css').url.path}}" rel="stylesheet">
   </head>
   <body>
+    <div class="notice-bar" role="note">
+      <div class="notice-bar__inner">
+        <img
+          class="notice-bar__icon"
+          src="{{g.static('/source/images/rootjs-beet.svg').url.path}}"
+          alt=""
+          width="13"
+          height="19"
+        >
+        <span>
+          Grow is in maintenance mode. For new projects, we recommend
+          <a href="https://rootjs.dev" target="_blank" rel="noopener">Root.js &rarr;</a>
+        </span>
+      </div>
+    </div>
+
     <header class="topbar">
       <div class="topbar__inner">
         <div class="topbar__left">
@@ -31,6 +47,10 @@
           <a class="brand" href="{{podspec.home.localize(locale=doc.locale).url.path|relative}}">
             <img class="brand__logo" src="{{g.static(podspec.meta.site_logo_path).url.path}}" alt="{{_(podspec.meta.site_name)}}">
           </a>
+          <nav class="topbar__nav" aria-label="Primary">
+            <a href="/" class="topbar__link{% if '/content/docs/' in doc.collection.pod_path %} is-active{% endif %}">Docs</a>
+            <a href="/codelab/" class="topbar__link{% if '/content/codelab' in doc.collection.pod_path %} is-active{% endif %}">Codelab</a>
+          </nav>
         </div>
         <div class="search-box">
           <input
@@ -60,6 +80,10 @@
         {% set collection = g.collection('docs')
             if '/content/docs/' in doc.collection.pod_path
             else doc.collection %}
+
+        {% if '/content/docs/' not in doc.collection.pod_path %}
+          <a class="sidebar__back" href="/">&larr; Back to Docs</a>
+        {% endif %}
 
         {% if doc.collection.nav_title %}
           <div class="sidebar__heading">{{doc.collection.nav_title}}</div>

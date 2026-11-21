@@ -170,13 +170,7 @@ Returns a loaded JSON object, given a JSON file's pod path.
 
 `g.locales(<list of locale identifier>)`
 
-Returns a list of [`Locale class`](http://babel.pocoo.org/docs/locale/#the-locale-class) given a list of locale identifiers.
-
-### g.nav
-
-<div class="badge badge-not-implemented">Not implemented</div>
-
-Returns an object which can be used to create navigation.
+Returns a list of [`Locale class`](https://babel.pocoo.org/en/latest/api/core.html#babel.core.Locale) given a list of locale identifiers.
 
 ### g.static
 

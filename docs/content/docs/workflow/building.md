@@ -1,45 +1,62 @@
 ---
-$title: Building
+$title: Developing & building
 $category: Workflow
 $order: 10.2
 ---
+# Developing & building
 
-Grow implements several commands to help you build your pod to generate files and inspect the pod for ways to improve development and deployment.
+Grow provides a built-in local development server for instant previews and a static builder that compiles your pod into plain HTML, CSS, JS, and assets.
 
-## Commands
+## Local development server
 
-### build
-
-Builds a pod, generating all the static files needed to render your site. By default, the `grow build` command outputs files to the `build/` directory within your pod. You can specify a target directory by using an optional fourth argument. In order to deploy your site locally or to a launch destination, [see the `grow deploy` command]([url('/content/docs/workflow/deployment.md')]).
+Start the development server from your pod directory (or pass the path to a pod):
 
 ```bash
-# Builds pod to "build" directory.
+grow run
+```
+
+Grow serves your site locally at `http://localhost:8080/` and includes a built-in **Dev Console** at `http://localhost:8080/_grow/` where you can inspect routes, patterns, localized URLs, and pod metadata.
+
+Edits to content (`content/`), templates (`views/`), static files, or `podspec.yaml` are picked up automatically on refresh.
+
+```bash
+# Run on a specific port or pod directory
+grow run --port=8081 ./my-site
+```
+
+## Building static output
+
+Use `grow build` to render every route in your pod to static files. By default, files are written to `./build/` inside the pod directory.
+
+```bash
+# Build the current pod to ./build/
 grow build
 
-# Builds pod to <dir>.
-grow build --out_dir=<dir>
+# Build to a custom output directory
+grow build --out_dir=./dist
 
-# Builds pod and shows untranslated strings.
+# Build and report any untranslated strings
 grow build --locate-untranslated
 ```
 
-When using the `--locate-untranslated` flag Grow will also output all of the untranslated strings into `.po` files in the `.grow/untranslated/` directory to make it easier to request missing translations.
+When `--locate-untranslated` is passed, Grow exports missing strings to `.po` files in `.grow/untranslated/` so they can be sent for translation.
 
-### preprocess
+## Preprocessors
 
-Runs just the preprocessor step of the build process.
-
-### inspect routes
-
-Shows all routes from your pod. Useful for testing and debugging routing.
+To run configured preprocessors without running a full build:
 
 ```bash
-grow inspect routes
+grow preprocess
 ```
-### inspect untranslated
 
-Attempts to correlate the strings that are missing translation tagging in front matter and the templates use of the `gettext` (`_(...)`) function.
+## Inspecting a pod
+
+Grow includes inspection commands for debugging routes and localization coverage:
 
 ```bash
+# Print every resolved URL route in the pod
+grow inspect routes
+
+# Find strings missing translation tagging in templates and front matter
 grow inspect untranslated
 ```

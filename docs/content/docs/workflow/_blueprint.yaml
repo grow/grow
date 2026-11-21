@@ -1,5 +1,5 @@
 $title@: Workflow
-$order: 4 
+$order: 2
 $path: /{root}/{collection.basename}/{base}/
 $localization:
   path: /{root}/{locale}/{collection.basename}/{base}/

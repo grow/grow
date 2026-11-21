@@ -58,6 +58,30 @@
     }
   }
 
+  // 1b. Add zero-dependency Copy buttons to all code blocks.
+  if (contentEl && navigator.clipboard) {
+    contentEl.querySelectorAll('pre').forEach(function (pre) {
+      var code = pre.querySelector('code');
+      if (!code) return;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.textContent = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code');
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(code.textContent || '').then(function () {
+          btn.textContent = 'Copied';
+          btn.classList.add('is-copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        });
+      });
+      pre.appendChild(btn);
+    });
+  }
+
   // 2. Zero-dependency client-side search over Grow's generated search index.
   var searchInput = document.getElementById('docs-search');
   var resultsEl = document.getElementById('docs-search-results');
