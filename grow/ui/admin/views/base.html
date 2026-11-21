@@ -1,20 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{{pod.root}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Grow Console — {{pod.root}}</title>
     <link rel="shortcut icon" href="/_grow/assets/favicon.png">
     <link rel="stylesheet" href="/_grow/ui/css/admin.min.css">
   </head>
   <body>
-    <header>
-      <p class="subtitle">Pod: {{pod.root}}</p>
-      <nav>
-        <a href="/_grow/routes/concrete/">Routes</a>
-        <a href="/_grow/routes/abstract/">Abstract Routes</a>
-      </nav>
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="topbar__brand">
+          <a class="brand" href="/_grow">
+            <span class="brand__mark" aria-hidden="true">G</span>
+            <span class="brand__name">Grow</span>
+          </a>
+          <span class="pod-path" title="{{pod.root}}">{{pod.root}}</span>
+        </div>
+        <nav class="topbar__nav" aria-label="Console navigation">
+          <a class="nav-link" href="/_grow/routes/concrete/">Concrete Routes</a>
+          <a class="nav-link" href="/_grow/routes/abstract/">Abstract Routes</a>
+          <a class="nav-link nav-link--home" href="/" target="_blank" rel="noopener">Open Site &#8599;</a>
+        </nav>
+      </div>
     </header>
-    <main>
+    <main class="container">
       {% block main %}
         {% if partials %}
           {% for field in partials %}
@@ -31,10 +41,30 @@
         {% endif %}
       {% endblock %}
     </main>
-    <footer>
-      <p>
-        Visit <a href="https://grow.dev">grow.dev</a> to learn more about Grow
-        and visit the <a href="https://grow.dev/docs">documentation</a>.
-      </p>
+    <footer class="footer">
+      <div class="container footer__inner">
+        <span>Grow Dev Console</span>
+        <span class="footer__links">
+          <a href="https://grow.dev" target="_blank" rel="noopener">grow.dev</a>
+          &middot;
+          <a href="https://github.com/grow/grow" target="_blank" rel="noopener">GitHub</a>
+        </span>
+      </div>
     </footer>
+    <script>
+      (function () {
+        var path = window.location.pathname;
+        var links = document.querySelectorAll('.topbar__nav .nav-link');
+        links.forEach(function (link) {
+          var href = link.getAttribute('href');
+          if (
+            href === path ||
+            (href === '/_grow/routes/concrete/' && (path === '/_grow' || path === '/_grow/' || path === '/_grow/routes' || path === '/_grow/routes/'))
+          ) {
+            link.classList.add('is-active');
+          }
+        });
+      })();
+    </script>
   </body>
+</html>

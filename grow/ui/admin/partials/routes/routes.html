@@ -1,22 +1,207 @@
-<div class="routes">
-  <h2>Routes</h2>
-  <dl class="routes__list">
-    {% for path, info, options in partial.routes.nodes %}
-      <dt><a href="{{path}}">{{path}}</a></dt>
-      {% if info.kind == 'doc' %}
-        <dd>Source: {{info.meta.pod_path}}{% if info.meta.locale %} ({{info.meta.locale}}){% endif %}</dd>
-      {% elif info.kind == 'static' %}
-        <dd>Fingerprinted: {{info.meta.fingerprinted}}</dd>
-        <dd>Path Format: {{info.meta.path_format}}</dd>
-        <dd>Source Format: {{info.meta.source_format}}</dd>
-        <dd>Localized: {{info.meta.localized}}</dd>
-        <dd>Localization: {{info.meta.localization}}</dd>
-      {% else %}
-        <dd>{{info}}</dd>
-      {% endif %}
-      {% if options %}
-        <dd>Options: {{options}}</dd>
-      {% endif %}
-    {% endfor %}
-  </dl>
-</div>
+<section class="routes" id="grow-routes">
+  <div class="section-header">
+    <div>
+      <h2>Routes</h2>
+      <p class="section-subtitle">Inspect, filter, and open every route registered in this pod.</p>
+    </div>
+    <div class="stats-row" id="route-stats">
+      <div class="stat-card">
+        <span class="stat-card__value" id="stat-total">0</span>
+        <span class="stat-card__label">Total</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__value stat-card__value--doc" id="stat-doc">0</span>
+        <span class="stat-card__label">Docs</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__value stat-card__value--static" id="stat-static">0</span>
+        <span class="stat-card__label">Static</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-card__value stat-card__value--locale" id="stat-locales">0</span>
+        <span class="stat-card__label">Locales</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input
+        id="route-search"
+        class="search-input"
+        type="search"
+        placeholder="Filter routes by URL, source path, or locale… (press /)"
+        autocomplete="off"
+      >
+    </div>
+    <div class="filter-group" role="group" aria-label="Filter by route kind">
+      <button type="button" class="pill is-active" data-kind="all">All</button>
+      <button type="button" class="pill" data-kind="doc">Docs</button>
+      <button type="button" class="pill" data-kind="static">Static</button>
+      <button type="button" class="pill" data-kind="other">Other</button>
+    </div>
+    <select id="locale-filter" class="select-input" aria-label="Filter by locale">
+      <option value="all">All locales</option>
+    </select>
+  </div>
+
+  <div class="results-meta">
+    <span id="results-count">Showing all routes</span>
+  </div>
+
+  <div class="table-card">
+    <table class="routes-table">
+      <thead>
+        <tr>
+          <th class="col-kind">Kind</th>
+          <th class="col-path">Serving Path</th>
+          <th class="col-source">Source / Details</th>
+          <th class="col-locale">Locale</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="routes-tbody">
+        {% for path, info, options in partial.routes.nodes %}
+          {% set kind = info.kind if info.kind in ['doc', 'static'] else 'other' %}
+          {% set locale = info.meta.locale if (info.meta and info.meta.locale) else '' %}
+          <tr
+            class="route-row"
+            data-kind="{{kind}}"
+            data-locale="{{locale}}"
+            data-search="{{path|lower}} {{(info.meta.pod_path if info.meta and info.meta.pod_path else '')|lower}} {{locale|lower}} {{(info.kind or '')|lower}}"
+          >
+            <td class="col-kind">
+              <span class="badge badge--{{kind}}">{{info.kind or 'route'}}</span>
+            </td>
+            <td class="col-path">
+              <a class="route-link mono" href="{{path}}" target="_blank" rel="noopener">{{path}}</a>
+            </td>
+            <td class="col-source">
+              {% if info.kind == 'doc' %}
+                <span class="mono muted">{{info.meta.pod_path}}</span>
+              {% elif info.kind == 'static' %}
+                <div class="meta-chips">
+                  {% if info.meta.source_format %}<span class="meta-chip mono">{{info.meta.source_format}}</span>{% endif %}
+                  {% if info.meta.fingerprinted %}<span class="meta-chip meta-chip--accent">fingerprinted</span>{% endif %}
+                  {% if info.meta.localized %}<span class="meta-chip">localized</span>{% endif %}
+                </div>
+              {% else %}
+                <span class="mono muted">{{info}}</span>
+              {% endif %}
+              {% if options %}
+                <div class="mono small muted">Options: {{options}}</div>
+              {% endif %}
+            </td>
+            <td class="col-locale">
+              {% if locale %}
+                <span class="locale-chip mono">{{locale}}</span>
+              {% else %}
+                <span class="muted">&mdash;</span>
+              {% endif %}
+            </td>
+            <td class="col-actions">
+              <button type="button" class="action-btn" data-copy="{{path}}" title="Copy path">Copy</button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div id="routes-empty" class="empty-state" hidden>
+      No routes match your current filter.
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var rows = Array.prototype.slice.call(document.querySelectorAll('.route-row'));
+    var searchEl = document.getElementById('route-search');
+    var localeEl = document.getElementById('locale-filter');
+    var countEl = document.getElementById('results-count');
+    var emptyEl = document.getElementById('routes-empty');
+    var kindButtons = Array.prototype.slice.call(document.querySelectorAll('.pill[data-kind]'));
+
+    var counts = { total: rows.length, doc: 0, static: 0, other: 0 };
+    var localeSet = {};
+
+    rows.forEach(function (row) {
+      var k = row.getAttribute('data-kind') || 'other';
+      counts[k] = (counts[k] || 0) + 1;
+      var loc = row.getAttribute('data-locale');
+      if (loc) localeSet[loc] = true;
+    });
+
+    var locales = Object.keys(localeSet).sort();
+    document.getElementById('stat-total').textContent = counts.total;
+    document.getElementById('stat-doc').textContent = counts.doc;
+    document.getElementById('stat-static').textContent = counts.static;
+    document.getElementById('stat-locales').textContent = locales.length;
+
+    locales.forEach(function (loc) {
+      var opt = document.createElement('option');
+      opt.value = loc;
+      opt.textContent = loc;
+      localeEl.appendChild(opt);
+    });
+
+    var activeKind = 'all';
+
+    function applyFilters() {
+      var query = (searchEl.value || '').trim().toLowerCase();
+      var selectedLocale = localeEl.value;
+      var visible = 0;
+
+      rows.forEach(function (row) {
+        var kindOk = activeKind === 'all' || row.getAttribute('data-kind') === activeKind;
+        var localeOk = selectedLocale === 'all' || row.getAttribute('data-locale') === selectedLocale;
+        var searchOk = !query || (row.getAttribute('data-search') || '').indexOf(query) !== -1;
+        var show = kindOk && localeOk && searchOk;
+        row.hidden = !show;
+        if (show) visible += 1;
+      });
+
+      countEl.textContent = 'Showing ' + visible + ' of ' + counts.total + ' routes';
+      emptyEl.hidden = visible !== 0;
+    }
+
+    searchEl.addEventListener('input', applyFilters);
+    localeEl.addEventListener('change', applyFilters);
+
+    kindButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activeKind = btn.getAttribute('data-kind');
+        kindButtons.forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+        applyFilters();
+      });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '/' && document.activeElement !== searchEl && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        searchEl.focus();
+      } else if (e.key === 'Escape' && document.activeElement === searchEl) {
+        searchEl.value = '';
+        searchEl.blur();
+        applyFilters();
+      }
+    });
+
+    document.getElementById('routes-tbody').addEventListener('click', function (e) {
+      var btn = e.target.closest('.action-btn[data-copy]');
+      if (!btn) return;
+      var value = btn.getAttribute('data-copy');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value);
+      }
+      var orig = btn.textContent;
+      btn.textContent = 'Copied';
+      btn.classList.add('is-copied');
+      setTimeout(function () {
+        btn.textContent = orig;
+        btn.classList.remove('is-copied');
+      }, 1200);
+    });
+
+    applyFilters();
+  })();
+</script>
