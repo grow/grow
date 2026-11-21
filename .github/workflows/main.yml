@@ -2,7 +2,7 @@ name: 'Push to main'
 on:
   push:
     branches:
-    - main
+      - main
 jobs:
   # Evergreen docker image build from main.
   docker-image:
@@ -10,40 +10,30 @@ jobs:
     env:
       GOOGLE_CLOUD_PROJECT: 'grow-prod'
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
-      - name: Install
-        run: |
-          pip3 install -U pip
-          pip3 install -U pipenv
-          pip3 install pyyaml -U --force
-          pipenv run pip3 install pip
-          pipenv install --dev
-          pipenv run pip3 install pyyaml -U --force
+      - uses: actions/checkout@v4
       - name: Build UI assets
         run: |
-          make build-ui
+          yarn --cwd grow/ui install
+          yarn --cwd grow/ui build
       - name: Log in to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Log in to the GitHub ontainer registry
-        uses: docker/login-action@v1
+      - name: Log in to the GitHub container registry
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Log in to the Google container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: gcr.io
           username: _json_key
           password: ${{ secrets.GCP_JSON_KEY }}
       - name: Extract metadata (tags, labels) for Docker
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         id: meta
         with:
           images: |
@@ -51,7 +41,7 @@ jobs:
             ghcr.io/${{ github.repository }}
             gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base
       - name: Push grow/base
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -71,59 +61,50 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: python
       - if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-python@v2
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.7"
-      - if: ${{ steps.release.outputs.release_created }}
-        name: Install
-        run: |
-          pip3 install -U pip
-          pip3 install -U pipenv
-          pip3 install pyyaml -U --force
-          pipenv run pip3 install pip
-          pipenv install --dev
-          pipenv run pip3 install pyyaml -U --force
+          python-version: "3.10"
       - if: ${{ steps.release.outputs.release_created }}
         name: Build UI assets
         run: |
-          make build-ui
+          yarn --cwd grow/ui install
+          yarn --cwd grow/ui build
       - if: ${{ steps.release.outputs.release_created }}
         name: Build package
         run: |
           rm -rf dist
-          pipenv run python setup.py sdist bdist_wheel
+          uv build
       - if: ${{ steps.release.outputs.release_created }}
-        name: Upload to PyPi
-        run: |
-          pipenv run twine upload dist/grow*
+        name: Upload to PyPI
+        run: uv publish
         env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          UV_PUBLISH_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          UV_PUBLISH_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       - if: ${{ steps.release.outputs.release_created }}
         name: Log in to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - if: ${{ steps.release.outputs.release_created }}
-        name: Log in to the GitHub ontainer registry
-        uses: docker/login-action@v1
+        name: Log in to the GitHub container registry
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - if: ${{ steps.release.outputs.release_created }}
         name: Log in to the Google container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: gcr.io
           username: _json_key
           password: ${{ secrets.GCP_JSON_KEY }}
       - if: ${{ steps.release.outputs.release_created }}
         name: Extract metadata (tags, labels) for Docker
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v5
         id: meta
         with:
           images: |
@@ -132,7 +113,7 @@ jobs:
             gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base
       - if: ${{ steps.release.outputs.release_created }}
         name: Push grow/base
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
