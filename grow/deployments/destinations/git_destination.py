@@ -6,14 +6,15 @@ import re
 import shutil
 import subprocess
 import tempfile
+
 import git
 from protorpc import messages
+
 from grow.common import utils as common_utils
 from grow.deployments.destinations import base
 from grow.pods import env
 from grow.routing import router
 from grow.storage import file_storage
-
 
 ONLINE_REPO_REGEX = \
     r'((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)(/)?'
@@ -36,7 +37,7 @@ class GitDestination(base.BaseDestination):
     storage = file_storage.FileStorage
 
     def __init__(self, *args, **kwargs):
-        super(GitDestination, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.adds = set()
         self.deletes = set()
         self._original_branch_name = None
@@ -45,8 +46,8 @@ class GitDestination(base.BaseDestination):
         if self.is_remote:
             prefix = self.config.repo
         else:
-            prefix = 'git:{}'.format(self.config.repo)
-        return '{}@{}:{}'.format(prefix, self.config.branch, self.config.root_dir)
+            prefix = f'git:{self.config.repo}'
+        return f'{prefix}@{self.config.branch}:{self.config.root_dir}'
 
     @common_utils.cached_property
     def is_remote(self):
@@ -79,7 +80,7 @@ class GitDestination(base.BaseDestination):
         if self.is_remote:
             self.remote = git.remote.Remote.add(self.repo, 'origin', self.config.repo)
             try:
-                logging.info('Pulling from {}...'.format(self.config.branch))
+                logging.info(f'Pulling from {self.config.branch}...')
                 self.repo.git.pull('origin', self.config.branch)
             except git.GitCommandError as e:
                 # Pass on this error, which will create a new branch upon pushing.
@@ -89,13 +90,12 @@ class GitDestination(base.BaseDestination):
     def create_commit_message(self):
         editor = os.getenv('EDITOR')
         commit_message_path = os.path.join(self.repo.git_dir, 'COMMIT_EDITMSG')
-        fp = open(commit_message_path, 'w')
-        fp.write(self._diff.what_changed or '')
-        fp.close()
+        with open(commit_message_path, 'w') as fp:
+            fp.write(self._diff.what_changed or '')
         if editor and self._confirm:
-            subprocess.call('{} {}', editor, commit_message_path, shell=True)
-        content = open(commit_message_path).read()
-        return content
+            subprocess.call([editor, commit_message_path])
+        with open(commit_message_path) as fp:
+            return fp.read()
 
     def postlaunch(self, dry_run=False):
         if dry_run:

@@ -1,18 +1,17 @@
 """Grow translation importers."""
 
-import io
 import collections
 import copy
 import csv
 import errno
+import io
 import logging
 import os
 import shutil
 import tempfile
 import zipfile
-from babel.messages import catalog
-from babel.messages import pofile
 
+from babel.messages import catalog, pofile
 
 default_external_to_babel_locales = collections.defaultdict(list)
 builtin_locales = {
@@ -43,7 +42,7 @@ def _mkdir(path):
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -56,7 +55,7 @@ class Importer:
 
     def _validate_path(self, path):
         if not os.path.isfile(path):
-            raise Error('Not found: {}'.format(path))
+            raise Error(f'Not found: {path}')
 
     def import_path(self, path, locale=None):
         if path.endswith('.zip'):
@@ -81,14 +80,12 @@ class Importer:
             reader = csv.DictReader(fp)
             for row in reader:
                 if default_locale not in row:
-                    text = 'Locale {} not found in {}'.format(default_locale, path)
+                    text = f'Locale {default_locale} not found in {path}'
                     raise Error(text)
                 msgid = row[default_locale]
-                msgid = msgid
                 for locale, translation in row.items():
                     if locale == default_locale:
                         continue
-                    translation = translation
                     message = catalog.Message(msgid, translation)
                     if locale not in locales_to_catalogs:
                         locales_to_catalogs[locale] = catalog.Catalog()
@@ -102,9 +99,14 @@ class Importer:
             fp.close()
 
     def import_zip_file(self, zip_path):
+        temp_dir_path = tempfile.mkdtemp()
         try:
-            temp_dir_path = tempfile.mkdtemp()
+            real_temp = os.path.realpath(temp_dir_path)
             with zipfile.ZipFile(zip_path, 'r') as zip_file:
+                for member in zip_file.namelist():
+                    dest = os.path.realpath(os.path.join(real_temp, member))
+                    if os.path.commonpath([real_temp, dest]) != real_temp:
+                        raise Error(f'Unsafe zip member path: {member}')
                 zip_file.extractall(temp_dir_path)
             return self.import_dir(temp_dir_path)
         finally:
@@ -117,15 +119,14 @@ class Importer:
         # Detect whether importing from another pod.
         podspec_path = os.path.join(dir_path, 'podspec.yaml')
         if os.path.exists(podspec_path):
-            text = 'Importing from pod -> {}'.format(podspec_path)
+            text = f'Importing from pod -> {podspec_path}'
             self.pod.logger.info(text)
             translations_dir = os.path.join(dir_path, 'translations')
             for locale in os.listdir(translations_dir):
                 po_path = os.path.join(
                         translations_dir, locale, 'LC_MESSAGES', 'messages.po')
-                if os.path.exists(po_path):
-                    if self.import_file(locale, po_path):
-                        has_changed_content = True
+                if os.path.exists(po_path) and self.import_file(locale, po_path):
+                    has_changed_content = True
             return has_changed_content
 
         # TODO(jeremydw): Allow a custom syntax for translation importers.
@@ -140,14 +141,15 @@ class Importer:
                     if self.import_file(locale, po_path):
                         has_changed_content = True
                 else:
-                    self.pod.logger.warning('Skipping: {}'.format(po_path))
+                    self.pod.logger.warning(f'Skipping: {po_path}')
 
         return has_changed_content
 
     def import_file(self, locale, po_path):
         if not os.path.exists(po_path):
-            raise Error('Couldn\'t find PO file: {}'.format(po_path))
-        content = open(po_path).read()
+            raise Error(f'Couldn\'t find PO file: {po_path}')
+        with open(po_path) as fp:
+            content = fp.read()
         return self.import_content(locale, content)
 
     def import_content(self, locale, content):
@@ -162,13 +164,12 @@ class Importer:
         # Leverage user-defined locale identifiers when importing translations.
         external_to_babel_locales = copy.deepcopy(
             default_external_to_babel_locales)
-        if self.pod.podspec.localization:
-            if 'import_as' in self.pod.podspec.localization:
-                import_as = self.pod.podspec.localization['import_as']
-                for external_locale, babel_locales in import_as.items():
-                    for babel_locale in babel_locales:
-                        external_to_babel_locales[external_locale].append(
-                            babel_locale)
+        if self.pod.podspec.localization and 'import_as' in self.pod.podspec.localization:
+            import_as = self.pod.podspec.localization['import_as']
+            for external_locale, babel_locales in import_as.items():
+                for babel_locale in babel_locales:
+                    external_to_babel_locales[external_locale].append(
+                        babel_locale)
 
         babel_locales = external_to_babel_locales.get(locale, [locale])
         for babel_locale in babel_locales:
@@ -188,7 +189,7 @@ class Importer:
                     po_file_to_merge.seek(0)
                     catalog_to_merge = pofile.read_po(
                         po_file_to_merge, babel_locale)
-                except Exception as e:
+                except Exception:
                     text = 'Error merging catalogs for locale -> {}'
                     logging.error(text.format(locale))
                     raise

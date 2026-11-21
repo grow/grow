@@ -1,7 +1,9 @@
 """Tests for the main grow development server."""
 
 import unittest
+
 import webob
+
 from grow.pods import pods
 from grow.server import main
 from grow.testing import testing
@@ -82,6 +84,8 @@ class PodHandlerTestCase(unittest.TestCase):
 
         request = webob.Request.blank('/_grow/ui/css/admin.min.css')
         response = request.get_response(app)
+        if response.status_int == 404:
+            self.skipTest('UI assets not built; run `yarn --cwd grow/ui build`.')
         self.assertEqual(200, response.status_int)
 
     def test_ui(self):
@@ -93,6 +97,8 @@ class PodHandlerTestCase(unittest.TestCase):
         # Verify JS and CSS are served.
         request = webob.Request.blank('/_grow/ui/js/ui.min.js')
         response = request.get_response(app)
+        if response.status_int == 404:
+            self.skipTest('UI assets not built; run `yarn --cwd grow/ui build`.')
         self.assertEqual(200, response.status_int)
         js_sentinel = b'setAttribute("target","_blank")'
         self.assertIn(js_sentinel, response.body)
@@ -102,6 +108,17 @@ class PodHandlerTestCase(unittest.TestCase):
         self.assertEqual(200, response.status_int)
         css_sentinel = b'#grow'
         self.assertIn(css_sentinel, response.body)
+
+    def test_ui_tool_blocks_path_traversal(self):
+        """serve_ui_tool must reject directory traversal outside node_modules."""
+        from werkzeug.exceptions import NotFound
+
+        from grow.server import handlers
+
+        dir_path = testing.create_test_pod_dir()
+        pod = pods.Pod(dir_path)
+        with self.assertRaises(NotFound):
+            handlers.serve_ui_tool(pod, None, {'tool': '../podspec.yaml'})
 
 
 if __name__ == '__main__':

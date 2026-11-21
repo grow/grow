@@ -74,23 +74,23 @@ import io
 import json
 import logging
 import os
-import subprocess
 import re
+import subprocess
 import sys
+
 from grow.common import utils
-from grow.deployments import indexes
-from grow.deployments import tests
+from grow.deployments import indexes, tests
 from grow.performance import profile_report
-from grow.pods import env
-from grow.pods import pods
+from grow.pods import env, pods
 from grow.rendering import rendered_document
+
 from . import messages
 
 
 class Error(Exception):
 
     def __init__(self, message):
-        super(Error, self).__init__(message)
+        super().__init__(message)
         self.message = message
 
 
@@ -105,7 +105,7 @@ class DestinationTestCase:
 
     def test_write_file(self):
         basename = 'test.tmp'
-        title = 'Can write files to {}'.format(self.deployment)
+        title = f'Can write files to {self.deployment}'
         message = messages.TestResultMessage(title=title)
         self.deployment.write_control_file(basename, 'test')
         content = self.deployment.read_control_file(basename)
@@ -173,31 +173,30 @@ class BaseDestination:
         try:
             content = self.read_control_file(self.index_basename)
             return indexes.Index.from_string(content)
-        except IOError:
-            logging.info('Unable to find remote index: {}'.format(
-                self.index_basename))
+        except OSError:
+            logging.info(f'Unable to find remote index: {self.index_basename}')
             return indexes.Index.create()
 
     def export_profile_report(self):
         """Write the results of the profiling timers."""
         report = profile_report.ProfileReport(self.pod.profile)
-        file_name = '{}profile.json'.format(self.control_dir)
+        file_name = f'{self.control_dir}profile.json'
         self.pod.write_file(file_name, json.dumps(report.export()))
-        logging.info('Profiling data exported to {}'.format(file_name))
+        logging.info(f'Profiling data exported to {file_name}')
 
     def export_untranslated_catalogs(self):
-        dir_path = '{}untranslated/'.format(self.control_dir)
+        dir_path = f'{self.control_dir}untranslated/'
         catalogs = self.pod.translation_stats.export_untranslated_catalogs(
             self.pod, dir_path=dir_path)
         self.pod.delete_files([dir_path], recursive=True,
                               pattern=re.compile(r'\.po$'))
-        for _, catalog in catalogs.items():
+        for catalog in catalogs.values():
             catalog.save()
         if self.pod.translation_stats.stacktraces:
             self.pod.write_file(os.path.join(dir_path, 'tracebacks.log'),
                 self.pod.translation_stats.export_untranslated_tracebacks())
         if catalogs or self.pod.translation_stats.stacktraces:
-            logging.info('Untranslated strings exported to {}'.format(dir_path))
+            logging.info(f'Untranslated strings exported to {dir_path}')
 
     def get_env(self):
         """Returns an environment object based on the config."""
@@ -308,7 +307,7 @@ class BaseDestination:
                     raise pods.Error('Aborted deploy due to untranslated strings. '
                                      'Use the --force-untranslated flag to force deployment.')
                 if confirm:
-                    text = 'Proceed to deploy? -> {}'.format(self)
+                    text = f'Proceed to deploy? -> {self}'
                     if not utils.interactive_confirm(text):
                         logging.info('Aborted.')
                         return
@@ -331,12 +330,14 @@ class BaseDestination:
         return diff
 
     def command(self, command):
-        with io.BytesIO() as fp:
-            proc = subprocess.Popen(command, stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE, shell=True)
-            for line in iter(proc.stdout.readline, ''):
-                sys.stdout.write(line)
-                fp.write(line)
-            err = proc.stderr.read()
+        with io.StringIO() as fp:
+            with subprocess.Popen(
+                command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                shell=True, text=True,
+            ) as proc:
+                for line in proc.stdout:
+                    sys.stdout.write(line)
+                    fp.write(line)
+                err = proc.stderr.read()
             if err:
                 raise CommandError(err)

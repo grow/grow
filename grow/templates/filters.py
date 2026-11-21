@@ -1,18 +1,18 @@
 """Template jinja filters."""
 
-from datetime import datetime
 import copy
 import hashlib
 import json as json_lib
 import random
 import re
+from datetime import datetime
+
 import jinja2
 import slugify
 from babel import dates as babel_dates
 from babel import numbers as babel_numbers
-from grow.common import json_encoder
-from grow.common import urls
-from grow.common import utils
+
+from grow.common import json_encoder, urls, utils
 from grow.templates.tags import _gettext_alias
 
 
@@ -51,7 +51,7 @@ def deeptrans(ctx, obj):
 @jinja2.contextfilter
 def expand_partial(_ctx, partial_name):
     """Filter for expanding partial path from name of partial."""
-    return '/partials/{0}/{0}.html'.format(partial_name)
+    return f'/partials/{partial_name}/{partial_name}.html'
 
 
 @jinja2.contextfilter
@@ -60,9 +60,9 @@ def hash_value(_ctx, value, algorithm='sha'):
     value = value.encode('utf-8')
 
     if algorithm in ('md5',):
-        return hashlib.md5(value).hexdigest()
+        return hashlib.md5(value, usedforsecurity=False).hexdigest()
     if algorithm in ('sha1',):
-        return hashlib.sha1(value).hexdigest()
+        return hashlib.sha1(value, usedforsecurity=False).hexdigest()
     if algorithm in ('sha224',):
         return hashlib.sha224(value).hexdigest()
     if algorithm in ('sha384',):
@@ -75,7 +75,7 @@ def hash_value(_ctx, value, algorithm='sha'):
 @jinja2.contextfilter
 def jsonify(_ctx, obj, *args, **kwargs):
     """Filter for JSON dumping an object."""
-    return json_lib.dumps(obj, cls=json_encoder.GrowJSONEncoder, *args, **kwargs)
+    return json_lib.dumps(obj, *args, cls=json_encoder.GrowJSONEncoder, **kwargs)
 
 
 @jinja2.contextfilter
@@ -83,13 +83,8 @@ def markdown_filter(ctx, value):
     """Filters content through a markdown processor."""
     doc = ctx['doc']
     m_down = doc.pod.markdown
-    try:
-        if isinstance(value, str):
-            value = value
-        value = value or ''
-        return m_down.convert(value)
-    except UnicodeEncodeError:
-        return m_down.convert(value)
+    value = value or ''
+    return m_down.convert(value)
 
 
 @jinja2.contextfilter
