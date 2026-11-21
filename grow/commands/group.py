@@ -95,7 +95,7 @@ def grow(auth, clear_auth, auth_key_file, interactive_auth, profile):
         os.environ['CLEAR_AUTH'] = '1'
 
 
-@grow.resultcallback()
+@grow.result_callback()
 def process_subcommands(pod, profile, **_):
     """Handle flags that need to process after the sub command."""
 

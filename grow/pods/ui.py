@@ -18,11 +18,9 @@ def create_jinja_env():
         autoescape=True,
         trim_blocks=True,
         extensions=[
-            'jinja2.ext.autoescape',
             'jinja2.ext.do',
             'jinja2.ext.i18n',
             'jinja2.ext.loopcontrols',
-            'jinja2.ext.with_',
         ],
     )
     env.filters.update(filters.create_builtin_filters(env, None))

@@ -6,6 +6,7 @@ from datetime import datetime
 
 import jinja2
 from babel.messages import catalog as babel_catalog
+from markupsafe import Markup
 
 from grow.collections import collection as collection_lib
 from grow.common import structures, utils
@@ -33,7 +34,7 @@ class Menu:
             self._recursive_build(tree[child], child, nodes)
 
 
-@jinja2.contextfunction
+@jinja2.pass_context
 def _gettext_alias(__context, *args, **kwargs):
     return __context.call(__context.resolve('gettext'), *args, **kwargs)
 
@@ -155,7 +156,7 @@ def make_doc_gettext(doc):
     translation_stats = doc.pod.translation_stats
     catalog = doc.pod.catalogs.get(doc.locale)
 
-    @jinja2.contextfunction
+    @jinja2.pass_context
     def gettext(__context, __string, *args, **kwargs):
         # Elegantly handle non-strings passed to gettext.
         if not isinstance(__string, str):
@@ -175,13 +176,13 @@ def make_doc_gettext(doc):
 def make_gettext(pod, func):
     """Create a gettext function that tracks translation stats."""
 
-    @jinja2.contextfunction
+    @jinja2.pass_context
     def gettext(__context, __string, **variables):
         """Gettext and do replacement."""
         value = __context.call(func, __string)
         value = utils.safe_format(value, **variables)
         if __context.eval_ctx.autoescape:
-            value = jinja2.utils.Markup(value)
+            value = Markup(value)
         return value
 
     return gettext
@@ -190,14 +191,14 @@ def make_gettext(pod, func):
 def make_ngettext(pod, func):
     """Create a gettext function that tracks translation stats."""
 
-    @jinja2.contextfunction
+    @jinja2.pass_context
     def ngettext(__context, __singular, __plural, __num, **variables):
         """Gettext and do replacement."""
         variables.setdefault('num', __num)
         value = __context.call(func, __singular, __plural, __num)
         value = utils.safe_format(value, **variables)
         if __context.eval_ctx.autoescape:
-            value = jinja2.utils.Markup(value)
+            value = Markup(value)
         return value
 
     return ngettext
@@ -234,7 +235,7 @@ def url(pod_path, locale=None, _pod=None):
 def wrap_locale_context(func):
     """Wraps the func with the current locale."""
 
-    @jinja2.contextfilter
+    @jinja2.pass_context
     def _locale_filter(ctx, value, *args, **kwargs):
         doc = ctx['doc']
         if not kwargs.get('locale', None):
