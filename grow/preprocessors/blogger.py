@@ -1,8 +1,6 @@
 import datetime
 import logging
 
-import httplib2
-from googleapiclient import discovery, errors
 from protorpc import messages
 
 from grow.common import oauth, utils
@@ -13,7 +11,7 @@ OAUTH_SCOPE = 'https://www.googleapis.com/auth/blogger'
 
 
 # Silence extra logging from googleapiclient.
-discovery.logger.setLevel(logging.WARNING)
+logging.getLogger('googleapiclient.discovery').setLevel(logging.WARNING)
 
 
 class BloggerPreprocessor(base.BasePreprocessor):
@@ -29,6 +27,9 @@ class BloggerPreprocessor(base.BasePreprocessor):
 
     @staticmethod
     def create_service(authenticated=True):
+        import httplib2
+        from googleapiclient import discovery
+
         http = httplib2.Http()
         if authenticated:
             credentials = oauth.get_or_create_credentials(scope=OAUTH_SCOPE, storage_key='Grow SDK')
@@ -125,6 +126,8 @@ class BloggerPreprocessor(base.BasePreprocessor):
         )
 
     def inject(self, doc):
+        from googleapiclient import errors
+
         path = doc.pod_path
         post_id = doc.base
         try:

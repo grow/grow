@@ -6,7 +6,6 @@ import random
 
 from babel.messages import catalog as babel_catalog_lib
 from babel.messages import pofile
-from googleapiclient import errors
 
 from grow.common import progressbar_non
 from grow.common import progressbar_non as progressbar
@@ -75,6 +74,8 @@ class GoogleSheetsTranslator(base.Translator):
         return google_drive.BaseGooglePreprocessor.create_service('sheets', 'v4')
 
     def _download_sheet(self, spreadsheet_id, locale):
+        from googleapiclient import errors
+
         service = self._create_service()
         rangeName = f"'{locale}'!A:D"
         try:
@@ -98,6 +99,8 @@ class GoogleSheetsTranslator(base.Translator):
         return resp['values']
 
     def _download_sheets(self, spreadsheet_id, locales):
+        from googleapiclient import errors
+
         service = self._create_service()
 
         # Find out which locales have sheets.

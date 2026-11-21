@@ -1,22 +1,14 @@
 """Local development server manager."""
 
-import importlib.metadata
 import sys
 import threading
 
 from werkzeug import serving
 
+import grow
 from grow.common import colors, timer
 from grow.preprocessors import file_watchers
 from grow.server import main as main_lib
-
-
-def _grow_version():
-    try:
-        return importlib.metadata.version('grow')
-    except importlib.metadata.PackageNotFoundError:
-        return ''
-
 
 # Number of tries to find a free port.
 NUM_TRIES = 10
@@ -80,8 +72,7 @@ def print_server_ready_message(pod, host, port):
     url_root = f'http://{host}:{port}{root_path}'
     url_console = f'http://{host}:{port}/_grow/'
 
-    version = _grow_version()
-    version_str = f' {colors.stylize(f"v{version}", colors.DIM)}' if version else ''
+    version_str = f' {colors.stylize(f"v{grow.__version__}", colors.DIM)}'
     header = (
         f'\n  {colors.stylize("Grow", colors.BRAND)}{version_str}  '
         f'{colors.stylize("dev server ready", colors.SUCCESS)}\n'

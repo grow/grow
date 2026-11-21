@@ -1,26 +1,50 @@
 """Grow local development server."""
 
 import os
+import time
 from urllib import parse as url_parse
 
-import pkg_resources
 from werkzeug import serving
 from werkzeug.middleware import shared_data
 
-from grow.common import utils
+import grow
+from grow.common import colors, utils
 from grow.pods import errors
 from grow.server import handlers
 
 
-# Use grow's logger instead of werkzeug's default.
+# Use Grow's concise Root.js-style request logging instead of Werkzeug's default.
 class RequestHandler(serving.WSGIRequestHandler):
     @property
     def server_version(self):
-        version = pkg_resources.get_distribution('grow').version
-        return f'Grow/{version}'
+        return f'Grow/{grow.__version__}'
 
-    def log(self, *args, **kwargs):
+    def log(self, type, message, *args):
         pass
+
+    def log_request(self, code='-', size='-'):
+        status = str(code)
+        if status.startswith('2'):
+            code_str = colors.stylize(status, colors.SUCCESS)
+        elif status.startswith('3'):
+            code_str = colors.stylize(status, colors.CYAN)
+        elif status.startswith('4'):
+            code_str = colors.stylize(status, colors.CAUTION)
+        else:
+            code_str = colors.stylize(status, colors.ERROR)
+
+        method = getattr(self, 'command', 'GET')
+        path = getattr(self, 'path', '')
+        elapsed_ms = ''
+        start = getattr(self, '_grow_start_time', None)
+        if start is not None:
+            ms = (time.perf_counter() - start) * 1000
+            elapsed_ms = f'  {colors.stylize(f"{ms:.0f}ms", colors.DIM)}'
+        print(f'  {code_str}  {colors.stylize(method.ljust(4), colors.DIM)}  {path}{elapsed_ms}')
+
+    def run_wsgi(self):
+        self._grow_start_time = time.perf_counter()
+        return super().run_wsgi()
 
 
 class PodServer:

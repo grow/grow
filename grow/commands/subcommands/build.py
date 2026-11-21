@@ -1,11 +1,11 @@
 """Command for building pods into static deployments."""
 
-import importlib.metadata
 import os
 import time
 
 import click
 
+import grow
 from grow import storage
 from grow.commands import shared
 from grow.common import bulk_errors, colors, rc_config, utils
@@ -143,11 +143,7 @@ def build(
     elapsed = time.perf_counter() - start_time
     count = len(pod.router.routes)
     route_word = 'route' if count == 1 else 'routes'
-    try:
-        version = importlib.metadata.version('grow')
-        version_str = f' {colors.stylize(f"v{version}", colors.DIM)}'
-    except importlib.metadata.PackageNotFoundError:
-        version_str = ''
+    version_str = f' {colors.stylize(f"v{grow.__version__}", colors.DIM)}'
     check = colors.stylize('✓', colors.SUCCESS)
     arrow = colors.stylize('➜', colors.SUCCESS)
     print(

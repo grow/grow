@@ -3,11 +3,11 @@
 import os
 
 import click
-import pkg_resources
 
+import grow as grow_pkg
 from grow.deployments.destinations import local as local_destination
 
-version = pkg_resources.get_distribution('grow').version
+version = grow_pkg.__version__
 
 HELP_TEXT = (
     'Grow is a declarative file-based website generator. Read docs at '
