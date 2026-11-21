@@ -12,7 +12,7 @@ $titles:
 
 <div class="banner">
   <em>New</em>
-  Grow 1.0 for Python 3 has been released! <a href="[url('/content/migration/1.0.0.md')]">Read migration notes <i class="material-icons">arrow_forward</i></a>
+  Grow 1.0 for Python 3 has been released! <a href="[url('/content/migration/1.0.0.md')]">Read migration notes &rarr;</a>
 </div>
 
 Grow.dev is a static site generator optimized for building highly-interactive,
@@ -36,7 +36,7 @@ and makes maintaining content in different locales and environments a snap.
 ## Install
 
 - [Read installation instructions]([url('/content/docs/get-started/install.md')])
-- [Clone and run our starter project on GitHub](https://github.com/grow/starter)
+- [Clone and run our starter project on GitHub](https://github.com/grow/grow/tree/main/examples/starter)
 
 ## Learn
 
@@ -45,6 +45,5 @@ architecture. We keep Grow.dev simple so that you can learn about all its
 capabilities within an hour or less.
 
 <a href="/codelab/" class="button button--lg button--icon-end">
-  Try the codelab
-  <i class="material-icons">arrow_forward</i>
+  Try the codelab &rarr;
 </a>

@@ -19,7 +19,7 @@ RUN apt-get update \
   && install -m 0755 -d /etc/apt/keyrings \
   && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
     | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_18.x nodistro main" \
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" \
     > /etc/apt/sources.list.d/nodesource.list \
   && curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg \
     | gpg --dearmor -o /etc/apt/keyrings/yarn.gpg \
@@ -54,7 +54,6 @@ RUN apt-get update \
 # Install nvm, global Node tools, and Ruby bundler.
 RUN NVM_VERSION="$(curl -fsSL https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep -oP '"tag_name": "\K[^"]+')" \
   && curl -fsSL "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash \
-  && npm install -g npm@latest \
   && yarn global add gulp \
   && yarn cache clean \
   && gem install --no-document bundler
