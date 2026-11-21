@@ -114,8 +114,8 @@ Every document exposes built-in properties and helper methods inside templates.
 |---|---|---|
 | `doc.title` | `str` | Canonical title from `$title`. |
 | `doc.url` | `Url` | Resolved URL (`url.path`, `url.host`, `url.scheme`, `url.port`). |
-| `doc.html` | `str \| None` | Rendered HTML (for `.md`) or raw HTML (for `.html`). Pipe to `\| safe`. |
-| `doc.body` | `str \| None` | Unprocessed body text after front matter. |
+| `doc.html` | `str | None` | Rendered HTML (for `.md`) or raw HTML (for `.html`). Pipe to `| safe`. |
+| `doc.body` | `str | None` | Unprocessed body text after front matter. |
 | `doc.fields` | `dict` | All parsed front matter fields. |
 | `doc.pod_path` | `str` | Full path in the pod (e.g. `/content/pages/about.md`). |
 | `doc.base` | `str` | Filename without extension (e.g. `about`). |
@@ -123,13 +123,13 @@ Every document exposes built-in properties and helper methods inside templates.
 | `doc.collection` | `Collection` | Parent `Collection` object. |
 | `doc.collection_base` | `str` | Subdirectory relative to the collection (e.g. `/` or `/sub/`). |
 | `doc.collection_path` | `str` | File path relative to the collection (e.g. `/sub/about.md`). |
-| `doc.category` | `str \| None` | Category from `$category`. |
-| `doc.date` | `datetime \| None` | Date from `$date`. |
-| `doc.order` | `int \| float \| None` | Sort order from `$order`. |
+| `doc.category` | `str | None` | Category from `$category`. |
+| `doc.date` | `datetime | None` | Date from `$date`. |
+| `doc.order` | `int | float | None` | Sort order from `$order`. |
 | `doc.hidden` | `bool` | Whether `$hidden: true` is set. |
-| `doc.parent` | `Document \| None` | Parent document from `$parent`. |
-| `doc.view` | `str \| None` | Template pod path from `$view` or blueprint. |
-| `doc.path_format` | `str \| None` | URL path format; falsy if the document does not generate a route. |
+| `doc.parent` | `Document | None` | Parent document from `$parent`. |
+| `doc.view` | `str | None` | Template pod path from `$view` or blueprint. |
+| `doc.path_format` | `str | None` | URL path format; falsy if the document does not generate a route. |
 | `doc.exists` | `bool` | Whether the underlying file exists in the pod. |
 | `doc.locale` | `Locale` | Current Babel `Locale` (e.g. `doc.locale.is_rtl`, `doc.locale.get_display_name('en')`). |
 | `doc.locales` | `list[Locale]` | All locales this document is available in. |
