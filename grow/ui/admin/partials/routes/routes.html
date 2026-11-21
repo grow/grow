@@ -74,7 +74,7 @@
               <span class="badge badge--{{kind}}">{{info.kind or 'route'}}</span>
             </td>
             <td class="col-path">
-              <a class="route-link mono" href="{{path}}" target="_blank" rel="noopener">{{path}}</a>
+              <a class="route-link mono" href="{{path}}" title="{{path}}" data-path="{{path}}" target="_blank" rel="noopener">{{path}}</a>
             </td>
             <td class="col-source">
               {% if info.kind == 'doc' %}
@@ -124,11 +124,68 @@
     var counts = { total: rows.length, doc: 0, static: 0, other: 0 };
     var localeSet = {};
 
+    // Format long fingerprinted paths cleanly: dim directory prefix, collapse 32-64 char hex hashes
+    // into a compact inline chip while preserving full href, title tooltip, and Copy value.
+    var hashRe = /([-/])([0-9a-f]{32,64})(?=\.|\/|$)/gi;
+    function formatRouteLink(link) {
+      var fullPath = link.getAttribute('data-path') || link.textContent;
+      if (!fullPath || fullPath === '/') return;
+      var lastSlash = fullPath.lastIndexOf('/');
+      var dirPart = lastSlash > 0 ? fullPath.slice(0, lastSlash + 1) : '';
+      var tailPart = lastSlash > 0 ? fullPath.slice(lastSlash + 1) : fullPath;
+      // Handle trailing-slash directory routes like /de_alias/about/
+      if (!tailPart && fullPath.length > 1) {
+        var trimmed = fullPath.slice(0, -1);
+        var prevSlash = trimmed.lastIndexOf('/');
+        dirPart = prevSlash > 0 ? fullPath.slice(0, prevSlash + 1) : '/';
+        tailPart = fullPath.slice(dirPart.length);
+      }
+
+      link.textContent = '';
+
+      function appendSegment(text, className) {
+        if (!text) return;
+        var lastIdx = 0;
+        hashRe.lastIndex = 0;
+        var match;
+        while ((match = hashRe.exec(text)) !== null) {
+          if (match.index > lastIdx) {
+            var before = document.createElement('span');
+            if (className) before.className = className;
+            before.textContent = text.slice(lastIdx, match.index) + match[1];
+            link.appendChild(before);
+          } else {
+            var sep = document.createElement('span');
+            if (className) sep.className = className;
+            sep.textContent = match[1];
+            link.appendChild(sep);
+          }
+          var chip = document.createElement('span');
+          chip.className = 'hash-chip';
+          chip.title = match[2];
+          chip.textContent = match[2].slice(0, 8) + '\u2026';
+          link.appendChild(chip);
+          lastIdx = match.index + match[0].length;
+        }
+        if (lastIdx < text.length) {
+          var rest = document.createElement('span');
+          if (className) rest.className = className;
+          rest.textContent = text.slice(lastIdx);
+          link.appendChild(rest);
+        }
+      }
+
+      if (dirPart) appendSegment(dirPart, 'path-dir');
+      appendSegment(tailPart, 'path-leaf');
+    }
+
     rows.forEach(function (row) {
       var k = row.getAttribute('data-kind') || 'other';
       counts[k] = (counts[k] || 0) + 1;
       var loc = row.getAttribute('data-locale');
       if (loc) localeSet[loc] = true;
+      var link = row.querySelector('.route-link');
+      if (link) formatRouteLink(link);
     });
 
     var locales = Object.keys(localeSet).sort();
