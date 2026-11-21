@@ -1,5 +1,5 @@
 $title@: Reference
-$order: 2
+$order: 3
 $path: /{root}/{collection.basename}/{base}/
 $localization:
   path: /{root}/{locale}/{collection.basename}/{base}/
