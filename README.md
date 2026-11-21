@@ -1,9 +1,8 @@
 # Grow.dev
 
-[![PyPi](https://img.shields.io/pypi/v/grow.svg)](https://pypi.python.org/pypi/grow)
+[![PyPI](https://img.shields.io/pypi/v/grow.svg)](https://pypi.org/project/grow/)
 [![GitHub Actions][github-image]][github-url]
 [![Downloads](https://img.shields.io/github/downloads/grow/grow/total.svg)](https://github.com/grow/grow/releases)
-[![Code Coverage](https://codecov.io/gh/grow/grow/branch/master/graph/badge.svg)](https://codecov.io/gh/grow/grow)
 
 Grow is a declarative tool for rapidly building, launching, and maintaining high-quality static HTML.
 
@@ -20,27 +19,23 @@ Grow is a declarative tool for rapidly building, launching, and maintaining high
 
 ## Quick start
 
-One time only: install `Pipenv` and `libyaml`.
+Install Grow with [uv](https://docs.astral.sh/uv/) or `pip`:
 
 ```bash
-# On Mac with Homebrew (https://brew.sh/).
-brew install pipenv libyaml
+# Run or install globally with uv:
+uv tool install grow
 
-# On Ubuntu.
-sudo apt install -y pipenv libyaml-dev
-
-# On other distributions.
-sudo apt install python-pip; pip install pipenv
+# Or install with pip:
+pip install grow
 ```
 
-Next: install and run Grow using a starter.
+Create and run a site using a starter:
 
 ```bash
 git clone https://github.com/grow/starter
 cd starter
-pipenv install
-pipenv run grow install
-pipenv run grow run
+grow install
+grow run
 ```
 
 ## Documentation
