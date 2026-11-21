@@ -1,0 +1,6 @@
+$title@: Style guide
+$path: /{root}/{collection.basename}/{base}/
+$view: /views/base.html
+nav_title: Style guide
+show_title: true
+show_relative_nav: true

@@ -1,0 +1,6 @@
+$title@: Workflow
+$order: 4 
+$path: /{root}/{collection.basename}/{base}/
+$localization:
+  path: /{root}/{locale}/{collection.basename}/{base}/
+$view: /views/base.html
