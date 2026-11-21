@@ -16,7 +16,7 @@ extensions.
 
 ```text
 # extensions.txt
-git+git://github.com/grow/grow-ext-contentful
+git+https://github.com/grow/grow-ext-google-cloud-images
 ```
 
 The `extensions.txt` follows the same format as a normal pip `requirements.txt`
@@ -35,7 +35,7 @@ Extensions can be found by searching for `grow-ext-` in [pypi][pypi] or
 
 When possible, extensions should be created as separate repositories and use the `extensions.txt` file to reference the extension. This helps the extensions be reusable across projects.
 
-Repositories for grow extensions should be named using the `grow-ext-<extension name>` format. For example: [grow-ext-budou](https://github.com/grow/grow-ext-budou), [grow-ext-google-forms](https://github.com/grow/grow-ext-google-forms), [grow-ext-contentful](https://github.com/grow/grow-ext-contentful).
+Repositories for grow extensions should be named using the `grow-ext-<extension name>` format. For example: [grow-ext-google-cloud-images](https://github.com/grow/grow-ext-google-cloud-images).
 
 In some cases it makes more sense to write the extension inside the same repository as it is very specific to the site. The same principles apply just put the extension files into a subdirectory inside the `extensions/` directory.
 

@@ -1,11 +1,11 @@
 """Base command for grow."""
 
+import importlib
 import os
 
 import click
 
 import grow as grow_pkg
-from grow.deployments.destinations import local as local_destination
 
 version = grow_pkg.__version__
 
@@ -14,8 +14,44 @@ HELP_TEXT = (
     f'https://grow.dev. This is version {version}.'
 )
 
+LAZY_SUBCOMMANDS = {
+    'build': ('grow.commands.subcommands.build', 'build'),
+    'convert': ('grow.commands.subcommands.convert', 'convert'),
+    'deploy': ('grow.commands.subcommands.deploy', 'deploy'),
+    'inspect': ('grow.commands.subcommands.inspect', 'inspect'),
+    'install': ('grow.commands.subcommands.install', 'install'),
+    'preprocess': ('grow.commands.subcommands.preprocess', 'preprocess'),
+    'run': ('grow.commands.subcommands.run', 'run'),
+    'stage': ('grow.commands.subcommands.stage', 'stage'),
+    'translations': ('grow.commands.subcommands.translations', 'translations'),
+}
 
-@click.group(help=HELP_TEXT)
+
+class LazyGroup(click.Group):
+    """Click group that imports subcommand modules lazily on first use."""
+
+    def __init__(self, *args, lazy_subcommands=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lazy_subcommands = dict(lazy_subcommands or {})
+
+    def list_commands(self, ctx):
+        names = set(super().list_commands(ctx))
+        names.update(self.lazy_subcommands)
+        return sorted(names)
+
+    def get_command(self, ctx, cmd_name):
+        if cmd_name in self.commands:
+            return self.commands[cmd_name]
+        if cmd_name in self.lazy_subcommands:
+            module_name, attr_name = self.lazy_subcommands[cmd_name]
+            module = importlib.import_module(module_name)
+            cmd = getattr(module, attr_name)
+            self.add_command(cmd, name=cmd_name)
+            return cmd
+        return super().get_command(ctx, cmd_name)
+
+
+@click.group(cls=LazyGroup, lazy_subcommands=LAZY_SUBCOMMANDS, help=HELP_TEXT)
 @click.version_option(prog_name='grow', version=version)
 @click.option(
     '--auth',
@@ -67,6 +103,8 @@ def process_subcommands(pod, profile, **_):
         return
 
     if profile:
+        from grow.deployments.destinations import local as local_destination
+
         destination = local_destination.LocalDestination(local_destination.Config())
         destination.pod = pod
         destination.export_profile_report()
