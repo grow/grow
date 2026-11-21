@@ -15,8 +15,18 @@
       .error-header {
         display: flex;
         align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .sad-page {
+        width: 44px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 1px 2px rgba(30, 36, 59, 0.1));
+      }
+      .error-title-group {
+        display: flex;
+        align-items: center;
         gap: 12px;
-        margin-bottom: 16px;
       }
       .status-pill {
         display: inline-block;
@@ -142,8 +152,13 @@
 
     <main class="error-wrap">
       <div class="error-header">
-        <span class="status-pill">{{status}}</span>
-        <h1>{% if status == 404 %}Page not found{% else %}Something went wrong{% endif %}</h1>
+        <div class="sad-page" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36.7 47.42"><polygon points="36.7 47.42 0 47.42 0 11.46 11.46 0 36.7 0 36.7 47.42" style="fill:#ffffff"/><polygon points="11.46 0 11.46 11.46 0 11.46 11.46 0" style="fill:#cbd5e1"/><circle cx="11.75" cy="18.3" r="1.92" fill="#3b415e"/><circle cx="24.95" cy="18.3" r="1.92" fill="#3b415e"/><path d="M26.87,29.08a8.2,8.2,0,0,0-8-5.55,8.21,8.21,0,0,0-8,5.55" style="fill:none;stroke:#3b415e;stroke-linecap:round;stroke-miterlimit:10;stroke-width:2px"/></svg>
+        </div>
+        <div class="error-title-group">
+          <span class="status-pill">{{status}}</span>
+          <h1>{% if status == 404 %}Page not found{% else %}Something went wrong{% endif %}</h1>
+        </div>
       </div>
 
       <div class="error-card">
