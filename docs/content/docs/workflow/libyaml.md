@@ -17,41 +17,38 @@ not the faster LibYAML version:
 Warning: libyaml missing, using slower yaml parser.
 ```
 
-`pipenv run grow install` attempts to fix this for you automatically, but it
-may not work reliably depending on your environment.
+Modern `pyyaml` wheels on Linux, macOS, and Windows ship with LibYAML bundled.
+If you built `pyyaml` from source without `libyaml` headers available, install
+`libyaml` and reinstall `pyyaml`.
 
 ## Install LibYAML (once per machine)
 
-To fix this, you need to reinstall PyYAML with LibYAML support.
-
-If you've never installed LibYAML before, install using the below commands.
-This only needs to be done once per machine.
+If you've never installed LibYAML before, install it with your system package
+manager:
 
 ```shell
 # On Linux.
 sudo apt-get install libyaml-dev
 
-# On Mac.
+# On macOS.
 brew install libyaml
 ```
 
-## Reinstall PyYAML (once per Grow project)
+## Reinstall PyYAML
 
-Once LibYAML is installed, reinstall PyYAML locally from your project
-directory:
+Once LibYAML is installed, force-reinstall PyYAML in your Python environment:
 
 ```shell
-# On Linux.
-pipenv run pip3 install --global-option="--with-libyaml" --force pyyaml
+# With pip:
+pip install --force-reinstall --no-binary :all: pyyaml
 
-# On Mac.
-LDFLAGS="-L$(brew --prefix)/lib" \
-  CFLAGS="-I$(brew --prefix)/include" \
-  pipenv run pip3 install --global-option="--with-libyaml" --force pyyaml
+# With uv:
+uv pip install --reinstall pyyaml
 ```
-## Clean up
 
-Now, `pipenv run grow` commands should complete without the `libyaml` warning.
+## Verify
+
+Run `grow build` or `grow run` again — the `libyaml` warning should no longer appear.
 
 Still having problems? Fast YAML parsing is critical enough to Grow's
 performance that it is likely worth fixing for your project and environment.

@@ -222,7 +222,19 @@ a:hover {
   border-top: 1px solid var(--border);
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
+}
+
+.sidebar__badges a {
+  display: inline-flex;
+  line-height: 0;
+}
+
+.sidebar__badges img {
+  display: block;
+  height: 20px;
+  width: auto;
 }
 
 /* Main prose */

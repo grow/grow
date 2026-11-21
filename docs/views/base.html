@@ -63,11 +63,16 @@
         <div class="sidebar__badges">
           {% if podspec.meta.pypi_name %}
             <a href="https://pypi.org/project/{{podspec.meta.pypi_name}}/" target="_blank" rel="noopener">
-              <img src="https://img.shields.io/pypi/v/{{podspec.meta.pypi_name}}.svg" alt="PyPI">
+              <img src="https://img.shields.io/pypi/v/{{podspec.meta.pypi_name}}.svg?style=flat" alt="PyPI version">
             </a>
           {% endif %}
+          <a href="https://github.com/grow/grow/actions/workflows/test.yml" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/github/actions/workflow/status/grow/grow/test.yml?branch=main&amp;label=CI&amp;style=flat" alt="CI status">
+          </a>
           {% if podspec.meta.license_badge %}
-            <img src="https://img.shields.io/badge/License-{{podspec.meta.license_badge}}-blue.svg" alt="License">
+            <a href="https://github.com/grow/grow/blob/main/LICENSE" target="_blank" rel="noopener">
+              <img src="https://img.shields.io/badge/license-{{podspec.meta.license_badge}}-blue.svg?style=flat" alt="License">
+            </a>
           {% endif %}
         </div>
       </aside>

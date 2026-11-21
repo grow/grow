@@ -4,48 +4,65 @@ $category: Workflow
 $order: 10.4
 ---
 
-You can easily test, build, and/or deploy your website using a continuous integration (CI) system. CI systems remove extra steps from your project's lifecycle and allow you to save time on repetitive tasks.
+You can easily test, build, and deploy your website using a continuous integration (CI) system. CI systems automate repetitive build steps and keep your published site in sync with Git.
 
-The combination of GitHub, CI, Grow, and a static hosting service such as Google Cloud Storage or Amazon S3 allow you and your team to collaborate on Git and keep your site automatically up to date – without ever having to run a deploy command.
+The combination of GitHub, GitHub Actions, Grow, and a static host such as GitHub Pages, Google Cloud Storage, or Amazon S3 lets your team collaborate on Git and deploy automatically on every merge.
 
-In fact, this is [exactly how this documentation is deployed](https://github.com/grow/grow.io/blob/master/.circleci/config.yml).
+In fact, this is [exactly how this documentation is deployed](https://github.com/grow/grow/blob/main/.github/workflows/docs.yml).
 
-For security, when doing deployments from CI the CI providers allow you to set environment variables in the UI that can be used in the build but not committed to the repository. Your build steps can make use of these environment variables to authenticate to external services such as Google Cloud Storage or Amazon S3 when deploying.
+For security, store deployment credentials as encrypted repository secrets in your CI provider rather than committing them to your repository.
 
-## Using Circle CI for automatic deploys
+## Using GitHub Actions and GitHub Pages
 
-Circle CI 2.0 makes use of docker images which can produce faster builds. Grow has a docker image ([grow/base](https://hub.docker.com/r/grow/base/)) that comes preloaded with grow and some of the common utilities used to build grow sites (like `npm` and `gcloud`).
-
-1. Set up your deployment (both the host and the configuration in `podspec.yaml`)
-1. Connect your GitHub repo with Circle CI
-1. Configure Circle CI
-
-To configure Circle CI, add a `.circleci/config.yml` file in your repository's root. Any required access keys can be configured as secure environment variables in the _settings_ section of your Circle CI project.
-
-<script src="https://gist.github.com/Zoramite/d446ebb996f95e93003ebfde397848c0.js"></script>
-
-### Complex Parallel Builds
-
-For large sites using a CI service it is possible to break up a build into sharded builds that split the routes then re-combine the build results in a "fan-in" deploy.
-
-<script src="https://gist.github.com/Zoramite/93f81a5a58afcb8cbbc474c891ff591c.js"></script>
-
-## Using Travis CI for automatic deploys
-
-1. Set up your deployment (both the host and the configuration in `podspec.yaml`).
-1. Connect your GitHub repo with Travis CI.
-1. Configure Travis CI.
-
-To configure Travis CI, add a `.travis.yml` file in your repository's root. Any required access keys can be configured as secure environment variables in the _settings_ section of your Travis CI project.
+Create `.github/workflows/deploy.yml` in your repository to build your Grow pod with `uv` and publish the output to GitHub Pages on every push to `main`:
 
 ```yaml
-language: python
-python:
-- 2.7
-branches:
-  only:
-  - master
-cache: pip
-install: pip install grow
-script: grow deploy --noconfirm grow.io
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.10"
+      - name: Build site
+        run: uvx grow build .
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
 ```
+
+## Deploying to Cloud Storage or S3
+
+To deploy to a destination configured in `podspec.yaml` (such as Google Cloud Storage or Amazon S3), configure the required provider credentials as GitHub Actions secrets and run:
+
+```yaml
+- name: Deploy site
+  run: uvx grow deploy --noconfirm prod
+```
+
+## Docker image
+
+Grow also publishes a prebuilt Docker image on [Docker Hub (`grow/base`)](https://hub.docker.com/r/grow/base/) and GitHub Container Registry (`ghcr.io/grow/grow`) with Grow, Python, Node.js, and `gcloud` preinstalled.
