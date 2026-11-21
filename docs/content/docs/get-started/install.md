@@ -6,7 +6,7 @@ $category: Get started
 ---
 # Install Grow
 
-Grow requires **Python 3.9 – 3.12**.
+Grow requires **Python 3.10 – 3.12**.
 
 ## Install with uv (Recommended)
 

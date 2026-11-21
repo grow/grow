@@ -15,7 +15,7 @@ Grow keeps content strictly separate from presentation and makes zero assumption
 
 ## Quick start
 
-Install Grow with [uv](https://docs.astral.sh/uv/) (Python 3.9 – 3.12):
+Install Grow with [uv](https://docs.astral.sh/uv/) (Python 3.10 – 3.12):
 
 ```bash
 uv tool install grow

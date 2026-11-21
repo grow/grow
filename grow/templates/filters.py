@@ -38,7 +38,7 @@ def _deep_gettext(ctx, fields):
     return fields
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def deeptrans(ctx, obj):
     """Deep translate an object."""
     # Avoid issues (related to sharing the same object across locales and
@@ -48,13 +48,13 @@ def deeptrans(ctx, obj):
     return _deep_gettext(ctx, new_item)
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def expand_partial(_ctx, partial_name):
     """Filter for expanding partial path from name of partial."""
     return f'/partials/{partial_name}/{partial_name}.html'
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def hash_value(_ctx, value, algorithm='sha'):
     """Hash the value using the algorithm."""
     value = value.encode('utf-8')
@@ -72,13 +72,13 @@ def hash_value(_ctx, value, algorithm='sha'):
     return hashlib.sha256(value).hexdigest()
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def jsonify(_ctx, obj, *args, **kwargs):
     """Filter for JSON dumping an object."""
     return json_lib.dumps(obj, *args, cls=json_encoder.GrowJSONEncoder, **kwargs)
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def markdown_filter(ctx, value):
     """Filters content through a markdown processor."""
     doc = ctx['doc']
@@ -87,20 +87,20 @@ def markdown_filter(ctx, value):
     return m_down.convert(value)
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def parsedatetime_filter(_ctx, date_string, string_format):
     """Filter dor parsing a datetime."""
     return datetime.strptime(date_string, string_format)
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def relative_filter(ctx, path):
     """Calculates the relative path from the current url to the given url."""
     doc = ctx['doc']
     return urls.Url.create_relative_path(path, relative_to=doc.url.path)
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def render_filter(ctx, template):
     """Creates jinja template from string and renders."""
     if isinstance(template, str):
@@ -108,7 +108,7 @@ def render_filter(ctx, template):
     return template.render(ctx)
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def shuffle_filter(_ctx, seq):
     """Shuffles the list into a random order."""
     try:
@@ -149,7 +149,7 @@ def slug_filter(pod=None):
 def wrap_locale_context(func):
     """Wraps the func with the current locale."""
 
-    @jinja2.contextfilter
+    @jinja2.pass_context
     def _locale_filter(ctx, value, *args, **kwargs):
         doc = ctx['doc']
         if not kwargs.get('locale', None):

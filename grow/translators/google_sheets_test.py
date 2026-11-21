@@ -3,6 +3,7 @@
 import unittest
 from unittest import mock
 
+import httplib2
 from googleapiclient import errors
 
 from grow import storage
@@ -225,7 +226,7 @@ class GoogleSheetsTranslatorMockTestCase(unittest.TestCase):
         mock_service_sheets.return_value = mock_sheets_service['service']
 
         mock_sheets_service['spreadsheets.values.batchGet'].execute.side_effect = errors.HttpError(
-            {'status': '400'}, bytes('', 'utf-8')
+            httplib2.Response({'status': '400'}), b''
         )
 
         translator = self.pod.get_translator('google_sheets')

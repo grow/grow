@@ -532,13 +532,7 @@ class ProgressBarThread(threading.Thread):
 
 
 def clean_html(content, convert_to_markdown=False):
-    import bs4
-
-    soup = bs4.BeautifulSoup(content, 'html.parser')
-    _process_google_hrefs(soup)
-    _process_google_comments(soup)
-    # Support HTML fragments without body tags.
-    content = str(soup.body or soup)
+    content = _clean_google_html(content)
     if convert_to_markdown:
         import html2text
 
@@ -552,22 +546,130 @@ def clean_html(content, convert_to_markdown=False):
     return content
 
 
-def _process_google_hrefs(soup):
-    for tag in soup.find_all('a'):
-        if tag.attrs.get('href'):
-            tag['href'] = _clean_google_href(tag['href'])
+_VOID_HTML_TAGS = frozenset(
+    {
+        'area',
+        'base',
+        'br',
+        'col',
+        'embed',
+        'hr',
+        'img',
+        'input',
+        'link',
+        'meta',
+        'param',
+        'source',
+        'track',
+        'wbr',
+    }
+)
 
 
-def _process_google_comments(soup):
-    for el in soup.find_all('a'):
-        id_attribute = el.get('id')
-        if id_attribute and id_attribute.startswith(('cmnt', 'ftnt')):
-            footer_parent = el.find_parent('div')
-            if footer_parent:
-                footer_parent.decompose()
-            sup_parent = el.find_parent('sup')
-            if sup_parent:
-                sup_parent.decompose()
+class _HTMLNode:
+    """Minimal HTML tree node for cleaning Google Docs HTML without BeautifulSoup."""
+
+    __slots__ = ('tag', 'attrs', 'children', 'parent', 'removed')
+
+    def __init__(self, tag, attrs=None, parent=None):
+        self.tag = tag
+        self.attrs = list(attrs or [])
+        self.children = []
+        self.parent = parent
+        self.removed = False
+
+    def render(self):
+        if self.removed:
+            return ''
+        inner = ''.join(c if isinstance(c, str) else c.render() for c in self.children)
+        if self.tag is None:
+            return inner
+        import html as html_mod
+
+        attr_str = ''
+        for k, v in self.attrs:
+            if v is None:
+                attr_str += f' {k}'
+            else:
+                attr_str += f' {k}="{html_mod.escape(v, quote=True)}"'
+        if self.tag in _VOID_HTML_TAGS:
+            return f'<{self.tag}{attr_str}/>'
+        return f'<{self.tag}{attr_str}>{inner}</{self.tag}>'
+
+
+def _clean_google_html(content):
+    """Rewrite Google redirect hrefs and strip Google Docs comment/footnote wrappers."""
+    import html as html_mod
+    from html.parser import HTMLParser
+
+    root = _HTMLNode(None)
+    body_node = [None]
+    anchors = []
+
+    class _Parser(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=False)
+            self.current = root
+
+        def handle_starttag(self, tag, attrs):
+            t = tag.lower()
+            cleaned_attrs = []
+            for k, v in attrs:
+                if v is not None:
+                    v = html_mod.unescape(v)
+                if t == 'a' and k.lower() == 'href' and v:
+                    v = _clean_google_href(v)
+                cleaned_attrs.append((k, v))
+            node = _HTMLNode(t, cleaned_attrs, parent=self.current)
+            self.current.children.append(node)
+            if t == 'body' and body_node[0] is None:
+                body_node[0] = node
+            if t == 'a':
+                anchors.append(node)
+            if t not in _VOID_HTML_TAGS:
+                self.current = node
+
+        def handle_startendtag(self, tag, attrs):
+            self.handle_starttag(tag, attrs)
+            if tag.lower() not in _VOID_HTML_TAGS and self.current.parent is not None:
+                self.current = self.current.parent
+
+        def handle_endtag(self, tag):
+            t = tag.lower()
+            node = self.current
+            while node.parent is not None:
+                if node.tag == t:
+                    self.current = node.parent
+                    return
+                node = node.parent
+
+        def handle_data(self, data):
+            self.current.children.append(data)
+
+        def handle_entityref(self, name):
+            self.current.children.append(f'&{name};')
+
+        def handle_charref(self, name):
+            self.current.children.append(f'&#{name};')
+
+    parser = _Parser()
+    parser.feed(content)
+    parser.close()
+
+    # Strip enclosing <div> or <sup> wrappers around Google Docs comment/footnote links.
+    for anchor in anchors:
+        attr_map = {k.lower(): v for k, v in anchor.attrs}
+        id_attr = attr_map.get('id')
+        if id_attr and id_attr.startswith(('cmnt', 'ftnt')):
+            p = anchor.parent
+            while p is not None and p.tag is not None:
+                if p.tag in ('div', 'sup'):
+                    p.removed = True
+                    break
+                p = p.parent
+
+    target = body_node[0] if body_node[0] is not None else root
+    return target.render()
 
 
 def _clean_google_href(href):

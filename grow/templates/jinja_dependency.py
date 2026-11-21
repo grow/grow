@@ -16,10 +16,33 @@ When updating jinja to a new version:
 - The `_load_template` method can remain unchanged.
 """
 
+import jinja2
+import markupsafe
 from jinja2 import nodes
-from jinja2._compat import string_types
-from jinja2.compiler import CodeGenerator, supports_yield_from
+from jinja2.compiler import CodeGenerator
 from jinja2.environment import Environment, Template, TemplateNotFound, TemplatesNotFound
+
+
+def _install_jinja2_compat_shims():
+    """Restore Jinja2 2.x decorator/Markup aliases for backwards compatibility with v2.x pod extensions."""
+    compat = {
+        'contextfilter': jinja2.pass_context,
+        'contextfunction': jinja2.pass_context,
+        'evalcontextfilter': jinja2.pass_eval_context,
+        'evalcontextfunction': jinja2.pass_eval_context,
+        'environmentfilter': jinja2.pass_environment,
+        'environmentfunction': jinja2.pass_environment,
+        'Markup': markupsafe.Markup,
+        'escape': markupsafe.escape,
+    }
+    for attr, value in compat.items():
+        if not hasattr(jinja2, attr):
+            setattr(jinja2, attr, value)
+    if not hasattr(jinja2.utils, 'Markup'):
+        jinja2.utils.Markup = markupsafe.Markup
+
+
+_install_jinja2_compat_shims()
 
 
 class DepCodeGenerator(CodeGenerator):
@@ -33,14 +56,13 @@ class DepCodeGenerator(CodeGenerator):
 
         func_name = 'get_or_select_template'
         if isinstance(node.template, nodes.Const):
-            if isinstance(node.template.value, string_types):
+            if isinstance(node.template.value, str):
                 func_name = 'get_template'
             elif isinstance(node.template.value, (tuple, list)):
                 func_name = 'select_template'
         elif isinstance(node.template, (nodes.Tuple, nodes.List)):
             func_name = 'select_template'
 
-        # print 'Visit Include'
         self.writeline(f'template = environment.{func_name}(', node)
         self.visit(node.template, frame)
         # Changed from upstream.
@@ -67,11 +89,8 @@ class DepCodeGenerator(CodeGenerator):
                 'for event in (await template._get_default_module_async())._body_stream:'
             )
         else:
-            if supports_yield_from:
-                self.writeline('yield from template._get_default_module()._body_stream')
-                skip_event_yield = True
-            else:
-                self.writeline('for event in template._get_default_module()._body_stream:')
+            self.writeline('yield from template._get_default_module()._body_stream')
+            skip_event_yield = True
 
         if not skip_event_yield:
             self.indent()
@@ -115,7 +134,7 @@ class DepEnvironment(Environment):
         self, template_name_or_list, parent=None, globals=None, context=None
     ):
         """Copied from upstream. Added context arg passthrough."""
-        if isinstance(template_name_or_list, string_types):
+        if isinstance(template_name_or_list, str):
             return self.get_template(template_name_or_list, parent, globals, context=context)
         elif isinstance(template_name_or_list, Template):
             return template_name_or_list

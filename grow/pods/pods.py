@@ -614,11 +614,9 @@ class Pod:
             kwargs = {
                 'autoescape': True,
                 'extensions': [
-                    'jinja2.ext.autoescape',
                     'jinja2.ext.do',
                     'jinja2.ext.i18n',
                     'jinja2.ext.loopcontrols',
-                    'jinja2.ext.with_',
                 ],
                 'loader': self.storage.JinjaLoader(self.root if root is None else root),
                 'lstrip_blocks': True,
