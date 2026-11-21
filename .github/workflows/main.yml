@@ -7,8 +7,9 @@ jobs:
   # Evergreen docker image build from main.
   docker-image:
     runs-on: ubuntu-latest
-    env:
-      GOOGLE_CLOUD_PROJECT: 'grow-prod'
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - name: Log in to Docker Hub
@@ -22,12 +23,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Log in to the Google container registry
-        uses: docker/login-action@v3
-        with:
-          registry: gcr.io
-          username: _json_key
-          password: ${{ secrets.GCP_JSON_KEY }}
       - name: Extract metadata (tags, labels) for Docker
         uses: docker/metadata-action@v5
         id: meta
@@ -35,7 +30,6 @@ jobs:
           images: |
             grow/base
             ghcr.io/${{ github.repository }}
-            gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base
       - name: Push grow/base
         uses: docker/build-push-action@v6
         with:
@@ -48,8 +42,10 @@ jobs:
   # Release please configuration for deployment.
   release-please:
     runs-on: ubuntu-latest
-    env:
-      GOOGLE_CLOUD_PROJECT: 'grow-prod'
+    permissions:
+      contents: write
+      pull-requests: write
+      packages: write
     steps:
       - uses: googleapis/release-please-action@v3
         id: release
@@ -87,13 +83,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - if: ${{ steps.release.outputs.release_created }}
-        name: Log in to the Google container registry
-        uses: docker/login-action@v3
-        with:
-          registry: gcr.io
-          username: _json_key
-          password: ${{ secrets.GCP_JSON_KEY }}
-      - if: ${{ steps.release.outputs.release_created }}
         name: Extract metadata (tags, labels) for Docker
         uses: docker/metadata-action@v5
         id: meta
@@ -101,13 +90,12 @@ jobs:
           images: |
             grow/base
             ghcr.io/${{ github.repository }}
-            gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base
       - if: ${{ steps.release.outputs.release_created }}
         name: Push grow/base
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }},grow/base:latest,grow/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }},ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }},gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:latest,gcr.io/${{ env.GOOGLE_CLOUD_PROJECT }}/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          tags: ${{ steps.meta.outputs.tags }},grow/base:latest,grow/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }},ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: grow_version=grow==${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
