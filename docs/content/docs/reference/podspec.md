@@ -56,7 +56,6 @@ deployments:
       scheme: https
 ```
 
----
 
 ## Core fields
 
@@ -68,7 +67,6 @@ deployments:
 | `root` | URL root prefix for all routes (defaults to `"/"`). |
 | `meta` | Arbitrary site-wide key/value metadata exposed as `podspec.meta`. |
 
----
 
 ## `static_dirs`
 
@@ -102,7 +100,6 @@ filter:
     - \.well-known/
 ```
 
----
 
 ## `localization`
 
@@ -135,7 +132,6 @@ localization:
 - **`require_translations`**: Fails builds if untranslated strings remain (can be scoped per environment with `@env.<name>`).
 - **`groups`**: Named locale groups usable in YAML front matter (e.g. `headline@locale.europe: ...`).
 
----
 
 ## `markdown`
 
@@ -153,7 +149,6 @@ markdown:
 
 Set `classes: true` to emit CSS classes instead of inline Pygments styles.
 
----
 
 ## `sitemap`
 
@@ -170,7 +165,6 @@ sitemap:
     - fr
 ```
 
----
 
 ## `preprocessors` and `extensions`
 
@@ -189,7 +183,6 @@ extensions:
     - ext.my_filters.MyFiltersExtension
 ```
 
----
 
 ## `deployments`
 
@@ -207,7 +200,6 @@ deployments:
       scheme: https
 ```
 
----
 
 ## `footnotes`
 

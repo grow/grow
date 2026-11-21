@@ -61,7 +61,6 @@ These variables are available in every template without a prefix. Avoid shadowin
 <p>{{ ngettext('%(num)d article', '%(num)d articles', posts | length, num=posts | length) }}</p>
 ```
 
----
 
 ## Helper functions (`g.*`)
 
@@ -185,7 +184,6 @@ Convert locale codes into [Babel `Locale`](https://babel.pocoo.org/en/latest/api
 {% endfor %}
 ```
 
----
 
 ## Built-in filters
 

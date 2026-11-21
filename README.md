@@ -18,7 +18,7 @@
 - **Declarative routing & URLs**: Configure URL structures in YAML and reference pages/assets with template tags so URL changes never break links.
 - **Built-in internationalization (i18n)**: Tag strings for translation, manage PO message catalogs, and localize content site-wide or per document.
 - **Integrations**: Pull content from Google Drive/Docs/Sheets and Blogger, or sync translations with Google Sheets.
-- **Deploy anywhere**: Build to a self-contained static fileset or deploy directly via built-in targets (local, Git, WebReview, and custom extensions).
+- **Deploy anywhere**: Build to a self-contained static fileset (for GitHub Pages, Cloudflare Pages, Netlify, Cloud Storage, or S3) or deploy directly via built-in targets (local, Git, and custom extensions).
 
 ## Requirements
 

@@ -20,11 +20,11 @@ Documents with a resolved `$path` and `$view` (either set directly or inherited 
 ### Markdown document
 
 ```markdown
----
+​---
 $title: Hello, Grow
 $category: Guides
 author: Ada Lovelace
----
+​---
 # Welcome
 
 Write standard **Markdown** in the body and access metadata via `{{ doc.author }}`.
@@ -46,13 +46,13 @@ hero:
 ### HTML document
 
 ```jinja
----
+​---
 $title: Custom landing page
 $view: /views/base.html
 items:
   - One
   - Two
----
+​---
 <ul>
   {% for item in doc.items %}
     <li>{{ item }}</li>
@@ -62,7 +62,6 @@ items:
 
 In your base view, evaluate Jinja inside an HTML document's body using `{{ doc.html | render | safe }}`.
 
----
 
 ## YAML constructors
 
@@ -104,7 +103,6 @@ categories:
 category_label: !g.string products.categories.art
 ```
 
----
 
 ## Document API (properties & methods)
 
@@ -234,7 +232,6 @@ Before linking to arbitrary documents in a collection, check `item.path_format` 
 {% endfor %}
 ```
 
----
 
 ## Built-in front matter fields (`$*`)
 
