@@ -15,9 +15,6 @@ import time
 from collections import OrderedDict
 from urllib import parse as url_parse
 
-import bs4
-import git
-import html2text
 import translitcodec  # noqa: F401  # Registers 'translit/long' codec.
 import yaml
 
@@ -65,6 +62,8 @@ def get_grow_dir():
 
 
 def get_git_repo(root):
+    import git
+
     original_root = root
     while root != '/':
         try:
@@ -157,41 +156,7 @@ class memoize:
         self.cache = {}
 
 
-class cached_property(property):
-    """A decorator that converts a function into a lazy property.  The
-    function wrapped is called the first time to retrieve the result
-    and then that calculated result is used the next time you access
-    the value::
-
-        class Foo:
-            @cached_property
-            def foo(self):
-                # calculate something important here
-                return 42
-
-    The class has to have a `__dict__` in order for this property to
-    work. Ported from `werkzeug`.
-    """
-
-    _sentinel = object()
-
-    def __init__(self, func, name=None, doc=None):
-        self.__name__ = name or func.__name__
-        self.__module__ = func.__module__
-        self.__doc__ = doc or func.__doc__
-        self.func = func
-
-    def __set__(self, obj, value):
-        obj.__dict__[self.__name__] = value
-
-    def __get__(self, obj, type=None):
-        if obj is None:
-            return self
-        value = obj.__dict__.get(self.__name__, self._sentinel)
-        if value is self._sentinel:
-            value = self.func(obj)
-            obj.__dict__[self.__name__] = value
-        return value
+cached_property = functools.cached_property
 
 
 class memoize_tag(memoize):
@@ -573,12 +538,16 @@ class ProgressBarThread(threading.Thread):
 
 
 def clean_html(content, convert_to_markdown=False):
+    import bs4
+
     soup = bs4.BeautifulSoup(content, 'html.parser')
     _process_google_hrefs(soup)
     _process_google_comments(soup)
     # Support HTML fragments without body tags.
     content = str(soup.body or soup)
     if convert_to_markdown:
+        import html2text
+
         h2t = html2text.HTML2Text()
         h2t.body_width = 0  # https://github.com/grow/grow/issues/887
         # Fixes a bug with malformed tables from Google Doc integration.

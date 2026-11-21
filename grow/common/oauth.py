@@ -3,9 +3,6 @@
 import logging
 import os
 
-from oauth2client import client, service_account, tools
-from oauth2client import file as oauth_file
-
 from grow.common import utils
 
 # Silence "Loading" messages from keyring.
@@ -31,6 +28,8 @@ DEFAULT_AUTH_KEY_FILE = 'auth-key.json'
 
 def get_storage(key, username):
     """Returns the Storage class compatible with the current environment."""
+    from oauth2client import file as oauth_file
+
     key = utils.slugify(key)
     file_name = os.path.expanduser(f'~/.config/grow/{key}_{username}')
     dir_name = os.path.dirname(file_name)
@@ -51,6 +50,8 @@ def get_credentials_and_storage(scope, storage_key=DEFAULT_STORAGE_KEY):
 
 
 def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
+    from oauth2client import client, service_account, tools
+
     key_file = os.getenv('AUTH_KEY_FILE')
     # If AUTH_KEY_FILE is unset, use default auth key file if it exists.
     if not key_file and os.path.exists(DEFAULT_AUTH_KEY_FILE):

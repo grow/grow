@@ -45,6 +45,9 @@ class Locales:
         return message
 
 
+_VALID_LOCALE_CACHE = set()
+
+
 class Locale(babel.Locale):
     RTL_REGEX = re.compile(r'^(he|ar|fa|ur)(\W|$)')
     _alias = None
@@ -64,8 +67,12 @@ class Locale(babel.Locale):
         # Weak attempt to permit fuzzy locales (locales for which we still have
         # language and country information, but not a full localedata file for),
         # but disallow completely invalid locales. See note at end of file.
-        if locale and locale.get_display_name() is None:
-            raise ValueError(f'{args[0]} is not a valid locale identifier')
+        if locale:
+            locale_key = str(locale)
+            if locale_key not in _VALID_LOCALE_CACHE:
+                if locale.get_display_name() is None:
+                    raise ValueError(f'{args[0]} is not a valid locale identifier')
+                _VALID_LOCALE_CACHE.add(locale_key)
         return locale
 
     def __hash__(self):
