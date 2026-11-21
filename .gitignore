@@ -18,6 +18,7 @@ grow/**/.depcache.json
 *.egg
 *.egg-info
 dist
+!grow/ui/dist/
 build
 eggs
 parts

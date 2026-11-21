@@ -22,10 +22,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Python dependencies
         run: uv sync --locked
-      - name: Build UI assets
-        run: |
-          yarn --cwd grow/ui install
-          yarn --cwd grow/ui build
       - name: Run tests
         run: uv run pytest --cov=grow --cov-report=xml
       - name: Smoke test build
