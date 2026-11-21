@@ -7,7 +7,6 @@ meta:
   site_name: "Grow"
   site_logo_path: '/source/images/grow.svg'
   site_author: "Grow Authors"
-  google_analytics_id: "UA-44018013-3"
   favicon_path: /source/images/icon.png
   header_button_url: "https://github.com/grow/grow"
   header_button_label: GitHub
@@ -18,20 +17,14 @@ meta:
 localization:
   default_locale: en
   locales:
-  - en
+    - en
 
 static_dirs:
-- static_dir: /static/
-  serve_at: "{root}/static/"
-  fingerprinted: true
-- static_dir: /source/images/
-  serve_at: "/{root}/assets/images/"
-- static_dir: /source/js/
-  serve_at: "/{root}/assets/js/"
-- static_dir: /source/search/
-  serve_at: "/{root}/assets/search/"
-- static_dir: /source/vendor/
-  serve_at: "/{root}/assets/vendor/"
+  - static_dir: /static/
+    serve_at: "{root}/static/"
+    fingerprinted: true
+  - static_dir: /source/images/
+    serve_at: "/{root}/assets/images/"
 
 sitemap:
   enabled: true
