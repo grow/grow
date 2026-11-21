@@ -38,15 +38,11 @@ from grow.translators import translators
 from . import env as environment
 from . import podspec
 
-# The C (LibYAML) version is massively faster than the pure Python version.
-# Since YAML performance is critical, display a warning message with information
-# related to fixing it.
+# Prefer the LibYAML C loader (bundled in modern PyYAML wheels) with a pure-Python fallback.
 try:
     from yaml import CSafeLoader as yaml_Loader
 except ImportError:
-    logging.warning(
-        'Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml'
-    )
+    logging.debug('libyaml C extension not available; falling back to pure-Python YAML loader.')
     from yaml import SafeLoader as yaml_Loader
 
 
