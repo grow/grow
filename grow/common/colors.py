@@ -2,6 +2,10 @@
 
 # ANSI 256-color escape sequences that look good on both black and white backgrounds.
 _RESET = '\x1b[0m'
+BOLD = '\x1b[1m'
+DIM = '\x1b[2m'
+BRAND = '\x1b[38;5;205m\x1b[1m'
+CYAN = '\x1b[36m'
 CAUTION = '\x1b[38;5;3m\x1b[1m'
 EMPHASIS = '\x1b[38;5;130m'
 ERROR = '\x1b[38;5;1m\x1b[1m'

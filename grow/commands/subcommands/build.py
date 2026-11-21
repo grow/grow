@@ -1,12 +1,14 @@
 """Command for building pods into static deployments."""
 
+import importlib.metadata
 import os
+import time
 
 import click
 
 from grow import storage
 from grow.commands import shared
-from grow.common import bulk_errors, rc_config, utils
+from grow.common import bulk_errors, colors, rc_config, utils
 from grow.deployments import stats
 from grow.deployments.destinations import local as local_destination
 from grow.extensions import hooks
@@ -80,6 +82,7 @@ def build(
             pod.preprocess()
     if locate_untranslated:
         pod.enable(pod.FEATURE_TRANSLATION_STATS)
+    start_time = time.perf_counter()
     try:
         with pod.profile.timer('grow_build'):
             config = local_destination.Config(out_dir=out_dir)
@@ -137,4 +140,22 @@ def build(
     if locate_untranslated:
         pod.translation_stats.pretty_print()
         destination.export_untranslated_catalogs()
+    elapsed = time.perf_counter() - start_time
+    count = len(pod.router.routes)
+    route_word = 'route' if count == 1 else 'routes'
+    try:
+        version = importlib.metadata.version('grow')
+        version_str = f' {colors.stylize(f"v{version}", colors.DIM)}'
+    except importlib.metadata.PackageNotFoundError:
+        version_str = ''
+    check = colors.stylize('✓', colors.SUCCESS)
+    arrow = colors.stylize('➜', colors.SUCCESS)
+    print(
+        f'\n  {colors.stylize("Grow", colors.BRAND)}{version_str}  '
+        f'{check} Built {colors.stylize(str(count), colors.BOLD)} {route_word} '
+        f'{colors.stylize(f"in {elapsed:.2f}s", colors.DIM)}'
+    )
+    print(
+        f'  {arrow}  {colors.stylize("Output:", colors.BOLD)}  {colors.stylize(out_dir, colors.CYAN)}\n'
+    )
     return pod

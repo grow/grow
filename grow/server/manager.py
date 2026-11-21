@@ -1,5 +1,6 @@
 """Local development server manager."""
 
+import importlib.metadata
 import sys
 import threading
 
@@ -8,6 +9,14 @@ from werkzeug import serving
 from grow.common import colors, timer
 from grow.preprocessors import file_watchers
 from grow.server import main as main_lib
+
+
+def _grow_version():
+    try:
+        return importlib.metadata.version('grow')
+    except importlib.metadata.PackageNotFoundError:
+        return ''
+
 
 # Number of tries to find a free port.
 NUM_TRIES = 10
@@ -47,16 +56,16 @@ class ServerMessages:
         self.messages.append((label, message, label_color, message_color))
 
     def print(self, log_function):
-        label_max_width = 0
-        for label, _, _, _ in self.messages:
-            label_max_width = max(len(label), label_max_width)
+        label_max_width = max((len(label) for label, _, _, _ in self.messages), default=0)
 
         for label, message, label_color, message_color in self.messages:
+            padded_label = label.ljust(label_max_width)
             if label_color:
-                label = colors.stylize(label.rjust(label_max_width), label_color)
+                padded_label = colors.stylize(padded_label, label_color)
             if message_color:
                 message = colors.stylize(message, message_color)
-            log_function(f'{label} {message}')
+            arrow = colors.stylize('➜', colors.SUCCESS)
+            log_function(f'  {arrow}  {padded_label}  {message}')
 
 
 def print_server_ready_message(pod, host, port):
@@ -69,10 +78,20 @@ def print_server_ready_message(pod, host, port):
         pod.logger.exception('Failed to determine root URL path.')
     url_base = f'http://{host}:{port}/'
     url_root = f'http://{host}:{port}{root_path}'
+    url_console = f'http://{host}:{port}/_grow/'
+
+    version = _grow_version()
+    version_str = f' {colors.stylize(f"v{version}", colors.DIM)}' if version else ''
+    header = (
+        f'\n  {colors.stylize("Grow", colors.BRAND)}{version_str}  '
+        f'{colors.stylize("dev server ready", colors.SUCCESS)}\n'
+    )
+    print(header)
 
     messages = ServerMessages()
-    messages.add_message('Pod:', pod.root, colors.HIGHLIGHT)
-    messages.add_message('Server:', url_root, colors.HIGHLIGHT)
+    messages.add_message('Local:', url_root, colors.BOLD, colors.CYAN)
+    messages.add_message('Console:', url_console, colors.BOLD, colors.CYAN)
+    messages.add_message('Pod:', pod.root, colors.BOLD, colors.DIM)
 
     # Trigger the dev manager message hook.
     extra_urls = (
@@ -82,9 +101,8 @@ def print_server_ready_message(pod, host, port):
         or []
     )
 
-    messages.add_message('Ready.', 'Press ctrl-c to quit.', colors.SUCCESS, colors.SUCCESS)
-
-    messages.print(pod.logger.info)
+    messages.print(print)
+    print(f'\n  {colors.stylize("Press ctrl-c to quit.", colors.DIM)}\n')
 
     return (url_root, extra_urls)
 
