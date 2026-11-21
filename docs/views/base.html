@@ -13,9 +13,25 @@
   <body>
     <header class="topbar">
       <div class="topbar__inner">
-        <a class="brand" href="{{podspec.home.localize(locale=doc.locale).url.path|relative}}">
-          <img class="brand__logo" src="{{g.static(podspec.meta.site_logo_path).url.path}}" alt="{{_(podspec.meta.site_name)}}">
-        </a>
+        <div class="topbar__left">
+          <button
+            type="button"
+            class="nav-toggle"
+            id="nav-toggle"
+            aria-label="Toggle navigation"
+            aria-controls="docs-sidebar"
+            aria-expanded="false"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <line x1="3" y1="5" x2="17" y2="5"></line>
+              <line x1="3" y1="10" x2="17" y2="10"></line>
+              <line x1="3" y1="15" x2="17" y2="15"></line>
+            </svg>
+          </button>
+          <a class="brand" href="{{podspec.home.localize(locale=doc.locale).url.path|relative}}">
+            <img class="brand__logo" src="{{g.static(podspec.meta.site_logo_path).url.path}}" alt="{{_(podspec.meta.site_name)}}">
+          </a>
+        </div>
         <div class="search-box">
           <input
             type="search"
@@ -33,8 +49,14 @@
       </div>
     </header>
 
+    <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
+
     <div class="docs-shell">
-      <aside class="docs-sidebar" role="navigation" aria-label="Documentation">
+      <aside class="docs-sidebar" id="docs-sidebar" role="navigation" aria-label="Documentation">
+        <div class="sidebar__mobile-header">
+          <span>Documentation</span>
+          <button type="button" class="nav-close" id="nav-close" aria-label="Close navigation">&times;</button>
+        </div>
         {% set collection = g.collection('docs')
             if '/content/docs/' in doc.collection.pod_path
             else doc.collection %}
