@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 > [!NOTE]
-> <img src="docs/source/images/rootjs-beet.svg" width="14" height="20" alt="Root.js" align="absmiddle">&nbsp; **Maintenance mode:** Grow is actively maintained for existing v2.x sites with bug fixes and dependency updates, but for new projects we recommend [**Root.js**](https://rootjs.dev) ([GitHub](https://github.com/blinkk/rootjs)) — our modern successor built with TypeScript, Preact/TSX, file routing, i18n, and a built-in CMS.
+> **Maintenance mode:** Grow is actively maintained for existing v2.x sites with bug fixes and dependency updates, but for new projects we recommend <img src="docs/source/images/rootjs-beet.svg" width="13" height="19" alt="" align="absmiddle">&nbsp;[**Root.js**](https://rootjs.dev) ([GitHub](https://github.com/blinkk/rootjs)) — our modern successor built with TypeScript, Preact/TSX, file routing, i18n, and a built-in CMS.
 
 **Grow** is a declarative, file-based static site generator for rapid, high-quality web site production.
 

@@ -11,22 +11,6 @@
     <link href="{{g.static('/static/css/main.css').url.path}}" rel="stylesheet">
   </head>
   <body>
-    <div class="notice-bar" role="note">
-      <div class="notice-bar__inner">
-        <img
-          class="notice-bar__icon"
-          src="{{g.static('/source/images/rootjs-beet.svg').url.path}}"
-          alt=""
-          width="13"
-          height="19"
-        >
-        <span>
-          Grow is in maintenance mode. For new projects, we recommend
-          <a href="https://rootjs.dev" target="_blank" rel="noopener">Root.js<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/></svg></a>
-        </span>
-      </div>
-    </div>
-
     <header class="topbar">
       <div class="topbar__inner">
         <div class="topbar__left">
@@ -68,6 +52,15 @@
         </div>
       </div>
     </header>
+
+    <div class="notice-bar" role="note">
+      <div class="notice-bar__inner">
+        <span>
+          Grow is in maintenance mode. For new projects, we recommend
+          <a href="https://rootjs.dev" target="_blank" rel="noopener"><img class="notice-bar__icon" src="{{g.static('/source/images/rootjs-beet.svg').url.path}}" alt="" width="13" height="19">Root.js<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/></svg></a>
+        </span>
+      </div>
+    </div>
 
     <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
 
