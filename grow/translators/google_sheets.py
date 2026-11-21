@@ -4,12 +4,12 @@ import datetime
 import io
 import random
 
-import progressbar
 from babel.messages import catalog as babel_catalog_lib
 from babel.messages import pofile
 from googleapiclient import errors
 
 from grow.common import progressbar_non
+from grow.common import progressbar_non as progressbar
 from grow.preprocessors import google_drive
 from grow.translators import errors as translator_errors
 

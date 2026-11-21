@@ -17,7 +17,8 @@ import re
 from collections import OrderedDict
 
 import yaml
-from boltons import iterutils
+
+from grow.common import remap as iterutils
 
 try:
     from yaml import CSafeLoader as yaml_Loader

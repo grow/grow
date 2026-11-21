@@ -7,11 +7,11 @@ import os
 import tokenize
 
 import click
-import texttable
 from babel import support
 from babel.messages import catalog as babel_catalog
 from babel.messages import extract, pofile
 
+from grow.common import tables as texttable
 from grow.common import utils
 from grow.pods import messages
 from grow.translations import catalogs, importers

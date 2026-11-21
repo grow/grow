@@ -1,6 +1,6 @@
 import logging
 
-import texttable
+from grow.common import tables as texttable
 
 from .destinations import messages
 

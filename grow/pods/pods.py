@@ -12,13 +12,13 @@ import threading
 import time
 
 import jinja2
-import progressbar
 import yaml
 
 from grow import storage as grow_storage
 from grow.cache import podcache, simple_cache
 from grow.collections import collection
 from grow.common import deprecated, features, logger, progressbar_non, untag, utils
+from grow.common import progressbar_non as progressbar
 from grow.documents import static_document
 from grow.extensions import extension_controller as ext_controller
 from grow.extensions import extension_importer

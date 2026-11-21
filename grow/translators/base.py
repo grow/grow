@@ -6,12 +6,12 @@ import logging
 import os
 import threading
 
-import progressbar
-import texttable
 import yaml
 from protorpc import message_types, messages, protojson
 
 from grow.common import progressbar_non, utils
+from grow.common import progressbar_non as progressbar
+from grow.common import tables as texttable
 from grow.translators import errors as translator_errors
 
 
