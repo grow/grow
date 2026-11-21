@@ -43,13 +43,18 @@ class TimerTestCase(unittest.TestCase):
         with timer:
             pass
 
-        self.assertEqual([{
-            'key': 'test',
-            'label': 'test',
-            'meta': None,
-            'start': 0,
-            'end': 10,
-        }], self.profile.export())
+        self.assertEqual(
+            [
+                {
+                    'key': 'test',
+                    'label': 'test',
+                    'meta': None,
+                    'start': 0,
+                    'end': 10,
+                }
+            ],
+            self.profile.export(),
+        )
 
     def test_repr(self):
         """Repr of timer"""

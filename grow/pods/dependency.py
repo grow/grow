@@ -95,9 +95,11 @@ class DependencyGraph:
         Gets dependents that rely upon the reference or a collection that
         contains the reference.
         """
-        return (self._dependents.get(reference, set())
-                | self._dependents.get(os.path.dirname(reference), set())
-                | {reference})
+        return (
+            self._dependents.get(reference, set())
+            | self._dependents.get(os.path.dirname(reference), set())
+            | {reference}
+        )
 
     def get_dependencies(self, source):
         """Get the dependencies of a specific source."""
@@ -116,7 +118,8 @@ class DependencyGraph:
         for dependent in self._dependents:
             if fnmatch.fnmatch(dependent, reference):
                 matched_dependents = (
-                    matched_dependents | self._dependents.get(dependent) | {dependent})
+                    matched_dependents | self._dependents.get(dependent) | {dependent}
+                )
         return matched_dependents
 
     def reset(self):

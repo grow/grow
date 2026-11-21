@@ -54,7 +54,6 @@ class TocExtension(toc.TocExtension):
 
 
 class IncludePreprocessor(preprocessors.Preprocessor):
-
     REGEX = re.compile(r"^\[include\('([^')]*)'\)\]")
 
     def __init__(self, pod):
@@ -75,7 +74,6 @@ class IncludePreprocessor(preprocessors.Preprocessor):
 
 
 class IncludeExtension(extensions.Extension):
-
     def __init__(self, pod):
         self.pod = pod
 
@@ -86,7 +84,6 @@ class IncludeExtension(extensions.Extension):
 
 
 class UrlPreprocessor(preprocessors.Preprocessor):
-
     REGEX = re.compile(r"\[url\('([^']*)'\)\]")
 
     def __init__(self, pod):
@@ -106,14 +103,12 @@ class UrlPreprocessor(preprocessors.Preprocessor):
                         doc = self.pod.get_doc(pod_path)
                     else:
                         doc = self.pod.get_static(pod_path)
-                    line = re.sub(
-                        UrlPreprocessor.REGEX, doc.url.path, line, count=1)
+                    line = re.sub(UrlPreprocessor.REGEX, doc.url.path, line, count=1)
                 new_lines.append(line)
         return new_lines
 
 
 class UrlExtension(extensions.Extension):
-
     def __init__(self, pod):
         self.pod = pod
 
@@ -129,10 +124,12 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
     https://bitbucket.org/birkenfeld/pygments-main/ \
         src/e79a7126551c39d5f8c1b83a79c14e86992155a4/external/markdown-processor.py
     """
+
     KIND = 'sourcecode'
     pattern_tag = re.compile(
         r'\[sourcecode(:(?P<lang>[^, \]]*))?(, hl_lines=(?P<q>[\'"])(?P<lines>[^\'"]*)(?P=q))?\](?P<content>.+?)\[/sourcecode\]',
-        re.S)
+        re.S,
+    )
 
     class Config(messages.Message):
         classes = messages.BooleanField(1, default=False)
@@ -152,14 +149,15 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
     @property
     @utils.memoize
     def config(self):
-        return get_config(
-            CodeBlockPreprocessor.KIND,
-            CodeBlockPreprocessor.Config, self.pod)
+        return get_config(CodeBlockPreprocessor.KIND, CodeBlockPreprocessor.Config, self.pod)
 
     def get_formatter(self, hl_lines=''):
         return html.HtmlFormatter(
-            noclasses=(not self.config.classes), cssclass=self.config.class_name,
-            style=self.config.theme, hl_lines=hl_lines)
+            noclasses=(not self.config.classes),
+            cssclass=self.config.class_name,
+            style=self.config.theme,
+            hl_lines=hl_lines,
+        )
 
     def run(self, lines):
 
@@ -184,13 +182,13 @@ class CodeBlockPreprocessor(preprocessors.Preprocessor):
                 return text.format(self.config.class_name, language, content)
             text = '{} is an invalid highlighter. Valid choices are: pygments, plain.'
             raise ValueError(text.format(self.config.highlighter))
+
         content = '\n'.join(lines)
         content = self.pattern_tag.sub(repl, content)
         return content.split('\n')
 
 
 class CodeBlockExtension(extensions.Extension):
-
     def __init__(self, pod):
         self.pod = pod
 

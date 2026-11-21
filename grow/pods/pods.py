@@ -45,11 +45,13 @@ try:
     # pylint: disable=ungrouped-imports
     from yaml import CSafeLoader as yaml_Loader
 except ImportError:
-    logging.warning('Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml')
+    logging.warning(
+        'Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml'
+    )
     from yaml import SafeLoader as yaml_Loader
 
-class Error(Exception):
 
+class Error(Exception):
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -71,6 +73,7 @@ def goodbye_pods():
 
 class Pod:
     """Grow pod."""
+
     INSTALLED_EXTENSIONS_DIR_PATH = 'extensions'
     LOCAL_EXTENSIONS_DIR_PATH = 'ext'
     FEATURE_UI = 'ui'
@@ -82,26 +85,24 @@ class Pod:
     PATH_CONTROL = '/.grow/'
 
     def __eq__(self, other):
-        return (isinstance(self, Pod)
-                and isinstance(other, Pod)
-                and self.root == other.root)
+        return isinstance(self, Pod) and isinstance(other, Pod) and self.root == other.root
 
     def __init__(self, root, storage=grow_storage.AUTO, env=None, load_extensions=True):
         self.deprecated = deprecated.DeprecationManager(self.logger.warn)
         self._yaml = utils.SENTINEL
         self.storage = storage
-        self.root = (root if self.storage.is_cloud_storage
-                     else os.path.abspath(root))
-        self.env = (env if env
-                    else environment.Env(environment.EnvConfig(host='localhost')))
+        self.root = root if self.storage.is_cloud_storage else os.path.abspath(root)
+        self.env = env if env else environment.Env(environment.EnvConfig(host='localhost'))
         self.locales = locales.Locales(pod=self)
         self.catalogs = catalog_holder.Catalogs(pod=self)
         self._jinja_env_lock = threading.RLock()
         self._podcache = None
-        self._features = features.Features(disabled=[
-            self.FEATURE_TRANSLATION_STATS,
-            self.FEATURE_OLD_SLUGIFY,
-        ])
+        self._features = features.Features(
+            disabled=[
+                self.FEATURE_TRANSLATION_STATS,
+                self.FEATURE_OLD_SLUGIFY,
+            ]
+        )
         self._experiments = features.Features(default_enabled=False)
 
         self._extensions_controller = ext_controller.ExtensionController(self)
@@ -161,8 +162,7 @@ class Pod:
         self._extensions_controller.register_builtins()
 
         if load_local_extensions and self.exists:
-            self._extensions_controller.register_extensions(
-                self.yaml.get('ext', []))
+            self._extensions_controller.register_extensions(self.yaml.get('ext', []))
 
     def _load_features(self):
         config = self.yaml.get('features', {})
@@ -199,8 +199,7 @@ class Pod:
                 return self.read_json(object_cache_file_name) or {}
             except OSError:
                 path = self.abs_path(object_cache_file_name)
-                raise podcache.PodCacheParseError(
-                    f'Error parsing: {path}')
+                raise podcache.PodCacheParseError(f'Error parsing: {path}')
 
     def _parse_dep_cache_file(self):
         with self.profile.timer('Pod._parse_dep_cache_file'):
@@ -210,16 +209,15 @@ class Pod:
             # Convert legacy yaml cache files.
             legacy_podcache_file_name = '/.podcache.yaml'
             if self.file_exists(legacy_podcache_file_name):
-                logging.info(
-                    f'Converting {legacy_podcache_file_name} to {podcache_file_name}.')
+                logging.info(f'Converting {legacy_podcache_file_name} to {podcache_file_name}.')
                 # Do not use the utils.parse_yaml as that has extra constructors
                 # that should not be run when the cache file is being parsed.
-                temp_data = yaml.load(
-                    self.read_file(legacy_podcache_file_name), Loader=yaml_Loader) or {}
+                temp_data = (
+                    yaml.load(self.read_file(legacy_podcache_file_name), Loader=yaml_Loader) or {}
+                )
                 if 'objects' in temp_data and temp_data['objects']:
                     object_cache_file_name = f'/{podcache.FILE_OBJECT_CACHE}'
-                    self.write_file(object_cache_file_name,
-                                    json.dumps(temp_data['objects']))
+                    self.write_file(object_cache_file_name, json.dumps(temp_data['objects']))
                 self.delete_file(legacy_podcache_file_name)
 
             if not self.file_exists(podcache_file_name):
@@ -228,8 +226,7 @@ class Pod:
                 return self.read_json(podcache_file_name) or {}
             except OSError:
                 path = self.abs_path(podcache_file_name)
-                raise podcache.PodCacheParseError(
-                    f'Error parsing: {path}')
+                raise podcache.PodCacheParseError(f'Error parsing: {path}')
 
     def _parse_routes_cache_file(self):
         with self.profile.timer('Pod._parse_routes_cache_file'):
@@ -245,8 +242,7 @@ class Pod:
                 return {}
             except OSError:
                 path = self.abs_path(routes_cache_file_name)
-                raise podcache.PodCacheParseError(
-                    f'Error parsing: {path}')
+                raise podcache.PodCacheParseError(f'Error parsing: {path}')
 
     @utils.memoize
     def _parse_yaml(self):
@@ -270,17 +266,19 @@ class Pod:
         if not isinstance(env, environment.Env):
             env = environment.Env(env)
         if env and env.name:
-            content = untag.Untag.untag(self._parse_yaml(), params={
-                'env': untag.UntagParamRegex(env.name),
-            })
+            content = untag.Untag.untag(
+                self._parse_yaml(),
+                params={
+                    'env': untag.UntagParamRegex(env.name),
+                },
+            )
             self._yaml = content
             # Preprocessors may depend on env, reset cache.
             # pylint: disable=no-member
             self.list_preprocessors.reset()
             self.podcache.reset()
             # Need to reload the extension configs for changes based on env.
-            self._extensions_controller.update_extension_configs(
-                self.yaml.get('ext', []))
+            self._extensions_controller.update_extension_configs(self.yaml.get('ext', []))
         self.env = env
 
     @utils.cached_property
@@ -339,11 +337,10 @@ class Pod:
         else:
             if 'deployments' not in self.yaml:
                 raise ValueError('No pod-specific deployments configured.')
-            filter_config = (self.yaml['deployments']
-                             .get(self.env.name, {})
-                             .get('filter', {}))
+            filter_config = self.yaml['deployments'].get(self.env.name, {}).get('filter', {})
         return grow_path_filter.PathFilter(
-            filter_config.get('ignore_paths'), filter_config.get('include_paths'))
+            filter_config.get('ignore_paths'), filter_config.get('include_paths')
+        )
 
     @utils.cached_property
     def path_format(self):
@@ -357,7 +354,8 @@ class Pod:
                 dep_cache=self._parse_dep_cache_file(),
                 obj_cache=self._parse_object_cache_file(),
                 routes_cache=self._parse_routes_cache_file(),
-                pod=self)
+                pod=self,
+            )
         return self._podcache
 
     @property
@@ -419,9 +417,7 @@ class Pod:
         else:
             if 'deployments' not in self.yaml:
                 raise ValueError('No pod-specific deployments configured.')
-            ui_config = (self.yaml['deployments']
-                         .get(self.env.name, {})
-                         .get('ui'))
+            ui_config = self.yaml['deployments'].get(self.env.name, {}).get('ui')
         return ui_config
 
     @property
@@ -439,8 +435,7 @@ class Pod:
         return self.storage.copy_to(source_path, dest_path)
 
     def create_collection(self, collection_path, fields):
-        pod_path = os.path.join(
-            collection.Collection.CONTENT_PATH, collection_path)
+        pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
         return collection.Collection.create(pod_path, fields, pod=self)
 
     def delete(self):
@@ -465,12 +460,22 @@ class Pod:
         """Disable a grow feature."""
         self._features.disable(feature)
 
-    def dump(self, suffix='index.html', append_slashes=True, pod_paths=None,
-             use_threading=True, source_dir=None):
+    def dump(
+        self,
+        suffix='index.html',
+        append_slashes=True,
+        pod_paths=None,
+        use_threading=True,
+        source_dir=None,
+    ):
         """Dumps the pod, yielding rendered_doc based on pod routes."""
         for rendered_doc in self.export(
-                suffix=suffix, append_slashes=append_slashes, pod_paths=pod_paths,
-                use_threading=use_threading, source_dir=source_dir):
+            suffix=suffix,
+            append_slashes=append_slashes,
+            pod_paths=pod_paths,
+            use_threading=use_threading,
+            source_dir=source_dir,
+        ):
             yield rendered_doc
         if self.ui and self.is_enabled(self.FEATURE_UI):
             for rendered_doc in self.export_ui():
@@ -480,12 +485,13 @@ class Pod:
         """Enable a grow feature."""
         self._features.enable(feature)
 
-    def export(self, suffix=None, append_slashes=False, pod_paths=None,
-               use_threading=True, source_dir=None):
+    def export(
+        self, suffix=None, append_slashes=False, pod_paths=None, use_threading=True, source_dir=None
+    ):
         """Builds the pod, yielding rendered_doc based on pod routes."""
         yield from renderer.Renderer.rendered_docs(
-                self, self.router.routes, use_threading=use_threading,
-                source_dir=source_dir)
+            self, self.router.routes, use_threading=use_threading, source_dir=source_dir
+        )
 
     def export_ui(self):
         """Builds the grow ui tools, returning a mapping of paths to content."""
@@ -500,13 +506,11 @@ class Pod:
         for path in ['css/ui.min.css', 'js/ui.min.js']:
             source_path = os.path.join(source_root, path)
             output_path = os.sep + os.path.join(destination_root, path)
-            yield rendered_document.RenderedDocument(
-                output_path, self.storage.read(source_path))
+            yield rendered_document.RenderedDocument(output_path, self.storage.read(source_path))
 
         # Add the files from each of the tools.
         for tool in self.ui.get('tools', []):
-            tool_path = '{}{}{}'.format(
-                source_prefix, tool_prefix, tool['kind'])
+            tool_path = '{}{}{}'.format(source_prefix, tool_prefix, tool['kind'])
             for root, dirs, files in self.walk(tool_path):
                 for directory in dirs:
                     if directory.startswith('.'):
@@ -518,13 +522,12 @@ class Pod:
         text = 'Building UI Tools: %(value)d/{} (in %(time_elapsed).9s)'
         widgets = [progressbar.FormatLabel(text.format(len(paths)))]
         progress = progressbar_non.create_progressbar(
-            "Building UI Tools...", widgets=widgets, max_value=len(paths))
+            'Building UI Tools...', widgets=widgets, max_value=len(paths)
+        )
         progress.start()
         for path in paths:
-            output_path = path.replace(
-                source_prefix, f'{destination_root}{tools_dir}')
-            yield rendered_document.RenderedDocument(
-                output_path, self.read_file(path))
+            output_path = path.replace(source_prefix, f'{destination_root}{tools_dir}')
+            yield rendered_document.RenderedDocument(output_path, self.read_file(path))
             progress.update(progress.value + 1)
         progress.finish()
 
@@ -551,8 +554,7 @@ class Pod:
         Returns:
           Collection.
         """
-        pod_path = os.path.join(
-            collection.Collection.CONTENT_PATH, collection_path)
+        pod_path = os.path.join(collection.Collection.CONTENT_PATH, collection_path)
         cached = self.podcache.collection_cache.get_collection(pod_path)
         if cached:
             return cached
@@ -565,6 +567,7 @@ class Pod:
         """Returns a pod-specific deployment."""
         # Lazy import avoids environment errors and speeds up importing.
         from grow.deployments import deployments as grow_deployments
+
         if 'deployments' not in self.yaml:
             raise ValueError('No pod-specific deployments configured.')
         destination_configs = self.yaml['deployments']
@@ -577,10 +580,8 @@ class Pod:
         try:
             config = destination_configs[nickname]
             deployments = grow_deployments.Deployments()
-            self.extensions_controller.trigger(
-                'deployment_register', deployments)
-            deployment = deployments.make_deployment(
-                kind, config, name=nickname)
+            self.extensions_controller.trigger('deployment_register', deployments)
+            deployment = deployments.make_deployment(kind, config, name=nickname)
         except TypeError:
             logging.exception('Invalid deployment parameters.')
             raise
@@ -630,19 +631,19 @@ class Pod:
             kwargs['extensions'].extend(self.list_jinja_extensions())
             env = jinja_dependency.DepEnvironment(**kwargs)
             env.filters.update(filters.create_builtin_filters(env, self, locale=locale))
-            env.globals.update(
-                **tags.create_builtin_globals(env, self, locale=locale))
+            env.globals.update(**tags.create_builtin_globals(env, self, locale=locale))
             return env
 
     def get_static(self, pod_path, locale=None):
         """Returns a StaticFile, given the static file's pod path."""
-        document = static_document.StaticDocument(
-            self, pod_path, locale=locale)
+        document = static_document.StaticDocument(self, pod_path, locale=locale)
         if document.exists:
             return document
 
-        text = (f'Either no file exists at "{pod_path}" or the "static_dirs" setting was '
-                f'not configured for this path in {self.FILE_PODSPEC}.')
+        text = (
+            f'Either no file exists at "{pod_path}" or the "static_dirs" setting was '
+            f'not configured for this path in {self.FILE_PODSPEC}.'
+        )
         raise errors.DocumentDoesNotExistError(text)
 
     def get_podspec(self):
@@ -652,12 +653,10 @@ class Pod:
     def get_translator(self, service=utils.SENTINEL):
         if 'translators' not in self.yaml:
             return None
-        if ('services' not in self.yaml['translators']
-                or not self.yaml['translators']['services']):
+        if 'services' not in self.yaml['translators'] or not self.yaml['translators']['services']:
             return None
         translator_config = self.yaml['translators']
-        translator_extensions = self.yaml.get(
-            'extensions', {}).get('translators', [])
+        translator_extensions = self.yaml.get('extensions', {}).get('translators', [])
         translators.register_extensions(
             translator_extensions,
             self.root,
@@ -673,8 +672,7 @@ class Pod:
 
         translator_services = copy.deepcopy(translator_config['services'])
         if service is not utils.SENTINEL:
-            valid_service_kinds = [each['service']
-                                   for each in translator_services]
+            valid_service_kinds = [each['service'] for each in translator_services]
             if not valid_service_kinds:
                 text = 'Missing required "service" field in translator config.'
                 raise ValueError(text)
@@ -689,9 +687,12 @@ class Pod:
             if service_config.get('service') == service or len(translator_services) == 1:
                 translator_kind = service_config.pop('service')
                 return translators.create_translator(
-                    self, translator_kind, service_config,
+                    self,
+                    translator_kind,
+                    service_config,
                     project_title=translator_config.get('project_title'),
-                    instructions=translator_config.get('instructions'))
+                    instructions=translator_config.get('instructions'),
+                )
         raise ValueError(f'No translator service found: {service}')
 
     def get_url(self, pod_path, locale=None):
@@ -702,7 +703,8 @@ class Pod:
 
         if not doc.exists:
             raise errors.DocumentDoesNotExistError(
-                f'Referenced document does not exist: {pod_path}')
+                f'Referenced document does not exist: {pod_path}'
+            )
         return doc.url
 
     def hash_file(self, pod_path):
@@ -748,12 +750,11 @@ class Pod:
         jinja_extensions = self.yaml.get('extensions', {}).get('jinja2', [])
         for name in jinja_extensions:
             try:
-                value = extension_importer.ExtensionImporter.find_extension(
-                    name, self.root)
+                value = extension_importer.ExtensionImporter.find_extension(name, self.root)
             except ImportError:
                 logging.error(
-                    'Error importing %s. Module path must be relative to '
-                    'the pod root.', repr(name))
+                    'Error importing %s. Module path must be relative to the pod root.', repr(name)
+                )
                 raise
             loaded_extensions.append(value)
 
@@ -765,8 +766,7 @@ class Pod:
         #         legacy_message.format(', '.join(jinja_extensions)),
         #         url='https://grow.dev/migration/1.0.0')
 
-        loaded_extensions.extend(
-            self.extensions_controller.trigger('jinja_extensions'))
+        loaded_extensions.extend(self.extensions_controller.trigger('jinja_extensions'))
         return loaded_extensions
 
     def list_locales(self):
@@ -787,8 +787,7 @@ class Pod:
             legacy_preprocessors.append(kind)
 
             try:
-                preprocessor = preprocessors.make_preprocessor(
-                    kind, params, self)
+                preprocessor = preprocessors.make_preprocessor(kind, params, self)
                 results.append(preprocessor)
             except ValueError:
                 # New extensions don't exists and are considered a value error.
@@ -838,8 +837,9 @@ class Pod:
         path = self._normalize_path(pod_path)
         return self.storage.open(path, mode=mode)
 
-    def preprocess(self, preprocessor_names=None, run_all=False, tags=None,
-                   build=True, ratelimit=None):
+    def preprocess(
+        self, preprocessor_names=None, run_all=False, tags=None, build=True, ratelimit=None
+    ):
         if not preprocessor_names:
             self.catalogs.compile()  # Preprocess translations.
 
@@ -847,7 +847,8 @@ class Pod:
         preprocessors = self.yaml.get('preprocessors', [])
         for config in preprocessors:
             self.extensions_controller.trigger(
-                'preprocess', config, preprocessor_names, tags, run_all, ratelimit)
+                'preprocess', config, preprocessor_names, tags, run_all, ratelimit
+            )
 
         # Legacy support for preprocessors.
         # TODO Remove when not supporting the legacy preprocessors.
@@ -886,10 +887,8 @@ class Pod:
             with self.profile.timer('Pod.read_yaml', label=label, meta=meta):
                 fields = self.podcache.file_cache.get(path, locale='__raw__')
                 if fields is None:
-                    fields = utils.parse_yaml(
-                        self.read_file(path), pod=self, locale=locale)
-                    self.podcache.file_cache.add(
-                        path, fields, locale='__raw__')
+                    fields = utils.parse_yaml(self.read_file(path), pod=self, locale=locale)
+                    self.podcache.file_cache.add(path, fields, locale='__raw__')
                 try:
                     contents = self.untag(fields, locale=locale)
                     self.podcache.file_cache.add(path, contents, locale=locale)
@@ -908,24 +907,25 @@ class Pod:
     def untag(self, contents, locale=None):
         """Untag data using the pod specific untagging params."""
         return untag.Untag.untag(
-            contents, locale_identifier=locale, params={
+            contents,
+            locale_identifier=locale,
+            params={
                 'env': untag.UntagParamRegex(self.env.name),
-            })
+            },
+        )
 
     def walk(self, pod_path):
         path = self._normalize_path(pod_path)
         return self.storage.walk(path)
 
     def write_file(self, pod_path, content):
-        with self.profile.timer(
-                'Pod.write_file', label=pod_path, meta={'path': pod_path}):
+        with self.profile.timer('Pod.write_file', label=pod_path, meta={'path': pod_path}):
             self.podcache.file_cache.remove(pod_path)
             path = self._normalize_path(pod_path)
             self.storage.write(path, content)
 
     def write_yaml(self, path, content):
-        with self.profile.timer(
-                'Pod.write_yaml', label=path, meta={'path': path}):
+        with self.profile.timer('Pod.write_yaml', label=path, meta={'path': path}):
             self.podcache.collection_cache.remove_by_path(path)
             self.podcache.document_cache.remove_by_path(path)
             content = utils.dump_yaml(content)

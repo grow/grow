@@ -34,14 +34,14 @@ class GoogleSheetsTranslator(base.Translator):
         'blue': 0.964,
     }
     COLOR_GREY_200 = {
-        'red': .933,
-        'blue': .933,
-        'green': .933,
+        'red': 0.933,
+        'blue': 0.933,
+        'green': 0.933,
     }
     COLOR_GREY_500 = {
-        'red': .6196,
-        'blue': .6196,
-        'green': .6196,
+        'red': 0.6196,
+        'blue': 0.6196,
+        'green': 0.6196,
     }
     KIND = 'google_sheets'
     HEADER_ROW_COUNT = 1
@@ -52,9 +52,7 @@ class GoogleSheetsTranslator(base.Translator):
     has_multiple_langs_in_one_resource = True
 
     def __init__(self, pod, config=None, project_title=None, instructions=None):
-        super().__init__(
-            pod, config=config, project_title=project_title,
-            instructions=instructions)
+        super().__init__(pod, config=config, project_title=project_title, instructions=instructions)
         self.update_meta_after_upload = False
 
     def needs_meta_update(self):
@@ -71,23 +69,25 @@ class GoogleSheetsTranslator(base.Translator):
         return False
 
     def _content_hash(self, location, locale):
-        return hash((location, locale)) % (10 ** 8)  # 10 Digits of the hash.
+        return hash((location, locale)) % (10**8)  # 10 Digits of the hash.
 
     def _create_service(self):  # pragma: no cover
-        return google_drive.BaseGooglePreprocessor.create_service(
-            'sheets', 'v4')
+        return google_drive.BaseGooglePreprocessor.create_service('sheets', 'v4')
 
     def _download_sheet(self, spreadsheet_id, locale):
         service = self._create_service()
         rangeName = f"'{locale}'!A:D"
         try:
             # pylint: disable=no-member
-            resp = service.spreadsheets().values().get(
-                spreadsheetId=spreadsheet_id, range=rangeName).execute()
+            resp = (
+                service.spreadsheets()
+                .values()
+                .get(spreadsheetId=spreadsheet_id, range=rangeName)
+                .execute()
+            )
         except errors.HttpError as e:
             if e.resp['status'] == '400':
-                raise translator_errors.NotFoundError(
-                    f'Translation for {locale} not found.')
+                raise translator_errors.NotFoundError(f'Translation for {locale} not found.')
             raise
 
         # Check for spreadsheets that are missing columns.
@@ -102,8 +102,7 @@ class GoogleSheetsTranslator(base.Translator):
 
         # Find out which locales have sheets.
         # pylint: disable=no-member
-        resp = service.spreadsheets().get(
-            spreadsheetId=spreadsheet_id).execute()
+        resp = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
         existing_locales = []
         for sheet in resp['sheets']:
             existing_locales.append(sheet['properties']['title'])
@@ -122,12 +121,17 @@ class GoogleSheetsTranslator(base.Translator):
 
         if skipped_locales:
             self.pod.logger.info(
-                'Skipping locales, missing sheet: {}'.format(', '.join(skipped_locales)))
+                'Skipping locales, missing sheet: {}'.format(', '.join(skipped_locales))
+            )
 
         try:
             # pylint: disable=no-member
-            batch_resp = service.spreadsheets().values().batchGet(
-                spreadsheetId=spreadsheet_id, ranges=rangeNames).execute()
+            batch_resp = (
+                service.spreadsheets()
+                .values()
+                .batchGet(spreadsheetId=spreadsheet_id, ranges=rangeNames)
+                .execute()
+            )
 
             locale_to_values = {}
             for i, locale in enumerate(rangeLocales):
@@ -143,8 +147,7 @@ class GoogleSheetsTranslator(base.Translator):
             return locale_to_values
         except errors.HttpError as e:
             if e.resp['status'] == '400':
-                raise translator_errors.NotFoundError(
-                    f'Translation for {locales} not found.')
+                raise translator_errors.NotFoundError(f'Translation for {locales} not found.')
             raise
 
     def _download_content(self, stat, values):
@@ -157,14 +160,14 @@ class GoogleSheetsTranslator(base.Translator):
                 continue
             source = row[0]
             translation = row[1] if len(row) > 1 else None
-            babel_catalog.add(source, translation, auto_comments=[],
-                              context=None, flags=[])
+            babel_catalog.add(source, translation, auto_comments=[], context=None, flags=[])
         updated_stat = base.TranslatorStat(
             url=stat.url,
             lang=stat.lang,
             downloaded=datetime.datetime.now(),
             source_lang=stat.source_lang,
-            ident=stat.ident)
+            ident=stat.ident,
+        )
         fp = io.BytesIO()
         pofile.write_po(fp, babel_catalog)
         fp.seek(0)
@@ -193,17 +196,14 @@ class GoogleSheetsTranslator(base.Translator):
         service = self._create_service()
         if spreadsheet_id:
             # pylint: disable=no-member
-            resp = service.spreadsheets().get(
-                spreadsheetId=spreadsheet_id).execute()
+            resp = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
             for sheet in resp['sheets']:
-                locales_to_sheet_ids[sheet['properties']['title']] = \
-                    sheet['properties']['sheetId']
+                locales_to_sheet_ids[sheet['properties']['title']] = sheet['properties']['sheetId']
             catalogs_to_create = []
             sheet_ids_to_catalogs = {}
 
             for catalog in catalogs:
-                existing_sheet_id = locales_to_sheet_ids.get(
-                    str(catalog.locale))
+                existing_sheet_id = locales_to_sheet_ids.get(str(catalog.locale))
                 if existing_sheet_id:
                     sheet_ids_to_catalogs[existing_sheet_id] = catalog
                 elif source_lang != str(catalog.locale):
@@ -212,29 +212,33 @@ class GoogleSheetsTranslator(base.Translator):
             requests = []
 
             if catalogs_to_create:
-                requests += self._generate_create_sheets_requests(
-                    catalogs_to_create, source_lang)
+                requests += self._generate_create_sheets_requests(catalogs_to_create, source_lang)
 
             if sheet_ids_to_catalogs:
                 requests += self._generate_update_sheets_requests(
-                    sheet_ids_to_catalogs, source_lang, spreadsheet_id,
-                    prune=prune)
+                    sheet_ids_to_catalogs, source_lang, spreadsheet_id, prune=prune
+                )
 
             self._perform_batch_update(spreadsheet_id, requests)
         else:
             # Create a new spreadsheet and use the id.
             service = self._create_service()
             # pylint: disable=no-member
-            resp = service.spreadsheets().create(body={
-                'properties': {
-                    'title': project_title,
-                },
-            }).execute()
+            resp = (
+                service.spreadsheets()
+                .create(
+                    body={
+                        'properties': {
+                            'title': project_title,
+                        },
+                    }
+                )
+                .execute()
+            )
             spreadsheet_id = resp['spreadsheetId']
 
             requests = []
-            requests += self._generate_create_sheets_requests(
-                catalogs, source_lang)
+            requests += self._generate_create_sheets_requests(catalogs, source_lang)
             self._perform_batch_update(spreadsheet_id, requests)
 
             if 'acl' in self.config:
@@ -253,7 +257,8 @@ class GoogleSheetsTranslator(base.Translator):
                 lang=lang,
                 source_lang=source_lang,
                 uploaded=datetime.datetime.now(),
-                ident=spreadsheet_id)
+                ident=spreadsheet_id,
+            )
             stats.append(stat)
         return stats
 
@@ -274,8 +279,7 @@ class GoogleSheetsTranslator(base.Translator):
                 {'userEnteredValue': {'stringValue': id}},
                 {'userEnteredValue': {'stringValue': value}},
                 {'userEnteredValue': {'stringValue': '\n'.join(comments)}},
-                {'userEnteredValue': {
-                    'stringValue': ', '.join(t[0] for t in locations)}},
+                {'userEnteredValue': {'stringValue': ', '.join(t[0] for t in locations)}},
             ],
         }
 
@@ -288,8 +292,11 @@ class GoogleSheetsTranslator(base.Translator):
             if prune and not message.locations:
                 continue
 
-            rows.append(self._create_catalog_row(
-                message.id, message.string, message.auto_comments, message.locations))
+            rows.append(
+                self._create_catalog_row(
+                    message.id, message.string, message.auto_comments, message.locations
+                )
+            )
         return rows
 
     def _diff_data(self, existing_values, catalog):
@@ -300,14 +307,16 @@ class GoogleSheetsTranslator(base.Translator):
         for value in existing_values:
             if not value or self._is_empty_row(value):  # Skip empty rows.
                 continue
-            existing_rows.append({
-                'source': value[0],
-                'translation': value[1] if len(value) > 1 else None,
-                'comments': value[2] if len(value) > 2 else [],
-                'locations': value[3] if len(value) > 3 else [],
-                'updated': False,  # Has changed from the downloaded value.
-                'matched': False,  # Has been matched to the downloaded values.
-            })
+            existing_rows.append(
+                {
+                    'source': value[0],
+                    'translation': value[1] if len(value) > 1 else None,
+                    'comments': value[2] if len(value) > 2 else [],
+                    'locations': value[3] if len(value) > 3 else [],
+                    'updated': False,  # Has changed from the downloaded value.
+                    'matched': False,  # Has been matched to the downloaded values.
+                }
+            )
 
         for message in catalog:
             if not message.id:
@@ -319,8 +328,9 @@ class GoogleSheetsTranslator(base.Translator):
             for value in existing_rows:
                 if value['source'] == message.id:
                     value['updated'] = (
-                        value['translation'] != message.string or
-                        value['locations'] != message.locations)
+                        value['translation'] != message.string
+                        or value['locations'] != message.locations
+                    )
                     value['translation'] = message.string
                     value['locations'] = message.locations
                     value['comments'] = message.auto_comments
@@ -331,12 +341,14 @@ class GoogleSheetsTranslator(base.Translator):
             if found:
                 continue
 
-            new_rows.append({
-                'source': message.id,
-                'translation': message.string,
-                'locations': message.locations,
-                'comments': message.auto_comments,
-            })
+            new_rows.append(
+                {
+                    'source': message.id,
+                    'translation': message.string,
+                    'locations': message.locations,
+                    'comments': message.auto_comments,
+                }
+            )
 
         for index, value in enumerate(existing_rows):
             if not value['matched'] or len(value['locations']) == 0:
@@ -358,25 +370,29 @@ class GoogleSheetsTranslator(base.Translator):
         }
 
         if self._catalog_has_comments(catalog):
-            requests.append({
-                'updateDimensionProperties': {
-                    'range': sheet_range,
-                    'properties': {
-                        'hiddenByUser': False,
+            requests.append(
+                {
+                    'updateDimensionProperties': {
+                        'range': sheet_range,
+                        'properties': {
+                            'hiddenByUser': False,
+                        },
+                        'fields': 'hiddenByUser',
                     },
-                    'fields': 'hiddenByUser',
-                },
-            })
+                }
+            )
         else:
-            requests.append({
-                'updateDimensionProperties': {
-                    'range': sheet_range,
-                    'properties': {
-                        'hiddenByUser': True,
+            requests.append(
+                {
+                    'updateDimensionProperties': {
+                        'range': sheet_range,
+                        'properties': {
+                            'hiddenByUser': True,
+                        },
+                        'fields': 'hiddenByUser',
                     },
-                    'fields': 'hiddenByUser',
-                },
-            })
+                }
+            )
 
         return requests
 
@@ -387,20 +403,22 @@ class GoogleSheetsTranslator(base.Translator):
             sheet_id = self._generate_new_sheet_id()
             lang = str(catalog.locale)
             # Create a new sheet.
-            requests.append({
-                'addSheet': {
-                    'properties': {
-                        'sheetId': sheet_id,
-                        'title': lang,
-                        'gridProperties': {
-                            'columnCount': 4,
-                            'rowCount': self.HEADER_ROW_COUNT + 1,
-                            'frozenRowCount': 1,
-                            'frozenColumnCount': 1,
+            requests.append(
+                {
+                    'addSheet': {
+                        'properties': {
+                            'sheetId': sheet_id,
+                            'title': lang,
+                            'gridProperties': {
+                                'columnCount': 4,
+                                'rowCount': self.HEADER_ROW_COUNT + 1,
+                                'frozenRowCount': 1,
+                                'frozenColumnCount': 1,
+                            },
                         },
                     },
-                },
-            })
+                }
+            )
 
             # Add the data to the new sheet.
             _, new_rows, _ = self._diff_data([], catalog)
@@ -409,56 +427,65 @@ class GoogleSheetsTranslator(base.Translator):
 
             if len(new_rows):
                 for value in new_rows:
-                    row_data.append(self._create_catalog_row(
-                        value['source'], value['translation'],
-                        value['comments'], value['locations']))
+                    row_data.append(
+                        self._create_catalog_row(
+                            value['source'],
+                            value['translation'],
+                            value['comments'],
+                            value['locations'],
+                        )
+                    )
 
-                requests.append({
-                    'appendCells': {
-                        'sheetId': sheet_id,
-                        'fields': 'userEnteredValue',
-                        'rows': row_data,
-                    },
-                })
+                requests.append(
+                    {
+                        'appendCells': {
+                            'sheetId': sheet_id,
+                            'fields': 'userEnteredValue',
+                            'rows': row_data,
+                        },
+                    }
+                )
 
             # Format the new sheet.
-            requests += self._generate_style_requests(
-                sheet_id, catalog=catalog)
+            requests += self._generate_style_requests(sheet_id, catalog=catalog)
 
             # Size the initial sheet columns.
             # Not part of the style request to respect user's choice to resize.
-            requests.append({
-                'updateDimensionProperties': {
-                    'range': {
-                        'sheetId': sheet_id,
-                        'dimension': 'COLUMNS',
-                        'startIndex': 0,
-                        'endIndex': 3,
+            requests.append(
+                {
+                    'updateDimensionProperties': {
+                        'range': {
+                            'sheetId': sheet_id,
+                            'dimension': 'COLUMNS',
+                            'startIndex': 0,
+                            'endIndex': 3,
+                        },
+                        'properties': {
+                            'pixelSize': 400,  # Source and Translation Columns
+                        },
+                        'fields': 'pixelSize',
                     },
-                    'properties': {
-                        'pixelSize': 400,  # Source and Translation Columns
-                    },
-                    'fields': 'pixelSize',
-                },
-            })
+                }
+            )
 
-            requests.append({
-                'updateDimensionProperties': {
-                    'range': {
-                        'sheetId': sheet_id,
-                        'dimension': 'COLUMNS',
-                        'startIndex': 3,
-                        'endIndex': 4,
+            requests.append(
+                {
+                    'updateDimensionProperties': {
+                        'range': {
+                            'sheetId': sheet_id,
+                            'dimension': 'COLUMNS',
+                            'startIndex': 3,
+                            'endIndex': 4,
+                        },
+                        'properties': {
+                            'pixelSize': 200,  # Location Column
+                        },
+                        'fields': 'pixelSize',
                     },
-                    'properties': {
-                        'pixelSize': 200,  # Location Column
-                    },
-                    'fields': 'pixelSize',
-                },
-            })
+                }
+            )
 
-            requests += self._generate_comments_column_requests(
-                sheet_id, catalog)
+            requests += self._generate_comments_column_requests(sheet_id, catalog)
 
         return requests
 
@@ -470,20 +497,24 @@ class GoogleSheetsTranslator(base.Translator):
             for existing_range in sheet['filterViews']:
                 if existing_range['filterViewId'] == filter_view['filterViewId']:
                     is_filtered = True
-                    requests.append({
-                        'updateFilterView': {
-                            'filter': filter_view,
-                            'fields': 'range,title,criteria',
-                        },
-                    })
+                    requests.append(
+                        {
+                            'updateFilterView': {
+                                'filter': filter_view,
+                                'fields': 'range,title,criteria',
+                            },
+                        }
+                    )
                     break
 
         if not is_filtered:
-            requests.append({
-                'addFilterView': {
-                    'filter': filter_view,
-                },
-            })
+            requests.append(
+                {
+                    'addFilterView': {
+                        'filter': filter_view,
+                    },
+                }
+            )
 
         return requests
 
@@ -495,9 +526,7 @@ class GoogleSheetsTranslator(base.Translator):
 
         formats['header_cell'] = {
             'backgroundColor': self.COLOR_GREY_200,
-            'textFormat': {
-                'bold': True
-            },
+            'textFormat': {'bold': True},
         }
 
         formats['info_cell'] = {
@@ -519,135 +548,154 @@ class GoogleSheetsTranslator(base.Translator):
         # Remove all existing conditional formatting. :(
         if sheet and 'conditionalFormats' in sheet:
             for _ in sheet['conditionalFormats']:
-                requests.append({
-                    'deleteConditionalFormatRule': {
-                        'sheetId': sheet_id,
-                        'index': 0
-                    }
-                })
+                requests.append({'deleteConditionalFormatRule': {'sheetId': sheet_id, 'index': 0}})
 
         # Style header cells.
-        requests.append({
-            'repeatCell': {
-                'fields': 'userEnteredFormat',
-                'range': {
-                    'sheetId': sheet_id,
-                    'startColumnIndex': 0,
-                    'startRowIndex': 0,
-                    'endRowIndex': self.HEADER_ROW_COUNT,
+        requests.append(
+            {
+                'repeatCell': {
+                    'fields': 'userEnteredFormat',
+                    'range': {
+                        'sheetId': sheet_id,
+                        'startColumnIndex': 0,
+                        'startRowIndex': 0,
+                        'endRowIndex': self.HEADER_ROW_COUNT,
+                    },
+                    'cell': {
+                        'userEnteredFormat': formats['header_cell'],
+                    },
                 },
-                'cell': {
-                    'userEnteredFormat': formats['header_cell'],
-                },
-            },
-        })
+            }
+        )
 
         # Allow the translations and comments to wrap.
-        requests.append({
-            'repeatCell': {
-                'fields': 'userEnteredFormat',
+        requests.append(
+            {
+                'repeatCell': {
+                    'fields': 'userEnteredFormat',
+                    'range': {
+                        'sheetId': sheet_id,
+                        'startColumnIndex': 0,
+                        'endColumnIndex': 3,
+                        'startRowIndex': self.HEADER_ROW_COUNT,
+                    },
+                    'cell': {
+                        'userEnteredFormat': formats['wrap'],
+                    },
+                },
+            }
+        )
+
+        # Comment and source cells are muted in styling.
+        requests.append(
+            {
+                'repeatCell': {
+                    'fields': 'userEnteredFormat',
+                    'range': {
+                        'sheetId': sheet_id,
+                        'startColumnIndex': 2,
+                        'endColumnIndex': 4,
+                        'startRowIndex': self.HEADER_ROW_COUNT,
+                    },
+                    'cell': {
+                        'userEnteredFormat': formats['info_cell'],
+                    },
+                },
+            }
+        )
+
+        # Highlight missing translations.
+        requests.append(
+            {
+                'addConditionalFormatRule': {
+                    'rule': {
+                        'ranges': [
+                            {
+                                'sheetId': sheet_id,
+                                'startColumnIndex': 1,
+                                'endColumnIndex': 2,
+                                'startRowIndex': self.HEADER_ROW_COUNT,
+                            }
+                        ],
+                        'booleanRule': {
+                            'condition': {'type': 'BLANK'},
+                            'format': formats['missing_cell'],
+                        },
+                    },
+                    'index': 0,
+                }
+            }
+        )
+
+        # Protect the original values.
+        requests += self._generate_style_protected_requests(
+            sheet_id,
+            sheet,
+            {
+                'protectedRangeId': sheet_id + 1000001,  # Keep it predictble.
                 'range': {
                     'sheetId': sheet_id,
                     'startColumnIndex': 0,
-                    'endColumnIndex': 3,
+                    'endColumnIndex': 1,
                     'startRowIndex': self.HEADER_ROW_COUNT,
                 },
-                'cell': {
-                    'userEnteredFormat': formats['wrap'],
-                },
+                'description': 'Original strings can only be edited in the source files.',
+                'warningOnly': True,
             },
-        })
+        )
 
-        # Comment and source cells are muted in styling.
-        requests.append({
-            'repeatCell': {
-                'fields': 'userEnteredFormat',
+        # Protect the comment values.
+        requests += self._generate_style_protected_requests(
+            sheet_id,
+            sheet,
+            {
+                'protectedRangeId': sheet_id + 1000002,  # Keep it predictble.
                 'range': {
                     'sheetId': sheet_id,
                     'startColumnIndex': 2,
+                    'endColumnIndex': 3,
+                    'startRowIndex': self.HEADER_ROW_COUNT,
+                },
+                'description': 'Comment strings can only be edited in the source files.',
+                'warningOnly': True,
+            },
+        )
+
+        # Protect the location values.
+        requests += self._generate_style_protected_requests(
+            sheet_id,
+            sheet,
+            {
+                'protectedRangeId': sheet_id + 1000003,  # Keep it predictble.
+                'range': {
+                    'sheetId': sheet_id,
+                    'startColumnIndex': 3,
                     'endColumnIndex': 4,
                     'startRowIndex': self.HEADER_ROW_COUNT,
                 },
-                'cell': {
-                    'userEnteredFormat': formats['info_cell'],
-                },
+                'description': 'Source strings can only be edited in the source files.',
+                'warningOnly': True,
             },
-        })
-
-        # Highlight missing translations.
-        requests.append({
-            'addConditionalFormatRule': {
-                'rule': {
-                    'ranges': [{
-                        'sheetId': sheet_id,
-                        'startColumnIndex': 1,
-                        'endColumnIndex': 2,
-                        'startRowIndex': self.HEADER_ROW_COUNT,
-                    }],
-                    'booleanRule': {
-                        'condition': {'type': 'BLANK'},
-                        'format': formats['missing_cell']
-                    }
-                },
-                'index': 0
-            }
-        })
-
-        # Protect the original values.
-        requests += self._generate_style_protected_requests(sheet_id, sheet, {
-            'protectedRangeId': sheet_id + 1000001,  # Keep it predictble.
-            'range': {
-                'sheetId': sheet_id,
-                'startColumnIndex': 0,
-                'endColumnIndex': 1,
-                'startRowIndex': self.HEADER_ROW_COUNT,
-            },
-            'description': 'Original strings can only be edited in the source files.',
-            'warningOnly': True,
-        })
-
-        # Protect the comment values.
-        requests += self._generate_style_protected_requests(sheet_id, sheet, {
-            'protectedRangeId': sheet_id + 1000002,  # Keep it predictble.
-            'range': {
-                'sheetId': sheet_id,
-                'startColumnIndex': 2,
-                'endColumnIndex': 3,
-                'startRowIndex': self.HEADER_ROW_COUNT,
-            },
-            'description': 'Comment strings can only be edited in the source files.',
-            'warningOnly': True,
-        })
-
-        # Protect the location values.
-        requests += self._generate_style_protected_requests(sheet_id, sheet, {
-            'protectedRangeId': sheet_id + 1000003,  # Keep it predictble.
-            'range': {
-                'sheetId': sheet_id,
-                'startColumnIndex': 3,
-                'endColumnIndex': 4,
-                'startRowIndex': self.HEADER_ROW_COUNT,
-            },
-            'description': 'Source strings can only be edited in the source files.',
-            'warningOnly': True,
-        })
+        )
 
         # Filter view for untranslated strings.
-        requests += self._generate_filter_view_requests(sheet_id, sheet, {
-            'filterViewId': sheet_id + 3300001,  # Keep it predictble.
-            'range': {
-                'sheetId': sheet_id,
-                'startColumnIndex': 0,
-                'endColumnIndex': 4,
-                'startRowIndex': 0,
-            },
-            'title': 'Untranslated Strings',
-            'criteria': {
-                '1': {
-                    'condition': {'type': 'BLANK'}
+        requests += self._generate_filter_view_requests(
+            sheet_id,
+            sheet,
+            {
+                'filterViewId': sheet_id + 3300001,  # Keep it predictble.
+                'range': {
+                    'sheetId': sheet_id,
+                    'startColumnIndex': 0,
+                    'endColumnIndex': 4,
+                    'startRowIndex': 0,
+                },
+                'title': 'Untranslated Strings',
+                'criteria': {
+                    '1': {'condition': {'type': 'BLANK'}},
                 },
             },
-        })
+        )
 
         return requests
 
@@ -659,25 +707,30 @@ class GoogleSheetsTranslator(base.Translator):
             for existing_range in sheet['protectedRanges']:
                 if existing_range['protectedRangeId'] == protected_range['protectedRangeId']:
                     is_protected = True
-                    requests.append({
-                        'updateProtectedRange': {
-                            'protectedRange': protected_range,
-                            'fields': 'range,description,warningOnly',
-                        },
-                    })
+                    requests.append(
+                        {
+                            'updateProtectedRange': {
+                                'protectedRange': protected_range,
+                                'fields': 'range,description,warningOnly',
+                            },
+                        }
+                    )
                     break
 
         if not is_protected:
-            requests.append({
-                'addProtectedRange': {
-                    'protectedRange': protected_range,
-                },
-            })
+            requests.append(
+                {
+                    'addProtectedRange': {
+                        'protectedRange': protected_range,
+                    },
+                }
+            )
 
         return requests
 
-    def _generate_update_sheets_requests(self, sheet_ids_to_catalogs,
-                                         source_lang, spreadsheet_id, prune=False):
+    def _generate_update_sheets_requests(
+        self, sheet_ids_to_catalogs, source_lang, spreadsheet_id, prune=False
+    ):
         requests = []
         for sheet_id, catalog in sheet_ids_to_catalogs.items():
             lang = str(catalog.locale)
@@ -690,8 +743,7 @@ class GoogleSheetsTranslator(base.Translator):
                 if value not in catalog:
                     source = value[0]
                     translation = value[1] if len(value) > 1 else None
-                    catalog.add(source, translation, auto_comments=[],
-                                context=None, flags=[])
+                    catalog.add(source, translation, auto_comments=[], context=None, flags=[])
 
             # Check for missing columns.
             num_missing_columns = 0
@@ -700,34 +752,35 @@ class GoogleSheetsTranslator(base.Translator):
                     num_missing_columns += 1
 
             if num_missing_columns:
-                requests.append({
-                    'appendDimension': {
-                        'sheetId': sheet_id,
-                        'dimension': 'COLUMNS',
-                        'length': num_missing_columns,
-                    },
-                })
+                requests.append(
+                    {
+                        'appendDimension': {
+                            'sheetId': sheet_id,
+                            'dimension': 'COLUMNS',
+                            'length': num_missing_columns,
+                        },
+                    }
+                )
 
                 # Update the column headers.
-                requests.append({
-                    'updateCells': {
-                        'fields': 'userEnteredValue',
-                        'start': {
-                            'sheetId': sheet_id,
-                            'rowIndex': 0,
-                            'columnIndex': 0,
+                requests.append(
+                    {
+                        'updateCells': {
+                            'fields': 'userEnteredValue',
+                            'start': {
+                                'sheetId': sheet_id,
+                                'rowIndex': 0,
+                                'columnIndex': 0,
+                            },
+                            'rows': [self._create_header_row_data(source_lang, lang)],
                         },
-                        'rows': [
-                            self._create_header_row_data(source_lang, lang)
-                        ],
-                    },
-                })
+                    }
+                )
 
             # Perform a diff of the existing data to what the catalog provides
             # to make targeted changes to the spreadsheet and preserve meta
             # information--such as comments.
-            existing_rows, new_rows, removed_rows = self._diff_data(
-                existing_values, catalog)
+            existing_rows, new_rows, removed_rows = self._diff_data(existing_values, catalog)
 
             # Update the existing values in place.
             if len(existing_rows):
@@ -735,23 +788,30 @@ class GoogleSheetsTranslator(base.Translator):
                 for value in existing_rows:
                     if not value:  # Skip empty rows.
                         continue
-                    row_data.append(self._create_catalog_row(
-                        value['source'], value['translation'],
-                        value['comments'], value['locations']))
+                    row_data.append(
+                        self._create_catalog_row(
+                            value['source'],
+                            value['translation'],
+                            value['comments'],
+                            value['locations'],
+                        )
+                    )
                 # NOTE This is not (yet) smart enough to only update small sections
                 # with the updated information. Hint: Use value['updated'].
-                requests.append({
-                    'updateCells': {
-                        'fields': 'userEnteredValue',
-                        'start': {
-                            'sheetId': sheet_id,
-                            # Skip header row.
-                            'rowIndex': self.HEADER_ROW_COUNT,
-                            'columnIndex': 0,
+                requests.append(
+                    {
+                        'updateCells': {
+                            'fields': 'userEnteredValue',
+                            'start': {
+                                'sheetId': sheet_id,
+                                # Skip header row.
+                                'rowIndex': self.HEADER_ROW_COUNT,
+                                'columnIndex': 0,
+                            },
+                            'rows': row_data,
                         },
-                        'rows': row_data,
-                    },
-                })
+                    }
+                )
 
             # Append new values to end of sheet.
             if len(new_rows):
@@ -759,58 +819,67 @@ class GoogleSheetsTranslator(base.Translator):
                 self.update_meta_after_upload = True
                 row_data = []
                 for value in new_rows:
-                    row_data.append(self._create_catalog_row(
-                        value['source'], value['translation'],
-                        value['comments'], value['locations']))
+                    row_data.append(
+                        self._create_catalog_row(
+                            value['source'],
+                            value['translation'],
+                            value['comments'],
+                            value['locations'],
+                        )
+                    )
 
-                requests.append({
-                    'appendCells': {
-                        'sheetId': sheet_id,
-                        'fields': 'userEnteredValue',
-                        'rows': row_data,
-                    },
-                })
+                requests.append(
+                    {
+                        'appendCells': {
+                            'sheetId': sheet_id,
+                            'fields': 'userEnteredValue',
+                            'rows': row_data,
+                        },
+                    }
+                )
 
             # Remove obsolete rows if not included.
             if prune and len(removed_rows):
                 for value in reversed(removed_rows):  # Start from the bottom.
                     # NOTE this is ineffecient since it does not combine ranges.
                     # ex: 1, 2, 3 are three requests instead of one request 1-3
-                    requests.append({
-                        'deleteDimension': {
-                            'range': {
-                                'sheetId': sheet_id,
-                                'dimension': 'ROWS',
-                                'startIndex': self.HEADER_ROW_COUNT + value,
-                                'endIndex': self.HEADER_ROW_COUNT + value + 1,
+                    requests.append(
+                        {
+                            'deleteDimension': {
+                                'range': {
+                                    'sheetId': sheet_id,
+                                    'dimension': 'ROWS',
+                                    'startIndex': self.HEADER_ROW_COUNT + value,
+                                    'endIndex': self.HEADER_ROW_COUNT + value + 1,
+                                },
                             },
-                        },
-                    })
+                        }
+                    )
 
             # Sort all rows.
-            requests.append({
-                'sortRange': {
-                    'range': {
-                        'sheetId': sheet_id,
-                        'startColumnIndex': 0,
-                        'startRowIndex': self.HEADER_ROW_COUNT,
+            requests.append(
+                {
+                    'sortRange': {
+                        'range': {
+                            'sheetId': sheet_id,
+                            'startColumnIndex': 0,
+                            'startRowIndex': self.HEADER_ROW_COUNT,
+                        },
+                        'sortSpecs': [
+                            {
+                                'dimensionIndex': 0,
+                                'sortOrder': 'ASCENDING',
+                            }
+                        ],
                     },
-                    'sortSpecs': [
-                        {
-                            'dimensionIndex': 0,
-                            'sortOrder': 'ASCENDING',
-                        }
-                    ],
-                },
-            })
+                }
+            )
 
-            requests += self._generate_comments_column_requests(
-                sheet_id, catalog)
+            requests += self._generate_comments_column_requests(sheet_id, catalog)
         return requests
 
     def _do_update_acl(self, spreadsheet_id, acl):
-        service = google_drive.BaseGooglePreprocessor.create_service(
-            'drive', 'v3')
+        service = google_drive.BaseGooglePreprocessor.create_service('drive', 'v3')
         for item in acl:
             permission = {
                 'role': item.get('role', DEFAULT_ACCESS_LEVEL).lower(),
@@ -825,16 +894,13 @@ class GoogleSheetsTranslator(base.Translator):
                 permission['type'] = 'group'
                 permission['emailAddress'] = item['group']
             # pylint: disable=no-member
-            service.permissions().create(
-                fileId=spreadsheet_id,
-                body=permission).execute()
+            service.permissions().create(fileId=spreadsheet_id, body=permission).execute()
 
     def _perform_batch_update(self, spreadsheet_id, requests):
         service = self._create_service()
         body = {'requests': requests}
         # pylint: disable=no-member
-        return service.spreadsheets().batchUpdate(
-            spreadsheetId=spreadsheet_id, body=body).execute()
+        return service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id, body=body).execute()
 
     def _update_acls(self, stats, locales):
         if 'acl' not in self.config:
@@ -850,15 +916,13 @@ class GoogleSheetsTranslator(base.Translator):
         spreadsheet_id = stat.ident
         service = self._create_service()
         # pylint: disable=no-member
-        resp = service.spreadsheets().get(
-            spreadsheetId=stat.ident).execute()
+        resp = service.spreadsheets().get(spreadsheetId=stat.ident).execute()
         requests = []
         for sheet in resp['sheets']:
             if sheet['properties']['title'] != locale:
                 continue
             sheet_id = sheet['properties']['sheetId']
-            requests += self._generate_style_requests(
-                sheet_id, sheet=sheet, catalog=catalog)
+            requests += self._generate_style_requests(sheet_id, sheet=sheet, catalog=catalog)
         self._perform_batch_update(spreadsheet_id, requests)
 
     def download(self, locales, save_stats=True, include_obsolete=False):
@@ -874,12 +938,12 @@ class GoogleSheetsTranslator(base.Translator):
         text = 'Downloading translations: %(value)d/{} (in %(time_elapsed).9s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
         bar = progressbar_non.create_progressbar(
-            "Downloading translations...", widgets=widgets, max_value=num_files)
+            'Downloading translations...', widgets=widgets, max_value=num_files
+        )
         bar.start()
 
         spreadsheet_id_to_locales = {}
         for locale in stats_to_download:
-
             stat = stats_to_download[locale]
             if stat.ident not in spreadsheet_id_to_locales:
                 spreadsheet_id_to_locales[stat.ident] = set()
@@ -908,16 +972,19 @@ class GoogleSheetsTranslator(base.Translator):
         text = 'Importing translations: %(value)d/{} (in %(time_elapsed).9s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
         bar = progressbar_non.create_progressbar(
-            "Importing translations...", widgets=widgets, max_value=num_files)
+            'Importing translations...', widgets=widgets, max_value=num_files
+        )
         bar.start()
 
         has_changed_content = False
         unchanged_locales = []
         changed_locales = {}
         for lang, translations in langs_to_translations.items():
-            has_changed_content, imported_translations, total_translations = self.pod.catalogs.import_translations(
-                    locale=lang, content=translations,
-                    include_obsolete=include_obsolete)
+            has_changed_content, imported_translations, total_translations = (
+                self.pod.catalogs.import_translations(
+                    locale=lang, content=translations, include_obsolete=include_obsolete
+                )
+            )
             bar.update(bar.value + 1)
             if imported_translations == 0:
                 unchanged_locales.append(lang)

@@ -6,7 +6,6 @@ from grow.templates import tests
 
 
 class BuiltinTestsTestCase(unittest.TestCase):
-
     def test_subset_filter(self):
         """Provided value is a subset when has all the required values."""
         value = ['banana', 'apple']

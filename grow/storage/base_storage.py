@@ -1,5 +1,4 @@
 class BaseStorage:
-
     is_cloud_storage = False
 
     @staticmethod

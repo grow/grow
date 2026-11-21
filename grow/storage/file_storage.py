@@ -9,7 +9,6 @@ from grow.templates import jinja_loader
 
 
 class FileStorage(base_storage.BaseStorage):
-
     @staticmethod
     def open(filename, mode=None):
         if mode is None:
@@ -51,7 +50,7 @@ class FileStorage(base_storage.BaseStorage):
         paths = []
         for root, _, files in os.walk(dirpath, topdown=True, followlinks=True):
             for filename in files:
-                path = os.path.join(root, filename)[len(dirpath):]
+                path = os.path.join(root, filename)[len(dirpath) :]
                 paths.append(path)
             # if not recursive, break after walking top-level dir
             if not recursive:

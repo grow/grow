@@ -31,7 +31,9 @@ try:
     # pylint: disable=ungrouped-imports
     from yaml import CSafeLoader as yaml_Loader
 except ImportError:
-    logging.warning('Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml')
+    logging.warning(
+        'Warning: libyaml missing, using slower yaml parser. See https://grow.dev/libyaml'
+    )
     from yaml import SafeLoader as yaml_Loader
 
 
@@ -87,6 +89,8 @@ def interactive_confirm(message, default=False, input_func=None):
 
 
 FORMATTER = string.Formatter()
+
+
 def safe_format(base_string, *args, **kwargs):
     """Safely format a string using the modern string formatting with fallback."""
     safe_kwargs = structures.SafeDict(**kwargs)
@@ -118,16 +122,14 @@ def walk(node, callback, parent_key=None, parent_node=None):
 
 def validate_name(name):
     # TODO: better validation.
-    if ('//' in name
-        or '..' in name
-            or ' ' in name):
+    if '//' in name or '..' in name or ' ' in name:
         raise errors.BadNameError(
             'Names must be lowercase and only contain letters, numbers, '
-            f'backslashes, and dashes. Found: "{name}"')
+            f'backslashes, and dashes. Found: "{name}"'
+        )
 
 
 class memoize:
-
     def __init__(self, func):
         self.func = func
         self.cache = {}
@@ -193,7 +195,6 @@ class cached_property(property):
 
 
 class memoize_tag(memoize):
-
     def __call__(self, *args, **kwargs):
         use_cache = kwargs.pop('use_cache', False)
         if use_cache is True:
@@ -205,8 +206,7 @@ def every_two(items):
     return list(zip(items[::2], items[1::2]))
 
 
-def make_base_yaml_loader(pod, locale=None, untag_params=None,
-                          tracking_func=None):
+def make_base_yaml_loader(pod, locale=None, untag_params=None, tracking_func=None):
     """Make a base yaml loader that does not touch collections or docs."""
     if not tracking_func:
         tracking_func = lambda *args, **kwargs: None
@@ -218,7 +218,6 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
         }
 
     class BaseYamlLoader(yaml_Loader):
-
         @staticmethod
         def loader_locale():
             return locale
@@ -243,7 +242,8 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             if contents is None:
                 contents = pod.read_csv(pod_path, locale=locale)
                 contents = untag.Untag.untag(
-                    contents, locale_identifier=locale, params=untag_params)
+                    contents, locale_identifier=locale, params=untag_params
+                )
                 file_cache.add(pod_path, contents, locale=locale)
             return contents
 
@@ -265,7 +265,8 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             if contents is None:
                 contents = pod.read_json(pod_path)
                 contents = untag.Untag.untag(
-                    contents, locale_identifier=locale, params=untag_params)
+                    contents, locale_identifier=locale, params=untag_params
+                )
                 file_cache.add(pod_path, contents, locale=locale)
             return contents
 
@@ -277,8 +278,7 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
             path = f'/content/strings/{main}.yaml'
             tracking_func(path)
             if reference:
-                data = structures.DeepReferenceDict(
-                    cls.read_yaml(path, locale=cls.loader_locale()))
+                data = structures.DeepReferenceDict(cls.read_yaml(path, locale=cls.loader_locale()))
                 try:
                     allow_draft = pod.podspec.fields.get('strings', {}).get('allow_draft')
                     if allow_draft is False and data.get(DRAFT_KEY):
@@ -286,11 +286,9 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                     value = data[reference]
                     if value is None:
                         if cls.pod_path():
-                            pod.logger.warning(
-                                f'Missing {main}.{reference} in {cls.pod_path()}')
+                            pod.logger.warning(f'Missing {main}.{reference} in {cls.pod_path()}')
                         else:
-                            pod.logger.warning(
-                                f'Missing {main}.{reference}')
+                            pod.logger.warning(f'Missing {main}.{reference}')
                     return value
                 except KeyError:
                     return None
@@ -308,7 +306,8 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                 # and cannot be stored as raw data.
                 contents = yaml.load(pod.read_file(pod_path), Loader=cls) or {}
                 contents = untag.Untag.untag(
-                    contents, locale_identifier=locale, params=untag_params)
+                    contents, locale_identifier=locale, params=untag_params
+                )
                 file_cache.add(pod_path, contents, locale=locale)
             return contents
 
@@ -322,9 +321,11 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
 
         def _track_dep_func(self, func):
             """Wrap a function with a call to the tracking function."""
+
             def _func(path, *args, **kwargs):
                 tracking_func(path)
                 return func(path, *args, **kwargs)
+
             return _func
 
         def construct_csv(self, node):
@@ -333,14 +334,15 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                     path, reference = path.split('?')
                     tracking_func(path)
                     return self.deep_reference(
-                        self.read_csv(path, locale=self.loader_locale()), reference)
+                        self.read_csv(path, locale=self.loader_locale()), reference
+                    )
                 tracking_func(path)
                 return self.read_csv(path, locale=self.loader_locale())
+
             return self._construct_func(node, func)
 
         def construct_file(self, node):
-            return self._construct_func(
-                node, self._track_dep_func(self.read_file))
+            return self._construct_func(node, self._track_dep_func(self.read_file))
 
         def construct_gettext(self, node):
             return self._construct_func(node, gettext.gettext)
@@ -351,9 +353,11 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                     path, reference = path.split('?')
                     tracking_func(path)
                     return self.deep_reference(
-                        self.read_json(path, locale=self.loader_locale()), reference)
+                        self.read_json(path, locale=self.loader_locale()), reference
+                    )
                 tracking_func(path)
                 return self.read_json(path, locale=self.loader_locale())
+
             return self._construct_func(node, func)
 
         def construct_string(self, node):
@@ -365,13 +369,15 @@ def make_base_yaml_loader(pod, locale=None, untag_params=None,
                     path, reference = path.split('?')
                     tracking_func(path)
                     data = structures.DeepReferenceDict(
-                        self.read_yaml(path, locale=self.loader_locale()))
+                        self.read_yaml(path, locale=self.loader_locale())
+                    )
                     try:
                         return data[reference]
                     except KeyError:
                         return None
                 tracking_func(path)
                 return self.read_yaml(path, locale=self.loader_locale())
+
             return self._construct_func(node, func)
 
     BaseYamlLoader.add_constructor('!_', BaseYamlLoader.construct_gettext)
@@ -396,16 +402,17 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
     if pod and doc:
         # Add the path to the dependency graph in case it has no external refs.
         pod.podcache.dependency_graph.add(doc.pod_path, doc.pod_path)
+
         def _track_dep(path):
             pod.podcache.dependency_graph.add(doc.pod_path, path)
+
         tracking_func = _track_dep
 
     base_loader = make_base_yaml_loader(
-        pod, locale=locale, untag_params=untag_params,
-        tracking_func=tracking_func)
+        pod, locale=locale, untag_params=untag_params, tracking_func=tracking_func
+    )
 
     class YamlLoader(base_loader):
-
         @staticmethod
         def loader_locale():
             return str(doc.locale_safe) if doc else locale
@@ -421,21 +428,25 @@ def make_yaml_loader(pod, doc=None, locale=None, untag_params=None):
                 constructed_doc = pod.get_doc(path, locale=self.loader_locale())
                 if not constructed_doc.exists:
                     raise errors.DocumentDoesNotExistError(
-                        f'Referenced document does not exist: {path}')
+                        f'Referenced document does not exist: {path}'
+                    )
                 tracking_func(constructed_doc.pod_path)
                 return constructed_doc
+
             return self._construct_func(node, func)
 
         def construct_static(self, node):
             def func(path):
                 tracking_func(path)
                 return pod.get_static(path, locale=self.loader_locale())
+
             return self._construct_func(node, func)
 
         def construct_url(self, node):
             def func(path):
                 tracking_func(path)
                 return pod.get_url(path, locale=self.loader_locale())
+
             return self._construct_func(node, func)
 
     YamlLoader.add_constructor('!g.doc', YamlLoader.construct_doc)
@@ -456,40 +467,39 @@ def load_yaml(*args, **kwargs):
     locale = kwargs.pop('locale', default_locale)
     if simple_loader:
         # Simple loader does not reference collections or documents.
-        loader = make_base_yaml_loader(
-            pod, locale=locale, untag_params=untag_params)
+        loader = make_base_yaml_loader(pod, locale=locale, untag_params=untag_params)
     else:
-        loader = make_yaml_loader(
-            pod, doc=doc, locale=locale, untag_params=untag_params)
+        loader = make_yaml_loader(pod, doc=doc, locale=locale, untag_params=untag_params)
     contents = yaml.load(*args, Loader=loader, **kwargs) or {}
     if not untag_params:
         return contents
-    return untag.Untag.untag(
-        contents, locale_identifier=locale, params=untag_params)
+    return untag.Untag.untag(contents, locale_identifier=locale, params=untag_params)
 
 
 def load_plain_yaml(content, pod=None, locale=None):
     return yaml.load(content, Loader=yaml_utils.PlainTextYamlLoader)
 
 
-def parse_yaml(content, pod=None, locale=None, untag_params=None,
-               simple_loader=False):
+def parse_yaml(content, pod=None, locale=None, untag_params=None, simple_loader=False):
     return load_yaml(
-        content, pod=pod, locale=locale, untag_params=untag_params,
-        simple_loader=simple_loader)
+        content, pod=pod, locale=locale, untag_params=untag_params, simple_loader=simple_loader
+    )
 
 
 def dump_yaml(obj):
     """Dumps yaml using the the safe dump."""
-    return yaml.safe_dump(
-        obj, allow_unicode=True, width=800, default_flow_style=False)
+    return yaml.safe_dump(obj, allow_unicode=True, width=800, default_flow_style=False)
 
 
 def dump_plain_yaml(obj):
     """Dumps yaml using the plain text dumper to retain constructors."""
     return yaml.dump(
-        obj, Dumper=yaml_utils.PlainTextYamlDumper,
-        default_flow_style=False, allow_unicode=True, width=800)
+        obj,
+        Dumper=yaml_utils.PlainTextYamlDumper,
+        default_flow_style=False,
+        allow_unicode=True,
+        width=800,
+    )
 
 
 def ordered_dict_representer(dumper, data):
@@ -516,13 +526,11 @@ def slugify(text, delim='-'):
 
 
 class DummyDict:
-
     def __getattr__(self, name):
         return ''
 
 
 class JsonEncoder(json.JSONEncoder):
-
     # pylint: disable=method-hidden
     def default(self, o):
         if hasattr(o, 'timetuple'):
@@ -553,7 +561,6 @@ def get_rows_from_csv(pod, path, locale=SENTINEL):
 
 
 class ProgressBarThread(threading.Thread):
-
     def __init__(self, bar, enabled, *args, **kwargs):
         self.bar = bar
         self.enabled = enabled
@@ -601,9 +608,7 @@ def _process_google_comments(soup):
 
 
 def _clean_google_href(href):
-    regex = ('^'
-             + re.escape('https://www.google.com/url')
-             + r'(\?|.*\&)q=([^\&]*)')
+    regex = '^' + re.escape('https://www.google.com/url') + r'(\?|.*\&)q=([^\&]*)'
     match = re.match(regex, href)
     if match:
         encoded_url = match.group(2)

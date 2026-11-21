@@ -14,7 +14,6 @@ NUM_TRIES = 10
 
 
 class CallbackHTTPServer(serving.ThreadedWSGIServer):
-
     def server_activate(self):
         super().server_activate()
         _, port = self.server_address
@@ -27,13 +26,16 @@ class CallbackHTTPServer(serving.ThreadedWSGIServer):
                 # Do not exit the process here; the server should remain active
                 # so the developer can fix any issues related to the router,
                 # without needing to manually restart the server.
-        self.pod.logger.info(f'{len(self.pod.router.routes)} routes built in {router_time.secs:.3f} s')
+        self.pod.logger.info(
+            f'{len(self.pod.router.routes)} routes built in {router_time.secs:.3f} s'
+        )
 
         url, extra_urls = print_server_ready_message(self.pod, self.pod.env.host, port)
         if self.open_browser:
             start_browser_in_thread(url)
             for extra_url in extra_urls:
                 start_browser_in_thread(extra_url)
+
 
 class ServerMessages:
     """Simple server messages."""
@@ -73,19 +75,23 @@ def print_server_ready_message(pod, host, port):
     messages.add_message('Server:', url_root, colors.HIGHLIGHT)
 
     # Trigger the dev manager message hook.
-    extra_urls = pod.extensions_controller.trigger(
-        'dev_manager_message', messages.add_message, url_base, url_root) or []
+    extra_urls = (
+        pod.extensions_controller.trigger(
+            'dev_manager_message', messages.add_message, url_base, url_root
+        )
+        or []
+    )
 
-    messages.add_message(
-        'Ready.', 'Press ctrl-c to quit.', colors.SUCCESS, colors.SUCCESS)
+    messages.add_message('Ready.', 'Press ctrl-c to quit.', colors.SUCCESS, colors.SUCCESS)
 
     messages.print(pod.logger.info)
 
     return (url_root, extra_urls)
 
 
-def start(pod, host=None, port=None, open_browser=False, debug=False,
-          preprocess=True, update_check=False):
+def start(
+    pod, host=None, port=None, open_browser=False, debug=False, preprocess=True, update_check=False
+):
     main_observer, podspec_observer = file_watchers.create_dev_server_observers(pod)
     if preprocess:
         thread = threading.Thread(target=pod.preprocess, kwargs={'build': False})
@@ -138,7 +144,9 @@ def start(pod, host=None, port=None, open_browser=False, debug=False,
 def start_browser_in_thread(url):
     def _start_browser():
         import webbrowser
+
         webbrowser.open(url)
+
     thread = threading.Thread(target=_start_browser)
     thread.setDaemon(True)
     thread.start()

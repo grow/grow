@@ -28,7 +28,8 @@ class NpmInstallerTestCase(unittest.TestCase):
         mock_call.return_value = 0
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'npm --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            'npm --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True)
+        )
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_yarn(self, mock_call):
@@ -37,7 +38,8 @@ class NpmInstallerTestCase(unittest.TestCase):
         self._make_yarn()
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'yarn --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            'yarn --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True)
+        )
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_fail_npm(self, mock_call):
@@ -62,7 +64,8 @@ class NpmInstallerTestCase(unittest.TestCase):
         mock_popen.return_value = mock_process
         self.installer.install()
         mock_popen.assert_called_once_with(
-            'npm install', **self.installer.subprocess_args(shell=True))
+            'npm install', **self.installer.subprocess_args(shell=True)
+        )
 
     @mock.patch('subprocess.Popen')
     def test_install_yarn(self, mock_popen):
@@ -73,7 +76,8 @@ class NpmInstallerTestCase(unittest.TestCase):
         self._make_yarn()
         self.installer.install()
         mock_popen.assert_called_once_with(
-            'yarn install', **self.installer.subprocess_args(shell=True))
+            'yarn install', **self.installer.subprocess_args(shell=True)
+        )
 
     @mock.patch('subprocess.Popen')
     def test_install_failed_npm(self, mock_popen):

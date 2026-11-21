@@ -15,14 +15,24 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.translations.import')
 
 @click.command(name='import')
 @shared.pod_path_argument
-@click.option('--source', type=click.Path(), required=True,
-              help='Path to source (either zip file, directory, or file).')
+@click.option(
+    '--source',
+    type=click.Path(),
+    required=True,
+    help='Path to source (either zip file, directory, or file).',
+)
 @shared.include_obsolete_option(CFG)
 @shared.locale_option(
     help_text='Locale of the message catalog to import. This option is'
-              ' only applicable when --source is a .po file.', multiple=False)
-@click.option('--untranslated', default=False, is_flag=True,
-              help='Whether to only import untranslated strings.')
+    ' only applicable when --source is a .po file.',
+    multiple=False,
+)
+@click.option(
+    '--untranslated',
+    default=False,
+    is_flag=True,
+    help='Whether to only import untranslated strings.',
+)
 def translations_import(pod_path, source, locale, include_obsolete, untranslated):
     """Imports translations from an external source."""
     if source.endswith('.po') and locale is None:
@@ -40,6 +50,6 @@ def translations_import(pod_path, source, locale, include_obsolete, untranslated
     with pod.profile.timer('translations_grow_i'):
         for path in source:
             pod.catalogs.import_translations(
-                path, locale=locale, include_obsolete=include_obsolete,
-                untranslated=untranslated)
+                path, locale=locale, include_obsolete=include_obsolete, untranslated=untranslated
+            )
     return pod

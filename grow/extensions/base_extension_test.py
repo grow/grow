@@ -10,23 +10,29 @@ class BaseExtensionTestCase(unittest.TestCase):
 
     def test_config_disabled(self):
         """Uses the disabled config."""
-        ext = base_extension.BaseExtension(None, {
-            'disabled': [
-                'a',
-            ],
-            'enabled': [
-                'a',
-            ],
-        })
+        ext = base_extension.BaseExtension(
+            None,
+            {
+                'disabled': [
+                    'a',
+                ],
+                'enabled': [
+                    'a',
+                ],
+            },
+        )
         self.assertFalse(ext.hooks.is_enabled('a'))
         self.assertFalse(ext.hooks.is_enabled('b'))
 
     def test_config_enabled(self):
         """Uses the enabled config."""
-        ext = base_extension.BaseExtension(None, {
-            'enabled': [
-                'a',
-            ],
-        })
+        ext = base_extension.BaseExtension(
+            None,
+            {
+                'enabled': [
+                    'a',
+                ],
+            },
+        )
         self.assertTrue(ext.hooks.is_enabled('a'))
         self.assertFalse(ext.hooks.is_enabled('b'))

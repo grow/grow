@@ -7,7 +7,6 @@ from grow.common import remap
 
 
 class RemapTestCase(unittest.TestCase):
-
     def test_visit_and_drop(self):
         data = {
             'keep': 1,

@@ -31,16 +31,14 @@ class BloggerPreprocessor(base.BasePreprocessor):
     def create_service(authenticated=True):
         http = httplib2.Http()
         if authenticated:
-            credentials = oauth.get_or_create_credentials(
-                scope=OAUTH_SCOPE, storage_key='Grow SDK')
+            credentials = oauth.get_or_create_credentials(scope=OAUTH_SCOPE, storage_key='Grow SDK')
             http = credentials.authorize(http)
         key = None if authenticated else oauth.BROWSER_API_KEY
         return discovery.build('blogger', 'v3', http=http, developerKey=key)
 
     def get_edit_url(self, doc=None):
         """Returns the URL to edit in Blogger."""
-        return BloggerPreprocessor._edit_url_format.format(
-            blog_id=self.config.blog_id)
+        return BloggerPreprocessor._edit_url_format.format(blog_id=self.config.blog_id)
 
     def run(self, build=True):
         self.execute()
@@ -49,7 +47,8 @@ class BloggerPreprocessor(base.BasePreprocessor):
         items = BloggerPreprocessor.download_items(
             blog_id=self.config.blog_id,
             logger=self.pod.logger,
-            authenticated=self.config.authenticated)
+            authenticated=self.config.authenticated,
+        )
         self.bind_collection(items, self.config.collection)
 
     def _parse_item(self, item):
@@ -97,7 +96,8 @@ class BloggerPreprocessor(base.BasePreprocessor):
     def bind_collection(self, items, collection_pod_path):
         collection = self.pod.get_collection(collection_pod_path)
         existing_pod_paths = [
-            doc.pod_path for doc in collection.list_docs(recursive=False, inject=False)]
+            doc.pod_path for doc in collection.list_docs(recursive=False, inject=False)
+        ]
         new_pod_paths = []
         for item in items:
             fields, body, basename = self._parse_item(item)
@@ -118,7 +118,11 @@ class BloggerPreprocessor(base.BasePreprocessor):
             return False
         if doc and doc.pod_path.startswith(self.config.collection):
             return True
-        return bool(collection and self._normalize_path(collection.pod_path) == self._normalize_path(self.config.collection))
+        return bool(
+            collection
+            and self._normalize_path(collection.pod_path)
+            == self._normalize_path(self.config.collection)
+        )
 
     def inject(self, doc):
         path = doc.pod_path
@@ -127,7 +131,8 @@ class BloggerPreprocessor(base.BasePreprocessor):
             item = BloggerPreprocessor.download_item(
                 blog_id=self.config.blog_id,
                 post_id=post_id,
-                authenticated=self.config.authenticated)
+                authenticated=self.config.authenticated,
+            )
         except (errors.HttpError, base.PreprocessorError):
             text = f'Error downloading Blogger post -> {path}'
             raise base.PreprocessorError(text)
@@ -139,7 +144,7 @@ class BloggerPreprocessor(base.BasePreprocessor):
         else:
             existing_data = {}
         fields = utils.format_existing_data(
-            old_data=existing_data, new_data=fields,
-            preserve=self.config.preserve)
+            old_data=existing_data, new_data=fields, preserve=self.config.preserve
+        )
         doc.inject(fields=fields, body=body)
         return self

@@ -22,17 +22,21 @@ class GrowJSONEncoderTestCase(unittest.TestCase):
     def test_datetime(self):
         """Test that datetime objects correctly serialize."""
         raw_date = datetime.datetime(2020, 12, 11, 10, 9, 8, 7)
-        self.assertEqual('"2020-12-11T10:09:08.000007"', json.dumps(
-            raw_date, cls=json_encoder.GrowJSONEncoder))
+        self.assertEqual(
+            '"2020-12-11T10:09:08.000007"', json.dumps(raw_date, cls=json_encoder.GrowJSONEncoder)
+        )
 
     def test_document(self):
         """Test that documents correctly serialize."""
         doc = self.pod.get_doc('/content/pages/text.txt')
-        self.assertEqual('{"$title": "Text Page", "$hidden": true}', json.dumps(
-            doc, cls=json_encoder.GrowJSONEncoder))
+        self.assertEqual(
+            '{"$title": "Text Page", "$hidden": true}',
+            json.dumps(doc, cls=json_encoder.GrowJSONEncoder),
+        )
 
     def test_document_fields(self):
         """Test that document fields correctly serialize."""
         fields = document_fields.DocumentFields({'foo': 'bar', 'bar': True})
-        self.assertEqual('{"foo": "bar", "bar": true}', json.dumps(
-            fields, cls=json_encoder.GrowJSONEncoder))
+        self.assertEqual(
+            '{"foo": "bar", "bar": true}', json.dumps(fields, cls=json_encoder.GrowJSONEncoder)
+        )

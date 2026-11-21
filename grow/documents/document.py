@@ -33,7 +33,6 @@ BUILT_IN_FIELDS = [
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -51,9 +50,11 @@ class Document:
     """Grow content document."""
 
     def __eq__(self, other):
-        return (isinstance(self, Document)
-                and isinstance(other, Document)
-                and self.root_pod_path == other.root_pod_path)
+        return (
+            isinstance(self, Document)
+            and isinstance(other, Document)
+            and self.root_pod_path == other.root_pod_path
+        )
 
     def __getattr__(self, name):
         if name == 'locale':
@@ -101,7 +102,7 @@ class Document:
     def __repr__(self):
         if self.locale:
             return f"<Document({self.pod_path}, locale='{self.locale}')>"
-        return f"<Document({self.pod_path})>"
+        return f'<Document({self.pod_path})>'
 
     @classmethod
     def _clean_basename(cls, pod_path):
@@ -176,8 +177,7 @@ class Document:
             _, locale_from_path = Document.parse_localized_path(pod_path)
             if locale_from_path:
                 locale = locale_from_path
-            return self.pod.normalize_locale(
-                locale, default=self.default_locale)
+            return self.pod.normalize_locale(locale, default=self.default_locale)
         except OSError as exc:  # Document does not exist.
             if '[Errno 2] No such file or directory' in str(exc):
                 return None
@@ -195,18 +195,17 @@ class Document:
     @property
     def collection_base_path(self):
         """The base directory inside the collection."""
-        return self.collection_sub_path[:-len(self.basename)]
+        return self.collection_sub_path[: -len(self.basename)]
 
     @property
     def collection_sub_path(self):
         """The pod path relative to the collection path."""
-        return self.pod_path[len(self.collection.pod_path):]
+        return self.pod_path[len(self.collection.pod_path) :]
 
     @property
     def collection_sub_path_clean(self):
         """The pod path relative to the collection path cleaned of locale."""
-        return Document._locale_paths(
-            self.pod_path[len(self.collection.pod_path):])[-1]
+        return Document._locale_paths(self.pod_path[len(self.collection.pod_path) :])[-1]
 
     @property
     def content(self):
@@ -225,11 +224,9 @@ class Document:
     def default_locale(self):
         """Default document locale."""
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
-            localization = self.collection.routes.localization(
-                self.collection_sub_path, {})
+            localization = self.collection.routes.localization(self.collection_sub_path, {})
         else:
-            localization = self.format.front_matter.data.get(
-                '$localization', {})
+            localization = self.format.front_matter.data.get('$localization', {})
 
         if localization and 'default_locale' in localization:
             return self.pod.normalize_locale(localization['default_locale'])
@@ -243,28 +240,32 @@ class Document:
     def fields(self):
         locale_identifier = str(self._locale_kwarg or self.default_locale)
         return document_fields.DocumentFields(
-            self.format.front_matter.data, locale_identifier,
+            self.format.front_matter.data,
+            locale_identifier,
             params={
                 'env': untag.UntagParamRegex(self.pod.env.name),
-                'locale': untag.UntagParamLocaleRegex.from_pod(
-                    self.pod, self.collection),
-            })
+                'locale': untag.UntagParamLocaleRegex.from_pod(self.pod, self.collection),
+            },
+        )
 
     @utils.cached_property
     def footnotes(self):
         # Configure the footnotes based on the doc or podspec settings.
         footnote_config = self.fields.get(
-            '$footnotes', self.pod.podspec.fields.get('footnotes', {}))
+            '$footnotes', self.pod.podspec.fields.get('footnotes', {})
+        )
         locale = str(self.locale) if self.locale else None
         symbols = footnote_config.get('symbols', None)
         use_numeric_symbols = footnote_config.get('use_numeric_symbols', None)
         use_numeric = footnote_config.get('use_numeric', None)
-        numeric_locales_pattern = footnote_config.get(
-            'numeric_locales_pattern', None)
+        numeric_locales_pattern = footnote_config.get('numeric_locales_pattern', None)
         return footnotes.Footnotes(
-            locale, symbols=symbols, use_numeric=use_numeric,
+            locale,
+            symbols=symbols,
+            use_numeric=use_numeric,
             use_numeric_symbols=use_numeric_symbols,
-            numeric_locales_pattern=numeric_locales_pattern)
+            numeric_locales_pattern=numeric_locales_pattern,
+        )
 
     @utils.cached_property
     def format(self):
@@ -315,8 +316,7 @@ class Document:
     @utils.cached_property
     def locales(self):
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
-            localization = self.collection.routes.localization(
-                self.collection_sub_path, {})
+            localization = self.collection.routes.localization(self.collection_sub_path, {})
         else:
             # Default to none to be able to override the upstream locales.
             localization = self.fields.get('$localization', {})
@@ -326,8 +326,7 @@ class Document:
             return []
         if 'locales' in localization:
             codes = localization['locales'] or []
-            return self.pod.normalize_locales(
-                locales.Locale.parse_codes(codes))
+            return self.pod.normalize_locales(locales.Locale.parse_codes(codes))
         return self.collection.locales
 
     @property
@@ -346,9 +345,11 @@ class Document:
     @utils.memoize
     def path_format(self):
         """Path format for current document."""
-        if (self.locale
-                and self.locale != self.default_locale
-                and self.path_format_localized is not None):
+        if (
+            self.locale
+            and self.locale != self.default_locale
+            and self.path_format_localized is not None
+        ):
             return self.path_format_localized
         return self.path_format_base
 
@@ -358,7 +359,8 @@ class Document:
         """Path format for base document."""
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             return self.collection.routes.path(
-                self.collection_sub_path, self.collection.path_format)
+                self.collection_sub_path, self.collection.path_format
+            )
         return self.fields.get('$path', self.collection.path_format)
 
     @property
@@ -366,8 +368,7 @@ class Document:
     def path_format_localized(self):
         """Path format for localized documents."""
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
-            localization = self.collection.routes.localization(
-                self.collection_sub_path, {})
+            localization = self.collection.routes.localization(self.collection_sub_path, {})
         else:
             localization = self.fields.get('$localization', {})
 
@@ -455,18 +456,19 @@ class Document:
                 path=path,
                 host=self.pod.env.host,
                 port=self.pod.env.port,
-                scheme=self.pod.env.scheme)
+                scheme=self.pod.env.scheme,
+            )
 
     @property
     def view(self):
         if self.collection.features(self.collection.FEATURE_SEPARATE_ROUTING):
             view_format = self.collection.routes.view(
-                self.collection_sub_path, self.collection.view)
+                self.collection_sub_path, self.collection.view
+            )
         else:
             view_format = self.fields.get('$view', self.collection.view)
         if view_format is not None:
-            return self.pod.path_format.format_view(
-                self, view_format)
+            return self.pod.path_format.format_view(self, view_format)
         return ''
 
     def delete(self):
@@ -496,10 +498,11 @@ class Document:
         if path_format is None:
             raise PathFormatError(
                 f'No path format found for {self}. You must specify a path '
-                'format in either the blueprint or the document.')
-        path_format = (path_format
-                       .replace('<grow:locale>', '{locale}')
-                       .replace('<grow:slug>', '{slug}'))
+                'format in either the blueprint or the document.'
+            )
+        path_format = path_format.replace('<grow:locale>', '{locale}').replace(
+            '<grow:slug>', '{slug}'
+        )
 
         # Handle default date formatting in the url.
         while '{date|' in path_format:
@@ -507,10 +510,10 @@ class Document:
             match = re.search(re_date, path_format)
             if match:
                 formatted_date = self.date
-                formatted_date = formatted_date.strftime(
-                    match.group('date_format'))
-                path_format = (path_format[:match.start()] + formatted_date +
-                               path_format[match.end():])
+                formatted_date = formatted_date.strftime(match.group('date_format'))
+                path_format = (
+                    path_format[: match.start()] + formatted_date + path_format[match.end() :]
+                )
             else:
                 # Does not match expected format, let the normal format attempt
                 # it.
@@ -524,16 +527,16 @@ class Document:
                 formatted_date = self.get_date(match.group('date_name'))
                 date_format = match.group('date_format') or '%Y-%m-%d'
                 formatted_date = formatted_date.strftime(date_format)
-                path_format = (path_format[:match.start()] + formatted_date +
-                               path_format[match.end():])
+                path_format = (
+                    path_format[: match.start()] + formatted_date + path_format[match.end() :]
+                )
             else:
                 # Does not match expected format, let the normal format attempt
                 # it.
                 break
 
         try:
-            return self.pod.path_format.format_doc(
-                self, path_format, locale=self.locale)
+            return self.pod.path_format.format_doc(self, path_format, locale=self.locale)
         except KeyError:
             logging.error(f'Error with path format: {path_format}')
             raise
@@ -542,13 +545,13 @@ class Document:
     def get_serving_path_base(self):
         """Get the base (default locale) serving path."""
         return self.pod.path_format.format_doc(
-            self, self.path_format_base, locale=self.default_locale)
+            self, self.path_format_base, locale=self.default_locale
+        )
 
     @utils.memoize
     def get_serving_path_localized(self):
         """Get the serving paths for each non-default locale."""
-        return self.pod.path_format.format_doc(
-            self, self.path_format_localized, parameterize=True)
+        return self.pod.path_format.format_doc(self, self.path_format_localized, parameterize=True)
 
     @utils.memoize
     def get_serving_paths_localized(self):
@@ -558,7 +561,8 @@ class Document:
             if locale == self.default_locale:
                 continue
             paths[locale] = self.pod.path_format.format_doc(
-                self, self.path_format_localized, locale=locale)
+                self, self.path_format_localized, locale=locale
+            )
         return paths
 
     def localize(self, locale):

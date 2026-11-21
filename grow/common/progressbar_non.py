@@ -19,8 +19,9 @@ class FormatLabel:
 class ProgressBar:
     """Simple progress bar supporting interactive TTY and CI/non-interactive output."""
 
-    def __init__(self, maxval=None, max_value=None, widgets=None, poll_interval=0.1,
-                 stream=None, **_kwargs):
+    def __init__(
+        self, maxval=None, max_value=None, widgets=None, poll_interval=0.1, stream=None, **_kwargs
+    ):
         self._max_value = max_value if max_value is not None else maxval
         self._widgets = widgets or []
         self._poll_interval = poll_interval
@@ -61,9 +62,7 @@ class ProgressBar:
         if not self._widgets:
             return
         data = self._data()
-        text = ''.join(
-            w(self, data) if callable(w) else str(w) for w in self._widgets
-        )
+        text = ''.join(w(self, data) if callable(w) else str(w) for w in self._widgets)
         if self._is_tty():
             end = '\n' if final else ''
             self._stream.write(f'\r{text}{end}')

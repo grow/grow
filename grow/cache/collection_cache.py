@@ -10,7 +10,6 @@ from grow.collections import collection
 
 
 class CollectionCache:
-
     def __init__(self):
         self.reset()
         self._lock = threading.RLock()
@@ -30,8 +29,7 @@ class CollectionCache:
         self.ensure_collection(col)
         # NOTE: Using `doc.locale` causes infinite loop since it needs to load
         # the fields (which can have circular dependencies).
-        cache_key = CollectionCache.generate_cache_key(
-            doc.pod_path, doc.locale_safe)
+        cache_key = CollectionCache.generate_cache_key(doc.pod_path, doc.locale_safe)
         self._cache[col.collection_path]['docs'][cache_key] = doc
 
     def add_document_locale(self, doc, locale):
@@ -44,17 +42,15 @@ class CollectionCache:
         """
         col = doc.collection
         self.ensure_collection(col)
-        cache_key = CollectionCache.generate_cache_key(
-            doc.pod_path, locale)
+        cache_key = CollectionCache.generate_cache_key(doc.pod_path, locale)
         self._cache[col.collection_path]['docs'][cache_key] = doc
 
     def remove_by_path(self, path):
         """Removes the collection or document based on the path."""
         if path.startswith(collection.Collection.CONTENT_PATH):
-            if path.endswith(
-                    f'/{collection.Collection.BLUEPRINT_PATH}'):
+            if path.endswith(f'/{collection.Collection.BLUEPRINT_PATH}'):
                 # If this is a blueprint then remove the entire collection.
-                col_path = path[len(collection.Collection.CONTENT_PATH):]
+                col_path = path[len(collection.Collection.CONTENT_PATH) :]
                 # Get just the directory.
                 col_path = os.path.split(col_path)[0]
                 collection_path = col_path[1:]  # Remove /
@@ -63,7 +59,7 @@ class CollectionCache:
                         del self._cache[collection_path]
             else:
                 # Search for an existing collection path.
-                col_path = path[len(collection.Collection.CONTENT_PATH):]
+                col_path = path[len(collection.Collection.CONTENT_PATH) :]
                 col_path = os.path.split(col_path)[0]
                 while col_path != os.sep:
                     collection_path = col_path[1:]
@@ -71,12 +67,10 @@ class CollectionCache:
                         if collection_path in self._cache:
                             # Do a 'wildcard' match on the path to remove all
                             # locales.
-                            generic_key = CollectionCache.generate_cache_key(
-                                path, '')
+                            generic_key = CollectionCache.generate_cache_key(path, '')
                             for key in self._cache[collection_path]['docs']:
                                 if key.startswith(generic_key):
-                                    del self._cache[
-                                        collection_path]['docs'][key]
+                                    del self._cache[collection_path]['docs'][key]
                                     return
                     col_path = os.path.split(col_path)[0]
 
@@ -89,8 +83,7 @@ class CollectionCache:
         col = doc.collection
         with self._lock:
             if col.collection_path in self._cache:
-                cache_key = CollectionCache.generate_cache_key(
-                    doc.pod_path, doc.locale_safe)
+                cache_key = CollectionCache.generate_cache_key(doc.pod_path, doc.locale_safe)
                 if cache_key in self._cache[col.collection_path]['docs']:
                     del self._cache[col.collection_path]['docs'][cache_key]
 
@@ -98,8 +91,7 @@ class CollectionCache:
         col = doc.collection
         with self._lock:
             if col.collection_path in self._cache:
-                cache_key = CollectionCache.generate_cache_key(
-                    doc.pod_path, locale)
+                cache_key = CollectionCache.generate_cache_key(doc.pod_path, locale)
                 if cache_key in self._cache[col.collection_path]['docs']:
                     del self._cache[col.collection_path]['docs'][cache_key]
 
@@ -107,8 +99,7 @@ class CollectionCache:
         col = doc.collection
         with self._lock:
             if col.collection_path in self._cache:
-                doc_cache_key = CollectionCache.generate_cache_key(
-                    doc.pod_path, '')
+                doc_cache_key = CollectionCache.generate_cache_key(doc.pod_path, '')
                 invalid_keys = []
                 for cache_key in self._cache[col.collection_path]['docs']:
                     if cache_key.startswith(doc_cache_key):
@@ -122,8 +113,7 @@ class CollectionCache:
                 self.add_collection(col)
 
     def get_collection(self, collection_path):
-        collection_path = collection.Collection.clean_collection_path(
-            collection_path)
+        collection_path = collection.Collection.clean_collection_path(collection_path)
         if collection_path in self._cache:
             return self._cache[collection_path]['collection']
         return None
@@ -131,8 +121,7 @@ class CollectionCache:
     def get_document(self, col, pod_path, locale):
         if col.collection_path in self._cache:
             cache_key = CollectionCache.generate_cache_key(pod_path, locale)
-            return self._cache[col.collection_path]['docs'].get(
-                cache_key, None)
+            return self._cache[col.collection_path]['docs'].get(cache_key, None)
         return None
 
     def reset(self):

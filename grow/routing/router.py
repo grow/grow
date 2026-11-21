@@ -14,6 +14,7 @@ from grow.routing import routes as grow_routes
 
 class FilterConfig(messages.Message):
     """Configuration for routing filters in podspec."""
+
     type = messages.StringField(1)
     collections = messages.StringField(2, repeated=True)
     paths = messages.StringField(3, repeated=True)
@@ -62,8 +63,8 @@ class Router:
         # Don't want to keep track of the concrete fingerprinted routes.
         if not concrete or not fingerprinted:
             self.pod.podcache.routes_cache.add(
-                path, route_info, options=options, concrete=concrete,
-                env=self.pod.env.name)
+                path, route_info, options=options, concrete=concrete, env=self.pod.env.name
+            )
 
     def add_all(self, concrete=True, use_cache=True):
         """Add all documents and static content."""
@@ -72,10 +73,8 @@ class Router:
         else:
             unchanged_pod_paths = []
 
-        self.add_all_docs(
-            concrete=concrete, unchanged_pod_paths=unchanged_pod_paths)
-        self.add_all_static(
-            concrete=concrete, unchanged_pod_paths=unchanged_pod_paths)
+        self.add_all_docs(concrete=concrete, unchanged_pod_paths=unchanged_pod_paths)
+        self.add_all_static(concrete=concrete, unchanged_pod_paths=unchanged_pod_paths)
         self.add_all_other(concrete=concrete)
         self.add_all_hook(concrete=concrete)
 
@@ -105,8 +104,7 @@ class Router:
                     else:
                         # If this document does not exist with the default
                         # locale it still needs to be added.
-                        locale_doc = self.pod.get_doc(
-                            doc.pod_path, doc.default_locale)
+                        locale_doc = self.pod.get_doc(doc.pod_path, doc.default_locale)
                         if not locale_doc.exists:
                             docs.append(doc)
                             doc_basenames.add(doc.collection_sub_path_clean)
@@ -116,8 +114,7 @@ class Router:
     def add_all_hook(self, concrete=True):
         """Trigger the hook for adding all to the routes."""
         with self.pod.profile.timer('Router.add_all_hook'):
-            self.pod.extensions_controller.trigger(
-                'router_add', self, concrete=concrete)
+            self.pod.extensions_controller.trigger('router_add', self, concrete=concrete)
 
     def add_all_other(self, concrete=True):
         """Add all pod docs to the router."""
@@ -129,10 +126,13 @@ class Router:
                         key = 404
 
                     path = f'/{key}.html'
-                    route_info = RouteInfo('error', meta={
-                        'key': key,
-                        'view': error_route,
-                    })
+                    route_info = RouteInfo(
+                        'error',
+                        meta={
+                            'key': key,
+                            'view': error_route,
+                        },
+                    )
                     self._add_to_routes(path, route_info, concrete=concrete)
 
             if 'sitemap' in podspec:
@@ -140,16 +140,19 @@ class Router:
                 default_sitemap_path = self.pod.podspec.root + '/sitemap.xml'
                 default_sitemap_path = default_sitemap_path.replace('//', '/')
                 sitemap_path = self.pod.path_format.format_pod(
-                    sitemap.get('path', default_sitemap_path))
-                route_info = RouteInfo('sitemap', meta={
-                    'collections': sitemap.get('collections'),
-                    'locales': sitemap.get('locales'),
-                    'template': sitemap.get('template'),
-                    'filters': sitemap.get('filters'),
-                    'path': sitemap_path,
-                })
-                self._add_to_routes(
-                    sitemap_path, route_info, concrete=concrete)
+                    sitemap.get('path', default_sitemap_path)
+                )
+                route_info = RouteInfo(
+                    'sitemap',
+                    meta={
+                        'collections': sitemap.get('collections'),
+                        'locales': sitemap.get('locales'),
+                        'template': sitemap.get('template'),
+                        'filters': sitemap.get('filters'),
+                        'path': sitemap_path,
+                    },
+                )
+                self._add_to_routes(sitemap_path, route_info, concrete=concrete)
 
     def add_all_static(self, concrete=True, unchanged_pod_paths=None):
         """Add all pod docs to the router."""
@@ -165,8 +168,8 @@ class Router:
                 static_filter = config.get('filter', {})
                 if static_filter:
                     path_filter = grow_path_filter.PathFilter(
-                        static_filter.get('ignore_paths'),
-                        static_filter.get('include_paths'))
+                        static_filter.get('ignore_paths'), static_filter.get('include_paths')
+                    )
                 else:
                     path_filter = self.pod.path_filter
 
@@ -177,8 +180,7 @@ class Router:
                 if localization:
                     localized_static_dirs = localization.get('static_dirs')
                     if not localized_static_dirs:
-                        localized_static_dirs = [
-                            localization.get('static_dir')]
+                        localized_static_dirs = [localization.get('static_dir')]
 
                 if concrete:
                     # Enumerate static files.
@@ -193,63 +195,73 @@ class Router:
                                 # Skip when the doc is in the unchanged pod paths set.
                                 if pod_path in unchanged_pod_paths:
                                     continue
-                                static_doc = self.pod.get_static(
-                                    pod_path, locale=None)
-                                self.add_static_doc(
-                                    static_doc, concrete=concrete)
+                                static_doc = self.pod.get_static(pod_path, locale=None)
+                                self.add_static_doc(static_doc, concrete=concrete)
                     if localization:
                         # TODO handle the localized static files?
                         pass
                 else:
                     serve_at = self.pod.path_format.format_pod(
-                        config['serve_at'], parameterize=True)
-                    route_info = RouteInfo('static', meta={
-                        'path_format': serve_at,
-                        'source_formats': static_dirs,
-                        'localized': False,
-                        'localization': localization,
-                        'fingerprinted': fingerprinted,
-                        'static_filter': static_filter,
-                        'path_filter': path_filter,
-                    })
-                    self._add_to_routes(
-                        serve_at + '*', route_info, concrete=concrete,
-                        fingerprinted=fingerprinted)
-
-                    if localization:
-                        localized_serve_at = self.pod.path_format.format_pod(
-                            localization.get('serve_at'), parameterize=True)
-                        route_info = RouteInfo('static', meta={
-                            'path_format': localized_serve_at,
-                            'source_formats': localized_static_dirs,
-                            'localized': True,
+                        config['serve_at'], parameterize=True
+                    )
+                    route_info = RouteInfo(
+                        'static',
+                        meta={
+                            'path_format': serve_at,
+                            'source_formats': static_dirs,
+                            'localized': False,
                             'localization': localization,
                             'fingerprinted': fingerprinted,
                             'static_filter': static_filter,
                             'path_filter': path_filter,
-                        })
+                        },
+                    )
+                    self._add_to_routes(
+                        serve_at + '*', route_info, concrete=concrete, fingerprinted=fingerprinted
+                    )
+
+                    if localization:
+                        localized_serve_at = self.pod.path_format.format_pod(
+                            localization.get('serve_at'), parameterize=True
+                        )
+                        route_info = RouteInfo(
+                            'static',
+                            meta={
+                                'path_format': localized_serve_at,
+                                'source_formats': localized_static_dirs,
+                                'localized': True,
+                                'localization': localization,
+                                'fingerprinted': fingerprinted,
+                                'static_filter': static_filter,
+                                'path_filter': path_filter,
+                            },
+                        )
                         self._add_to_routes(
-                            localized_serve_at + '*', route_info, concrete=concrete,
-                            fingerprinted=fingerprinted)
+                            localized_serve_at + '*',
+                            route_info,
+                            concrete=concrete,
+                            fingerprinted=fingerprinted,
+                        )
             if skipped_paths:
-                self.pod.logger.info(
-                    f'Ignored {len(skipped_paths)} static files.')
+                self.pod.logger.info(f'Ignored {len(skipped_paths)} static files.')
 
     def add_doc(self, doc, concrete=True):
         """Add doc to the router."""
         if not doc.has_serving_path():
             return
         route_info = RouteInfo(
-            'doc', pod_path=doc.pod_path,
+            'doc',
+            pod_path=doc.pod_path,
             hashed=self.pod.hash_file(doc.pod_path),
             meta={
                 'pod_path': doc.pod_path,
                 'locale': str(doc.locale),
                 'collection_path': doc.collection.pod_path,
-            })
+            },
+        )
         self._add_to_routes(
-            doc.get_serving_path(), route_info,
-            concrete=concrete, options=doc.path_params)
+            doc.get_serving_path(), route_info, concrete=concrete, options=doc.path_params
+        )
 
     def add_docs(self, docs, concrete=True):
         """Add docs to the router."""
@@ -264,16 +276,21 @@ class Router:
                 if concrete:
                     # Concrete iterates all possible documents.
                     route_info = RouteInfo(
-                        'doc', pod_path=doc.pod_path,
+                        'doc',
+                        pod_path=doc.pod_path,
                         hashed=self.pod.hash_file(doc.pod_path),
                         meta={
                             'pod_path': doc.pod_path,
                             'locale': str(doc.locale),
                             'collection_path': doc.collection.pod_path,
-                        })
+                        },
+                    )
                     self._add_to_routes(
-                        doc.get_serving_path(), route_info,
-                        options=doc.path_params, concrete=concrete)
+                        doc.get_serving_path(),
+                        route_info,
+                        options=doc.path_params,
+                        concrete=concrete,
+                    )
                 else:
                     # Use the raw paths to parameterize the routing.
                     base_path = doc.get_serving_path_base()
@@ -282,45 +299,53 @@ class Router:
                     # parameterized version of the path.
                     if base_path and not only_localized:
                         route_info = RouteInfo(
-                            'doc', pod_path=doc.pod_path,
+                            'doc',
+                            pod_path=doc.pod_path,
                             hashed=self.pod.hash_file(doc.pod_path),
                             meta={
                                 'pod_path': doc.pod_path,
                                 'locale': str(doc.locale),
                                 'collection_path': doc.collection.pod_path,
-                            })
+                            },
+                        )
                         self._add_to_routes(
-                            base_path, route_info,
-                            concrete=concrete, options=doc.path_params)
+                            base_path, route_info, concrete=concrete, options=doc.path_params
+                        )
                     localized_path = doc.get_serving_path_localized()
                     if not localized_path or ':locale' not in localized_path:
                         localized_paths = doc.get_serving_paths_localized()
                         for locale, path in localized_paths.items():
                             route_info = RouteInfo(
-                                'doc', pod_path=doc.pod_path,
+                                'doc',
+                                pod_path=doc.pod_path,
                                 hashed=self.pod.hash_file(doc.pod_path),
                                 meta={
                                     'pod_path': doc.pod_path,
                                     'locale': str(locale),
                                     'collection_path': doc.collection.pod_path,
-                                })
+                                },
+                            )
                             self._add_to_routes(
-                                path, route_info,
-                                concrete=concrete, options=doc.path_params)
+                                path, route_info, concrete=concrete, options=doc.path_params
+                            )
                     else:
                         route_info = RouteInfo(
-                            'doc', pod_path=doc.pod_path,
+                            'doc',
+                            pod_path=doc.pod_path,
                             hashed=self.pod.hash_file(doc.pod_path),
                             meta={
                                 'pod_path': doc.pod_path,
                                 'collection_path': doc.collection.pod_path,
-                            })
+                            },
+                        )
                         self._add_to_routes(
-                            localized_path, route_info,
-                            concrete=concrete, options=doc.path_params_localized)
+                            localized_path,
+                            route_info,
+                            concrete=concrete,
+                            options=doc.path_params_localized,
+                        )
             if skipped_paths:
-                self.pod.logger.info(
-                    f'Ignored {len(skipped_paths)} documents.')
+                self.pod.logger.info(f'Ignored {len(skipped_paths)} documents.')
 
     def add_pod_paths(self, pod_paths, concrete=True):
         """Add pod paths to the router."""
@@ -334,8 +359,7 @@ class Router:
             doc_pod_paths = set()
             for pod_path in pod_paths:
                 # Add docs from the depdency graph.
-                dependents = self.pod.podcache.dependency_graph.match_dependents(
-                    pod_path)
+                dependents = self.pod.podcache.dependency_graph.match_dependents(pod_path)
                 for dep_path in dependents:
                     doc_pod_paths.add(dep_path)
 
@@ -355,7 +379,8 @@ class Router:
         if not static_doc.path_filter.is_valid(static_doc.serving_path):
             return
         route_info = RouteInfo(
-            'static', pod_path=static_doc.pod_path,
+            'static',
+            pod_path=static_doc.pod_path,
             hashed=self.pod.hash_file(static_doc.pod_path),
             meta={
                 'pod_path': static_doc.pod_path,
@@ -365,10 +390,14 @@ class Router:
                 'fingerprinted': static_doc.fingerprinted,
                 'static_filter': static_doc.filter,
                 'path_filter': static_doc.path_filter,
-            })
+            },
+        )
         self._add_to_routes(
-            static_doc.serving_path, route_info, concrete=concrete,
-            fingerprinted=static_doc.fingerprinted)
+            static_doc.serving_path,
+            route_info,
+            concrete=concrete,
+            fingerprinted=static_doc.fingerprinted,
+        )
 
     def filter(self, filter_type, collection_paths=None, paths=None, locales=None, kinds=None):
         """Filter the routes based on the filter type and criteria."""
@@ -383,6 +412,7 @@ class Router:
             locales.append(None)
 
         if filter_type == 'whitelist':
+
             def _filter_whitelist(serving_path, route_info):
                 # Check for whitelisted collection path.
                 if (
@@ -408,6 +438,7 @@ class Router:
             if count > 0:
                 self.pod.logger.info(f'Whitelist filtered out {count} routes.')
         else:
+
             def _filter_blacklist(serving_path, route_info):
                 # Check for blacklisted collection path.
                 if (
@@ -441,8 +472,7 @@ class Router:
                 fingerprinted_dirs.add(config['static_dir'])
         fingerprinted_dirs = tuple(fingerprinted_dirs)
 
-        routes_data = self.pod.podcache.routes_cache.raw(
-            concrete=concrete, env=self.pod.env.name)
+        routes_data = self.pod.podcache.routes_cache.raw(concrete=concrete, env=self.pod.env.name)
         unchanged_pod_paths = set()
         removed_paths = []
         for key, item in routes_data.items():
@@ -489,15 +519,13 @@ class Router:
     def from_data(self, routes_data):
         """Import routes from data."""
         for key, item in routes_data.items():
-            self.routes.add(
-                key,
-                RouteInfo.from_data(**item['value']),
-                options=item['options'])
+            self.routes.add(key, RouteInfo.from_data(**item['value']), options=item['options'])
 
     def get_render_controller(self, path, route_info, params=None):
         """Find the correct render controller for the given route info."""
         return render_controller.RenderController.from_route_info(
-            self.pod, path, route_info, params=params)
+            self.pod, path, route_info, params=params
+        )
 
     def get_static_config_for_pod_path(self, pod_path):
         """Return the static configuration for a pod path."""
@@ -595,11 +623,13 @@ class RouteInfo:
         if 'path_filter' in meta:
             meta['path_filter'] = grow_path_filter.PathFilter(
                 ignored=meta['path_filter'].get('ignored'),
-                included=meta['path_filter'].get('included'))
+                included=meta['path_filter'].get('included'),
+            )
         if 'static_filter' in meta:
             meta['static_filter'] = grow_path_filter.PathFilter(
                 ignored=meta['static_filter'].get('ignored'),
-                included=meta['static_filter'].get('included'))
+                included=meta['static_filter'].get('included'),
+            )
         return cls(kind, pod_path=pod_path, hashed=hashed, meta=meta)
 
     def export(self):

@@ -9,7 +9,6 @@ from . import utils
 
 
 class UtilsTestCase(unittest.TestCase):
-
     def test_clean_google_href(self):
         # Test without a match.
         raw_input = '<a href="https://grow.dev/">Link</a>'
@@ -43,52 +42,55 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_interactive_confirm(self):
-        message = {'m': ''} # Use dict since nonlocal missing in python 2.x
+        message = {'m': ''}  # Use dict since nonlocal missing in python 2.x
         confirm = 'Sure?'
         confirm_no = 'Sure? [y/N]: '
         confirm_yes = 'Sure? [Y/n]: '
+
         def input_no(m):
             message['m'] = m
             return 'n'
+
         def input_none(m):
             message['m'] = m
             return ''
+
         def input_yes(m):
             message['m'] = m
             return 'y'
 
         tests = [
-            { # Should be false when nothing input, default true.
+            {  # Should be false when nothing input, default true.
                 'expected': False,
                 'default': False,
                 'input_func': input_none,
                 'confirm': confirm_no,
             },
-            { # Should be true when true input, default true.
+            {  # Should be true when true input, default true.
                 'expected': True,
                 'default': False,
                 'input_func': input_yes,
                 'confirm': confirm_no,
             },
-            { # Should be false when false input, default true.
+            {  # Should be false when false input, default true.
                 'expected': False,
                 'default': False,
                 'input_func': input_no,
                 'confirm': confirm_no,
             },
-            { # Should be false when nothing input, default true.
+            {  # Should be false when nothing input, default true.
                 'expected': True,
                 'default': True,
                 'input_func': input_none,
                 'confirm': confirm_yes,
             },
-            { # Should be true when true input, default true.
+            {  # Should be true when true input, default true.
                 'expected': True,
                 'default': True,
                 'input_func': input_yes,
                 'confirm': confirm_yes,
             },
-            { # Should be false when false input, default true.
+            {  # Should be false when false input, default true.
                 'expected': False,
                 'default': True,
                 'input_func': input_no,
@@ -100,8 +102,9 @@ class UtilsTestCase(unittest.TestCase):
             self.assertEqual(
                 test['expected'],
                 utils.interactive_confirm(
-                    confirm, default=test['default'],
-                    input_func=test['input_func']))
+                    confirm, default=test['default'], input_func=test['input_func']
+                ),
+            )
             self.assertEqual(test['confirm'], message['m'])
 
     def test_parse_yaml(self):
@@ -196,7 +199,7 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_slugify(self):
         """Slugify strings."""
-        actual = utils.slugify('What\'s going: down 2 d@y')
+        actual = utils.slugify("What's going: down 2 d@y")
         self.assertEqual('what-s-going:down-2-d-y', actual)
 
         actual = utils.slugify('Does it {work}')
@@ -223,11 +226,11 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_walk(self):
         data = {
-          'foo': 'bar',
-          'bam': {
-            'foo': 'bar2',
-            'foo2': ['bar3', 'bar4'],
-          }
+            'foo': 'bar',
+            'bam': {
+                'foo': 'bar2',
+                'foo2': ['bar3', 'bar4'],
+            },
         }
 
         actual = []

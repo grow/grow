@@ -48,16 +48,12 @@ class RenderedDocument:
             self.hash = None
         else:
             try:
-                self.hash = hashlib.sha1(
-                    content.encode('utf-8'), usedforsecurity=False
-                ).hexdigest()
+                self.hash = hashlib.sha1(content.encode('utf-8'), usedforsecurity=False).hexdigest()
             except AttributeError:
-                self.hash = hashlib.sha1(
-                    content, usedforsecurity=False
-                ).hexdigest()
+                self.hash = hashlib.sha1(content, usedforsecurity=False).hexdigest()
 
         if self._has_tmp_file_path():
-            with open(self._get_tmp_file_path(), "w") as tmp_file:
+            with open(self._get_tmp_file_path(), 'w') as tmp_file:
                 tmp_file.write(content)
         else:
             self._content = content

@@ -17,7 +17,8 @@ class MovedHelperTestCase(unittest.TestCase):
         _ = test_class('/')
         mock_warn.assert_called_with(
             'The grow.common.urls.Url class has moved to grow.common.urls.Url and '
-            'will be removed in a future version.')
+            'will be removed in a future version.'
+        )
 
     # pylint: disable=no-self-use
     def test_static_method(self):
@@ -27,4 +28,5 @@ class MovedHelperTestCase(unittest.TestCase):
         _ = test_class.create_relative_path('/foo/bar/baz/', relative_to='/test/dir/')
         mock_warn.assert_called_with(
             'The grow.common.urls.Url class has moved to grow.common.urls.Url and '
-            'will be removed in a future version.')
+            'will be removed in a future version.'
+        )

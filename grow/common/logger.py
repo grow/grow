@@ -13,4 +13,5 @@ def get_logger(name='pod'):
     logger.addHandler(handler)
     return logger
 
+
 LOGGER = get_logger('pod')

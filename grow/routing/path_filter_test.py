@@ -72,8 +72,7 @@ class PathFilterTestCase(unittest.TestCase):
 
     def test_filter_constructor(self):
         """Simple ignore filters work."""
-        self.filter = path_filter.PathFilter(
-            ['foo.bar'], ['/bar/foo.bar'])
+        self.filter = path_filter.PathFilter(['foo.bar'], ['/bar/foo.bar'])
 
         # Normal files work.
         self.assertTrue(self.filter.is_valid('/sitemap.xml'))

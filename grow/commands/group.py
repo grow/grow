@@ -9,31 +9,45 @@ from grow.deployments.destinations import local as local_destination
 
 version = pkg_resources.get_distribution('grow').version
 
-HELP_TEXT = ('Grow is a declarative file-based website generator. Read docs at '
-             f'https://grow.dev. This is version {version}.')
+HELP_TEXT = (
+    'Grow is a declarative file-based website generator. Read docs at '
+    f'https://grow.dev. This is version {version}.'
+)
+
 
 # pylint: disable=unused-argument
 @click.group(help=HELP_TEXT)
 @click.version_option(prog_name='grow', version=version)
-@click.option('--auth', help='Information used to sign in to services that'
-              ' require authentication. --auth should be an email address.',
-              envvar='GROW_AUTH')
-@click.option('--clear-auth', default=False, is_flag=True,
-              help='Clears stored auth information.')
-@click.option('--auth-key-file', help='Path to a private key file used for'
-              ' services that require authentication.', envvar='GROW_KEY_FILE')
 @click.option(
-    '--interactive-auth', default=False, is_flag=True,
+    '--auth',
+    help='Information used to sign in to services that'
+    ' require authentication. --auth should be an email address.',
+    envvar='GROW_AUTH',
+)
+@click.option('--clear-auth', default=False, is_flag=True, help='Clears stored auth information.')
+@click.option(
+    '--auth-key-file',
+    help='Path to a private key file used for services that require authentication.',
+    envvar='GROW_KEY_FILE',
+)
+@click.option(
+    '--interactive-auth',
+    default=False,
+    is_flag=True,
     envvar='INTERACTIVE_AUTH',
     help='Whether to automatically open an authorization page in your'
-         ' default web browser for any steps that require authentication.'
-         ' If you are running Grow on a machine with access to a web browser,'
-         ' you may use --interactive-auth to automatically open the web'
-         ' browser. By default, this option is turned off, requiring you to'
-         ' manually copy and paste an authorization code.')
-@click.option('--profile',
-              default=False, is_flag=True,
-              help='Show report of pod operation timing for performance analysis.')
+    ' default web browser for any steps that require authentication.'
+    ' If you are running Grow on a machine with access to a web browser,'
+    ' you may use --interactive-auth to automatically open the web'
+    ' browser. By default, this option is turned off, requiring you to'
+    ' manually copy and paste an authorization code.',
+)
+@click.option(
+    '--profile',
+    default=False,
+    is_flag=True,
+    help='Show report of pod operation timing for performance analysis.',
+)
 def grow(auth, clear_auth, auth_key_file, interactive_auth, profile):
     """Grow CLI command."""
     if interactive_auth not in (None, False):
@@ -54,7 +68,6 @@ def process_subcommands(pod, profile, **_):
         return
 
     if profile:
-        destination = local_destination.LocalDestination(
-            local_destination.Config())
+        destination = local_destination.LocalDestination(local_destination.Config())
         destination.pod = pod
         destination.export_profile_report()

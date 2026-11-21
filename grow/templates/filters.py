@@ -97,8 +97,7 @@ def parsedatetime_filter(_ctx, date_string, string_format):
 def relative_filter(ctx, path):
     """Calculates the relative path from the current url to the given url."""
     doc = ctx['doc']
-    return urls.Url.create_relative_path(
-        path, relative_to=doc.url.path)
+    return urls.Url.create_relative_path(path, relative_to=doc.url.path)
 
 
 @jinja2.contextfilter
@@ -119,6 +118,7 @@ def shuffle_filter(_ctx, seq):
     except TypeError:
         return seq
 
+
 def regex_replace():
     """A regex replace filter with regex cache."""
     regex_cache = {}
@@ -135,23 +135,27 @@ def regex_replace():
 def slug_filter(pod=None):
     """Filters string to remove url unfriendly characters."""
     use_legacy_slugify = pod and pod.is_enabled(pod.FEATURE_OLD_SLUGIFY)
+
     def _slug_filter(value, delimiter='-'):
         if not value:
             return value
         if use_legacy_slugify:
             return utils.slugify(value, delimiter)
         return slugify.slugify(value, separator=delimiter)
+
     return _slug_filter
 
 
 def wrap_locale_context(func):
     """Wraps the func with the current locale."""
+
     @jinja2.contextfilter
     def _locale_filter(ctx, value, *args, **kwargs):
         doc = ctx['doc']
         if not kwargs.get('locale', None):
             kwargs['locale'] = str(doc.locale)
         return func(value, *args, **kwargs)
+
     return _locale_filter
 
 

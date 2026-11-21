@@ -22,8 +22,7 @@ class HookController:
         for hook in self._hooks:
             # Hooks can determine when to be run.
             if hook.should_trigger(result, *args, **kwargs):
-                timer = self.pod.profile.timer(
-                    hook.__module__ + "." + hook.__class__.__name__)
+                timer = self.pod.profile.timer(hook.__module__ + '.' + hook.__class__.__name__)
                 with timer:
                     result = hook.trigger(result, *args, **kwargs)
         return result

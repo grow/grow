@@ -34,8 +34,9 @@ def inspect_routes(pod_path, routes_file, deployment):
             pod.write_file(
                 routes_file,
                 json.dumps(
-                    pod.router.routes.export(), sort_keys=True, indent=2,
-                    separators=(',', ': ')))
+                    pod.router.routes.export(), sort_keys=True, indent=2, separators=(',', ': ')
+                ),
+            )
             print(f'Exported routes to file: {routes_file}')
             return pod
 

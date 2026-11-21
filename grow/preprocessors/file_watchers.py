@@ -35,19 +35,19 @@ class PodFileEventHandler(events.PatternMatchingEventHandler):
     def trigger_file_changed(self, pod_path):
         try:
             self.pod.extensions_controller.trigger(
-                'dev_file_change', pod_path, write_cache_file=self.write_cache_file)
+                'dev_file_change', pod_path, write_cache_file=self.write_cache_file
+            )
         except Exception:  # pylint: disable=broad-except
             # Avoid an inconsistent state where preprocessor doesn't run again
             # if it encounters an exception. https://github.com/grow/grow/issues/528
             colored_pod_path = colors.stylize(pod_path, colors.ERROR)
-            self.pod.logger.exception(
-                f'Found an error -> {colored_pod_path}')
+            self.pod.logger.exception(f'Found an error -> {colored_pod_path}')
 
     def handle(self, event=None):
         if hasattr(event, 'src_path'):
-            self.trigger_file_changed(event.src_path[len(self.pod.root):])
+            self.trigger_file_changed(event.src_path[len(self.pod.root) :])
         if hasattr(event, 'dest_path'):
-            self.trigger_file_changed(event.dest_path[len(self.pod.root):])
+            self.trigger_file_changed(event.dest_path[len(self.pod.root) :])
 
         self.managed_observer.reschedule_children()
 
@@ -97,7 +97,8 @@ class ManagedObserver(observers.Observer):
 
     def schedule_podfile(self, write_cache_file=True):
         podfile_handler = PodFileEventHandler(
-            self.pod, managed_observer=self, write_cache_file=write_cache_file)
+            self.pod, managed_observer=self, write_cache_file=write_cache_file
+        )
         self.schedule(podfile_handler, path=self.pod.root, recursive=True)
 
     def schedule_builtins(self):
@@ -115,8 +116,9 @@ class ManagedObserver(observers.Observer):
     def _schedule_preprocessor(self, path, preprocessor, **kwargs):
         try:
             if 'ignore_directories' in kwargs:
-                kwargs['ignore_directories'] = [self.pod.abs_path(p)
-                                                for p in kwargs['ignore_directories']]
+                kwargs['ignore_directories'] = [
+                    self.pod.abs_path(p) for p in kwargs['ignore_directories']
+                ]
             path = self.pod.abs_path(path)
             if not os.path.isdir(path):
                 return None

@@ -6,28 +6,35 @@ from grow.testing import testing
 
 
 class TocExtensionTestCase(unittest.TestCase):
-
     def test_toc(self):
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'markdown': {
-                'extensions': [{
-                    'kind': 'toc',
-                }],
-            }
-        })
-        pod.write_yaml('/content/pages/_blueprint.yaml', {
-            '$view': '/views/base.html',
-            '$path': '/{base}/'
-        })
-        pod.write_file('/content/pages/test.md', textwrap.dedent(
-            """\
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'markdown': {
+                    'extensions': [
+                        {
+                            'kind': 'toc',
+                        }
+                    ],
+                }
+            },
+        )
+        pod.write_yaml(
+            '/content/pages/_blueprint.yaml', {'$view': '/views/base.html', '$path': '/{base}/'}
+        )
+        pod.write_file(
+            '/content/pages/test.md',
+            textwrap.dedent(
+                """\
             [TOC]
             # H1
             ## H2
             ### H3
             ## H2 A
-            """))
+            """
+            ),
+        )
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
 
         pod.router.add_all(use_cache=False)
@@ -47,18 +54,23 @@ class TocExtensionTestCase(unittest.TestCase):
         self.assertNotIn(para_sentinel, result)
         self.assertIn(h2_sentinel, result)
 
-        pod.write_yaml('/podspec.yaml', {
-            'markdown': {
-                'extensions': [{
-                    'kind': 'toc',
-                    'title': 'toc-title',
-                    'baselevel': 3,
-                    'anchorlink': True,
-                    'permalink': True,
-                    'separator': '_'
-                }],
-            }
-        })
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'markdown': {
+                    'extensions': [
+                        {
+                            'kind': 'toc',
+                            'title': 'toc-title',
+                            'baselevel': 3,
+                            'anchorlink': True,
+                            'permalink': True,
+                            'separator': '_',
+                        }
+                    ],
+                }
+            },
+        )
         pod = pods.Pod(pod.root)
         pod.router.add_all(use_cache=False)
         result = testing.render_path(pod, '/test/')
@@ -70,22 +82,30 @@ class TocExtensionTestCase(unittest.TestCase):
 
     def test_utf8(self):
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'markdown': {
-                'extensions': [{
-                    'kind': 'toc',
-                }],
-            }
-        })
-        pod.write_yaml('/content/pages/_blueprint.yaml', {
-            '$view': '/views/base.html',
-            '$path': '/{base}/'
-        })
-        pod.write_file('/content/pages/test.md', textwrap.dedent(
-            """\
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'markdown': {
+                    'extensions': [
+                        {
+                            'kind': 'toc',
+                        }
+                    ],
+                }
+            },
+        )
+        pod.write_yaml(
+            '/content/pages/_blueprint.yaml', {'$view': '/views/base.html', '$path': '/{base}/'}
+        )
+        pod.write_file(
+            '/content/pages/test.md',
+            textwrap.dedent(
+                """\
             # Did you see the rocket launch?
             # 로켓 발사를 봤어?
-            """))
+            """
+            ),
+        )
         pod.write_file('/views/base.html', '{{doc.html|safe}}')
         pod.router.add_all(use_cache=False)
         result = testing.render_path(pod, '/test/')
@@ -98,27 +118,28 @@ class TocExtensionTestCase(unittest.TestCase):
 
 
 class UrlPreprocessorTestCase(unittest.TestCase):
-
     def setUp(self):
         self.pod = testing.create_pod()
-        self.pod.write_yaml('/podspec.yaml', {
-            'static_dirs': [
-                {
-                    'static_dir': '/static/',
-                    'serve_at': '/public/',
-                },
-            ],
-        })
-        self.pod.write_yaml('/content/pages/_blueprint.yaml', {
-            '$view': '/views/base.html',
-            '$path': '/{base}/'
-        })
+        self.pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'static_dirs': [
+                    {
+                        'static_dir': '/static/',
+                        'serve_at': '/public/',
+                    },
+                ],
+            },
+        )
+        self.pod.write_yaml(
+            '/content/pages/_blueprint.yaml', {'$view': '/views/base.html', '$path': '/{base}/'}
+        )
         self.pod.write_file('/content/pages/test1.md', 'Testing')
         self.pod.write_file('/content/pages/test2.md', 'Testing')
 
     def test_url(self):
         """Plain url reference works."""
-        content = 'URL:[url(\'/content/pages/test1.md\')]'
+        content = "URL:[url('/content/pages/test1.md')]"
         self.pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         self.pod.write_file('/views/base.html', content)
@@ -128,7 +149,7 @@ class UrlPreprocessorTestCase(unittest.TestCase):
 
     def test_url_link(self):
         """Plain url reference works."""
-        content = '[Link]([url(\'/content/pages/test1.md\')])'
+        content = "[Link]([url('/content/pages/test1.md')])"
         self.pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         self.pod.write_file('/views/base.html', content)
@@ -140,7 +161,7 @@ class UrlPreprocessorTestCase(unittest.TestCase):
         """Plain url reference works."""
         content = 'static doc'
         self.pod.write_file('/static/test.txt', content)
-        content = '[Link]([url(\'/static/test.txt\')])'
+        content = "[Link]([url('/static/test.txt')])"
         self.pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         self.pod.write_file('/views/base.html', content)
@@ -150,8 +171,7 @@ class UrlPreprocessorTestCase(unittest.TestCase):
 
     def test_url_link_multiple(self):
         """Plain url reference works."""
-        content = ('[Link]([url(\'/content/pages/test1.md\')])'
-                   '[Link]([url(\'/content/pages/test2.md\')])')
+        content = "[Link]([url('/content/pages/test1.md')])[Link]([url('/content/pages/test2.md')])"
         self.pod.write_file('/content/pages/test.md', content)
         content = '{{doc.html|safe}}'
         self.pod.write_file('/views/base.html', content)
@@ -162,21 +182,19 @@ class UrlPreprocessorTestCase(unittest.TestCase):
 
 
 class CodeBlockPreprocessorTestCase(unittest.TestCase):
-
     def test_noclasses(self):
         pod = testing.create_pod()
         fields = {
             'markdown': {
-                'extensions': [{
-                    'kind': 'sourcecode',
-                }],
+                'extensions': [
+                    {
+                        'kind': 'sourcecode',
+                    }
+                ],
             }
         }
         pod.write_yaml('/podspec.yaml', fields)
-        fields = {
-            '$view': '/views/base.html',
-            '$path': '/{base}/'
-        }
+        fields = {'$view': '/views/base.html', '$path': '/{base}/'}
         pod.write_yaml('/content/pages/_blueprint.yaml', fields)
         content = """
         [sourcecode:html]
@@ -211,11 +229,13 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
 
         fields = {
             'markdown': {
-                'extensions': [{
-                    'kind': 'sourcecode',
-                    'highlighter': 'plain',
-                    'classes': True,
-                }],
+                'extensions': [
+                    {
+                        'kind': 'sourcecode',
+                        'highlighter': 'plain',
+                        'classes': True,
+                    }
+                ],
             }
         }
         pod.write_yaml('/podspec.yaml', fields)
@@ -225,22 +245,21 @@ class CodeBlockPreprocessorTestCase(unittest.TestCase):
         code_sentinel = '<div class="code"><pre>'
         self.assertIn(code_sentinel, result)
 
-class BacktickPreprocessorTestCase(unittest.TestCase):
 
+class BacktickPreprocessorTestCase(unittest.TestCase):
     def test_noclasses(self):
         pod = testing.create_pod()
         fields = {
             'markdown': {
-                'extensions': [{
-                    'kind': 'markdown.extensions.codehilite',
-                }],
+                'extensions': [
+                    {
+                        'kind': 'markdown.extensions.codehilite',
+                    }
+                ],
             }
         }
         pod.write_yaml('/podspec.yaml', fields)
-        fields = {
-            '$view': '/views/base.html',
-            '$path': '/{base}/'
-        }
+        fields = {'$view': '/views/base.html', '$path': '/{base}/'}
         pod.write_yaml('/content/pages/_blueprint.yaml', fields)
         content = '{{doc.html|safe}}'
         pod.write_file('/views/base.html', content)
@@ -253,7 +272,8 @@ class BacktickPreprocessorTestCase(unittest.TestCase):
               Hello World
             </div>
             ```
-            """)
+            """
+        )
         pod.write_file('/content/pages/test.md', content)
         pod.router.add_all(use_cache=False)
         result = testing.render_path(pod, '/test/')
@@ -262,10 +282,12 @@ class BacktickPreprocessorTestCase(unittest.TestCase):
 
         fields = {
             'markdown': {
-                'extensions': [{
-                    'kind': 'markdown.extensions.codehilite',
-                    'classes': True,
-                }],
+                'extensions': [
+                    {
+                        'kind': 'markdown.extensions.codehilite',
+                        'classes': True,
+                    }
+                ],
             }
         }
         pod.write_yaml('/podspec.yaml', fields)

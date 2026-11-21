@@ -88,7 +88,6 @@ from . import messages
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -99,7 +98,6 @@ class CommandError(Error):
 
 
 class DestinationTestCase:
-
     def __init__(self, deployment):
         self.deployment = deployment
 
@@ -187,14 +185,16 @@ class BaseDestination:
     def export_untranslated_catalogs(self):
         dir_path = f'{self.control_dir}untranslated/'
         catalogs = self.pod.translation_stats.export_untranslated_catalogs(
-            self.pod, dir_path=dir_path)
-        self.pod.delete_files([dir_path], recursive=True,
-                              pattern=re.compile(r'\.po$'))
+            self.pod, dir_path=dir_path
+        )
+        self.pod.delete_files([dir_path], recursive=True, pattern=re.compile(r'\.po$'))
         for catalog in catalogs.values():
             catalog.save()
         if self.pod.translation_stats.stacktraces:
-            self.pod.write_file(os.path.join(dir_path, 'tracebacks.log'),
-                self.pod.translation_stats.export_untranslated_tracebacks())
+            self.pod.write_file(
+                os.path.join(dir_path, 'tracebacks.log'),
+                self.pod.translation_stats.export_untranslated_tracebacks(),
+            )
         if catalogs or self.pod.translation_stats.stacktraces:
             logging.info(f'Untranslated strings exported to {dir_path}')
 
@@ -222,8 +222,7 @@ class BaseDestination:
 
     @property
     def _has_custom_control_dir(self):
-        return (hasattr(self.config, 'control_dir')
-                and self.config.control_dir is not None)
+        return hasattr(self.config, 'control_dir') and self.config.control_dir is not None
 
     def delete_control_file(self, path):
         path = os.path.join(self.control_dir, path.lstrip('/'))
@@ -248,11 +247,8 @@ class BaseDestination:
         if self._has_custom_control_dir:
             return self.storage.write(path, content)
         if self.batch_writes:
-            return self.write_files({
-                path: rendered_document.RenderedDocument(path, content)
-            })
-        return self.write_file(
-            rendered_document.RenderedDocument(path, content))
+            return self.write_files({path: rendered_document.RenderedDocument(path, content)})
+        return self.write_file(rendered_document.RenderedDocument(path, content))
 
     def test(self):
         results = messages.TestResultsMessage(test_results=[])
@@ -278,12 +274,19 @@ class BaseDestination:
     def dump(self, pod, pod_paths=None, use_threading=True, source_dir=None):
         """Dump the contents of the pod."""
         pod.set_env(self.get_env())
-        return pod.dump(
-            pod_paths=pod_paths, use_threading=use_threading,
-            source_dir=source_dir)
+        return pod.dump(pod_paths=pod_paths, use_threading=use_threading, source_dir=source_dir)
 
-    def deploy(self, content_generator, stats=None, repo=None, dry_run=False,
-               confirm=False, test=True, is_partial=False, require_translations=False):
+    def deploy(
+        self,
+        content_generator,
+        stats=None,
+        repo=None,
+        dry_run=False,
+        confirm=False,
+        test=True,
+        is_partial=False,
+        require_translations=False,
+    ):
         self._confirm = confirm
         self.prelaunch(dry_run=dry_run)
         if test:
@@ -294,7 +297,8 @@ class BaseDestination:
                 if require_translations:
                     self.pod.enable(self.pod.FEATURE_TRANSLATION_STATS)
                 diff, new_index, paths_to_rendered_doc = indexes.Diff.stream(
-                    deployed_index, content_generator, repo=repo, is_partial=is_partial)
+                    deployed_index, content_generator, repo=repo, is_partial=is_partial
+                )
                 self._diff = diff
                 if indexes.Diff.is_empty(diff):
                     logging.info('Finished with no diffs since the last build.')
@@ -304,26 +308,31 @@ class BaseDestination:
                 indexes.Diff.pretty_print(diff)
                 if require_translations and self.pod.translation_stats.untranslated:
                     self.pod.translation_stats.pretty_print()
-                    raise pods.Error('Aborted deploy due to untranslated strings. '
-                                     'Use the --force-untranslated flag to force deployment.')
+                    raise pods.Error(
+                        'Aborted deploy due to untranslated strings. '
+                        'Use the --force-untranslated flag to force deployment.'
+                    )
                 if confirm:
                     text = f'Proceed to deploy? -> {self}'
                     if not utils.interactive_confirm(text):
                         logging.info('Aborted.')
                         return
                 indexes.Diff.apply(
-                    diff, paths_to_rendered_doc, write_func=self.write_file,
-                    batch_write_func=self.write_files, delete_func=self.delete_file,
-                    threaded=self.threaded, batch_writes=self.batch_writes)
-                self.write_control_file(
-                    self.index_basename, indexes.Index.to_string(new_index))
+                    diff,
+                    paths_to_rendered_doc,
+                    write_func=self.write_file,
+                    batch_write_func=self.write_files,
+                    delete_func=self.delete_file,
+                    threaded=self.threaded,
+                    batch_writes=self.batch_writes,
+                )
+                self.write_control_file(self.index_basename, indexes.Index.to_string(new_index))
                 if stats is not None:
                     self.write_control_file(self.stats_basename, stats.to_string())
                 else:
                     self.delete_control_file(self.stats_basename)
                 if diff:
-                    self.write_control_file(
-                        self.diff_basename, indexes.Diff.to_string(diff))
+                    self.write_control_file(self.diff_basename, indexes.Diff.to_string(diff))
                 self.success = True
             finally:
                 self.postlaunch()
@@ -332,8 +341,11 @@ class BaseDestination:
     def command(self, command):
         with io.StringIO() as fp:
             with subprocess.Popen(
-                command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                shell=True, text=True,
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=True,
+                text=True,
             ) as proc:
                 for line in proc.stdout:
                     sys.stdout.write(line)

@@ -16,15 +16,15 @@ class Renderer:
             text = 'Building: %(value)d/{} (in %(time_elapsed).9s)'
             widgets = [progressbar.FormatLabel(text.format(routes_len))]
             progress = progressbar_non.create_progressbar(
-                "Building pod...", widgets=widgets, max_value=routes_len)
+                'Building pod...', widgets=widgets, max_value=routes_len
+            )
             progress.start()
 
             def tick():
                 """Tick the progress bar value."""
                 progress.update(progress.value + 1)
 
-            batches = render_batch.RenderBatches(
-                pod.render_pool, pod.profile, tick=tick)
+            batches = render_batch.RenderBatches(pod.render_pool, pod.profile, tick=tick)
 
             for controller in Renderer.controller_generator(pod, routes):
                 batches.add(controller)
@@ -32,18 +32,17 @@ class Renderer:
             if source_dir:
                 # When using an input directory, load the files instead of render.
                 rendered_docs, render_errors = batches.load(
-                    use_threading=use_threading, source_dir=source_dir)
+                    use_threading=use_threading, source_dir=source_dir
+                )
             else:
                 # Default to rendering the documents.
-                rendered_docs, render_errors = batches.render(
-                    use_threading=use_threading)
+                rendered_docs, render_errors = batches.render(use_threading=use_threading)
 
             progress.finish()
 
             if render_errors:
                 text = 'There were {} errors during rendering.'
-                raise bulk_errors.BulkErrors(text.format(
-                    len(render_errors)), render_errors)
+                raise bulk_errors.BulkErrors(text.format(len(render_errors)), render_errors)
             return rendered_docs
 
     @staticmethod

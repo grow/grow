@@ -11,8 +11,7 @@ class NodeDevFileChangeHook(hooks.DevFileChangeHook):
     def trigger(self, previous_result, pod_path, *_args, **_kwargs):
         """Trigger the file change hook."""
         if pod_path == '/package.json':
-            self.pod.logger.info(
-                'package.json has changed. Run `grow install` to install updates.')
+            self.pod.logger.info('package.json has changed. Run `grow install` to install updates.')
 
         if previous_result:
             return previous_result

@@ -19,8 +19,9 @@ def deployment_option(config):
 
     def _decorator(func):
         return click.option(
-            '--deployment', default=config_default,
-            help='Name of the deployment config to use.')(func)
+            '--deployment', default=config_default, help='Name of the deployment config to use.'
+        )(func)
+
     return _decorator
 
 
@@ -28,8 +29,10 @@ def exclude_path_option(func):
     """Option for excluding a path for extraction."""
     return click.option(
         '--exclude-path',
-        type=str, multiple=True,
-        help='Which paths to exclude from the generated messages file.')(func)
+        type=str,
+        multiple=True,
+        help='Which paths to exclude from the generated messages file.',
+    )(func)
 
 
 def force_untranslated_option(config):
@@ -39,9 +42,13 @@ def force_untranslated_option(config):
 
     def _decorator(func):
         return click.option(
-            '--force-untranslated', 'force_untranslated',
-            default=config_default, is_flag=True,
-            help='Whether to force untranslated strings to be uploaded.')(func)
+            '--force-untranslated',
+            'force_untranslated',
+            default=config_default,
+            is_flag=True,
+            help='Whether to force untranslated strings to be uploaded.',
+        )(func)
+
     return _decorator
 
 
@@ -53,8 +60,11 @@ def include_header_option(config):
     def _decorator(func):
         return click.option(
             '--include-header',
-            default=config_default, is_flag=True,
-            help='Whether to preserve headers at the beginning of catalogs.')(func)
+            default=config_default,
+            is_flag=True,
+            help='Whether to preserve headers at the beginning of catalogs.',
+        )(func)
+
     return _decorator
 
 
@@ -63,17 +73,24 @@ def include_obsolete_option(config, default_value=None):
     shared_default = CFG.get('include-obsolete', default_value)
     config_default = config.get('include-obsolete', shared_default)
 
-    help_text = ('Whether to include obsolete messages. If false, obsolete'
-                 ' messages will be removed from the catalog template.')
+    help_text = (
+        'Whether to include obsolete messages. If false, obsolete'
+        ' messages will be removed from the catalog template.'
+    )
 
     if default_value is False:
         help_text = '{} {}'.format(
-            help_text, 'By default, Grow cleans obsolete messages from the catalog template.')
+            help_text, 'By default, Grow cleans obsolete messages from the catalog template.'
+        )
 
     def _decorator(func):
         return click.option(
             '--include-obsolete/--no-include-obsolete',
-            default=config_default, is_flag=True, help=help_text)(func)
+            default=config_default,
+            is_flag=True,
+            help=help_text,
+        )(func)
+
     return _decorator
 
 
@@ -83,8 +100,8 @@ def locale_option(help_text=None, multiple=True):
         help_text = 'Locale to target.'
 
     def _decorator(func):
-        return click.option(
-            '--locale', type=str, multiple=multiple, help=help_text)(func)
+        return click.option('--locale', type=str, multiple=multiple, help=help_text)(func)
+
     return _decorator
 
 
@@ -96,9 +113,12 @@ def localized_option(config):
     def _decorator(func):
         return click.option(
             '--localized/--no-localized',
-            is_flag=True, default=config_default,
+            is_flag=True,
+            default=config_default,
             help='Whether to create localized message catalogs. Use this'
-                 ' option if content varies by locale.')(func)
+            ' option if content varies by locale.',
+        )(func)
+
     return _decorator
 
 
@@ -112,8 +132,9 @@ def out_dir_option(config, help_text=None):
 
     def _decorator(func):
         return click.option(
-            '--out-dir', '--out_dir',
-            type=str, default=config_default, help=help_text)(func)
+            '--out-dir', '--out_dir', type=str, default=config_default, help=help_text
+        )(func)
+
     return _decorator
 
 
@@ -121,11 +142,13 @@ def path_option(func):
     """Option for specifying a path for extraction."""
     return click.option(
         '--path',
-        type=str, multiple=True,
+        type=str,
+        multiple=True,
         help='Which paths to extract strings from. By default, all paths'
-             ' are extracted. This option is useful if you\'d like to'
-             ' generate a partial messages file representing just a'
-             ' specific set of files.')(func)
+        " are extracted. This option is useful if you'd like to"
+        ' generate a partial messages file representing just a'
+        ' specific set of files.',
+    )(func)
 
 
 def preprocess_option(config):
@@ -135,9 +158,13 @@ def preprocess_option(config):
 
     def _decorator(func):
         return click.option(
-            '--preprocess/--no-preprocess', '-p/-np',
-            is_flag=True, default=config_default,
-            help='Whether to run preprocessors.')(func)
+            '--preprocess/--no-preprocess',
+            '-p/-np',
+            is_flag=True,
+            default=config_default,
+            help='Whether to run preprocessors.',
+        )(func)
+
     return _decorator
 
 
@@ -148,30 +175,35 @@ def routes_file_option(help_text=None):
 
     def _decorator(func):
         return click.option(
-            '--routes-file', '--routes_file', type=str, default=None,
-            help=help_text)(func)
+            '--routes-file', '--routes_file', type=str, default=None, help=help_text
+        )(func)
+
     return _decorator
 
 
 def service_option(func):
     """Option for configuring the transltor service to use."""
-    return click.option('--service', '-s', type=str,
-                        help='Name of the translator service to use. This option is'
-                        ' only required if more than one service is configured.')(func)
+    return click.option(
+        '--service',
+        '-s',
+        type=str,
+        help='Name of the translator service to use. This option is'
+        ' only required if more than one service is configured.',
+    )(func)
 
 
 def shard_option(func):
     """Option for configuring the current shard."""
     return click.option(
-        '--shard', type=int,
-        help='Current index of shard being used for sharding.')(func)
+        '--shard', type=int, help='Current index of shard being used for sharding.'
+    )(func)
 
 
 def shards_option(func):
     """Option for configuring the shard count."""
-    return click.option(
-        '--shards', type=int,
-        help='Number of shards being used for sharding.')(func)
+    return click.option('--shards', type=int, help='Number of shards being used for sharding.')(
+        func
+    )
 
 
 def threaded_option(config):
@@ -181,15 +213,17 @@ def threaded_option(config):
 
     def _decorator(func):
         return click.option(
-            '--threaded/--no-threaded', '-t/-nt', is_flag=True,
+            '--threaded/--no-threaded',
+            '-t/-nt',
+            is_flag=True,
             default=config_default,
-            help='Use threading during rendering pipeline.')(func)
+            help='Use threading during rendering pipeline.',
+        )(func)
+
     return _decorator
 
 
 def work_dir_option(func):
     """Option for working directory."""
     help_text = 'Directory to pull working files from.'
-    return click.option(
-        '--work-dir', '--work_dir', type=str, default=None,
-        help=help_text)(func)
+    return click.option('--work-dir', '--work_dir', type=str, default=None, help=help_text)(func)

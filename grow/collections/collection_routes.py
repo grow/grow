@@ -11,6 +11,7 @@ class CollectionRoutes:
     def __getattr__(self, attr):
         def _get_field(pod_path, default_value=None):
             return self.get_field(pod_path, attr, default_value)
+
         return _get_field
 
     def __init__(self, pod_paths=None):

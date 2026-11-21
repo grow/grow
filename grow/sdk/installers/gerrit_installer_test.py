@@ -18,8 +18,7 @@ class GerritInstallerTestCase(unittest.TestCase):
         self.config.set('gerrit', True)
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
-        self.installer = gerrit_installer.GerritInstaller(
-            self.pod, self.config)
+        self.installer = gerrit_installer.GerritInstaller(self.pod, self.config)
 
     @mock.patch('subprocess.Popen')
     def test_install(self, mock_popen):
@@ -74,16 +73,20 @@ class GerritInstallerTestCase(unittest.TestCase):
             return mock_remote
 
         # Works without the correct remote url.
-        mock_repo = mock.Mock(remotes=[
-            _create_remote_mock('git@github.com:something/repo.git'),
-        ])
+        mock_repo = mock.Mock(
+            remotes=[
+                _create_remote_mock('git@github.com:something/repo.git'),
+            ]
+        )
         mock_get_repo.return_value = mock_repo
         self.assertFalse(self.installer.should_run)
 
         # Works with the correct remote url.
-        mock_repo = mock.Mock(remotes=[
-            _create_remote_mock('git@github.com:something/repo.git'),
-            _create_remote_mock('https://group.googlesource.com/something/repo'),
-        ])
+        mock_repo = mock.Mock(
+            remotes=[
+                _create_remote_mock('git@github.com:something/repo.git'),
+                _create_remote_mock('https://group.googlesource.com/something/repo'),
+            ]
+        )
         mock_get_repo.return_value = mock_repo
         self.assertTrue(self.installer.should_run)

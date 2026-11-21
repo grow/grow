@@ -8,19 +8,20 @@ from grow.testing import testing
 
 
 class BloggerTestCase(testing.TestCase):
-
     def test_run(self):
         pod = testing.create_pod()
         fields = {
-            'preprocessors': [{
-                'name': 'blogger',
-                'kind': 'blogger',
-                'blog_id': '4154157974596966834',
-                'collection': '/content/posts/',
-                'markdown': True,
-                'authenticated': False,
-                'inject': True,
-            }],
+            'preprocessors': [
+                {
+                    'name': 'blogger',
+                    'kind': 'blogger',
+                    'blog_id': '4154157974596966834',
+                    'collection': '/content/posts/',
+                    'markdown': True,
+                    'authenticated': False,
+                    'inject': True,
+                }
+            ],
         }
         pod.write_yaml('/podspec.yaml', fields)
         fields = {

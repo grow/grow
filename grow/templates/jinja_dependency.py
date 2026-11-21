@@ -57,21 +57,21 @@ class DepCodeGenerator(CodeGenerator):
         skip_event_yield = False
         if node.with_context:
             loop = self.environment.is_async and 'async for' or 'for'
-            self.writeline(f'{loop} event in template.root_render_func('
-                           'template.new_context(context.get_all(), True, '
-                           f'{self.dump_local_context(frame)})):')
+            self.writeline(
+                f'{loop} event in template.root_render_func('
+                'template.new_context(context.get_all(), True, '
+                f'{self.dump_local_context(frame)})):'
+            )
         elif self.environment.is_async:
-            self.writeline('for event in (await '
-                           'template._get_default_module_async())'
-                           '._body_stream:')
+            self.writeline(
+                'for event in (await template._get_default_module_async())._body_stream:'
+            )
         else:
             if supports_yield_from:
-                self.writeline('yield from template._get_default_module()'
-                               '._body_stream')
+                self.writeline('yield from template._get_default_module()._body_stream')
                 skip_event_yield = True
             else:
-                self.writeline('for event in template._get_default_module()'
-                               '._body_stream:')
+                self.writeline('for event in template._get_default_module()._body_stream:')
 
         if not skip_event_yield:
             self.indent()
@@ -98,8 +98,7 @@ class DepEnvironment(Environment):
     def select_template(self, names, parent=None, globals=None, context=None):
         """Copied from upstream. Added context arg passthrough."""
         if not names:
-            raise TemplatesNotFound(message='Tried to select from an empty list '
-                                            'of templates.')
+            raise TemplatesNotFound(message='Tried to select from an empty list of templates.')
         globals = self.make_globals(globals)
         for name in names:
             if isinstance(name, Template):
@@ -112,8 +111,9 @@ class DepEnvironment(Environment):
                 pass
         raise TemplatesNotFound(names)
 
-    def get_or_select_template(self, template_name_or_list,
-                               parent=None, globals=None, context=None):
+    def get_or_select_template(
+        self, template_name_or_list, parent=None, globals=None, context=None
+    ):
         """Copied from upstream. Added context arg passthrough."""
         if isinstance(template_name_or_list, string_types):
             return self.get_template(template_name_or_list, parent, globals, context=context)

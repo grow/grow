@@ -10,14 +10,13 @@ from grow.translations import locales
 
 
 class BuiltinsTestCase(unittest.TestCase):
-
     def _render_path(self, pod, path):
         routes = pod.router.routes
         matched = routes.match(path)
         controller = pod.router.get_render_controller(
-            matched.path, matched.value, params=matched.params)
-        jinja_env = pod.render_pool.get_jinja_env(
-            controller.doc.locale)
+            matched.path, matched.value, params=matched.params
+        )
+        jinja_env = pod.render_pool.get_jinja_env(controller.doc.locale)
         rendered_doc = controller.render(jinja_env=jinja_env)
         return rendered_doc.read()
 
@@ -61,17 +60,26 @@ class BuiltinsTestCase(unittest.TestCase):
 
         # Verify default behavior.
         pod.write_yaml('/content/collection/_blueprint.yaml', fields)
-        pod.write_yaml('/content/collection/doc1.yaml', {
-            '$category': 'Category1',
-            '$order': 1,
-        })
-        pod.write_yaml('/content/collection/doc2.yaml', {
-            '$category': 'Category1',
-            '$order': 2,
-        })
-        pod.write_yaml('/content/collection/doc3.yaml', {
-            '$category': 'Category2',
-        })
+        pod.write_yaml(
+            '/content/collection/doc1.yaml',
+            {
+                '$category': 'Category1',
+                '$order': 1,
+            },
+        )
+        pod.write_yaml(
+            '/content/collection/doc2.yaml',
+            {
+                '$category': 'Category1',
+                '$order': 2,
+            },
+        )
+        pod.write_yaml(
+            '/content/collection/doc3.yaml',
+            {
+                '$category': 'Category2',
+            },
+        )
         result = tags.categories(collection='collection', _pod=pod)
 
         doc1 = pod.get_doc('/content/collection/doc1.yaml')
@@ -84,39 +92,56 @@ class BuiltinsTestCase(unittest.TestCase):
         self.assertEqual(expected, result)
 
         # Verify localized behavior.
-        fields.update({
-            'localization': {
-                'locales': [
-                    'en',
-                ],
+        fields.update(
+            {
+                'localization': {
+                    'locales': [
+                        'en',
+                    ],
+                }
             }
-        })
+        )
         pod.write_yaml('/content/collection/_blueprint.yaml', fields)
-        pod.write_yaml('/content/collection/doc1@de.yaml', {
-            '$category': 'Category3',
-        })
-        pod.write_yaml('/content/collection/doc2@de.yaml', {
-            '$category': 'Category3',
-        })
-        pod.write_yaml('/content/collection/doc4@de.yaml', {
-            '$category': 'Category6',
-        })
+        pod.write_yaml(
+            '/content/collection/doc1@de.yaml',
+            {
+                '$category': 'Category3',
+            },
+        )
+        pod.write_yaml(
+            '/content/collection/doc2@de.yaml',
+            {
+                '$category': 'Category3',
+            },
+        )
+        pod.write_yaml(
+            '/content/collection/doc4@de.yaml',
+            {
+                '$category': 'Category6',
+            },
+        )
         result = tags.categories(collection='collection', locale='de', _pod=pod)
         result = [item[0] for item in result]
-        expected = ['Category3', 'Category6',]
+        expected = [
+            'Category3',
+            'Category6',
+        ]
         self.assertEqual(expected, result)
 
     def test_default_locale_versus_no_locale(self):
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'localization': {
-                'default_locale': 'en_US',
-                'locales': [
-                    'en_US',
-                    'ja_JP',
-                ],
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'localization': {
+                    'default_locale': 'en_US',
+                    'locales': [
+                        'en_US',
+                        'ja_JP',
+                    ],
+                },
             },
-        })
+        )
         fields = {
             'path': '/{locale}/{base}/',
             'view': '/views/base.html',
@@ -125,21 +150,27 @@ class BuiltinsTestCase(unittest.TestCase):
             },
         }
         pod.write_yaml('/content/pages/_blueprint.yaml', fields)
-        pod.write_yaml('/content/pages/doc1.yaml', {
-            '$localization': {
-                'default_locale': 'ja_JP',
-                'locales': [
-                    'ja_JP',
-                ],
-            }
-        })
-        pod.write_yaml('/content/pages/doc2.yaml', {
-            '$localization': {
-                'locales': [
-                    'en_US',
-                ],
-            }
-        })
+        pod.write_yaml(
+            '/content/pages/doc1.yaml',
+            {
+                '$localization': {
+                    'default_locale': 'ja_JP',
+                    'locales': [
+                        'ja_JP',
+                    ],
+                }
+            },
+        )
+        pod.write_yaml(
+            '/content/pages/doc2.yaml',
+            {
+                '$localization': {
+                    'locales': [
+                        'en_US',
+                    ],
+                }
+            },
+        )
         pod.write_yaml('/content/pages/doc3.yaml', {})
 
         # Verify `docs` locale kwarg behavior, should default to calling
@@ -147,51 +178,74 @@ class BuiltinsTestCase(unittest.TestCase):
         doc = pod.get_doc('/content/pages/doc3.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages')
-        self.assertEqual(sorted([
-            '/content/pages/doc2.yaml',
-            '/content/pages/doc3.yaml',
-        ]), sorted([doc.pod_path for doc in docs]))
+        self.assertEqual(
+            sorted(
+                [
+                    '/content/pages/doc2.yaml',
+                    '/content/pages/doc3.yaml',
+                ]
+            ),
+            sorted([doc.pod_path for doc in docs]),
+        )
 
         # Verify a calling ja_JP doc only gets ja_JP docs.
         doc = pod.get_doc('/content/pages/doc1.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages')
-        self.assertEqual(sorted([
-            '/content/pages/doc1.yaml',
-            '/content/pages/doc3.yaml',
-        ]), sorted([doc.pod_path for doc in docs]))
+        self.assertEqual(
+            sorted(
+                [
+                    '/content/pages/doc1.yaml',
+                    '/content/pages/doc3.yaml',
+                ]
+            ),
+            sorted([doc.pod_path for doc in docs]),
+        )
 
         # Verify an explicit `locale=None` returns all docs regardless of the
         # calling document's locale.
         doc = pod.get_doc('/content/pages/doc1.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages', locale=None)
-        self.assertEqual(sorted([
-            '/content/pages/doc1.yaml',
-            '/content/pages/doc2.yaml',
-            '/content/pages/doc3.yaml',
-        ]), sorted([doc.pod_path for doc in docs]))
+        self.assertEqual(
+            sorted(
+                [
+                    '/content/pages/doc1.yaml',
+                    '/content/pages/doc2.yaml',
+                    '/content/pages/doc3.yaml',
+                ]
+            ),
+            sorted([doc.pod_path for doc in docs]),
+        )
         doc = pod.get_doc('/content/pages/doc2.yaml')
         tags_in_context = tags.create_builtin_tags(pod, doc)
         docs = tags_in_context['docs']('pages', locale=None)
-        self.assertEqual(sorted([
-            '/content/pages/doc1.yaml',
-            '/content/pages/doc2.yaml',
-            '/content/pages/doc3.yaml',
-        ]), sorted([doc.pod_path for doc in docs]))
+        self.assertEqual(
+            sorted(
+                [
+                    '/content/pages/doc1.yaml',
+                    '/content/pages/doc2.yaml',
+                    '/content/pages/doc3.yaml',
+                ]
+            ),
+            sorted([doc.pod_path for doc in docs]),
+        )
 
     def test_gettext_format(self):
         """Verify that the gettext formatting works."""
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'localization': {
-                'default_locale': 'en',
-                'locales': [
-                    'en',
-                    'es',
-                ],
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'localization': {
+                    'default_locale': 'en',
+                    'locales': [
+                        'en',
+                        'es',
+                    ],
+                },
             },
-        })
+        )
         pod.write_file('/views/format.html', '{{_(doc.foo, bar="1", foo="2")}}')
         fields = {
             'path': '/{locale}/{base}/',
@@ -200,16 +254,17 @@ class BuiltinsTestCase(unittest.TestCase):
             },
         }
         pod.write_yaml('/content/testing/_blueprint.yaml', fields)
-        pod.write_yaml('/content/testing/format.yaml', {
-            '$view': '/views/format.html',
-            'foo': 'bar {bar} foo {foo}',
-            'foo@es': 'foo {foo} bar {bar}',
-        })
+        pod.write_yaml(
+            '/content/testing/format.yaml',
+            {
+                '$view': '/views/format.html',
+                'foo': 'bar {bar} foo {foo}',
+                'foo@es': 'foo {foo} bar {bar}',
+            },
+        )
 
-        pod.router.add_doc(
-            pod.get_doc('/content/testing/format.yaml'))
-        pod.router.add_doc(
-            pod.get_doc('/content/testing/format.yaml', locale='es'))
+        pod.router.add_doc(pod.get_doc('/content/testing/format.yaml'))
+        pod.router.add_doc(pod.get_doc('/content/testing/format.yaml', locale='es'))
 
         self.assertIn('bar 1 foo 2', self._render_path(pod, '/en/format/'))
         self.assertIn('foo 2 bar 1', self._render_path(pod, '/es/format/'))
@@ -220,20 +275,26 @@ class BuiltinsTestCase(unittest.TestCase):
         pod.write_yaml('/podspec.yaml', {})
         pod.write_file(
             '/views/format-new.html',
-            '{{_(\'Hello {name}\', name=\'<strong class="awesome">Alice</strong>\')}}')
-        pod.write_yaml('/content/testing/_blueprint.yaml', {
-            'path': '/{base}/',
-        })
-        pod.write_yaml('/content/testing/format-new.yaml', {
-            '$view': '/views/format-new.html',
-        })
+            "{{_('Hello {name}', name='<strong class=\"awesome\">Alice</strong>')}}",
+        )
+        pod.write_yaml(
+            '/content/testing/_blueprint.yaml',
+            {
+                'path': '/{base}/',
+            },
+        )
+        pod.write_yaml(
+            '/content/testing/format-new.yaml',
+            {
+                '$view': '/views/format-new.html',
+            },
+        )
 
-        pod.router.add_doc(
-            pod.get_doc('/content/testing/format-new.yaml'))
+        pod.router.add_doc(pod.get_doc('/content/testing/format-new.yaml'))
 
         self.assertIn(
-            'Hello <strong class="awesome">Alice</strong>',
-            self._render_path(pod, '/format-new/'))
+            'Hello <strong class="awesome">Alice</strong>', self._render_path(pod, '/format-new/')
+        )
 
 
 if __name__ == '__main__':

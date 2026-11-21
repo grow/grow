@@ -9,7 +9,6 @@ from grow.translations import catalogs
 
 
 class CatalogTest(unittest.TestCase):
-
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
@@ -67,10 +66,13 @@ class CatalogTest(unittest.TestCase):
         class DummyMessage:
             def __init__(self, locations):
                 self.locations = [(location, 0) for location in locations]
-        message = DummyMessage([
-            '/content/pages/foo.yaml',
-            '/content/pages/bar.yaml',
-        ])
+
+        message = DummyMessage(
+            [
+                '/content/pages/foo.yaml',
+                '/content/pages/bar.yaml',
+            ]
+        )
 
         paths = [
             '/content/pages/foo*',
@@ -102,8 +104,7 @@ class CatalogTest(unittest.TestCase):
             'content/*/qaz.yaml',
         ]
         for path in paths:
-            self.assertFalse(
-                    catalogs.Catalog._message_in_paths(message, [path]))
+            self.assertFalse(catalogs.Catalog._message_in_paths(message, [path]))
 
 
 if __name__ == '__main__':

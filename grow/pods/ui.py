@@ -23,6 +23,7 @@ def create_jinja_env():
             'jinja2.ext.i18n',
             'jinja2.ext.loopcontrols',
             'jinja2.ext.with_',
-        ])
+        ],
+    )
     env.filters.update(filters.create_builtin_filters(env, None))
     return env

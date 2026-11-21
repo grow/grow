@@ -10,6 +10,7 @@ SUFFIX_PATTERN = re.compile('[.](' + '|'.join(map(re.escape, SUFFIXES)) + ')$')
 
 class TranslationPreprocessor(base.BasePreprocessor):
     """Automatically recompiles translations when needed."""
+
     KIND = '_translation'
 
     def __init__(self, pod):

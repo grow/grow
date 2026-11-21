@@ -17,8 +17,7 @@ class GulpInstallerTestCase(unittest.TestCase):
         self.config = base_config.BaseConfig()
         self.dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(self.dir_path, storage=storage.FileStorage)
-        self.installer = gulp_installer.GulpInstaller(
-            self.pod, self.config)
+        self.installer = gulp_installer.GulpInstaller(self.pod, self.config)
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites(self, mock_call):
@@ -26,7 +25,8 @@ class GulpInstallerTestCase(unittest.TestCase):
         mock_call.return_value = 0
         self.installer.check_prerequisites()
         mock_call.assert_called_once_with(
-            'gulp --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True))
+            'gulp --version > /dev/null 2>&1', **self.installer.subprocess_args(shell=True)
+        )
 
     @mock.patch('subprocess.call')
     def test_check_prerequisites_fail(self, mock_call):

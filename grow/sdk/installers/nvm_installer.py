@@ -18,21 +18,18 @@ class NvmInstaller(base_installer.BaseInstaller):
     def check_prerequisites(self):
         """Check if required prerequisites are installed or available."""
         status_command = '. $NVM_DIR/nvm.sh && nvm --version > /dev/null 2>&1'
-        not_found = subprocess.call(
-            status_command, **self.subprocess_args(shell=True)) == 127
+        not_found = subprocess.call(status_command, **self.subprocess_args(shell=True)) == 127
         if not_found:
-            install_commands = [
-                'Download nvm from https://github.com/creationix/nvm']
+            install_commands = ['Download nvm from https://github.com/creationix/nvm']
             raise base_installer.MissingPrerequisiteError(
-                'The `nvm` command was not found.', install_commands=install_commands)
+                'The `nvm` command was not found.', install_commands=install_commands
+            )
 
     def install(self):
         """Install dependencies."""
         install_command = '. $NVM_DIR/nvm.sh && nvm install'
-        process = subprocess.Popen(
-            install_command, **self.subprocess_args(shell=True))
+        process = subprocess.Popen(install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:
             return
-        raise base_installer.InstallError(
-            f'There was an error running `{install_command}`.')
+        raise base_installer.InstallError(f'There was an error running `{install_command}`.')

@@ -37,11 +37,15 @@ class WebReviewDestination(base.BaseDestination):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if webreview is None:
-            raise common_utils.UnavailableError('WebReview deployments are not available in this environment.')
+            raise common_utils.UnavailableError(
+                'WebReview deployments are not available in this environment.'
+            )
         if self.config.name:
-            print ('WARNING: The "name" parameter for webreview deployments is '
-                   'deprecated. Use "subdomain" instead, or use the "grow stage '
-                   '--subdomain=<subdomain>" command.')
+            print(
+                'WARNING: The "name" parameter for webreview deployments is '
+                'deprecated. Use "subdomain" instead, or use the "grow stage '
+                '--subdomain=<subdomain>" command.'
+            )
             self.config.subdomain = self.config.name
         if self.config.remote:
             self.config.server, self.config.project = self.config.remote.split('/', 1)
@@ -80,7 +84,8 @@ class WebReviewDestination(base.BaseDestination):
                 name=subdomain,
                 host=self.config.server,
                 secure=self.config.secure,
-                api_key=api_key)
+                api_key=api_key,
+            )
         return self._webreview
 
     def _get_branch_token(self):
@@ -120,7 +125,8 @@ class WebReviewDestination(base.BaseDestination):
             except ValueError:
                 raise ValueError(
                     'Cannot deploy to WebReview from a Git repository without a HEAD.'
-                    ' Commit first then deploy to WebReview.')
+                    ' Commit first then deploy to WebReview.'
+                )
         result = super().deploy(*args, **kwargs)
         if self.success:
             finalize_response = self.webreview.finalize()
@@ -129,8 +135,8 @@ class WebReviewDestination(base.BaseDestination):
                 # Append the homepage path to the staging link.
                 result = urllib.parse.urlparse(url)
                 if not result.path and self.pod and self.pod.get_home_doc():
-                  home_doc = self.pod.get_home_doc()
-                  url = url.rstrip('/') + home_doc.url.path
+                    home_doc = self.pod.get_home_doc()
+                    url = url.rstrip('/') + home_doc.url.path
                 logging.info('Staged: %s', url)
         return result
 

@@ -9,7 +9,6 @@ from grow.common import tables as texttable
 
 
 class TranslationStats:
-
     ROW_COUNT = 7
 
     def __init__(self):
@@ -36,8 +35,7 @@ class TranslationStats:
                 tracking[locale] = {}
             for message in messages:
                 if message in untagged_messages:
-                    tracking[locale][message] = self._locale_to_message[
-                        locale][message]
+                    tracking[locale][message] = self._locale_to_message[locale][message]
         # Removing empty locales.
         blank_locales = []
         for key in tracking:
@@ -60,8 +58,7 @@ class TranslationStats:
             if locale not in tracking:
                 tracking[locale] = {}
             for message in messages:
-                tracking[locale][message] = self._locale_to_message[
-                    locale][message]
+                tracking[locale][message] = self._locale_to_message[locale][message]
         return tracking
 
     @property
@@ -118,11 +115,11 @@ class TranslationStats:
         for locale, messages in self.untranslated.items():
             if locale not in locale_to_catalog:
                 locale_to_catalog[locale] = pod.catalogs.get(
-                    locale, basename='untranslated.po', dir_path=dir_path)
+                    locale, basename='untranslated.po', dir_path=dir_path
+                )
             catalog = locale_to_catalog[locale]
             for message in messages:
-                catalog.add(message, locations=self._get_message_locations(
-                    locale, message))
+                catalog.add(message, locations=self._get_message_locations(locale, message))
         return locale_to_catalog
 
     def export_untranslated_tracebacks(self):
@@ -145,15 +142,17 @@ class TranslationStats:
             output.write(_solid_line())
             output.write(_text_line('Untranslated Strings'))
             output.write(_solid_line())
-            output.write(_text_line(
-                f'{len(self.stacktraces)} occurrences of {self.count_untranslated} untranslated strings'))
+            output.write(
+                _text_line(
+                    f'{len(self.stacktraces)} occurrences of {self.count_untranslated} untranslated strings'
+                )
+            )
             output.write(_text_line(str(self.datetime.now())))
             output.write(_solid_line())
             output.write(_blank_line())
 
             if not self.stacktraces:
-                output.write(
-                    _text_line('No untranslated strings found.'))
+                output.write(_text_line('No untranslated strings found.'))
                 return output.getvalue()
 
             for item in self.stacktraces:
@@ -183,12 +182,14 @@ class TranslationStats:
                 self._untranslated[locale] = set()
 
             stack = traceback.format_stack()
-            self._stacktraces.append({
-                'locale': locale,
-                'location': location,
-                'id': message.id,
-                'tb': self._simplify_traceback(stack),
-            })
+            self._stacktraces.append(
+                {
+                    'locale': locale,
+                    'location': location,
+                    'id': message.id,
+                    'tb': self._simplify_traceback(stack),
+                }
+            )
             self._untranslated[locale].add(message.id)
 
     def pretty_print(self, show_all=False):
@@ -214,13 +215,13 @@ class TranslationStats:
             rows = sorted(rows, key=lambda x: -x[1])
             if not show_all:
                 num_rows = len(rows)
-                rows = rows[:self.ROW_COUNT]
+                rows = rows[: self.ROW_COUNT]
                 if num_rows > self.ROW_COUNT:
-                    rows.append(['', num_rows - self.ROW_COUNT,
-                                 '+ Additional untranslated strings...'])
+                    rows.append(
+                        ['', num_rows - self.ROW_COUNT, '+ Additional untranslated strings...']
+                    )
 
-            table.add_rows(
-                [['Locale', '#', 'Untagged and Untranslated Message']] + rows)
+            table.add_rows([['Locale', '#', 'Untagged and Untranslated Message']] + rows)
             self.log('\n' + table.draw() + '\n')
 
         # Most frequent untranslated messages.
@@ -233,16 +234,16 @@ class TranslationStats:
 
             for locale in self.untranslated:
                 for message in self.untranslated[locale]:
-                    rows.append([str(locale), self.untranslated[
-                                locale][message], message])
+                    rows.append([str(locale), self.untranslated[locale][message], message])
 
             rows = sorted(rows, key=lambda x: -x[1])
             if not show_all:
                 num_rows = len(rows)
-                rows = rows[:self.ROW_COUNT]
+                rows = rows[: self.ROW_COUNT]
                 if num_rows > self.ROW_COUNT:
-                    rows.append(['', num_rows - self.ROW_COUNT,
-                                 '+ Additional untranslated strings...'])
+                    rows.append(
+                        ['', num_rows - self.ROW_COUNT, '+ Additional untranslated strings...']
+                    )
 
             table.add_rows([['Locale', '#', 'Untranslated Message']] + rows)
             self.log('\n' + table.draw() + '\n')

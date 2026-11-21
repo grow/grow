@@ -29,8 +29,9 @@ class DeprecatedGroup(click.Group):
 
         for item in self.deprecated:
             if item.old_name == cmd_name:
-                message = ('The `{}` command has moved to `{}` '
-                           'and will be removed in a future version.')
+                message = (
+                    'The `{}` command has moved to `{}` and will be removed in a future version.'
+                )
                 logging.warn(message.format(cmd_name, item.new_name))
                 return cmd_name, item.cmd, args[1:]
         return click.Group.resolve_command(self, ctx, args)

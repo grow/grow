@@ -22,26 +22,25 @@ class ExtensionImporter:
             raise ImportError(f'Unable to find extension: {extension_ref}')
 
         # Try first as the full module path.
-        module_path = '{}{sep}{}.py'.format(
-            pod_root, '/'.join(extension_parts), sep=os.path.sep)
+        module_path = '{}{sep}{}.py'.format(pod_root, '/'.join(extension_parts), sep=os.path.sep)
 
         if not os.path.exists(module_path):
             module_path = '{}{sep}{}{sep}__init__.py'.format(
-                pod_root, '/'.join(extension_parts), sep=os.path.sep)
+                pod_root, '/'.join(extension_parts), sep=os.path.sep
+            )
 
         if not os.path.exists(module_path):
             module_path = '{}{sep}{}{sep}{}.py'.format(
-                pod_root, '/'.join(extension_parts), module_name, sep=os.path.sep)
+                pod_root, '/'.join(extension_parts), module_name, sep=os.path.sep
+            )
 
         if not os.path.exists(module_path):
-            raise ImportError(
-                f'Unable to find extension module for {extension_ref!r}')
+            raise ImportError(f'Unable to find extension module for {extension_ref!r}')
 
         spec = importlib.util.spec_from_file_location(module_name, module_path)
 
         if not spec:
-            raise ImportError(
-                f'Unable to load extension from {extension_ref!r}')
+            raise ImportError(f'Unable to load extension from {extension_ref!r}')
 
         # Lock the module import to prevent concurrency issues between pods.
         with _IMPORT_LOCK:

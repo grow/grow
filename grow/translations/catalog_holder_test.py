@@ -6,7 +6,6 @@ from grow.testing import testing
 
 
 class CatalogsTest(unittest.TestCase):
-
     def setUp(self):
         dir_path = testing.create_test_pod_dir()
         self.pod = pods.Pod(dir_path, storage=storage.FileStorage)
@@ -14,42 +13,54 @@ class CatalogsTest(unittest.TestCase):
 
     def test_list_locales(self):
         self.assertEqual(
-            sorted(['de', 'fr', 'en', 'it', 'ja']),
-            sorted(self.pod.catalogs.list_locales()))
+            sorted(['de', 'fr', 'en', 'it', 'ja']), sorted(self.pod.catalogs.list_locales())
+        )
 
     def test_extract_options(self):
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'localization': {
-                'extract': {
-                    'localized': True,
-                    'include_header': True,
-                    'include_obsolete': True,
-                    'fuzzy_matching': True,
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'localization': {
+                    'extract': {
+                        'localized': True,
+                        'include_header': True,
+                        'include_obsolete': True,
+                        'fuzzy_matching': True,
+                    },
                 },
             },
-        })
-        pod.write_yaml('/content/pages/_blueprint.yaml', {
-            '$title@': 'Collection Title',
-            '$localization': {
-                'locales': [
-                    'de_DE',
-                    'en_US',
-                    'fr_FR',
-                ],
+        )
+        pod.write_yaml(
+            '/content/pages/_blueprint.yaml',
+            {
+                '$title@': 'Collection Title',
+                '$localization': {
+                    'locales': [
+                        'de_DE',
+                        'en_US',
+                        'fr_FR',
+                    ],
+                },
             },
-        })
-        pod.write_yaml('/content/pages/page.yaml', {
-            '$title@': 'Page Title',
-        })
-        pod.write_yaml('/content/pages/about.yaml', {
-            '$title@': 'About Title',
-            '$localization': {
-                'locales': [
-                    'fr_FR',
-                ],
+        )
+        pod.write_yaml(
+            '/content/pages/page.yaml',
+            {
+                '$title@': 'Page Title',
             },
-        })
+        )
+        pod.write_yaml(
+            '/content/pages/about.yaml',
+            {
+                '$title@': 'About Title',
+                '$localization': {
+                    'locales': [
+                        'fr_FR',
+                    ],
+                },
+            },
+        )
         pod.catalogs.extract()
         de_catalog = pod.catalogs.get('de_DE')
         self.assertNotIn('About Title', de_catalog)
@@ -75,15 +86,13 @@ class CatalogsTest(unittest.TestCase):
         self.assertNotIn('foo', template_catalog)
 
         template_catalog.add('foo', 'bar')
-        self.pod.catalogs.write_template(
-            self.pod.catalogs.template_path, template_catalog)
+        self.pod.catalogs.write_template(self.pod.catalogs.template_path, template_catalog)
 
         _, template_catalogs = self.pod.catalogs.extract(include_obsolete=True)
         template_catalog = template_catalogs[0]
         self.assertIn('foo', template_catalog)
 
-        _, template_catalogs = self.pod.catalogs.extract(
-            include_obsolete=False)
+        _, template_catalogs = self.pod.catalogs.extract(include_obsolete=False)
         template_catalog = template_catalogs[0]
         self.assertNotIn('foo', template_catalog)
 
@@ -92,39 +101,51 @@ class CatalogsTest(unittest.TestCase):
 
     def test_extract_autocomments(self):
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'localization': {
-                'extract': {
-                    'localized': True,
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'localization': {
+                    'extract': {
+                        'localized': True,
+                    },
                 },
             },
-        })
-        pod.write_yaml('/content/pages/_blueprint.yaml', {
-            '$title@': 'Collection Title',
-            '$localization': {
-                'locales': [
-                    'de_DE',
-                    'en_US',
+        )
+        pod.write_yaml(
+            '/content/pages/_blueprint.yaml',
+            {
+                '$title@': 'Collection Title',
+                '$localization': {
+                    'locales': [
+                        'de_DE',
+                        'en_US',
+                    ],
+                },
+            },
+        )
+        pod.write_yaml(
+            '/content/pages/page.yaml',
+            {
+                '$title@': 'Page Title',
+                '$title@#': 'Page Title Comment',
+            },
+        )
+        pod.write_yaml(
+            '/content/pages/about.yaml',
+            {
+                '$title@': 'About Title',
+                'items@#': 'Items comment',
+                'items@': [
+                    'one',
+                    'two',
+                    'three',
                 ],
+                'dict': {
+                    'key@#': 'object key comment',
+                    'key@': 'object key',
+                },
             },
-        })
-        pod.write_yaml('/content/pages/page.yaml', {
-            '$title@': 'Page Title',
-            '$title@#': 'Page Title Comment',
-        })
-        pod.write_yaml('/content/pages/about.yaml', {
-            '$title@': 'About Title',
-            'items@#': 'Items comment',
-            'items@': [
-                'one',
-                'two',
-                'three',
-            ],
-            'dict': {
-                'key@#': 'object key comment',
-                'key@': 'object key',
-            },
-        })
+        )
         pod.catalogs.extract()
         de_catalog = pod.catalogs.get('de_DE')
 
@@ -148,28 +169,34 @@ class CatalogsTest(unittest.TestCase):
     def test_extract_podspec(self):
         # Verify global extract.
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'meta': {
-                'title@': 'Test Title',
-                'description@': 'Test Description',
-            }
-        })
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'meta': {
+                    'title@': 'Test Title',
+                    'description@': 'Test Description',
+                }
+            },
+        )
         pod.catalogs.extract()
         self.assertIn('Test Title', pod.catalogs.get_template())
         self.assertIn('Test Description', pod.catalogs.get_template())
         # Verify localized extract.
         pod = testing.create_pod()
-        pod.write_yaml('/podspec.yaml', {
-            'meta': {
-                'title@': 'Test Title',
-                'description@': 'Test Description',
+        pod.write_yaml(
+            '/podspec.yaml',
+            {
+                'meta': {
+                    'title@': 'Test Title',
+                    'description@': 'Test Description',
+                },
+                'localization': {
+                    'locales': [
+                        'de',
+                    ],
+                },
             },
-            'localization': {
-                'locales': [
-                    'de',
-                ],
-            },
-        })
+        )
         pod.catalogs.extract(localized=True)
         self.assertIn('Test Title', pod.catalogs.get('de'))
 
@@ -212,38 +239,31 @@ class CatalogsTest(unittest.TestCase):
     def test_filter(self):
         locales = ['de']
         catalogs = self.pod.catalogs.filter(
-            out_path='./untranslated.po',
-            locales=locales,
-            localized=False)
+            out_path='./untranslated.po', locales=locales, localized=False
+        )
         de_catalog = catalogs[0]
         self.assertEqual(3, len(de_catalog))
-
 
         paths = [
             '/content/pages/yaml_test.html',
         ]
         catalogs = self.pod.catalogs.filter(
-            out_path='./untranslated.po',
-            locales=locales,
-            paths=paths,
-            localized=False)
+            out_path='./untranslated.po', locales=locales, paths=paths, localized=False
+        )
         de_catalog = catalogs[0]
         self.assertEqual(1, len(de_catalog))
 
         catalogs = self.pod.catalogs.filter(
-            out_path='./untranslated.po',
-            locales=locales,
-            exclude_paths=paths,
-            localized=False)
+            out_path='./untranslated.po', locales=locales, exclude_paths=paths, localized=False
+        )
         de_catalog = catalogs[0]
         self.assertEqual(2, len(de_catalog))
 
     def test_filter_localized(self):
         locales = ['de', 'fr']
         catalogs = self.pod.catalogs.filter(
-            out_dir='./untranslated/',
-            locales=locales,
-            localized=True)
+            out_dir='./untranslated/', locales=locales, localized=True
+        )
         localized_de_catalog = catalogs[0]
         localized_fr_catalog = catalogs[1]
         fr_catalog = self.pod.catalogs.get('fr')
@@ -257,10 +277,8 @@ class CatalogsTest(unittest.TestCase):
         ]
         locales = ['de', 'fr']
         catalogs = self.pod.catalogs.filter(
-            out_dir='./untranslated/',
-            locales=locales,
-            paths=paths,
-            localized=True)
+            out_dir='./untranslated/', locales=locales, paths=paths, localized=True
+        )
         localized_de_catalog = catalogs[0]
         localized_fr_catalog = catalogs[1]
         self.assertEqual(3, len(localized_de_catalog))
@@ -300,11 +318,11 @@ class CatalogsTest(unittest.TestCase):
 class _BaseExtractLocalizedTest(unittest.TestCase):
     # Both localized_pod and unlocalized_pod fixtures use these locales
     ALL_LOCALES = (
-        'de',    # declared for podspec
-        'fr',    # declared for blueprint
-        'it',    # declared for a doc base part
-        'ja',    # declared for a doc part
-        'sv',    # declared for multi-locale doc parts
+        'de',  # declared for podspec
+        'fr',  # declared for blueprint
+        'it',  # declared for a doc base part
+        'ja',  # declared for a doc part
+        'sv',  # declared for multi-locale doc parts
     )
 
     # Assert `message` appears in catalogs for all `locales`, and does NOT
@@ -334,12 +352,10 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
 
     @classmethod
     def setUpClass(cls):
-        cls.localized_pod = testing.create_test_pod(
-            'extract_localized/localized_pod')
+        cls.localized_pod = testing.create_test_pod('extract_localized/localized_pod')
         cls.localized_pod.catalogs.compile()
         cls.localized_pod.catalogs.extract(localized=True)
-        cls.unlocalized_pod = testing.create_test_pod(
-            'extract_localized/unlocalized_pod')
+        cls.unlocalized_pod = testing.create_test_pod('extract_localized/unlocalized_pod')
         cls.unlocalized_pod.catalogs.compile()
         cls.unlocalized_pod.catalogs.extract(localized=True)
 
@@ -357,105 +373,111 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc part body in localized doc in localized collection in localized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc part body in localized doc in unlocalized collection in localized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized doc part body in localized doc in localized collection in unlocalized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized doc part body in localized doc in unlocalized collection in unlocalized pöd',
-            'ja')
+            'ja',
+        )
 
     def test_body_of_multilocale_doc_part_extracted_for_part_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Multi-locale doc part body in localized doc in localized collection in localized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Multi-locale doc part body in localized doc in unlocalized collection in localized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Multi-locale doc part body in localized doc in localized collection in unlocalized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Multi-locale doc part body in localized doc in unlocalized collection in unlocalized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
 
     def test_body_of_doc_extracted_for_doc_locales(self):
         self.assertExtractedFor(
-            self.localized_pod,
-            'Localized doc in localized collection in localized pöd',
-            'it')
+            self.localized_pod, 'Localized doc in localized collection in localized pöd', 'it'
+        )
         self.assertExtractedFor(
-            self.localized_pod,
-            'Localized doc in unlocalized collection in localized pöd',
-            'it')
+            self.localized_pod, 'Localized doc in unlocalized collection in localized pöd', 'it'
+        )
         self.assertExtractedFor(
-            self.unlocalized_pod,
-            'Localized doc in localized collection in unlocalized pöd',
-            'it')
+            self.unlocalized_pod, 'Localized doc in localized collection in unlocalized pöd', 'it'
+        )
         self.assertExtractedFor(
-            self.unlocalized_pod,
-            'Localized doc in unlocalized collection in unlocalized pöd',
-            'it')
+            self.unlocalized_pod, 'Localized doc in unlocalized collection in unlocalized pöd', 'it'
+        )
 
     def test_body_of_base_doc_part_extracted_for_doc_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Localized multipart doc base part body in localized collection in localized pöd',
-            ['ko'])
+            ['ko'],
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized multipart doc base part body in unlocalized collection in localized pöd',
-            ['ko'])
+            ['ko'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized multipart doc base part body in localized collection in unlocalized pöd',
-            ['ko'])
+            ['ko'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized multipart doc base part body in unlocalized collection in unlocalized pöd',
-            ['ko'])
+            ['ko'],
+        )
 
     def test_body_of_doc_extracted_for_collection_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Unlocalized doc body in localized collection in localized pöd',
-            'fr')
+            'fr',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Unlocalized doc body in localized collection in unlocalized pöd',
-            'fr')
+            'fr',
+        )
 
     def test_body_of_doc_extracted_for_podspec_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Unlocalized doc body in unlocalized collection in localized pöd',
-            'de')
+            'de',
+        )
 
     def test_body_of_doc_extracted_for_no_locales(self):
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Unlocalized doc body in unlocalized collection in unlocalized pöd',
-            [])
+            [],
+        )
 
     def test_body_of_md_doc_extracted(self):
-        self.assertExtractedFor(
-            self.localized_pod,
-            'Untranslatable MD doc body',
-            ['it'])
-        self.assertExtractedFor(
-            self.unlocalized_pod,
-            'Untranslatable MD doc body',
-            ['it'])
+        self.assertExtractedFor(self.localized_pod, 'Untranslatable MD doc body', ['it'])
+        self.assertExtractedFor(self.unlocalized_pod, 'Untranslatable MD doc body', ['it'])
 
     # ------------------------------------------------
     # YAML front matter of HTML/MD docs
@@ -465,95 +487,115 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc part front matter in localized doc in localized collection in localized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc part front matter in localized doc in unlocalized collection in localized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized doc part front matter in localized doc in localized collection in unlocalized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized doc part front matter in localized doc in unlocalized collection in unlocalized pöd',
-            'ja')
+            'ja',
+        )
 
     def test_doc_part_front_matter_extracted_for_multiple_part_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Multi-locale doc part front matter in localized doc in localized collection in localized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Multi-locale doc part front matter in localized doc in unlocalized collection in localized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Multi-locale doc part front matter in localized doc in localized collection in unlocalized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Multi-locale doc part front matter in localized doc in unlocalized collection in unlocalized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
 
     def test_base_doc_part_front_matter_extracted_for_doc_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Localized base doc front matter in localized collection in localized pöd',
-            ['ko'])
+            ['ko'],
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized base doc front matter in unlocalized collection in localized pöd',
-            ['ko'])
+            ['ko'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized base doc front matter in localized collection in unlocalized pöd',
-            ['ko'])
+            ['ko'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized base doc front matter in unlocalized collection in unlocalized pöd',
-            ['ko'])
+            ['ko'],
+        )
 
     def test_doc_front_matter_extracted_for_doc_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc front matter in localized collection in localized pöd',
-            'it')
+            'it',
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc front matter in unlocalized collection in localized pöd',
-            'it')
+            'it',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized doc front matter in localized collection in unlocalized pöd',
-            'it')
+            'it',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized doc front matter in unlocalized collection in unlocalized pöd',
-            'it')
+            'it',
+        )
 
     def test_doc_front_matter_extracted_for_collection_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Unlocalized doc front matter in localized collection in localized pöd',
-            'fr')
+            'fr',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Unlocalized doc front matter in localized collection in unlocalized pöd',
-            'fr')
+            'fr',
+        )
 
     def test_doc_front_matter_extracted_for_podspec_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Unlocalized doc front matter in unlocalized collection in localized pöd',
-            'de')
+            'de',
+        )
 
     def test_doc_front_matter_extracted_for_no_locales(self):
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Unlocalized doc front matter in unlocalized collection in unlocalized pöd',
-            [])
+            [],
+        )
 
     # --------------------------------
     # YAML docs in collections
@@ -563,133 +605,154 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
         self.assertExtractedFor(
             self.localized_pod,
             'Localized yaml doc part in localized doc in localized collection in localized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized yaml doc part in localized doc in unlocalized collection in localized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized yaml doc part in localized doc in localized collection in unlocalized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized yaml doc part in localized doc in unlocalized collection in unlocalized pöd',
-            'ja')
+            'ja',
+        )
 
     def test_yaml_part_in_unlocalized_doc_extracted_for_own_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc part in unlocalized doc in localized collection in localized pöd',
-            'ja')
+            'ja',
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc part in unlocalized doc in unlocalized collection in localized pöd',
-            'pk')
+            'pk',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized doc part in unlocalized doc in localized collection in unlocalized pöd',
-            'ja')
+            'ja',
+        )
         self.assertNotExtractedFor(
             self.unlocalized_pod,
             'Localized doc part in unlocalized doc in unlocalized collection in unlocalized pöd',
-            'ja')
+            'ja',
+        )
 
     def test_multilocale_yaml_part_extracted_for_own_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Multi-locale yaml doc part in localized doc in localized collection in localized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Multi-locale yaml doc part in localized doc in unlocalized collection in localized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Multi-locale yaml doc part in localized doc in localized collection in unlocalized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Multi-locale yaml doc part in localized doc in unlocalized collection in unlocalized pöd',
-            ['it', 'sv'])
+            ['it', 'sv'],
+        )
 
     def test_yaml_doc_extracted_for_own_locales(self):
         self.assertExtractedFor(
-            self.localized_pod,
-            'Localized yaml doc in localized collection in localized pöd',
-            'it')
+            self.localized_pod, 'Localized yaml doc in localized collection in localized pöd', 'it'
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized yaml doc in unlocalized collection in localized pöd',
-            'it')
+            'it',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized yaml doc in localized collection in unlocalized pöd',
-            'it')
+            'it',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Localized yaml doc in unlocalized collection in unlocalized pöd',
-            'it')
+            'it',
+        )
 
     def test_yaml_doc_extracted_for_collection_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Unlocalized yaml doc in localized collection in localized pöd',
-            'fr')
+            'fr',
+        )
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Unlocalized yaml doc in localized collection in unlocalized pöd',
-            'fr')
+            'fr',
+        )
         # Document is base + JA only.
         self.assertNotExtractedFor(
             self.localized_pod,
             'Unlocalized base doc part in localized collection in localized pöd',
-            'ja')
+            'ja',
+        )
         self.assertNotExtractedFor(
             self.localized_pod,
             'Unlocalized base doc part in localized collection in localized pöd',
-            'fr')
+            'fr',
+        )
 
     def test_yaml_doc_extracted_for_podspec_locales(self):
         self.assertExtractedFor(
             self.localized_pod,
             'Unlocalized yaml doc in unlocalized collection in localized pöd',
-            'de')
+            'de',
+        )
         # Document only specifies base doc part and $locale: ja, no
         # $localization.
         self.assertExtractedFor(
             self.localized_pod,
             'Unlocalized base doc part in unlocalized collection in localized pöd',
-            ['de', 'pl'])
+            ['de', 'pl'],
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Localized doc part in unlocalized doc in unlocalized collection in localized pöd',
-            'pl')
+            'pl',
+        )
 
     def test_yaml_doc_extracted_for_no_locales(self):
         self.assertExtractedFor(
             self.unlocalized_pod,
             'Unlocalized yaml doc in unlocalized collection in unlocalized pöd',
-            [])
+            [],
+        )
         self.assertExtractedFor(
             self.localized_pod,
             'Unlocalized base doc part in unlocalized collection in unlocalized pöd',
-            [])
+            [],
+        )
 
     # ------------------------------------------------
     # YAML files in /content/ root
     # ------------------------------------------------
     def test_yaml_in_content_root_extracted_for_podspec_locales(self):
         self.assertExtractedFor(
-            self.localized_pod,
-            'YAML in content dir root in localized pöd',
-            'de')
+            self.localized_pod, 'YAML in content dir root in localized pöd', 'de'
+        )
 
     def test_yaml_in_content_root_extracted_for_no_locales(self):
         self.assertExtractedFor(
-            self.unlocalized_pod,
-            'YAML in content dir root in unlocalized pöd',
-            [])
+            self.unlocalized_pod, 'YAML in content dir root in unlocalized pöd', []
+        )
 
     # ------------------------------------------------
     # CSV docs
@@ -697,53 +760,37 @@ class ExtractLocalizedTest(_BaseExtractLocalizedTest):
 
     def test_csv_extracted_for_collection_locales(self):
         self.assertExtractedFor(
-            self.localized_pod,
-            'CSV in localized collection in localized pöd',
-            'fr')
+            self.localized_pod, 'CSV in localized collection in localized pöd', 'fr'
+        )
         self.assertExtractedFor(
-            self.unlocalized_pod,
-            'CSV in localized collection in unlocalized pöd',
-            'fr')
+            self.unlocalized_pod, 'CSV in localized collection in unlocalized pöd', 'fr'
+        )
 
     def test_csv_extracted_for_podspec_locales(self):
         self.assertExtractedFor(
-            self.localized_pod,
-            'CSV in unlocalized collection in localized pöd',
-            'de')
+            self.localized_pod, 'CSV in unlocalized collection in localized pöd', 'de'
+        )
 
     def test_csv_extracted_for_no_locales(self):
         self.assertExtractedFor(
-            self.unlocalized_pod,
-            'CSV in unlocalized collection in unlocalized pöd',
-            [])
+            self.unlocalized_pod, 'CSV in unlocalized collection in unlocalized pöd', []
+        )
 
     # ================================================================
     # In templates (in /views/)
     # ================================================================
 
     def test_template_extracted_for_podspec_locales(self):
-        self.assertExtractedFor(
-            self.localized_pod,
-            'Template in localized pöd',
-            'de')
+        self.assertExtractedFor(self.localized_pod, 'Template in localized pöd', 'de')
 
     def test_nested_template_extracted_for_podspec_locales(self):
-        self.assertExtractedFor(
-            self.localized_pod,
-            'Template in subdir in localized pöd',
-            'de')
+        self.assertExtractedFor(self.localized_pod, 'Template in subdir in localized pöd', 'de')
 
     def test_template_extracted_for_no_locales(self):
-        self.assertExtractedFor(
-            self.unlocalized_pod,
-            'Template in unlocalized pöd',
-            [])
+        self.assertExtractedFor(self.unlocalized_pod, 'Template in unlocalized pöd', [])
 
     def test_nested_template_extracted_for_no_locales(self):
-        self.assertExtractedFor(
-            self.localized_pod,
-            'Template in subdir in unlocalized pöd',
-            [])
+        self.assertExtractedFor(self.localized_pod, 'Template in subdir in unlocalized pöd', [])
 
 
 class ExtractLocalizedWithExistingTest(_BaseExtractLocalizedTest):
@@ -762,8 +809,7 @@ class ExtractLocalizedWithExistingTest(_BaseExtractLocalizedTest):
     def test_include_obsolete_option(self):
         pod = testing.create_test_pod('extract_localized/localized_pod')
         pod.catalogs.compile()
-        pod.catalogs.extract(localized=True, locales=[
-                             'fr'], include_obsolete=True)
+        pod.catalogs.extract(localized=True, locales=['fr'], include_obsolete=True)
 
         message = 'Existing message in localized pöd'
         translation = 'Existing FR translation in localized pöd'
@@ -778,15 +824,12 @@ class ExtractLocalizedWithExistingTest(_BaseExtractLocalizedTest):
 
 
 class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
-
     def test_extract_localized_for_single_locale(self):
-        localized_pod = testing.create_test_pod(
-            'extract_localized/localized_pod')
+        localized_pod = testing.create_test_pod('extract_localized/localized_pod')
         localized_pod.catalogs.compile()
         localized_pod.catalogs.extract(localized=True, locales=['it'])
 
-        unlocalized_pod = testing.create_test_pod(
-            'extract_localized/unlocalized_pod')
+        unlocalized_pod = testing.create_test_pod('extract_localized/unlocalized_pod')
         unlocalized_pod.catalogs.compile()
         unlocalized_pod.catalogs.extract(localized=True, locales=['it'])
 
@@ -836,17 +879,13 @@ class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
                 self.assertExtractedFor(localized_pod, message, [])
 
     def test_extract_localized_for_multiple_locales(self):
-        localized_pod = testing.create_test_pod(
-            'extract_localized/localized_pod')
+        localized_pod = testing.create_test_pod('extract_localized/localized_pod')
         localized_pod.catalogs.compile()
-        localized_pod.catalogs.extract(
-            localized=True, locales=['it', 'sv', 'de'])
+        localized_pod.catalogs.extract(localized=True, locales=['it', 'sv', 'de'])
 
-        unlocalized_pod = testing.create_test_pod(
-            'extract_localized/unlocalized_pod')
+        unlocalized_pod = testing.create_test_pod('extract_localized/unlocalized_pod')
         unlocalized_pod.catalogs.compile()
-        unlocalized_pod.catalogs.extract(
-            localized=True, locales=['it', 'sv', 'de'])
+        unlocalized_pod.catalogs.extract(localized=True, locales=['it', 'sv', 'de'])
 
         # These strings are all relevant to both IT & SV
         it_sv_messages = (
@@ -906,10 +945,13 @@ class ExtractLocalizedSpecificLocalesTest(_BaseExtractLocalizedTest):
         pod = testing.create_pod()
         pod.write_yaml('/podspec.yaml', {})
         pod.write_yaml('/content/pages/_blueprint.yaml', {})
-        pod.write_yaml('/content/pages/page.yaml', {
-            'title': 'Untagged string',
-            'subtitle@': 'Tagged string',
-        })
+        pod.write_yaml(
+            '/content/pages/page.yaml',
+            {
+                'title': 'Untagged string',
+                'subtitle@': 'Tagged string',
+            },
+        )
         untagged_strings, _ = pod.catalogs.extract(audit=True)
         expected = [('/content/pages/page.yaml', 'Untagged string')]
         self.assertEqual(expected, untagged_strings)

@@ -23,17 +23,23 @@ class UntagTestCase(unittest.TestCase):
             'foo@ja': 'bar-ja',
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            '$view': '/views/base-ja.html',
-            'qaz': 'qux-ja',
-            'foo': 'bar-ja',
-        }, untag.Untag.untag(fields, locale_identifier='ja'))
+        self.assertDictEqual(
+            {
+                '$view': '/views/base-ja.html',
+                'qaz': 'qux-ja',
+                'foo': 'bar-ja',
+            },
+            untag.Untag.untag(fields, locale_identifier='ja'),
+        )
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            '$view': '/views/base.html',
-            'qaz': 'qux-de',
-            'foo': 'bar-de',
-        }, untag.Untag.untag(fields, locale_identifier='de'))
+        self.assertDictEqual(
+            {
+                '$view': '/views/base.html',
+                'qaz': 'qux-de',
+                'foo': 'bar-de',
+            },
+            untag.Untag.untag(fields, locale_identifier='de'),
+        )
 
     def test_untag_nested(self):
         """Untag field values by locale with nested fields."""
@@ -44,17 +50,23 @@ class UntagTestCase(unittest.TestCase):
             },
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'nested': {
-                'nested': 'nested-fr',
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'nested': 'nested-fr',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='fr'))
+            untag.Untag.untag(fields, locale_identifier='fr'),
+        )
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'nested': {
-                'nested': 'nested-base',
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'nested': 'nested-base',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='de'))
+            untag.Untag.untag(fields, locale_identifier='de'),
+        )
 
     def test_untag_list(self):
         """Untag field values by locale with lists."""
@@ -74,42 +86,51 @@ class UntagTestCase(unittest.TestCase):
             ]
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'list': [
-                {
-                    'item': 'value-1-fr',
-                },
-                {
-                    'item': 'value-2',
-                },
-                {
-                    'item': 'value-3-fr',
-                },
-            ]
-        }, untag.Untag.untag(fields, locale_identifier='fr'))
+        self.assertDictEqual(
+            {
+                'list': [
+                    {
+                        'item': 'value-1-fr',
+                    },
+                    {
+                        'item': 'value-2',
+                    },
+                    {
+                        'item': 'value-3-fr',
+                    },
+                ]
+            },
+            untag.Untag.untag(fields, locale_identifier='fr'),
+        )
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'list': [
-                {
-                    'item': 'value-1-de',
-                },
-                {
-                    'item': 'value-2',
-                },
-                {},
-            ]
-        }, untag.Untag.untag(fields, locale_identifier='de'))
-        self.assertDictEqual({
-            'list': [
-                {
-                    'item': 'value-1',
-                },
-                {
-                    'item': 'value-2',
-                },
-                {},
-            ]
-        }, untag.Untag.untag(fields, locale_identifier='ja'))
+        self.assertDictEqual(
+            {
+                'list': [
+                    {
+                        'item': 'value-1-de',
+                    },
+                    {
+                        'item': 'value-2',
+                    },
+                    {},
+                ]
+            },
+            untag.Untag.untag(fields, locale_identifier='de'),
+        )
+        self.assertDictEqual(
+            {
+                'list': [
+                    {
+                        'item': 'value-1',
+                    },
+                    {
+                        'item': 'value-2',
+                    },
+                    {},
+                ]
+            },
+            untag.Untag.untag(fields, locale_identifier='ja'),
+        )
 
     def test_untag_list_nested(self):
         """Untag field values by locale with nested list fields."""
@@ -126,31 +147,37 @@ class UntagTestCase(unittest.TestCase):
             ],
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'list': [
-                'value1',
-                'value2',
-                'value3',
-            ],
-            'list@': [
-                'value1',
-                'value2',
-                'value3',
-            ],
-        }, untag.Untag.untag(fields, locale_identifier='de'))
+        self.assertDictEqual(
+            {
+                'list': [
+                    'value1',
+                    'value2',
+                    'value3',
+                ],
+                'list@': [
+                    'value1',
+                    'value2',
+                    'value3',
+                ],
+            },
+            untag.Untag.untag(fields, locale_identifier='de'),
+        )
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'list': [
-                'value1-fr',
-                'value2-fr',
-                'value3-fr',
-            ],
-            'list@': [
-                'value1-fr',
-                'value2-fr',
-                'value3-fr',
-            ],
-        }, untag.Untag.untag(fields, locale_identifier='fr'))
+        self.assertDictEqual(
+            {
+                'list': [
+                    'value1-fr',
+                    'value2-fr',
+                    'value3-fr',
+                ],
+                'list@': [
+                    'value1-fr',
+                    'value2-fr',
+                    'value3-fr',
+                ],
+            },
+            untag.Untag.untag(fields, locale_identifier='fr'),
+        )
 
     # pylint: disable=invalid-name
     def test_untag_backwards_compatibility(self):
@@ -169,27 +196,30 @@ class UntagTestCase(unittest.TestCase):
             ],
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'title': 'foo',
-            'list': [
-                'top-value1',
-                'top-value2',
-                'top-value3',
-            ],
-            'list@': [
-                'top-value1',
-                'top-value2',
-                'top-value3',
-            ],
-            'nested': {
+        self.assertDictEqual(
+            {
+                'title': 'foo',
                 'list': [
-                    'value1',
+                    'top-value1',
+                    'top-value2',
+                    'top-value3',
                 ],
                 'list@': [
-                    'value1',
+                    'top-value1',
+                    'top-value2',
+                    'top-value3',
                 ],
+                'nested': {
+                    'list': [
+                        'value1',
+                    ],
+                    'list@': [
+                        'value1',
+                    ],
+                },
             },
-        }, untag.Untag.untag(fields))
+            untag.Untag.untag(fields),
+        )
 
     def test_untag_with_regex(self):
         """Test that regex works with the untagging keys."""
@@ -204,36 +234,51 @@ class UntagTestCase(unittest.TestCase):
             },
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'bar-fr',
-            'nested': {
-                'nested': 'nested-fr',
+        self.assertDictEqual(
+            {
+                'foo': 'bar-fr',
+                'nested': {
+                    'nested': 'nested-fr',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='fr'))
-        self.assertDictEqual({
-            'foo': 'bar-fr',
-            'nested': {
-                'nested': 'nested-base',
+            untag.Untag.untag(fields, locale_identifier='fr'),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'bar-fr',
+                'nested': {
+                    'nested': 'nested-base',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='fr_FR'))
-        self.assertDictEqual({
-            'foo': 'bar-fr',
-            'nested': {
-                'nested': 'nested-base',
+            untag.Untag.untag(fields, locale_identifier='fr_FR'),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'bar-fr',
+                'nested': {
+                    'nested': 'nested-base',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='fr_CA'))
-        self.assertDictEqual({
-            'foo': 'bar-de',
-            'nested': {
-                'nested': 'nested-base',
+            untag.Untag.untag(fields, locale_identifier='fr_CA'),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'bar-de',
+                'nested': {
+                    'nested': 'nested-base',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='de'))
-        self.assertDictEqual({
-            'foo': 'bar-base',
-            'nested': {
-                'nested': 'nested-de',
+            untag.Untag.untag(fields, locale_identifier='de'),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'bar-base',
+                'nested': {
+                    'nested': 'nested-de',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='de_AT'))
+            untag.Untag.untag(fields, locale_identifier='de_AT'),
+        )
 
     def test_untag_with_regex_or(self):
         """Test that regex works with the untagging keys."""
@@ -247,43 +292,53 @@ class UntagTestCase(unittest.TestCase):
             },
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'bar-any',
-            'nested': {
-                'nested': 'nested-any',
+        self.assertDictEqual(
+            {
+                'foo': 'bar-any',
+                'nested': {
+                    'nested': 'nested-any',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='fr'))
+            untag.Untag.untag(fields, locale_identifier='fr'),
+        )
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'bar-any',
-            'nested': {
-                'nested': 'nested-any',
+        self.assertDictEqual(
+            {
+                'foo': 'bar-any',
+                'nested': {
+                    'nested': 'nested-any',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='it'))
+            untag.Untag.untag(fields, locale_identifier='it'),
+        )
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'bar-de',
-            'nested': {
-                'nested': 'nested-base',
+        self.assertDictEqual(
+            {
+                'foo': 'bar-de',
+                'nested': {
+                    'nested': 'nested-base',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='de'))
+            untag.Untag.untag(fields, locale_identifier='de'),
+        )
 
     def test_untag_with_no_base(self):
         """Test that not having a base key does not interfere with untag and locales."""
         fields_to_test = {
             'foo@de': 'bar-de',
-            'baz@de': {
-                'fum@de': 'boo-de'
-            },
+            'baz@de': {'fum@de': 'boo-de'},
         }
         fields = copy.deepcopy(fields_to_test)
         self.assertDictEqual({}, untag.Untag.untag(fields))
-        self.assertDictEqual({
-            'foo': 'bar-de',
-            'baz': {
-                'fum': 'boo-de',
+        self.assertDictEqual(
+            {
+                'foo': 'bar-de',
+                'baz': {
+                    'fum': 'boo-de',
+                },
             },
-        }, untag.Untag.untag(fields, locale_identifier='de'))
+            untag.Untag.untag(fields, locale_identifier='de'),
+        )
 
     def test_untag_params_not_implemented(self):
         """Untag params in fields using base class."""
@@ -293,9 +348,13 @@ class UntagTestCase(unittest.TestCase):
             'foo@env.prod': 'prod',
         }
         with self.assertRaises(NotImplementedError):
-            untag_func(fields_to_test, locale_identifier=None, params={
-                'env': untag.UntagParam(),
-            })
+            untag_func(
+                fields_to_test,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParam(),
+                },
+            )
 
     def test_untag_params_none_callable(self):
         """Untag params in fields using none as the param."""
@@ -305,11 +364,18 @@ class UntagTestCase(unittest.TestCase):
             'foo@env.prod': 'prod',
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': None,
-        }))
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+            },
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': None,
+                },
+            ),
+        )
 
     def test_untag_params(self):
         """Untag params in fields."""
@@ -320,21 +386,42 @@ class UntagTestCase(unittest.TestCase):
             'foo@env.prod': 'prod',
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex(None),
-        }))
-        self.assertDictEqual({
-            'foo': 'dev',
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex('dev'),
-        }))
-        self.assertDictEqual({
-            'foo': 'prod',
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex('prod'),
-        }))
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+            },
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex(None),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'dev',
+            },
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex('dev'),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'prod',
+            },
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex('prod'),
+                },
+            ),
+        )
 
     def test_untag_params_locale(self):
         """Untag locale group params in fields."""
@@ -353,65 +440,100 @@ class UntagTestCase(unittest.TestCase):
         fields = copy.deepcopy(fields_to_test)
 
         # Non-group locale.
-        self.assertDictEqual({
-            'foo': 'base',
-            '$localization': {
-                'groups': {
-                    'group1': 'fr|de',
-                    'group2': 'es|ja',
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+                '$localization': {
+                    'groups': {
+                        'group1': 'fr|de',
+                        'group2': 'es|ja',
+                    },
                 },
             },
-        }, untag_func(fields, locale_identifier='en', params={
-            'locale': untag.UntagParamLocaleRegex(),
-        }))
+            untag_func(
+                fields,
+                locale_identifier='en',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(),
+                },
+            ),
+        )
 
         # Group 1
-        self.assertDictEqual({
-            'foo': 'g1',
-            '$localization': {
-                'groups': {
-                    'group1': 'fr|de',
-                    'group2': 'es|ja',
+        self.assertDictEqual(
+            {
+                'foo': 'g1',
+                '$localization': {
+                    'groups': {
+                        'group1': 'fr|de',
+                        'group2': 'es|ja',
+                    },
                 },
             },
-        }, untag_func(fields, locale_identifier='de', params={
-            'locale': untag.UntagParamLocaleRegex(),
-        }))
-        self.assertDictEqual({
-            'foo': 'g1',
-            '$localization': {
-                'groups': {
-                    'group1': 'fr|de',
-                    'group2': 'es|ja',
+            untag_func(
+                fields,
+                locale_identifier='de',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'g1',
+                '$localization': {
+                    'groups': {
+                        'group1': 'fr|de',
+                        'group2': 'es|ja',
+                    },
                 },
             },
-        }, untag_func(fields, locale_identifier='fr', params={
-            'locale': untag.UntagParamLocaleRegex(),
-        }))
+            untag_func(
+                fields,
+                locale_identifier='fr',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(),
+                },
+            ),
+        )
 
         # Group 2
-        self.assertDictEqual({
-            'foo': 'g2',
-            '$localization': {
-                'groups': {
-                    'group1': 'fr|de',
-                    'group2': 'es|ja',
+        self.assertDictEqual(
+            {
+                'foo': 'g2',
+                '$localization': {
+                    'groups': {
+                        'group1': 'fr|de',
+                        'group2': 'es|ja',
+                    },
                 },
             },
-        }, untag_func(fields, locale_identifier='es', params={
-            'locale': untag.UntagParamLocaleRegex(),
-        }))
-        self.assertDictEqual({
-            'foo': 'g2',
-            '$localization': {
-                'groups': {
-                    'group1': 'fr|de',
-                    'group2': 'es|ja',
+            untag_func(
+                fields,
+                locale_identifier='es',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'g2',
+                '$localization': {
+                    'groups': {
+                        'group1': 'fr|de',
+                        'group2': 'es|ja',
+                    },
                 },
             },
-        }, untag_func(fields, locale_identifier='ja', params={
-            'locale': untag.UntagParamLocaleRegex(),
-        }))
+            untag_func(
+                fields,
+                locale_identifier='ja',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(),
+                },
+            ),
+        )
 
     def test_untag_params_locale_list(self):
         """Untag locale group params in fields."""
@@ -428,38 +550,59 @@ class UntagTestCase(unittest.TestCase):
         fields = copy.deepcopy(fields_to_test)
 
         # Non-group locale.
-        self.assertDictEqual({
-            'foo': 'base',
-            '$localization': {
-                'groups': {
-                    'group1': ['fr', 'de'],
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+                '$localization': {
+                    'groups': {
+                        'group1': ['fr', 'de'],
+                    },
                 },
             },
-        }, untag_func(fields, locale_identifier='en', params={
-            'locale': untag.UntagParamLocaleRegex(),
-        }))
+            untag_func(
+                fields,
+                locale_identifier='en',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(),
+                },
+            ),
+        )
 
         # Group 1
-        self.assertDictEqual({
-            'foo': 'g1',
-            '$localization': {
-                'groups': {
-                    'group1': ['fr', 'de'],
+        self.assertDictEqual(
+            {
+                'foo': 'g1',
+                '$localization': {
+                    'groups': {
+                        'group1': ['fr', 'de'],
+                    },
                 },
             },
-        }, untag_func(fields, locale_identifier='de', params={
-            'locale': untag.UntagParamLocaleRegex(),
-        }))
-        self.assertDictEqual({
-            'foo': 'g1',
-            '$localization': {
-                'groups': {
-                    'group1': ['fr', 'de'],
+            untag_func(
+                fields,
+                locale_identifier='de',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'g1',
+                '$localization': {
+                    'groups': {
+                        'group1': ['fr', 'de'],
+                    },
                 },
             },
-        }, untag_func(fields, locale_identifier='fr', params={
-            'locale': untag.UntagParamLocaleRegex(),
-        }))
+            untag_func(
+                fields,
+                locale_identifier='fr',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(),
+                },
+            ),
+        )
 
     def test_untag_params_locale_fallback(self):
         """Untag locale group params in fields falls back to pod and collection."""
@@ -478,35 +621,70 @@ class UntagTestCase(unittest.TestCase):
         fields = copy.deepcopy(fields_to_test)
 
         # Non-group locale.
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier='en', params={
-            'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
-        }))
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+            },
+            untag_func(
+                fields,
+                locale_identifier='en',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
+                },
+            ),
+        )
 
         # Group 1
-        self.assertDictEqual({
-            'foo': 'g1',
-        }, untag_func(fields, locale_identifier='de', params={
-            'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
-        }))
-        self.assertDictEqual({
-            'foo': 'g1',
-        }, untag_func(fields, locale_identifier='fr', params={
-            'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
-        }))
+        self.assertDictEqual(
+            {
+                'foo': 'g1',
+            },
+            untag_func(
+                fields,
+                locale_identifier='de',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'g1',
+            },
+            untag_func(
+                fields,
+                locale_identifier='fr',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
+                },
+            ),
+        )
 
         # Group 2
-        self.assertDictEqual({
-            'foo': 'g2',
-        }, untag_func(fields, locale_identifier='es', params={
-            'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
-        }))
-        self.assertDictEqual({
-            'foo': 'g2',
-        }, untag_func(fields, locale_identifier='ja', params={
-            'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
-        }))
+        self.assertDictEqual(
+            {
+                'foo': 'g2',
+            },
+            untag_func(
+                fields,
+                locale_identifier='es',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'foo': 'g2',
+            },
+            untag_func(
+                fields,
+                locale_identifier='ja',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
+                },
+            ),
+        )
 
     def test_untag_params_locale_missing_group(self):
         """Untag locale group params without the group."""
@@ -520,18 +698,32 @@ class UntagTestCase(unittest.TestCase):
         fields = copy.deepcopy(fields_to_test)
 
         # Non-group locale.
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier='en', params={
-            'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
-        }))
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+            },
+            untag_func(
+                fields,
+                locale_identifier='en',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
+                },
+            ),
+        )
 
         # Missing group.
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier='de', params={
-            'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
-        }))
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+            },
+            untag_func(
+                fields,
+                locale_identifier='de',
+                params={
+                    'locale': untag.UntagParamLocaleRegex(podspec_data, collection_data),
+                },
+            ),
+        )
 
     def test_untag_params_nested(self):
         """Untag params in nested fields."""
@@ -544,37 +736,65 @@ class UntagTestCase(unittest.TestCase):
                 'foo': 'nested-de-base',
                 'foo@env.dev': 'nested-de-dev',
                 'foo@env.prod': 'nested-de-prod',
-            }
+            },
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'nested': {
-                'foo': 'nested-base',
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'foo': 'nested-base',
+                },
             },
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex(None),
-        }))
-        self.assertDictEqual({
-            'nested': {
-                'foo': 'nested-base',
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex(None),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'foo': 'nested-base',
+                },
             },
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex('dev'),
-        }))
-        self.assertDictEqual({
-            'nested': {
-                'foo': 'nested-de-dev',
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex('dev'),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'foo': 'nested-de-dev',
+                },
             },
-        }, untag_func(fields, locale_identifier='de', params={
-            'env': untag.UntagParamRegex('dev'),
-        }))
-        self.assertDictEqual({
-            'nested': {
-                'foo': 'nested-de-prod',
+            untag_func(
+                fields,
+                locale_identifier='de',
+                params={
+                    'env': untag.UntagParamRegex('dev'),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'foo': 'nested-de-prod',
+                },
             },
-        }, untag_func(fields, locale_identifier='de', params={
-            'env': untag.UntagParamRegex('prod'),
-        }))
+            untag_func(
+                fields,
+                locale_identifier='de',
+                params={
+                    'env': untag.UntagParamRegex('prod'),
+                },
+            ),
+        )
 
     def test_untag_none(self):
         """Untag when there is a none value for the tagged value."""
@@ -584,16 +804,30 @@ class UntagTestCase(unittest.TestCase):
             'foo@env.prod': None,
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex(None),
-        }))
-        self.assertDictEqual({
-            'foo': None,
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex('prod'),
-        }))
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+            },
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex(None),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'foo': None,
+            },
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex('prod'),
+                },
+            ),
+        )
 
         fields_to_test = {
             'nested': {
@@ -602,30 +836,51 @@ class UntagTestCase(unittest.TestCase):
             'nested@de': {
                 'foo': 'nested-de-base',
                 'foo@env.prod': None,
-            }
+            },
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'nested': {
-                'foo': 'nested-base',
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'foo': 'nested-base',
+                },
             },
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex(None),
-        }))
-        self.assertDictEqual({
-            'nested': {
-                'foo': 'nested-base',
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex(None),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'foo': 'nested-base',
+                },
             },
-        }, untag_func(fields, locale_identifier=None, params={
-            'env': untag.UntagParamRegex('dev'),
-        }))
-        self.assertDictEqual({
-            'nested': {
-                'foo': None,
+            untag_func(
+                fields,
+                locale_identifier=None,
+                params={
+                    'env': untag.UntagParamRegex('dev'),
+                },
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'nested': {
+                    'foo': None,
+                },
             },
-        }, untag_func(fields, locale_identifier='de', params={
-            'env': untag.UntagParamRegex('prod'),
-        }))
+            untag_func(
+                fields,
+                locale_identifier='de',
+                params={
+                    'env': untag.UntagParamRegex('prod'),
+                },
+            ),
+        )
 
     # TODO: Once the translation process is able to correctly extract
     # the locale tagged extractions we need to prevent replacing the value.
@@ -661,6 +916,9 @@ class UntagTestCase(unittest.TestCase):
             'foo@': 'base',
         }
         fields = copy.deepcopy(fields_to_test)
-        self.assertDictEqual({
-            'foo': 'base',
-        }, untag_func(fields, locale_identifier=None))
+        self.assertDictEqual(
+            {
+                'foo': 'base',
+            },
+            untag_func(fields, locale_identifier=None),
+        )

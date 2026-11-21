@@ -17,6 +17,7 @@ _child_processes = []
 
 class Config(messages.Message):
     """Config for Gulp preprocessor."""
+
     build_task = messages.StringField(1, default='build')
     run_task = messages.StringField(2, default='')
     command = messages.StringField(3, default='gulp')

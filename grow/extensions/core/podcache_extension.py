@@ -23,8 +23,9 @@ class PodcacheDevFileChangeHook(hooks.DevFileChangeHook):
 
         if pod_path == f'/{self.pod.FILE_PODSPEC}':
             self.pod.podcache.reset()
-        elif (pod_path.endswith(collection.Collection.BLUEPRINT_PATH)
-              and pod_path.startswith(collection.Collection.CONTENT_PATH)):
+        elif pod_path.endswith(collection.Collection.BLUEPRINT_PATH) and pod_path.startswith(
+            collection.Collection.CONTENT_PATH
+        ):
             doc = self.pod.get_doc(pod_path)
             self.pod.podcache.collection_cache.remove_collection(doc.collection)
         elif pod_path == f'/{podcache.FILE_OBJECT_CACHE}':

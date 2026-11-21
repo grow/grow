@@ -53,10 +53,12 @@ class RenderPool:
             existing_size = len(self._pool[locale_str])
             if pool_size > existing_size:
                 for _ in range(pool_size - existing_size):
-                    self._pool[locale_str].append({
-                        'lock': threading.RLock(),
-                        'env': self._create_jinja_env(locale=locale_str),
-                    })
+                    self._pool[locale_str].append(
+                        {
+                            'lock': threading.RLock(),
+                            'env': self._create_jinja_env(locale=locale_str),
+                        }
+                    )
             elif pool_size < existing_size:
                 self._pool[locale_str] = self._pool[locale_str][:pool_size]
 

@@ -15,7 +15,6 @@ from grow.translations import locales
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -54,8 +53,7 @@ class Collection:
     _content_path_regex = re.compile('^' + CONTENT_PATH + '/?')
 
     def __eq__(self, other):
-        return (isinstance(other, Collection)
-                and self.collection_path == other.collection_path)
+        return isinstance(other, Collection) and self.collection_path == other.collection_path
 
     def __getattr__(self, name):
         # Stay back from the recursion loop... it bites.
@@ -73,8 +71,7 @@ class Collection:
         self.collection_path = Collection.clean_collection_path(pod_path)
         self.dirname = os.path.dirname(self.collection_path)
         self.basename = os.path.basename(self.collection_path)
-        self.blueprint_path = os.path.join(
-            self.pod_path, Collection.BLUEPRINT_PATH)
+        self.blueprint_path = os.path.join(self.pod_path, Collection.BLUEPRINT_PATH)
 
     def __iter__(self):
         yield from self.list_docs()
@@ -92,8 +89,9 @@ class Collection:
                 continue
             base, ext = os.path.splitext(pod_path)
             localized_file_path = f'{base}@{each_locale}{ext}'
-            if (locale in [utils.SENTINEL, each_locale]
-                    and not self.pod.file_exists(localized_file_path)):
+            if locale in [utils.SENTINEL, each_locale] and not self.pod.file_exists(
+                localized_file_path
+            ):
                 new_doc = doc.localize(each_locale)
                 sorted_docs.insert(new_doc)
 
@@ -121,8 +119,7 @@ class Collection:
         """Creates a new collection by writing a blueprint."""
         collection = cls.get(collection_path, pod)
         if collection.exists:
-            raise CollectionExistsError(
-                f'{collection} already exists.')
+            raise CollectionExistsError(f'{collection} already exists.')
         fields = utils.dump_yaml(fields)
         pod.write_file(collection.blueprint_path, fields)
         return collection
@@ -160,9 +157,11 @@ class Collection:
     @utils.cached_property
     def features(self):
         """Collection features."""
-        coll_features = features.Features(disabled=[
-            self.FEATURE_SEPARATE_ROUTING,
-        ])
+        coll_features = features.Features(
+            disabled=[
+                self.FEATURE_SEPARATE_ROUTING,
+            ]
+        )
 
         # Enable the separate_routing feature if there are routes specified.
         if self.yaml.get('routes') is not None:
@@ -173,23 +172,23 @@ class Collection:
     @utils.cached_property
     def fields(self):
         fields = untag.Untag.untag(
-            self.tagged_fields, params={
+            self.tagged_fields,
+            params={
                 'env': untag.UntagParamRegex(self.pod.env.name),
-            })
+            },
+        )
         return {} if not fields else fields
 
     @utils.cached_property
     def locales(self):
-        localized = ('$localization' in self.fields
-                     or 'localization' in self.fields)
+        localized = '$localization' in self.fields or 'localization' in self.fields
         if localized:
             # Disable localization with $localization:~.
             if self.localization is None:
                 return []
             if 'locales' in self.localization:
                 codes = self.localization['locales'] or []
-                return self.pod.normalize_locales(
-                    locales.Locale.parse_codes(codes))
+                return self.pod.normalize_locales(locales.Locale.parse_codes(codes))
         return self.pod.list_locales()
 
     @property
@@ -203,7 +202,7 @@ class Collection:
 
     @property
     def parent(self):
-        parent_pod_path = os.path.normpath(self.pod_path[:-len(self.basename)])
+        parent_pod_path = os.path.normpath(self.pod_path[: -len(self.basename)])
         if parent_pod_path == Collection.CONTENT_PATH:
             return
         return self.pod.get_collection(parent_pod_path)
@@ -238,8 +237,8 @@ class Collection:
             return {}
         # Use the simple loader to prevent circular loading.
         result = utils.parse_yaml(
-            self.pod.read_file(self.blueprint_path), pod=self.pod,
-            simple_loader=True)
+            self.pod.read_file(self.blueprint_path), pod=self.pod, simple_loader=True
+        )
         if result is None:
             return {}
         return result
@@ -282,21 +281,26 @@ class Collection:
                 localized_path = document.Document.localize_path(pod_path, locale.alias)
                 if self.pod.file_exists(localized_path):
                     pod_path = localized_path
-        cached = self.pod.podcache.collection_cache.get_document(
-            self, pod_path, locale)
+        cached = self.pod.podcache.collection_cache.get_document(self, pod_path, locale)
         if cached:
             return cached
-        doc = document.Document(
-            pod_path, locale=locale, _pod=self.pod, _collection=self)
+        doc = document.Document(pod_path, locale=locale, _pod=self.pod, _collection=self)
         self.pod.podcache.collection_cache.add_document(doc)
         return doc
 
     def list_categories(self):
         return self._get_builtin_field('categories') or []
 
-    def list_docs(self, order_by=None, locale=utils.SENTINEL, reverse=None,
-                  include_hidden=False, recursive=True, inject=False,
-                  order_by_default=None):
+    def list_docs(
+        self,
+        order_by=None,
+        locale=utils.SENTINEL,
+        reverse=None,
+        include_hidden=False,
+        recursive=True,
+        inject=False,
+        order_by_default=None,
+    ):
         reverse = False if reverse is None else reverse
         if order_by is None:
             order_by = ('order', 'pod_path')
@@ -304,14 +308,12 @@ class Collection:
         elif isinstance(order_by, str):
             order_by = (order_by, 'pod_path')
         key = operator.attrgetter(*order_by)
-        sorted_docs = structures.SortedCollection(
-            key=key, default=order_by_default)
+        sorted_docs = structures.SortedCollection(key=key, default=order_by_default)
         if inject:
             injected_docs = self.pod.inject_preprocessors(collection=self)
             if injected_docs is not None:
                 sorted_docs = injected_docs
-                self.pod.logger.info(
-                    f'Injected collection -> {self.pod_path}')
+                self.pod.logger.info(f'Injected collection -> {self.pod_path}')
             return reversed(sorted_docs) if reverse else sorted_docs
         for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
@@ -319,18 +321,17 @@ class Collection:
             if not self._owns_doc_at_path(pod_path):
                 continue
             slug, ext = os.path.splitext(os.path.basename(pod_path))
-            if (slug.startswith(self.IGNORE_INITIAL)
-                    or ext not in messages.extensions_to_formats
-                    or not pod_path):
+            if (
+                slug.startswith(self.IGNORE_INITIAL)
+                or ext not in messages.extensions_to_formats
+                or not pod_path
+            ):
                 continue
             try:
-                _, locale_from_path = \
-                    document.Document.parse_localized_path(pod_path)
+                _, locale_from_path = document.Document.parse_localized_path(pod_path)
                 if locale_from_path:
-                    if (locale is not None
-                            and locale in [utils.SENTINEL, locale_from_path]):
-                        new_doc = self.get_doc(
-                            pod_path, locale=locale_from_path)
+                    if locale is not None and locale in [utils.SENTINEL, locale_from_path]:
+                        new_doc = self.get_doc(pod_path, locale=locale_from_path)
                         if not include_hidden and new_doc.hidden:
                             continue
                         sorted_docs.insert(new_doc)
@@ -345,8 +346,7 @@ class Collection:
                 if locale == doc.default_locale:
                     sorted_docs.insert(doc)
                 else:
-                    self._add_localized_docs(
-                        sorted_docs, pod_path, locale, doc)
+                    self._add_localized_docs(sorted_docs, pod_path, locale, doc)
             except Exception:
                 logging.error(f'Error loading doc: {pod_path}')
                 raise
@@ -364,8 +364,7 @@ class Collection:
             injected_docs = self.pod.inject_preprocessors(collection=self)
             if injected_docs is not None:
                 docs = injected_docs
-                self.pod.logger.info(
-                    f'Injected collection -> {self.pod_path}')
+                self.pod.logger.info(f'Injected collection -> {self.pod_path}')
             return docs
         for path in self.pod.list_dir(self.pod_path, recursive=recursive):
             pod_path = os.path.join(self.pod_path, path.lstrip('/'))
@@ -373,18 +372,17 @@ class Collection:
             if not self._owns_doc_at_path(pod_path):
                 continue
             slug, ext = os.path.splitext(os.path.basename(pod_path))
-            if (slug.startswith(self.IGNORE_INITIAL)
-                    or ext not in messages.extensions_to_formats
-                    or not pod_path):
+            if (
+                slug.startswith(self.IGNORE_INITIAL)
+                or ext not in messages.extensions_to_formats
+                or not pod_path
+            ):
                 continue
             try:
-                _, locale_from_path = \
-                    document.Document.parse_localized_path(pod_path)
+                _, locale_from_path = document.Document.parse_localized_path(pod_path)
                 if locale_from_path:
-                    if (locale is not None
-                            and locale in [utils.SENTINEL, locale_from_path]):
-                        docs.append(self.get_doc(
-                            pod_path, locale=locale_from_path))
+                    if locale is not None and locale in [utils.SENTINEL, locale_from_path]:
+                        docs.append(self.get_doc(pod_path, locale=locale_from_path))
                     continue
                 docs.append(self.get_doc(pod_path))
             except Exception:
@@ -392,34 +390,37 @@ class Collection:
                 raise
         return docs
 
-    def list_servable_documents(self, include_hidden=False, locales=None,
-                                inject=None, doc_list=None):
+    def list_servable_documents(
+        self, include_hidden=False, locales=None, inject=None, doc_list=None
+    ):
         if not doc_list:
             inject = False if inject is None else inject
-            doc_list = self.list_docs(
-                include_hidden=include_hidden, inject=inject)
+            doc_list = self.list_docs(include_hidden=include_hidden, inject=inject)
         docs = []
         for doc in doc_list:
-            if (self._get_builtin_field('draft')
-                    or not doc.has_serving_path()
-                    or not doc.view
-                    or (locales and doc.locale not in locales)):
+            if (
+                self._get_builtin_field('draft')
+                or not doc.has_serving_path()
+                or not doc.view
+                or (locales and doc.locale not in locales)
+            ):
                 continue
 
             # If there is a localized version of the default locale
             # the base document should not be added with the same locale.
-            if (doc.locale and doc.locale == doc.default_locale and
-                    not document.Document.is_localized_path(doc.pod_path)):
-                localized_path = document.Document.localize_path(
-                    doc.pod_path, doc.locale)
+            if (
+                doc.locale
+                and doc.locale == doc.default_locale
+                and not document.Document.is_localized_path(doc.pod_path)
+            ):
+                localized_path = document.Document.localize_path(doc.pod_path, doc.locale)
                 if self.pod.file_exists(localized_path):
                     continue
 
             docs.append(doc)
         return docs
 
-    def list_servable_document_locales(self, pod_path, include_hidden=False,
-                                       locales=None):
+    def list_servable_document_locales(self, pod_path, include_hidden=False, locales=None):
         sorted_docs = structures.SortedCollection(key=None)
         doc = self.get_doc(pod_path)
 
@@ -432,7 +433,8 @@ class Collection:
         sorted_docs.insert(doc)
         self._add_localized_docs(sorted_docs, pod_path, utils.SENTINEL, doc)
         return self.list_servable_documents(
-            include_hidden=include_hidden, locales=locales, doc_list=sorted_docs)
+            include_hidden=include_hidden, locales=locales, doc_list=sorted_docs
+        )
 
     def titles(self, title_name=None):
         if title_name is None:

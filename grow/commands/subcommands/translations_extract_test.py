@@ -8,7 +8,6 @@ from . import translations_extract
 
 
 class ExtractTestCase(unittest.TestCase):
-
     def setUp(self):
         self.test_pod_dir = testing.create_test_pod_dir()
         self.runner = click_testing.CliRunner()
@@ -16,7 +15,8 @@ class ExtractTestCase(unittest.TestCase):
     def test_extract(self):
         args = [self.test_pod_dir]
         result = self.runner.invoke(
-            translations_extract.translations_extract, args, catch_exceptions=False)
+            translations_extract.translations_extract, args, catch_exceptions=False
+        )
         self.assertEqual(0, result.exit_code)
 
 

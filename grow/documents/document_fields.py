@@ -8,7 +8,6 @@ LOCALIZED_KEY_REGEX = re.compile(r'(.*)@([^@]+)$')
 
 
 class DocumentFields:
-
     def __contains__(self, item):
         return item in self._data
 
@@ -18,8 +17,7 @@ class DocumentFields:
     def __init__(self, data, locale_identifier=None, params=None):
         self._locale_identifier = locale_identifier
         self._params = params
-        self._data = untag.Untag.untag(
-            data, locale_identifier, params=params)
+        self._data = untag.Untag.untag(data, locale_identifier, params=params)
 
     def __len__(self):
         return len(self._data)
@@ -34,6 +32,5 @@ class DocumentFields:
         return self._data.keys()
 
     def update(self, updated):
-        updated = untag.Untag.untag(
-            updated, self._locale_identifier, params=self._params)
+        updated = untag.Untag.untag(updated, self._locale_identifier, params=self._params)
         self._data.update(updated)

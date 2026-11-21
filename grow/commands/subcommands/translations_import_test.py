@@ -9,7 +9,6 @@ from . import translations_import
 
 
 class ImportTranslationsTestCase(unittest.TestCase):
-
     def setUp(self):
         self.test_pod_dir = testing.create_test_pod_dir()
         self.runner = click_testing.CliRunner()

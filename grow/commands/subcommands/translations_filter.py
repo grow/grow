@@ -14,27 +14,40 @@ CFG = rc_config.RC_CONFIG.prefixed('grow.translations.filter')
 
 @click.command(name='filter')
 @shared.pod_path_argument
-@click.option('-o', type=str, default=None,
-              help='Where to write the extracted translation catalog. The path'
-                   ' must be relative to the pod\'s root.')
-@click.option('-f', default=CFG.get('force', False), is_flag=True,
-              help='Whether to force an update when writing localized message'
-                   ' catalogs.')
+@click.option(
+    '-o',
+    type=str,
+    default=None,
+    help='Where to write the extracted translation catalog. The path'
+    " must be relative to the pod's root.",
+)
+@click.option(
+    '-f',
+    default=CFG.get('force', False),
+    is_flag=True,
+    help='Whether to force an update when writing localized message catalogs.',
+)
 @shared.include_header_option(CFG)
 @shared.include_obsolete_option(CFG)
 @shared.locale_option(
     help_text='Which locale(s) to analyze when creating template catalogs'
-              ' that contain only untranslated messages. This option is'
-              ' only applicable when using --untranslated.')
+    ' that contain only untranslated messages. This option is'
+    ' only applicable when using --untranslated.'
+)
 @shared.localized_option(CFG)
 @shared.out_dir_option(
-    CFG, help_text=('Where to write extracted localized translation catalogs.'
-                    ' The path must be relative to the pod\'s root. This option'
-                    ' is only applicable when using --localized.'))
+    CFG,
+    help_text=(
+        'Where to write extracted localized translation catalogs.'
+        " The path must be relative to the pod's root. This option"
+        ' is only applicable when using --localized.'
+    ),
+)
 @shared.path_option
 @shared.exclude_path_option
-def translations_filter(pod_path, locale, o, include_obsolete, localized, path, exclude_path,
-                        include_header, out_dir, f):
+def translations_filter(
+    pod_path, locale, o, include_obsolete, localized, path, exclude_path, include_header, out_dir, f
+):
     """Filters untranslated messages from catalogs into new catalogs."""
     root = os.path.abspath(os.path.join(os.getcwd(), pod_path))
     pod = pods.Pod(root, storage=storage.FileStorage)
@@ -46,9 +59,16 @@ def translations_filter(pod_path, locale, o, include_obsolete, localized, path, 
             raise click.UsageError(
                 f'{out_dir} exists. You must specify a directory that does not exist, or '
                 'use the "-f" flag, which will force update catalogs within the '
-                'specified directory.')
-        catalogs.filter(out_path=o, out_dir=out_dir,
-                        include_obsolete=include_obsolete,
-                        localized=localized, paths=path, exclude_paths=exclude_path,
-                        include_header=include_header, locales=locale)
+                'specified directory.'
+            )
+        catalogs.filter(
+            out_path=o,
+            out_dir=out_dir,
+            include_obsolete=include_obsolete,
+            localized=localized,
+            paths=path,
+            exclude_paths=exclude_path,
+            include_header=include_header,
+            locales=locale,
+        )
     return pod

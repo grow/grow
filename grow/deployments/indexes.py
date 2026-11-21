@@ -19,7 +19,6 @@ from . import messages, utils
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
@@ -67,11 +66,9 @@ class Diff:
     @classmethod
     def _make_diff_row(cls, color, label, message):
         label = texttable.get_color_string(color, label)
-        path = texttable.get_color_string(
-            texttable.bcolors.WHITE, message.path)
+        path = texttable.get_color_string(texttable.bcolors.WHITE, message.path)
         formatted_author = cls._format_author(message.deployed_by, True)
-        deployed = str(message.deployed).split('.')[0][
-            :-3] if message.deployed else ''
+        deployed = str(message.deployed).split('.')[0][:-3] if message.deployed else ''
         return [label, path, deployed, formatted_author]
 
     @classmethod
@@ -87,20 +84,19 @@ class Diff:
         rows.append(['Action', 'Path', 'Last deployed', 'By'])
         file_rows = []
         for add in diff.adds:
-            file_rows.append(cls._make_diff_row(
-                texttable.bcolors.GREEN, 'add', add))
+            file_rows.append(cls._make_diff_row(texttable.bcolors.GREEN, 'add', add))
         for edit in diff.edits:
-            file_rows.append(cls._make_diff_row(
-                texttable.bcolors.PURPLE, 'edit', edit))
+            file_rows.append(cls._make_diff_row(texttable.bcolors.PURPLE, 'edit', edit))
         for delete in diff.deletes:
-            file_rows.append(cls._make_diff_row(
-                texttable.bcolors.RED, 'delete', delete))
+            file_rows.append(cls._make_diff_row(texttable.bcolors.RED, 'delete', delete))
         file_rows.sort(key=lambda row: row[1])
         rows += file_rows
         table.add_rows(rows)
         logging.info('\n' + table.draw() + '\n')
         if last_index.deployed and last_index.deployed_by:
-            logging.info(f'Last deployed: {last_index.deployed} by {cls._format_author(last_index.deployed_by)}')
+            logging.info(
+                f'Last deployed: {last_index.deployed} by {cls._format_author(last_index.deployed_by)}'
+            )
         last_commit_sha = last_commit.sha if last_commit else ''
         new_commit_sha = new_commit.sha if new_commit else ''
         if new_index.deployed_by:
@@ -114,8 +110,7 @@ class Diff:
         if diff.what_changed:
             logging.info(diff.what_changed + '\n')
         if diff.is_partial:
-            logging.info(
-                '  Note: Partial diffs do not include changes that remove files.\n')
+            logging.info('  Note: Partial diffs do not include changes that remove files.\n')
 
     @classmethod
     def create(cls, index, theirs, repo=None, is_partial=False):
@@ -164,23 +159,26 @@ class Diff:
                 diff.deletes.append(file_message)
 
         # What changed in the pod between deploy commits.
-        if (repo is not None and index.commit and index.commit.sha and theirs.commit
-                and theirs.commit.sha):
+        if (
+            repo is not None
+            and index.commit
+            and index.commit.sha
+            and theirs.commit
+            and theirs.commit.sha
+        ):
             try:
                 what_changed = repo.git.log(
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
-                    f'{theirs.commit.sha}..{index.commit.sha}')
+                    f'{theirs.commit.sha}..{index.commit.sha}',
+                )
                 diff.what_changed = what_changed
             except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
 
         # If on the original deploy show commit log messages only.
-        elif (repo is not None
-              and index.commit and index.commit.sha):
-            what_changed = repo.git.log(
-                '--date=short',
-                '--pretty=format:[%h] %ad <%ae> %s')
+        elif repo is not None and index.commit and index.commit.sha:
+            what_changed = repo.git.log('--date=short', '--pretty=format:[%h] %ad <%ae> %s')
             diff.what_changed = what_changed
 
         return diff
@@ -190,8 +188,16 @@ class Diff:
         return protojson.encode_message(message)
 
     @classmethod
-    def apply(cls, message, paths_to_rendered_doc, write_func, batch_write_func, delete_func,
-              threaded=True, batch_writes=False):
+    def apply(
+        cls,
+        message,
+        paths_to_rendered_doc,
+        write_func,
+        batch_write_func,
+        delete_func,
+        threaded=True,
+        batch_writes=False,
+    ):
         if pool is None:
             text = 'Deployment is unavailable in this environment.'
             raise common_utils.UnavailableError(text)
@@ -204,7 +210,8 @@ class Diff:
         text = 'Deploying: %(value)d/{} (in %(time_elapsed).9s)'
         widgets = [progressbar.FormatLabel(text.format(num_files))]
         progress = progressbar_non.create_progressbar(
-            "Deploying...", widgets=widgets, max_value=num_files)
+            'Deploying...', widgets=widgets, max_value=num_files
+        )
 
         def run_func(kwargs):
             """Run an arbitrary function."""
@@ -214,18 +221,19 @@ class Diff:
             # pylint: disable=broad-except
             except Exception as err:
                 _, _, err_tb = sys.exc_info()
-                return DeploymentError("Error deploying {}".format(kwargs['args']), err, err_tb)
+                return DeploymentError('Error deploying {}'.format(kwargs['args']), err, err_tb)
 
         if batch_writes:
             writes_paths_to_rendered_doc = {}
             for file_message in diff.adds:
-                writes_paths_to_rendered_doc[file_message.path] = \
-                    paths_to_rendered_doc[file_message.path]
+                writes_paths_to_rendered_doc[file_message.path] = paths_to_rendered_doc[
+                    file_message.path
+                ]
             for file_message in diff.edits:
-                writes_paths_to_rendered_doc[file_message.path] = \
-                    paths_to_rendered_doc[file_message.path]
-            deletes_paths = [
-                file_message.path for file_message in diff.deletes]
+                writes_paths_to_rendered_doc[file_message.path] = paths_to_rendered_doc[
+                    file_message.path
+                ]
+            deletes_paths = [file_message.path for file_message in diff.deletes]
             if writes_paths_to_rendered_doc:
                 batch_write_func(writes_paths_to_rendered_doc)
             if deletes_paths:
@@ -236,21 +244,27 @@ class Diff:
 
             for file_message in diff.adds:
                 rendered_doc = paths_to_rendered_doc[file_message.path]
-                threaded_args.append({
-                    'func': write_func,
-                    'args': (rendered_doc,),
-                })
+                threaded_args.append(
+                    {
+                        'func': write_func,
+                        'args': (rendered_doc,),
+                    }
+                )
             for file_message in diff.edits:
                 rendered_doc = paths_to_rendered_doc[file_message.path]
-                threaded_args.append({
-                    'func': write_func,
-                    'args': (rendered_doc,),
-                })
+                threaded_args.append(
+                    {
+                        'func': write_func,
+                        'args': (rendered_doc,),
+                    }
+                )
             for file_message in diff.deletes:
-                threaded_args.append({
-                    'func': delete_func,
-                    'args': (file_message.path,),
-                })
+                threaded_args.append(
+                    {
+                        'func': delete_func,
+                        'args': (file_message.path,),
+                    }
+                )
 
             if threaded:
                 results = thread_pool.imap_unordered(run_func, threaded_args)
@@ -279,8 +293,7 @@ class Diff:
                 traceback.print_tb(error.err_tb)
                 print('')
             text = 'There were {} errors during deployment.'
-            raise DeploymentErrors(text.format(
-                len(apply_errors)), apply_errors)
+            raise DeploymentErrors(text.format(len(apply_errors)), apply_errors)
 
     @classmethod
     def stream(cls, theirs, content_generator, repo=None, is_partial=False):
@@ -337,29 +350,31 @@ class Diff:
                 diff.deletes.append(file_message)
 
         # What changed in the pod between deploy commits.
-        if (repo is not None and index.commit and index.commit.sha and theirs.commit
-                and theirs.commit.sha):
+        if (
+            repo is not None
+            and index.commit
+            and index.commit.sha
+            and theirs.commit
+            and theirs.commit.sha
+        ):
             try:
                 what_changed = repo.git.log(
                     '--date=short',
                     '--pretty=format:[%h] %ad <%ae> %s',
-                    f'{theirs.commit.sha}..{index.commit.sha}')
+                    f'{theirs.commit.sha}..{index.commit.sha}',
+                )
                 diff.what_changed = what_changed
             except git.GitCommandError:
                 logging.info('Unable to determine changes between deploys.')
 
         # If on the original deploy show commit log messages only.
-        elif (repo is not None
-              and index.commit and index.commit.sha):
-            what_changed = repo.git.log(
-                '--date=short',
-                '--pretty=format:[%h] %ad <%ae> %s')
+        elif repo is not None and index.commit and index.commit.sha:
+            what_changed = repo.git.log('--date=short', '--pretty=format:[%h] %ad <%ae> %s')
             changed_lines = what_changed.splitlines()
             num_lines = len(changed_lines)
             if num_lines > cls.GIT_LOG_MAX:
-                changed_lines = changed_lines[:cls.GIT_LOG_MAX]
-                changed_lines.append(
-                    f' ... +{num_lines-cls.GIT_LOG_MAX} more commits.')
+                changed_lines = changed_lines[: cls.GIT_LOG_MAX]
+                changed_lines.append(f' ... +{num_lines - cls.GIT_LOG_MAX} more commits.')
                 what_changed = '\n'.join(changed_lines)
             diff.what_changed = what_changed
 
@@ -367,7 +382,6 @@ class Diff:
 
 
 class Index:
-
     @classmethod
     def create(cls, paths_to_rendered_doc=None):
         message = messages.IndexMessage()
@@ -382,8 +396,7 @@ class Index:
     @classmethod
     def add_file(cls, message, rendered_doc):
         pod_path = '/' + rendered_doc.path.lstrip('/')
-        file_message = messages.FileMessage(
-            path=pod_path, sha=rendered_doc.hash)
+        file_message = messages.FileMessage(path=pod_path, sha=rendered_doc.hash)
         message.files.append(file_message)
         return file_message
 
@@ -392,8 +405,8 @@ class Index:
         config = repo.config_reader()
         try:
             message.deployed_by = messages.AuthorMessage(
-                name=config.get('user', 'name'),
-                email=config.get('user', 'email'))
+                name=config.get('user', 'name'), email=config.get('user', 'email')
+            )
         except (configparser.NoSectionError, configparser.NoOptionError):
             logging.warning("Couldn't find user info in repository config.")
         try:

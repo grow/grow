@@ -14,7 +14,8 @@ class PodDevFileChangeHook(hooks.DevFileChangeHook):
             self.pod.reset_yaml()
         if pod_path == f'/{self.pod.FILE_EXTENSIONS}':
             self.pod.logger.info(
-                f'{self.pod.FILE_EXTENSIONS} has changed. Run `grow install` to install updates.')
+                f'{self.pod.FILE_EXTENSIONS} has changed. Run `grow install` to install updates.'
+            )
 
         if previous_result:
             return previous_result

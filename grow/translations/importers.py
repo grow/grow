@@ -40,14 +40,12 @@ def _mkdir(path):
 
 
 class Error(Exception):
-
     def __init__(self, message):
         super().__init__(message)
         self.message = message
 
 
 class Importer:
-
     def __init__(self, pod, include_obsolete=True, untranslated=False):
         self.pod = pod
         self.include_obsolete = include_obsolete
@@ -123,8 +121,7 @@ class Importer:
             self.pod.logger.info(text)
             translations_dir = os.path.join(dir_path, 'translations')
             for locale in os.listdir(translations_dir):
-                po_path = os.path.join(
-                        translations_dir, locale, 'LC_MESSAGES', 'messages.po')
+                po_path = os.path.join(translations_dir, locale, 'LC_MESSAGES', 'messages.po')
                 if os.path.exists(po_path) and self.import_file(locale, po_path):
                     has_changed_content = True
             return has_changed_content
@@ -147,7 +144,7 @@ class Importer:
 
     def import_file(self, locale, po_path):
         if not os.path.exists(po_path):
-            raise Error(f'Couldn\'t find PO file: {po_path}')
+            raise Error(f"Couldn't find PO file: {po_path}")
         with open(po_path) as fp:
             content = fp.read()
         return self.import_content(locale, content)
@@ -162,33 +159,28 @@ class Importer:
         total_translations = 0
 
         # Leverage user-defined locale identifiers when importing translations.
-        external_to_babel_locales = copy.deepcopy(
-            default_external_to_babel_locales)
+        external_to_babel_locales = copy.deepcopy(default_external_to_babel_locales)
         if self.pod.podspec.localization and 'import_as' in self.pod.podspec.localization:
             import_as = self.pod.podspec.localization['import_as']
             for external_locale, babel_locales in import_as.items():
                 for babel_locale in babel_locales:
-                    external_to_babel_locales[external_locale].append(
-                        babel_locale)
+                    external_to_babel_locales[external_locale].append(babel_locale)
 
         babel_locales = external_to_babel_locales.get(locale, [locale])
         for babel_locale in babel_locales:
-            pod_translations_dir = os.path.join(
-                'translations', babel_locale, 'LC_MESSAGES')
+            pod_translations_dir = os.path.join('translations', babel_locale, 'LC_MESSAGES')
             pod_po_path = os.path.join(pod_translations_dir, 'messages.po')
             if self.pod.file_exists(pod_po_path):
                 try:
                     existing_po_file = self.pod.open_file(pod_po_path)
-                    existing_catalog = pofile.read_po(
-                        existing_po_file, babel_locale)
+                    existing_catalog = pofile.read_po(existing_po_file, babel_locale)
                     po_file_to_merge = io.StringIO()
                     try:
                         po_file_to_merge.write(content)
                     except TypeError:
                         po_file_to_merge.write(content.decode())
                     po_file_to_merge.seek(0)
-                    catalog_to_merge = pofile.read_po(
-                        po_file_to_merge, babel_locale)
+                    catalog_to_merge = pofile.read_po(po_file_to_merge, babel_locale)
                 except Exception:
                     text = 'Error merging catalogs for locale -> {}'
                     logging.error(text.format(locale))
@@ -202,8 +194,7 @@ class Importer:
                         existing_catalog[message.id] = message
                         if message.id:  # Only count the non-header messages.
                             imported_translations += 1
-                    elif (message.string
-                          and existing_catalog[message.id].string != message.string):
+                    elif message.string and existing_catalog[message.id].string != message.string:
                         # Skip messages that have translations in the catalog
                         # if we are only importing untranslated strings.
                         if self.untranslated and existing_catalog[message.id].string:
@@ -215,8 +206,13 @@ class Importer:
                 if imported_translations > 0:
                     has_changed_content = True
                     existing_po_file = self.pod.open_file(pod_po_path, mode='wb')
-                    pofile.write_po(existing_po_file, existing_catalog, width=80,
-                                    sort_output=True, sort_by_file=True)
+                    pofile.write_po(
+                        existing_po_file,
+                        existing_catalog,
+                        width=80,
+                        sort_output=True,
+                        sort_by_file=True,
+                    )
                     total_translations = len(catalog_to_merge)
             else:
                 # Skip new catalogs if not including obsolete messages.
@@ -225,8 +221,7 @@ class Importer:
                 has_changed_content = True
                 self.pod.write_file(pod_po_path, content)
                 existing_po_file = self.pod.open_file(pod_po_path)
-                existing_catalog = pofile.read_po(
-                    existing_po_file, babel_locale)
+                existing_catalog = pofile.read_po(existing_po_file, babel_locale)
                 imported_translations = len(existing_catalog)
                 total_translations = imported_translations
 
