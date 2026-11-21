@@ -1,4 +1,36 @@
 (function () {
+  // 0. Mobile navigation drawer toggle.
+  var navToggle = document.getElementById('nav-toggle');
+  var navClose = document.getElementById('nav-close');
+  var sidebar = document.getElementById('docs-sidebar');
+  var backdrop = document.getElementById('sidebar-backdrop');
+
+  function setDrawerOpen(open) {
+    if (!sidebar || !backdrop || !navToggle) return;
+    sidebar.classList.toggle('is-open', open);
+    backdrop.hidden = !open;
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+
+  if (navToggle && sidebar && backdrop) {
+    navToggle.addEventListener('click', function () {
+      setDrawerOpen(!sidebar.classList.contains('is-open'));
+    });
+    if (navClose) {
+      navClose.addEventListener('click', function () { setDrawerOpen(false); });
+    }
+    backdrop.addEventListener('click', function () { setDrawerOpen(false); });
+    sidebar.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a')) setDrawerOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
+        setDrawerOpen(false);
+      }
+    });
+  }
+
   // 1. Build "On this page" table of contents from h2/h3 headings.
   var contentEl = document.querySelector('.docs-content');
   var tocList = document.getElementById('docs-toc');
