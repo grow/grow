@@ -8,5 +8,7 @@ dist
 build
 *.egg-info
 grow/ui/node_modules
+docs
+examples
 coverage.xml
 .coverage
