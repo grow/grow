@@ -76,8 +76,8 @@ All Grow template helpers live under the `g` namespace so they never collide wit
 | `g.static(path, locale=None)` | `StaticFile` | Resolves a static asset with fingerprinting and build-time existence checks. |
 | `g.statics(dir_path, locale=None)` | `list[StaticFile]` | Lists all static files inside a directory. |
 | `g.url(path, locale=None)` | `Url` | Returns the resolved `Url` object for a document pod path. |
-| `g.yaml(path)` | `dict \| list` | Loads a YAML file (with translation tagging and `?key.subkey` lookup). |
-| `g.json(path)` | `dict \| list` | Loads a JSON file by pod path. |
+| `g.yaml(path)` | `dict | list` | Loads a YAML file (with translation tagging and `?key.subkey` lookup). |
+| `g.json(path)` | `dict | list` | Loads a JSON file by pod path. |
 | `g.csv(path, locale=None)` | `list[dict]` | Parses a CSV file into a list of row dicts. |
 | `g.date(value, from=...)` | `datetime` | Parses a date string using Python `strptime` directives. |
 | `g.locale(code)` | `Locale` | Returns a Babel `Locale` object for a locale code. |
@@ -191,23 +191,23 @@ Grow includes 17 built-in Jinja2 filters for formatting, localization, URLs, and
 
 | Filter | Example | Description |
 |---|---|---|
-| `currency` | `{{ 123.45 \| currency('USD') }}` | Localized currency formatting via [Babel](https://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_currency). |
-| `date` | `{{ dt \| date(format='medium') }}` | Localized date formatting via [Babel](https://babel.pocoo.org/en/latest/api/dates.html#babel.dates.format_date). |
-| `datetime` | `{{ dt \| datetime(format='short') }}` | Localized datetime formatting via Babel. |
-| `time` | `{{ dt \| time(format='short') }}` | Localized time formatting via Babel. |
-| `decimal` | `{{ 1234.56 \| decimal }}` | Localized decimal formatting via Babel. |
-| `number` | `{{ 12345 \| number }}` | Localized integer/number formatting via Babel. |
-| `percent` | `{{ 0.25 \| percent }}` | Localized percentage formatting via Babel. |
-| `deeptrans` | `{{ data \| deeptrans }}` | Recursively translates all strings in a dict or list via `gettext`. |
-| `expand_partial` | `{{ 'hero' \| expand_partial }}` | Resolves a partial name to its template path (e.g. `/partials/hero/hero.html`). |
-| `hash` | `{{ value \| hash('sha256') }}` | Hashes a string (`sha` / `sha1`, `md5`, `sha256`, `sha512`). |
-| `jsonify` | `{{ obj \| jsonify }}` | Serializes a Python object to JSON. |
-| `markdown` | `{{ text \| markdown \| safe }}` | Renders a Markdown string to HTML. |
-| `relative` | `{{ target.url.path \| relative }}` | Converts an absolute path to a path relative to the current `doc.url.path`. |
-| `re_replace` | `{{ text \| re_replace('\s+', '-') }}` | Replaces regex matches in a string. |
-| `render` | `{{ doc.html \| render \| safe }}` | Evaluates Jinja2 syntax inside a string using the current template context. |
-| `shuffle` | `{{ items \| shuffle }}` | Returns a randomly shuffled copy of a list. |
-| `slug` | `{{ 'Hello World!' \| slug }}` | Converts text to a URL-friendly slug (`hello-world`). |
+| `currency` | `{{ 123.45 | currency('USD') }}` | Localized currency formatting via [Babel](https://babel.pocoo.org/en/latest/api/numbers.html#babel.numbers.format_currency). |
+| `date` | `{{ dt | date(format='medium') }}` | Localized date formatting via [Babel](https://babel.pocoo.org/en/latest/api/dates.html#babel.dates.format_date). |
+| `datetime` | `{{ dt | datetime(format='short') }}` | Localized datetime formatting via Babel. |
+| `time` | `{{ dt | time(format='short') }}` | Localized time formatting via Babel. |
+| `decimal` | `{{ 1234.56 | decimal }}` | Localized decimal formatting via Babel. |
+| `number` | `{{ 12345 | number }}` | Localized integer/number formatting via Babel. |
+| `percent` | `{{ 0.25 | percent }}` | Localized percentage formatting via Babel. |
+| `deeptrans` | `{{ data | deeptrans }}` | Recursively translates all strings in a dict or list via `gettext`. |
+| `expand_partial` | `{{ 'hero' | expand_partial }}` | Resolves a partial name to its template path (e.g. `/partials/hero/hero.html`). |
+| `hash` | `{{ value | hash('sha256') }}` | Hashes a string (`sha` / `sha1`, `md5`, `sha256`, `sha512`). |
+| `jsonify` | `{{ obj | jsonify }}` | Serializes a Python object to JSON. |
+| `markdown` | `{{ text | markdown | safe }}` | Renders a Markdown string to HTML. |
+| `relative` | `{{ target.url.path | relative }}` | Converts an absolute path to a path relative to the current `doc.url.path`. |
+| `re_replace` | `{{ text | re_replace('\s+', '-') }}` | Replaces regex matches in a string. |
+| `render` | `{{ doc.html | render | safe }}` | Evaluates Jinja2 syntax inside a string using the current template context. |
+| `shuffle` | `{{ items | shuffle }}` | Returns a randomly shuffled copy of a list. |
+| `slug` | `{{ 'Hello World!' | slug }}` | Converts text to a URL-friendly slug (`hello-world`). |
 
 ### Formatting & localization examples
 
