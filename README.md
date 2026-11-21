@@ -35,11 +35,11 @@ pip install grow
 
 ## Quick Start
 
-Clone a starter project, install its dependencies, and start the local development server:
+Clone a Grow project (such as [grow.dev](https://github.com/grow/grow.dev)), install its dependencies, and start the local development server:
 
 ```bash
-git clone https://github.com/grow/starter
-cd starter
+git clone https://github.com/grow/grow.dev
+cd grow.dev
 grow install
 grow run
 ```
