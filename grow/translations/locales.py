@@ -1,5 +1,3 @@
-import os
-import pickle
 import re
 
 import babel
@@ -150,34 +148,18 @@ class Locale(babel.Locale):
 # See: https://github.com/grow/grow/issues/93
 
 
+_orig_exists = localedata.exists
+_orig_load = localedata.load
+
+
 def fuzzy_load(name, merge_inherited=True):
-    localedata._cache_lock.acquire()
-    try:
-        data = localedata._cache.get(name)
-        if not data:
-            # Load inherited data
-            if name == 'root' or not merge_inherited:
-                data = {}
-            else:
-                parts = name.split('_')
-                if len(parts) == 1:
-                    parent = 'root'
-                else:
-                    parent = '_'.join(parts[:-1])
-                data = fuzzy_load(parent).copy()
-            filename = os.path.join(localedata._dirname, f'{name}.dat')
-            try:
-                with open(filename, 'rb') as fileobj:
-                    if name != 'root' and merge_inherited:
-                        localedata.merge(data, pickle.load(fileobj))
-                    else:
-                        data = pickle.load(fileobj)
-                    localedata._cache[name] = data
-            except OSError:
-                pass
-        return data
-    finally:
-        localedata._cache_lock.release()
+    if _orig_exists(name):
+        return _orig_load(name, merge_inherited=merge_inherited)
+    if name == 'root' or not merge_inherited:
+        return {}
+    parts = name.split('_')
+    parent = 'root' if len(parts) == 1 else '_'.join(parts[:-1])
+    return fuzzy_load(parent).copy()
 
 
 localedata.exists = lambda name: True

@@ -35,6 +35,12 @@ class LocalesTest(unittest.TestCase):
         self.assertRaises(ValueError, locales.Locale.parse, 'invalid')
         self.assertRaises(ValueError, locales.Locale.parse, 'invalid_US')
 
+    def test_parent_aliased_locales(self):
+        for code in ('nb', 'nb_NO', 'no', 'fil'):
+            locale = locales.Locale.parse(code)
+            self.assertIsNotNone(locale)
+            self.assertIsNotNone(locale.get_display_name())
+
 
 if __name__ == '__main__':
     unittest.main()
