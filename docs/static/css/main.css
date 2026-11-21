@@ -64,7 +64,16 @@ a:hover {
   image-rendering: pixelated;
 }
 
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
 .notice-bar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   color: #6b2f55;
   font-weight: 600;
   white-space: nowrap;
@@ -262,6 +271,7 @@ a:hover {
 .btn {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   padding: 6px 14px;
   border-radius: 8px;
   border: 1px solid var(--border-strong);
@@ -570,6 +580,10 @@ a:hover {
 }
 
 .pager__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 8px 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -630,6 +644,9 @@ a:hover {
 }
 
 .toc__edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12.5px;
   color: var(--text-muted);
 }

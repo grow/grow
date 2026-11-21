@@ -51,5 +51,6 @@ grow build examples/starter
 - [Starter project on GitHub](https://github.com/grow/grow/tree/main/examples/starter) — Minimal localized pod with zero Node dependencies.
 
 <a href="/codelab/" class="button button--lg button--icon-end">
-  Walk through the codelab &rarr;
+  Walk through the codelab
+  <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/></svg>
 </a>

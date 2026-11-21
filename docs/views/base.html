@@ -22,7 +22,7 @@
         >
         <span>
           Grow is in maintenance mode. For new projects, we recommend
-          <a href="https://rootjs.dev" target="_blank" rel="noopener">Root.js &rarr;</a>
+          <a href="https://rootjs.dev" target="_blank" rel="noopener">Root.js<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/></svg></a>
         </span>
       </div>
     </div>
@@ -64,7 +64,7 @@
           <div id="docs-search-results" class="search-results" hidden></div>
         </div>
         <div class="topbar__actions">
-          <a href="{{podspec.meta.header_button_url}}" class="btn" target="_blank" rel="noopener">{{podspec.meta.header_button_label}} &#8599;</a>
+          <a href="{{podspec.meta.header_button_url}}" class="btn" target="_blank" rel="noopener"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"/></svg>{{podspec.meta.header_button_label}}</a>
         </div>
       </div>
     </header>
@@ -82,7 +82,7 @@
             else doc.collection %}
 
         {% if '/content/docs/' not in doc.collection.pod_path %}
-          <a class="sidebar__back" href="/">&larr; Back to Docs</a>
+          <a class="sidebar__back" href="/"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/></svg>Back to Docs</a>
         {% endif %}
 
         {% if doc.collection.nav_title %}
@@ -137,13 +137,13 @@
             <nav class="pager" aria-label="Pagination">
               {% set prev_doc = doc.prev() %}
               {% if prev_doc %}
-                <a href="{{prev_doc.url.path}}" class="pager__link">&larr; {{prev_doc.title}}</a>
+                <a href="{{prev_doc.url.path}}" class="pager__link"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/></svg>{{prev_doc.title}}</a>
               {% else %}
                 <span></span>
               {% endif %}
               {% set next_doc = doc.next() %}
               {% if next_doc %}
-                <a href="{{next_doc.url.path}}" class="pager__link">{{next_doc.title}} &rarr;</a>
+                <a href="{{next_doc.url.path}}" class="pager__link">{{next_doc.title}}<svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/></svg></a>
               {% endif %}
             </nav>
           {% endif %}
@@ -160,7 +160,7 @@
             class="toc__edit"
             target="_blank"
             rel="noopener"
-          >Edit this page on GitHub &#8599;</a>
+          >Edit this page on GitHub<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 7l-10 10"/><path d="M8 7l9 0l0 9"/></svg></a>
         </div>
       </aside>
       {% endif %}
