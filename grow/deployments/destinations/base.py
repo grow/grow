@@ -81,7 +81,7 @@ import sys
 from grow.common import utils
 from grow.deployments import indexes, tests
 from grow.performance import profile_report
-from grow.pods import env, pods
+from grow.pods import env
 from grow.rendering import rendered_document
 
 from . import messages
@@ -141,6 +141,8 @@ class BaseDestination:
 
     @property
     def control_dir(self):
+        from grow.pods import pods
+
         if self.config.keep_control_dir:
             control_dir = pods.Pod.PATH_CONTROL
             return os.path.join(self.pod.root, control_dir, 'deployments', self.name)
@@ -307,6 +309,8 @@ class BaseDestination:
                     return
                 indexes.Diff.pretty_print(diff)
                 if require_translations and self.pod.translation_stats.untranslated:
+                    from grow.pods import pods
+
                     self.pod.translation_stats.pretty_print()
                     raise pods.Error(
                         'Aborted deploy due to untranslated strings. '

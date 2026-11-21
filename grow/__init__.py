@@ -1,3 +1,4 @@
+import importlib
 import importlib.metadata
 
 try:
@@ -5,13 +6,21 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = '0.0.0'
 
-# Allow `import grow; grow.Pod`.
-from .pods.pods import Pod  # noqa: E402
+_LAZY_EXPORTS = {
+    'Pod': ('grow.pods.pods', 'Pod'),
+    'Preprocessor': ('grow.preprocessors.base', 'BasePreprocessor'),
+    'Translator': ('grow.translators.base', 'Translator'),
+}
 
-# Allow `import grow; grow.Preprocessor` for custom preprocessors.
-from .preprocessors.base import BasePreprocessor as Preprocessor  # noqa: E402
 
-# Allow `import grow; grow.Translator` for custom translators.
-from .translators.base import Translator  # noqa: E402
+def __getattr__(name):
+    if name in _LAZY_EXPORTS:
+        module_name, attr_name = _LAZY_EXPORTS[name]
+        module = importlib.import_module(module_name)
+        value = getattr(module, attr_name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
 
 __all__ = ['Pod', 'Preprocessor', 'Translator', '__version__']
