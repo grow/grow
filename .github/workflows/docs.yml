@@ -29,10 +29,10 @@ jobs:
           enable-cache: true
           python-version: "3.12"
       - name: Install Grow
-        run: uv sync --locked
+        run: uv sync --frozen
       - name: Build docs site
         run: |
-          uv run grow build --deployment prod --out_dir ./docs/build ./docs
+          uv run --frozen grow build --deployment prod --out_dir ./docs/build ./docs
           echo "grow.dev" > ./docs/build/CNAME
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
