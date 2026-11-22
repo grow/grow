@@ -62,15 +62,20 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
     credentials, storage = get_credentials_and_storage(scope, storage_key=storage_key)
     if credentials is None:
         parser = tools.argparser
-        if os.getenv('INTERACTIVE_AUTH'):
-            args = []
-        else:
+        if os.getenv('NO_INTERACTIVE_AUTH'):
             args = ['--noauth_local_webserver']
+        else:
+            args = []
         flags, _ = parser.parse_known_args(args)
         flow = client.OAuth2WebServerFlow(
             CLIENT_ID, CLIENT_SECRET, scope, redirect_uri=REDIRECT_URI
         )
-        credentials = tools.run_flow(flow, storage, flags)
+        try:
+            credentials = tools.run_flow(flow, storage, flags)
+        except client.HttpAccessTokenRefreshError as err:
+            raise client.HttpAccessTokenRefreshError(
+                f'{err} — Try running `grow --clear-auth` to re-authenticate.'
+            ) from err
         # run_flow changes the logging level, so change it back.
         logging.getLogger().setLevel(logging.INFO)
     # Avoid logspam by logging the email address only once.

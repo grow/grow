@@ -145,8 +145,14 @@ class Importer:
     def import_file(self, locale, po_path):
         if not os.path.exists(po_path):
             raise Error(f"Couldn't find PO file: {po_path}")
-        with open(po_path) as fp:
-            content = fp.read()
+        try:
+            with open(po_path, encoding='utf-8-sig') as fp:
+                content = fp.read()
+        except UnicodeDecodeError as err:
+            raise Error(
+                f'Unable to decode PO file as UTF-8 ({po_path}): {err}. '
+                'Please save the file with UTF-8 encoding and try again.'
+            ) from err
         return self.import_content(locale, content)
 
     def import_content(self, locale, content):
@@ -176,9 +182,9 @@ class Importer:
                     existing_catalog = pofile.read_po(existing_po_file, babel_locale)
                     po_file_to_merge = io.StringIO()
                     try:
-                        po_file_to_merge.write(content)
+                        po_file_to_merge.write(content.lstrip('\ufeff'))
                     except TypeError:
-                        po_file_to_merge.write(content.decode())
+                        po_file_to_merge.write(content.decode('utf-8-sig'))
                     po_file_to_merge.seek(0)
                     catalog_to_merge = pofile.read_po(po_file_to_merge, babel_locale)
                 except Exception:
