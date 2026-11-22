@@ -58,11 +58,17 @@ class RenderControllerTestCase(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             with open(os.path.join(tmpdir, 'podspec.yaml'), 'w', encoding='utf-8') as f:
-                f.write('localization:\n  default_locale: en\n  locales:\n  - en\nsitemap:\n  enabled: true\n')
+                f.write(
+                    'localization:\n  default_locale: en\n  locales:\n  - en\nsitemap:\n  enabled: true\n'
+                )
             os.makedirs(os.path.join(tmpdir, 'content', 'pages'))
-            with open(os.path.join(tmpdir, 'content', 'pages', '_blueprint.yaml'), 'w', encoding='utf-8') as f:
+            with open(
+                os.path.join(tmpdir, 'content', 'pages', '_blueprint.yaml'), 'w', encoding='utf-8'
+            ) as f:
                 f.write('path: /{base}/\nview: /views/base.html\n')
-            with open(os.path.join(tmpdir, 'content', 'pages', 'home.md'), 'w', encoding='utf-8') as f:
+            with open(
+                os.path.join(tmpdir, 'content', 'pages', 'home.md'), 'w', encoding='utf-8'
+            ) as f:
                 f.write('---\n$title: Home\n---\nHello\n')
             os.makedirs(os.path.join(tmpdir, 'views'))
             with open(os.path.join(tmpdir, 'views', 'base.html'), 'w', encoding='utf-8') as f:
@@ -74,7 +80,9 @@ class RenderControllerTestCase(unittest.TestCase):
             rendered_single = single_controller.render().read()
             self.assertNotIn('xmlns:xhtml', rendered_single)
             self.assertNotIn('xhtml:link', rendered_single)
-            self.assertIn('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', rendered_single)
+            self.assertIn(
+                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', rendered_single
+            )
 
 
 if __name__ == '__main__':
