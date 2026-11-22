@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.4.0](https://github.com/grow/grow/compare/v2.3.1...v2.4.0) (2026-11-22)
+
+
+### Features
+
+* **docs:** achieve 100% Lighthouse scores and add SEO/AEO ([#1258](https://github.com/grow/grow/issues/1258)) ([31c3668](https://github.com/grow/grow/commit/31c3668b101e830a235a06ad0eee3cbbd7512e2c))
+
+
+### Bug Fixes
+
+* **sitemap:** omit xhtml namespace and alternate links for single-locale sites ([a1648e6](https://github.com/grow/grow/commit/a1648e63e40a5b3f9e8be94d7dcfe50127b68b6b))
+
+
+### Documentation
+
+* update homepage page title ([#1260](https://github.com/grow/grow/issues/1260)) ([1c9cbe6](https://github.com/grow/grow/commit/1c9cbe663e15f0b43ca97371b75624fee3cda3f8))
+
 ## [2.3.1](https://github.com/grow/grow/compare/v2.3.0...v2.3.1) (2026-11-22)
 
 
