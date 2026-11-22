@@ -1078,3 +1078,96 @@ a:hover {
     text-align: center;
   }
 }
+
+/* 8-bit 404 page */
+.pixel-404 {
+  margin: 24px auto 48px;
+  padding: 40px 28px;
+  max-width: 600px;
+  text-align: center;
+  background-color: var(--bg-subtle);
+  background-image:
+    linear-gradient(to right, rgba(203, 213, 225, 0.22) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(203, 213, 225, 0.22) 1px, transparent 1px);
+  background-size: 16px 16px;
+  border: 3px solid var(--grow-navy);
+  box-shadow: 6px 6px 0 var(--grow-navy);
+}
+
+.pixel-404__art {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.pixel-404__badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  background: var(--grow-navy);
+  margin-bottom: 12px;
+}
+
+.pixel-404__title {
+  font-size: 28px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--grow-navy);
+}
+
+.pixel-404__body {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0 auto 24px;
+  max-width: 440px;
+}
+
+.pixel-404__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pixel-404__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none !important;
+  border: 2px solid var(--grow-navy);
+  box-shadow: 3px 3px 0 var(--grow-navy);
+  transition: transform 80ms ease, box-shadow 80ms ease, background 120ms ease;
+}
+
+.pixel-404__btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--grow-navy);
+}
+
+.pixel-404__btn--primary {
+  background: var(--grow-pink);
+  color: #ffffff;
+}
+
+.pixel-404__btn--primary:hover {
+  background: var(--grow-pink-dark);
+  color: #ffffff;
+}
+
+.pixel-404__btn--secondary {
+  background: #ffffff;
+  color: var(--grow-navy);
+}
+
+.pixel-404__btn--secondary:hover {
+  background: var(--bg-subtle);
+  color: var(--grow-navy);
+}

@@ -1,0 +1,5 @@
+path: /{base}.html
+view: /views/404.html
+localization:
+  locales:
+    - en
