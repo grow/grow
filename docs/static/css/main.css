@@ -752,15 +752,15 @@ a:hover {
   .sidebar__mobile-tabs .topbar__link {
     flex: 1;
     text-align: center;
-    padding: 7px 12px;
-    border: 1px solid var(--border-strong);
+    padding: 8px 12px;
+    border: 1.5px solid #94a3b8;
     border-radius: 8px;
-    background: var(--bg);
+    background: var(--bg-subtle);
     color: var(--grow-navy);
   }
 
   .sidebar__mobile-tabs .topbar__link.is-active {
-    border-color: rgba(234, 60, 132, 0.35);
+    border-color: var(--grow-pink);
     background: var(--grow-pink-soft);
     color: var(--grow-pink-dark);
   }
