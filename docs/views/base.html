@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{doc.locale}}">
-  {%- set page_title = (doc.title ~ ' — ' ~ _(podspec.meta.site_name)) if doc.title else _(podspec.meta.site_name) -%}
+  {%- set page_title = 'Grow — Declarative static site generator' if doc.url.path == '/' else ((doc.title ~ ' — ' ~ _(podspec.meta.site_name)) if doc.title else _(podspec.meta.site_name)) -%}
   {%- set page_desc = _(doc.description) if doc.description else 'Grow is a declarative, file-based Python static site generator with built-in i18n, Jinja2 templates, and clean static builds.' -%}
   {%- set canonical_url = 'https://grow.dev' ~ doc.url.path -%}
   <head>
