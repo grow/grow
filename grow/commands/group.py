@@ -66,16 +66,13 @@ class LazyGroup(click.Group):
     envvar='GROW_KEY_FILE',
 )
 @click.option(
-    '--interactive-auth',
-    default=False,
+    '--interactive-auth/--no-interactive-auth',
+    default=True,
     is_flag=True,
     envvar='INTERACTIVE_AUTH',
-    help='Whether to automatically open an authorization page in your'
-    ' default web browser for any steps that require authentication.'
-    ' If you are running Grow on a machine with access to a web browser,'
-    ' you may use --interactive-auth to automatically open the web'
-    ' browser. By default, this option is turned off, requiring you to'
-    ' manually copy and paste an authorization code.',
+    help='Use the browser-based localhost OAuth callback flow (default).'
+    ' Google deprecated the legacy out-of-band (OOB) copy-paste flow;'
+    ' for headless or CI environments, pass --auth-key-file instead.',
 )
 @click.option(
     '--profile',
@@ -85,8 +82,12 @@ class LazyGroup(click.Group):
 )
 def grow(auth, clear_auth, auth_key_file, interactive_auth, profile):
     """Grow CLI command."""
-    if interactive_auth not in (None, False):
-        os.environ['INTERACTIVE_AUTH'] = str(interactive_auth)
+    if interactive_auth is False:
+        os.environ['NO_INTERACTIVE_AUTH'] = '1'
+        os.environ.pop('INTERACTIVE_AUTH', None)
+    else:
+        os.environ.pop('NO_INTERACTIVE_AUTH', None)
+        os.environ['INTERACTIVE_AUTH'] = 'True'
     if auth is not None:
         os.environ['AUTH_EMAIL_ADDRESS'] = str(auth)
     if auth_key_file is not None:

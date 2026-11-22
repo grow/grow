@@ -3,9 +3,13 @@
 import os
 import tempfile
 import unittest
+from unittest import mock
+
+from click.testing import CliRunner
 
 from grow import storage
-from grow.common import untag
+from grow.commands import group
+from grow.common import oauth, untag
 from grow.deployments.destinations import local as local_destination
 from grow.pods import pods
 from grow.testing import testing
@@ -91,3 +95,23 @@ class BacklogBugfixesTestCase(unittest.TestCase):
         self.assertEqual(
             untag.Untag.untag(data, locale_identifier='en_XX')['greeting'], 'Fake Locale'
         )
+
+    def test_oauth_no_interactive_auth_shows_oob_guidance(self):
+        """Non-interactive OAuth without a key file explains deprecated OOB and alternatives."""
+        with (
+            mock.patch.dict(os.environ, {'NO_INTERACTIVE_AUTH': '1'}, clear=False),
+            mock.patch.object(oauth, 'get_credentials_and_storage', return_value=(None, None)),
+            self.assertRaises(RuntimeError) as ctx,
+        ):
+            oauth.get_or_create_credentials('https://www.googleapis.com/auth/drive')
+        msg = str(ctx.exception)
+        self.assertIn('deprecated the out-of-band (OOB)', msg)
+        self.assertIn('--auth-key-file', msg)
+        self.assertIn('--clear-auth', msg)
+
+    def test_oauth_cli_defaults_to_interactive_auth(self):
+        """CLI defaults to browser localhost OAuth and supports --no-interactive-auth."""
+        runner = CliRunner()
+        result = runner.invoke(group.grow, ['--help'])
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('--interactive-auth / --no-interactive-auth', result.output)

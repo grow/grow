@@ -2,6 +2,7 @@
 
 import logging
 import os
+import socket
 
 from grow.common import utils
 
@@ -14,9 +15,15 @@ logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
 
 # Google API details for a native/installed application for API project grow-prod.
-CLIENT_ID = '578372381550-jfl3hdlf1q5rgib94pqsctv1kgkflu1a.apps.googleusercontent.com'
-CLIENT_SECRET = 'XQKqbwTg88XVpaBNRcm_tYLf'  # Not so secret for installed apps.
-REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+CLIENT_ID = os.getenv(
+    'GROW_OAUTH_CLIENT_ID',
+    '578372381550-jfl3hdlf1q5rgib94pqsctv1kgkflu1a.apps.googleusercontent.com',
+)
+CLIENT_SECRET = os.getenv(
+    'GROW_OAUTH_CLIENT_SECRET',
+    'XQKqbwTg88XVpaBNRcm_tYLf',  # Not so secret for installed apps.
+)
+REDIRECT_URI = 'http://localhost:8080/'
 DEFAULT_STORAGE_KEY = 'Grow SDK'
 BROWSER_API_KEY = 'AIzaSyDCb_WtWJnlLPdL8IGLvcVhXAjaBHbRY5E'
 
@@ -24,6 +31,28 @@ _LAST_LOGGED_EMAIL = None
 _CLEARED_AUTH_KEYS = {}
 
 DEFAULT_AUTH_KEY_FILE = 'auth-key.json'
+
+OOB_GUIDANCE_MESSAGE = (
+    'Google has deprecated the out-of-band (OOB) copy-paste OAuth flow.\n'
+    'To authenticate:\n'
+    '  1. Interactive (recommended): Run with the default localhost browser flow '
+    '(omit `--no-interactive-auth` / `NO_INTERACTIVE_AUTH`).\n'
+    '  2. Headless / CI / SSH: Use a service account JSON key via '
+    '`--auth-key-file path/to/auth-key.json` (or `AUTH_KEY_FILE`), '
+    'or place `auth-key.json` in your pod root.\n'
+    '  3. Stale token errors: Run `grow --clear-auth` to clear cached credentials.'
+)
+
+
+def _find_available_port(preferred_ports=(8080, 8090)):
+    """Return an available localhost port, preferring standard OAuth ports."""
+    for port in preferred_ports:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            if sock.connect_ex(('localhost', port)) != 0:
+                return port
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(('localhost', 0))
+        return sock.getsockname()[1]
 
 
 def get_storage(key, username):
@@ -61,20 +90,24 @@ def get_or_create_credentials(scope, storage_key=DEFAULT_STORAGE_KEY):
         return service_account.ServiceAccountCredentials.from_json_keyfile_name(key_file, scope)
     credentials, storage = get_credentials_and_storage(scope, storage_key=storage_key)
     if credentials is None:
-        parser = tools.argparser
         if os.getenv('NO_INTERACTIVE_AUTH'):
-            args = ['--noauth_local_webserver']
-        else:
-            args = []
-        flags, _ = parser.parse_known_args(args)
+            raise RuntimeError(
+                'Non-interactive OAuth requested without a service account key.\n'
+                f'{OOB_GUIDANCE_MESSAGE}'
+            )
+        port = _find_available_port()
+        parser = tools.argparser
+        flags, _ = parser.parse_known_args(['--auth_host_port', str(port)])
         flow = client.OAuth2WebServerFlow(
-            CLIENT_ID, CLIENT_SECRET, scope, redirect_uri=REDIRECT_URI
+            CLIENT_ID, CLIENT_SECRET, scope, redirect_uri=f'http://localhost:{port}/'
         )
         try:
             credentials = tools.run_flow(flow, storage, flags)
         except client.HttpAccessTokenRefreshError as err:
-            raise client.HttpAccessTokenRefreshError(
-                f'{err} — Try running `grow --clear-auth` to re-authenticate.'
+            raise client.HttpAccessTokenRefreshError(f'{err}\n\n{OOB_GUIDANCE_MESSAGE}') from err
+        except SystemExit as err:
+            raise RuntimeError(
+                f'OAuth authentication failed ({err}).\n\n{OOB_GUIDANCE_MESSAGE}'
             ) from err
         # run_flow changes the logging level, so change it back.
         logging.getLogger().setLevel(logging.INFO)
