@@ -792,6 +792,20 @@ a:hover {
   text-decoration: underline;
 }
 
+.site-footer__eco-badge {
+  margin-top: 4px;
+}
+
+.site-footer__eco-badge a {
+  display: inline-flex;
+}
+
+.site-footer__eco-badge img {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+
 .site-footer__bottom {
   display: flex;
   flex-wrap: wrap;
