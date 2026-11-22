@@ -1,0 +1,6 @@
+$title: Page not found
+$view: /views/404.html
+$sitemap:
+  enabled: false
+description: The requested page could not be found on Grow.
+noindex: true

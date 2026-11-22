@@ -96,6 +96,8 @@ jobs:
       - if: ${{ steps.target.outputs.should_publish == 'true' }}
         name: Upload to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
       - if: ${{ steps.target.outputs.should_publish == 'true' }}
         name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -125,4 +127,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }},grow/base:latest,grow/base:${{ steps.target.outputs.version }},ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.target.outputs.version }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: grow_version=grow==${{ steps.target.outputs.version }}
+          build-args: grow_version=git+https://github.com/grow/grow.git@v${{ steps.target.outputs.version }}
