@@ -103,21 +103,6 @@
           {% endfor %}
         {% endfor %}
 
-        <div class="sidebar__badges">
-          {% if podspec.meta.pypi_name %}
-            <a href="https://pypi.org/project/{{podspec.meta.pypi_name}}/" target="_blank" rel="noopener">
-              <img src="https://img.shields.io/pypi/v/{{podspec.meta.pypi_name}}.svg?style=flat" alt="PyPI version">
-            </a>
-          {% endif %}
-          <a href="https://github.com/grow/grow/actions/workflows/test.yml" target="_blank" rel="noopener">
-            <img src="https://img.shields.io/github/actions/workflow/status/grow/grow/test.yml?branch=main&amp;label=CI&amp;style=flat" alt="CI status">
-          </a>
-          {% if podspec.meta.license_badge %}
-            <a href="https://github.com/grow/grow/blob/main/LICENSE" target="_blank" rel="noopener">
-              <img src="https://img.shields.io/badge/license-{{podspec.meta.license_badge}}-blue.svg?style=flat" alt="License">
-            </a>
-          {% endif %}
-        </div>
       </aside>
 
       <main class="docs-content" role="main">
@@ -196,6 +181,13 @@
               <ul class="site-footer__list">
                 <li><a class="site-footer__eco-link" href="https://rootjs.dev" target="_blank" rel="noopener"><img class="site-footer__eco-icon" src="{{g.static('/source/images/rootjs-beet.svg').url.path}}" alt="" width="15" height="15">Root.js</a></li>
                 <li><a class="site-footer__eco-link" href="https://amagaki.dev" target="_blank" rel="noopener"><img class="site-footer__eco-icon" src="{{g.static('/source/images/amagaki.svg').url.path}}" alt="" width="15" height="15">Amagaki</a></li>
+                {% if podspec.meta.pypi_name %}
+                  <li class="site-footer__eco-badge">
+                    <a href="https://pypi.org/project/{{podspec.meta.pypi_name}}/" target="_blank" rel="noopener">
+                      <img src="https://img.shields.io/pypi/v/{{podspec.meta.pypi_name}}.svg?style=flat" alt="PyPI version">
+                    </a>
+                  </li>
+                {% endif %}
               </ul>
             </div>
           </nav>
