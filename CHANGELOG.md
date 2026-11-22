@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.3.1](https://github.com/grow/grow/compare/v2.3.0...v2.3.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* **docs:** align footer horizontal padding with main docs shell ([#1255](https://github.com/grow/grow/issues/1255)) ([edb3401](https://github.com/grow/grow/commit/edb340121b6e200764d387039fc99b921aaf5b4d))
+* **footer:** move PyPI badge into Ecosystem ([#1256](https://github.com/grow/grow/issues/1256)) ([03e92eb](https://github.com/grow/grow/commit/03e92eb9f6f47028ec1c8824d807c4738261afc3))
+
+
+### Documentation
+
+* add Astro-style global footer ([#1253](https://github.com/grow/grow/issues/1253)) ([7780e1b](https://github.com/grow/grow/commit/7780e1bca1eae5a0579d73c296c90eea063414a4))
+
 ## [2.3.0](https://github.com/grow/grow/compare/v2.2.3...v2.3.0) (2026-11-22)
 
 
