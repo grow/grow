@@ -3,9 +3,16 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      publish_tag:
+        description: 'Optional existing git tag to publish to PyPI and Docker (e.g. v2.3.0)'
+        required: false
+        type: string
 jobs:
   # Evergreen docker image build from main.
   docker-image:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,43 +53,63 @@ jobs:
       contents: write
       pull-requests: write
       packages: write
+      id-token: write
     steps:
-      - uses: googleapis/release-please-action@v3
+      - if: ${{ github.event_name == 'push' }}
+        uses: googleapis/release-please-action@v3
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: python
-      - if: ${{ steps.release.outputs.release_created }}
+      - name: Resolve publish target
+        id: target
+        shell: bash
+        env:
+          RELEASE_CREATED: ${{ steps.release.outputs.release_created }}
+          RELEASE_VERSION: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          PUBLISH_TAG: ${{ inputs.publish_tag }}
+        run: |
+          if [ "$RELEASE_CREATED" = "true" ]; then
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "ref=main" >> "$GITHUB_OUTPUT"
+            echo "version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+          elif [ -n "$PUBLISH_TAG" ]; then
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            echo "ref=$PUBLISH_TAG" >> "$GITHUB_OUTPUT"
+            echo "version=${PUBLISH_TAG#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_publish=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: ${{ steps.target.outputs.should_publish == 'true' }}
         uses: actions/checkout@v4
-      - if: ${{ steps.release.outputs.release_created }}
+        with:
+          ref: ${{ steps.target.outputs.ref }}
+      - if: ${{ steps.target.outputs.should_publish == 'true' }}
         uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.10"
-      - if: ${{ steps.release.outputs.release_created }}
+      - if: ${{ steps.target.outputs.should_publish == 'true' }}
         name: Build package
         run: |
           rm -rf dist
           uv build
-      - if: ${{ steps.release.outputs.release_created }}
+      - if: ${{ steps.target.outputs.should_publish == 'true' }}
         name: Upload to PyPI
-        run: uv publish
-        env:
-          UV_PUBLISH_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          UV_PUBLISH_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      - if: ${{ steps.release.outputs.release_created }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+      - if: ${{ steps.target.outputs.should_publish == 'true' }}
         name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - if: ${{ steps.release.outputs.release_created }}
+      - if: ${{ steps.target.outputs.should_publish == 'true' }}
         name: Log in to the GitHub container registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - if: ${{ steps.release.outputs.release_created }}
+      - if: ${{ steps.target.outputs.should_publish == 'true' }}
         name: Extract metadata (tags, labels) for Docker
         uses: docker/metadata-action@v5
         id: meta
@@ -90,12 +117,12 @@ jobs:
           images: |
             grow/base
             ghcr.io/${{ github.repository }}
-      - if: ${{ steps.release.outputs.release_created }}
+      - if: ${{ steps.target.outputs.should_publish == 'true' }}
         name: Push grow/base
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }},grow/base:latest,grow/base:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }},ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          tags: ${{ steps.meta.outputs.tags }},grow/base:latest,grow/base:${{ steps.target.outputs.version }},ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ steps.target.outputs.version }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: grow_version=grow==${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          build-args: grow_version=grow==${{ steps.target.outputs.version }}
