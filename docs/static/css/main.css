@@ -1080,6 +1080,12 @@ a:hover {
 }
 
 /* 8-bit 404 page */
+.pixel-404-shell {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
 .pixel-404 {
   margin: 24px auto 48px;
   padding: 40px 28px;
@@ -1124,6 +1130,8 @@ a:hover {
   color: var(--text-muted);
   margin: 0 auto 24px;
   max-width: 440px;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .pixel-404__actions {
