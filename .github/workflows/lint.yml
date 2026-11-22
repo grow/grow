@@ -17,8 +17,8 @@ jobs:
           enable-cache: true
           python-version: "3.10"
       - name: Install dependencies
-        run: uv sync --locked
+        run: uv sync --frozen
       - name: Run ruff lint and format check
         run: |
-          uv run ruff check grow/ install.py
-          uv run ruff format --check grow/ install.py
+          uv run --frozen ruff check grow/ install.py
+          uv run --frozen ruff format --check grow/ install.py
