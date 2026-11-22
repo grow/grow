@@ -1,6 +1,6 @@
 :root {
-  --grow-pink: #ea3c84;
-  --grow-pink-dark: #be185d;
+  --grow-pink: #d11d67;
+  --grow-pink-dark: #9d174d;
   --grow-pink-soft: #fce7f3;
   --grow-navy: #3b415e;
   --bg: #ffffff;
@@ -37,6 +37,11 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+.docs-content a:not(.button) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* Maintenance mode notice bar */

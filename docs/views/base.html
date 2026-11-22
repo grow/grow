@@ -1,14 +1,62 @@
 <!DOCTYPE html>
 <html lang="{{doc.locale}}">
+  {%- set page_title = (doc.title ~ ' — ' ~ _(podspec.meta.site_name)) if doc.title else _(podspec.meta.site_name) -%}
+  {%- set page_desc = _(doc.description) if doc.description else 'Grow is a declarative, file-based Python static site generator with built-in i18n, Jinja2 templates, and clean static builds.' -%}
+  {%- set canonical_url = 'https://grow.dev' ~ doc.url.path -%}
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% if doc.description %}<meta name="description" content="{{_(doc.description)}}">{% endif %}
+    <meta name="description" content="{{page_desc}}">
     {% if podspec.meta.site_author %}<meta name="author" content="{{podspec.meta.site_author}}">{% endif %}
-    <link rel="canonical" href="{{doc.url}}">
+    <link rel="canonical" href="{{canonical_url}}">
+    <meta property="og:type" content="{% if doc.url.path == '/' %}website{% else %}article{% endif %}">
+    <meta property="og:site_name" content="{{_(podspec.meta.site_name)}}">
+    <meta property="og:title" content="{{page_title}}">
+    <meta property="og:description" content="{{page_desc}}">
+    <meta property="og:url" content="{{canonical_url}}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{page_title}}">
+    <meta name="twitter:description" content="{{page_desc}}">
     <link rel="shortcut icon" href="{{g.static(podspec.meta.favicon_path).url.path}}">
-    <title>{% if doc.title %}{{doc.title}} — {% endif %}{{_(podspec.meta.site_name)}}</title>
+    <title>{{page_title}}</title>
     <link href="{{g.static('/static/css/main.css').url.path}}" rel="stylesheet">
+    <script type="application/ld+json">
+      {% if doc.url.path == '/' %}
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Grow",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS, Linux, Windows",
+        "url": "https://grow.dev/",
+        "description": "{{page_desc}}",
+        "license": "https://opensource.org/licenses/MIT",
+        "author": {
+          "@type": "Organization",
+          "name": "Blinkk",
+          "url": "https://blinkk.com/"
+        }
+      }
+      {% else %}
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "{{doc.title or _(podspec.meta.site_name)}}",
+        "description": "{{page_desc}}",
+        "url": "{{canonical_url}}",
+        "author": {
+          "@type": "Organization",
+          "name": "Blinkk",
+          "url": "https://blinkk.com/"
+        },
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Grow",
+          "url": "https://grow.dev/"
+        }
+      }
+      {% endif %}
+    </script>
   </head>
   <body>
     <header class="topbar">
@@ -29,7 +77,7 @@
             </svg>
           </button>
           <a class="brand" href="{{podspec.home.localize(locale=doc.locale).url.path|relative}}">
-            <img class="brand__logo" src="{{g.static(podspec.meta.site_logo_path).url.path}}" alt="{{_(podspec.meta.site_name)}}">
+            <img class="brand__logo" src="{{g.static(podspec.meta.site_logo_path).url.path}}" alt="{{_(podspec.meta.site_name)}}" width="63" height="22">
           </a>
           <nav class="topbar__nav" aria-label="Primary">
             <a href="/" class="topbar__link{% if '/content/docs/' in doc.collection.pod_path %} is-active{% endif %}">Docs</a>
@@ -65,7 +113,7 @@
     <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
 
     <div class="docs-shell">
-      <aside class="docs-sidebar" id="docs-sidebar" role="navigation" aria-label="Documentation">
+      <nav class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
         <div class="sidebar__mobile-header">
           <span>Documentation</span>
           <button type="button" class="nav-close" id="nav-close" aria-label="Close navigation">&times;</button>
@@ -103,7 +151,7 @@
           {% endfor %}
         {% endfor %}
 
-      </aside>
+      </nav>
 
       <main class="docs-content" role="main">
         {% block main %}
@@ -184,7 +232,7 @@
                 {% if podspec.meta.pypi_name %}
                   <li class="site-footer__eco-badge">
                     <a href="https://pypi.org/project/{{podspec.meta.pypi_name}}/" target="_blank" rel="noopener">
-                      <img src="https://img.shields.io/pypi/v/{{podspec.meta.pypi_name}}.svg?style=flat" alt="PyPI version">
+                      <img src="https://img.shields.io/pypi/v/{{podspec.meta.pypi_name}}.svg?style=flat" alt="PyPI version" width="78" height="20">
                     </a>
                   </li>
                 {% endif %}

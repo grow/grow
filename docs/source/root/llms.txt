@@ -1,0 +1,31 @@
+# Grow
+
+> Grow is a declarative, file-based Python static site generator with built-in internationalization (i18n), Jinja2 templates, and clean static builds. Created by Blinkk.
+
+Note: Grow is in maintenance mode. For new projects, Blinkk recommends [Root.js](https://rootjs.dev).
+
+## Install
+
+```bash
+uv tool install grow
+```
+
+## Documentation
+
+- [Introduction](https://grow.dev/)
+- [Install](https://grow.dev/install/)
+- [Codelab](https://grow.dev/codelab/)
+- [Extensions](https://grow.dev/extensions/)
+- [Podspec Reference](https://grow.dev/reference/podspec/)
+- [Collections Reference](https://grow.dev/reference/collections/)
+- [Templates Reference](https://grow.dev/reference/templates/)
+- [Content Localization](https://grow.dev/reference/content-localization/)
+- [Workflow: Building](https://grow.dev/workflow/building/)
+- [Workflow: Deployment](https://grow.dev/workflow/deployment/)
+
+## Links
+
+- GitHub: https://github.com/grow/grow
+- PyPI: https://pypi.org/project/grow/
+- Releases: https://github.com/grow/grow/releases
+- Ecosystem: [Root.js](https://rootjs.dev), [Amagaki](https://amagaki.dev)
