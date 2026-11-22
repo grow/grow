@@ -1,5 +1,59 @@
 # Changelog
 
+## [2.3.0](https://github.com/grow/grow/compare/v2.2.3...v2.3.0) (2026-11-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to node v18 in base image
+
+### Features
+
+* add grow.__version__, lazy-load googleapiclient, modernize error page and dev logs ([a82d7b4](https://github.com/grow/grow/commit/a82d7b49b9d5e30085d9f4754cbf5fc0036322a3))
+* **cli:** modernize dev server and build output (Root.js-inspired) ([56389f8](https://github.com/grow/grow/commit/56389f877387b7d5400c2313f0d9ab06f370f16a))
+* **docs:** modernize grow.dev UI, drop all vendored JS, and deploy via GitHub Pages ([8622a48](https://github.com/grow/grow/commit/8622a480a1153bb413ac278b051cd8858ffb138d))
+* **examples:** add minimal zero-Node Grow starter pod with i18n ([9b50703](https://github.com/grow/grow/commit/9b507034043914b2317987c2150c08ad84950d16))
+* **ui:** redesign dev console with search, filters, stats, and modern styling ([9d5a3f4](https://github.com/grow/grow/commit/9d5a3f4df1fee12813e897ca938d398a7e2657bf))
+* update to node v18 in base image ([2ef22aa](https://github.com/grow/grow/commit/2ef22aa0be44bf6e3e76c8e1190bb67cd2aee828))
+
+
+### Bug Fixes
+
+* **docker:** pin NVM_VERSION to avoid unauthenticated GitHub API 403 ([421d607](https://github.com/grow/grow/commit/421d607afeb1a6dc3365fe1e08aca25a75581bad))
+* **docs:** add mobile slide-over nav drawer and responsive layout ([659ddf4](https://github.com/grow/grow/commit/659ddf4d21d60e8436f65a8a2cf02f433e7ab6ac))
+* **docs:** keep mobile header on a single row ([e6e1cf9](https://github.com/grow/grow/commit/e6e1cf9d2b5eba96ef2bfdae86300ab7ce77f075))
+* **docs:** remove redundant backslash escapes before pipes inside table code spans ([181158f](https://github.com/grow/grow/commit/181158f270dfc1312d6501e5537a2f2b1712cddf))
+* **i18n:** delegate fuzzy_load to Babel for existing locales (fixes nb/CLDR aliases) ([92bcef4](https://github.com/grow/grow/commit/92bcef46ffbde594a6c981d80672311d39202d88))
+* **oauth:** default to localhost callback with free port and clear OOB guidance ([#1248](https://github.com/grow/grow/issues/1248)) ([a20fb94](https://github.com/grow/grow/commit/a20fb943903895718891760dc3b1f485de409145))
+* pin dependencies ([7294ccf](https://github.com/grow/grow/commit/7294ccf0b5e4e5807949cd43c76050a6bad48ed0))
+* resolve backlog bugs across routing, deploys, OAuth, and translations ([#1247](https://github.com/grow/grow/issues/1247)) ([33a75c0](https://github.com/grow/grow/commit/33a75c08b137552c164cf1bbf20ecc9d47435b7e))
+* **security:** harden YAML loading, dev server paths, and zip extraction ([059be18](https://github.com/grow/grow/commit/059be18435270e8840951a3007b5559590064883))
+* upgrade Dockerfile to Node 22 and fix docs icons/component styles ([9762600](https://github.com/grow/grow/commit/97626002c141e1ef84079afb5e5108f3551e28a5))
+
+
+### Performance Improvements
+
+* cache Pod.podspec and Locale validation, use functools.cached_property, lazy-load heavy deps ([27f2f66](https://github.com/grow/grow/commit/27f2f66b23d5e5879d670943a91dda9e5f62d5e7))
+* optimize YAML untagging and file storage I/O ([a482aa7](https://github.com/grow/grow/commit/a482aa751c4d1fda8cbfb584d727c9c5227ed857))
+
+
+### Documentation
+
+* add border outline to mobile drawer navigation tabs ([#1249](https://github.com/grow/grow/issues/1249)) ([81fb7ee](https://github.com/grow/grow/commit/81fb7ee6ad83559dc80b8e85448f1723ca91a4fd))
+* add Root.js maintenance banner, reorganize IA, and rewrite core docs ([cf8ce88](https://github.com/grow/grow/commit/cf8ce88f98d8c2196af9931f0de8a09758fd97fd))
+* fix sidebar badge sizing, remove stale New banner, and modernize CI/LibYAML docs ([1caaeb0](https://github.com/grow/grow/commit/1caaeb0e859d5dabb6b8a64d85d3935af4e76b23))
+* fix syntax highlighting contrast with github-dark and rewrite public API reference ([56300c1](https://github.com/grow/grow/commit/56300c12d9936e110de9f1b585286554211b0199))
+* import grow.dev site into monorepo without Node/Gulp/Sass build chain ([8ce205b](https://github.com/grow/grow/commit/8ce205b0828dd000c00747ceee6c9f17a5ba86d6))
+* replace 404 starter repo link with grow/grow.dev in README ([f7f0ddc](https://github.com/grow/grow/commit/f7f0ddc5173d0ec1689c5071671906e8b32cf760))
+* rewrite README and CONTRIBUTING and consolidate PyPI readme ([4168088](https://github.com/grow/grow/commit/416808807abf7337ede1ec9fe23d15069e8912ff))
+* strengthen border outline and contrast on mobile drawer tabs ([#1250](https://github.com/grow/grow/issues/1250)) ([45ad6ac](https://github.com/grow/grow/commit/45ad6acdac5306ba9e1fde20273d816ad433bcfa))
+* use pill border-radius on CTA buttons ([#1246](https://github.com/grow/grow/issues/1246)) ([97241f2](https://github.com/grow/grow/commit/97241f2a4c17d42d6136ab75278a88a4cf3d2275))
+
+
+### Miscellaneous Chores
+
+* deprecate legacy install.py script with migration guidance ([#1251](https://github.com/grow/grow/issues/1251)) ([1024474](https://github.com/grow/grow/commit/1024474e406f23c21d813ff8ff1228d2df77d0b5))
+
 ### [2.2.3](https://www.github.com/grow/grow/compare/v2.2.2...v2.2.3) (2022-04-21)
 
 
