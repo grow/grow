@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "docs/**"
+      - "grow/pods/templates/**"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 

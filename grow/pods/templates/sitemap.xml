@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{% set ns = namespace(has_alternates=false) -%}
+{%- for doc in docs if
+    doc.path_format
+    and (not doc.sitemap.enabled is sameas false)
+    and (not doc.hidden)
+    and doc.locales|length > 1 -%}
+  {%- set ns.has_alternates = true -%}
+{%- endfor %}
+<urlset{% if ns.has_alternates %} xmlns:xhtml="http://www.w3.org/1999/xhtml"{% endif %} xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {% for doc in docs|sort(attribute='url') if
       doc.path_format
       and (not doc.sitemap.enabled is sameas false)
@@ -17,11 +25,11 @@
       {% endif %}
       {% if doc.locales|length > 1 %}
       <xhtml:link rel="alternate" hreflang="x-default" href="{{doc.url}}"/>
-      {% endif %}
       {% for locale in doc.locales %}
         {% set localized_doc = doc.localize(locale) %}
         <xhtml:link rel="alternate" hreflang="{{localized_doc.hreflang}}" href="{{localized_doc.url}}"/>
       {% endfor %}
+      {% endif %}
     </url>
   {% endfor %}
 </urlset>
