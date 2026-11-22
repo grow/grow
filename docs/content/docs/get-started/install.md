@@ -48,3 +48,7 @@ Prebuilt Docker images with Grow, Python, Node.js, Yarn, and the Google Cloud CL
 ```bash
 docker run --rm -it -v "$PWD":/site -w /site grow/base grow build
 ```
+
+## Migrating from the legacy installer (`install.grow.io`)
+
+The legacy standalone binary installer (`curl https://install.grow.io | bash` / `install.py`) has been deprecated and retired. If you have local setups or CI scripts using it, replace that step with one of the methods above (`uv tool install grow`, `pip install grow`, or the `grow/base` Docker image).
