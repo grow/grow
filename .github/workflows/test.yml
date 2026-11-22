@@ -21,11 +21,11 @@ jobs:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
       - name: Install Python dependencies
-        run: uv sync --locked
+        run: uv sync --frozen
       - name: Run tests
-        run: uv run pytest --cov=grow --cov-report=xml
+        run: uv run --frozen pytest --cov=grow --cov-report=xml
       - name: Smoke test builds
         run: |
-          uv run grow build ./grow/testing/testdata/pod
-          uv run grow build ./docs
-          uv run grow build ./examples/starter
+          uv run --frozen grow build ./grow/testing/testdata/pod
+          uv run --frozen grow build ./docs
+          uv run --frozen grow build ./examples/starter

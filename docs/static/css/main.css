@@ -674,7 +674,15 @@ a:hover {
 .site-footer {
   border-top: 1px solid var(--border);
   background: var(--bg-subtle);
-  padding: 36px 0 24px;
+  padding: 36px 0 0;
+}
+
+.site-footer::after {
+  content: '';
+  display: block;
+  height: 8px;
+  margin-top: 24px;
+  background: linear-gradient(90deg, var(--grow-pink) 0%, var(--grow-pink-dark) 50%, var(--grow-navy) 100%);
 }
 
 .site-footer__inner {
