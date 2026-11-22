@@ -113,6 +113,7 @@
 
     <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
 
+    {% block shell %}
     <div class="docs-shell">
       <nav class="docs-sidebar" id="docs-sidebar" aria-label="Documentation">
         <div class="sidebar__mobile-header">
@@ -196,6 +197,7 @@
       </aside>
       {% endif %}
     </div>
+    {% endblock %}
 
     <footer class="site-footer" role="contentinfo">
       <div class="site-footer__inner">

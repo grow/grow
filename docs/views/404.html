@@ -1,7 +1,8 @@
 {% extends "/views/base.html" %}
 
-{% block main %}
-<section class="pixel-404" aria-labelledby="pixel-404-title">
+{% block shell %}
+<main class="pixel-404-shell" role="main">
+  <section class="pixel-404" aria-labelledby="pixel-404-title">
   <div class="pixel-404__art" aria-hidden="true">
     <svg width="240" height="128" viewBox="0 0 60 32" shape-rendering="crispEdges" role="img">
       <!-- Twinkling 8-bit stars -->
@@ -57,4 +58,5 @@
     <a class="pixel-404__btn pixel-404__btn--secondary" href="/codelab/">Browse Codelab</a>
   </div>
 </section>
+</main>
 {% endblock %}
