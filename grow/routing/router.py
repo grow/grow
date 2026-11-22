@@ -374,6 +374,25 @@ class Router:
             docs = self._preload_and_expand(docs, expand=concrete)
             self.add_docs(docs, concrete=concrete)
 
+            # Also match configured static files for partial builds.
+            for config in self.pod.static_configs:
+                if config.get('dev') and not self.pod.env.dev:
+                    continue
+                static_dirs = config.get('static_dirs') or [config.get('static_dir')]
+                for static_dir in static_dirs:
+                    if not static_dir:
+                        continue
+                    for root, dirs, files in self.pod.walk(static_dir):
+                        dirs[:] = [d for d in dirs if not d.startswith('.')]
+                        pod_dir = root.replace(self.pod.root, '')
+                        for file_name in files:
+                            static_pod_path = os.path.join(pod_dir, file_name)
+                            if any(
+                                fnmatch.fnmatch(static_pod_path, pattern) for pattern in pod_paths
+                            ):
+                                static_doc = self.pod.get_static(static_pod_path, locale=None)
+                                self.add_static_doc(static_doc, concrete=concrete)
+
     def add_static_doc(self, static_doc, concrete=True):
         """Add static doc to the router."""
         if not static_doc.path_filter.is_valid(static_doc.serving_path):
@@ -411,7 +430,7 @@ class Router:
         if 'None' in locales:
             locales.append(None)
 
-        if filter_type == 'whitelist':
+        if filter_type in ('whitelist', 'included'):
 
             def _filter_whitelist(serving_path, route_info):
                 # Check for whitelisted collection path.

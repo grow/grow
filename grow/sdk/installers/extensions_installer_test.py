@@ -47,7 +47,7 @@ class ExtensionsInstallerTestCase(unittest.TestCase):
         self.assertFalse(self.pod.file_exists(extensions_init_file))
         self.installer.install()
         self.assertTrue(self.pod.file_exists(extensions_init_file))
-        expected = f'pip3 install -U -q -t {extensions_dir} -r extensions.txt'
+        expected = f'pip3 install -q -t {extensions_dir} -r extensions.txt'
         mock_popen.assert_called_once_with(expected, **self.installer.subprocess_args(shell=True))
 
     @mock.patch('subprocess.Popen')

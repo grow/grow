@@ -64,7 +64,7 @@ class ExtensionsInstaller(base_installer.BaseInstaller):
         init_file_name = f'/{extensions_dir}/__init__.py'
         if not self.pod.file_exists(init_file_name):
             self.pod.write_file(init_file_name, '')
-        install_command = f'pip3 install -U -q -t {extensions_dir} -r {self.pod.FILE_EXTENSIONS}'
+        install_command = f'pip3 install -q -t {extensions_dir} -r {self.pod.FILE_EXTENSIONS}'
         process = subprocess.Popen(install_command, **self.subprocess_args(shell=True))
         code = process.wait()
         if not code:

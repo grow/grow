@@ -4,6 +4,7 @@ import collections
 import gettext
 import io
 import os
+import sys
 import tokenize
 
 import click
@@ -258,7 +259,8 @@ class Catalogs:
         }
 
         def _add_to_catalog(message, locales):
-            # Add to all relevant catalogs
+            # Add to all relevant catalogs, merging locations and translator
+            # comments across duplicate instances of the same message ID.
             for locale in locales:
                 if locale not in localized_catalogs:
                     # Start with a new catalog so we can track what's obsolete:
@@ -266,8 +268,20 @@ class Catalogs:
                     # *NOT* setting `locale` kwarg here b/c that will load existing
                     # translations.
                     localized_catalogs[locale] = catalogs.Catalog(pod=self.pod)
-                localized_catalogs[locale][message.id] = message
-            unlocalized_catalog[message.id] = message
+                localized_catalogs[locale].add(
+                    message.id,
+                    message.string,
+                    locations=message.locations,
+                    auto_comments=message.auto_comments,
+                    context=message.context,
+                )
+            unlocalized_catalog.add(
+                message.id,
+                message.string,
+                locations=message.locations,
+                auto_comments=message.auto_comments,
+                context=message.context,
+            )
 
         def _handle_field(path, locales, msgid, key, node, parent_node=None):
             if not key or not isinstance(msgid, str) or not isinstance(key, str):
@@ -296,6 +310,13 @@ class Catalogs:
                 _add_to_catalog(message, locales)
 
         def _babel_extract(fp, locales, path):
+            extra_paths = [
+                self.pod.root,
+                os.path.join(self.pod.root, self.pod.extensions_dir),
+            ]
+            added_paths = [p for p in extra_paths if p not in sys.path]
+            for p in added_paths:
+                sys.path.insert(0, p)
             try:
                 all_parts = extract.extract(
                     'jinja2.ext.babel_extract', fp, options=options, comment_tags=comment_tags
@@ -310,6 +331,10 @@ class Catalogs:
             except tokenize.TokenError:
                 self.pod.logger.error(f'Problem extracting body: {path}')
                 raise
+            finally:
+                for p in added_paths:
+                    if p in sys.path:
+                        sys.path.remove(p)
 
         # Extract from collections in /content/:
         # Strings only extracted for relevant locales, determined by locale
@@ -445,8 +470,9 @@ class Catalogs:
             if path.endswith(('.yaml', '.yml')):
                 pod_path = os.path.join('/content/', path)
                 self.pod.logger.info(f'Extracting: {pod_path}')
+                fields = utils.parse_yaml(self.pod.read_file(pod_path), pod=self.pod)
                 utils.walk(
-                    self.pod.get_doc(pod_path).format.front_matter.raw_data,
+                    fields,
                     lambda msgid, key, node, _path=pod_path, **kwargs: _handle_field(
                         _path, self.pod.list_locales(), msgid, key, node, **kwargs
                     ),
@@ -482,8 +508,9 @@ class Catalogs:
                 pod_path = os.path.join('/partials/', path)
                 if path.endswith(('.yaml', '.yml')):
                     self.pod.logger.info(f'Extracting: {pod_path}')
+                    fields = utils.parse_yaml(self.pod.read_file(pod_path), pod=self.pod)
                     utils.walk(
-                        self.pod.get_doc(pod_path).format.front_matter.raw_data,
+                        fields,
                         lambda msgid, key, node, _path=pod_path, **kwargs: _handle_field(
                             _path, self.pod.list_locales(), msgid, key, node, **kwargs
                         ),

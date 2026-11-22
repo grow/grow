@@ -66,6 +66,8 @@ class LocalDestination(base.BaseDestination):
             self.storage.write(out_path, rendered_doc.read())
 
     def prelaunch(self, dry_run=False):
+        if not self.config.out_dir:
+            raise ValueError('`out_dir` must be configured for local deployments.')
         for command in self.config.before_deploy:
             self.command(command)
         super().prelaunch(dry_run)
