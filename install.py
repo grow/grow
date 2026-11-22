@@ -1,234 +1,41 @@
 #!/usr/bin/env python3
 
-"""Standalone Grow.dev installer. Downloads Grow.dev and sets up command aliases."""
+"""Deprecated standalone Grow installer.
 
-import argparse
-import datetime
-import json
-import os
-import platform
-import re
+Prints migration instructions for installing Grow via uv, pip, or Docker.
+"""
+
 import sys
-import tempfile
-import zipfile
-from urllib import request as url_request
 
-DOWNLOAD_URL_FORMAT = 'https://github.com/grow/grow/releases/download/{version}/{name}'
-RELEASES_API = 'https://api.github.com/repos/grow/grow/releases'
-RC_FILES = ['.bashrc', '.zshrc', '.bash_profile', '.profile']
-RC_FILE_DEFAULT = '.bashrc'
-BIN_PATH = '~/bin/grow'
+DEPRECATION_NOTICE = """
+========================================================================
+Notice: The standalone Grow binary installer (install.grow.io / install.py)
+has been deprecated and retired.
+========================================================================
 
-# TODO: Remove when no longer checking for alias.
-ALIAS_FILES = ['.bash_aliases', '.bash_profile', '.profile', '.bashrc']
-ALIAS_RE = re.compile(r'^alias grow\=([\'"])(.*)\1$', re.MULTILINE)
+Grow no longer publishes standalone binary zips on GitHub Releases.
+Please migrate to installing Grow from PyPI (requires Python 3.10 - 3.12)
+or using the official Docker image:
 
-if 'Linux' in platform.system():
-    PLATFORM = 'linux'
-elif 'Darwin' in platform.system():
-    PLATFORM = 'mac'
-else:
-    print(
-        f'{sys.platform} is not a supported platform. Please file an issue at '
-        'https://github.com/grow/grow/issues'
-    )
-    sys.exit(-1)
+  1. Install globally with uv (recommended):
+       uv tool install grow
 
+  2. Or install with pip:
+       pip install grow
 
-def hai(text, *args):
-    print(
-        text.format(
-            *args,
-            **{
-                'red': '\033[0;31m',
-                '/red': '\033[0;m',
-                'green': '\033[0;32m',
-                '/green': '\033[0;m',
-                'yellow': '\033[0;33m',
-                '/yellow': '\033[0;m',
-                'white': '\033[0;37m',
-                '/white': '\033[0;m',
-            },
-        )
-    )
+  3. Or run via Docker (no local Python setup required):
+       docker run --rm -it -v "$PWD":/site -w /site grow/base grow build
 
+Full installation guide: https://grow.dev/install/
 
-def orly(text, default=False):
-    resp = input(text).strip().lower()
-    if resp == 'y':
-        return True
-    if resp == 'n':
-        return False
-    return default
-
-
-# TODO: Remove when no longer checking for alias.
-def get_existing_aliases():
-    """Find all existing aliases using the regex."""
-    files_to_alias = {}
-    for basename in ALIAS_FILES:
-        basepath = os.path.expanduser(f'~/{basename}')
-        if os.path.exists(basepath):
-            with open(basepath) as fp:
-                profile = fp.read()
-            matches = re.findall(ALIAS_RE, profile)
-            if matches:
-                files_to_alias[basepath] = [x[1] for x in matches]
-    return files_to_alias
-
-
-def get_rc_path():
-    for basename in RC_FILES:
-        basepath = os.path.expanduser(f'~/{basename}')
-        if os.path.exists(basepath):
-            return basepath
-    return os.path.expanduser(f'~/{RC_FILE_DEFAULT}')
-
-
-def get_release_for_platform(releases, target_platform):
-    """Find the latest release available for the platform."""
-    for release in releases:
-        if release['prerelease']:
-            continue
-        for each_asset in release['assets']:
-            if target_platform in each_asset.get('name', '').lower():
-                return release
-    return None
-
-
-def has_bin_in_path(bin_path):
-    """Determine if the binary path is part of the system paths."""
-    return bin_path in os.environ.get('PATH', '').split(':')
-
-
-def install(rc_path=None, bin_path=None, force=False):
-    """Download and install the binary."""
-    with url_request.urlopen(RELEASES_API) as response:
-        resp = json.loads(response.read())
-    try:
-        release = get_release_for_platform(resp, PLATFORM)
-    except KeyError:
-        hai('{red}There was a problem accessing the GitHub Releases API.{/red}')
-        if 'message' in resp:
-            hai('{red}{}{/red}', resp['message'])
-        sys.exit(-1)
-
-    if release is None:
-        print(f'Not available for platform: {platform.system()}.')
-        sys.exit(-1)
-
-    version = release['tag_name']
-    asset = None
-    for each_asset in release['assets']:
-        if PLATFORM in each_asset.get('name', '').lower():
-            asset = each_asset
-            break
-
-    download_url = DOWNLOAD_URL_FORMAT.format(version=version, name=asset['name'])
-
-    bin_path = os.path.expanduser(bin_path or BIN_PATH)
-    bin_dir = os.path.dirname(bin_path)
-    rc_comment = f'# Added by Grow.dev Installer ({datetime.datetime.now()})'
-    rc_path = os.path.expanduser(rc_path or get_rc_path())
-    rc_path_append = f'export PATH={bin_dir}:$PATH'
-
-    hai('{yellow}Welcome to the installer for Grow.dev v{}{/yellow}', version)
-    hai('{yellow}Release notes: {/yellow}https://github.com/grow/grow/releases/tag/{}', version)
-    hai('{yellow}[ ]{/yellow} {green}This script will install:{/green} {}', bin_path)
-
-    bin_in_path = has_bin_in_path(bin_dir)
-
-    if bin_in_path:
-        hai('{green}[✓] You already have the binary directory in PATH:{/green} {}', bin_dir)
-    else:
-        hai(
-            '{yellow}[ ]{/yellow} {green}{} will be added to the PATH in:{/green} {}',
-            bin_dir,
-            rc_path,
-        )
-
-    if not force:
-        try:
-            result = orly('Continue installation? [Y]es / [n]o: ', default=True)
-        except KeyboardInterrupt:
-            result = False
-        if not result:
-            hai('\n\r{red}Aborted installation.{/red}')
-            sys.exit(-1)
-
-    os.makedirs(bin_dir, exist_ok=True)
-
-    local, temp_path = tempfile.mkstemp()
-    try:
-        hai(f'Downloading from {download_url}')
-        with url_request.urlopen(download_url) as remote, os.fdopen(local, 'wb') as local_file:
-            while True:
-                content = remote.read(1048576)  # 1MB.
-                if not content:
-                    sys.stdout.write(' done!\n')
-                    sys.stdout.flush()
-                    break
-                local_file.write(content)
-                sys.stdout.write('.')
-                sys.stdout.flush()
-        with zipfile.ZipFile(temp_path) as zp:
-            try:
-                zp.extract('grow', os.path.dirname(bin_path))
-            except OSError as e:
-                if 'Text file busy' in str(e):
-                    hai(f'Unable to overwrite {bin_path}. Try closing Grow and installing again.')
-                    hai(
-                        'You can use the installer by running: curl https://install.grow.dev | bash'
-                    )
-                    sys.exit(-1)
-                raise
-        hai('{green}[✓] Installed Grow.dev to:{/green} {}', bin_path)
-        stat = os.stat(bin_path)
-        os.chmod(bin_path, stat.st_mode | 0o111)
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-
-    if not bin_in_path:
-        with open(rc_path, 'a') as fp:
-            fp.write('\n' + rc_comment + '\n')
-            fp.write(rc_path_append + '\n')
-        hai('{green}[✓] Added {} to path in:{/green} {}', bin_path, rc_path)
-
-    hai('{green}[✓] All done. Grow v{} successfully installed.{/green}', version)
-
-    if not bin_in_path:
-        hai('   To use Grow: reload your shell session OR use `source {}`,', rc_path)
-        hai('   then type `grow` and press enter.')
-
-    # TODO: Remove when no longer checking for alias.
-    aliases = get_existing_aliases()
-    if aliases:
-        hai('{red}Aliases for grow detected in: {}{/red}', ', '.join(aliases))
-        hai('   {red}please remove the old aliases to prevent version conflicts.{/red}')
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--bin-path', default=None, help='Where to install `grow` executable. Ex: ~/bin/grow'
-    )
-    parser.add_argument(
-        '--force',
-        dest='force',
-        action='store_true',
-        help='Whether to force install and bypass prompts.',
-    )
-    parser.add_argument(
-        '--rc-path', default=None, help='Profile to update with PATH. Ex: ~/.bashrc'
-    )
-    parser.set_defaults(force=False)
-    return parser.parse_args()
+Note: Grow is in maintenance mode for existing v2.x sites. For new
+projects, we recommend Root.js: https://rootjs.dev
+"""
 
 
 def main():
-    args = parse_args()
-    install(rc_path=args.rc_path, bin_path=args.bin_path, force=args.force)
+    sys.stderr.write(DEPRECATION_NOTICE.lstrip('\n'))
+    sys.exit(1)
 
 
 if __name__ == '__main__':
