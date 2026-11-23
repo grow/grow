@@ -1,0 +1,21 @@
+{%- set identifiers = doc.pod.extensions_controller.extension_config('extensions.responsive_styles.ResponsiveStylesExtension').media_queries or {} -%}
+
+{%- macro responsive_style(media_to_styles) -%}
+  {%- if media_to_styles -%}
+    <style scoped>
+    {%- for identifier, styles in media_to_styles.items() -%}
+      {%- set query = identifiers.get(identifier, identifier) -%}
+      @media {{query}} {
+        [{{responsive_style_id(media_to_styles)}}] {
+          {{styles}}
+        }
+      }
+    {%- endfor -%}
+    </style>
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro render_responsive_styles() -%}
+  {%- set media_to_styles = get_attribute_cache() -%}
+  {{responsive_style(media_to_styles)}}
+{%- endmacro -%}

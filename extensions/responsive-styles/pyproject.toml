@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=77,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grow-ext-responsive-styles"
+version = "2.0.0"
+description = "Grow extension for responsive inline style attributes in Jinja2 templates."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Grow.dev Authors", email = "code@grow.dev" },
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://grow.dev"
+Repository = "https://github.com/grow/grow"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["responsive_styles*"]
+
+[tool.setuptools.package-data]
+responsive_styles = ["*.html"]

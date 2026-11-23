@@ -1,0 +1,161 @@
+{% macro checkbox_or_radio_field_group(item, field, loop) %}
+  {% if item.label and loop.first %}
+  <div class="form__group" data-label="{{item.label|slug}}" data-name="{{field.name}}">
+      <label class="form__group__label">{{_(item.label)}}
+        {% if item.required %}
+        <span class="required">*</span>
+        {% endif %}
+      </label>
+  {% endif %}
+    {{checkbox_or_radio_field(item, field, loop)}}
+  {% if item.label and loop.last %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro checkbox_or_radio_field(item, field, loop) %}
+  <div class="form__field__input form__field__input--checkbox">
+    <label>
+      <input
+        {% set field_type = field.field_type|lower %}
+        {# Only "required" if only one checkbox in the group. #}
+        {% if field_type != "checkbox"
+            or field_type == "checkbox" and loop.length == 1 %}
+          {{"required" if item.required}}
+        {% endif %}
+        type="{{field_type}}"
+        name="{{field.name}}"
+        value="{{field.value}}">
+      <div class="form__field__checkbox">
+        {{_(field.value)}}
+        {% if not item.label and item.required %}
+        <span class="required">*</span>
+        {% endif %}
+      </div>
+    </label>
+  </div>
+  {% if item.description %}
+    <div class="form__field form__field--description">
+      {{_(item.description)}}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro country_select(item, field) %}
+  {% set EXCLUDED_TERRITORIES = [
+      'ZZ',
+  ] %}
+  {% set territories = [] %}
+  {% set locale = doc.locale if doc.locale else doc.localize('en').locale %}
+  {% for identifier in locale.territories 
+      if identifier not in EXCLUDED_TERRITORIES
+      and not identifier.startswith(('0', '1'))
+  %}
+    {% do territories.append({
+      'identifier': identifier,
+      'name': locale.territories[identifier],
+    }) %}
+  {% endfor %}
+  <select
+      class="form__field__control"
+      {% if item.required %}required{% endif %}
+      name="{{field.name}}">
+    {# NOTE: Country name should not be translated. #}
+    <option value="">{{item.description}}</option>
+    {% for territory in territories|sort(attribute='name') %}
+      <option value="{{territory.identifier}}">
+        {{territory.name}}
+      </option>
+    {% endfor %}
+  </select>
+  {% if item.description %}
+    <div class="form__field form__field--description">
+      {{_(item.description)}}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro select_field(item, field) %}
+  <div class="form__field" data-name="{{field.name}}">
+    {{_label(item, field)}}
+    <select
+      {{"required" if item.required}}
+      class="form__field__control"
+      name="{{field.name}}">
+      <option value="">{{_(item.description)}}</option>
+    </select>
+  </div>
+  {% if item.description %}
+    <div class="form__field form__field--description">
+      {{_(item.description)}}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro text_field(item, field) %}
+  <div class="form__field" data-name="{{field.name}}">
+    {{_label(item, field)}}
+    <div class="form__field__input">
+      {% if item.label == "Country" %}
+        {{country_select(item, field)}}
+      {% else %}
+        <input
+          type="{{"email" if "email" in item.label.lower() else field.field_type|lower}}"
+          {{"required" if item.required}}
+          name="{{field.name}}"
+          class="form__field__control"
+          placeholder="{{field.placeholder}}">
+      {% endif %}
+    </div>
+  </div>
+  {% if item.description %}
+    <div class="form__field form__field--description">
+      {{_(item.description)}}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro textarea_field(item, field) %}
+  <div class="form__field" data-name="{{field.name}}">
+    {{_label(item, field)}}
+    <div class="form__field__input">
+      <textarea
+        {{"required" if item.required}}
+        name="{{field.name}}"
+        class="form__field__control"
+        placeholder="{{field.placeholder}}"></textarea>
+    </div>
+  </div>
+  {% if item.description %}
+    <div class="form__field form__field--description">
+      {{_(item.description)}}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro _label(item, field) %}
+  {% if item.label %}
+  <label class="form__field__label">
+    {{_(item.label)}}
+    {% if item.required %}
+    <span class="required">*</span>
+    {% endif %}
+  </label>
+  {% endif %}
+{% endmacro %}
+
+{% macro render_fields(items) %}
+  {% for item in items %}
+    {% for field in item.fields %}
+      {% if field.field_type in ['CHECKBOX', 'RADIO'] %}
+        {{checkbox_or_radio_field_group(item, field, loop)}}
+      {% elif field.field_type == 'TEXTAREA' %}
+        {{textarea_field(item, field)}}
+      {% elif field.field_type == 'SELECT' %}
+        {{select_field(item, field)}}
+      {% else %}
+        {{text_field(item, field)}}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+{% endmacro %}

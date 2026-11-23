@@ -25,7 +25,7 @@ jobs:
       - name: Run tests
         run: |
           uv run --frozen pytest --cov=grow --cov-report=xml
-          PYTHONPATH=extensions/google-cloud-images:extensions/google-cloud-images/backend uv run --frozen pytest extensions/google-cloud-images/
+          PYTHONPATH="extensions/editor:extensions/google-cloud-images:extensions/google-cloud-images/backend:extensions/google-drive-to-gcs:extensions/google-forms:extensions/greenhouse:extensions/html-min:extensions/kintaro:extensions/responsive-styles:extensions/xml-feed" uv run --frozen pytest extensions/
       - name: Smoke test builds
         run: |
           uv run --frozen grow build ./grow/testing/testdata/pod

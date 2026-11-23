@@ -48,3 +48,7 @@ nosetests.xml
 .project
 .pydevproject
 .vscode
+
+# Keep prebuilt editor extension runtime assets.
+!extensions/editor/editor/dist/
+!extensions/editor/editor/dist/*

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% set min_ext = '.min' %}
+    <meta charset="utf-8">
+    <title>{% if title %}{{title}} – {% endif %}Grow Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/_grow/assets/favicon.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;700&family=Roboto+Mono:wght@400;700&family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{pod.get_static('/extensions/editor/dist/editor_ext_styles' ~ min_ext ~ '.css').url.path}}">
+    <link rel="stylesheet" href="{{pod.get_static('/extensions/editor/dist/editor_styles' ~ min_ext ~ '.css').url.path}}">
+  </head>
+  <body>
+    {% set default_path = '/' ~ path %}
+    {% set home_doc = pod.get_home_doc() %}
+    {% if home_doc and not path %}
+      {% set default_path = home_doc.pod_path %}
+    {% endif %}
+    <div class="container" data-default-path="{{default_path}}"></div>
+    <script src="{{pod.get_static('/extensions/editor/dist/editor_ext' ~ min_ext ~ '.js').url.path}}"></script>
+  </body>
+</html>

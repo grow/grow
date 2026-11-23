@@ -1,0 +1,13 @@
+runtime: python312
+entrypoint: gunicorn -b :$PORT -w 2 main:app
+
+# Required security configuration:
+# env_variables:
+#   ALLOWED_BOARD_TOKENS: "my-company-board"
+#   CORS_ALLOWED_ORIGINS: "https://example.com"
+#   GREENHOUSE_API_KEY: "<secret>"
+
+handlers:
+  - url: .*
+    script: auto
+    secure: always

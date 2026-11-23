@@ -1,0 +1,4 @@
+{
+  "defaultLocale": "{{pod.podspec.default_locale or ''}}",
+  "routes": {{routes|tojson}}
+}
