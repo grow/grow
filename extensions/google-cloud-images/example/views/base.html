@@ -1,0 +1,23 @@
+{% set image = google_image('/grow-ext-cloud-images/testdata/grow.png') %}
+{{image.url(['s500', 'cc'])}}
+{{image.content_type}}
+{{image.created}}
+{{image.dimensions}}
+{{image.etag}}
+{{image.height}}
+{{image.locale}}
+{{image.size}}
+{{image.url()}}
+{{image.width}}
+
+{% set image = google_image('/grow-ext-cloud-images/testdata/grow@{locale}.png') %}
+{{image.url(['s500', 'cc'])}}
+{{image.content_type}}
+{{image.created}}
+{{image.dimensions}}
+{{image.etag}}
+{{image.height}}
+{{image.locale}}
+{{image.size}}
+{{image.url()}}
+{{image.width}}

@@ -1,0 +1,19 @@
+extensions:
+  preprocessors:
+  - extensions.google_cloud_images.GoogleCloudImagesPreprocessor
+  jinja2:
+  - extensions.google_cloud_images.GoogleCloudImagesExtension
+
+localization:
+  default_locale: en_US
+  locales:
+  - en_US
+  - es_PR
+  - fr_FR
+
+preprocessors:
+- kind: google_cloud_images
+  backend: https://gci.grow.io
+  rewrite_locales:
+  - rewrite: es_PR
+    to: en_US

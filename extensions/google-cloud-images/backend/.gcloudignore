@@ -1,0 +1,9 @@
+.gcloudignore
+.git
+.gitignore
+__pycache__/
+*.pyc
+*_test.py
+env/
+Makefile
+dispatch.yaml

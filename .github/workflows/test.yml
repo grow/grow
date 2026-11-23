@@ -23,7 +23,9 @@ jobs:
       - name: Install Python dependencies
         run: uv sync --frozen
       - name: Run tests
-        run: uv run --frozen pytest --cov=grow --cov-report=xml
+        run: |
+          uv run --frozen pytest --cov=grow --cov-report=xml
+          PYTHONPATH=extensions/google-cloud-images:extensions/google-cloud-images/backend uv run --frozen pytest extensions/google-cloud-images/
       - name: Smoke test builds
         run: |
           uv run --frozen grow build ./grow/testing/testdata/pod
