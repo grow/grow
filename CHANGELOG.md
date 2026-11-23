@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.5.0](https://github.com/grow/grow/compare/v2.4.0...v2.5.0) (2026-11-23)
+
+
+### Features
+
+* **docs:** add 8-bit 404 page and harden release workflow ([#1261](https://github.com/grow/grow/issues/1261)) ([9d26694](https://github.com/grow/grow/commit/9d26694c19eee1d6cf2cecba84aebd7b9c59bf9c))
+* **docs:** add mobile, Apple touch, and ICO favicons ([#1268](https://github.com/grow/grow/issues/1268)) ([ac17329](https://github.com/grow/grow/commit/ac17329df0bb5d2f69ef641d741d157b120c136f))
+* **extensions:** consolidate and harden remaining grow-ext-* packages in monorepo ([#1270](https://github.com/grow/grow/issues/1270)) ([1c22162](https://github.com/grow/grow/commit/1c22162975093bb75b0e2fbcdbe4f2fceb487b77))
+* **extensions:** move and harden google-cloud-images in monorepo ([#1269](https://github.com/grow/grow/issues/1269)) ([cb4f602](https://github.com/grow/grow/commit/cb4f6025a7268248149f075024636db9a4c68bd0))
+
+
+### Bug Fixes
+
+* **ci:** use uv --frozen in docs workflow and update uv.lock ([#1263](https://github.com/grow/grow/issues/1263)) ([60cebce](https://github.com/grow/grow/commit/60cebcecbe0f7000db33f39b25a65bc5d3bdec23))
+* **docs:** add scroll-padding-top for sticky header deeplinks ([#1265](https://github.com/grow/grow/issues/1265)) ([812741b](https://github.com/grow/grow/commit/812741b6fd76c33657d80afb85723745be7b68e6))
+* **docs:** remove sidebar nav and center body text on 404 page ([#1264](https://github.com/grow/grow/issues/1264)) ([cf24c14](https://github.com/grow/grow/commit/cf24c14c245bb6281ea89971ebc397f3d915f7a7))
+* **footer:** open ecosystem links in same tab ([#1267](https://github.com/grow/grow/issues/1267)) ([4359599](https://github.com/grow/grow/commit/4359599e7bf6cb9ca5f3f440b706e17f3c0a4168))
+
+
+### Documentation
+
+* add pink meta theme-color for mobile ([#1266](https://github.com/grow/grow/issues/1266)) ([217685a](https://github.com/grow/grow/commit/217685a602f7a14f62219d8c16e071f1ecc6143b))
+
 ## [2.4.0](https://github.com/grow/grow/compare/v2.3.1...v2.4.0) (2026-11-22)
 
 
