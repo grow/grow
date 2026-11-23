@@ -20,5 +20,5 @@ jobs:
         run: uv sync --frozen
       - name: Run ruff lint and format check
         run: |
-          uv run --frozen ruff check grow/ install.py
-          uv run --frozen ruff format --check grow/ install.py
+          uv run --frozen ruff check grow/ extensions/ install.py
+          uv run --frozen ruff format --check grow/ extensions/ install.py

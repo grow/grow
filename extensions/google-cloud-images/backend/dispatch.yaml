@@ -1,0 +1,3 @@
+dispatch:
+- url: gci.grow.io/*
+  service: ext-cloud-images
