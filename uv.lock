@@ -784,7 +784,6 @@ dependencies = [
     { name = "pyyaml" },
     { name = "watchdog" },
     { name = "webob" },
-    { name = "webreview" },
     { name = "werkzeug" },
 ]
 
@@ -813,7 +812,6 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.1,<7" },
     { name = "watchdog", specifier = ">=3,<5" },
     { name = "webob", specifier = ">=1.8.8,<2" },
-    { name = "webreview", specifier = "==0.3.1" },
     { name = "werkzeug", specifier = ">=3.1,<4" },
 ]
 
@@ -1100,18 +1098,6 @@ wheels = [
 ]
 
 [[package]]
-name = "progressbar2"
-version = "4.7.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "python-utils" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d4/cb/6c2cb8c9652fdfe1bd15ae723e5e97a77316daf9b3c6835b8b35ef07ece4/progressbar2-4.7.1.tar.gz", hash = "sha256:e7e1c1b6fe6495051c41c44fc50980ba37f8d874deb94ea680528b1a0442ff1a", size = 757162, upload-time = "2026-11-17T11:11:29.153Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f3/5f/2a28152843f3060ed2b70a722f4e5d32427a4d31c36e2ea15d59ac8f6559/progressbar2-4.7.1-py3-none-any.whl", hash = "sha256:9363f41c3d815568eda4c4ddc13903b7aa646551e7238cf2870f521678e9fe73", size = 151909, upload-time = "2026-11-17T11:11:27.482Z" },
-]
-
-[[package]]
 name = "proto-plus"
 version = "1.29.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1255,18 +1241,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/87/c7/5e1547c44e31da50a460df93af11a535ace568ef89d7a811069ead340c4a/python-slugify-8.0.4.tar.gz", hash = "sha256:59202371d1d05b54a9e7720c5e038f928f45daaffe41dd10822f3907b937c856", size = 10921, upload-time = "2024-02-08T18:32:45.488Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a4/62/02da182e544a51a5c3ccf4b03ab79df279f9c60c5e82d5e8bec7ca26ac11/python_slugify-8.0.4-py2.py3-none-any.whl", hash = "sha256:276540b79961052b66b7d116620b36518847f52d5fd9e3a70164fc8c50faa6b8", size = 10051, upload-time = "2024-02-08T18:32:43.911Z" },
-]
-
-[[package]]
-name = "python-utils"
-version = "4.2.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f6/bf/e4cc07248ca65fe5065a9712efeace1eba6b0c77c72fc24cbfc8a79ddd80/python_utils-4.2.2.tar.gz", hash = "sha256:6c51c46e600c67ad5f16c4205ba875ced4372e560561c5aa3cf52ff1d4657471", size = 87746, upload-time = "2026-11-13T16:40:51.194Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/f7/653d9774d62d17efe8a9ceb6982387aa02bf2641e3112fb8a2a8557f34ec/python_utils-4.2.2-py3-none-any.whl", hash = "sha256:7cb810c9d536108b5c6c4de886605cd1e86e25e77d809b778f33110666fc7630", size = 52247, upload-time = "2026-11-13T16:40:49.791Z" },
 ]
 
 [[package]]
@@ -1571,23 +1545,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e6/92/9329872e36be90e25ba616ac6e9ee8c1be4326a1ea3fdffcdabd0eb48efb/webob-1.8.11.tar.gz", hash = "sha256:aa8c27231070b135c025e567a9cd7eda03f4df71352ffaac740cb6a75f0f81a5", size = 286047, upload-time = "2026-08-02T06:26:26.063Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c1/71/370a65bc7726a1cbf478445c898c7affe907aa42e2e9e5bb38319db74115/webob-1.8.11-py2.py3-none-any.whl", hash = "sha256:4addd1d38d6a7fbe0eda22d45f25a40d74c8b290f3a99c0ac3d4023cf21f2da2", size = 118319, upload-time = "2026-08-02T06:26:24.765Z" },
-]
-
-[[package]]
-name = "webreview"
-version = "0.3.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "google-api-python-client" },
-    { name = "httplib2" },
-    { name = "oauth2client" },
-    { name = "progressbar2" },
-    { name = "protorpc" },
-    { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/54/b7/95c4fb13246e79937f4e6fcb0201aeb52dddfd1ca7cfb64e85a5e6d8f51f/webreview-0.3.1.tar.gz", hash = "sha256:4e1ba8b6fa5adaf24256fda50c972cb3187cb713c1c281ce6996a0b4342e0187", size = 6861, upload-time = "2020-05-15T19:59:45.474Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/4b/4433e2f3dc5d5a4663517d3b2568201dda27591a010ebf5bc9dcce12a51f/webreview-0.3.1-py3-none-any.whl", hash = "sha256:495261f75473397493309fb63ad825eb64aac8f13d83ff9e90ab34c6aa1789b0", size = 8841, upload-time = "2020-05-15T19:59:44.379Z" },
 ]
 
 [[package]]
