@@ -47,7 +47,6 @@ dependencies = [
     "pyyaml>=6.0.1,<7",
     "watchdog>=3,<5",
     "webob>=1.8.8,<2",
-    "webreview==0.3.1",
     "werkzeug>=3.1,<4",
 ]
 

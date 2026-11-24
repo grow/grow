@@ -8,15 +8,13 @@ from protorpc import messages
 
 from grow.common import utils as common_utils
 from grow.deployments import utils
-from grow.deployments.destinations import base
+from grow.deployments.destinations import base, webreview_client
 from grow.pods import env
 from grow.routing import router
 
 
 def _get_webreview():
-    import webreview
-
-    return webreview
+    return webreview_client
 
 
 class Config(messages.Message):
