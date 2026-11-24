@@ -208,6 +208,12 @@ class UtilsTestCase(unittest.TestCase):
         actual = utils.slugify('Îñtérñåtîøñålization')
         self.assertEqual('internaationaalization', actual)
 
+        # Verify German/Nordic/French translit/long compatibility and non-Latin preservation.
+        self.assertEqual('ueber-strasse-aether-coeur', utils.slugify('Über Straße Æther Cœur'))
+        self.assertEqual('aangstroem-cafe-naive', utils.slugify('Ångström café naïve'))
+        self.assertEqual('北京', utils.slugify('北京'))
+        self.assertEqual('москва', utils.slugify('Москва'))
+
     def test_validate_name(self):
         with self.assertRaises(errors.BadNameError):
             utils.validate_name('//you/shall/not/pass')
