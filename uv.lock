@@ -764,7 +764,7 @@ wheels = [
 
 [[package]]
 name = "grow"
-version = "2.4.0"
+version = "2.5.0"
 source = { editable = "." }
 dependencies = [
     { name = "babel" },
@@ -782,7 +782,6 @@ dependencies = [
     { name = "pygments" },
     { name = "python-slugify" },
     { name = "pyyaml" },
-    { name = "translitcodec" },
     { name = "watchdog" },
     { name = "webob" },
     { name = "webreview" },
@@ -812,7 +811,6 @@ requires-dist = [
     { name = "pygments", specifier = ">=2.17,<3" },
     { name = "python-slugify", specifier = ">=8,<9" },
     { name = "pyyaml", specifier = ">=6.0.1,<7" },
-    { name = "translitcodec", specifier = "==0.6.0" },
     { name = "watchdog", specifier = ">=3,<5" },
     { name = "webob", specifier = ">=1.8.8,<2" },
     { name = "webreview", specifier = "==0.3.1" },
@@ -1503,12 +1501,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/72/01/e8c1debb2173973372934c68fc8e46170ab60ef23ed4592dff4dec6e8993/tomli-2.5.0-cp315-cp315t-win_arm64.whl", hash = "sha256:d2ba24db8a9376921b5e87b4762b9adb0f3f1deaea68f2b8b0bb2c11efb9c3e7", size = 115069, upload-time = "2026-10-07T12:23:35.77Z" },
     { url = "https://files.pythonhosted.org/packages/60/3f/3e3f8fd0919249b0200c80fbc4f9a1e70be19f9883da71dfb7f8b9ab8aca/tomli-2.5.0-py3-none-any.whl", hash = "sha256:32a7b79ac57a2e83670ce329ccf675798bc5a2094783a63676866b70503f2e2b", size = 14765, upload-time = "2026-10-07T12:23:36.875Z" },
 ]
-
-[[package]]
-name = "translitcodec"
-version = "0.6.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/90/6f/435a2201204620eaed34da77b0d185843b2961e11eb5578e524002135c9b/translitcodec-0.6.0.tar.gz", hash = "sha256:dcc8425447c704d1c5dc46c39fbb4eaf42d4ff224c9f8e250a74b2011dae02f6", size = 50157, upload-time = "2020-12-13T11:01:20.392Z" }
 
 [[package]]
 name = "typing-extensions"

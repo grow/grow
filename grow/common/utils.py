@@ -1,6 +1,5 @@
 """Common grow utility functions."""
 
-import codecs
 import csv as csv_lib
 import fnmatch
 import functools
@@ -12,10 +11,10 @@ import re
 import string
 import threading
 import time
+import unicodedata
 from collections import OrderedDict
 from urllib import parse as url_parse
 
-import translitcodec  # noqa: F401  # Registers 'translit/long' codec.
 import yaml
 
 from grow.common import structures, untag, yaml_utils
@@ -469,14 +468,89 @@ def ordered_dict_representer(dumper, data):
 yaml.SafeDumper.add_representer(OrderedDict, ordered_dict_representer)
 
 
+_TRANSLIT_LONG_MAP = {
+    '¡': '!',
+    '¢': 'c',
+    '£': 'GBP',
+    '¥': 'Y',
+    '¦': '|',
+    '§': 'S',
+    '¨': '"',
+    '©': '(c)',
+    '«': '<<',
+    '¬': '-',
+    '\xad': '-',
+    '®': '(R)',
+    '¯': '-',
+    '°': ' ',
+    '±': '+/-',
+    '²': '^2',
+    '³': '^3',
+    '´': "'",
+    '¶': 'P',
+    '·': '.',
+    '¸': ',',
+    '¹': '^1',
+    '»': '>>',
+    '¼': ' 1/4',
+    '½': ' 1/2',
+    '¾': ' 3/4',
+    '¿': '?',
+    '×': 'x',
+    'ß': 'ss',
+    'ä': 'ae',
+    'å': 'aa',
+    'æ': 'ae',
+    'ð': 'd',
+    'ö': 'oe',
+    '÷': ':',
+    'ø': 'o',
+    'ü': 'ue',
+    'þ': 'th',
+    'ĉ': 'ch',
+    'đ': 'd',
+    'ĝ': 'gh',
+    'ĥ': 'hh',
+    'ħ': 'h',
+    'ı': 'i',
+    'ĵ': 'jh',
+    'ĸ': 'k',
+    'ł': 'l',
+    'ŉ': "'n",
+    'ŋ': 'ng',
+    'œ': 'oe',
+    'ŝ': 'sh',
+    'ŧ': 't',
+    'ƒ': 'f',
+}
+
+
+def _translit_long(text):
+    """Transliterate Latin diacritics/ligatures to ASCII (translit/long compatible)."""
+    out = []
+    for ch in text:
+        if ord(ch) < 128:
+            out.append(ch)
+            continue
+        mapped = _TRANSLIT_LONG_MAP.get(ch)
+        if mapped is not None:
+            out.append(mapped)
+            continue
+        decomposed = unicodedata.normalize('NFKD', ch)
+        stripped = ''.join(c for c in decomposed if not unicodedata.combining(c))
+        if stripped and stripped.isascii():
+            out.append(stripped)
+        else:
+            out.append(ch)
+    return ''.join(out)
+
+
 def slugify(text, delim='-'):
     if not isinstance(text, str):
         text = str(text)
     result = []
     for word in SLUG_REGEX.split(text.lower()):
-        if not isinstance(word, str):
-            word = word
-        word = codecs.encode(word, 'translit/long')
+        word = _translit_long(word)
         if word:
             result.append(word)
     slug = str(delim.join(result))
