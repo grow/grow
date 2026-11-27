@@ -1,0 +1,8 @@
+name = "grow-install-deprecated"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+routes = [
+  { pattern = "install.grow.io/*", zone_name = "grow.io" },
+  { pattern = "install.growsdk.org/*", zone_name = "growsdk.org" }
+]
