@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.6.0](https://github.com/grow/grow/compare/v2.5.0...v2.6.0) (2026-11-27)
+
+
+### Features
+
+* **webreview:** inline hardened WebReview client and drop external dependency ([#1273](https://github.com/grow/grow/issues/1273)) ([1e93a29](https://github.com/grow/grow/commit/1e93a29bec75375c9c7abc0d14658741f4670316))
+
+
+### Documentation
+
+* check in Cloudflare Worker for legacy install.grow.io URLs ([bc1f635](https://github.com/grow/grow/commit/bc1f63551c8dd9918dd4e7b6b86120aaa26754e6))
+* host deprecation install.sh on grow.dev for Cloudflare redirects ([8bb5d6d](https://github.com/grow/grow/commit/8bb5d6d6e2397ac758e64f6cae637866d55b32e6))
+
 ## [2.5.0](https://github.com/grow/grow/compare/v2.4.0...v2.5.0) (2026-11-23)
 
 
